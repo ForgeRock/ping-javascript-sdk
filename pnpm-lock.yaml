@@ -62,9 +62,6 @@ importers:
       '@effect/vitest':
         specifier: ^0.6.7
         version: 0.6.7(effect@3.5.3)(vitest@1.5.0(@types/node@22.10.2)(@vitest/ui@1.5.0)(jsdom@22.1.0)(less@4.1.3)(sass@1.75.0)(stylus@0.64.0)(terser@5.33.0))
-      '@forgerock/create-package':
-        specifier: workspace:*
-        version: link:tools/create-package/dist
       '@nx/eslint':
         specifier: 20.2.2
         version: 20.2.2(@babel/traverse@7.24.1)(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.12))(@types/node@22.10.2)(@zkochan/js-yaml@0.0.7)(eslint@8.57.0)(nx@20.2.2(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.12)))(verdaccio@5.30.3(typanion@3.14.0))
@@ -83,6 +80,9 @@ importers:
       '@nx/workspace':
         specifier: 20.2.2
         version: 20.2.2(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.12))
+      '@pingidentity/create-package':
+        specifier: workspace:*
+        version: link:tools/create-package
       '@playwright/test':
         specifier: ^1.47.2
         version: 1.47.2
@@ -242,12 +242,12 @@ importers:
 
   e2e/davinci-app:
     dependencies:
-      '@forgerock/davinci-client':
-        specifier: workspace:*
-        version: link:../../packages/davinci-client
       '@forgerock/javascript-sdk':
         specifier: 4.6.0
         version: 4.6.0
+      '@pingidentity/davinci-client':
+        specifier: workspace:*
+        version: link:../../packages/davinci-client
 
   e2e/davinci-suites: {}
 
@@ -301,9 +301,7 @@ importers:
         specifier: ^1.4.0
         version: 1.5.0(@types/node@22.10.2)(@vitest/ui@1.5.0)(jsdom@22.1.0)(less@4.1.3)(sass@1.75.0)(stylus@0.64.0)(terser@5.33.0)
 
-  packages/pkce: {}
-
-  tools/create-package/dist:
+  tools/create-package:
     dependencies:
       '@nx/devkit':
         specifier: 20.2.2

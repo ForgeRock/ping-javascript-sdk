@@ -27,7 +27,7 @@ The `deviceClient` function initializes the API client with the provided configu
 To install the necessary dependencies for using the `deviceClient`, run:
 
 ```bash
-npm install @reduxjs/toolkit @forgerock/device-client --save
+npm install @reduxjs/toolkit @pingidentity/device-client --save
 ```
 
 ## Configuration

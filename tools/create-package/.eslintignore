@@ -9,4 +9,5 @@ dist
 docs
 coverage
 vite.config.*.timestamp*
+dist/*
 generators/files/*

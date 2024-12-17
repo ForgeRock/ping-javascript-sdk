@@ -2,8 +2,7 @@ name: Publish
 on:
   push:
     branches:
-      - master
-      - develop
+      - main
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
@@ -43,7 +42,7 @@ jobs:
 
       - uses: nrwl/nx-set-shas@v4
         with:
-          main-branch-name: master
+          main-branch-name: main
 
       - name: setup pnpm config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
@@ -66,7 +65,7 @@ jobs:
           publish: pnpm ci:release
           version: pnpm ci:version
           title: Release PR
-          branch: master
+          branch: main
           commit: 'chore: version-packages'
           setupGitUser: true
         env:
@@ -75,22 +74,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
           NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-
-      - name: rebase develop with main on publish
-        if: ${{ steps.changesets.outputs.published == 'true' }}
-        run: |
-          git restore .
-          git checkout master
-          git fetch --all
-          git pull origin master
-
-          git checkout develop
-          git restore .
-          git rebase master
-          git push -f
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
 
       - uses: codecov/codecov-action@v5
         with:

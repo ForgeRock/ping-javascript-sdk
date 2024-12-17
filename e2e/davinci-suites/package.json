@@ -1,5 +1,5 @@
 {
-  "name": "@forgerock/davinci-suites",
+  "name": "@pingidentity/davinci-suites",
   "description": "DaVinci Client E2E Suites",
   "private": true,
   "type": "module",
@@ -9,12 +9,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ForgeRock/forgerock-javascript-sdk.git"
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git"
   },
   "bugs": {
-    "url": "https://github.com/ForgeRock/forgerock-javascript-sdk/issues"
+    "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
   },
-  "homepage": "https://github.com/ForgeRock/forgerock-javascript-sdk#readme",
+  "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
   "scripts": {
     "e2e": "playwright test -c ./playwright.config.ts"
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@forgerock/davinci-client",
+  "name": "@pingidentity/davinci-client",
   "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

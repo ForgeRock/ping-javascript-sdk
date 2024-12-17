@@ -1,5 +1,5 @@
 {
-  "name": "@forgerock/create-package",
+  "name": "@pingidentity/create-package",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "tools/create-package/src",
   "projectType": "library",
@@ -12,6 +12,7 @@
         "outputPath": "tools/create-package/dist",
         "main": "tools/create-package/src/index.ts",
         "tsConfig": "tools/create-package/tsconfig.lib.json",
+        "generatePackageJson": false,
         "assets": [
           "tools/create-package/*.md",
           {

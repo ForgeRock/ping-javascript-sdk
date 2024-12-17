@@ -25,16 +25,16 @@ Nothing will be released until the `Release PR` is merged.
 
 Versioning is handled automatically by `changesets` in the CI pipeline.
 
-If you have a feature branch open against `develop`, when your feature,
-is merged, `changesets` will open a `PR` from `changesets-release/master`
-against `master`.
+If you have a feature branch open against `main`, when your feature,
+is merged, `changesets` will open a `PR` from `changesets-release/main`
+against `main`.
 
 In this PR, you should be able to see the following:
 
 - the packages that will be released
 - the versions that are being updated
 - all of the code that has been merged between the last release on
-  `master` and current time.
+  `main` and current time.
 
 ## Adding a package to the repository
 

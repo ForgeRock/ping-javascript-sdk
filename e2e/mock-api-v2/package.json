@@ -1,5 +1,5 @@
 {
-  "name": "@forgerock/mock-api-v2",
+  "name": "@pingidentity/mock-api-v2",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",

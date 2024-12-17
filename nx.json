@@ -63,6 +63,6 @@
   },
   "useDaemonProcess": true,
   "useInferencePlugins": true,
-  "defaultBase": "develop",
+  "defaultBase": "main",
   "useLegacyCache": true
 }

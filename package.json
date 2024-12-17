@@ -1,9 +1,8 @@
 {
-  "name": "forgerock-javascript-sdk",
+  "name": "ping-javascript-sdk",
   "description": "ForgeRock JavaScript SDK",
   "engines": {
-    "node": "^20 || ^18",
-    "npm": ">= 7.0.0"
+    "node": "^20 || ^18"
   },
   "private": true,
   "scripts": {
@@ -13,7 +12,7 @@
     "ci:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm nx format:write",
     "changeset": "changeset",
     "commit": "git cz",
-    "create-package": "nx build @forgerock/create-package && nx g @forgerock/create-package:create",
+    "create-package": "nx build @pingidentity/create-package && nx g @pingidentity/create-package:create",
     "docs": "nx affected --target=typedoc",
     "e2e": "CI=true nx affected:e2e",
     "format:staged": "pretty-quick --staged",
@@ -29,13 +28,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ForgeRock/forgerock-javascript-sdk.git"
+    "url": "https://github.com/ForgeRock/ping-javascript-sdk.git"
   },
   "author": "ForgeRock",
   "bugs": {
-    "url": "https://github.com/ForgeRock/forgerock-javascript-sdk/issues"
+    "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
   },
-  "homepage": "https://github.com/ForgeRock/forgerock-javascript-sdk#readme",
+  "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
   "devDependencies": {
     "@commitlint/cli": "^19.1.0",
     "@commitlint/config-conventional": "^19.1.0",
@@ -45,7 +44,7 @@
     "@effect/platform-node": "^0.53.26",
     "@effect/schema": "^0.68.23",
     "@effect/vitest": "^0.6.7",
-    "@forgerock/create-package": "workspace:*",
+    "@pingidentity/create-package": "workspace:*",
     "@nx/devkit": "20.2.2",
     "@nx/eslint": "20.2.2",
     "@nx/eslint-plugin": "20.2.2",

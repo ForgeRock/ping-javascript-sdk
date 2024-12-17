@@ -1,5 +1,5 @@
 {
-  "name": "@forgerock/device-client",
+  "name": "@pingidentity/device-client",
   "version": "0.0.1",
   "private": true,
   "main": "./dist/index.cjs",

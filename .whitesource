@@ -3,7 +3,9 @@
     "configMode": "AUTO",
     "configExternalURL": "",
     "projectToken": "",
-    "baseBranches": ["develop"],
+    "baseBranches": [
+      "main"
+    ],
     "enableLicenseViolations": true
   },
   "checkRunSettings": {
