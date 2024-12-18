@@ -39,10 +39,9 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["tools/create-package/**/*.ts"],
-        "ignorePath": ".eslintignore"
+        "ignore-path": ".eslintignore",
+        "args": ["**/*.ts"]
       }
     }
   }

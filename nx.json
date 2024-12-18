@@ -17,7 +17,10 @@
       "cache": true,
       "outputs": ["{projectRoot}/docs"]
     },
-    "serve": { "cache": false, "dependsOn": ["build"] },
+    "serve": {
+      "cache": false,
+      "dependsOn": ["build"]
+    },
     "e2e": {
       "dependsOn": ["^build"],
       "inputs": ["noMarkdown", "^noMarkdown"],
@@ -53,8 +56,27 @@
       "inputs": ["production", "^production"]
     }
   },
+  "plugins": [
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "ciTargetName": "e2e",
+        "targetName": "e2e"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": ["tools/create-package/**/*", "packages/**/**/*"]
+    }
+  ],
   "parallel": 1,
-  "workspaceLayout": { "appsDir": "", "libsDir": "" },
+  "workspaceLayout": {
+    "appsDir": "",
+    "libsDir": ""
+  },
   "useDaemonProcess": true,
   "useInferencePlugins": true,
   "defaultBase": "main",
