@@ -17,21 +17,14 @@
       "cache": true,
       "outputs": ["{projectRoot}/docs"]
     },
-    "serve": {
-      "cache": false,
-      "dependsOn": ["build"]
-    },
+    "serve": { "cache": false, "dependsOn": ["build"] },
     "e2e": {
       "dependsOn": ["^build"],
       "inputs": ["noMarkdown", "^noMarkdown"],
       "outputs": ["{projectRoot}/.playwright"],
       "cache": true
     },
-    "lint": {
-      "dependsOn": ["^lint"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
-      "cache": true
-    },
+    "lint": { "dependsOn": ["^lint"], "inputs": ["noMarkdown", "^noMarkdown"], "cache": true },
     "test": {
       "dependsOn": ["^build", "^test"],
       "inputs": ["noMarkdown", "^noMarkdown"],
@@ -57,12 +50,10 @@
     }
   },
   "parallel": 1,
-  "workspaceLayout": {
-    "appsDir": "",
-    "libsDir": ""
-  },
+  "workspaceLayout": { "appsDir": "", "libsDir": "" },
   "useDaemonProcess": true,
   "useInferencePlugins": true,
   "defaultBase": "main",
-  "useLegacyCache": true
+  "useLegacyCache": true,
+  "nxCloudId": "6762f3018aed9c5fad7009bb"
 }
