@@ -30,7 +30,7 @@
     "./types": "./dist/types.d.ts"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "nx exec -- vite build",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",

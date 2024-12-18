@@ -58,6 +58,16 @@
   },
   "plugins": [
     {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "testTargetName": "test",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
       "plugin": "@nx/playwright/plugin",
       "options": {
         "ciTargetName": "e2e",
