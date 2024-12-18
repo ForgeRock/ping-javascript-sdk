@@ -24,7 +24,11 @@
       "outputs": ["{projectRoot}/.playwright"],
       "cache": true
     },
-    "lint": { "dependsOn": ["^lint"], "inputs": ["noMarkdown", "^noMarkdown"], "cache": true },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "inputs": ["noMarkdown", "^noMarkdown"],
+      "cache": true
+    },
     "test": {
       "dependsOn": ["^build", "^test"],
       "inputs": ["noMarkdown", "^noMarkdown"],
