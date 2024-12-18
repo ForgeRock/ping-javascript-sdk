@@ -80,6 +80,18 @@
         "targetName": "lint"
       },
       "include": ["tools/create-package/**/*", "packages/**/**/*"]
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "testTargetName": "test",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck"
+      },
+      "include": ["tools/create-package/**/*"]
     }
   ],
   "parallel": 1,

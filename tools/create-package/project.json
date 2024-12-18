@@ -43,6 +43,11 @@
         "ignore-path": ".eslintignore",
         "args": ["**/*.ts"]
       }
+    },
+    "test": {
+      "options": {
+        "config": "vite.config.mts"
+      }
     }
   }
 }

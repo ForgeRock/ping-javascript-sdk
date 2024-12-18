@@ -51,6 +51,8 @@
     "@nx/js": "20.2.2",
     "@nx/playwright": "20.2.2",
     "@nx/plugin": "20.2.2",
+    "@nx/vite": "20.2.2",
+    "@nx/web": "20.2.2",
     "@nx/workspace": "20.2.2",
     "@pingidentity/create-package": "workspace:*",
     "@playwright/test": "^1.47.2",

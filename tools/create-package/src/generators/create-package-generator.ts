@@ -9,6 +9,11 @@ export async function createPackageGeneratorGenerator(
   if (!options.name) {
     throw new Error('Invalid name provided. Please provide a name');
   }
+
+  if (!options.moduleType) {
+    options.moduleType = 'module';
+  }
+
   if (options.moduleType !== 'module' && options.moduleType !== 'commonjs') {
     throw new Error('Invalid moduleType provided. Please provide a valid moduleType');
   }
@@ -17,13 +22,17 @@ export async function createPackageGeneratorGenerator(
 
   const resolvedOptions = {
     ...options,
-    name: names(options.name).propertyName,
-    packageScope: names(options.packageScope).name || 'pingidentity',
+    name: names(options.name).name,
+    functionName: names(options.name).propertyName,
+    packageScope: options?.packageScope ? names(options.packageScope).name : 'pingidentity',
+    description: options?.description ?? '',
+    sideEffects: options?.sideEffects ?? false,
+    outputDir: options?.outputDir ?? './dist',
   };
-  console.log(resolvedOptions);
 
   generateFiles(tree, path.join(__dirname, 'files'), projectRoot, resolvedOptions);
   await formatFiles(tree);
+
   return () => {
     installPackagesTask(tree, true);
   };
