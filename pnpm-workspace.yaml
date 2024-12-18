@@ -2,7 +2,8 @@ packages:
   - 'packages/*'
   - '!**/test/**'
   - 'e2e/*'
-  - tools/create-package/dist
+  - tools/create-package
 
 catalog:
   '@reduxjs/toolkit': ^2.2.5
+  immer: ^10.1.1

@@ -1,1 +1,1 @@
-import <%= name %> from "./lib/index.ts"
+import <%= functionName %> from "./lib/index.ts"

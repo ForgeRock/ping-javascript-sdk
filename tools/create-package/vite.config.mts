@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     reporters: ['default'],
     globals: true,
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: [],
     passWithNoTests: true,
     watch: !process.env['CI'],
     coverage: {

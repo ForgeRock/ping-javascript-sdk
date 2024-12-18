@@ -2,8 +2,7 @@ name: Publish
 on:
   push:
     branches:
-      - master
-      - develop
+      - main
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
@@ -43,12 +42,12 @@ jobs:
 
       - uses: nrwl/nx-set-shas@v4
         with:
-          main-branch-name: master
+          main-branch-name: main
 
       - name: setup pnpm config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
 
-      - run: pnpm exec nx affected -t build lint test e2e-ci --verbose
+      - run: pnpm exec nx affected -t build lint test e2e
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -66,7 +65,7 @@ jobs:
           publish: pnpm ci:release
           version: pnpm ci:version
           title: Release PR
-          branch: master
+          branch: main
           commit: 'chore: version-packages'
           setupGitUser: true
         env:
@@ -76,21 +75,14 @@ jobs:
           NPM_CONFIG_PROVENANCE: 'true'
           NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
-      - name: rebase develop with main on publish
-        if: ${{ steps.changesets.outputs.published == 'true' }}
-        run: |
-          git restore .
-          git checkout master
-          git fetch --all
-          git pull origin master
-
-          git checkout develop
-          git restore .
-          git rebase master
-          git push -f
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+      - name: Send GitHub Action data to a Slack workflow
+        if: steps.changesets.outputs.published === 'true'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          payload-delimiter: '_'
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: steps.changesets.outputs.publishedPackages
 
       - uses: codecov/codecov-action@v5
         with:

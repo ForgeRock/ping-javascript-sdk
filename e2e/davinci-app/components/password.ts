@@ -1,4 +1,4 @@
-import { PasswordCollector, Updater } from '@forgerock/davinci-client/types';
+import { PasswordCollector, Updater } from '@pingidentity/davinci-client/types';
 
 export default function passwordComponent(
   formEl: HTMLFormElement,

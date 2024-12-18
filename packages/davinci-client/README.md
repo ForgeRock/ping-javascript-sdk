@@ -7,13 +7,13 @@ This is the DaVinci Client module for interacting with PingOne Application polic
 The DaVinci Client can be installed via npm:
 
 ```sh
-npm install @forgerock/davinci-client
+npm install @pingidentity/davinci-client
 ```
 
 Then, import the `davinci` module as a named import:
 
 ```ts
-import { davinci } from '@forgerock/davinci-client';
+import { davinci } from '@pingidentity/davinci-client';
 ```
 
 ### Create & configure your DaVinci Client
@@ -25,7 +25,7 @@ Configure DaVinci Client with the following minimum, required properties:
 
 ```ts
 // Demo with example values
-import { davinci } from '@forgerock/davinci';
+import { davinci } from '@pingidentity/davinci';
 
 const davinciClient = await davinci({
   config: {
@@ -42,7 +42,7 @@ If you have a need for more than one client, say you need to use two or more dif
 
 ```ts
 // Demo with example values
-import { davinci } from '@forgerock/davinci';
+import { davinci } from '@pingidentity/davinci';
 
 const firstDavinciClient = await davinci(/** config 1 **/);
 const secondDavinciClient = await davinci(/** config 2 **/);

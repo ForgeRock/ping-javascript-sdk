@@ -3,18 +3,19 @@
   "changelog": [
     "@changesets/changelog-github",
     {
-      "repo": "forgerock/forgerock-javascript-sdk"
+      "repo": "forgerock/ping-javascript-sdk"
     }
   ],
   "commit": false,
   "fixed": [],
   "linked": [],
   "access": "public",
-  "baseBranch": "master",
+  "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@forgerock/davinci-app",
-    "@forgerock/davinci-suites",
-    "@forgerock/mock-api-v2"
+    "@pingidentity/*",
+    "@pingidentity/davinci-app",
+    "@pingidentity/davinci-suites",
+    "@pingidentity/mock-api-v2"
   ]
 }

@@ -1,4 +1,4 @@
-import { TextCollector, Updater } from '@forgerock/davinci-client/types';
+import { TextCollector, Updater } from '@pingidentity/davinci-client/types';
 
 export default function (formEl: HTMLFormElement, collector: TextCollector, updater: Updater) {
   // create paragraph element with text of "Loading ... "
