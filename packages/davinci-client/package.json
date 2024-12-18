@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@forgerock/javascript-sdk": "4.6.0",
-    "@reduxjs/toolkit": "2.3.0",
-    "immer": "10.1.1"
+    "@reduxjs/toolkit": "catalog:",
+    "immer": "catalog:"
   },
   "devDependencies": {
     "vitest": "^1.4.0"
