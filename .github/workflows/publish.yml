@@ -75,6 +75,15 @@ jobs:
           NPM_CONFIG_PROVENANCE: 'true'
           NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
+      - name: Send GitHub Action data to a Slack workflow
+        if: steps.changesets.outputs.published === 'true'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          payload-delimiter: '_'
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: steps.changesets.outputs.publishedPackages
+
       - uses: codecov/codecov-action@v5
         with:
           files: ./packages/**/coverage/*.xml
