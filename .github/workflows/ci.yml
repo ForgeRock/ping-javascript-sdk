@@ -33,8 +33,8 @@ jobs:
       # This line is needed for nx affected to work when CI is running on a PR
       - run: git branch --track main origin/main
 
-      - run: pnpm exec nx-cloud record -- nx format:check --verbose
-      - run: pnpm exec nx affected -t build lint test docs e2e-ci --verbose
+      - run: pnpm exec nx-cloud record -- nx format:check
+      - run: pnpm exec nx affected -t build lint test docs e2e
 
       - uses: codecov/codecov-action@v5
         with:
