@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc --project ./tsconfig.lib.json ",
     "docs": "typedoc --options packages/<%= name %>/typedoc.json",
-    "lint": "eslint **/*.ts --fix",
+    "lint": "nx exec -- eslint **/*.ts --fix",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage"
