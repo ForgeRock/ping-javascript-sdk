@@ -102,6 +102,5 @@
   "useDaemonProcess": true,
   "useInferencePlugins": true,
   "defaultBase": "main",
-  "useLegacyCache": true,
   "nxCloudId": "6762f3018aed9c5fad7009bb"
 }
