@@ -15,9 +15,9 @@
     },
     "packageScope": {
       "type": "string",
-      "description": "Scope of the package [defaults to '@pingidentity']",
-      "$default": "pingidentity",
-      "x-prompt": "Scope of the package [defaults to '@pingidentity']: ",
+      "description": "Scope of the package [defaults to '@forgerock']",
+      "$default": "forgerock",
+      "x-prompt": "Scope of the package [defaults to '@forgerock']: ",
       "optional": true
     },
     "description": {

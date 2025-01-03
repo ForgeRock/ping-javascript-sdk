@@ -24,7 +24,7 @@ export async function createPackageGeneratorGenerator(
     ...options,
     name: names(options.name).name,
     functionName: names(options.name).propertyName,
-    packageScope: options?.packageScope ? names(options.packageScope).name : 'pingidentity',
+    packageScope: options?.packageScope ? names(options.packageScope).name : 'forgerock',
     description: options?.description ?? '',
     sideEffects: options?.sideEffects ?? false,
     outputDir: options?.outputDir ?? './dist',

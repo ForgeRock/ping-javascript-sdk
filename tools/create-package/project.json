@@ -1,5 +1,5 @@
 {
-  "name": "@pingidentity/create-package",
+  "name": "@forgerock/create-package",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "tools/create-package/src",
   "projectType": "library",

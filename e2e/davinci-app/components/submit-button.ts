@@ -1,4 +1,4 @@
-import { SubmitCollector } from '@pingidentity/davinci-client/types';
+import { SubmitCollector } from '@forgerock/davinci-client/types';
 
 export default function submitButtonComponent(formEl: HTMLFormElement, collector: SubmitCollector) {
   const button = document.createElement('button');

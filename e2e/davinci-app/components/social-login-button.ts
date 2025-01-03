@@ -1,4 +1,4 @@
-import { SocialLoginCollector } from '@pingidentity/davinci-client/types';
+import { SocialLoginCollector } from '@forgerock/davinci-client/types';
 
 export default function submitButtonComponent(
   formEl: HTMLFormElement,

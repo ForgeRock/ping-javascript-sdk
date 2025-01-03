@@ -13,9 +13,9 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@pingidentity/*",
-    "@pingidentity/davinci-app",
-    "@pingidentity/davinci-suites",
-    "@pingidentity/mock-api-v2"
+    "@forgerock/*",
+    "@forgerock/davinci-app",
+    "@forgerock/davinci-suites",
+    "@forgerock/mock-api-v2"
   ]
 }

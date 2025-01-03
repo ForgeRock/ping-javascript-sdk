@@ -1,7 +1,7 @@
 import './style.css';
 
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
-import { davinci } from '@pingidentity/davinci-client';
+import { davinci } from '@forgerock/davinci-client';
 
 import usernameComponent from './components/text.js';
 import passwordComponent from './components/password.js';

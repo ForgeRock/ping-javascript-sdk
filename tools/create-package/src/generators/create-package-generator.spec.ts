@@ -56,7 +56,7 @@ describe('create-package-generator generator', () => {
 
     const packageJson = JSON.parse(tree.read('packages/test-package/package.json').toString());
 
-    expect(packageJson.name).toEqual('@pingidentity/test-package');
+    expect(packageJson.name).toEqual('@forgerock/test-package');
     expect(packageJson.sideEffects).toEqual(false);
     expect(packageJson.type).toEqual('module');
     expect(packageJson.description).toEqual('');
