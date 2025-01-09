@@ -1,9 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "moduleResolution": "Bundler"
+    "outDir": "./dist",
+    "module": "NodeNext",
+    "sourceMap": true,
+    "composite": true
   },
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["**/*.ts"]
 }
