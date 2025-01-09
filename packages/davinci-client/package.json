@@ -6,6 +6,9 @@
   "typings": "./dist/index.d.ts",
   "type": "module",
   "files": ["dist"],
+  "nx": {
+    "tags": ["scope:package"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com:ForgeRock/forgerock-javascript-sdk.git",
@@ -31,6 +34,7 @@
   },
   "scripts": {
     "build": "nx exec -- vite build",
+    "serve": "nx exec -- vite dev",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",

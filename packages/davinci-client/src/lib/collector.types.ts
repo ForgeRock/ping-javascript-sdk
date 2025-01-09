@@ -4,7 +4,12 @@
 export type SingleValueCollectorTypes =
   | 'TextCollector'
   | 'PasswordCollector'
-  | 'SingleValueCollector';
+  | 'SingleValueCollector'
+  | 'FlowLinkCollector'
+  | 'DropDownCollector'
+  | 'ComboboxCollector'
+  | 'RadioCollector';
+//| 'LabelCollector';
 
 export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTypes> {
   category: 'SingleValueCollector';
@@ -43,10 +48,47 @@ export interface SingleValueCollectorNoValue<T extends SingleValueCollectorTypes
   };
 }
 
+/**
+ * Type to help infer the collector based on the collector type
+ * Used specifically in the returnSingleValueCollector wrapper function.
+ * When given a type, it can narrow which type it is returning
+ *
+ * Note: You can see this type in action in the test file or in the collector.utils file.
+ */
+export type InferSingleValueCollectorFromSingleValueCollectorType<
+  T extends SingleValueCollectorTypes,
+> = T extends 'TextCollector'
+  ? TextCollector
+  : T extends 'DropDownCollector'
+    ? DropDownCollector
+    : T extends 'ComboboxCollector'
+      ? ComboboxCollector
+      : T extends 'RadioCollector'
+        ? RadioCollector
+        : //: T extends 'LabelCollector'
+          //? LabelCollector
+          T extends 'PasswordCollector'
+          ? PasswordCollector
+          : T extends 'FlowLinkCollector'
+            ? FlowLinkCollector
+            : /**
+               * At this point, we have not passed in a collector type
+               * or we have explicitly passed in 'SingleValueCollector'
+               * So we can return either a SingleValueCollector with value or without value
+               * or without a value.
+               **/
+              | SingleValueCollectorWithValue<'SingleValueCollector'>
+                | SingleValueCollectorNoValue<'SingleValueCollector'>;
+
 export type SingleValueCollectors =
   | SingleValueCollectorWithValue<'SingleValueCollector'>
   | SingleValueCollectorWithValue<'TextCollector'>
-  | SingleValueCollectorNoValue<'PasswordCollector'>;
+  | SingleValueCollectorWithValue<'DropDownCollector'>
+  | SingleValueCollectorWithValue<'ComboboxCollector'>
+  | SingleValueCollectorWithValue<'RadioCollector'>
+  //| SingleValueCollectorNoValue<'LabelCollector'>
+  | SingleValueCollectorNoValue<'PasswordCollector'>
+  | SingleValueCollectorNoValue<'FlowLinkCollector'>;
 
 export type SingleValueCollector<T extends SingleValueCollectorTypes> =
   | SingleValueCollectorWithValue<T>
@@ -103,3 +145,8 @@ export type PasswordCollector = SingleValueCollectorNoValue<'PasswordCollector'>
 export type TextCollector = SingleValueCollectorWithValue<'TextCollector'>;
 export type SocialLoginCollector = ActionCollectorWithUrl<'SocialLoginCollector'>;
 export type SubmitCollector = ActionCollectorNoUrl<'SubmitCollector'>;
+export type DropDownCollector = SingleValueCollectorWithValue<'DropDownCollector'>;
+export type ComboboxCollector = SingleValueCollectorWithValue<'ComboboxCollector'>;
+export type RadioCollector = SingleValueCollectorWithValue<'RadioCollector'>;
+export type FlowLinkCollector = SingleValueCollectorNoValue<'FlowLinkCollector'>;
+//export type LabelCollector = SingleValueCollectorNoValue<'LabelCollector'>;

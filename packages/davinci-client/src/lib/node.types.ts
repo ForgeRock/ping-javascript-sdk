@@ -6,6 +6,11 @@ import type {
   SubmitCollector,
   ActionCollector,
   SingleValueCollector,
+  RadioCollector,
+  ComboboxCollector,
+  DropDownCollector,
+  //LabelCollector,
+  FlowLinkCollector,
 } from './collector.types.js';
 import type { ErrorDetail, Links } from './davinci.types.js';
 import { GenericError } from './error.types.js';
@@ -20,6 +25,11 @@ export type Collectors =
   | FlowCollector
   | PasswordCollector
   | TextCollector
+  | RadioCollector
+  | ComboboxCollector
+  | DropDownCollector
+  //| LabelCollector
+  | FlowLinkCollector
   | SocialLoginCollector
   | SubmitCollector
   | ActionCollector<'ActionCollector'>

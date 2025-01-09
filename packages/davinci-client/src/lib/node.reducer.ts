@@ -14,13 +14,22 @@ import {
   returnSocialLoginCollector,
   returnSubmitCollector,
   returnTextCollector,
+  returnRadioCollector,
+  returnComboboxCollector,
+  returnFlowLinkCollector,
+  returnDropDownCollector,
+  //returnLabelCollector,
 } from './collector.utils.js';
-
 import type { DaVinciField } from './davinci.types';
 import {
   ActionCollector,
+  ComboboxCollector,
+  DropDownCollector,
   FlowCollector,
+  FlowLinkCollector,
+  //LabelCollector,
   PasswordCollector,
+  RadioCollector,
   SingleValueCollector,
   SocialLoginCollector,
   SubmitCollector,
@@ -51,6 +60,11 @@ const initialCollectorValues: (
   | SubmitCollector
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>
+  //| LabelCollector
+  | FlowLinkCollector
+  | DropDownCollector
+  | ComboboxCollector
+  | RadioCollector
 )[] = [];
 
 /**
@@ -79,6 +93,21 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
             return returnPasswordCollector(field, idx);
           case 'TEXT':
             return returnTextCollector(field, idx);
+          //case 'LABEL':
+          //return returnLabelCollector(field, idx);
+          //case 'ERROR_DISPLAY':
+          case 'FLOW_LINK':
+            return returnFlowLinkCollector(field, idx);
+          case 'DROPDOWN':
+            return returnDropDownCollector(field, idx);
+          case 'COMBOBOX':
+            return returnComboboxCollector(field, idx);
+          //case 'MULTI_SELECT':
+          //break;
+          case 'RADIO':
+            return returnRadioCollector(field, idx);
+          //case 'CHECKBOX':
+          //return returnCheckboxCollector(field, idx);
           default:
           // Default is handled below
         }
