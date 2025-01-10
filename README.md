@@ -7,7 +7,11 @@
   <hr/>
 </p>
 
-The Ping SDK for Javascript is designed for creating web applications that seamlessly integrate with the PingOne platform.
-It offers a range of APIs for user authentication, user device management, and accessing resources secured by PingOne.
+The Ping SDK for Javascript is designed for creating web applications that seamlessly integrate with the Ping platform.
+It offers a range of APIs for user authentication, user device management, and accessing resources secured by Ping.
 
 Please visit our [ documentation ](https://docs.pingidentity.com/sdks/latest/sdks/index.html) site for more information.
+
+# License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details
