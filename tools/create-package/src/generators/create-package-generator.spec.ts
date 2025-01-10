@@ -45,6 +45,7 @@ describe('create-package-generator generator', () => {
 
     expect(tree.exists('packages/test-package/src/index.ts')).toBe(true);
     expect(tree.exists('packages/test-package/src/lib/index.ts')).toBe(true);
+    expect(tree.exists('packages/test-package/LICENSE')).toBe(true);
   });
   it('should have defaults that work', async () => {
     options = {
@@ -73,5 +74,6 @@ describe('create-package-generator generator', () => {
 
     expect(tree.exists('packages/test-package/src/index.ts')).toBe(true);
     expect(tree.exists('packages/test-package/src/lib/index.ts')).toBe(true);
+    expect(tree.exists('packages/test-package/LICENSE')).toBe(true);
   });
 });
