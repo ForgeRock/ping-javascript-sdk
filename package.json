@@ -13,7 +13,6 @@
     "changeset": "changeset",
     "commit": "git cz",
     "create-package": "nx build @forgerock/create-package && nx g @forgerock/create-package:create",
-    "docs": "nx affected --target=typedoc",
     "e2e": "CI=true nx affected:e2e",
     "format:staged": "pretty-quick --staged",
     "lint": "nx affected --target=lint",

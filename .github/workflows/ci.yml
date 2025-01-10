@@ -5,9 +5,18 @@ env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
   NX_CLOUD_DISTRIBUTED_EXECUTION: true
+
+# recommended to set a concurrency group
+concurrency:
+  group: preview-pages-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pr:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,3 +57,17 @@ jobs:
           path: |
             ./**/.playwright/**
           retention-days: 30
+
+      - name: build docs
+        run: pnpm typedoc
+
+      - name: preview-docs
+        uses: rajyan/preview-pages@v1
+        with:
+          source-dir: docs
+          pr-comment: 'none'
+
+      - name: Update comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: Deployed ${{ github.sha }} to https://ForgeRock.github.io/ping-javascript-sdk/pr-${{ github.event.number }}/${{github.sha}} branch gh-pages in ForgeRock/ping-javascript-sdk

@@ -17,7 +17,6 @@
   "devDependencies": {},
   "scripts": {
     "build": "tsc --project ./tsconfig.lib.json ",
-    "docs": "typedoc --options packages/<%= name %>/typedoc.json",
     "lint": "nx exec -- eslint **/*.ts --fix",
     "test": "vitest",
     "test:watch": "vitest --watch",
