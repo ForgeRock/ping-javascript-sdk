@@ -1,4 +1,4 @@
-import { FlowCollector, InitFlow } from '@forgerock/davinci-client/types';
+import type { FlowCollector, InitFlow } from '@forgerock/davinci-client/types';
 
 export default function flowLinkComponent(
   formEl: HTMLFormElement,

@@ -12,8 +12,8 @@ import {
   returnComboboxCollector,
   returnFlowLinkCollector,
   //returnLabelCollector,
-} from './collector.utils';
-import type { Combobox, DaVinciField, Radio, StandardFieldValue } from './davinci.types';
+} from './collector.utils.js';
+import type { Combobox, DaVinciField, Radio, StandardFieldValue } from './davinci.types.js';
 
 describe('Action Collectors', () => {
   describe('returnFlowCollector', () => {
@@ -86,7 +86,6 @@ describe('Action Collectors', () => {
       // this type could be more compreenhensive
       // that is why casting as any here works
       const result = returnSocialLoginCollector(fieldWithoutUrl, 1);
-      // @ts-expect-error this ActionCollectors function above could be more comprehensively typed
       expect(result.output.url).toBeNull();
     });
 
@@ -214,14 +213,12 @@ describe('Action Collectors', () => {
 
     it('handles missing authentication URL for social login', () => {
       const result = returnActionCollector(mockField, 1, 'SocialLoginCollector');
-      // @ts-expect-error this ActionCollectors function above could be more comprehensively typed
       expect(result.output.url).toBeNull();
     });
 
     it('should return an error message when field is missing key, label, or type', () => {
       const field = {};
       const idx = 3;
-      // @ts-expect-error field is purposefully an empty object here to test, and doesn't satisfy the interface.
       const result = returnActionCollector(field, idx, 'ActionCollector');
       expect(result.error).toBe(
         'Key is not found in the field object. Label is not found in the field object. Type is not found in the field object. ',
@@ -290,7 +287,6 @@ describe('Single Value Collectors', () => {
     it('should return an error message when field is missing key, label, or type', () => {
       const field = {};
       const idx = 3;
-      // @ts-expect-error should test an empty object here
       const result = returnSingleValueCollector(field, idx, 'SingleValueCollector');
       expect(result.error).toBe(
         'Key is not found in the field object. Label is not found in the field object. Type is not found in the field object. ',

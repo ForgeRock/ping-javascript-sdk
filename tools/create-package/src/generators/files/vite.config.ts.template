@@ -9,7 +9,11 @@ export default defineConfig(() => ({
     watch: !process.env['CI'],
     coverage: {
       enabled: Boolean(process.env['CI']),
-      reporter: ['text', 'json', 'html'],
+      reporter: [
+        ['text', { skipEmpty: true }],
+        ['html', { skipEmpty: true }],
+        ['json', { skipEmpty: true }],
+      ],
       reportsDirectory: './coverage',
       provider: 'v8',
     },
@@ -21,6 +25,9 @@ export default defineConfig(() => ({
       },
     },
     environment: 'jsdom',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: [
+    'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+    'src/**/*.test-d.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+    ],
   },
 }));

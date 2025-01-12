@@ -57,7 +57,10 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
       if (!action.action) {
         console.error('Missing `argument.action`');
         return async function () {
-          return { error: { message: 'Missing argument.action', type: 'argument_error' } };
+          return {
+            error: { message: 'Missing argument.action', type: 'argument_error' },
+            type: 'internal_error',
+          };
         };
       }
 

@@ -6,6 +6,7 @@
   "typings": "./dist/index.d.ts",
   "type": "module",
   "files": ["dist"],
+  "sideEffects": ["./src/types.js"],
   "nx": {
     "tags": ["scope:package"]
   },
@@ -21,9 +22,6 @@
     "@forgerock/javascript-sdk": "4.6.0",
     "@reduxjs/toolkit": "catalog:",
     "immer": "catalog:"
-  },
-  "devDependencies": {
-    "vitest": "^1.4.0"
   },
   "exports": {
     ".": {
