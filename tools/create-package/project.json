@@ -12,6 +12,7 @@
         "outputPath": "tools/create-package/dist",
         "main": "tools/create-package/src/index.ts",
         "tsConfig": "tools/create-package/tsconfig.lib.json",
+        "generatePackageJson": false,
         "assets": [
           "tools/create-package/*.md",
           {
@@ -38,10 +39,14 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["tools/create-package/**/*.ts"],
-        "ignorePath": ".eslintignore"
+        "ignore-path": ".eslintignore",
+        "args": ["**/*.ts"]
+      }
+    },
+    "test": {
+      "options": {
+        "config": "vite.config.mts"
       }
     }
   }

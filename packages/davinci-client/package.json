@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@forgerock/javascript-sdk": "4.6.0",
-    "@reduxjs/toolkit": "2.3.0",
-    "immer": "10.1.1"
+    "@reduxjs/toolkit": "catalog:",
+    "immer": "catalog:"
   },
   "devDependencies": {
     "vitest": "^1.4.0"
@@ -30,10 +30,10 @@
     "./types": "./dist/types.d.ts"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "nx exec -- vite build",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint **/*.ts --fix"
+    "lint": "nx exec -- eslint **/*.ts --fix"
   }
 }

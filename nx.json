@@ -56,6 +56,44 @@
       "inputs": ["production", "^production"]
     }
   },
+  "plugins": [
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "testTargetName": "test",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "ciTargetName": "e2e-ci",
+        "targetName": "e2e"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": ["tools/create-package/**/*", "packages/**/**/*"]
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "testTargetName": "test",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck"
+      },
+      "include": ["tools/create-package/**/*"]
+    }
+  ],
   "parallel": 1,
   "workspaceLayout": {
     "appsDir": "",
@@ -63,6 +101,6 @@
   },
   "useDaemonProcess": true,
   "useInferencePlugins": true,
-  "defaultBase": "develop",
-  "useLegacyCache": true
+  "defaultBase": "main",
+  "nxCloudId": "6762f3018aed9c5fad7009bb"
 }

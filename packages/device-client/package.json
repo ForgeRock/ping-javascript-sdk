@@ -14,19 +14,19 @@
   },
   "files": ["./dist"],
   "dependencies": {
-    "@reduxjs/toolkit": "2.3.0",
+    "@reduxjs/toolkit": "catalog:",
     "@forgerock/javascript-sdk": "4.6.0",
-    "immer": "10.1.1"
+    "immer": "catalog:"
   },
   "devDependencies": {
     "msw": "^2.5.1",
     "vitest": "^1.4.0"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "nx exec -- vite build",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint **/*.ts --fix"
+    "lint": "nx exec -- eslint **/*.ts --fix"
   }
 }

@@ -10,10 +10,9 @@
   "devDependencies": {},
   "version": "0.0.0",
   "scripts": {
-    "build": "vite build --watch false",
-    "dev": "vite dev",
-    "serve": "vite preview",
+    "build": "nx exec -- vite build --watch false",
+    "serve": "vite dev",
     "preview": "vite preview",
-    "lint": "eslint **/*.ts --fix"
+    "lint": "nx exec -- eslint **/*.ts --fix"
   }
 }

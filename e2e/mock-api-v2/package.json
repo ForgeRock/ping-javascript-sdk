@@ -11,7 +11,7 @@
     "serve:dev": "nodemon dist/e2e/mock-api-v2/src/main.js",
     "test": "vitest run --coverage --coverage.reportsDirectory=../../coverage/mock-api-v2",
     "test:watch": "vitest watch --coverage --coverage.reportsDirectory=../../coverage/mock-api-v2",
-    "lint": "eslint --fix --ignore-path .eslintignore \"**/*.ts\""
+    "lint": "nx exec -- eslint --fix --ignore-path .eslintignore \"**/*.ts\""
   },
   "dependencies": {
     "@effect/platform": "^0.58.27",

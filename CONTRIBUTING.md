@@ -8,11 +8,11 @@ The following is a set of guidelines for contributing to the Forgerock SDK and i
 
 Fork the repo to your own github account. From there, you can add the ForgeRock repository as an upstream.
 
-`git remote add upstream git@github.com:ForgeRock/forgerock-javascript-sdk.git`
+`git remote add upstream git@github.com:ForgeRock/ping-javascript-sdk.git`
 
 ## Here is a checklist of items to ensure your Pull Request is reviewed and ready to be merged:
 
-- [ ] Please make all pull requests against `develop` branch.
+- [ ] Please make all pull requests against `main` branch.
 - [ ] Fill out the Pull Request template that appears when you open a PR.
 - [ ] Please ensure `pnpm run lint` reports no issues.
 - [ ] Please ensure `pnpm run build` reports no issues.
