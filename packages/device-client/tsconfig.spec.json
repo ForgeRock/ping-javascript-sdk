@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "module": "nodenext",
     "outDir": "../../dist/out-tsc",
     "types": [
       "vitest/vitest",

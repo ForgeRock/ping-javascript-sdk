@@ -13,10 +13,7 @@ The `deviceClient` API provides a structured interface for managing various type
    - [WebAuthn Management](#webauthn-management)
    - [Bound Devices Management](#bound-devices-management)
 5. [Example Usage](#example-usage)
-6. [Error Handling](#error-handling)
-7. [Authentication](#authentication)
-8. [Best Practices](#best-practices)
-9. [License](#license)
+6. [License](#license)
 
 ## Overview
 
@@ -27,7 +24,7 @@ The `deviceClient` function initializes the API client with the provided configu
 To install the necessary dependencies for using the `deviceClient`, run:
 
 ```bash
-npm install @reduxjs/toolkit @forgerock/device-client --save
+npm install @forgerock/device-client --save
 ```
 
 ## Configuration
@@ -44,8 +41,6 @@ const config: ConfigOptions = {
   },
   realmPath: '/your-realm-path',
 };
-
-If there is no realmPath or you wish to override the value, you can do so in the api call itself where you pass in the query.
 
 const apiClient = deviceClient(config);
 ```
@@ -163,11 +158,7 @@ apiClient.push
 ### WebAuthn Management Example
 
 ```typescript
-const webAuthnQuery: WebAuthnQuery = {
-  /* your query parameters */
-};
-
-apiClient.webauthn
+apiClient.webAuthn
   .get(webAuthnQuery)
   .then((response) => {
     console.log('WebAuthn Devices:', response);
@@ -180,7 +171,7 @@ const updateWebAuthnQuery: WebAuthnQueryWithUUID & WebAuthnBody = {
   /* your update query */
 };
 
-apiClient.webauthn
+apiClient.webAuthn
   .update(updateWebAuthnQuery)
   .then((response) => {
     console.log('Updated WebAuthn Device:', response);
@@ -193,7 +184,7 @@ const deleteWebAuthnQuery: WebAuthnQueryWithUUID & WebAuthnBody = {
   /* your delete query */
 };
 
-apiClient.webauthn
+apiClient.webAuthn
   .delete(deleteWebAuthnQuery)
   .then((response) => {
     console.log('Deleted WebAuthn Device:', response);
@@ -206,7 +197,7 @@ apiClient.webauthn
 ### Bound Devices Management Example
 
 ```typescript const bindingQuery: BindingDeviceQuery = { /* your query parameters */ };
-apiClient.boundDevices
+apiClient.bound
   .get(bindingQuery)
   .then((response) => {
     console.log('Bound Devices:', response);
@@ -219,7 +210,7 @@ const deleteBindingQuery: BindingDeviceQuery = {
   /* your delete query */
 };
 
-apiClient.boundDevices
+apiClient.bound
   .delete(deleteBindingQuery)
   .then((response) => {
     console.log('Deleted Bound Device:', response);
@@ -232,7 +223,7 @@ const updateBindingQuery: BindingDeviceQuery = {
   /* your update query */
 };
 
-apiClient.boundDevices
+apiClient.bound
   .update(updateBindingQuery)
   .then((response) => {
     console.log('Updated Bound Device:', response);

@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/ForgeRock/ping-javascript-sdk/actions/workflows/ci.yaml/badge.svg)](https://github.com/ForgeRock/ping-javascript-sdk/actions/workflows/ci.yaml)
+[![Build Status](https://github.com/ForgeRock/ping-javascript-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/ForgeRock/ping-javascript-sdk/actions/workflows/ci.yml)
 
 <p align="center">
   <a href="https://github.com/ForgeRock/ping-javascript-sdk">

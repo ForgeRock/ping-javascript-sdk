@@ -7,13 +7,12 @@
     }
   ],
   "commit": false,
-  "fixed": [],
+  "fixed": [["@forgerock/*"]],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@forgerock/*",
     "@forgerock/davinci-app",
     "@forgerock/davinci-suites",
     "@forgerock/mock-api-v2"
