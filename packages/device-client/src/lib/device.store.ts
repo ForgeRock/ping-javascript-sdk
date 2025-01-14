@@ -1,4 +1,5 @@
 import { type ConfigOptions } from '@forgerock/javascript-sdk';
+
 import { configureStore } from '@reduxjs/toolkit';
 import { deviceService } from './services/index.js';
 import { DeleteOathQuery, OathDevice, RetrieveOathQuery } from './types/oath.types.js';
@@ -116,7 +117,7 @@ export const deviceClient = (config: ConfigOptions) => {
      *
      * @type {WebAuthnManagement}
      */
-    webauthn: {
+    webAuthn: {
       /**
        * Retrieves WebAuthn devices based on the specified query.
        *
@@ -177,7 +178,7 @@ export const deviceClient = (config: ConfigOptions) => {
      *
      * @type {BoundDevicesManagement}
      */
-    boundDevices: {
+    bound: {
       /**
        * Retrieves bound devices based on the specified query.
        *

@@ -19,7 +19,6 @@
     "immer": "catalog:"
   },
   "devDependencies": {
-    "msw": "^2.5.1",
     "vitest": "^1.4.0"
   },
   "scripts": {
