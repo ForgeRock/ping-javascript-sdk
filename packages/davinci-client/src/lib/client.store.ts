@@ -110,6 +110,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         return function () {
           return {
             error: { message: 'Argument for `collector` has no ID', type: 'argument_error' },
+            type: 'internal_error',
           };
         };
       }
@@ -121,6 +122,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         return function () {
           console.error('Collector not found');
           return {
+            type: 'internal_error',
             error: { message: 'Collector not found', type: 'state_error' },
           };
         };
@@ -130,6 +132,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         console.error('Collector is not a SingleValueCollector and cannot be updated');
         return function () {
           return {
+            type: 'internal_error',
             error: {
               message: 'Collector is not a SingleValueCollector and cannot be updated',
               type: 'state_error',
@@ -144,7 +147,10 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
           return null;
         } catch (err) {
           const error = err as Error;
-          return { error: { message: error.message, type: 'internal_error' } };
+          return {
+            type: 'internal_error',
+            error: { message: error.message, type: 'internal_error' },
+          };
         }
       };
     },

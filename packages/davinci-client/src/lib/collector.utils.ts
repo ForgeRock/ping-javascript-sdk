@@ -1,11 +1,11 @@
 /**
  * Import the required types
  */
-import {
-  type ActionCollectors,
-  type ActionCollectorTypes,
-  type InferSingleValueCollectorFromSingleValueCollectorType,
-  type SingleValueCollectorTypes,
+import type {
+  ActionCollectors,
+  ActionCollectorTypes,
+  InferSingleValueCollectorFromSingleValueCollectorType,
+  SingleValueCollectorTypes,
 } from './collector.types';
 import type {
   Combobox,
