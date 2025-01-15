@@ -1,10 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "moduleDetection": "force",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "resolveJsonModule": true,
+    "composite": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,

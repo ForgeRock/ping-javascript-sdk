@@ -1,29 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2023",
     "outDir": "./dist",
-    "skipLibCheck": true,
-    "target": "ES2022",
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": false,
-    "noImplicitOverride": true,
-    "module": "ES2020",
-    "moduleResolution": "Bundler",
-    "sourceMap": true,
     "declaration": true,
-    "composite": true,
     "declarationMap": true,
-    "lib": ["es2022", "DOM", "DOM.iterable"],
-    "types": ["vite/client"]
+    "sourceMap": true,
+    "composite": true,
+    "lib": ["es2022", "dom", "dom.iterable"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "vite.config.ts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/mock-data/**/*"
-  ]
+  "exclude": ["vite.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

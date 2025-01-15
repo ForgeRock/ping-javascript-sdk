@@ -1,9 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "NodeNext",
     "moduleDetection": "force",
-    "target": "ES2022",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "composite": true,

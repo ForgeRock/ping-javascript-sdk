@@ -4,12 +4,16 @@
     "module": "NodeNext",
     "target": "ES2022",
     "outDir": "../../dist/out-tsc",
+    "composite": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
     "types": [
+      "vitest/vitest",
       "vitest/globals",
       "vitest/importMeta",
       "vite/client",
-      "node",
-      "vitest/vitest"
+      "node"
     ]
   },
   "include": [
