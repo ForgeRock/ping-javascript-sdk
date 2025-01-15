@@ -6,6 +6,7 @@ import { DeleteOathQuery, OathDevice, RetrieveOathQuery } from './types/oath.typ
 import { DeleteDeviceQuery, PushDeviceQuery } from './types/push-device.types.js';
 import { WebAuthnBody, WebAuthnQuery, WebAuthnQueryWithUUID } from './types/webauthn.types.js';
 import { BindingDeviceQuery } from './types/binding-device.types.js';
+import { ProfileDeviceQuery } from './types/profile-device.types.js';
 
 export const deviceClient = (config: ConfigOptions) => {
   const { middleware, reducerPath, reducer, endpoints } = deviceService({
@@ -225,6 +226,35 @@ export const deviceClient = (config: ConfigOptions) => {
        */
       update: async function (query: BindingDeviceQuery) {
         const response = await store.dispatch(endpoints.updateBindingDeviceName.initiate(query));
+
+        if (!response || !response.data) {
+          return undefined;
+        }
+
+        return response.data;
+      },
+    },
+    profile: {
+      get: async function (query: ProfileDeviceQuery) {
+        const response = await store.dispatch(endpoints.getDeviceProfile.initiate(query));
+
+        if (!response || !response.data) {
+          return undefined;
+        }
+
+        return response.data;
+      },
+      update: async function (query: ProfileDeviceQuery) {
+        const response = await store.dispatch(endpoints.updateDeviceProfile.initiate(query));
+
+        if (!response || !response.data) {
+          return undefined;
+        }
+
+        return response.data;
+      },
+      delete: async function (query: ProfileDeviceQuery) {
+        const response = await store.dispatch(endpoints.deleteDeviceProfile.initiate(query));
 
         if (!response || !response.data) {
           return undefined;
