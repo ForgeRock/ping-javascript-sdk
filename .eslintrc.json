@@ -1,6 +1,6 @@
 {
   "root": true,
-  "plugins": ["@typescript-eslint", "@nx"],
+  "plugins": ["@typescript-eslint", "@nx", "import"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -89,6 +89,7 @@
   },
   "ignorePatterns": ["dist/*"],
   "rules": {
+    "import/extensions": [2, "ignorePackages"],
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/no-use-before-define": "warn",
     "max-len": [
