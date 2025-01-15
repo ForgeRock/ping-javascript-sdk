@@ -1,8 +1,8 @@
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree } from '@nx/devkit';
 
-import { createPackageGeneratorGenerator } from './create-package-generator';
-import { CreatePackageGeneratorGeneratorSchema } from './schema';
+import { createPackageGeneratorGenerator } from './create-package-generator.js';
+import { CreatePackageGeneratorGeneratorSchema } from './schema.js';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('create-package-generator generator', () => {

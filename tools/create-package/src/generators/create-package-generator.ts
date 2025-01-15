@@ -1,6 +1,6 @@
 import { formatFiles, generateFiles, installPackagesTask, names, Tree } from '@nx/devkit';
 import * as path from 'path';
-import { CreatePackageGeneratorGeneratorSchema } from './schema';
+import { CreatePackageGeneratorGeneratorSchema } from './schema.js';
 
 export async function createPackageGeneratorGenerator(
   tree: Tree,
