@@ -165,7 +165,11 @@ export const nodeSlice = createSlice({
      */
     next(
       state,
-      action: PayloadAction<{ data: DaVinciNextResponse; requestId: string; httpStatus: number }>,
+      action: PayloadAction<{
+        data: DaVinciNextResponse;
+        requestId: string;
+        httpStatus: number;
+      }>,
     ) {
       const newState = state as Draft<ContinueNode>;
 

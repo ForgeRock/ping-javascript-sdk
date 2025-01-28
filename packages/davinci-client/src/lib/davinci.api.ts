@@ -14,7 +14,12 @@ import { handleResponse, transformActionRequest, transformSubmitRequest } from '
  * Import the DaVinci types
  */
 import type { RootStateWithNode } from './client.store.utils.js';
-import type { DaVinciCacheEntry, ThrownQueryError } from './davinci.types.js';
+import type {
+  DaVinciCacheEntry,
+  OutgoingQueryParams,
+  StartOptions,
+  ThrownQueryError,
+} from './davinci.types';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
 
@@ -186,11 +191,11 @@ export const davinciApi = createApi({
      * @method start - method for initiating a DaVinci flow
      * @param - needs no arguments, but need to declare types to make it explicit
      */
-    start: builder.mutation<unknown, void>({
+    start: builder.mutation<unknown, StartOptions<OutgoingQueryParams> | undefined>({
       /**
        * @method queryFn - This is just a wrapper around the fetch call
        */
-      async queryFn(_, api, __, baseQuery) {
+      async queryFn(options, api, __, baseQuery) {
         const state = api.getState() as RootStateWithNode<StartNode>;
 
         if (!state) {
@@ -216,9 +221,23 @@ export const davinciApi = createApi({
             responseType: state?.config?.responseType,
             scope: state?.config?.scope,
           });
+          const url = new URL(authorizeUrl);
+          const existingParams = url.searchParams;
+
+          if (options?.query) {
+            Object.entries(options.query).forEach(([key, value]) => {
+              /**
+               * We use set here because if we have existing params, we want
+               * to make sure we override them and not add duplicates
+               */
+              existingParams.set(key, String(value));
+            });
+
+            url.search = existingParams.toString();
+          }
 
           const response = await baseQuery({
-            url: authorizeUrl,
+            url: url.toString(),
             credentials: 'include',
             method: 'GET',
             headers: {
@@ -268,7 +287,6 @@ export const davinciApi = createApi({
         }
 
         const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
-
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),
