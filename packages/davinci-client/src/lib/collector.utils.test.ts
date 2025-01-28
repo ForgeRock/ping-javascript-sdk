@@ -7,13 +7,10 @@ import {
   returnSingleValueCollector,
   returnPasswordCollector,
   returnTextCollector,
-  returnRadioCollector,
-  returnDropDownCollector,
-  returnComboboxCollector,
-  returnFlowLinkCollector,
-  //returnLabelCollector,
+  returnSingleSelectCollector,
+  returnMultiSelectCollector,
 } from './collector.utils.js';
-import type { Combobox, DaVinciField, Radio, StandardFieldValue } from './davinci.types.js';
+import type { DaVinciField, StandardFieldValue } from './davinci.types.js';
 
 describe('Action Collectors', () => {
   describe('returnFlowCollector', () => {
@@ -83,7 +80,7 @@ describe('Action Collectors', () => {
         label: 'Continue with Google',
         type: 'BUTTON',
       };
-      // this type could be more compreenhensive
+      // this type could be more comprehensive
       // that is why casting as any here works
       const result = returnSocialLoginCollector(fieldWithoutUrl, 1);
       expect(result.output.url).toBeNull();
@@ -279,11 +276,6 @@ describe('Single Value Collectors', () => {
       expect(result.output).not.toHaveProperty('value');
     });
 
-    it('should return a valid FlowLinkCollector without value in output', () => {
-      const result = returnSingleValueCollector(mockField, 1, 'FlowLinkCollector');
-      expect(result.output).not.toHaveProperty('value');
-    });
-
     it('should return an error message when field is missing key, label, or type', () => {
       const field = {};
       const idx = 3;
@@ -307,8 +299,8 @@ describe('Single Value Collectors', () => {
       expect(result.output).toHaveProperty('value', '');
     });
 
-    it('creates a radio collector', () => {
-      const field: Radio = {
+    it('creates a single select collector from radio field type', () => {
+      const field: DaVinciField = {
         type: 'RADIO',
         key: 'radio-field',
         label: 'Radio',
@@ -323,14 +315,14 @@ describe('Single Value Collectors', () => {
             value: 'radio2',
           },
         ],
-        inputType: 'SingleSelect',
+        inputType: 'SINGLE_SELECT',
       };
-      const result = returnRadioCollector(field, 1);
-      expect(result.type).toBe('RadioCollector');
+      const result = returnSingleSelectCollector(field, 1);
+      expect(result.type).toBe('SingleSelectCollector');
       expect(result.output).toHaveProperty('value', '');
     });
 
-    it('creates a dropdown collector', () => {
+    it('creates a single select collector from dropdown field type', () => {
       const field: DaVinciField = {
         type: 'DROPDOWN',
         key: 'dropdown-field',
@@ -350,15 +342,15 @@ describe('Single Value Collectors', () => {
             value: 'dropdown3',
           },
         ],
-        inputType: 'MULTI_SELECT',
+        inputType: 'SINGLE_SELECT',
       };
-      const result = returnDropDownCollector(field, 1);
-      expect(result.type).toBe('DropDownCollector');
+      const result = returnSingleSelectCollector(field, 1);
+      expect(result.type).toBe('SingleSelectCollector');
       expect(result.output).toHaveProperty('value', '');
     });
 
-    it('creates a combobox collector', () => {
-      const comboField: Combobox = {
+    it('creates a multi-select collector from combobox field type', () => {
+      const comboField: DaVinciField = {
         type: 'COMBOBOX',
         key: 'combobox-field',
         label: 'Combobox',
@@ -375,26 +367,15 @@ describe('Single Value Collectors', () => {
         ],
         inputType: 'MULTI_SELECT',
       };
-      const result = returnComboboxCollector(comboField, 1);
-      expect(result.type).toBe('ComboboxCollector');
-      expect(result.output).toHaveProperty('value', '');
+      const result = returnMultiSelectCollector(comboField, 1);
+      expect(result.type).toBe('MultiSelectCollector');
+      expect(result.output).toHaveProperty('value', []);
     });
 
-    it('creates a flow link collector', () => {
-      const result = returnFlowLinkCollector(mockField, 1);
-      expect(result.type).toBe('FlowLinkCollector');
+    it('creates an action collector from flow link field type', () => {
+      const result = returnFlowCollector(mockField, 1);
+      expect(result.type).toBe('FlowCollector');
       expect(result.output).not.toHaveProperty('value');
     });
-    //it('creates a LabelCollector', () => {
-    //  const field = {
-    //    type: 'LABEL',
-    //    content: 'Welcome to Ping Identity',
-    //  };
-    //  const result = returnLabelCollector(field, 1);
-    //
-    //  expect(result.type).toBe('LabelCollector');
-    //  console.log(result);
-    //  expect(result).toHaveProperty('content', 'Welcome to Ping Identity');
-    //});
   });
 });

@@ -46,42 +46,6 @@ export interface Links {
   };
 }
 
-export type Combobox = {
-  inputType: 'MULTI_SELECT';
-  key: string;
-  label: string;
-  options: {
-    label: string;
-    value: string | number;
-  }[];
-  required?: boolean;
-  type: 'COMBOBOX' | 'DROPDOWN';
-};
-
-export type Radio = {
-  inputType: 'SingleSelect';
-  key: string;
-  label: string;
-  options: {
-    label: string;
-    value: string | number;
-  }[];
-  required?: boolean;
-  type: 'RADIO';
-};
-
-export type Checkbox = {
-  inputType: 'MULTI_SELECT';
-  key: string;
-  label: string;
-  options: {
-    label: string;
-    value: string | number;
-  }[];
-  required?: boolean;
-  type: 'CHECKBOX';
-};
-
 export type StandardFieldValue = {
   type:
     | 'PASSWORD'
@@ -97,20 +61,36 @@ export type StandardFieldValue = {
   // Optional properties
   links?: Links;
 };
-//export type LabelField = {
-//  key: string;
-//  content: string;
-//  type: 'LABEL';
-//};
 
-//export type ErrorDisplay = { type: string };
+export type SingleSelect = {
+  inputType: 'SINGLE_SELECT';
+  key: string;
+  label: string;
+  options: {
+    label: string;
+    value: string | number;
+  }[];
+  required?: boolean;
+  type: 'RADIO' | 'DROPDOWN';
+};
+
+export type MultiSelect = {
+  inputType: 'MULTI_SELECT';
+  key: string;
+  label: string;
+  options: {
+    label: string;
+    value: string | number;
+  }[];
+  required?: boolean;
+  type: 'CHECKBOX' | 'COMBOBOX';
+};
+
+export type DaVinciField = StandardFieldValue | SingleSelect | MultiSelect;
+
 /**
  * Next or Continuation Response DaVinci API
  */
-
-export type DaVinciField = StandardFieldValue | Radio | Combobox;
-//| ErrorDisplay
-//| Checkbox;
 
 export interface DaVinciNextResponse extends DaVinciBaseResponse {
   // Optional properties

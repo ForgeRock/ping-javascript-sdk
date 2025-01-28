@@ -4,16 +4,13 @@
 import type {
   ActionCollectors,
   ActionCollectorTypes,
-  InferSingleValueCollectorFromSingleValueCollectorType,
+  InferSingleValueCollectorType,
+  InferMultiValueCollectorType,
   SingleValueCollectorTypes,
+  MultiValueCollectorTypes,
+  InferActionCollectorType,
 } from './collector.types';
-import type {
-  Combobox,
-  DaVinciField,
-  //LabelField,
-  Radio,
-  StandardFieldValue,
-} from './davinci.types';
+import type { DaVinciField, MultiSelect, SingleSelect, StandardFieldValue } from './davinci.types';
 
 /**
  * @function returnActionCollector - Creates an ActionCollector object based on the provided field and index.
@@ -51,7 +48,7 @@ export function returnActionCollector<CollectorType extends ActionCollectorTypes
         type: field.type,
         url: field.links?.['authenticate']?.href || null,
       },
-    };
+    } as InferActionCollectorType<CollectorType>;
   } else {
     return {
       category: 'ActionCollector',
@@ -64,7 +61,7 @@ export function returnActionCollector<CollectorType extends ActionCollectorTypes
         label: field.label,
         type: field.type,
       },
-    };
+    } as InferActionCollectorType<CollectorType>;
   }
 }
 
@@ -108,11 +105,7 @@ export function returnSubmitCollector(field: StandardFieldValue, idx: number) {
 export function returnSingleValueCollector<
   Field extends DaVinciField,
   CollectorType extends SingleValueCollectorTypes = 'SingleValueCollector',
->(
-  field: Field,
-  idx: number,
-  collectorType: CollectorType,
-): InferSingleValueCollectorFromSingleValueCollectorType<CollectorType> {
+>(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
   if (!('key' in field)) {
     error = `${error}Key is not found in the field object. `;
@@ -124,11 +117,7 @@ export function returnSingleValueCollector<
     error = `${error}Type is not found in the field object. `;
   }
 
-  if (
-    collectorType === 'PasswordCollector' ||
-    collectorType === 'FlowLinkCollector'
-    //collectorType === 'LabelCollector'
-  ) {
+  if (collectorType === 'PasswordCollector') {
     return {
       category: 'SingleValueCollector',
       error: error || null,
@@ -145,7 +134,35 @@ export function returnSingleValueCollector<
         label: field.label,
         type: field.type,
       },
-    } as InferSingleValueCollectorFromSingleValueCollectorType<CollectorType>;
+    } as InferSingleValueCollectorType<CollectorType>;
+  } else if (collectorType === 'SingleSelectCollector') {
+    /**
+     * Check if options are present in the field object first
+     * If found, return existing error, which should be ''
+     * If not found, add additional message to error string
+     */
+    const err = 'options' in field ? error : `${error}Options are not found in the field object. `;
+    const options = 'options' in field ? field.options : []; // Fallback to ensure type consistency
+
+    return {
+      category: 'SingleValueCollector',
+      error: err || null,
+      type: collectorType,
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: '',
+        type: field.type,
+      },
+      output: {
+        key: field.key,
+        label: field.label,
+        type: field.type,
+        value: '',
+        options: options,
+      },
+    } as InferSingleValueCollectorType<CollectorType>;
   } else {
     return {
       category: 'SingleValueCollector',
@@ -164,7 +181,7 @@ export function returnSingleValueCollector<
         type: field.type,
         value: '',
       },
-    } as InferSingleValueCollectorFromSingleValueCollectorType<CollectorType>;
+    } as InferSingleValueCollectorType<CollectorType>;
   }
 }
 
@@ -188,49 +205,67 @@ export function returnTextCollector(field: StandardFieldValue, idx: number) {
   return returnSingleValueCollector(field, idx, 'TextCollector');
 }
 /**
- * @function returnRadioCollector - Creates a RadioCollector object based on the provided field and index.
+ * @function returnSingleSelectCollector - Creates a SingleCollector object based on the provided field and index.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
- * @param {number} idx - The index to be used in the id of the RadioCollector.
- * @returns {SingleValueCollector} The constructed RadioCollector object.
+ * @param {number} idx - The index to be used in the id of the SingleCollector.
+ * @returns {SingleValueCollector} The constructed SingleCollector object.
  */
-export function returnRadioCollector(field: Radio, idx: number) {
-  return returnSingleValueCollector(field, idx, 'RadioCollector');
+export function returnSingleSelectCollector(field: SingleSelect, idx: number) {
+  return returnSingleValueCollector(field, idx, 'SingleSelectCollector');
 }
+
 /**
- * @function returnDropDownCollector - Creates a DropDownCollector object based on the provided field and index.
+ * @function returnMultiValueCollector - Creates a MultiValueCollector object based on the provided field, index, and optional collector type.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the MultiValueCollector.
+ * @param {MultiValueCollectorTypes} [collectorType] - Optional type of the MultiValueCollector.
+ * @returns {MultiValueCollector} The constructed MultiValueCollector object.
+ */
+export function returnMultiValueCollector<
+  Field extends MultiSelect,
+  CollectorType extends MultiValueCollectorTypes = 'MultiValueCollector',
+>(field: Field, idx: number, collectorType: CollectorType) {
+  let error = '';
+  if (!('key' in field)) {
+    error = `${error}Key is not found in the field object. `;
+  }
+  if (!('label' in field)) {
+    error = `${error}Label is not found in the field object. `;
+  }
+  if (!('type' in field)) {
+    error = `${error}Type is not found in the field object. `;
+  }
+  if (!('options' in field)) {
+    error = `${error}Options are not found in the field object. `;
+  }
+
+  return {
+    category: 'MultiValueCollector',
+    error: error || null,
+    type: collectorType || 'MultiValueCollector',
+    id: `${field.key}-${idx}`,
+    name: field.key,
+    input: {
+      key: field.key,
+      value: [],
+      type: field.type,
+    },
+    output: {
+      key: field.key,
+      label: field.label,
+      type: field.type,
+      value: [],
+      options: field.options || [],
+    },
+  } as InferMultiValueCollectorType<CollectorType>;
+}
+
+/**
+ * @function returnMultiSelectCollector - Creates a DropDownCollector object based on the provided field and index.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the DropDownCollector.
  * @returns {SingleValueCollector} The constructed DropDownCollector object.
  */
-export function returnDropDownCollector(field: DaVinciField, idx: number) {
-  return returnSingleValueCollector(field, idx, 'DropDownCollector');
+export function returnMultiSelectCollector(field: MultiSelect, idx: number) {
+  return returnMultiValueCollector(field, idx, 'MultiSelectCollector');
 }
-/**
- * @function returnComboboxCollector - Creates a ComboboxCollector object based on the provided field and index.
- * @param {DaVinciField} field - The field object containing key, label, type, and links.
- * @param {number} idx - The index to be used in the id of the ComboboxCollector.
- * @returns {SingleValueCollector} The constructed ComboboxCollector object.
- */
-export function returnComboboxCollector(field: Combobox, idx: number) {
-  return returnSingleValueCollector(field, idx, 'ComboboxCollector');
-}
-
-/**
- * @function returnFlowLinkCollector - Creates a FlowLinkCollector object based on the provided field and index.
- * @param {DaVinciField} field - The field object containing key, label, type, and links.
- * @param {number} idx - The index to be used in the id of the FlowLinkCollector.
- * @returns {SingleValueCollector} The constructed FlowLinkCollector object.
- **/
-export function returnFlowLinkCollector(field: DaVinciField, idx: number) {
-  return returnSingleValueCollector(field, idx, 'FlowLinkCollector');
-}
-
-/**
- * @function returnLabelCollector - Creates a LabelCollector object based on the provided field and index.
- * @param {DaVinciField} field - The field object containing key, label, type, and links.
- * @param {number} idx - The index to be used in the id of the LabelCollector.
- * @returns {SingleValueCollector} The constructed LabelCollector object.
- **/
-//export function returnLabelCollector(field: LabelField, idx: number) {
-//  return returnSingleValueCollector(field, idx, 'LabelCollector');
-//}

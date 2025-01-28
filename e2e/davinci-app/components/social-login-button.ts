@@ -1,4 +1,4 @@
-import { SocialLoginCollector } from '@forgerock/davinci-client/types';
+import type { SocialLoginCollector } from '@forgerock/davinci-client/types';
 
 export default function submitButtonComponent(
   formEl: HTMLFormElement,

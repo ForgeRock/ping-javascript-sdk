@@ -12,12 +12,8 @@ import type {
 import type { ErrorDetail, Links } from './davinci.types.js';
 import {
   ActionCollector,
-  ComboboxCollector,
-  DropDownCollector,
   FlowCollector,
-  FlowLinkCollector,
   PasswordCollector,
-  RadioCollector,
   SingleValueCollector,
   SocialLoginCollector,
   SubmitCollector,
@@ -203,10 +199,6 @@ describe('Node Types', () => {
         | TextCollector
         | PasswordCollector
         | FlowCollector
-        | RadioCollector
-        | ComboboxCollector
-        | DropDownCollector
-        | FlowLinkCollector
         | SocialLoginCollector
         | SubmitCollector
         | ActionCollector<'ActionCollector'>

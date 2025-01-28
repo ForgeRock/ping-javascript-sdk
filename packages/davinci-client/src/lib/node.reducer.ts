@@ -14,22 +14,16 @@ import {
   returnSocialLoginCollector,
   returnSubmitCollector,
   returnTextCollector,
-  returnRadioCollector,
-  returnComboboxCollector,
-  returnFlowLinkCollector,
-  returnDropDownCollector,
-  //returnLabelCollector,
+  returnSingleSelectCollector,
+  returnMultiSelectCollector,
 } from './collector.utils.js';
 import type { DaVinciField } from './davinci.types';
 import {
   ActionCollector,
-  ComboboxCollector,
-  DropDownCollector,
+  MultiSelectCollector,
+  SingleSelectCollector,
   FlowCollector,
-  FlowLinkCollector,
-  //LabelCollector,
   PasswordCollector,
-  RadioCollector,
   SingleValueCollector,
   SocialLoginCollector,
   SubmitCollector,
@@ -60,11 +54,8 @@ const initialCollectorValues: (
   | SubmitCollector
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>
-  //| LabelCollector
-  | FlowLinkCollector
-  | DropDownCollector
-  | ComboboxCollector
-  | RadioCollector
+  | SingleSelectCollector
+  | MultiSelectCollector
 )[] = [];
 
 /**
@@ -83,37 +74,29 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       const collectors = action.payload.map((field: DaVinciField, idx: number) => {
         // Specific Collectors
         switch (field.type) {
-          case 'SUBMIT_BUTTON':
-            return returnSubmitCollector(field, idx);
+          case 'CHECKBOX':
+          case 'COMBOBOX': // Intentional fall-through
+            return returnMultiSelectCollector(field, idx);
+          case 'DROPDOWN':
+          case 'RADIO': // Intentional fall-through
+            return returnSingleSelectCollector(field, idx);
           case 'FLOW_BUTTON':
+          case 'FLOW_LINK': // Intentional fall-through
             return returnFlowCollector(field, idx);
-          case 'SOCIAL_LOGIN_BUTTON':
-            return returnSocialLoginCollector(field, idx);
           case 'PASSWORD':
             return returnPasswordCollector(field, idx);
           case 'TEXT':
             return returnTextCollector(field, idx);
-          //case 'LABEL':
-          //return returnLabelCollector(field, idx);
-          //case 'ERROR_DISPLAY':
-          case 'FLOW_LINK':
-            return returnFlowLinkCollector(field, idx);
-          case 'DROPDOWN':
-            return returnDropDownCollector(field, idx);
-          case 'COMBOBOX':
-            return returnComboboxCollector(field, idx);
-          //case 'MULTI_SELECT':
-          //break;
-          case 'RADIO':
-            return returnRadioCollector(field, idx);
-          //case 'CHECKBOX':
-          //return returnCheckboxCollector(field, idx);
+          case 'SOCIAL_LOGIN_BUTTON':
+            return returnSocialLoginCollector(field, idx);
+          case 'SUBMIT_BUTTON':
+            return returnSubmitCollector(field, idx);
           default:
           // Default is handled below
         }
 
         // Generic Collectors
-        if (field.type.includes('BUTTON')) {
+        if (field.type.includes('BUTTON') || field.type.includes('LINK')) {
           return returnActionCollector(field, idx, 'ActionCollector');
         }
 

@@ -11,11 +11,12 @@ import type {
   FlowCollector,
   SocialLoginCollector,
   SubmitCollector,
-  DropDownCollector,
-  ComboboxCollector,
-  RadioCollector,
-  FlowLinkCollector,
-  InferSingleValueCollectorFromSingleValueCollectorType,
+  SingleSelectCollector,
+  MultiValueCollectorWithValue,
+  MultiSelectCollector,
+  InferSingleValueCollectorType,
+  InferMultiValueCollectorType,
+  InferActionCollectorType,
 } from './collector.types.js';
 
 describe('Collector Types', () => {
@@ -45,48 +46,30 @@ describe('Collector Types', () => {
       }>();
     });
 
-    it('should validate DropDownCollector structure', () => {
-      expectTypeOf<DropDownCollector>().toMatchTypeOf<
-        SingleValueCollectorWithValue<'DropDownCollector'>
+    it('should validate SingleCollector structure', () => {
+      expectTypeOf<SingleSelectCollector>().toMatchTypeOf<
+        SingleValueCollectorWithValue<'SingleSelectCollector'>
       >();
-      expectTypeOf<DropDownCollector>()
+      expectTypeOf<SingleSelectCollector>()
         .toHaveProperty('category')
         .toEqualTypeOf<'SingleValueCollector'>();
-      expectTypeOf<DropDownCollector>().toHaveProperty('type').toEqualTypeOf<'DropDownCollector'>();
-      expectTypeOf<DropDownCollector['output']>().toHaveProperty('value');
+      expectTypeOf<SingleSelectCollector>()
+        .toHaveProperty('type')
+        .toEqualTypeOf<'SingleSelectCollector'>();
+      expectTypeOf<SingleSelectCollector['output']>().toHaveProperty('value');
     });
 
-    it('should validate ComboboxCollector structure', () => {
-      expectTypeOf<ComboboxCollector>().toMatchTypeOf<
-        SingleValueCollectorWithValue<'ComboboxCollector'>
+    it('should validate MultiSelectCollector structure', () => {
+      expectTypeOf<MultiSelectCollector>().toMatchTypeOf<
+        MultiValueCollectorWithValue<'MultiSelectCollector'>
       >();
-      expectTypeOf<ComboboxCollector>()
+      expectTypeOf<MultiSelectCollector>()
         .toHaveProperty('category')
-        .toEqualTypeOf<'SingleValueCollector'>();
-      expectTypeOf<ComboboxCollector>().toHaveProperty('type').toEqualTypeOf<'ComboboxCollector'>();
-      expectTypeOf<ComboboxCollector['output']>().toHaveProperty('value');
-    });
-
-    it('should validate RadioCollector structure', () => {
-      expectTypeOf<RadioCollector>().toMatchTypeOf<
-        SingleValueCollectorWithValue<'RadioCollector'>
-      >();
-      expectTypeOf<RadioCollector>()
-        .toHaveProperty('category')
-        .toEqualTypeOf<'SingleValueCollector'>();
-      expectTypeOf<RadioCollector>().toHaveProperty('type').toEqualTypeOf<'RadioCollector'>();
-      expectTypeOf<RadioCollector['output']>().toHaveProperty('value');
-    });
-
-    it('should validate FlowLinkCollector structure', () => {
-      expectTypeOf<FlowLinkCollector>().toMatchTypeOf<
-        SingleValueCollectorNoValue<'FlowLinkCollector'>
-      >();
-      expectTypeOf<FlowLinkCollector>()
-        .toHaveProperty('category')
-        .toEqualTypeOf<'SingleValueCollector'>();
-      expectTypeOf<FlowLinkCollector>().toHaveProperty('type').toEqualTypeOf<'FlowLinkCollector'>();
-      expectTypeOf<TextCollector['output']['value']>().toBeString();
+        .toEqualTypeOf<'MultiValueCollector'>();
+      expectTypeOf<MultiSelectCollector>()
+        .toHaveProperty('type')
+        .toEqualTypeOf<'MultiSelectCollector'>();
+      expectTypeOf<MultiSelectCollector['output']>().toHaveProperty('value');
     });
   });
 
@@ -121,21 +104,19 @@ describe('Collector Types', () => {
 
   describe('Type Inference', () => {
     it('should correctly infer SingleValueCollector types', () => {
-      expectTypeOf<
-        InferSingleValueCollectorFromSingleValueCollectorType<'TextCollector'>
-      >().toEqualTypeOf<TextCollector>();
+      expectTypeOf<InferSingleValueCollectorType<'TextCollector'>>().toEqualTypeOf<TextCollector>();
 
       expectTypeOf<
-        InferSingleValueCollectorFromSingleValueCollectorType<'PasswordCollector'>
+        InferSingleValueCollectorType<'PasswordCollector'>
       >().toEqualTypeOf<PasswordCollector>();
 
       expectTypeOf<
-        InferSingleValueCollectorFromSingleValueCollectorType<'DropDownCollector'>
-      >().toEqualTypeOf<DropDownCollector>();
+        InferSingleValueCollectorType<'SingleSelectCollector'>
+      >().toEqualTypeOf<SingleSelectCollector>();
     });
 
     it('should handle generic SingleValueCollector type', () => {
-      type Generic = InferSingleValueCollectorFromSingleValueCollectorType<'SingleValueCollector'>;
+      type Generic = InferSingleValueCollectorType<'SingleValueCollector'>;
       expectTypeOf<Generic>().toMatchTypeOf<
         | SingleValueCollectorWithValue<'SingleValueCollector'>
         | SingleValueCollectorNoValue<'SingleValueCollector'>
@@ -148,10 +129,7 @@ describe('Collector Types', () => {
       const validTypes: SingleValueCollectorTypes[] = [
         'TextCollector',
         'PasswordCollector',
-        'DropDownCollector',
-        'ComboboxCollector',
-        'RadioCollector',
-        'FlowLinkCollector',
+        'SingleSelectCollector',
       ];
 
       // Type assertion to ensure SingleValueCollectorTypes includes all these values
@@ -245,7 +223,7 @@ describe('Collector Types', () => {
   });
   describe('InferSingleValueCollectorFromSingleValueCollectorType', () => {
     it('should correctly infer TextCollector Type', () => {
-      const tCollector: InferSingleValueCollectorFromSingleValueCollectorType<'TextCollector'> = {
+      const tCollector: InferSingleValueCollectorType<'TextCollector'> = {
         category: 'SingleValueCollector',
         error: null,
         type: 'TextCollector',
@@ -267,103 +245,31 @@ describe('Collector Types', () => {
       expectTypeOf(tCollector).toMatchTypeOf<TextCollector>();
     });
     it('should correctly infer PasswordCollector Type', () => {
-      const tCollector: InferSingleValueCollectorFromSingleValueCollectorType<'PasswordCollector'> =
-        {
-          category: 'SingleValueCollector',
-          error: null,
-          type: 'PasswordCollector',
-          id: '',
-          name: '',
-          input: {
-            key: '',
-            value: '',
-            type: '',
-          },
-          output: {
-            key: '',
-            label: '',
-            type: '',
-          },
-        };
+      const tCollector: InferSingleValueCollectorType<'PasswordCollector'> = {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'PasswordCollector',
+        id: '',
+        name: '',
+        input: {
+          key: '',
+          value: '',
+          type: '',
+        },
+        output: {
+          key: '',
+          label: '',
+          type: '',
+        },
+      };
 
       expectTypeOf(tCollector).toMatchTypeOf<PasswordCollector>();
     });
     it('should correctly infer SingleValueCollector Type', () => {
-      const tCollector: InferSingleValueCollectorFromSingleValueCollectorType<'SingleValueCollector'> =
-        {
-          category: 'SingleValueCollector',
-          error: null,
-          type: 'SingleValueCollector',
-          id: '',
-          name: '',
-          input: {
-            key: '',
-            value: '',
-            type: '',
-          },
-          output: {
-            key: '',
-            label: '',
-            type: '',
-            value: '',
-          },
-        };
-
-      expectTypeOf(tCollector).toMatchTypeOf<
-        SingleValueCollectorWithValue<'SingleValueCollector'>
-      >();
-    });
-    it('should correctly infer ComboboxCollector Type', () => {
-      const tCollector: InferSingleValueCollectorFromSingleValueCollectorType<'ComboboxCollector'> =
-        {
-          category: 'SingleValueCollector',
-          error: null,
-          type: 'ComboboxCollector',
-          id: '',
-          name: '',
-          input: {
-            key: '',
-            value: '',
-            type: '',
-          },
-          output: {
-            key: '',
-            label: '',
-            type: '',
-            value: '',
-          },
-        };
-
-      expectTypeOf(tCollector).toMatchTypeOf<ComboboxCollector>();
-    });
-    it('should correctly infer DropDownCollector Type', () => {
-      const tCollector: InferSingleValueCollectorFromSingleValueCollectorType<'DropDownCollector'> =
-        {
-          category: 'SingleValueCollector',
-          error: null,
-          type: 'DropDownCollector',
-          id: '',
-          name: '',
-          input: {
-            key: '',
-            value: '',
-            type: '',
-          },
-          output: {
-            key: '',
-            label: '',
-            type: '',
-            value: '',
-          },
-        };
-
-      expectTypeOf(tCollector).toMatchTypeOf<DropDownCollector>();
-    });
-    it('should correctly infer RadioCollector Type', () => {
-      const tCollector: InferSingleValueCollectorFromSingleValueCollectorType<'RadioCollector'> = {
+      const tCollector: InferSingleValueCollectorType<'SingleValueCollector'> = {
         category: 'SingleValueCollector',
         error: null,
-        type: 'RadioCollector',
+        type: 'SingleValueCollector',
         id: '',
         name: '',
         input: {
@@ -379,29 +285,71 @@ describe('Collector Types', () => {
         },
       };
 
-      expectTypeOf(tCollector).toMatchTypeOf<RadioCollector>();
+      expectTypeOf(tCollector).toMatchTypeOf<
+        SingleValueCollectorWithValue<'SingleValueCollector'>
+      >();
     });
-    it('should correctly infer FlowLinkCollector Type', () => {
-      const tCollector: InferSingleValueCollectorFromSingleValueCollectorType<'FlowLinkCollector'> =
-        {
-          category: 'SingleValueCollector',
-          error: null,
-          type: 'FlowLinkCollector',
-          id: '',
-          name: '',
-          input: {
-            key: '',
-            value: '',
-            type: '',
-          },
-          output: {
-            key: '',
-            label: '',
-            type: '',
-          },
-        };
+    it('should correctly infer MultiSelectCollector Type', () => {
+      const tCollector: InferMultiValueCollectorType<'MultiSelectCollector'> = {
+        category: 'MultiValueCollector',
+        error: null,
+        type: 'MultiSelectCollector',
+        id: '',
+        name: '',
+        input: {
+          key: '',
+          value: [''],
+          type: '',
+        },
+        output: {
+          key: '',
+          label: '',
+          type: '',
+          value: [''],
+          options: [{ label: '', value: '' }],
+        },
+      };
 
-      expectTypeOf(tCollector).toMatchTypeOf<FlowLinkCollector>();
+      expectTypeOf(tCollector).toMatchTypeOf<MultiSelectCollector>();
+    });
+    it('should correctly infer SingleSelectCollector Type', () => {
+      const tCollector: InferSingleValueCollectorType<'SingleSelectCollector'> = {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'SingleSelectCollector',
+        id: '',
+        name: '',
+        input: {
+          key: '',
+          value: '',
+          type: '',
+        },
+        output: {
+          key: '',
+          label: '',
+          type: '',
+          value: '',
+          options: [{ label: '', value: '' }],
+        },
+      };
+
+      expectTypeOf(tCollector).toMatchTypeOf<SingleSelectCollector>();
+    });
+    it('should correctly infer FlowCollector Type', () => {
+      const tCollector: InferActionCollectorType<'FlowCollector'> = {
+        category: 'ActionCollector',
+        error: null,
+        type: 'FlowCollector',
+        id: '',
+        name: '',
+        output: {
+          key: '',
+          label: '',
+          type: '',
+        },
+      };
+
+      expectTypeOf(tCollector).toMatchTypeOf<FlowCollector>();
     });
   });
 });
