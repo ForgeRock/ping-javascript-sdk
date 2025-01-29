@@ -1,4 +1,5 @@
-import { expect, it } from '@effect/vitest';
+import { it } from '@effect/vitest';
+import { expect } from 'vitest';
 import { UserInfo, userInfoMock } from '../userinfo.service.js';
 import { userInfoResponse } from '../../responses/userinfo/userinfo.js';
 import { Effect } from 'effect';

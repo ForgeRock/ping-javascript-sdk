@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "compilerOptions": {},
+  "files": [], // intentionally empty
+  "references": [
+    {
+      "path": "./packages/device-client"
+    },
+    {
+      "path": "./e2e/davinci-suites"
+    },
+    {
+      "path": "./e2e/davinci-app"
+    },
+    {
+      "path": "./e2e/mock-api-v2"
+    },
+    {
+      "path": "./packages/davinci-client"
+    }
+  ]
+}

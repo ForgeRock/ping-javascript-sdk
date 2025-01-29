@@ -11,11 +11,5 @@
     "@forgerock/davinci-client": "workspace:*",
     "@forgerock/javascript-sdk": "4.7.0"
   },
-  "devDependencies": {},
-  "scripts": {
-    "build": "nx exec -- vite build --watch false",
-    "serve": "vite dev",
-    "preview": "vite preview",
-    "lint": "nx exec -- eslint **/*.ts --fix"
-  }
+  "devDependencies": {}
 }

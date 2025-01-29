@@ -37,6 +37,9 @@ export async function createAuthorizeUrl(
   const [authorizeUrlOptions, storeOptions] = generateAndStoreAuthUrlValues({
     clientId: options.clientId,
     login: options.login,
+    // this type fails when module resolution is Node16
+    // Probably because the javascript-sdk is set to bundler
+    // so we need to make this correct with .js extensions if possible
     serverConfig: { baseUrl },
     responseType: ResponseType.Code,
   });

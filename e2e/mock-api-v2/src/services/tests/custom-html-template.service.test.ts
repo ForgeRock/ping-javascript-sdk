@@ -1,8 +1,10 @@
-import { it, expect } from '@effect/vitest';
+import { it } from '@effect/vitest';
+import { expect } from 'vitest';
 import { CustomHtmlTemplate, mockCustomHtmlTemplate } from '../custom-html-template.service.js';
 import { Effect, Exit, Layer } from 'effect';
 import { mockRequest } from '../request.service.js';
 import { UsernamePassword } from '../../responses/username-password.js';
+import { HttpError } from 'effect-http';
 
 const queryParams = {
   response_mode: 'pi.flow',
@@ -70,6 +72,8 @@ it.effect('should return error', () =>
       body,
     ).pipe(Effect.exit);
 
-    expect(result).toEqual(Exit.fail('unauthorized'));
+    expect(result).toEqual(
+      Exit.fail(HttpError.unauthorized('invalid protect node, did not pass validation')),
+    );
   }).pipe(Effect.provide(Layer.provideMerge(mockCustomHtmlTemplate, mockRequest))),
 );

@@ -1,39 +1,6 @@
 import { defineConfig } from 'vite';
-import dts from 'vite-plugin-dts';
-import { codecovVitePlugin } from '@codecov/vite-plugin';
 
-export default defineConfig(() => ({
-  cacheDir: '../../node_modules/.vite/ping-protect',
-  build: {
-    outDir: './dist',
-    lib: {
-      entry: 'src/index.ts',
-      name: 'self-service',
-      formats: ['es'],
-      fileName: (extension, filename) => `${filename}.js`,
-    },
-    rollupOptions: {
-      external: [/node_modules/, '@forgerock/javascript-sdk'],
-      output: {
-        dir: './dist',
-        preserveModules: true,
-        preserveModulesRoot: 'src',
-      },
-    },
-  },
-  plugins: [
-    dts({
-      declarationOnly: false,
-      rollupTypes: false,
-      entryRoot: 'src',
-      tsconfigPath: './tsconfig.lib.json',
-    }),
-    codecovVitePlugin({
-      enableBundleAnalysis: process.env['CODECOV_TOKEN'] !== undefined,
-      bundleName: 'davinci-client',
-      uploadToken: process.env['CODECOV_TOKEN'],
-    }),
-  ],
+export default defineConfig({
   test: {
     reporters: ['default'],
     globals: true,
@@ -46,7 +13,6 @@ export default defineConfig(() => ({
       reportsDirectory: './coverage',
       provider: 'v8',
     },
-
     deps: {
       optimizer: {
         web: {
@@ -57,4 +23,4 @@ export default defineConfig(() => ({
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
-}));
+});

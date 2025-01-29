@@ -1,4 +1,5 @@
-import { it, expect } from '@effect/vitest';
+import { it } from '@effect/vitest';
+import { expect } from 'vitest';
 import {
   getElementFromCookie,
   incrementCookieHeader,
@@ -8,6 +9,7 @@ import { HeaderTypes } from '../../types/index.js';
 import { Effect, Exit } from 'effect';
 import { responseMap } from '../../responses/index.js';
 import { returnSuccessResponseRedirect } from '../../responses/return-success-redirect.js';
+import { NoSuchElementException } from 'effect/Cause';
 
 it.effect('should parse a cookie header for an index value', () =>
   Effect.gen(function* () {
@@ -27,7 +29,7 @@ it.effect('should parse a cookie header for an index value', () =>
     };
 
     const result = yield* parseCookieHeaderForIndex(header).pipe(Effect.exit);
-    expect(result).toEqual(Exit.fail('is a none'));
+    expect(result).toEqual(Exit.fail(new NoSuchElementException()));
   }),
 );
 

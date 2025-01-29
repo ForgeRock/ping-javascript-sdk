@@ -1,4 +1,5 @@
-import { it, expect } from '@effect/vitest';
+import { it } from '@effect/vitest';
+import { expect } from 'vitest';
 import { Request, mockRequest } from '../request.service.js';
 import { Effect } from 'effect';
 import { CustomHtmlResponseBody } from '../custom-html-template.service.js';
@@ -14,6 +15,7 @@ it('should make a get request', () =>
 
 it('should make a post request', () =>
   Effect.gen(function* () {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const queryParams = {
       response_mode: 'pi.flow',
       client_id: '724ec718-c41c-4d51-98b0-84a583f450f9',

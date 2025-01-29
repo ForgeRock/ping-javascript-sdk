@@ -152,7 +152,7 @@ describe('Client Types', () => {
     expectTypeOf<InitFlow>().toBeFunction();
 
     // @ts-expect-error - Should not allow non-promise return - we expect this to error
-    expectTypeOf<InitFlow>().returns.toEqualTypeOf<InitFlow>;
+    expectTypeOf<InitFlow>().returns.toEqualTypeOf<InitFlow>();
   });
 });
 

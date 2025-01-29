@@ -18,7 +18,7 @@ const config: PlaywrightTestConfig = {
   },
   webServer: [
     {
-      command: 'pnpm nx serve @forgerock/davinci-app',
+      command: 'pnpm nx dev @forgerock/davinci-app',
       port: 5829,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,

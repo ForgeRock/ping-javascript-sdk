@@ -126,6 +126,7 @@ describe('Collector Types', () => {
 
   describe('Base Type Validations', () => {
     it('should validate SingleValueCollectorTypes contains all valid types', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const validTypes: SingleValueCollectorTypes[] = [
         'TextCollector',
         'PasswordCollector',
@@ -137,6 +138,7 @@ describe('Collector Types', () => {
     });
 
     it('should validate ActionCollectorTypes contains all valid types', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const validTypes: ActionCollectorTypes[] = [
         'SocialLoginCollector',
         'FlowCollector',

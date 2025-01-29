@@ -1,4 +1,5 @@
-import { it, expect } from '@effect/vitest';
+import { it } from '@effect/vitest';
+import { expect } from 'vitest';
 import { Effect, Layer } from 'effect';
 import { Authorize, authorizeMock } from '../authorize.service.js';
 import { mockRequest } from '../request.service.js';

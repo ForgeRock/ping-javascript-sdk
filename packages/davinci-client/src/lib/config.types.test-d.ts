@@ -74,7 +74,7 @@ describe('Config Types', () => {
         serverConfig: {},
       };
       expectTypeOf(config).toMatchTypeOf<InternalDaVinciConfig>();
-      expectTypeOf<InternalDaVinciConfig>().toHaveProperty('wellknownResponse').toBeObject;
+      expectTypeOf<InternalDaVinciConfig>().toHaveProperty('wellknownResponse').toBeObject();
     });
 
     it('should combine DaVinciConfig and wellknownResponse', () => {

@@ -1,3 +1,0 @@
-{
-  "*": ["pnpm run nx format:write"]
-}
