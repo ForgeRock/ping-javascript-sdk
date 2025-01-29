@@ -17,7 +17,7 @@ import {
   returnSingleSelectCollector,
   returnMultiSelectCollector,
 } from './collector.utils.js';
-import type { DaVinciField } from './davinci.types';
+import type { DaVinciField } from './davinci.types.js';
 import {
   ActionCollector,
   MultiSelectCollector,

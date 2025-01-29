@@ -1,5 +1,5 @@
-import { GenericError } from './error.types';
-import { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types';
+import { GenericError } from './error.types.js';
+import { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
 export type FlowNode = ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
 

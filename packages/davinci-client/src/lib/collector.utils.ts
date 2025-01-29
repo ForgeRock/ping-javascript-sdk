@@ -10,7 +10,12 @@ import type {
   MultiValueCollectorTypes,
   InferActionCollectorType,
 } from './collector.types';
-import type { DaVinciField, MultiSelect, SingleSelect, StandardFieldValue } from './davinci.types';
+import type {
+  DaVinciField,
+  MultiSelect,
+  SingleSelect,
+  StandardFieldValue,
+} from './davinci.types.js';
 
 /**
  * @function returnActionCollector - Creates an ActionCollector object based on the provided field and index.

@@ -13,7 +13,9 @@ import type { ErrorDetail, Links } from './davinci.types.js';
 import {
   ActionCollector,
   FlowCollector,
+  MultiSelectCollector,
   PasswordCollector,
+  SingleSelectCollector,
   SingleValueCollector,
   SocialLoginCollector,
   SubmitCollector,
@@ -203,6 +205,8 @@ describe('Node Types', () => {
         | SubmitCollector
         | ActionCollector<'ActionCollector'>
         | SingleValueCollector<'SingleValueCollector'>
+        | MultiSelectCollector
+        | SingleSelectCollector
       >();
 
       // Test that each collector type is part of the union

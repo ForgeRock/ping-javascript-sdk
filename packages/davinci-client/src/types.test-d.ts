@@ -14,10 +14,6 @@ import type {
   TextCollector,
   SocialLoginCollector,
   SubmitCollector,
-  DropdownCollector,
-  ComboboxCollector,
-  RadioCollector,
-  FlowLinkCollector,
 } from './types.js';
 import type * as Types from './types.js';
 
@@ -76,48 +72,6 @@ describe('Type exports', () => {
           .toEqualTypeOf<'PasswordCollector'>();
         expectTypeOf<PasswordCollector>().toHaveProperty('input').toBeObject();
         expectTypeOf<PasswordCollector>().toHaveProperty('output').toBeObject();
-      });
-
-      it('should validate DropdownCollector structure', () => {
-        expectTypeOf<DropdownCollector>()
-          .toHaveProperty('category')
-          .toEqualTypeOf<'SingleValueCollector'>();
-        expectTypeOf<DropdownCollector>()
-          .toHaveProperty('type')
-          .toEqualTypeOf<'DropDownCollector'>();
-        expectTypeOf<DropdownCollector>().toHaveProperty('input').toBeObject();
-        expectTypeOf<DropdownCollector>().toHaveProperty('output').toBeObject();
-      });
-
-      it('should validate ComboboxCollector structure', () => {
-        expectTypeOf<ComboboxCollector>()
-          .toHaveProperty('category')
-          .toEqualTypeOf<'SingleValueCollector'>();
-        expectTypeOf<ComboboxCollector>()
-          .toHaveProperty('type')
-          .toEqualTypeOf<'ComboboxCollector'>();
-        expectTypeOf<ComboboxCollector>().toHaveProperty('input').toBeObject();
-        expectTypeOf<ComboboxCollector>().toHaveProperty('output').toBeObject();
-      });
-
-      it('should validate RadioCollector structure', () => {
-        expectTypeOf<RadioCollector>()
-          .toHaveProperty('category')
-          .toEqualTypeOf<'SingleValueCollector'>();
-        expectTypeOf<RadioCollector>().toHaveProperty('type').toEqualTypeOf<'RadioCollector'>();
-        expectTypeOf<RadioCollector>().toHaveProperty('input').toBeObject();
-        expectTypeOf<RadioCollector>().toHaveProperty('output').toBeObject();
-      });
-
-      it('should validate FlowLinkCollector structure', () => {
-        expectTypeOf<FlowLinkCollector>()
-          .toHaveProperty('category')
-          .toEqualTypeOf<'SingleValueCollector'>();
-        expectTypeOf<FlowLinkCollector>()
-          .toHaveProperty('type')
-          .toEqualTypeOf<'FlowLinkCollector'>();
-        expectTypeOf<FlowLinkCollector>().toHaveProperty('input').toBeObject();
-        expectTypeOf<FlowLinkCollector>().toHaveProperty('output').toBeObject();
       });
     });
 

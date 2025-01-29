@@ -3,7 +3,7 @@
  */
 import type { Dispatch } from '@reduxjs/toolkit';
 
-import { nodeSlice } from './node.slice';
+import { nodeSlice } from './node.slice.js';
 
 import type {
   DaVinciCacheEntry,

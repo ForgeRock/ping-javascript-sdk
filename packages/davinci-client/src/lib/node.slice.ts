@@ -6,20 +6,20 @@ import { createSlice } from '@reduxjs/toolkit';
 /**
  * Import the needed reducers
  */
-import { nodeCollectorReducer, updateCollectorValues } from './node.reducer';
+import { nodeCollectorReducer, updateCollectorValues } from './node.reducer.js';
 
 /**
  * Import the types
  */
 import type { Draft, PayloadAction } from '@reduxjs/toolkit';
-import type { SubmitCollector } from './collector.types';
+import type { SubmitCollector } from './collector.types.js';
 import type {
   DavinciErrorResponse,
   DaVinciFailureResponse,
   DaVinciNextResponse,
   DaVinciSuccessResponse,
-} from './davinci.types';
-import type { ContinueNode, SuccessNode, ErrorNode, StartNode, FailureNode } from './node.types';
+} from './davinci.types.js';
+import type { ContinueNode, SuccessNode, ErrorNode, StartNode, FailureNode } from './node.types.js';
 
 /**
  * The possible statuses for the four types of nodes

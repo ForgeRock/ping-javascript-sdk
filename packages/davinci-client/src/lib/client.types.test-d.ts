@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expectTypeOf, it } from 'vitest';
-import type { InitFlow, InternalErrorResponse, FlowNode, Updater } from './client.types.js';
+import type { InitFlow, InternalErrorResponse, Updater } from './client.types.js';
 import type { GenericError } from './error.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
