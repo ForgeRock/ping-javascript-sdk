@@ -9,13 +9,7 @@
     "types": ["node"],
     "exactOptionalPropertyTypes": true,
     "strictNullChecks": true,
-    "noErrorTruncation": true,
-    "skipLibCheck": true,
-    "plugins": [
-      {
-        "name": "@effect/language-service"
-      }
-    ]
+    "noErrorTruncation": true
   },
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"]

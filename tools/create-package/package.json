@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@nx/devkit": "20.2.2",
-    "vitest": "^2.1.8"
+    "vitest": "^1.4.0"
   },
   "files": ["./dist"],
   "type": "commonjs",
