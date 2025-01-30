@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 
-import { nodeSlice } from './node.slice';
-import { next0 } from './mock-data/davinci.next.mock';
-import { nodeNext0 } from './mock-data/node.next.mock';
-import { success0, success1 } from './mock-data/davinci.success.mock';
-import { nodeSuccess0, nodeSuccess1 } from './mock-data/node.success.mock';
-import { error0a, error2b, error3 } from './mock-data/davinci.error.mock';
+import { nodeSlice } from './node.slice.js';
+import { next0 } from './mock-data/davinci.next.mock.js';
+import { nodeNext0 } from './mock-data/node.next.mock.js';
+import { success0, success1 } from './mock-data/davinci.success.mock.js';
+import { nodeSuccess0, nodeSuccess1 } from './mock-data/node.success.mock.js';
+import { error0a, error2b, error3 } from './mock-data/davinci.error.mock.js';
 
 describe('The node slice reducers', () => {
   it('should return the initial state', () => {

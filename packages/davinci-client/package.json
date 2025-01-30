@@ -6,6 +6,10 @@
   "typings": "./dist/index.d.ts",
   "type": "module",
   "files": ["dist"],
+  "sideEffects": ["./src/types.js"],
+  "nx": {
+    "tags": ["scope:package"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com:ForgeRock/forgerock-javascript-sdk.git",
@@ -19,9 +23,6 @@
     "@reduxjs/toolkit": "catalog:",
     "immer": "catalog:"
   },
-  "devDependencies": {
-    "vitest": "^1.4.0"
-  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -31,6 +32,7 @@
   },
   "scripts": {
     "build": "nx exec -- vite build",
+    "serve": "nx exec -- vite dev",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",

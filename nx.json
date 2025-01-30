@@ -12,6 +12,9 @@
     "noMarkdown": ["!{projectRoot}/**/*.md"]
   },
   "targetDefaults": {
+    "typecheck": {
+      "dependsOn": ["build", "^build"]
+    },
     "docs": {
       "dependsOn": ["build", "^build", "^docs"],
       "cache": true,

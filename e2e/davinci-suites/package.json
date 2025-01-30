@@ -7,6 +7,9 @@
   "main": "src/index.js",
   "author": "",
   "license": "ISC",
+  "nx": {
+    "implicitDependencies": ["@forgerock/davinci-app", "@forgerock/mock-api-v2"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git"

@@ -46,18 +46,52 @@ export interface Links {
   };
 }
 
-/**
- * Next or Continuation Response DaVinci API
- */
-
-export interface DaVinciField {
-  type: string;
+export type StandardFieldValue = {
+  type:
+    | 'PASSWORD'
+    | 'TEXT'
+    | 'SUBMIT_BUTTON'
+    | 'FLOW_BUTTON'
+    | 'FLOW_LINK'
+    | 'SOCIAL_LOGIN_BUTTON'
+    | 'BUTTON';
   key: string;
   label: string;
 
   // Optional properties
   links?: Links;
-}
+};
+
+export type SingleSelect = {
+  inputType: 'SINGLE_SELECT';
+  key: string;
+  label: string;
+  options: {
+    label: string;
+    value: string | number;
+  }[];
+  required?: boolean;
+  type: 'RADIO' | 'DROPDOWN';
+};
+
+export type MultiSelect = {
+  inputType: 'MULTI_SELECT';
+  key: string;
+  label: string;
+  options: {
+    label: string;
+    value: string | number;
+  }[];
+  required?: boolean;
+  type: 'CHECKBOX' | 'COMBOBOX';
+};
+
+export type DaVinciField = StandardFieldValue | SingleSelect | MultiSelect;
+
+/**
+ * Next or Continuation Response DaVinci API
+ */
+
 export interface DaVinciNextResponse extends DaVinciBaseResponse {
   // Optional properties
   _links?: Links;

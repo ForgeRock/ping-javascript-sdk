@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
-import { WellknownResponse } from './wellknown.types';
+import { WellknownResponse } from './wellknown.types.js';
 
 export const wellknownApi = createApi({
   reducerPath: 'wellknown',

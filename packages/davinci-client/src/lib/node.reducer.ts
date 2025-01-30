@@ -14,11 +14,14 @@ import {
   returnSocialLoginCollector,
   returnSubmitCollector,
   returnTextCollector,
+  returnSingleSelectCollector,
+  returnMultiSelectCollector,
 } from './collector.utils.js';
-
-import type { DaVinciField } from './davinci.types';
+import type { DaVinciField } from './davinci.types.js';
 import {
   ActionCollector,
+  MultiSelectCollector,
+  SingleSelectCollector,
   FlowCollector,
   PasswordCollector,
   SingleValueCollector,
@@ -51,6 +54,8 @@ const initialCollectorValues: (
   | SubmitCollector
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>
+  | SingleSelectCollector
+  | MultiSelectCollector
 )[] = [];
 
 /**
@@ -69,22 +74,29 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       const collectors = action.payload.map((field: DaVinciField, idx: number) => {
         // Specific Collectors
         switch (field.type) {
-          case 'SUBMIT_BUTTON':
-            return returnSubmitCollector(field, idx);
+          case 'CHECKBOX':
+          case 'COMBOBOX': // Intentional fall-through
+            return returnMultiSelectCollector(field, idx);
+          case 'DROPDOWN':
+          case 'RADIO': // Intentional fall-through
+            return returnSingleSelectCollector(field, idx);
           case 'FLOW_BUTTON':
+          case 'FLOW_LINK': // Intentional fall-through
             return returnFlowCollector(field, idx);
-          case 'SOCIAL_LOGIN_BUTTON':
-            return returnSocialLoginCollector(field, idx);
           case 'PASSWORD':
             return returnPasswordCollector(field, idx);
           case 'TEXT':
             return returnTextCollector(field, idx);
+          case 'SOCIAL_LOGIN_BUTTON':
+            return returnSocialLoginCollector(field, idx);
+          case 'SUBMIT_BUTTON':
+            return returnSubmitCollector(field, idx);
           default:
           // Default is handled below
         }
 
         // Generic Collectors
-        if (field.type.includes('BUTTON')) {
+        if (field.type.includes('BUTTON') || field.type.includes('LINK')) {
           return returnActionCollector(field, idx, 'ActionCollector');
         }
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
-import { nodeCollectorReducer } from './node.reducer';
-import { SubmitCollector, TextCollector } from './collector.types';
+import { nodeCollectorReducer } from './node.reducer.js';
+import { SubmitCollector, TextCollector } from './collector.types.js';
 
 describe('The node collector reducer', () => {
   it('should return the initial state', () => {

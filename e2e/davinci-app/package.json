@@ -1,14 +1,17 @@
 {
   "name": "@forgerock/davinci-app",
+  "version": "0.0.0",
   "description": "Ping DaVinci Client Test App",
   "type": "module",
   "private": true,
+  "nx": {
+    "tags": ["scope:app"]
+  },
   "dependencies": {
     "@forgerock/davinci-client": "workspace:*",
     "@forgerock/javascript-sdk": "4.6.0"
   },
   "devDependencies": {},
-  "version": "0.0.0",
   "scripts": {
     "build": "nx exec -- vite build --watch false",
     "serve": "vite dev",

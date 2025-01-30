@@ -14,7 +14,7 @@ import { handleResponse, transformActionRequest, transformSubmitRequest } from '
  * Import the DaVinci types
  */
 import type { RootStateWithNode } from './client.store.utils.js';
-import type { DaVinciCacheEntry, ThrownQueryError } from './davinci.types';
+import type { DaVinciCacheEntry, ThrownQueryError } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
 

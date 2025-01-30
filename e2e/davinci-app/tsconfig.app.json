@@ -4,6 +4,6 @@
     "outDir": "../../dist/out-tsc",
     "moduleResolution": "Bundler"
   },
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "exclude": ["**/*.spec.ts", "**/*.test.ts"],
+  "include": ["./main.ts", "components/**/*.ts"]
 }

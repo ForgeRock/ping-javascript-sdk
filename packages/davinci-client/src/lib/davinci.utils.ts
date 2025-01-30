@@ -3,7 +3,7 @@
  */
 import type { Dispatch } from '@reduxjs/toolkit';
 
-import { nodeSlice } from './node.slice';
+import { nodeSlice } from './node.slice.js';
 
 import type {
   DaVinciCacheEntry,
@@ -172,7 +172,6 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
    */
   if (cacheEntry.isSuccess) {
     const requestId = cacheEntry.requestId;
-
     if ('eventName' in cacheEntry.data && cacheEntry.data.eventName === 'continue') {
       const data = cacheEntry.data as DaVinciNextResponse;
       dispatch(nodeSlice.actions.next({ data, requestId, httpStatus: status }));

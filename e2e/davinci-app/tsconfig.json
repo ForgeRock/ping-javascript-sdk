@@ -7,6 +7,8 @@
     "lib": ["ESNext", "DOM"],
     "strict": true,
     "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "noUnusedLocals": true,
