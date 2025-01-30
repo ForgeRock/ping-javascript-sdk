@@ -11,7 +11,12 @@ import { wellknownApi } from './wellknown.api.js';
  * Import the DaVinciRequest types
  */
 import type { DaVinciConfig } from './config.types.js';
-import type { DaVinciAction, DaVinciRequest } from './davinci.types.js';
+import type {
+  DaVinciAction,
+  DaVinciRequest,
+  OutgoingQueryParams,
+  StartOptions,
+} from './davinci.types.js';
 import type { SingleValueCollectors } from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
 
@@ -94,8 +99,10 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
      * @method start - Method for initiating a DaVinci flow
      * @returns {Promise} - a promise that initiates a DaVinci flow and returns a node
      */
-    start: async () => {
-      await store.dispatch(davinciApi.endpoints.start.initiate());
+    start: async <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(
+      options?: StartOptions<QueryParams> | undefined,
+    ) => {
+      await store.dispatch(davinciApi.endpoints.start.initiate(options));
       return store.getState().node;
     },
 

@@ -255,3 +255,11 @@ export interface ThrownQueryError {
   isHandledError: boolean;
   meta: FetchBaseQueryMeta;
 }
+
+export interface StartOptions<Query extends OutgoingQueryParams = OutgoingQueryParams> {
+  query: Query;
+}
+// Outgoing query parameters (sent in the request)
+export interface OutgoingQueryParams {
+  [key: string]: string | string[];
+}

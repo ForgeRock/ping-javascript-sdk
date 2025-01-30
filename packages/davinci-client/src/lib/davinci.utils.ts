@@ -12,6 +12,7 @@ import type {
   DaVinciNextResponse,
   DaVinciRequest,
   DaVinciSuccessResponse,
+  StartOptions,
 } from './davinci.types';
 import type { ContinueNode } from './node.types';
 
