@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
-import pkg from './package.json';
+import * as pkg from './package.json';
+import { codecovVitePlugin } from '@codecov/vite-plugin';
 
 export default defineConfig({
   root: __dirname,
@@ -13,6 +14,11 @@ export default defineConfig({
       insertTypesEntry: false,
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+    }),
+    codecovVitePlugin({
+      enableBundleAnalysis: process.env['CODECOV_TOKEN'] !== undefined,
+      bundleName: 'davinci-client',
+      uploadToken: process.env['CODECOV_TOKEN'],
     }),
   ],
 

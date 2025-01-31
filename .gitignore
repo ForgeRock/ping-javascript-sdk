@@ -80,3 +80,7 @@ outputs/*
 e2e/mock-api-v2/html/*
 
 e2e/**/.playwright/*
+
+
+# bundle analysis
+packages/*/bundle-analysis.html

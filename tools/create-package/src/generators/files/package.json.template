@@ -10,14 +10,13 @@
   "sideEffects": <%= sideEffects %>,
   "exports": {
     ".": "./dist/index.js",
-    "./package.json": "./package.json",
+    "./package.json": "./package.json"
   },
   "files": ["<%= outputDir %>"],
   "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "build": "tsc --project ./tsconfig.lib.json ",
-    "docs": "typedoc --options packages/<%= name %>/typedoc.json",
+    "build": "nx exec -- vite build",
     "lint": "nx exec -- eslint **/*.ts --fix",
     "test": "vitest",
     "test:watch": "vitest --watch",

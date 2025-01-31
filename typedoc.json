@@ -1,0 +1,48 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["packages/*"],
+  "entryPointStrategy": "packages",
+  "out": "docs",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "hideGenerator": true,
+  "searchInComments": true,
+  "navigationLinks": {
+    "GitHub": "https://github.com/yourusername/yourrepo"
+  },
+  "packageOptions": {
+    "tsconfig": "tsconfig.lib.json",
+    "entryPoints": ["./src/index.ts", "./src/types.ts"]
+  },
+  "exclude": [
+    "**/dist",
+    "node_modules",
+    "**/coverage",
+    "**/*.(spec|test|e2e).ts",
+    "**/*.mock.*",
+    "**/*.data.*",
+    "**/docs/**",
+    "**/tests/**",
+    "**/specs/**",
+    "**/spec/**",
+    "**/test/**"
+  ],
+  "externalPattern": ["**/node_modules/**"],
+  "emit": "docs",
+  "theme": "typedoc-github-theme",
+  "gitRevision": "main",
+  "gitRemote": "origin",
+  "lang": "en",
+  "githubPages": true,
+  "sort": ["visibility", "required-first", "source-order"],
+  "visibilityFilters": {
+    "protected": true,
+    "private": true,
+    "inherited": true,
+    "external": true
+  },
+  "logLevel": "Verbose",
+  "plugin": ["typedoc-plugin-rename-defaults", "typedoc-github-theme"]
+}

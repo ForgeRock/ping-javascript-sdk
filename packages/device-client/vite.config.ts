@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
+import { codecovVitePlugin } from '@codecov/vite-plugin';
 
 export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/ping-protect',
@@ -26,6 +27,11 @@ export default defineConfig(() => ({
       rollupTypes: false,
       entryRoot: 'src',
       tsconfigPath: './tsconfig.lib.json',
+    }),
+    codecovVitePlugin({
+      enableBundleAnalysis: process.env['CODECOV_TOKEN'] !== undefined,
+      bundleName: 'davinci-client',
+      uploadToken: process.env['CODECOV_TOKEN'],
     }),
   ],
   test: {

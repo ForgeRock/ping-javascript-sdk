@@ -9,6 +9,7 @@ env:
   NX_CLOUD_DISTRIBUTED_EXECUTION: true
   PNPM_CACHE_FOLDER: .pnpm-store
   NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   HUSKY: 0
 
 jobs:
@@ -36,7 +37,7 @@ jobs:
 
       # This line enables distribution
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
-      - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --verbose
+      - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
 
       - run: pnpm exec playwright install
 
@@ -88,3 +89,22 @@ jobs:
         with:
           files: ./packages/**/coverage/*.xml
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Build docs
+        run: pnpm typedoc
+
+      - name: Publish api docs
+        if: steps.changesets.outputs.published === 'true'
+        uses: JamesIves/github-pages-deploy-action@v4.7.2
+        with:
+          folder: docs
+          commit-message: 'chore: release-api-docs'
+
+      - name: Publish api docs [beta]
+        if: steps.changesets.outputs.published === 'false'
+        id: latest-deploy
+        uses: JamesIves/github-pages-deploy-action@v4.7.2
+        with:
+          folder: docs
+          commit-message: 'chore: release-api-docs-beta'
+          target-folder: 'beta' # we push to beta folder when we are updating "main"
