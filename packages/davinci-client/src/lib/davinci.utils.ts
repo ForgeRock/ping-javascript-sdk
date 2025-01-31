@@ -12,9 +12,8 @@ import type {
   DaVinciNextResponse,
   DaVinciRequest,
   DaVinciSuccessResponse,
-  StartOptions,
-} from './davinci.types';
-import type { ContinueNode } from './node.types';
+} from './davinci.types.js';
+import type { ContinueNode } from './node.types.js';
 
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions

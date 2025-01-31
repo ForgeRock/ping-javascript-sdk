@@ -60,6 +60,7 @@ docs/packages/javascript-sdk
 packages/*/docs
 **/playwright-report
 **/playwright/.cache
+**/.playwright/*
 
 .nx/*
 !.nx/workflows

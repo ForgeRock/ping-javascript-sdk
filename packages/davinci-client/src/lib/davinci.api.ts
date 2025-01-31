@@ -19,7 +19,7 @@ import type {
   OutgoingQueryParams,
   StartOptions,
   ThrownQueryError,
-} from './davinci.types';
+} from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
 

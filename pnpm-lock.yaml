@@ -12415,6 +12415,7 @@ packages:
         integrity: sha512-s/ZhSRBusW2o+ZkERyzEIbVL3zo8QLpTQPVoB/pn/Yv6+ngflP+anK4xCYiXXQJhqEdBz3cwApa8UgOEaNSS4Q==,
       }
     engines: { node: '>=12.18' }
+    deprecated: this version is deprecated, please migrate to 6.x versions
     hasBin: true
 
   verror@1.10.0:

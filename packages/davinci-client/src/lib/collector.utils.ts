@@ -9,7 +9,7 @@ import type {
   SingleValueCollectorTypes,
   MultiValueCollectorTypes,
   InferActionCollectorType,
-} from './collector.types';
+} from './collector.types.js';
 import type {
   DaVinciField,
   MultiSelect,

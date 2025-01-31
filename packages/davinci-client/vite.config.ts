@@ -27,7 +27,7 @@ export default defineConfig({
         preserveModulesRoot: 'src',
       },
       external: Array.from(Object.keys(pkg.dependencies) || []).concat([
-        './src/lib/mock-data',
+        './src/lib/mock-data/*',
         '@reduxjs/toolkit/query',
         '@forgerock/javascript-sdk',
         '@forgerock/javascript-sdk/src/oauth2-client/state-pkce',
