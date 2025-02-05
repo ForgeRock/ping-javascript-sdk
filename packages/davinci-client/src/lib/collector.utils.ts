@@ -110,7 +110,7 @@ export function returnSubmitCollector(field: StandardFieldValue, idx: number) {
 export function returnSingleValueCollector<
   Field extends DaVinciField,
   CollectorType extends SingleValueCollectorTypes = 'SingleValueCollector',
->(field: Field, idx: number, collectorType: CollectorType) {
+>(field: Field, idx: number, collectorType: CollectorType, data?: string) {
   let error = '';
   if (!('key' in field)) {
     error = `${error}Key is not found in the field object. `;
@@ -138,6 +138,7 @@ export function returnSingleValueCollector<
         key: field.key,
         label: field.label,
         type: field.type,
+        // No default or existing value is passed
       },
     } as InferSingleValueCollectorType<CollectorType>;
   } else if (collectorType === 'SingleSelectCollector') {
@@ -164,7 +165,7 @@ export function returnSingleValueCollector<
         key: field.key,
         label: field.label,
         type: field.type,
-        value: '',
+        value: data || '',
         options: options,
       },
     } as InferSingleValueCollectorType<CollectorType>;
@@ -184,7 +185,7 @@ export function returnSingleValueCollector<
         key: field.key,
         label: field.label,
         type: field.type,
-        value: '',
+        value: data || '',
       },
     } as InferSingleValueCollectorType<CollectorType>;
   }
@@ -206,8 +207,8 @@ export function returnPasswordCollector(field: StandardFieldValue, idx: number) 
  * @param {number} idx - The index to be used in the id of the TextCollector.
  * @returns {TextCollector} The constructed TextCollector object.
  */
-export function returnTextCollector(field: StandardFieldValue, idx: number) {
-  return returnSingleValueCollector(field, idx, 'TextCollector');
+export function returnTextCollector(field: StandardFieldValue, idx: number, data: string) {
+  return returnSingleValueCollector(field, idx, 'TextCollector', data);
 }
 /**
  * @function returnSingleSelectCollector - Creates a SingleCollector object based on the provided field and index.
@@ -215,8 +216,8 @@ export function returnTextCollector(field: StandardFieldValue, idx: number) {
  * @param {number} idx - The index to be used in the id of the SingleCollector.
  * @returns {SingleValueCollector} The constructed SingleCollector object.
  */
-export function returnSingleSelectCollector(field: SingleSelect, idx: number) {
-  return returnSingleValueCollector(field, idx, 'SingleSelectCollector');
+export function returnSingleSelectCollector(field: SingleSelect, idx: number, data: string) {
+  return returnSingleValueCollector(field, idx, 'SingleSelectCollector', data);
 }
 
 /**
@@ -229,7 +230,7 @@ export function returnSingleSelectCollector(field: SingleSelect, idx: number) {
 export function returnMultiValueCollector<
   Field extends MultiSelect,
   CollectorType extends MultiValueCollectorTypes = 'MultiValueCollector',
->(field: Field, idx: number, collectorType: CollectorType) {
+>(field: Field, idx: number, collectorType: CollectorType, data?: string[]) {
   let error = '';
   if (!('key' in field)) {
     error = `${error}Key is not found in the field object. `;
@@ -259,7 +260,7 @@ export function returnMultiValueCollector<
       key: field.key,
       label: field.label,
       type: field.type,
-      value: [],
+      value: data || [],
       options: field.options || [],
     },
   } as InferMultiValueCollectorType<CollectorType>;
@@ -271,6 +272,6 @@ export function returnMultiValueCollector<
  * @param {number} idx - The index to be used in the id of the DropDownCollector.
  * @returns {SingleValueCollector} The constructed DropDownCollector object.
  */
-export function returnMultiSelectCollector(field: MultiSelect, idx: number) {
-  return returnMultiValueCollector(field, idx, 'MultiSelectCollector');
+export function returnMultiSelectCollector(field: MultiSelect, idx: number, data: string[]) {
+  return returnMultiValueCollector(field, idx, 'MultiSelectCollector', data);
 }

@@ -175,7 +175,10 @@ export const nodeSlice = createSlice({
 
       const collectors = nodeCollectorReducer([], {
         type: action.type,
-        payload: action.payload.data?.form?.components?.fields,
+        payload: {
+          fields: action.payload.data?.form?.components?.fields,
+          formData: action.payload.data?.formData,
+        },
       });
 
       const submitCollector = collectors.filter(
