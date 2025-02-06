@@ -28,7 +28,7 @@ describe('Collector Types', () => {
         .toEqualTypeOf<'SingleValueCollector'>();
       expectTypeOf<TextCollector>().toHaveProperty('type').toEqualTypeOf<'TextCollector'>();
       expectTypeOf<TextCollector['output']>().toHaveProperty('value');
-      expectTypeOf<TextCollector['output']['value']>().toBeString();
+      expectTypeOf<TextCollector['output']['value']>().toMatchTypeOf<string | boolean | number>();
     });
 
     it('should validate PasswordCollector structure', () => {

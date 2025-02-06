@@ -294,7 +294,7 @@ describe('Single Value Collectors', () => {
     });
 
     it('creates a text collector', () => {
-      const result = returnTextCollector(mockField, 1);
+      const result = returnTextCollector(mockField, 1, '');
       expect(result.type).toBe('TextCollector');
       expect(result.output).toHaveProperty('value', '');
     });
@@ -317,7 +317,7 @@ describe('Single Value Collectors', () => {
         ],
         inputType: 'SINGLE_SELECT',
       };
-      const result = returnSingleSelectCollector(field, 1);
+      const result = returnSingleSelectCollector(field, 1, '');
       expect(result.type).toBe('SingleSelectCollector');
       expect(result.output).toHaveProperty('value', '');
     });
@@ -344,7 +344,7 @@ describe('Single Value Collectors', () => {
         ],
         inputType: 'SINGLE_SELECT',
       };
-      const result = returnSingleSelectCollector(field, 1);
+      const result = returnSingleSelectCollector(field, 1, '');
       expect(result.type).toBe('SingleSelectCollector');
       expect(result.output).toHaveProperty('value', '');
     });
@@ -367,7 +367,7 @@ describe('Single Value Collectors', () => {
         ],
         inputType: 'MULTI_SELECT',
       };
-      const result = returnMultiSelectCollector(comboField, 1);
+      const result = returnMultiSelectCollector(comboField, 1, []);
       expect(result.type).toBe('MultiSelectCollector');
       expect(result.output).toHaveProperty('value', []);
     });
