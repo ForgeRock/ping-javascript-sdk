@@ -27,7 +27,7 @@ export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTyp
     key: string;
     label: string;
     type: string;
-    value: string;
+    value: string | number | boolean;
   };
 }
 
@@ -46,7 +46,7 @@ export interface SingleSelectCollectorWithValue<T extends SingleValueCollectorTy
     key: string;
     label: string;
     type: string;
-    value: string;
+    value: string | number | boolean;
     options: SelectorOptions[];
   };
 }
@@ -141,14 +141,14 @@ export interface MultiValueCollectorWithValue<T extends MultiValueCollectorTypes
   name: string;
   input: {
     key: string;
-    value: string[];
+    value: (string | number | boolean)[];
     type: string;
   };
   output: {
     key: string;
     label: string;
     type: string;
-    value: string[];
+    value: (string | number | boolean)[];
     options: SelectorOptions[];
   };
 }

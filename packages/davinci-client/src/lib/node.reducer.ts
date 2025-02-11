@@ -36,10 +36,13 @@ import {
  *
  * This is for internal "collector" setup for handling the state of the current node
  */
-export const nextCollectorValues = createAction<DaVinciField[]>('node/next');
+export const nextCollectorValues = createAction<{
+  fields: DaVinciField[];
+  formData: Record<string, unknown>;
+}>('node/next');
 export const updateCollectorValues = createAction<{
   id: string;
-  value: string;
+  value: string | boolean | number | string[];
   index?: number;
 }>('node/update');
 
@@ -70,38 +73,62 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
      * transformed to `'node/next'` for the action type.
      */
     .addCase(nextCollectorValues, (_, action) => {
+      const fields = action.payload.fields;
       // Map the fields to the initial state with the schema of Generic Collector
-      const collectors = action.payload.map((field: DaVinciField, idx: number) => {
-        // Specific Collectors
-        switch (field.type) {
-          case 'CHECKBOX':
-          case 'COMBOBOX': // Intentional fall-through
-            return returnMultiSelectCollector(field, idx);
-          case 'DROPDOWN':
-          case 'RADIO': // Intentional fall-through
-            return returnSingleSelectCollector(field, idx);
-          case 'FLOW_BUTTON':
-          case 'FLOW_LINK': // Intentional fall-through
-            return returnFlowCollector(field, idx);
-          case 'PASSWORD':
-            return returnPasswordCollector(field, idx);
-          case 'TEXT':
-            return returnTextCollector(field, idx);
-          case 'SOCIAL_LOGIN_BUTTON':
-            return returnSocialLoginCollector(field, idx);
-          case 'SUBMIT_BUTTON':
-            return returnSubmitCollector(field, idx);
-          default:
-          // Default is handled below
-        }
+      const collectors = Array.isArray(fields)
+        ? fields.map((field: DaVinciField, idx: number) => {
+            // *Some* collectors may have default or existing data to display
+            const data = action.payload.formData[field.key];
+            // Match specific collectors
+            switch (field.type) {
+              case 'CHECKBOX':
+              case 'COMBOBOX': {
+                // Intentional fall-through
+                const strArr = data as string[];
+                return returnMultiSelectCollector(field, idx, strArr);
+              }
+              case 'DROPDOWN':
+              case 'RADIO': {
+                // Intentional fall-through
+                const str = data as string;
+                return returnSingleSelectCollector(field, idx, str);
+              }
+              case 'FLOW_BUTTON':
+              case 'FLOW_LINK': {
+                // Intentional fall-through
+                // No data to send
+                return returnFlowCollector(field, idx);
+              }
+              case 'PASSWORD': {
+                // No data to send
+                return returnPasswordCollector(field, idx);
+              }
+              case 'TEXT': {
+                const str = data as string;
+                return returnTextCollector(field, idx, str);
+              }
+              case 'SOCIAL_LOGIN_BUTTON': {
+                // No data to send
+                return returnSocialLoginCollector(field, idx);
+              }
+              case 'SUBMIT_BUTTON': {
+                // No data to send
+                return returnSubmitCollector(field, idx);
+              }
+              default:
+              // Default is handled below
+            }
 
-        // Generic Collectors
-        if (field.type.includes('BUTTON') || field.type.includes('LINK')) {
-          return returnActionCollector(field, idx, 'ActionCollector');
-        }
+            // Generic Collectors
+            if (field.type.includes('BUTTON') || field.type.includes('LINK')) {
+              // No data to send
+              return returnActionCollector(field, idx, 'ActionCollector');
+            }
 
-        return returnSingleValueCollector(field, idx, 'SingleValueCollector');
-      });
+            const str = data as string;
+            return returnSingleValueCollector(field, idx, 'SingleValueCollector', str);
+          })
+        : [];
       return collectors || [];
     })
     /**
@@ -117,6 +144,25 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       if (collector.category === 'ActionCollector') {
         throw new Error('ActionCollectors are read-only');
       }
-      collector.input.value = action.payload.value;
+      if (action.payload.value === undefined) {
+        throw new Error('Value argument cannot be undefined');
+      }
+
+      if (collector.category === 'SingleValueCollector') {
+        if (Array.isArray(action.payload.value)) {
+          throw new Error('SingleValueCollector does not accept an array');
+        }
+        collector.input.value = action.payload.value;
+        return;
+      }
+
+      if (collector.category === 'MultiValueCollector') {
+        if (Array.isArray(action.payload.value)) {
+          collector.input.value = action.payload.value;
+        } else {
+          collector.input.value.push(action.payload.value);
+        }
+        return;
+      }
     });
 });
