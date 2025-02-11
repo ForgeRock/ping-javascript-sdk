@@ -204,7 +204,7 @@ const urlParams = new URLSearchParams(window.location.search);
     node = await davinciClient.start({ query });
   } else {
     node = resumed;
-    console.log('node is reusmed');
+    console.log('node is resumed');
     console.log(node);
   }
 

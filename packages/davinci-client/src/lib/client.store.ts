@@ -56,6 +56,31 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
     subscribe: store.subscribe,
 
     /**
+     * Social Login Handler
+     * Use this as part of an event when clicking on
+     * a social login button. Pass in the collector responsible
+     * for the social login being started.
+     *
+     * This method will save the `continueUrl`
+     * and then replace the window with the authenticate
+     * url from the collector
+     *
+     * Can return an error when no continue url is found
+     * or no authenticate url is found in the collectors
+     *
+     * @method: externalIdp
+     * @param collector IdpCollector
+     * @returns {function}
+     */
+    externalIdp: (collector: IdpCollector) => {
+      const rootState: RootState = store.getState();
+
+      const serverSlice = nodeSlice.selectors.selectServer(rootState);
+
+      return () => authorize(serverSlice, collector);
+    },
+
+    /**
      * @method flow - Method for initiating a new flow, different than current flow
      * @param {DaVinciAction} action - the action to initiate the flow
      * @returns {function} - an async function to call the flow
@@ -94,6 +119,15 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
 
       await store.dispatch(davinciApi.endpoints.next.initiate(args));
       const node = nodeSlice.selectSlice(store.getState());
+      return node;
+    },
+
+    /**
+     * @method: resume - Resume a social login flow when returned to application
+     * @returns unknown
+     */
+    resume: async ({ continueToken }: { continueToken: string }) => {
+      const node = store.dispatch(davinciApi.endpoints.resume.initiate({ continueToken }));
       return node;
     },
 
@@ -269,39 +303,6 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
     getServer: () => {
       const state = store.getState();
       return nodeSlice.selectors.selectServer(state);
-    },
-
-    /**
-     * @method: resume - Resume a social login flow when returned to application
-     * @returns unknown
-     */
-    resume: async ({ continueToken }: { continueToken: string }) => {
-      const node = store.dispatch(davinciApi.endpoints.resume.initiate({ continueToken }));
-      return node;
-    },
-    /**
-     * Social Login Handler
-     * Use this as part of an event when clicking on
-     * a social login button. Pass in the collector responsible
-     * for the social login being started.
-     *
-     * This method will save the `continueUrl`
-     * and then replace the window with the authenticate
-     * url from the collector
-     *
-     * Can return an error when no continue url is found
-     * or no authenticate url is found in the collectors
-     *
-     * @method: externalIdp
-     * @param collector IdpCollector
-     * @returns {function}
-     */
-    externalIdp: (collector: IdpCollector) => {
-      const rootState: RootState = store.getState();
-
-      const serverSlice = nodeSlice.selectors.selectServer(rootState);
-
-      return () => authorize(serverSlice, collector);
     },
 
     /**
