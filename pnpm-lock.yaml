@@ -51,8 +51,8 @@ importers:
         specifier: ^19.1.0
         version: 19.7.1(@types/node@22.10.2)(typescript@5.6.3)
       '@effect/language-service':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       '@effect/platform':
         specifier: ^0.58.27
         version: 0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
@@ -1156,8 +1156,8 @@ packages:
     resolution: {integrity: sha512-TWivJlJi8ZDx2wGOw1dbLuHJKUYX7bWySw377nlnGOW3hP9/MUKIsEdXT/YngWxVdgNCHRBmFlBipE+5/2ZZlQ==}
     engines: {node: '>= 6'}
 
-  '@effect/language-service@0.1.0':
-    resolution: {integrity: sha512-BnlM8LlaqCAYgdRfxlbR7gXGh/FD1scL1fPgNVJEPoOM08od1jtJz+iKhwfaud8TPnnhZR+TED2h5ynjanLeCQ==}
+  '@effect/language-service@0.2.0':
+    resolution: {integrity: sha512-DoK41yKGyQv79o0ca8gxEogMlt+IphXkdCXwgenbQjH1BXKD7tJAr0+VsDhblycQcvQ39f1l9NZN9CBqjM9ALA==}
 
   '@effect/platform-node-shared@0.8.26':
     resolution: {integrity: sha512-c7yYFvQwse5ar8JZitBM1fTGAQGfBQUqMRKVxKYux4GDMKw6oaZ8g7eQf9PRpMCxIdBMZlPilIablSJ0DtoPVQ==}
@@ -9291,7 +9291,7 @@ snapshots:
       tunnel-agent: 0.6.0
       uuid: 8.3.2
 
-  '@effect/language-service@0.1.0': {}
+  '@effect/language-service@0.2.0': {}
 
   '@effect/platform-node-shared@0.8.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)':
     dependencies:
