@@ -85,7 +85,7 @@
     "express": "^4.21.0",
     "fast-check": "^3.19.0",
     "husky": "^9.0.0",
-    "jsdom": "22.1.0",
+    "jsdom": "26.0.0",
     "jsonc-eslint-parser": "^2.1.0",
     "lint-staged": "^13.2.2",
     "npm-cli-login": "^1.0.0",
