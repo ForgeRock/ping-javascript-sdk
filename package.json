@@ -118,7 +118,7 @@
   "nx": {
     "includedScripts": []
   },
-  "packageManager": "pnpm@9.15.0+sha256.09a8fe31a34fda706354680619f4002f4ccef6dadff93240d24ef6c831f0fd28",
+  "packageManager": "pnpm@9.15.5+sha512.845196026aab1cc3f098a0474b64dfbab2afe7a1b4e91dd86895d8e4aa32a7a6d03049e2d0ad770bbe4de023a7122fb68c1a1d6e0d033c7076085f9d5d4800d4",
   "pnpm": {
     "overrides": {
       "jsonpath-plus@<=7.2.0": ">=10.2.0",
