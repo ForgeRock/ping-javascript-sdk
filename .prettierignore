@@ -7,6 +7,7 @@ package-lock.json
 .husky/*
 /.nx/workspace-data
 pnpm-lock.yml
+pnpm-lock.yaml
 packages/*/dist
 e2e/*/dist
 */dist
