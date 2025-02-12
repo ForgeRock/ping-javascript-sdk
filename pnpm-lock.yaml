@@ -178,7 +178,7 @@ importers:
         version: 4.21.2
       fast-check:
         specifier: ^3.19.0
-        version: 3.19.0
+        version: 3.23.2
       husky:
         specifier: ^9.0.0
         version: 9.1.7
@@ -4340,8 +4340,8 @@ packages:
     resolution: {integrity: sha512-11Ndz7Nv+mvAC1j0ktTa7fAb0vLyGGX+rMHNBYQviQDGU0Hw7lhctJANqbPhu9nV9/izT/IntTgZ7Im/9LJs9g==}
     engines: {'0': node >=0.6.0}
 
-  fast-check@3.19.0:
-    resolution: {integrity: sha512-CO2JX/8/PT9bDGO1iXa5h5ey1skaKI1dvecERyhH4pp3PGjwd3KIjMAXEg79Ps9nclsdt4oPbfqiAnLU0EwrAQ==}
+  fast-check@3.23.2:
+    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
     engines: {node: '>=8.0.0'}
 
   fast-decode-uri-component@1.0.1:
@@ -9417,7 +9417,7 @@ snapshots:
   '@effect/schema@0.68.23(effect@3.5.3)':
     dependencies:
       effect: 3.5.3
-      fast-check: 3.19.0
+      fast-check: 3.23.2
 
   '@effect/vitest@0.6.7(effect@3.5.3)(vitest@1.5.0)':
     dependencies:
@@ -13139,7 +13139,7 @@ snapshots:
 
   extsprintf@1.3.0: {}
 
-  fast-check@3.19.0:
+  fast-check@3.23.2:
     dependencies:
       pure-rand: 6.1.0
 
