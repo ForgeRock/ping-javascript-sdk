@@ -95,7 +95,7 @@
     "pretty-quick": "^4.0.0",
     "shx": "^0.3.4",
     "swc-loader": "0.1.15",
-    "ts-node": "10.9.1",
+    "ts-node": "10.9.2",
     "tslib": "^2.5.0",
     "typedoc": "^0.27.4",
     "typedoc-github-theme": "0.2.0",
