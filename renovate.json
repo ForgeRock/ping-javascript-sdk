@@ -1,25 +1,100 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", ":combinePatchMinorReleases"],
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true
   },
+  "automerge": false,
+  "rebaseWhen": "auto",
+  "semanticCommitScope": "deps",
+  "semanticCommitType": "chore",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10,
+  "labels": ["dependencies"],
   "npm": {
     "fileMatch": ["(^|/)(package\\.json)$"]
   },
   "ignoreDeps": [
-    "@nrwl/*",
-    "@nx/*",
-    "typescript",
-    "swc-loader",
-    "@swc/helpers"
+    "nx",
+    "@nx/devkit",
+    "@nx/eslint",
+    "@nx/eslint-plugin",
+    "@nx/jest",
+    "@nx/js",
+    "@nx/playwright",
+    "@nx/plugin",
+    "@nx/vite",
+    "@nx/web",
+    "@nx/workspace",
+    "typescript"
   ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchDepTypes": ["devDependencies"],
+      "matchManagers": ["github-actions"],
+      "semanticCommitScope": "devDeps",
       "automerge": true,
+      "autoApprove": true
+    },
+    {
+      "semanticCommitScope": "devDeps",
+      "matchDepTypes": ["packageManager", "devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "minimumReleaseAge": "14 days",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "autoApprove": true
+    },
+    {
+      "labels": ["UPDATE-MINOR"],
+      "minimumReleaseAge": "7 days",
+      "matchUpdateTypes": ["minor"],
+      "automerge": true,
+      "autoApprove": true
+    },
+    {
+      "labels": ["UPDATE-PATCH"],
+      "minimumReleaseAge": "3 days",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "autoApprove": true
+    },
+    {
+      "matchDepTypes": ["engines"],
+      "rangeStrategy": "widen"
+    },
+    {
+      "labels": ["effect"],
+      "matchPackageNames": ["effect", "@effect/*"],
+      "groupName": "effect-dependencies",
+      "automerge": true,
+      "autoApprove": true,
+      "schedule": ["at 2:00am on Monday"]
+    },
+    {
+      "labels": ["vite", "vitest"],
+      "matchPackageNames": ["vitest", "@vitest/*", "vite"],
+      "groupName": "vite-vitest-dependencies",
+      "automerge": true,
+      "autoApprove": true,
+      "schedule": ["at 2:00am on Monday"]
+    },
+    {
+      "labels": ["typedoc"],
+      "matchPackageNames": ["typedoc", "typedoc-*"],
+      "groupName": "typedoc-dependencies",
+      "automerge": true,
+      "autoApprove": true,
+      "schedule": ["at 2:00am on Monday"]
+    },
+    {
+      "labels": ["@typescript-eslint"],
+      "matchPackageNames": ["@typescript-eslint/*"],
+      "groupName": "typescript-eslint-dependencies",
+      "automerge": true,
+      "autoApprove": true,
       "schedule": ["at 2:00am on Monday"]
     }
   ]
