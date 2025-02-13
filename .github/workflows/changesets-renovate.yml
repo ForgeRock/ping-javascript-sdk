@@ -1,0 +1,28 @@
+name: Generate changeset for Renovate
+
+on:
+  merge_group:
+  pull_request_target:
+    paths:
+      - '.github/workflows/changesets-renovate.yml'
+      - '**/pnpm-lock.yaml'
+      - '**/package.json'
+
+jobs:
+  generate-changeset:
+    runs-on: ubuntu-latest
+    if: github.actor == 'renovate[bot]' && github.repository == 'ForgeRock/ping-javascript-sdk'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          ref: ${{ github.head_ref }}
+      - name: Git Identity
+        run: |
+          git config --global user.name 'github-actions[bot]'
+
+      - uses: pnpm/action-setup@v4.0.0
+
+      - name: Run changesets-renovate
+        run: pnpm dlx @scaleway/changesets-renovate
