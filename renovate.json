@@ -39,7 +39,9 @@
     {
       "semanticCommitScope": "devDeps",
       "matchDepTypes": ["packageManager", "devDependencies"],
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchUpdateTypes": ["minor", "patch"],
+      "autoApprove": true,
+      "automerge": true
     },
     {
       "minimumReleaseAge": "14 days",
@@ -48,7 +50,32 @@
       "autoApprove": true
     },
     {
+      "labels": ["UPDATE-MAJOR"],
+      "matchDepTypes": ["dependencies"],
+      "minimumReleaseAge": "21 days",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "autoApprove": true
+    },
+    {
+      "labels": ["UPDATE-PATCH"],
+      "matchDepTypes": ["dependencies"],
+      "minimumReleaseAge": "3 days",
+      "matchUpdateTypes": ["patch"],
+      "automerge": false,
+      "autoApprove": true
+    },
+    {
       "labels": ["UPDATE-MINOR"],
+      "matchDepTypes": ["dependencies"],
+      "minimumReleaseAge": "7 days",
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "autoApprove": true
+    },
+    {
+      "labels": ["UPDATE-MINOR"],
+      "matchDepTypes": ["devDependencies"],
       "minimumReleaseAge": "7 days",
       "matchUpdateTypes": ["minor"],
       "automerge": true,
