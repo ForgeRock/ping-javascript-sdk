@@ -156,8 +156,8 @@ importers:
         specifier: ^0.73.0
         version: 0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
       effect-http-node:
-        specifier: ^0.16.1
-        version: 0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
+        specifier: ^0.25.0
+        version: 0.25.0(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
       eslint:
         specifier: 8.57.1
         version: 8.57.1
@@ -278,8 +278,8 @@ importers:
         specifier: ^0.73.0
         version: 0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
       effect-http-node:
-        specifier: ^0.16.1
-        version: 0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
+        specifier: ^0.25.0
+        version: 0.25.0(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
 
   packages/davinci-client:
     dependencies:
@@ -2260,6 +2260,9 @@ packages:
   '@rushstack/ts-command-line@4.23.5':
     resolution: {integrity: sha512-jg70HfoK44KfSP3MTiL5rxsZH7X1ktX3cZs9Sl8eDu1/LxJSbPsh0MOFRC710lIuYYSgxWjI5AjbCBAl7u3RxA==}
 
+  '@scarf/scarf@1.4.0':
+    resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
+
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
@@ -4105,14 +4108,13 @@ packages:
       '@effect/schema': ^0.68.0
       effect: ^3.5.0
 
-  effect-http-node@0.16.1:
-    resolution: {integrity: sha512-GhsVvFs6B0KliCRdQUpPLtedRupgNgzCqtv/patLT253suWUX8WxBtGi/Im5KKk64VmfZwz6DKHdgD00wJSYhQ==}
+  effect-http-node@0.25.0:
+    resolution: {integrity: sha512-xaKC1J7qblq1CH+7fgSyVsF5xlnkG2/XyZ95KGrHGfMosl9b+J1uu4yNfjACKbbaLNeO95dHnm7rcY+s9vn67Q==}
     peerDependencies:
-      '@effect/platform': ^0.58.0
-      '@effect/platform-node': ^0.53.0
-      '@effect/schema': ^0.68.0
-      effect: ^3.5.0
-      effect-http: ^0.73.0
+      '@effect/platform': ^0.73.0
+      '@effect/platform-node': ^0.69.0
+      effect: ^3.12.0
+      effect-http: ^0.85.0
 
   effect-http-security@0.4.0:
     resolution: {integrity: sha512-jeuMKWr5kSuOMbHL454ks/Y59WlqvlopfimaCNaG7w39/XfMOQ9C/Emy8GwyHGozBwi42kFiZBCQ4megzng91Q==}
@@ -7467,8 +7469,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  swagger-ui-dist@5.17.14:
-    resolution: {integrity: sha512-CVbSfaLpstV65OnSjbXfVd6Sta3q3F7Cj/yYuvHMp1P90LztOLs6PfUnKEVAeiIVQt9u2SaPwv0LiH/OyMjHRw==}
+  swagger-ui-dist@5.18.3:
+    resolution: {integrity: sha512-G33HFW0iFNStfY2x6QXO2JYVMrFruc8AZRX0U/L71aA7WeWfX2E5Nm8E/tsipSZJeIZZbSjUDeynLK/wcuNWIw==}
 
   swc-loader@0.2.6:
     resolution: {integrity: sha512-9Zi9UP2YmDpgmQVbyOPJClY0dwf58JDyDMQ7uRc4krmc72twNI2fvlBWHLqVekBpPc7h5NJkGVT1zNDxFrqhvg==}
@@ -10772,6 +10774,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@scarf/scarf@1.4.0': {}
+
   '@sec-ant/readable-stream@0.4.1': {}
 
   '@sentry-internal/tracing@7.110.1':
@@ -12945,14 +12949,13 @@ snapshots:
       '@effect/schema': 0.68.23(effect@3.5.3)
       effect: 3.5.3
 
-  effect-http-node@0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3):
+  effect-http-node@0.25.0(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3):
     dependencies:
       '@effect/platform': 0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
       '@effect/platform-node': 0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
-      '@effect/schema': 0.68.23(effect@3.5.3)
       effect: 3.5.3
       effect-http: 0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
-      swagger-ui-dist: 5.17.14
+      swagger-ui-dist: 5.18.3
 
   effect-http-security@0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http-error@0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3):
     dependencies:
@@ -16822,7 +16825,9 @@ snapshots:
       csso: 5.0.5
       picocolors: 1.1.1
 
-  swagger-ui-dist@5.17.14: {}
+  swagger-ui-dist@5.18.3:
+    dependencies:
+      '@scarf/scarf': 1.4.0
 
   swc-loader@0.2.6(@swc/core@1.10.15(@swc/helpers@0.5.15))(webpack@5.95.0(@swc/core@1.10.15(@swc/helpers@0.5.15))):
     dependencies:
