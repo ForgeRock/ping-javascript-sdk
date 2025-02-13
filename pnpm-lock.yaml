@@ -153,11 +153,11 @@ importers:
         specifier: ^3.5.3
         version: 3.5.3
       effect-http:
-        specifier: ^0.73.0
-        version: 0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
+        specifier: ^0.85.0
+        version: 0.85.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
       effect-http-node:
         specifier: ^0.16.1
-        version: 0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
+        version: 0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.85.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
       eslint:
         specifier: 8.57.1
         version: 8.57.1
@@ -275,11 +275,11 @@ importers:
         specifier: ^0.53.26
         version: 0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
       effect-http:
-        specifier: ^0.73.0
-        version: 0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
+        specifier: ^0.85.0
+        version: 0.85.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
       effect-http-node:
         specifier: ^0.16.1
-        version: 0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
+        version: 0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.85.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
 
   packages/davinci-client:
     dependencies:
@@ -4098,13 +4098,6 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  effect-http-error@0.4.0:
-    resolution: {integrity: sha512-ABrUA6pHsQPE349oKVWZjem308tMboZBErIFyyWdh6o3LIX6KW6BfrYg7x8xghyNJA8gChdGMOeIFwkdKoKxFg==}
-    peerDependencies:
-      '@effect/platform': ^0.58.0
-      '@effect/schema': ^0.68.0
-      effect: ^3.5.0
-
   effect-http-node@0.16.1:
     resolution: {integrity: sha512-GhsVvFs6B0KliCRdQUpPLtedRupgNgzCqtv/patLT253suWUX8WxBtGi/Im5KKk64VmfZwz6DKHdgD00wJSYhQ==}
     peerDependencies:
@@ -4114,20 +4107,11 @@ packages:
       effect: ^3.5.0
       effect-http: ^0.73.0
 
-  effect-http-security@0.4.0:
-    resolution: {integrity: sha512-jeuMKWr5kSuOMbHL454ks/Y59WlqvlopfimaCNaG7w39/XfMOQ9C/Emy8GwyHGozBwi42kFiZBCQ4megzng91Q==}
+  effect-http@0.85.0:
+    resolution: {integrity: sha512-GTzOSgdmKFQKYP6MEayNqn/Gtre4E1jPD9yYQOPdG6drUXd/6jnwe+zSsrJsJnFoBlLKxLiG5r6oFjNPCo49VA==}
     peerDependencies:
-      '@effect/platform': ^0.58.0
-      '@effect/schema': ^0.68.0
-      effect: ^3.5.0
-      effect-http-error: ^0.4.0
-
-  effect-http@0.73.0:
-    resolution: {integrity: sha512-VEBhvyP/rD4JU5OtbSE1zZE9B+s+KaPXaSL7DXtP46QjTItjRUuYAqM7xzDgonmYN9kSY3JpxNuQctB0wvCQEA==}
-    peerDependencies:
-      '@effect/platform': ^0.58.0
-      '@effect/schema': ^0.68.0
-      effect: ^3.5.0
+      '@effect/platform': ^0.73.0
+      effect: ^3.12.0
 
   effect@3.5.3:
     resolution: {integrity: sha512-emKAbdsB4jTeppa6fdfdWGhbEjKdvr1xfltpGIwiR46mD97JvWlpbrTIdqDCCizuMbxVys6YrSjKL7aHHa93Gg==}
@@ -12939,35 +12923,19 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  effect-http-error@0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3):
-    dependencies:
-      '@effect/platform': 0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
-      '@effect/schema': 0.68.23(effect@3.5.3)
-      effect: 3.5.3
-
-  effect-http-node@0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3):
+  effect-http-node@0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http@0.85.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3))(effect@3.5.3):
     dependencies:
       '@effect/platform': 0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
       '@effect/platform-node': 0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
       '@effect/schema': 0.68.23(effect@3.5.3)
       effect: 3.5.3
-      effect-http: 0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
+      effect-http: 0.85.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
       swagger-ui-dist: 5.17.14
 
-  effect-http-security@0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http-error@0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3):
+  effect-http@0.85.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3):
     dependencies:
       '@effect/platform': 0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
-      '@effect/schema': 0.68.23(effect@3.5.3)
       effect: 3.5.3
-      effect-http-error: 0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
-
-  effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3):
-    dependencies:
-      '@effect/platform': 0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
-      '@effect/schema': 0.68.23(effect@3.5.3)
-      effect: 3.5.3
-      effect-http-error: 0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3)
-      effect-http-security: 0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect-http-error@0.4.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(@effect/schema@0.68.23(effect@3.5.3))(effect@3.5.3))(effect@3.5.3)
 
   effect@3.5.3: {}
 
