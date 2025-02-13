@@ -39,7 +39,9 @@
     {
       "semanticCommitScope": "devDeps",
       "matchDepTypes": ["packageManager", "devDependencies"],
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchUpdateTypes": ["minor", "patch"],
+      "autoApprove": true,
+      "automerge": true
     },
     {
       "minimumReleaseAge": "14 days",
