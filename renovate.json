@@ -9,16 +9,47 @@
     "fileMatch": ["(^|/)(package\\.json)$"]
   },
   "ignoreDeps": [
-    "@nrwl/*",
-    "@nx/*",
-    "typescript",
-    "swc-loader",
-    "@swc/helpers"
+    "nx",
+    "@nx/devkit",
+    "@nx/eslint",
+    "@nx/eslint-plugin",
+    "@nx/jest",
+    "@nx/js",
+    "@nx/playwright",
+    "@nx/plugin",
+    "@nx/vite",
+    "@nx/web",
+    "@nx/workspace",
+    "typescript"
   ],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
       "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "schedule": ["at 2:00am on Monday"]
+    },
+    {
+      "matchPackageNames": ["effect", "@effect/*"],
+      "groupName": "effect-dependencies",
+      "automerge": true,
+      "schedule": ["at 2:00am on Monday"]
+    },
+    {
+      "matchPackageNames": ["vitest", "@vitest/*", "vite"],
+      "groupName": "vite-vitest-dependencies",
+      "automerge": true,
+      "schedule": ["at 2:00am on Monday"]
+    },
+    {
+      "matchPackageNames": ["typedoc", "typedoc-*"],
+      "groupName": "typedoc-dependencies",
+      "automerge": true,
+      "schedule": ["at 2:00am on Monday"]
+    },
+    {
+      "matchPackageNames": ["@typescript-eslint/*"],
+      "groupName": "typescript-eslint-dependencies",
       "automerge": true,
       "schedule": ["at 2:00am on Monday"]
     }
