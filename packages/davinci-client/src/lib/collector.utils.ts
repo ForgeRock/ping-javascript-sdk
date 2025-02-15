@@ -125,6 +125,7 @@ export function returnSingleValueCollector<
   CollectorType extends SingleValueCollectorTypes = 'SingleValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType, data?: string) {
   let error = '';
+  console.log('the field ', field);
   if (!('key' in field)) {
     error = `${error}Key is not found in the field object. `;
   }
