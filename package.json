@@ -18,7 +18,6 @@
     "nx": "nx",
     "preinstall": "npx only-allow pnpm",
     "prepare": "node .husky/install.mjs",
-    "publish:local": "pnpm -r publish:local --filter @forgerock/release",
     "test": "CI=true nx affected:test",
     "verdaccio": "nx local-registry",
     "commitlint": "commitlint --edit"

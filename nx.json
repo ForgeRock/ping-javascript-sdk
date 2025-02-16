@@ -1,14 +1,41 @@
 {
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "sharedGlobals": [
-      "{workspaceRoot}/.github/labeler",
-      "{workspaceRoot}/.github/workflows/cleanup-docs-preview.yml",
-      "{workspaceRoot}/.github/workflows/ci.yml",
-      "{workspaceRoot}/.github/workflows/publish.yml"
+    "default": ["{projectRoot}/**/*", "sharedGlobals", "workspaceRootIgnores"],
+    "workspaceRootIgnores": [
+      "!{projectRoot}/LICENSE",
+      "!{workspaceRoot}/codecov.yml",
+      "!{workspaceRoot}/*.md",
+      "!{workspaceRoot}/.whitesource",
+      "!{workspaceRoot}/commitlint.config.js",
+      "!{workspaceRoot}/renovate.json",
+      "!{workspaceRoot}/.editorconfig",
+      "!{workspaceRoot}/.czrc",
+      "!{workspaceRoot}/.github/pull_request_template.md",
+      "!{workspaceRoot}/.github/workflows/*",
+      "!{workspaceRoot}/.husky/*",
+      "!{workspaceRoot}/.changeset/*.md",
+      "!{workspaceRoot}/contributing_docs/*.md",
+      "!{workspaceRoot}/.verdaccio/*",
+      "!{workspaceRoot}/.node-version",
+      "!{workspaceRoot}/.npmrc",
+      "!{workspaceRoot}/nx-cloud.example.env"
     ],
+    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"],
     "production": [
       "default",
+      "!{projectRoot}/**/?(*.)+(spec|test|mock).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/**/mock-data/**",
+      "!{projectRoot}/**/?(*.)+(test-d).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/typedoc.json",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/test-setup.[jt]s",
+      "noEslintConfig",
+      "noMarkdown",
+      "workspaceRootIgnores"
+    ],
+    "noMarkdown": ["!{projectRoot}/*.md", "!{projectRoot}/**/*.md"],
+    "noTests": [
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/**/?(*.)+(test-d).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
@@ -16,15 +43,7 @@
       "!{projectRoot}/test-setup.[jt]s",
       "!{projectRoot}/eslint.config.mjs"
     ],
-    "noMarkdown": ["!{projectRoot}/*.md", "!{projectRoot}/**/*.md"],
-    "noTests": [
-        "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-        "!{projectRoot}/**/?(*.)+(test-d).[jt]s?(x)?(.snap)",
-        "!{projectRoot}/tsconfig.spec.json",
-        "!{projectRoot}/src/test-setup.[jt]s",
-        "!{projectRoot}/test-setup.[jt]s",
-        "!{projectRoot}/eslint.config.mjs"
-    ]
+    "noEslintConfig": ["!{projectRoot}/eslint.config.mjs"]
   },
   "targetDefaults": {
     "nx-release-publish": {
@@ -33,20 +52,21 @@
       }
     },
     "typecheck": {
-      "outputs": ["{projectRoot}/out-tsc"],
-      "dependsOn": ["^typecheck"]
+      "inputs": ["default", "^default"]
     },
     "serve": {
       "dependsOn": ["^build"]
     },
     "e2e": {
       "dependsOn": ["^e2e"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "outputs": ["{projectRoot}/.playwright"],
       "cache": true
     },
     "lint": {
       "inputs": [
+        "default",
+        "^default",
         "noMarkdown",
         "^noMarkdown",
         "{workspaceRoot}/eslint.config.mjs"
@@ -55,20 +75,20 @@
       "cache": true
     },
     "test": {
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
       "dependsOn": ["^test"],
       "outputs": ["{projectRoot}/coverage"],
       "cache": true
     },
     "build": {
-      "inputs": ["noMarkdown", "^noMarkdown", "^noTests", "noTests"],
+      "inputs": ["production", "^production"],
       "dependsOn": ["^build"],
       "outputs": ["{projectRoot}/dist"],
       "cache": true
     },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
       "outputs": ["{projectRoot}/.playwright"],
       "cache": true
     },
@@ -78,19 +98,19 @@
       "inputs": ["production", "^production"]
     },
     "preview": {
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
       "dependsOn": ["^build"]
     },
     "serve:dev": {
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
       "dependsOn": ["^build"]
     },
     "test:watch": {
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
       "dependsOn": ["^test:watch"]
     },
     "test:coverage": {
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
       "dependsOn": ["^test:coverage"],
       "outputs": ["{projectRoot}/./coverage"],
       "cache": true
