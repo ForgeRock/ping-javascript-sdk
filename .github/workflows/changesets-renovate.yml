@@ -26,3 +26,4 @@ jobs:
 
       - name: Run changesets-renovate
         run: pnpm dlx @scaleway/changesets-renovate
+        env: ${{ secrets.GITHUB_TOKEN }}
