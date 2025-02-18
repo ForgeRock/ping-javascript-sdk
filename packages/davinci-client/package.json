@@ -27,6 +27,11 @@
     ".": "./dist/src/index.js",
     "./types": "./dist/src/types.d.ts"
   },
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "lint": "eslint **/*.ts --fix"
+  },
   "nx": {
     "tags": ["scope:package"],
     "targets": {

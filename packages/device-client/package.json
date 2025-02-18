@@ -21,6 +21,11 @@
   "devDependencies": {
     "msw": "^2.5.1"
   },
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "lint": "eslint **/*.ts --fix"
+  },
   "nx": {
     "targets": {
       "build": {

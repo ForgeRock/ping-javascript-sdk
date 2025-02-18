@@ -17,6 +17,13 @@
     "vitest": "^3.0.4",
     "@effect/vitest": "^0.17.3"
   },
+  "scripts": {
+    "serve": "node dist/e2e/mock-api-v2/src/main.js",
+    "serve:dev": "nodemon dist/e2e/mock-api-v2/src/main.js",
+    "test": "vitest run --coverage --coverage.reportsDirectory=../../coverage/mock-api-v2",
+    "test:watch": "vitest watch --coverage --coverage.reportsDirectory=../../coverage/mock-api-v2",
+    "lint": "eslint \"**/*.ts\""
+  },
   "nx": {
     "tags": ["scope:e2e"],
     "targets": {

@@ -13,7 +13,7 @@ it.effect('should return tokens', () =>
     expect(result).toEqual(tokenResponseBody);
   }).pipe(Effect.provide(Layer.provideMerge(mockTokens, mockRequest))),
 );
-
+// TODO: fix this implementation as this causes a failure
 //it.effect('should return error', () =>
 //  Effect.gen(function* () {
 //    const { getTokens } = yield* Tokens;
