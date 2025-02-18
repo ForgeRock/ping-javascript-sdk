@@ -1,7 +1,7 @@
 {
   "name": "@forgerock/mock-api-v2",
-  "version": "1.0.0",
   "description": "",
+  "private": true,
   "main": "./dist/index.js",
   "type": "module",
   "dependencies": {
@@ -14,15 +14,13 @@
     "@effect/schema": "^0.68.23"
   },
   "devDependencies": {
-    "vitest": "^3.0.4",
-    "@effect/vitest": "^0.17.3"
+    "@effect/vitest": "^0.19.0"
   },
   "scripts": {
+    "lint": "eslint \"**/*.ts\"",
     "serve": "node dist/e2e/mock-api-v2/src/main.js",
     "serve:dev": "nodemon dist/e2e/mock-api-v2/src/main.js",
-    "test": "vitest run --coverage --coverage.reportsDirectory=../../coverage/mock-api-v2",
-    "test:watch": "vitest watch --coverage --coverage.reportsDirectory=../../coverage/mock-api-v2",
-    "lint": "eslint \"**/*.ts\""
+    "test": "vitest"
   },
   "nx": {
     "tags": ["scope:e2e"],

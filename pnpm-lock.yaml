@@ -262,11 +262,8 @@ importers:
         version: 0.16.1(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.12.11))(effect@3.12.11))(effect@3.12.11))(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.12.11))(effect@3.12.11))(@effect/schema@0.68.23(effect@3.12.11))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.23(effect@3.12.11))(effect@3.12.11))(@effect/schema@0.68.23(effect@3.12.11))(effect@3.12.11))(effect@3.12.11)
     devDependencies:
       '@effect/vitest':
-        specifier: ^0.17.3
-        version: 0.17.7(effect@3.12.11)(vitest@3.0.4)
-      vitest:
-        specifier: ^3.0.4
-        version: 3.0.4(@types/node@22.10.2)(@vitest/ui@3.0.4)(jsdom@26.0.0)(less@4.1.3)(msw@2.7.0(@types/node@22.10.2)(typescript@5.7.3))(sass@1.75.0)(stylus@0.64.0)(terser@5.33.0)
+        specifier: ^0.19.0
+        version: 0.19.0(effect@3.12.11)(vitest@3.0.4)
 
   packages/davinci-client:
     dependencies:
@@ -1195,11 +1192,11 @@ packages:
     peerDependencies:
       effect: ^3.5.3
 
-  '@effect/vitest@0.17.7':
-    resolution: {integrity: sha512-g+O899nRCwU3TwSYWoIvTlJ6StvCvs86A6lSbUCD9wlZpOpowuqZpQwJD/ox/fjlkhljuuJanUj0T68sNhSsvg==}
+  '@effect/vitest@0.19.0':
+    resolution: {integrity: sha512-KkyCAIpEl0S9HheF4+a6UrLW5cgn6W+H7JlMPt+pZiehkBQHVIdsVuzRpk/ZFdgVJNMHE+Xh2ZOKPoGJZnu0Fg==}
     peerDependencies:
-      effect: ^3.12.11
-      vitest: ^2.0.5
+      effect: ^3.13.2
+      vitest: ^3.0.0
 
   '@effect/vitest@0.6.7':
     resolution: {integrity: sha512-zBvZBHjn0W7FFn7fOzK79WPk41Mt4PjZUtjbJKVevvYZQBk2so2nWrgWeV2J098YZBjTyG6nWZiW7RfFfwV7cw==}
@@ -8508,7 +8505,7 @@ snapshots:
       effect: 3.12.11
       fast-check: 3.23.2
 
-  '@effect/vitest@0.17.7(effect@3.12.11)(vitest@3.0.4)':
+  '@effect/vitest@0.19.0(effect@3.12.11)(vitest@3.0.4)':
     dependencies:
       effect: 3.12.11
       vitest: 3.0.4(@types/node@22.10.2)(@vitest/ui@3.0.4)(jsdom@26.0.0)(less@4.1.3)(msw@2.7.0(@types/node@22.10.2)(typescript@5.7.3))(sass@1.75.0)(stylus@0.64.0)(terser@5.33.0)

@@ -6,12 +6,13 @@ export default defineConfig({
 
   test: {
     globals: false,
-    watch: !process.env['CI'],
+    watch: false,
     environment: 'jsdom',
+    pool: 'forks',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default', 'json', 'html'],
     coverage: {
-      enabled: false, //Boolean(process.env['CI']),
+      enabled: !process.env['CI'],
       reportsDirectory: './coverage',
       provider: 'v8',
     },
