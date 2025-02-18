@@ -15,7 +15,7 @@
   "files": ["./dist"],
   "dependencies": {
     "@reduxjs/toolkit": "catalog:",
-    "@forgerock/javascript-sdk": "4.6.0",
+    "@forgerock/javascript-sdk": "4.7.0",
     "immer": "catalog:"
   },
   "devDependencies": {

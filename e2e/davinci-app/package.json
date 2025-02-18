@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@forgerock/davinci-client": "workspace:*",
-    "@forgerock/javascript-sdk": "4.6.0"
+    "@forgerock/javascript-sdk": "4.7.0"
   },
   "devDependencies": {},
   "scripts": {
