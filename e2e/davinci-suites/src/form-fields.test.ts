@@ -17,7 +17,19 @@ test('Should render form fields', async ({ page }) => {
   const flowButton = page.getByRole('button', { name: 'Flow Button' });
   await flowButton.click();
 
+  const requestPromise = page.waitForRequest((request) => request.url().includes('/customForm'));
   await page.getByRole('button', { name: 'Submit' }).click();
+  const request = await requestPromise;
+  const parsedData = JSON.parse(request.postData());
+  const data = parsedData.parameters.data;
+  expect(data.actionKey).toBe('submit');
+  expect(data.formData).toEqual({
+    // leaving this here because it should be fixed and we would have a failing test when we do fix import {  } from "// to remind us to update the test"
+    ['undefined']: '',
+    ['text-input-key']: 'This is some text',
+    ['dropdown-field-key']: '',
+    ['radio-group-key']: '',
+  });
 });
 
 test('should render form validation fields', async ({ page }) => {
@@ -40,5 +52,16 @@ test('should render form validation fields', async ({ page }) => {
   await expect(page.getByRole('textbox', { name: 'Email Address' })).toHaveValue(
     'sdk-user@user.com',
   );
+  const requestPromise = page.waitForRequest((request) => request.url().includes('/customForm'));
   await page.getByRole('button', { name: 'Submit' }).click();
+  const request = await requestPromise;
+  const parsedData = JSON.parse(request.postData());
+  const data = parsedData.parameters.data;
+  expect(data.actionKey).toBe('submit');
+  expect(data.formData).toEqual({
+    ['undefined']: '',
+    'user.username': '',
+    'user.password': '',
+    'user.email': '',
+  });
 });

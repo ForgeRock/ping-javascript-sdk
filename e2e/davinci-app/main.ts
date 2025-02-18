@@ -82,9 +82,9 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const loginBtn = document.getElementById('logoutButton') as HTMLButtonElement;
     loginBtn.addEventListener('click', async () => {
-      await FRUser.logout({ logoutRedirectUri: window.location.href });
+      await FRUser.logout({ logoutRedirectUri: `${window.location.origin}/` });
 
-      window.location.reload();
+      //window.location.reload();
     });
   }
 
