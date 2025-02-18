@@ -32,6 +32,7 @@ const config = {
   clientId,
   redirectUri: `${window.location.origin}/`,
   scope: 'openid profile email name revoke',
+  timeout: 3000,
   serverConfig: {
     wellknown:
       'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
@@ -96,9 +97,9 @@ const config = {
 
     const loginBtn = document.getElementById('logoutButton') as HTMLButtonElement;
     loginBtn.addEventListener('click', async () => {
-      await FRUser.logout({ logoutRedirectUri: window.location.origin });
+      await FRUser.logout({ logoutRedirectUri: `${window.location.origin}/` });
 
-      window.location.reload();
+      //window.location.reload();
     });
   }
 
