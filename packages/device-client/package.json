@@ -15,16 +15,15 @@
   "files": ["./dist"],
   "dependencies": {
     "@reduxjs/toolkit": "catalog:",
-    "@forgerock/javascript-sdk": "4.7.0",
-    "immer": "catalog:"
+    "@forgerock/javascript-sdk": "4.7.0"
   },
   "devDependencies": {
     "msw": "^2.5.1"
   },
   "scripts": {
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "lint": "eslint **/*.ts --fix"
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch",
+    "lint": "pnpm nx nxLint"
   },
   "nx": {
     "targets": {

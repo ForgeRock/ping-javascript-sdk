@@ -8,10 +8,10 @@
     "tags": ["scope:app"]
   },
   "scripts": {
-    "build": "vite build --watch false",
-    "serve": "vite dev",
-    "preview": "vite preview",
-    "lint": "eslint **/*.ts --fix"
+    "build": "pnpm nx nxBuild",
+    "lint": "pnpm nx nxLint",
+    "preview": "pnpm nx nxPreview",
+    "serve": "pnpm nx nxServe"
   },
   "dependencies": {
     "@forgerock/davinci-client": "workspace:*",

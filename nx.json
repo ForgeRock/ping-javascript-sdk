@@ -3,24 +3,17 @@
     "default": ["{projectRoot}/**/*", "sharedGlobals", "workspaceRootIgnores"],
     "workspaceRootIgnores": [
       "!{projectRoot}/LICENSE",
-      "!{workspaceRoot}/codecov.yml",
       "!{workspaceRoot}/*.md",
       "!{workspaceRoot}/.whitesource",
       "!{workspaceRoot}/commitlint.config.js",
       "!{workspaceRoot}/renovate.json",
-      "!{workspaceRoot}/.editorconfig",
-      "!{workspaceRoot}/.czrc",
       "!{workspaceRoot}/.github/pull_request_template.md",
-      "!{workspaceRoot}/.github/workflows/*",
       "!{workspaceRoot}/.husky/*",
       "!{workspaceRoot}/.changeset/*.md",
       "!{workspaceRoot}/contributing_docs/*.md",
-      "!{workspaceRoot}/.verdaccio/*",
-      "!{workspaceRoot}/.node-version",
-      "!{workspaceRoot}/.npmrc",
-      "!{workspaceRoot}/nx-cloud.example.env"
+      "!{workspaceRoot}/.verdaccio/*"
     ],
-    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"],
+    "sharedGlobals": [],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test|mock).[jt]s?(x)?(.snap)",
@@ -144,17 +137,17 @@
     {
       "plugin": "@nx/eslint/plugin",
       "options": {
-        "targetName": "lint"
+        "targetName": "nxLint"
       },
       "include": ["e2e/**/**/*", "packages/**/**/*"]
     },
     {
       "plugin": "@nx/vite/plugin",
       "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "test",
+        "buildTargetName": "nxBuild",
+        "serveTargetName": "nxServe",
+        "previewTargetName": "nxPreview",
+        "testTargetName": "nxTest",
         "serveStaticTargetName": "serve-static",
         "typecheckTargetName": "typecheck"
       },

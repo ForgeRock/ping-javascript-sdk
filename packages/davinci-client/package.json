@@ -28,9 +28,9 @@
     "./types": "./dist/src/types.d.ts"
   },
   "scripts": {
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "lint": "eslint **/*.ts --fix"
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch",
+    "lint": "pnpm nx nxLint"
   },
   "nx": {
     "tags": ["scope:package"],

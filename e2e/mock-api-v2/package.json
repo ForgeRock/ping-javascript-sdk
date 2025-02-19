@@ -17,10 +17,10 @@
     "@effect/vitest": "^0.19.0"
   },
   "scripts": {
-    "lint": "eslint \"**/*.ts\"",
+    "lint": "pnpm nx nxLint",
     "serve": "node dist/e2e/mock-api-v2/src/main.js",
     "serve:dev": "nodemon dist/e2e/mock-api-v2/src/main.js",
-    "test": "vitest"
+    "test": "pnpm nx nxTest"
   },
   "nx": {
     "tags": ["scope:e2e"],
