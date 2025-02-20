@@ -268,6 +268,29 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
     },
 
     /**
+     * @method: resume - Resume a social login flow when returned to application
+     * @returns undefined for now
+     */
+    resume: async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const continueToken = urlParams.get('continueToken');
+
+      if (!continueToken) {
+        return {
+          message:
+            'Resume meant to be called in a social login. Continue token was not found on the url',
+          type: 'network_error',
+        };
+      }
+
+      const response = await store.dispatch(
+        davinciApi.endpoints.resume.initiate({ continueToken }),
+      );
+      console.log('top level api', response);
+      return response;
+    },
+
+    /**
      * Utilities to help query cached responses from server
      */
     cache: {

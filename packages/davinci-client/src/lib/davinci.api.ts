@@ -290,5 +290,29 @@ export const davinciApi = createApi({
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),
+    resume: builder.query<any, { continueToken: string }>({
+      async queryFn({ continueToken }, api, _, baseQuery) {
+        const state = api.getState() as RootStateWithNode<ContinueNode>;
+
+        /**
+         * Need the base url with env id
+         */
+        const baseUrl = state.config.endpoints.issuer.replace('/as', '');
+
+        const response = await baseQuery({
+          url: `${baseUrl}/davinci/continue`,
+          credentials: 'include',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${continueToken}`,
+          },
+          body: JSON.stringify({}),
+        });
+
+        console.log('the response', response);
+        return response;
+      },
+    }),
   }),
 });

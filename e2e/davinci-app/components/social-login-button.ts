@@ -4,10 +4,17 @@ export default function submitButtonComponent(
   formEl: HTMLFormElement,
   collector: SocialLoginCollector,
 ) {
-  const link = document.createElement('a');
+  const button = document.createElement('button');
 
-  link.innerText = collector.output.label;
-  link.href = collector.output?.url || '';
+  button.value = collector.output.label;
+  button.innerHTML = collector.output.label;
+  button.onclick = () => {
+    if (collector.output.url) {
+      window.location.assign(collector.output?.url);
+    } else {
+      console.error('url is null, nothing happening');
+    }
+  };
 
-  formEl?.appendChild(link);
+  formEl?.appendChild(button);
 }

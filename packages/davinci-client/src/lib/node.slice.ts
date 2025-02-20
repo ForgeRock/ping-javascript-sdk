@@ -269,6 +269,12 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
+    resume(state, action: PayloadAction<{ continueToken: string }>) {
+      const newState = state as Draft<ContinueNode>;
+      console.log('action', action);
+
+      return newState;
+    },
   },
   selectors: {
     selectClient: (state) => {
