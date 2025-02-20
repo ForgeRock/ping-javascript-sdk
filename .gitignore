@@ -3,6 +3,7 @@
 */DS_Store
 **/*.DS_Store
 .pnpm-store/*
+
 # Generated code
 tmp/
 e2e/**/dist
@@ -10,54 +11,27 @@ e2e/**/dist
 **/dist
 dist/*
 packages/*/dist/
-bundles/
 docs/
 coverage/
 packages/**/coverage/
 node_modules/
-samples/_static/js/*.js*
 tests/**/app/index.js*
 tests/**/ie11/ie-bundle.js*
-reports/*
-*.copy.*
-!env.config.copy.mjs
-packages/javascript-sdk/lib/
 .swc
 .vite
-.env.serve.development
-
-# Certificates
-# *.pem
 
 # IDEs
 .vscode
 
 # Test code
 tests/**/app/index.js*
-tests/**/ie11/autoscript.js*
-reports/*
 test-results
-
-# Sample code
-samples/_static/js/*.js*
-samples/_static/js/*
-samples/*/public/app.*
-samples/*/users
-!samples/angular-todo/*/todos
-!samples/reactjs-todo/*/todos
 
 # Environment files
 .env
-nx-cloud.env
 .env.local
-.angular
-samples/**/.env.local
-samples/**/.env
-todos/*
-users/*
-#Project Docs
-docs/packages/javascript-sdk
-packages/*/docs
+nx-cloud.env
+
 **/playwright-report
 **/playwright/.cache
 **/.playwright/*
@@ -70,17 +44,27 @@ vite.config.*.timestamp*
 
 # File made by changesets
 .netrc
+
 # ignore this in CI please.
 # Nx stuff we get in CI that we dont want to commit
 code
 terminalOutput
 outputs/*
 
-
 e2e/mock-api-v2/html/*
-
 e2e/**/.playwright/*
 
 
 # bundle analysis
 packages/*/bundle-analysis.html
+
+.nx/cache
+.nx/workspace-data
+vitest.config.*.timestamp*
+
+
+# temporary
+packages/davinci-client/src/lib/mock-data/*.d.ts
+packages/davinci-client/src/lib/mock-data/*.d.ts.map
+**/**/tsconfig.tsbuildinfo
+**/**/tsconfig.spec.vitest-temp.json

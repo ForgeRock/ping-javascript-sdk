@@ -1,11 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "composite": true,
     "sourceMap": false,
     "outDir": "../../dist/out-tsc",
     "allowJs": true,
-    "module": "Node16"
+    "module": "Node16",
+    "moduleResolution": "Node16"
   },
   "include": ["**/*.ts", "**/*.js"]
 }

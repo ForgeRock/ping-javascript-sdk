@@ -4,9 +4,10 @@ on:
 
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.PR_NX_CLOUD_ACCESS_TOKEN }} # Read Only
   NX_CLOUD_DISTRIBUTED_EXECUTION: true
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  CI: true
 
 # recommended to set a concurrency group
 concurrency:
@@ -16,6 +17,7 @@ concurrency:
 jobs:
   pr:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       pull-requests: write
       contents: write
@@ -29,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         id: cache
         with:
-          node-version: '20.10.0'
+          node-version: '20.18.1'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -37,6 +39,7 @@ jobs:
       # This line enables distribution
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
       - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
+      - run: pnpm nx sync:check
 
       - run: pnpm exec playwright install
 
@@ -45,7 +48,7 @@ jobs:
       - run: git branch --track main origin/main
 
       - run: pnpm exec nx-cloud record -- nx format:check
-      - run: pnpm exec nx affected -t typecheck build lint test docs e2e-ci
+      - run: pnpm exec nx affected -t build typecheck lint test e2e-ci
 
       - uses: codecov/codecov-action@v5
         with:

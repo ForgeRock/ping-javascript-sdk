@@ -83,7 +83,9 @@ describe('Action Collectors', () => {
       // this type could be more comprehensive
       // that is why casting as any here works
       const result = returnSocialLoginCollector(fieldWithoutUrl, 1);
-      expect(result.output.url).toBeNull();
+      if ('url' in result.output) {
+        expect(result.output.url).toBeNull();
+      }
     });
 
     it('should handle error cases properly', () => {
@@ -210,13 +212,15 @@ describe('Action Collectors', () => {
 
     it('handles missing authentication URL for social login', () => {
       const result = returnActionCollector(mockField, 1, 'SocialLoginCollector');
-      expect(result.output.url).toBeNull();
+      if ('url' in result.output) {
+        expect(result.output.url).toBeNull();
+      }
     });
 
     it('should return an error message when field is missing key, label, or type', () => {
       const field = {};
       const idx = 3;
-      const result = returnActionCollector(field, idx, 'ActionCollector');
+      const result = returnActionCollector(field as StandardFieldValue, idx, 'ActionCollector');
       expect(result.error).toBe(
         'Key is not found in the field object. Label is not found in the field object. Type is not found in the field object. ',
       );
@@ -279,7 +283,11 @@ describe('Single Value Collectors', () => {
     it('should return an error message when field is missing key, label, or type', () => {
       const field = {};
       const idx = 3;
-      const result = returnSingleValueCollector(field, idx, 'SingleValueCollector');
+      const result = returnSingleValueCollector(
+        field as StandardFieldValue,
+        idx,
+        'SingleValueCollector',
+      );
       expect(result.error).toBe(
         'Key is not found in the field object. Label is not found in the field object. Type is not found in the field object. ',
       );

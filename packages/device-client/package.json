@@ -15,18 +15,29 @@
   "files": ["./dist"],
   "dependencies": {
     "@reduxjs/toolkit": "catalog:",
-    "@forgerock/javascript-sdk": "4.7.0",
-    "immer": "catalog:"
+    "@forgerock/javascript-sdk": "4.7.0"
   },
   "devDependencies": {
-    "msw": "^2.5.1",
-    "vitest": "^1.4.0"
+    "msw": "^2.5.1"
   },
   "scripts": {
-    "build": "nx exec -- vite build",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:coverage": "vitest --coverage",
-    "lint": "nx exec -- eslint **/*.ts --fix"
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch",
+    "lint": "pnpm nx nxLint"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "packages/davinci-client/dist",
+          "main": "packages/device-client/src/index.ts",
+          "tsConfig": "packages/device-client/tsconfig.lib.json",
+          "generatePackageJson": false,
+          "assets": []
+        }
+      }
+    }
   }
 }

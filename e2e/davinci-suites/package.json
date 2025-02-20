@@ -17,8 +17,5 @@
   "bugs": {
     "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
   },
-  "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
-  "scripts": {
-    "e2e": "nx exec -- playwright test -c ./playwright.config.ts"
-  }
+  "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme"
 }

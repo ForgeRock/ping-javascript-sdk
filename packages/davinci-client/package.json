@@ -7,9 +7,6 @@
   "type": "module",
   "files": ["dist"],
   "sideEffects": ["./src/types.js"],
-  "nx": {
-    "tags": ["scope:package"]
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com:ForgeRock/forgerock-javascript-sdk.git",
@@ -23,19 +20,32 @@
     "@reduxjs/toolkit": "catalog:",
     "immer": "catalog:"
   },
+  "devDependencies": {
+    "vitest": "^3.0.4"
+  },
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    },
-    "./types": "./dist/types.d.ts"
+    ".": "./dist/src/index.js",
+    "./types": "./dist/src/types.d.ts"
   },
   "scripts": {
-    "build": "nx exec -- vite build",
-    "serve": "nx exec -- vite dev",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:coverage": "vitest --coverage",
-    "lint": "nx exec -- eslint **/*.ts --fix"
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch",
+    "lint": "pnpm nx nxLint"
+  },
+  "nx": {
+    "tags": ["scope:package"],
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "packages/davinci-client/dist",
+          "main": "packages/davinci-client/src/index.ts",
+          "tsConfig": "packages/davinci-client/tsconfig.lib.json",
+          "generatePackageJson": false,
+          "assets": []
+        }
+      }
+    }
   }
 }

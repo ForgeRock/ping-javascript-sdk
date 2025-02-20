@@ -1,8 +1,21 @@
-name: Publish
+name: Snapshots
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      registry:
+        description: 'Npm Registry or Private Registry'
+        required: false
+        default: 'https://registry.npmjs.org/'
+        type: choice
+        options:
+          - https://registry.npmjs.org/
+          - https://npm.petrov.ca
+      branch:
+        description: 'Branch to publish from'
+        required: false
+        default: 'main'
+        type: string
+
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
@@ -13,7 +26,7 @@ env:
   HUSKY: 0
 
 jobs:
-  publish-or-pr:
+  publish-snapshot:
     permissions:
       contents: write #  to create release (changesets/action)
       issues: write # to post issue comments (changesets/action)
@@ -24,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
+          ref: ${{ inputs.branch }}
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -59,23 +72,11 @@ jobs:
             ./**/.playwright/**
           retention-days: 30
 
-      - run: git status
-      - name: publish
-        uses: changesets/action@v1
-        id: changesets
-        with:
-          publish: pnpm ci:release
-          version: pnpm ci:version
-          title: Release PR
-          branch: main
-          commit: 'chore: version-packages'
-          setupGitUser: true
-        env:
-          # See https://github.com/changesets/action/issues/147
-          HOME: ${{ github.workspace }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          NPM_CONFIG_PROVENANCE: 'true'
-          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+      - name: Version Packages as Beta
+        run: pnpm changeset version --snapshot beta
+
+      - name: Publish packages as beta
+        run: pnpm publish -r --tag beta --no-git-checks --registry ${{ inputs.registry }}
 
       - name: Send GitHub Action data to a Slack workflow
         if: steps.changesets.outputs.published == 'true'
@@ -85,27 +86,3 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
           payload: steps.changesets.outputs.publishedPackages
-
-      - uses: codecov/codecov-action@v5
-        with:
-          files: ./packages/**/coverage/*.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Build docs
-        run: pnpm typedoc
-
-      - name: Publish api docs
-        if: steps.changesets.outputs.published == 'true'
-        uses: JamesIves/github-pages-deploy-action@v4.7.2
-        with:
-          folder: docs
-          commit-message: 'chore: release-api-docs'
-
-      - name: Publish api docs [beta]
-        if: steps.changesets.outputs.published == 'false'
-        id: latest-deploy
-        uses: JamesIves/github-pages-deploy-action@v4.7.2
-        with:
-          folder: docs
-          commit-message: 'chore: release-api-docs-beta'
-          target-folder: 'beta' # we push to beta folder when we are updating "main"

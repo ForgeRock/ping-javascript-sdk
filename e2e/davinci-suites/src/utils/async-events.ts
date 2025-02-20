@@ -31,6 +31,7 @@ export function asyncEvents(page) {
       }
       try {
         return JSON.parse(clientIdStorage.value);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return null;
       }

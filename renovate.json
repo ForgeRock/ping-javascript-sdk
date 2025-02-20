@@ -31,6 +31,13 @@
   ],
   "packageRules": [
     {
+      "matchManagers": ["changesets"],
+      "matchPackageNames": ["@changesets/*"],
+      "semanticCommitScope": "devDeps",
+      "automerge": true,
+      "autoApprove": true
+    },
+    {
       "matchManagers": ["github-actions"],
       "semanticCommitScope": "devDeps",
       "automerge": true,

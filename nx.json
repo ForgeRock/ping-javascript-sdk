@@ -1,55 +1,87 @@
 {
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci=github.yml"],
+    "default": ["{projectRoot}/**/*", "sharedGlobals", "workspaceRootIgnores"],
+    "workspaceRootIgnores": [
+      "!{projectRoot}/LICENSE",
+      "!{workspaceRoot}/*.md",
+      "!{workspaceRoot}/.whitesource",
+      "!{workspaceRoot}/commitlint.config.js",
+      "!{workspaceRoot}/renovate.json",
+      "!{workspaceRoot}/.github/pull_request_template.md",
+      "!{workspaceRoot}/.husky/*",
+      "!{workspaceRoot}/.changeset/*.md",
+      "!{workspaceRoot}/contributing_docs/*.md",
+      "!{workspaceRoot}/.verdaccio/*"
+    ],
+    "sharedGlobals": [],
     "production": [
       "default",
+      "!{projectRoot}/**/?(*.)+(spec|test|mock).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/**/mock-data/**",
+      "!{projectRoot}/**/?(*.)+(test-d).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/typedoc.json",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/test-setup.[jt]s",
+      "noEslintConfig",
+      "noMarkdown",
+      "workspaceRootIgnores"
+    ],
+    "noMarkdown": ["!{projectRoot}/*.md", "!{projectRoot}/**/*.md"],
+    "noTests": [
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/**/?(*.)+(test-d).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/src/test-setup.[jt]s",
-      "!{projectRoot}/test-setup.[jt]s"
+      "!{projectRoot}/test-setup.[jt]s",
+      "!{projectRoot}/eslint.config.mjs"
     ],
-    "noMarkdown": ["!{projectRoot}/**/*.md"]
+    "noEslintConfig": ["!{projectRoot}/eslint.config.mjs"]
   },
   "targetDefaults": {
-    "typecheck": {
-      "dependsOn": ["build", "^build"]
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "packages/{projectName}"
+      }
     },
-    "docs": {
-      "dependsOn": ["build", "^build", "^docs"],
-      "cache": true,
-      "outputs": ["{projectRoot}/docs"]
+    "typecheck": {
+      "inputs": ["default", "^default"]
     },
     "serve": {
-      "cache": false,
-      "dependsOn": ["build"]
+      "dependsOn": ["^build"]
     },
     "e2e": {
-      "dependsOn": ["^build"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "dependsOn": ["^e2e"],
+      "inputs": ["default", "^default"],
       "outputs": ["{projectRoot}/.playwright"],
       "cache": true
     },
     "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "noMarkdown",
+        "^noMarkdown",
+        "{workspaceRoot}/eslint.config.mjs"
+      ],
       "dependsOn": ["^lint"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
       "cache": true
     },
     "test": {
-      "dependsOn": ["^build", "^test"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "dependsOn": ["^test"],
       "outputs": ["{projectRoot}/coverage"],
       "cache": true
     },
     "build": {
+      "inputs": ["production", "^production"],
       "dependsOn": ["^build"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
-      "cache": true,
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{projectRoot}/dist"],
+      "cache": true
     },
     "e2e-ci--**/*": {
       "dependsOn": ["^build"],
-      "inputs": ["noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
       "outputs": ["{projectRoot}/.playwright"],
       "cache": true
     },
@@ -57,44 +89,69 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "preview": {
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "dependsOn": ["^build"]
+    },
+    "serve:dev": {
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "dependsOn": ["^build"]
+    },
+    "test:watch": {
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "dependsOn": ["^test:watch"]
+    },
+    "test:coverage": {
+      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "dependsOn": ["^test:coverage"],
+      "outputs": ["{projectRoot}/./coverage"],
+      "cache": true
     }
+  },
+  "sync": {
+    "applyChanges": true
   },
   "plugins": [
     {
-      "plugin": "@nx/vite/plugin",
+      "plugin": "@nx/js/typescript",
       "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "test",
-        "serveStaticTargetName": "serve-static"
-      }
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json"
+        }
+      },
+      "include": ["e2e/**/**/*", "packages/**/**/*"]
     },
     {
       "plugin": "@nx/playwright/plugin",
       "options": {
         "ciTargetName": "e2e-ci",
         "targetName": "e2e"
-      }
+      },
+      "include": ["e2e/**/**/*"]
     },
     {
       "plugin": "@nx/eslint/plugin",
       "options": {
-        "targetName": "lint"
+        "targetName": "nxLint"
       },
-      "include": ["tools/create-package/**/*", "packages/**/**/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*"]
     },
     {
       "plugin": "@nx/vite/plugin",
       "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "test",
+        "buildTargetName": "nxBuild",
+        "serveTargetName": "nxServe",
+        "previewTargetName": "nxPreview",
+        "testTargetName": "nxTest",
         "serveStaticTargetName": "serve-static",
         "typecheckTargetName": "typecheck"
       },
-      "include": ["tools/create-package/**/*"]
+      "include": ["packages/**/**/*", "e2e/**/**/*"]
     }
   ],
   "parallel": 1,
@@ -102,8 +159,27 @@
     "appsDir": "",
     "libsDir": ""
   },
+  "generators": {
+    "@nx/js:library": {
+      "publishable": true,
+      "outDir": "{projectRoot}/dist",
+      "bundler": "tsc",
+      "linter": "eslint",
+      "unitTestRunner": "vitest"
+    }
+  },
+  "release": {
+    "projects": ["packages/*"],
+    "version": {
+      "generatorOptions": {
+        "versionPrefix": ""
+      },
+      "preVersionCommand": "pnpm nx run-many -t build"
+    }
+  },
   "useDaemonProcess": true,
   "useInferencePlugins": true,
   "defaultBase": "main",
-  "nxCloudId": "6762f3018aed9c5fad7009bb"
+  "nxCloudId": "679a63312b5df202c4527cb3",
+  "$schema": "./node_modules/nx/schemas/nx-schema.json"
 }

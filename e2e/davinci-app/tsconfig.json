@@ -6,9 +6,6 @@
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM"],
     "strict": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "noUnusedLocals": true,
@@ -17,7 +14,14 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.spec.json" }
+    {
+      "path": "../../packages/davinci-client"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
   ]
 }

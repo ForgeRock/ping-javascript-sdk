@@ -1,1 +1,0 @@
-import <%= functionName %> from "./lib/index.ts"

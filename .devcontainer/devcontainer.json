@@ -1,0 +1,47 @@
+{
+  "name": "Ping JS Devcontainer",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20-bookworm",
+
+  "features": {
+    "ghcr.io/duduribeiro/devcontainer-features/neovim:1": {
+      "version": "stable"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/dhoeric/features/act:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+
+  "forwardPorts": [4211, 4873, 8443],
+
+  "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "wallabyjs.console-ninja",
+        "nrwl.angular-console",
+        "eamodio.gitlens",
+        "jacano.vscode-pnpm",
+        "antfu.pnpm-catalog-lens",
+        "esbenp.prettier-vscode",
+        "yoavbls.pretty-ts-errors",
+        "vitest.explorer",
+        "vscode-icons-team.vscode-icons",
+        "redhat.vscode-yaml",
+        "dbaeumer.vscode-eslint",
+        "hbenl.vscode-test-explorer",
+        "ms-playwright.playwright",
+        "wallabyjs.quokka-vscode"
+      ],
+      "settings": {
+        "debug.javascript.autoAttachFilter": "disabled" // workaround for that issue: https://github.com/microsoft/vscode-js-debug/issues/374#issuecomment-622239998
+      }
+    }
+  },
+
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ],
+  // Set `remoteUser` to `root` to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+  "remoteUser": "root"
+}

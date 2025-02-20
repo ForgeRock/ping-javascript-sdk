@@ -5,17 +5,14 @@ export default defineConfig({
   cacheDir: '../../node_modules/.vite/e2e/mock-api-v2',
 
   test: {
-    globals: true,
-    cache: {
-      dir: '../../node_modules/.vitest',
-    },
-    watch: !process.env['CI'],
+    globals: false,
+    watch: false,
     environment: 'jsdom',
+    pool: 'forks',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-
     reporters: ['default', 'json', 'html'],
     coverage: {
-      enabled: Boolean(process.env['CI']),
+      enabled: !process.env['CI'],
       reportsDirectory: './coverage',
       provider: 'v8',
     },

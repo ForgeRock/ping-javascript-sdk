@@ -114,6 +114,7 @@ const config: DaVinciConfig = {
     const collectors = davinciClient.getCollectors();
     collectors.forEach((collector) => {
       if (collector.type === 'TextCollector' && collector.name === 'protectsdk') {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
         protect(
           formEl, // You can ignore this; it's just for rendering
@@ -127,6 +128,7 @@ const config: DaVinciConfig = {
           davinciClient.update(collector), // Returns an update function for this collector
         );
       } else if (collector.type === 'PasswordCollector') {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
         passwordComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -139,6 +141,7 @@ const config: DaVinciConfig = {
           collector, // This is the plain object of the collector
         );
       } else if (collector.type === 'SocialLoginCollector') {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
         socialLoginButtonComponent(formEl, collector);
       } else if (collector.type === 'FlowCollector') {

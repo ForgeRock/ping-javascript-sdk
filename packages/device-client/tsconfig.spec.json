@@ -4,15 +4,9 @@
     "composite": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "target": "ESNext",
+    "target": "ES2022",
     "outDir": "../../dist/out-tsc",
-    "types": [
-      "vitest/vitest",
-      "vitest/globals",
-      "vitest/importMeta",
-      "vite/client",
-      "node"
-    ]
+    "types": ["vitest/globals", "vitest/importMeta", "vite/client", "node"]
   },
   "include": [
     "vite.config.ts",

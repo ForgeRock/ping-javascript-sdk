@@ -7,15 +7,15 @@
   "nx": {
     "tags": ["scope:app"]
   },
+  "scripts": {
+    "build": "pnpm nx nxBuild",
+    "lint": "pnpm nx nxLint",
+    "preview": "pnpm nx nxPreview",
+    "serve": "pnpm nx nxServe"
+  },
   "dependencies": {
     "@forgerock/davinci-client": "workspace:*",
     "@forgerock/javascript-sdk": "4.7.0"
   },
-  "devDependencies": {},
-  "scripts": {
-    "build": "nx exec -- vite build --watch false",
-    "serve": "vite dev",
-    "preview": "vite preview",
-    "lint": "nx exec -- eslint **/*.ts --fix"
-  }
+  "devDependencies": {}
 }

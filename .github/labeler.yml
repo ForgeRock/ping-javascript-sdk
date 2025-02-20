@@ -6,24 +6,12 @@ docs:
   - '*.md'
   - '**/*.md'
 
-NX:
-  - nx.json
-  - workspace.json
-  - '**/**/project.json'
-root:
-  - '*'
-
 davinci-client:
   - packages/davinci-client/*
 
 device-client:
   - packages/device-client/*
 
-ping-protect: -packages/ping-protect/*
 test:
   - e2e/**/*
-  - jest*
   - packages/**/*.test.ts
-  - packages/**/*.test.js
-  - samples/**/*.test.ts
-  - samples/**/*.test.js

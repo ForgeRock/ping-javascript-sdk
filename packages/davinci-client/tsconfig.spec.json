@@ -1,18 +1,14 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "NodeNext",
     "outDir": "../../dist/out-tsc",
-    "composite": true,
-    "moduleResolution": "NodeNext",
-    "target": "ESNext",
-    "types": [
-      "vitest/vitest",
-      "vitest/globals",
-      "vitest/importMeta",
-      "vite/client",
-      "node"
-    ]
+    "declaration": true,
+    "declarationMap": true,
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "types": ["vitest/globals", "vitest/importMeta", "vite/client", "node"]
   },
   "include": [
     "vite.config.ts",
@@ -25,6 +21,8 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
-    "src/**/*.d.ts"
+    "src/**/*.test-d.ts",
+    "src/**/*.d.ts",
+    "src/**/*.ts"
   ]
 }

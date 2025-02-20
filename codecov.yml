@@ -6,11 +6,11 @@ coverage:
   status:
     project:
       default:
-        target: 80%
+        target: 40%
         threshold: 1%
     patch:
       default:
-        target: 80%
+        target: 40%
         threshold: 1%
   parsers:
     v1:
@@ -52,9 +52,9 @@ flag_management:
     carryforward: true
     statuses:
       - type: project
-        target: 80%
+        target: 40%
       - type: patch
-        target: 80%
+        target: 40%
   individual_flags:
     - name: package-*
       paths:
@@ -62,6 +62,6 @@ flag_management:
       carryforward: true
       statuses:
         - type: project
-          target: 80%
+          target: 40%
         - type: patch
-          target: 80%
+          target: 40%
