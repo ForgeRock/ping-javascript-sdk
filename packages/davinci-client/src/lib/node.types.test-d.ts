@@ -15,11 +15,13 @@ import {
   FlowCollector,
   MultiSelectCollector,
   PasswordCollector,
+  ReadOnlyCollector,
   SingleSelectCollector,
   SingleValueCollector,
   SocialLoginCollector,
   SubmitCollector,
   TextCollector,
+  ValidatedTextCollector,
 } from './collector.types.js';
 // ErrorDetail and Links are used as part of the DaVinciError and server._links types respectively
 
@@ -206,7 +208,9 @@ describe('Node Types', () => {
         | ActionCollector<'ActionCollector'>
         | SingleValueCollector<'SingleValueCollector'>
         | MultiSelectCollector
+        | ReadOnlyCollector
         | SingleSelectCollector
+        | ValidatedTextCollector
       >();
 
       // Test that each collector type is part of the union

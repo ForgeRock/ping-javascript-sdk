@@ -1,8 +1,12 @@
-import type { TextCollector, Updater } from '@forgerock/davinci-client/types';
+import type {
+  TextCollector,
+  ValidatedTextCollector,
+  Updater,
+} from '@forgerock/davinci-client/types';
 
 export default function usernameComponent(
   formEl: HTMLFormElement,
-  collector: TextCollector,
+  collector: TextCollector | ValidatedTextCollector,
   updater: Updater,
 ) {
   const collectorKey = collector.output.key;
