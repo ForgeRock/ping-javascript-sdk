@@ -31,7 +31,6 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["changesets"],
       "matchPackageNames": ["@changesets/*"],
       "semanticCommitScope": "devDeps",
       "automerge": true,
