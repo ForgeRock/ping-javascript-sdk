@@ -1,5 +1,6 @@
 {
   "name": "@forgerock/mock-api-v2",
+  "version": "1.0.0",
   "description": "",
   "private": true,
   "main": "./dist/index.js",
