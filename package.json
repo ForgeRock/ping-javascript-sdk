@@ -44,7 +44,7 @@
     "@effect/platform-node": "^0.53.26",
     "@effect/schema": "^0.68.23",
     "@effect/vitest": "^0.6.7",
-    "@eslint/eslintrc": "^2.1.1",
+    "@eslint/eslintrc": "^3.0.0",
     "@eslint/js": "~8.57.0",
     "@nx/devkit": "20.4.4",
     "@nx/eslint": "20.4.4",
