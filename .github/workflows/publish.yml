@@ -96,7 +96,7 @@ jobs:
 
       - name: Publish api docs
         if: steps.changesets.outputs.published == 'true'
-        uses: JamesIves/github-pages-deploy-action@v4.7.2
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
         with:
           folder: docs
           commit-message: 'chore: release-api-docs'
@@ -104,7 +104,7 @@ jobs:
       - name: Publish api docs [beta]
         if: steps.changesets.outputs.published == 'false'
         id: latest-deploy
-        uses: JamesIves/github-pages-deploy-action@v4.7.2
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
         with:
           folder: docs
           commit-message: 'chore: release-api-docs-beta'
