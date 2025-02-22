@@ -49,20 +49,43 @@ export interface Links {
 export type StandardFieldValue = {
   type:
     | 'PASSWORD'
+    | 'PASSWORD_VERIFY'
     | 'TEXT'
     | 'SUBMIT_BUTTON'
     | 'FLOW_BUTTON'
     | 'FLOW_LINK'
-    | 'SOCIAL_LOGIN_BUTTON'
     | 'BUTTON';
   key: string;
   label: string;
 
   // Optional properties
-  links?: Links;
+  required?: boolean;
 };
 
-export type SingleSelect = {
+export type ReadOnlyFieldValue = {
+  type: 'LABEL';
+  content: string;
+};
+
+export type RedirectFieldValue = {
+  type: 'SOCIAL_LOGIN_BUTTON';
+  key: string;
+  label: string;
+  links: Links;
+};
+
+export type ValidatedFieldValue = {
+  type: 'TEXT';
+  key: string;
+  label: string;
+  required: boolean;
+  validation: {
+    regex: string;
+    errorMessage: string;
+  };
+};
+
+export type SingleSelectFieldValue = {
   inputType: 'SINGLE_SELECT';
   key: string;
   label: string;
@@ -74,7 +97,7 @@ export type SingleSelect = {
   type: 'RADIO' | 'DROPDOWN';
 };
 
-export type MultiSelect = {
+export type MultiSelectFieldValue = {
   inputType: 'MULTI_SELECT';
   key: string;
   label: string;
@@ -86,7 +109,13 @@ export type MultiSelect = {
   type: 'CHECKBOX' | 'COMBOBOX';
 };
 
-export type DaVinciField = StandardFieldValue | SingleSelect | MultiSelect;
+export type DaVinciField =
+  | StandardFieldValue
+  | ReadOnlyFieldValue
+  | RedirectFieldValue
+  | ValidatedFieldValue
+  | SingleSelectFieldValue
+  | MultiSelectFieldValue;
 
 /**
  * Next or Continuation Response DaVinci API

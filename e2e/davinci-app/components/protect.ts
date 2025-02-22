@@ -1,6 +1,14 @@
-import type { TextCollector, Updater } from '@forgerock/davinci-client/types';
+import type {
+  TextCollector,
+  ValidatedTextCollector,
+  Updater,
+} from '@forgerock/davinci-client/types';
 
-export default function (formEl: HTMLFormElement, collector: TextCollector, updater: Updater) {
+export default function (
+  formEl: HTMLFormElement,
+  collector: TextCollector | ValidatedTextCollector,
+  updater: Updater,
+) {
   // create paragraph element with text of "Loading ... "
   const p = document.createElement('p');
 

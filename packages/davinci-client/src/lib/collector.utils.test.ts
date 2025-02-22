@@ -9,8 +9,17 @@ import {
   returnTextCollector,
   returnSingleSelectCollector,
   returnMultiSelectCollector,
+  returnValidator,
+  returnReadOnlyCollector,
+  returnNoValueCollector,
 } from './collector.utils.js';
-import type { DaVinciField, StandardFieldValue } from './davinci.types.js';
+import type {
+  DaVinciField,
+  ReadOnlyFieldValue,
+  RedirectFieldValue,
+  StandardFieldValue,
+} from './davinci.types.js';
+import { ValidatedTextCollector } from './collector.types.js';
 
 describe('Action Collectors', () => {
   describe('returnFlowCollector', () => {
@@ -46,10 +55,10 @@ describe('Action Collectors', () => {
   });
 
   describe('returnSocialLoginCollector', () => {
-    const mockSocialField: DaVinciField = {
+    const mockSocialField: RedirectFieldValue = {
       key: 'google-login',
       label: 'Continue with Google',
-      type: 'BUTTON',
+      type: 'SOCIAL_LOGIN_BUTTON',
       links: {
         authenticate: {
           href: 'https://auth.example.com/google',
@@ -82,6 +91,8 @@ describe('Action Collectors', () => {
       };
       // this type could be more comprehensive
       // that is why casting as any here works
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const result = returnSocialLoginCollector(fieldWithoutUrl, 1);
       if ('url' in result.output) {
         expect(result.output.url).toBeNull();
@@ -90,6 +101,8 @@ describe('Action Collectors', () => {
 
     it('should handle error cases properly', () => {
       const invalidField = {} as StandardFieldValue;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const result = returnSocialLoginCollector(invalidField, 1);
       expect(result.error).toContain('Key is not found');
       expect(result.type).toBe('SocialLoginCollector');
@@ -127,24 +140,24 @@ describe('Action Collectors', () => {
     });
   });
 
-  const mockField: StandardFieldValue = {
-    key: 'testKey',
-    label: 'Test Label',
-    type: 'TEXT',
-  };
-
-  const socialLoginField: DaVinciField = {
-    key: 'google-login',
-    label: 'Login with Google',
-    type: 'SOCIAL_LOGIN_BUTTON',
-    links: {
-      authenticate: {
-        href: 'https://auth.example.com/google',
-      },
-    },
-  };
-
   describe('returnActionCollector', () => {
+    const mockField: StandardFieldValue = {
+      key: 'testKey',
+      label: 'Test Label',
+      type: 'TEXT',
+    };
+
+    const socialLoginField: DaVinciField = {
+      key: 'google-login',
+      label: 'Login with Google',
+      type: 'SOCIAL_LOGIN_BUTTON',
+      links: {
+        authenticate: {
+          href: 'https://auth.example.com/google',
+        },
+      },
+    };
+
     it('should return a valid ActionCollector with all parameters provided', () => {
       const result = returnActionCollector(mockField, 1, 'ActionCollector');
       expect(result).toEqual({
@@ -385,5 +398,90 @@ describe('Single Value Collectors', () => {
       expect(result.type).toBe('FlowCollector');
       expect(result.output).not.toHaveProperty('value');
     });
+  });
+});
+
+describe('No Value Collectors', () => {
+  const mockField: ReadOnlyFieldValue = {
+    content: 'Test Label',
+    type: 'LABEL',
+  };
+
+  describe('returnNoValueCollector', () => {
+    it('should return a valid NoValueCollector with value in output', () => {
+      const result = returnNoValueCollector(mockField, 0, 'NoValueCollector');
+      expect(result).toEqual({
+        category: 'NoValueCollector',
+        error: null,
+        type: 'NoValueCollector',
+        id: 'LABEL-0',
+        name: 'LABEL-0',
+        output: {
+          key: 'LABEL-0',
+          label: mockField.content,
+          type: mockField.type,
+        },
+      });
+    });
+  });
+
+  describe('returnReadOnlyCollector', () => {
+    it('should return a valid ReadOnlyCollector with value in output', () => {
+      const result = returnReadOnlyCollector(mockField, 0);
+      expect(result).toEqual({
+        category: 'NoValueCollector',
+        error: null,
+        type: 'ReadOnlyCollector',
+        id: 'LABEL-0',
+        name: 'LABEL-0',
+        output: {
+          key: 'LABEL-0',
+          label: mockField.content,
+          type: mockField.type,
+        },
+      });
+    });
+  });
+});
+
+describe('Return collector validator', () => {
+  const validatedTextCollector = {
+    input: {
+      validation: [
+        { type: 'required', message: 'This field is required' },
+        { type: 'regex', message: 'Invalid format', rule: '^[a-zA-Z0-9]+$' },
+      ],
+    },
+  } as ValidatedTextCollector;
+
+  const validator = returnValidator(validatedTextCollector);
+
+  it('should return an error message for required validation when value is empty', () => {
+    const result = validator('');
+    expect(result).toContain('This field is required');
+  });
+
+  it('should return an error message for regex validation when value does not match the pattern', () => {
+    const result = validator('invalid_value!');
+    expect(result).toContain('Invalid format');
+  });
+
+  it('should return no error messages when value passes all validations', () => {
+    const result = validator('validValue123');
+    expect(result).toEqual([]);
+  });
+
+  it('should handle invalid regex patterns gracefully', () => {
+    const invalidRegexCollector = {
+      input: {
+        validation: [{ type: 'regex', message: 'Invalid regex', rule: '[invalid' }],
+      },
+    } as ValidatedTextCollector;
+
+    const invalidRegexValidator = returnValidator(invalidRegexCollector);
+    const result = invalidRegexValidator('test');
+    expect(result).toContain(
+      'Invalid regular expression: /[invalid/: Unterminated character class',
+    );
   });
 });

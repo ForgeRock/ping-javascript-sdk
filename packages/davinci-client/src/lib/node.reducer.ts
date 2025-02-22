@@ -16,6 +16,7 @@ import {
   returnTextCollector,
   returnSingleSelectCollector,
   returnMultiSelectCollector,
+  returnReadOnlyCollector,
 } from './collector.utils.js';
 import type { DaVinciField } from './davinci.types.js';
 import {
@@ -28,6 +29,8 @@ import {
   SocialLoginCollector,
   SubmitCollector,
   TextCollector,
+  ReadOnlyCollector,
+  ValidatedTextCollector,
 } from './collector.types.js';
 
 /**
@@ -59,6 +62,8 @@ const initialCollectorValues: (
   | SingleValueCollector<'SingleValueCollector'>
   | SingleSelectCollector
   | MultiSelectCollector
+  | ReadOnlyCollector
+  | ValidatedTextCollector
 )[] = [];
 
 /**
@@ -77,6 +82,14 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       // Map the fields to the initial state with the schema of Generic Collector
       const collectors = Array.isArray(fields)
         ? fields.map((field: DaVinciField, idx: number) => {
+            /**
+             * Some collectors may not have the same properties as others;
+             * LABEL field types are one of them, so let's catch them first.
+             */
+            if (field.type === 'LABEL') {
+              return returnReadOnlyCollector(field, idx);
+            }
+
             // *Some* collectors may have default or existing data to display
             const data = action.payload.formData[field.key];
             // Match specific collectors
@@ -99,7 +112,8 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 // No data to send
                 return returnFlowCollector(field, idx);
               }
-              case 'PASSWORD': {
+              case 'PASSWORD':
+              case 'PASSWORD_VERIFY': {
                 // No data to send
                 return returnPasswordCollector(field, idx);
               }
@@ -143,6 +157,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
       if (collector.category === 'ActionCollector') {
         throw new Error('ActionCollectors are read-only');
+      }
+      if (collector.category === 'NoValueCollector') {
+        throw new Error('NoValueCollectors, like ReadOnlyCollectors, are read-only');
       }
       if (action.payload.value === undefined) {
         throw new Error('Value argument cannot be undefined');

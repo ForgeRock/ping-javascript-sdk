@@ -8,6 +8,8 @@ import type {
   SingleValueCollector,
   SingleSelectCollector,
   MultiSelectCollector,
+  ReadOnlyCollector,
+  ValidatedTextCollector,
 } from './collector.types.js';
 import type { ErrorDetail, Links } from './davinci.types.js';
 import { GenericError } from './error.types.js';
@@ -27,7 +29,9 @@ export type Collectors =
   | SubmitCollector
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>
-  | MultiSelectCollector;
+  | MultiSelectCollector
+  | ReadOnlyCollector
+  | ValidatedTextCollector;
 
 export interface ContinueNode {
   cache: {

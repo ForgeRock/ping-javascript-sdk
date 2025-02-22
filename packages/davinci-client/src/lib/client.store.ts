@@ -19,6 +19,7 @@ import type {
 } from './davinci.types.js';
 import type { SingleValueCollectors } from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
+import { returnValidator } from './collector.utils.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -109,7 +110,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
     /**
      * @method update - Exclusive method for updating the current node with user provided values
      * @param {SingleValueCollector} collector - the collector to update
-     * @returns {function} - an function to call for updating collector value
+     * @returns {function} - a function to call for updating collector value
      */
     update: (collector: SingleValueCollectors): Updater => {
       if (!collector.id) {
@@ -160,6 +161,62 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
           };
         }
       };
+    },
+
+    /**
+     * @method validate - Method for validating the value against validation rules
+     * @param {SingleValueCollector} collector - the collector to validate
+     * @returns {function} - a function to call for validating collector value
+     * @throws {Error} - if the collector is not a SingleValueCollector
+     */
+    validate: (collector: SingleValueCollectors) => {
+      if (!collector.id) {
+        console.error('Argument for `collector` has no ID');
+        return function () {
+          return {
+            error: { message: 'Argument for `collector` has no ID', type: 'argument_error' },
+            type: 'internal_error',
+          };
+        };
+      }
+
+      const { id } = collector;
+      const collectorToUpdate = nodeSlice.selectors.selectCollector(store.getState(), id);
+
+      if (!collectorToUpdate) {
+        return function () {
+          console.error('Collector not found');
+          return {
+            type: 'internal_error',
+            error: { message: 'Collector not found', type: 'state_error' },
+          };
+        };
+      }
+
+      if (collectorToUpdate.category !== 'ValidatedSingleValueCollector') {
+        console.error('Collector is not a SingleValueCollector and cannot be validated');
+        return function () {
+          return {
+            type: 'internal_error',
+            error: {
+              message: 'Collector is not a SingleValueCollector and cannot be validated',
+              type: 'state_error',
+            },
+          };
+        };
+      }
+
+      if (!('validation' in collectorToUpdate.input)) {
+        console.error('Collector has no validation rules');
+        return function () {
+          return {
+            type: 'internal_error',
+            error: { message: 'Collector has no validation rules', type: 'state_error' },
+          };
+        };
+      }
+
+      return returnValidator(collectorToUpdate);
     },
 
     /**

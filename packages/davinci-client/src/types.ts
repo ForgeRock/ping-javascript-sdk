@@ -31,3 +31,7 @@ export type PasswordCollector = collectors.PasswordCollector;
 export type TextCollector = collectors.TextCollector;
 export type SocialLoginCollector = collectors.SocialLoginCollector;
 export type SubmitCollector = collectors.SubmitCollector;
+export type ValidatedTextCollector = collectors.ValidatedTextCollector;
+export type ReadOnlyCollector = collectors.ReadOnlyCollector;
+export type MultiSelectCollector = collectors.MultiSelectCollector;
+export type SingleSelectCollector = collectors.SingleSelectCollector;
