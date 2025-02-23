@@ -2,6 +2,7 @@ import { FlatCompat } from '@eslint/eslintrc';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import js from '@eslint/js';
+import packageJson from 'eslint-plugin-package-json/configs/recommended';
 import typescriptEslintEslintPlugin from '@typescript-eslint/eslint-plugin';
 import nxEslintPlugin from '@nx/eslint-plugin';
 import eslintPluginImport from 'eslint-plugin-import';
@@ -133,5 +134,12 @@ export default [
   },
   {
     ignores: ['dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
+  },
+  {
+    ...packageJson,
+    rules: {
+      ...packageJson.rules,
+      'package-json/no-empty-fields': 'off',
+    },
   },
 ];
