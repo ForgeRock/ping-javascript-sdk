@@ -10,7 +10,6 @@ env:
   PNPM_CACHE_FOLDER: .pnpm-store
   NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  HUSKY: 0
 
 jobs:
   publish-or-pr:

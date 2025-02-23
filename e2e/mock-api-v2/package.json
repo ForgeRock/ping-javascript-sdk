@@ -1,27 +1,27 @@
 {
   "name": "@forgerock/mock-api-v2",
   "version": "1.0.0",
-  "description": "",
   "private": true,
-  "main": "./dist/index.js",
+  "description": "",
   "type": "module",
-  "dependencies": {
-    "@effect/language-service": "^0.2.0",
-    "@effect/platform": "^0.58.27",
-    "@effect/platform-node": "^0.53.26",
-    "effect": "^3.12.7",
-    "effect-http": "^0.73.0",
-    "effect-http-node": "^0.16.1",
-    "@effect/schema": "^0.68.23"
-  },
-  "devDependencies": {
-    "@effect/vitest": "^0.19.0"
-  },
+  "main": "./dist/index.js",
   "scripts": {
     "lint": "pnpm nx nxLint",
     "serve": "node dist/e2e/mock-api-v2/src/main.js",
     "serve:dev": "nodemon dist/e2e/mock-api-v2/src/main.js",
     "test": "pnpm nx nxTest"
+  },
+  "dependencies": {
+    "@effect/language-service": "^0.2.0",
+    "@effect/platform": "^0.58.27",
+    "@effect/platform-node": "^0.53.26",
+    "@effect/schema": "^0.68.23",
+    "effect": "^3.12.7",
+    "effect-http": "^0.73.0",
+    "effect-http-node": "^0.16.1"
+  },
+  "devDependencies": {
+    "@effect/vitest": "^0.19.0"
   },
   "nx": {
     "tags": ["scope:e2e"],
@@ -33,8 +33,7 @@
           "outputPath": "e2e/mock-api-v2/dist",
           "main": "e2e/mock-api-v2/src/main.ts",
           "tsConfig": "e2e/mock-api-v2/tsconfig.app.json",
-          "generatePackageJson": true,
-          "assets": []
+          "generatePackageJson": true
         }
       }
     }

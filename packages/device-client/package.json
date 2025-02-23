@@ -2,9 +2,6 @@
   "name": "@forgerock/device-client",
   "version": "0.0.1",
   "private": true,
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -12,18 +9,21 @@
     "./package.json": "./package.json",
     "./types": "./dist/lib/types/index.d.ts"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
   "files": ["./dist"],
+  "scripts": {
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
+  },
   "dependencies": {
-    "@reduxjs/toolkit": "catalog:",
-    "@forgerock/javascript-sdk": "4.7.0"
+    "@forgerock/javascript-sdk": "4.7.0",
+    "@reduxjs/toolkit": "catalog:"
   },
   "devDependencies": {
     "msw": "^2.5.1"
-  },
-  "scripts": {
-    "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch",
-    "lint": "pnpm nx nxLint"
   },
   "nx": {
     "targets": {
