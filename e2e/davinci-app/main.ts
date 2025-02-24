@@ -11,12 +11,13 @@ import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 
 const config: DaVinciConfig = {
-  clientId: '6044ba2a-e4b1-477f-babc-9f622b6e0ff3', //'85ff55b3-f78c-4c6a-8fb3-7e8ca02d6791',
+  clientId: '724ec718-c41c-4d51-98b0-84a583f450f9', //'6044ba2a-e4b1-477f-babc-9f622b6e0ff3', 85ff55b3-f78c-4c6a-8fb3-7e8ca02d6791,
   redirectUri: window.location.origin + '/',
   scope: 'openid profile email name revoke',
   serverConfig: {
     wellknown:
-      'https://auth.pingone.com/c2a669c0-c396-4544-994d-9c6eb3fb1602/as/.well-known/openid-configuration',
+      'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+    //'https://auth.pingone.com/c2a669c0-c396-4544-994d-9c6eb3fb1602/as/.well-known/openid-configuration',
   },
 };
 
