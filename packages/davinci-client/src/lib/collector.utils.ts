@@ -46,7 +46,7 @@ export function returnActionCollector<CollectorType extends ActionCollectorTypes
     error = `${error}Type is not found in the field object. `;
   }
 
-  if (collectorType === 'SocialLoginCollector') {
+  if (collectorType === 'SocialLoginCollector' && 'links' in field) {
     /**
      * Social Login Collector will not have a `key`
      * So we should _always_ have this error
