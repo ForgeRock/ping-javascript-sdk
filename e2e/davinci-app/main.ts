@@ -11,7 +11,7 @@ import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 
 const config: DaVinciConfig = {
-  clientId: '85ff55b3-f78c-4c6a-8fb3-7e8ca02d6791',
+  clientId: '6044ba2a-e4b1-477f-babc-9f622b6e0ff3', //'85ff55b3-f78c-4c6a-8fb3-7e8ca02d6791',
   redirectUri: window.location.origin + '/',
   scope: 'openid profile email name revoke',
   serverConfig: {
@@ -25,15 +25,14 @@ const urlParams = new URLSearchParams(window.location.search);
 (async () => {
   const davinciClient = await davinci({ config });
   const continueToken = urlParams.get('continueToken');
-  if (continueToken) {
-    const resume = await davinciClient.resume();
-    console.log('resume!', resume);
-    return;
-  }
   const formEl = document.getElementById('form') as HTMLFormElement;
+  let resumed: any;
 
-  await Config.setAsync(config);
-
+  if (continueToken) {
+    resumed = await davinciClient.resume();
+  } else {
+    await Config.setAsync(config);
+  }
   function renderComplete() {
     const clientInfo = davinciClient.getClient();
     const serverInfo = davinciClient.getServer();
@@ -149,7 +148,9 @@ const urlParams = new URLSearchParams(window.location.search);
       } else if (collector.type === 'SocialLoginCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
-        socialLoginButtonComponent(formEl, collector);
+        socialLoginButtonComponent(formEl, collector, () =>
+          davinciClient.socialLoginClick(collector),
+        );
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -202,16 +203,23 @@ const urlParams = new URLSearchParams(window.location.search);
     query[key] = values.length > 1 ? values : values[0];
   }
   console.log('query', query);
-  const node = await davinciClient.start({ query });
+
+  let node: Awaited<ReturnType<typeof davinciClient.start>> | null = null;
+  if (!resumed) {
+    node = await davinciClient.start({ query });
+  }
 
   formEl.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    let newNode = node;
+    if (!node || !resumed) {
+      console.log(node, resumed, 'here?');
+    }
+    let newNode = node || resumed;
     /**
      * We can just call `next` here and not worry about passing any arguments
      */
-    if (node.status !== 'continue') {
+    if (node && node.status !== 'continue') {
       newNode = (await davinciClient.next()) as any;
     }
 
@@ -229,7 +237,7 @@ const urlParams = new URLSearchParams(window.location.search);
     }
   });
 
-  if (node.status !== 'success') {
+  if (resumed || node?.status !== 'success') {
     renderForm();
   } else {
     renderComplete();

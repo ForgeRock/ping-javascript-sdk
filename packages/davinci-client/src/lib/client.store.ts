@@ -1,7 +1,7 @@
 /**
  * Import RTK slices and api
  */
-import { createClientStore } from './client.store.utils.js';
+import { createClientStore, RootState } from './client.store.utils.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
@@ -17,7 +17,7 @@ import type {
   OutgoingQueryParams,
   StartOptions,
 } from './davinci.types.js';
-import type { SingleValueCollectors } from './collector.types.js';
+import type { SingleValueCollectors, SocialLoginCollector } from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 
@@ -274,6 +274,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
     resume: async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const continueToken = urlParams.get('continueToken');
+      const continueUrl = window.localStorage.getItem('continueUrl') || null;
 
       if (!continueToken) {
         return {
@@ -282,12 +283,55 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
           type: 'network_error',
         };
       }
+      if (!continueUrl) {
+        return {
+          message:
+            'Resume needs a continue url, none was found in storage. Please restart your flow',
+          type: 'network_error',
+        };
+      }
 
+      if (continueUrl) {
+        window.localStorage.removeItem('continueUrl');
+      }
       const response = await store.dispatch(
-        davinciApi.endpoints.resume.initiate({ continueToken }),
+        davinciApi.endpoints.resume.initiate({ continueToken, continueUrl }),
       );
-      console.log('top level api', response);
+
       return response;
+    },
+    /**
+     * Social Login Utiltiy
+     *
+     */
+    socialLoginClick: (collector: SocialLoginCollector) => {
+      console.log('here we are');
+      const rootState: RootState = store.getState();
+
+      const serverSlice = nodeSlice.selectors.selectServer(rootState);
+
+      if (serverSlice && '_links' in serverSlice) {
+        const continueUrl = serverSlice._links?.['continue']?.href ?? null;
+        console.log('the continue url', continueUrl);
+        if (continueUrl) {
+          window.localStorage.setItem('continueUrl', continueUrl);
+          if (collector.output.url) {
+            console.log('collector url', collector.output.url);
+            return window.location.assign(collector.output.url);
+          } else {
+            return {
+              message:
+                'No url found in collector, social login needs a url in the collector to navigate to',
+              type: 'network_error',
+            };
+          }
+        }
+      }
+      return {
+        message:
+          'No Continue Url found, social login needs a continue url to be saved in localStorage',
+        type: 'network_error',
+      };
     },
 
     /**

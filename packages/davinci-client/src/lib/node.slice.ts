@@ -269,9 +269,8 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
-    resume(state, action: PayloadAction<{ continueToken: string }>) {
+    resume(state) {
       const newState = state as Draft<ContinueNode>;
-      console.log('action', action);
 
       return newState;
     },

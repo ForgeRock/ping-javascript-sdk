@@ -290,17 +290,10 @@ export const davinciApi = createApi({
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),
-    resume: builder.query<any, { continueToken: string }>({
-      async queryFn({ continueToken }, api, _, baseQuery) {
-        const state = api.getState() as RootStateWithNode<ContinueNode>;
-
-        /**
-         * Need the base url with env id
-         */
-        const baseUrl = state.config.endpoints.issuer.replace('/as', '');
-
+    resume: builder.query<any, { continueToken: string; continueUrl: string }>({
+      async queryFn({ continueToken, continueUrl }, api, _, baseQuery) {
         const response = await baseQuery({
-          url: `${baseUrl}/davinci/continue`,
+          url: continueUrl,
           credentials: 'include',
           method: 'POST',
           headers: {
@@ -310,8 +303,27 @@ export const davinciApi = createApi({
           body: JSON.stringify({}),
         });
 
-        console.log('the response', response);
         return response;
+      },
+      async onQueryStarted(_, api) {
+        let response;
+
+        try {
+          const query = await api.queryFulfilled;
+          response = query.meta?.response;
+        } catch (err: unknown) {
+          const error = err as ThrownQueryError;
+
+          /**
+           * This error is thrown when the query is rejected. We don't
+           * want to do anything with it for now.
+           */
+          response = error.meta?.response;
+        }
+
+        const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
+
+        handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),
   }),
