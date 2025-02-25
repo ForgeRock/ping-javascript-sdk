@@ -7,6 +7,7 @@ import { createSlice } from '@reduxjs/toolkit';
  * Import the needed reducers
  */
 import { nodeCollectorReducer, updateCollectorValues } from './node.reducer.js';
+import { getCollectorErrors } from './node.utils.js';
 
 /**
  * Import the types
@@ -79,7 +80,7 @@ export const nodeSlice = createSlice({
 
       newState.error = {
         code: action.payload.data.code,
-        details: action.payload.data.details,
+        collectors: getCollectorErrors(action.payload.data),
         message: action.payload.data.message,
         internalHttpStatus: action.payload.data.httpResponseCode,
         status: 'error',
@@ -277,7 +278,7 @@ export const nodeSlice = createSlice({
       // Let's check if the node has a client and collectors
       if (state.status !== CONTINUE_STATUS) {
         console.error(
-          `\`collectors are only available on nodes with \`status\` of ${CONTINUE_STATUS}`,
+          `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS}`,
         );
         return [];
       }
@@ -287,7 +288,7 @@ export const nodeSlice = createSlice({
       // Let's check if the node has a client and collectors
       if (state.status !== CONTINUE_STATUS) {
         console.error(
-          `\`collectors are only available on nodes with \`status\` of ${CONTINUE_STATUS}`,
+          `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS}`,
         );
         return;
       }
@@ -295,6 +296,14 @@ export const nodeSlice = createSlice({
     },
     selectError: (state) => {
       return state.error;
+    },
+    selectErrorCollectors: (state) => {
+      if (state.status !== ERROR_STATUS) {
+        console.error(
+          `\`errorCollectors\` are only available on nodes with \`status\` of ${ERROR_STATUS}`,
+        );
+      }
+      return state.error?.collectors || [];
     },
     selectServer: (state) => {
       return state.server;

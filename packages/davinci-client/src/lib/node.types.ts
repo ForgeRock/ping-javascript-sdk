@@ -11,14 +11,8 @@ import type {
   ReadOnlyCollector,
   ValidatedTextCollector,
 } from './collector.types.js';
-import type { ErrorDetail, Links } from './davinci.types.js';
+import type { Links } from './davinci.types.js';
 import { GenericError } from './error.types.js';
-
-export interface DaVinciError extends GenericError {
-  details?: ErrorDetail[];
-  internalHttpStatus?: number;
-  status: 'error' | 'failure' | 'unknown';
-}
 
 export type Collectors =
   | FlowCollector
@@ -32,6 +26,12 @@ export type Collectors =
   | MultiSelectCollector
   | ReadOnlyCollector
   | ValidatedTextCollector;
+
+export interface CollectorErrors {
+  code: string;
+  message: string;
+  target: string;
+}
 
 export interface ContinueNode {
   cache: {
@@ -56,6 +56,12 @@ export interface ContinueNode {
     status: 'continue';
   };
   status: 'continue';
+}
+
+export interface DaVinciError extends GenericError {
+  collectors?: CollectorErrors[];
+  internalHttpStatus?: number;
+  status: 'error' | 'failure' | 'unknown';
 }
 
 export interface ErrorNode {

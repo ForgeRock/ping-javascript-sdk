@@ -80,6 +80,7 @@ describe('The node slice reducers', () => {
       },
       error: {
         code: ' Invalid username and/or password',
+        collectors: [],
         message: ' Invalid username and/or password',
         internalHttpStatus: 400,
         status: 'error',
