@@ -1,6 +1,6 @@
 {
   "name": "Ping JS Devcontainer",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:20-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22-bookworm",
 
   "features": {
     "ghcr.io/duduribeiro/devcontainer-features/neovim:1": {
