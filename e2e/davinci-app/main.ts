@@ -203,26 +203,21 @@ const urlParams = new URLSearchParams(window.location.search);
     const values = searchParams.getAll(key);
     query[key] = values.length > 1 ? values : values[0];
   }
-  console.log('query', query);
-
   let node: Awaited<ReturnType<typeof davinciClient.start>> | null = null;
+
   if (!resumed) {
     node = await davinciClient.start({ query });
   }
+  console.log('called start', node);
 
   formEl.addEventListener('submit', async (event) => {
     event.preventDefault();
+    console.log(node, resumed);
 
-    if (!node || !resumed) {
-      console.log(node, resumed, 'here?');
-    }
-    let newNode = node || resumed;
     /**
      * We can just call `next` here and not worry about passing any arguments
      */
-    if (node && node.status !== 'continue') {
-      newNode = (await davinciClient.next()) as any;
-    }
+    const newNode = await davinciClient.next();
 
     /**
      * Recursively render the form with the new state

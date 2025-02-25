@@ -12,7 +12,7 @@ test('Test happy paths on test page', async ({ page }) => {
   await page.getByLabel('Username').fill('demouser');
   await page.getByLabel('Password').fill('U.CDmhGLK*nrQPDWEN47ZMyJh');
 
-  await page.getByText('Sign On').click();
+  await page.getByRole('button', { name: 'Sign On' }).click();
 
   await expect(page.getByText('Complete')).toBeVisible();
 
