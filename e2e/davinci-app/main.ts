@@ -150,7 +150,7 @@ const urlParams = new URLSearchParams(window.location.search);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
         socialLoginButtonComponent(formEl, collector, () =>
-          davinciClient.socialLoginClick(collector),
+          davinciClient.socialLoginHandler(collector),
         );
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(

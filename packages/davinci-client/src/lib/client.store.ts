@@ -269,7 +269,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
 
     /**
      * @method: resume - Resume a social login flow when returned to application
-     * @returns undefined for now
+     * @returns unknown
      */
     resume: async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -301,10 +301,23 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
       return response;
     },
     /**
-     * Social Login Utiltiy
+     * Social Login Handler
+     * Use this as part of an event when clicking on
+     * a social login button. Pass in the collector responsible
+     * for the social login being started.
      *
+     * This method will save the `continueUrl`
+     * and then replace the window with the authenticate
+     * url from the collector
+     *
+     * Can return an error when no continue url is found
+     * or no authenticate url is found in the collectors
+     *
+     * @method: socialLoginHandler
+     * @param collector @SocialLoginCollector
+     * @returns unknown
      */
-    socialLoginClick: (collector: SocialLoginCollector) => {
+    socialLoginHandler: (collector: SocialLoginCollector) => {
       console.log('here we are');
       const rootState: RootState = store.getState();
 
@@ -312,11 +325,9 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
 
       if (serverSlice && '_links' in serverSlice) {
         const continueUrl = serverSlice._links?.['continue']?.href ?? null;
-        console.log('the continue url', continueUrl);
         if (continueUrl) {
           window.localStorage.setItem('continueUrl', continueUrl);
           if (collector.output.url) {
-            console.log('collector url', collector.output.url);
             return window.location.assign(collector.output.url);
           } else {
             return {

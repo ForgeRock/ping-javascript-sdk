@@ -290,7 +290,7 @@ export const davinciApi = createApi({
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),
-    resume: builder.query<any, { continueToken: string; continueUrl: string }>({
+    resume: builder.query<unknown, { continueToken: string; continueUrl: string }>({
       async queryFn({ continueToken, continueUrl }, api, _, baseQuery) {
         const response = await baseQuery({
           url: continueUrl,
