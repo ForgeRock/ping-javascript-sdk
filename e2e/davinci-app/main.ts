@@ -11,13 +11,13 @@ import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 
 const config: DaVinciConfig = {
-  clientId: '724ec718-c41c-4d51-98b0-84a583f450f9', //'6044ba2a-e4b1-477f-babc-9f622b6e0ff3', 85ff55b3-f78c-4c6a-8fb3-7e8ca02d6791,
+  clientId: '85ff55b3-f78c-4c6a-8fb3-7e8ca02d6791', // '6044ba2a-e4b1-477f-babc-9f622b6e0ff3', //'724ec718-c41c-4d51-98b0-84a583f450f9', //, ,
   redirectUri: window.location.origin + '/',
   scope: 'openid profile email name revoke',
   serverConfig: {
     wellknown:
-      'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
-    //'https://auth.pingone.com/c2a669c0-c396-4544-994d-9c6eb3fb1602/as/.well-known/openid-configuration',
+      //'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+      'https://auth.pingone.com/c2a669c0-c396-4544-994d-9c6eb3fb1602/as/.well-known/openid-configuration',
   },
 };
 
@@ -30,7 +30,7 @@ const urlParams = new URLSearchParams(window.location.search);
   let resumed: any;
 
   if (continueToken) {
-    resumed = await davinciClient.resume();
+    resumed = await davinciClient.resume({ continueToken });
   } else {
     await Config.setAsync(config);
   }
@@ -105,7 +105,7 @@ const urlParams = new URLSearchParams(window.location.search);
     formEl.innerHTML = '';
 
     const clientInfo = davinciClient.getClient();
-    // const clientInfo = node.client;
+    //const clientInfo = node.client;
 
     let formName = '';
 
@@ -149,9 +149,7 @@ const urlParams = new URLSearchParams(window.location.search);
       } else if (collector.type === 'SocialLoginCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
-        socialLoginButtonComponent(formEl, collector, () =>
-          davinciClient.socialLoginHandler(collector),
-        );
+        socialLoginButtonComponent(formEl, collector, davinciClient.externalIdp(collector));
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -207,13 +205,14 @@ const urlParams = new URLSearchParams(window.location.search);
 
   if (!resumed) {
     node = await davinciClient.start({ query });
+  } else {
+    node = resumed;
+    console.log('node is reusmed');
+    console.log(node);
   }
-  console.log('called start', node);
 
   formEl.addEventListener('submit', async (event) => {
     event.preventDefault();
-    console.log(node, resumed);
-
     /**
      * We can just call `next` here and not worry about passing any arguments
      */
@@ -233,7 +232,7 @@ const urlParams = new URLSearchParams(window.location.search);
     }
   });
 
-  if (resumed || node?.status !== 'success') {
+  if (node?.status !== 'success') {
     renderForm();
   } else {
     renderComplete();

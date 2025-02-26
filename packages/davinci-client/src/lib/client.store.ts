@@ -20,6 +20,7 @@ import type {
 import type { SingleValueCollectors, SocialLoginCollector } from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
+import { authorize } from './davinci.utils.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -117,8 +118,11 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         console.error('Argument for `collector` has no ID');
         return function () {
           return {
-            error: { message: 'Argument for `collector` has no ID', type: 'argument_error' },
-            type: 'internal_error',
+            error: {
+              message: 'Argument for `collector` has no ID',
+              type: 'argument_error' as const,
+            },
+            type: 'internal_error' as const,
           };
         };
       }
@@ -130,8 +134,8 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         return function () {
           console.error('Collector not found');
           return {
-            type: 'internal_error',
-            error: { message: 'Collector not found', type: 'state_error' },
+            type: 'internal_error' as const,
+            error: { message: 'Collector not found', type: 'state_error' as const },
           };
         };
       }
@@ -145,7 +149,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
               message: 'Collector is not a SingleValueCollector and cannot be updated',
               type: 'state_error',
             },
-          };
+          } as const;
         };
       }
 
@@ -271,34 +275,9 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
      * @method: resume - Resume a social login flow when returned to application
      * @returns unknown
      */
-    resume: async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const continueToken = urlParams.get('continueToken');
-      const continueUrl = window.localStorage.getItem('continueUrl') || null;
-
-      if (!continueToken) {
-        return {
-          message:
-            'Resume meant to be called in a social login. Continue token was not found on the url',
-          type: 'network_error',
-        };
-      }
-      if (!continueUrl) {
-        return {
-          message:
-            'Resume needs a continue url, none was found in storage. Please restart your flow',
-          type: 'network_error',
-        };
-      }
-
-      if (continueUrl) {
-        window.localStorage.removeItem('continueUrl');
-      }
-      const response = await store.dispatch(
-        davinciApi.endpoints.resume.initiate({ continueToken, continueUrl }),
-      );
-
-      return response;
+    resume: async ({ continueToken }: { continueToken: string }) => {
+      const node = store.dispatch(davinciApi.endpoints.resume.initiate({ continueToken }));
+      return node;
     },
     /**
      * Social Login Handler
@@ -317,32 +296,12 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
      * @param collector @SocialLoginCollector
      * @returns unknown
      */
-    socialLoginHandler: (collector: SocialLoginCollector) => {
-      console.log('here we are');
+    externalIdp: (collector: SocialLoginCollector) => {
       const rootState: RootState = store.getState();
 
       const serverSlice = nodeSlice.selectors.selectServer(rootState);
 
-      if (serverSlice && '_links' in serverSlice) {
-        const continueUrl = serverSlice._links?.['continue']?.href ?? null;
-        if (continueUrl) {
-          window.localStorage.setItem('continueUrl', continueUrl);
-          if (collector.output.url) {
-            return window.location.assign(collector.output.url);
-          } else {
-            return {
-              message:
-                'No url found in collector, social login needs a url in the collector to navigate to',
-              type: 'network_error',
-            };
-          }
-        }
-      }
-      return {
-        message:
-          'No Continue Url found, social login needs a continue url to be saved in localStorage',
-        type: 'network_error',
-      };
+      return () => authorize(serverSlice, collector);
     },
 
     /**

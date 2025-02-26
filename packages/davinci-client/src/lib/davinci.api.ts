@@ -290,8 +290,35 @@ export const davinciApi = createApi({
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),
-    resume: builder.query<unknown, { continueToken: string; continueUrl: string }>({
-      async queryFn({ continueToken, continueUrl }, api, _, baseQuery) {
+    resume: builder.query<unknown, { continueToken: string }>({
+      async queryFn({ continueToken }, _api, _c, baseQuery) {
+        const continueUrl = window.localStorage.getItem('continueUrl') || null;
+
+        if (!continueToken) {
+          return {
+            error: {
+              data: 'No continue token',
+              message:
+                'Resume meant to be called in a social login. Continue token was not found on the url',
+              status: 200,
+            },
+          };
+        }
+        if (!continueUrl) {
+          return {
+            error: {
+              data: 'No continue url',
+              message:
+                'Resume needs a continue url, none was found in storage. Please restart your flow',
+              status: 200,
+            },
+          };
+        }
+
+        if (continueUrl) {
+          window.localStorage.removeItem('continueUrl');
+        }
+
         const response = await baseQuery({
           url: continueUrl,
           credentials: 'include',
@@ -322,7 +349,7 @@ export const davinciApi = createApi({
         }
 
         const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
-
+        console.log('resumed handling repsonse');
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),

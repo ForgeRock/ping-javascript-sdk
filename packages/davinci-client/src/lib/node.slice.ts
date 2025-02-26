@@ -255,7 +255,6 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
-
     /**
      * @method update - Method for updating collector values with the node
      * @param {Object} state - The current state of the slice
@@ -266,11 +265,6 @@ export const nodeSlice = createSlice({
       const newState = state as Draft<ContinueNode>;
 
       newState.client.collectors = nodeCollectorReducer(newState.client.collectors, action);
-
-      return newState;
-    },
-    resume(state) {
-      const newState = state as Draft<ContinueNode>;
 
       return newState;
     },
