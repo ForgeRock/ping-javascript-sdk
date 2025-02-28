@@ -151,12 +151,13 @@ interface NestedErrorDetails {
   innerError?: {
     history?: string;
     unsatisfiedRequirements?: string[];
+    failuresRemaining?: number;
   };
 }
 
 export interface ErrorDetail {
   // Optional properties
-  message: string;
+  message?: string;
   rawResponse?: {
     _embedded?: {
       users?: Array<unknown>;

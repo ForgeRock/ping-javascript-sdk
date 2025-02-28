@@ -46,12 +46,18 @@ describe('Node Types', () => {
         message: 'Test error',
         code: 'TEST_ERROR',
         status: 'error',
-        details: [{ message: 'Detail message' } as ErrorDetail],
+        collectors: [
+          {
+            code: 'INVALID_VALUE',
+            target: 'newPassword',
+            message: 'New password did not satisfy password policy requirements',
+          },
+        ],
         internalHttpStatus: 400,
         type: 'argument_error',
       };
 
-      expectTypeOf<DaVinciError>().toHaveProperty('details').toBeNullable();
+      expectTypeOf<DaVinciError>().toHaveProperty('collectors').toBeNullable();
       expectTypeOf<DaVinciError>().toHaveProperty('internalHttpStatus').toBeNullable();
     });
 

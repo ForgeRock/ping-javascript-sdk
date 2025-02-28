@@ -245,6 +245,11 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
       return nodeSlice.selectors.selectError(state);
     },
 
+    getErrorCollectors: () => {
+      const state = store.getState();
+      return nodeSlice.selectors.selectErrorCollectors(state);
+    },
+
     /**
      * @method node - Selector to get the node from state
      * @returns {Node} - the current node from state
