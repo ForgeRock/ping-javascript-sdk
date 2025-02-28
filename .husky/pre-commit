@@ -1,4 +1,1 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-pnpm nx affected -t typecheck lint build && pnpm exec lint-staged
+pnpm lint-staged

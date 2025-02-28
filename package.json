@@ -28,7 +28,12 @@
     "commitlint": "commitlint --edit"
   },
   "lint-staged": {
-    "*": ["pnpm nx sync", "pnpm nx format:write", "git add"]
+    "*": [
+      "pnpm nx sync",
+      "pnpm nx affected -t typecheck lint build",
+      "pnpm nx format:write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
