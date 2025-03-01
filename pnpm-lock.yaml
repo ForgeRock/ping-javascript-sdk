@@ -54,8 +54,8 @@ importers:
         specifier: ^3.0.0
         version: 3.3.0
       '@eslint/js':
-        specifier: ~9.20.0
-        version: 9.20.0
+        specifier: ~9.21.0
+        version: 9.21.0
       '@nx/devkit':
         specifier: 20.4.4
         version: 20.4.4(nx@20.4.4(@swc-node/register@1.10.9(@swc/core@1.10.18(@swc/helpers@0.5.15))(@swc/types@0.1.17)(typescript@5.7.3))(@swc/core@1.10.18(@swc/helpers@0.5.15)))
@@ -1475,10 +1475,6 @@ packages:
 
   '@eslint/eslintrc@3.3.0':
     resolution: {integrity: sha512-yaVPAiNAalnCZedKLdR21GOGILMLKPyqSLWaAjQFvYA2i/ciDi8ArYVr69Anohb6cH2Ukhqti4aFnYyPm8wdwQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@eslint/js@9.20.0':
-    resolution: {integrity: sha512-iZA07H9io9Wn836aVTytRaNqh00Sad+EamwOVJT12GTLw1VGMFV/4JaME+JjLtr9fiGaoWgYnS54wrfWsSs4oQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/js@9.21.0':
@@ -8823,8 +8819,6 @@ snapshots:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
-
-  '@eslint/js@9.20.0': {}
 
   '@eslint/js@9.21.0': {}
 
