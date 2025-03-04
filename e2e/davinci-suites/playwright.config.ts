@@ -17,6 +17,15 @@ const config: PlaywrightTestConfig = {
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
   },
   webServer: [
+    process.env.CI == 'false'
+      ? {
+          command: 'pnpm watch @forgerock/davinci-app',
+          port: 5829,
+          ignoreHTTPSErrors: true,
+          reuseExistingServer: !process.env.CI,
+          cwd: workspaceRoot,
+        }
+      : undefined,
     {
       command: 'pnpm nx serve @forgerock/davinci-app',
       port: 5829,
@@ -24,7 +33,7 @@ const config: PlaywrightTestConfig = {
       reuseExistingServer: !process.env.CI,
       cwd: workspaceRoot,
     },
-  ],
+  ].filter(Boolean),
 };
 
 export default config;

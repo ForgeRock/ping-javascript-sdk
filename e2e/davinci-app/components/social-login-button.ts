@@ -3,11 +3,13 @@ import type { SocialLoginCollector } from '@forgerock/davinci-client/types';
 export default function submitButtonComponent(
   formEl: HTMLFormElement,
   collector: SocialLoginCollector,
+  updater: () => void,
 ) {
-  const link = document.createElement('a');
+  const button = document.createElement('button');
+  console.log('collector', collector);
+  button.value = collector.output.label;
+  button.innerHTML = collector.output.label;
+  button.onclick = () => updater();
 
-  link.innerText = collector.output.label;
-  link.href = collector.output?.url || '';
-
-  formEl?.appendChild(link);
+  formEl?.appendChild(button);
 }
