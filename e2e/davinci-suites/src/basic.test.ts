@@ -25,6 +25,23 @@ test('Test happy paths on test page', async ({ page }) => {
 
   const accessToken = await page.locator('#accessTokenValue').innerText();
   await expect(accessToken).toBeTruthy();
+
+  const logoutButton = page.getByRole('button', { name: 'Logout' });
+  await expect(logoutButton).toBeVisible();
+  const revokeCall = page.waitForResponse((response) => {
+    if (response.url().includes('/revoke') && response.status() === 200) {
+      return true;
+    }
+  });
+  const signoff = page.waitForResponse((response) => {
+    if (response.url().includes('/signoff') && response.status() === 302) {
+      return true;
+    }
+  });
+  await logoutButton.click();
+  await revokeCall;
+  await signoff;
+  await expect(page.getByText('Username/Password Form')).toBeVisible();
 });
 test('ensure query params passed to start are sent off in authorize call', async ({ page }) => {
   const { navigate } = asyncEvents(page);
