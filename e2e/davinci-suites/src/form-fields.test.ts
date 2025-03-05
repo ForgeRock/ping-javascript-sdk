@@ -24,8 +24,6 @@ test('Should render form fields', async ({ page }) => {
   const data = parsedData.parameters.data;
   expect(data.actionKey).toBe('submit');
   expect(data.formData).toEqual({
-    // leaving this here because it should be fixed and we would have a failing test when we do fix import {  } from "// to remind us to update the test"
-    ['undefined']: '',
     ['text-input-key']: 'This is some text',
     ['dropdown-field-key']: '',
     ['radio-group-key']: '',
@@ -39,29 +37,31 @@ test('should render form validation fields', async ({ page }) => {
   await expect(page.locator('#form')).toContainText('Form Validation');
   await page.getByRole('button', { name: 'Form Validation' }).click();
   await expect(page.getByRole('heading', { name: 'Form Fields Validation' })).toBeVisible();
-  await expect(page.getByText('Username')).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Username' })).toBeVisible();
-  await expect(page.getByText('Email Address')).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Email Address' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
-  await page.getByRole('textbox', { name: 'Username' }).click();
+
   await page.getByRole('textbox', { name: 'Username' }).fill('sdk-user');
   await expect(page.getByRole('textbox', { name: 'Username' })).toHaveValue('sdk-user');
-  await page.getByRole('textbox', { name: 'Email Address' }).click();
+
+  const password = page.getByRole('textbox', { name: 'Password' });
+  await password.type('password');
+  await expect(password).toHaveValue('password');
+
   await page.getByRole('textbox', { name: 'Email Address' }).fill('sdk-user@user.com');
   await expect(page.getByRole('textbox', { name: 'Email Address' })).toHaveValue(
     'sdk-user@user.com',
   );
+
   const requestPromise = page.waitForRequest((request) => request.url().includes('/customForm'));
   await page.getByRole('button', { name: 'Submit' }).click();
+
   const request = await requestPromise;
   const parsedData = JSON.parse(request.postData());
+
   const data = parsedData.parameters.data;
+
   expect(data.actionKey).toBe('submit');
   expect(data.formData).toEqual({
-    ['undefined']: '',
-    'user.username': '',
-    'user.password': '',
-    'user.email': '',
+    'user.username': 'sdk-user',
+    'user.password': 'password',
+    'user.email': 'sdk-user@user.com',
   });
 });

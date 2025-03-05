@@ -174,13 +174,19 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         };
       }
 
-      if (collectorToUpdate.category !== 'SingleValueCollector') {
-        console.error('Collector is not a SingleValueCollector and cannot be updated');
+      if (
+        collectorToUpdate.category !== 'SingleValueCollector' &&
+        collectorToUpdate.category !== 'ValidatedSingleValueCollector'
+      ) {
+        console.error(
+          'Collector is not a SingleValueCollector or ValidatedSingleValueCollector and cannot be updated',
+        );
         return function () {
           return {
             type: 'internal_error',
             error: {
-              message: 'Collector is not a SingleValueCollector and cannot be updated',
+              message:
+                'Collector is not a SingleValueCollector or ValidatedSingleValueCollector and cannot be updated',
               type: 'state_error',
             },
           } as const;
