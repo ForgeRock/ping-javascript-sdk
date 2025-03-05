@@ -2,7 +2,7 @@ import './style.css';
 
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
-import type { DaVinciConfig } from '@forgerock/davinci-client/types';
+//import type { DaVinciConfig } from '@forgerock/davinci-client/types';
 
 import usernameComponent from './components/text.js';
 import passwordComponent from './components/password.js';
@@ -11,10 +11,28 @@ import protect from './components/protect.js';
 import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 
-const config: DaVinciConfig = {
-  clientId: '724ec718-c41c-4d51-98b0-84a583f450f9',
-  redirectUri: window.location.origin + '/',
+const qs = window.location.search;
+const searchParams = new URLSearchParams(qs);
+
+const query: Record<string, string | string[]> = {};
+
+// Get all unique keys from the searchParams
+const uniqueKeys = new Set(searchParams.keys());
+
+// Iterate over the unique keys
+for (const key of uniqueKeys) {
+  const values = searchParams.getAll(key);
+  query[key] = values.length > 1 ? values : values[0];
+}
+let clientId = '724ec718-c41c-4d51-98b0-84a583f450f9';
+if (query.clientId && query.clientId.length > 0) {
+  clientId = query.clientId as string;
+}
+const config = {
+  clientId,
+  redirectUri: `${window.location.origin}/`,
   scope: 'openid profile email name revoke',
+  timeout: 3000,
   serverConfig: {
     wellknown:
       'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
@@ -79,9 +97,9 @@ const config: DaVinciConfig = {
 
     const loginBtn = document.getElementById('logoutButton') as HTMLButtonElement;
     loginBtn.addEventListener('click', async () => {
-      await FRUser.logout({ logoutRedirectUri: window.location.href });
+      await FRUser.logout({ logoutRedirectUri: `${window.location.origin}/` });
 
-      window.location.reload();
+      //window.location.reload();
     });
   }
 
@@ -182,20 +200,6 @@ const config: DaVinciConfig = {
     console.log('Event emitted from store:', node);
   });
 
-  const qs = window.location.search;
-  const searchParams = new URLSearchParams(qs);
-
-  const query: Record<string, string | string[]> = {};
-
-  // Get all unique keys from the searchParams
-  const uniqueKeys = new Set(searchParams.keys());
-
-  // Iterate over the unique keys
-  for (const key of uniqueKeys) {
-    const values = searchParams.getAll(key);
-    query[key] = values.length > 1 ? values : values[0];
-  }
-  console.log('query', query);
   const node = await davinciClient.start({ query });
 
   formEl.addEventListener('submit', async (event) => {
