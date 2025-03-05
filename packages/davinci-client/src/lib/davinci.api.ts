@@ -290,5 +290,68 @@ export const davinciApi = createApi({
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),
+    resume: builder.query<unknown, { continueToken: string }>({
+      async queryFn({ continueToken }, _api, _c, baseQuery) {
+        const continueUrl = window.localStorage.getItem('continueUrl') || null;
+
+        if (!continueToken) {
+          return {
+            error: {
+              data: 'No continue token',
+              message:
+                'Resume meant to be called in a social login. Continue token was not found on the url',
+              status: 200,
+            },
+          };
+        }
+        if (!continueUrl) {
+          return {
+            error: {
+              data: 'No continue url',
+              message:
+                'Resume needs a continue url, none was found in storage. Please restart your flow',
+              status: 200,
+            },
+          };
+        }
+
+        if (continueUrl) {
+          window.localStorage.removeItem('continueUrl');
+        }
+
+        const response = await baseQuery({
+          url: continueUrl,
+          credentials: 'include',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${continueToken}`,
+          },
+          body: JSON.stringify({}),
+        });
+
+        return response;
+      },
+      async onQueryStarted(_, api) {
+        let response;
+
+        try {
+          const query = await api.queryFulfilled;
+          response = query.meta?.response;
+        } catch (err: unknown) {
+          const error = err as ThrownQueryError;
+
+          /**
+           * This error is thrown when the query is rejected. We don't
+           * want to do anything with it for now.
+           */
+          response = error.meta?.response;
+        }
+
+        const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
+        console.log('resumed handling repsonse');
+        handleResponse(cacheEntry, api.dispatch, response?.status || 0);
+      },
+    }),
   }),
 });

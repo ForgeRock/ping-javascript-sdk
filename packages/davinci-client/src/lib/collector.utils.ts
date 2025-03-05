@@ -46,35 +46,33 @@ export function returnActionCollector<CollectorType extends ActionCollectorTypes
     error = `${error}Type is not found in the field object. `;
   }
 
-  if (collectorType === 'SocialLoginCollector') {
-    if (!('links' in field)) {
-      return {
-        category: 'ActionCollector',
-        error: `${error}Links are not found in the field object. `,
-        type: collectorType,
-        id: `${field.key}-${idx}`,
-        name: field.key,
-        output: {
-          key: field.key,
-          label: field.label,
-          type: field.type,
-          url: null,
-        },
-      };
+  if (collectorType === 'SocialLoginCollector' && 'links' in field) {
+    /**
+     * Social Login Collector will not have a `key`
+     * So we should _always_ have this error
+     * when building this collector,
+     * so lets reset it if we do.
+     *
+     *
+     * Until Davinci team adds a key that is.
+     */
+    if (error.includes('Key is not found in the field object. ')) {
+      error = '';
     }
+
     return {
       category: 'ActionCollector',
       error: error || null,
       type: collectorType,
-      id: `${field.key}-${idx}`,
-      name: field.key,
+      id: `${field.type}-${idx}`,
+      name: field.type,
       output: {
-        key: field.key,
+        key: `field.type-${idx}`,
         label: field.label,
         type: field.type,
-        url: field.links?.['authenticate']?.href || null,
+        url: field.links?.['authenticate']?.href,
       },
-    } as InferActionCollectorType<CollectorType>;
+    } as InferActionCollectorType<'SocialLoginCollector'>;
   } else {
     return {
       category: 'ActionCollector',

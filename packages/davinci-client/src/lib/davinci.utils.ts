@@ -2,6 +2,7 @@
  * Import the used types
  */
 import type { Dispatch } from '@reduxjs/toolkit';
+import type { RootState } from './client.store.utils.js';
 
 import { nodeSlice } from './node.slice.js';
 
@@ -14,6 +15,8 @@ import type {
   DaVinciSuccessResponse,
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
+import { SocialLoginCollector } from './collector.types.js';
+import { InternalErrorResponse } from './client.types.js';
 
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions
@@ -183,5 +186,37 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
       const data = cacheEntry.data as DaVinciFailureResponse;
       dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: status }));
     }
+  }
+}
+
+export function authorize(
+  serverSlice: RootState['node']['server'],
+  collector: SocialLoginCollector,
+): InternalErrorResponse | void {
+  if (serverSlice && '_links' in serverSlice) {
+    const continueUrl = serverSlice._links?.['continue']?.href ?? null;
+    if (continueUrl) {
+      window.localStorage.setItem('continueUrl', continueUrl);
+      if (collector.output.url) {
+        window.location.assign(collector.output.url);
+      }
+    } else {
+      return {
+        error: {
+          message:
+            'No url found in collector, social login needs a url in the collector to navigate to',
+          type: 'network_error',
+        },
+        type: 'internal_error',
+      };
+    }
+    return {
+      error: {
+        message:
+          'No Continue Url found, social login needs a continue url to be saved in localStorage',
+        type: 'network_error',
+      },
+      type: 'internal_error',
+    };
   }
 }
