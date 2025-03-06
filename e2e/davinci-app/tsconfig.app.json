@@ -5,7 +5,12 @@
     "moduleResolution": "Bundler"
   },
   "exclude": ["**/*.spec.ts", "**/*.test.ts"],
-  "include": ["./main.ts", "./server-configs.ts", "components/**/*.ts"],
+  "include": [
+    "./main.ts",
+    "./helper.ts",
+    "./server-configs.ts",
+    "components/**/*.ts"
+  ],
   "references": [
     {
       "path": "../../packages/davinci-client/tsconfig.lib.json"

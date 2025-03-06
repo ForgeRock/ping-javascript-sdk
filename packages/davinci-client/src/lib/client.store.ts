@@ -175,11 +175,12 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
       }
 
       if (
+        collectorToUpdate.category !== 'MultiValueCollector' &&
         collectorToUpdate.category !== 'SingleValueCollector' &&
         collectorToUpdate.category !== 'ValidatedSingleValueCollector'
       ) {
         console.error(
-          'Collector is not a SingleValueCollector or ValidatedSingleValueCollector and cannot be updated',
+          'Collector is not a MultiValueCollector, SingleValueCollector or ValidatedSingleValueCollector and cannot be updated',
         );
         return function () {
           return {

@@ -27,12 +27,13 @@ export function transformSubmitRequest(node: ContinueNode): DaVinciRequest {
   // Filter out ActionCollectors as they are not used in form submissions
   const collectors = node.client?.collectors?.filter(
     (collector) =>
+      collector.category === 'MultiValueCollector' ||
       collector.category === 'SingleValueCollector' ||
       collector.category === 'ValidatedSingleValueCollector',
   );
 
   const formData = collectors?.reduce<{
-    [key: string]: string | number | boolean;
+    [key: string]: string | number | boolean | (string | number | boolean)[];
   }>((acc, collector) => {
     acc[collector.input.key] = collector.input.value;
     return acc;
