@@ -1,6 +1,7 @@
 import './style.css';
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
+
 import type { DaVinciConfig } from '@forgerock/davinci-client/types';
 
 import usernameComponent from './components/text.js';
@@ -142,7 +143,7 @@ const urlParams = new URLSearchParams(window.location.search);
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
         );
-      } else if (collector.type === 'SocialLoginCollector') {
+      } else if (collector.type === 'IdpCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
         socialLoginButtonComponent(formEl, collector, davinciClient.externalIdp(collector));

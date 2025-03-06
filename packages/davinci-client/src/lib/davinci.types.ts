@@ -65,6 +65,7 @@ export type StandardFieldValue = {
 export type ReadOnlyFieldValue = {
   type: 'LABEL';
   content: string;
+  key?: string;
 };
 
 export type RedirectFieldValue = {

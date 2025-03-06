@@ -15,7 +15,7 @@ import type {
   DaVinciSuccessResponse,
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
-import { SocialLoginCollector } from './collector.types.js';
+import { IdpCollector } from './collector.types.js';
 import { InternalErrorResponse } from './client.types.js';
 
 /**
@@ -191,7 +191,7 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
 
 export function authorize(
   serverSlice: RootState['node']['server'],
-  collector: SocialLoginCollector,
+  collector: IdpCollector,
 ): InternalErrorResponse | void {
   if (serverSlice && '_links' in serverSlice) {
     const continueUrl = serverSlice._links?.['continue']?.href ?? null;

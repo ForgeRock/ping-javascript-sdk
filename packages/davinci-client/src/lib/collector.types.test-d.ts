@@ -9,7 +9,7 @@ import type {
   TextCollector,
   PasswordCollector,
   FlowCollector,
-  SocialLoginCollector,
+  IdpCollector,
   SubmitCollector,
   SingleSelectCollector,
   MultiValueCollectorWithValue,
@@ -74,17 +74,11 @@ describe('Collector Types', () => {
   });
 
   describe('ActionCollector Types', () => {
-    it('should validate SocialLoginCollector structure', () => {
-      expectTypeOf<SocialLoginCollector>().toMatchTypeOf<
-        ActionCollectorWithUrl<'SocialLoginCollector'>
-      >();
-      expectTypeOf<SocialLoginCollector>()
-        .toHaveProperty('category')
-        .toEqualTypeOf<'ActionCollector'>();
-      expectTypeOf<SocialLoginCollector>()
-        .toHaveProperty('type')
-        .toEqualTypeOf<'SocialLoginCollector'>();
-      expectTypeOf<SocialLoginCollector['output']>().toHaveProperty('url');
+    it('should validate IdpCollector structure', () => {
+      expectTypeOf<IdpCollector>().toMatchTypeOf<ActionCollectorWithUrl<'IdpCollector'>>();
+      expectTypeOf<IdpCollector>().toHaveProperty('category').toEqualTypeOf<'ActionCollector'>();
+      expectTypeOf<IdpCollector>().toHaveProperty('type').toEqualTypeOf<'IdpCollector'>();
+      expectTypeOf<IdpCollector['output']>().toHaveProperty('url');
     });
 
     it('should validate FlowCollector structure', () => {
@@ -140,7 +134,7 @@ describe('Collector Types', () => {
     it('should validate ActionCollectorTypes contains all valid types', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const validTypes: ActionCollectorTypes[] = [
-        'SocialLoginCollector',
+        'IdpCollector',
         'FlowCollector',
         'SubmitCollector',
       ];
@@ -192,9 +186,9 @@ describe('Collector Types', () => {
       expectTypeOf(noValue).toMatchTypeOf<SingleValueCollectorNoValue<'PasswordCollector'>>();
 
       // Test ActionCollectorWithUrl constraints
-      const withUrl: ActionCollectorWithUrl<'SocialLoginCollector'> = {
+      const withUrl: ActionCollectorWithUrl<'IdpCollector'> = {
         category: 'ActionCollector',
-        type: 'SocialLoginCollector',
+        type: 'IdpCollector',
         error: null,
         id: 'test',
         name: 'Test',
@@ -205,7 +199,7 @@ describe('Collector Types', () => {
           url: 'https://example.com',
         },
       };
-      expectTypeOf(withUrl).toMatchTypeOf<ActionCollectorWithUrl<'SocialLoginCollector'>>();
+      expectTypeOf(withUrl).toMatchTypeOf<ActionCollectorWithUrl<'IdpCollector'>>();
 
       // Test ActionCollectorNoUrl constraints
       const noUrl: ActionCollectorNoUrl<'SubmitCollector'> = {

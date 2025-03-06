@@ -17,7 +17,7 @@ import type {
   OutgoingQueryParams,
   StartOptions,
 } from './davinci.types.js';
-import type { SingleValueCollectors, SocialLoginCollector } from './collector.types.js';
+import type { SingleValueCollectors, IdpCollector } from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
@@ -292,11 +292,11 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
      * Can return an error when no continue url is found
      * or no authenticate url is found in the collectors
      *
-     * @method: socialLoginHandler
-     * @param collector @SocialLoginCollector
-     * @returns unknown
+     * @method: externalIdp
+     * @param collector IdpCollector
+     * @returns {function}
      */
-    externalIdp: (collector: SocialLoginCollector) => {
+    externalIdp: (collector: IdpCollector) => {
       const rootState: RootState = store.getState();
 
       const serverSlice = nodeSlice.selectors.selectServer(rootState);

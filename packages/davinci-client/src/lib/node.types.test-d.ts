@@ -18,7 +18,7 @@ import {
   ReadOnlyCollector,
   SingleSelectCollector,
   SingleValueCollector,
-  SocialLoginCollector,
+  IdpCollector,
   SubmitCollector,
   TextCollector,
   ValidatedTextCollector,
@@ -209,7 +209,7 @@ describe('Node Types', () => {
         | TextCollector
         | PasswordCollector
         | FlowCollector
-        | SocialLoginCollector
+        | IdpCollector
         | SubmitCollector
         | ActionCollector<'ActionCollector'>
         | SingleValueCollector<'SingleValueCollector'>

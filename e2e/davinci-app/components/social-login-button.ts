@@ -1,8 +1,8 @@
-import type { SocialLoginCollector } from '@forgerock/davinci-client/types';
+import type { IdpCollector } from '@forgerock/davinci-client/types';
 
 export default function submitButtonComponent(
   formEl: HTMLFormElement,
-  collector: SocialLoginCollector,
+  collector: IdpCollector,
   updater: () => void,
 ) {
   const button = document.createElement('button');

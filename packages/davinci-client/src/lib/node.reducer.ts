@@ -11,7 +11,7 @@ import {
   returnFlowCollector,
   returnPasswordCollector,
   returnSingleValueCollector,
-  returnSocialLoginCollector,
+  returnIdpCollector,
   returnSubmitCollector,
   returnTextCollector,
   returnSingleSelectCollector,
@@ -26,7 +26,7 @@ import {
   FlowCollector,
   PasswordCollector,
   SingleValueCollector,
-  SocialLoginCollector,
+  IdpCollector,
   SubmitCollector,
   TextCollector,
   ReadOnlyCollector,
@@ -56,7 +56,7 @@ const initialCollectorValues: (
   | FlowCollector
   | PasswordCollector
   | TextCollector
-  | SocialLoginCollector
+  | IdpCollector
   | SubmitCollector
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>
@@ -123,7 +123,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
               }
               case 'SOCIAL_LOGIN_BUTTON': {
                 // No data to send
-                return returnSocialLoginCollector(field, idx);
+                return returnIdpCollector(field, idx);
               }
               case 'SUBMIT_BUTTON': {
                 // No data to send
