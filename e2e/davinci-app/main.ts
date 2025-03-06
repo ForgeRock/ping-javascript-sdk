@@ -82,9 +82,9 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const loginBtn = document.getElementById('logoutButton') as HTMLButtonElement;
     loginBtn.addEventListener('click', async () => {
-      await FRUser.logout({ logoutRedirectUri: window.location.href });
+      await FRUser.logout({ logoutRedirectUri: `${window.location.origin}/` });
 
-      window.location.reload();
+      //window.location.reload();
     });
   }
 
@@ -204,7 +204,7 @@ const urlParams = new URLSearchParams(window.location.search);
     node = await davinciClient.start({ query });
   } else {
     node = resumed;
-    console.log('node is reusmed');
+    console.log('node is resumed');
     console.log(node);
   }
 

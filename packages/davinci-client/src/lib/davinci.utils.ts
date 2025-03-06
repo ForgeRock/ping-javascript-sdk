@@ -26,11 +26,14 @@ import { InternalErrorResponse } from './client.types.js';
 export function transformSubmitRequest(node: ContinueNode): DaVinciRequest {
   // Filter out ActionCollectors as they are not used in form submissions
   const collectors = node.client?.collectors?.filter(
-    (collector) => collector.category === 'SingleValueCollector',
+    (collector) =>
+      collector.category === 'MultiValueCollector' ||
+      collector.category === 'SingleValueCollector' ||
+      collector.category === 'ValidatedSingleValueCollector',
   );
 
   const formData = collectors?.reduce<{
-    [key: string]: string | number | boolean;
+    [key: string]: string | number | boolean | (string | number | boolean)[];
   }>((acc, collector) => {
     acc[collector.input.key] = collector.input.value;
     return acc;
@@ -175,12 +178,25 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
    */
   if (cacheEntry.isSuccess) {
     const requestId = cacheEntry.requestId;
-    if ('eventName' in cacheEntry.data && cacheEntry.data.eventName === 'continue') {
-      const data = cacheEntry.data as DaVinciNextResponse;
-      dispatch(nodeSlice.actions.next({ data, requestId, httpStatus: status }));
-    } else if ('session' in cacheEntry.data || 'authorizeResponse' in cacheEntry.data) {
+    const hasNextUrl = () => {
+      const data = cacheEntry.data;
+
+      if ('_links' in data) {
+        if ('next' in data._links) {
+          if ('href' in data._links.next) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    if ('session' in cacheEntry.data || 'authorizeResponse' in cacheEntry.data) {
       const data = cacheEntry.data as DaVinciSuccessResponse;
       dispatch(nodeSlice.actions.success({ data, requestId, httpStatus: status }));
+    } else if (hasNextUrl()) {
+      const data = cacheEntry.data as DaVinciNextResponse;
+      dispatch(nodeSlice.actions.next({ data, requestId, httpStatus: status }));
     } else {
       // If we got here, the response type is unknown and therefore an unrecoverable failure
       const data = cacheEntry.data as DaVinciFailureResponse;

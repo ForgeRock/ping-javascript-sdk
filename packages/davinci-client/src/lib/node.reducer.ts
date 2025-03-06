@@ -92,6 +92,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
 
             // *Some* collectors may have default or existing data to display
             const data = action.payload.formData[field.key];
+
             // Match specific collectors
             switch (field.type) {
               case 'CHECKBOX':
@@ -165,7 +166,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         throw new Error('Value argument cannot be undefined');
       }
 
-      if (collector.category === 'SingleValueCollector') {
+      if (
+        collector.category === 'SingleValueCollector' ||
+        collector.category === 'ValidatedSingleValueCollector'
+      ) {
         if (Array.isArray(action.payload.value)) {
           throw new Error('SingleValueCollector does not accept an array');
         }
