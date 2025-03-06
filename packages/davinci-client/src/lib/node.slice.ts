@@ -255,7 +255,6 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
-
     /**
      * @method update - Method for updating collector values with the node
      * @param {Object} state - The current state of the slice

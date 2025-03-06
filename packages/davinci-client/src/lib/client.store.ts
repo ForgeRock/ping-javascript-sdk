@@ -1,7 +1,7 @@
 /**
  * Import RTK slices and api
  */
-import { createClientStore } from './client.store.utils.js';
+import { createClientStore, RootState } from './client.store.utils.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
@@ -17,9 +17,10 @@ import type {
   OutgoingQueryParams,
   StartOptions,
 } from './davinci.types.js';
-import type { SingleValueCollectors } from './collector.types.js';
+import type { SingleValueCollectors, IdpCollector } from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
+import { authorize } from './davinci.utils.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -117,8 +118,11 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         console.error('Argument for `collector` has no ID');
         return function () {
           return {
-            error: { message: 'Argument for `collector` has no ID', type: 'argument_error' },
-            type: 'internal_error',
+            error: {
+              message: 'Argument for `collector` has no ID',
+              type: 'argument_error' as const,
+            },
+            type: 'internal_error' as const,
           };
         };
       }
@@ -130,8 +134,8 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
         return function () {
           console.error('Collector not found');
           return {
-            type: 'internal_error',
-            error: { message: 'Collector not found', type: 'state_error' },
+            type: 'internal_error' as const,
+            error: { message: 'Collector not found', type: 'state_error' as const },
           };
         };
       }
@@ -145,7 +149,7 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
               message: 'Collector is not a SingleValueCollector and cannot be updated',
               type: 'state_error',
             },
-          };
+          } as const;
         };
       }
 
@@ -265,6 +269,39 @@ export async function davinci({ config }: { config: DaVinciConfig }) {
     getServer: () => {
       const state = store.getState();
       return nodeSlice.selectors.selectServer(state);
+    },
+
+    /**
+     * @method: resume - Resume a social login flow when returned to application
+     * @returns unknown
+     */
+    resume: async ({ continueToken }: { continueToken: string }) => {
+      const node = store.dispatch(davinciApi.endpoints.resume.initiate({ continueToken }));
+      return node;
+    },
+    /**
+     * Social Login Handler
+     * Use this as part of an event when clicking on
+     * a social login button. Pass in the collector responsible
+     * for the social login being started.
+     *
+     * This method will save the `continueUrl`
+     * and then replace the window with the authenticate
+     * url from the collector
+     *
+     * Can return an error when no continue url is found
+     * or no authenticate url is found in the collectors
+     *
+     * @method: externalIdp
+     * @param collector IdpCollector
+     * @returns {function}
+     */
+    externalIdp: (collector: IdpCollector) => {
+      const rootState: RootState = store.getState();
+
+      const serverSlice = nodeSlice.selectors.selectServer(rootState);
+
+      return () => authorize(serverSlice, collector);
     },
 
     /**

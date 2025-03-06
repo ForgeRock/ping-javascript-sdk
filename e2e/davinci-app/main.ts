@@ -1,7 +1,7 @@
 import './style.css';
-
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
+
 import type { DaVinciConfig } from '@forgerock/davinci-client/types';
 
 import usernameComponent from './components/text.js';
@@ -10,24 +10,27 @@ import submitButtonComponent from './components/submit-button.js';
 import protect from './components/protect.js';
 import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
+import { serverConfigs } from './server-configs.js';
 
-const config: DaVinciConfig = {
-  clientId: '724ec718-c41c-4d51-98b0-84a583f450f9',
-  redirectUri: window.location.origin + '/',
-  scope: 'openid profile email name revoke',
-  serverConfig: {
-    wellknown:
-      'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
-  },
-};
+const qs = window.location.search;
+const searchParams = new URLSearchParams(qs);
+
+const config: DaVinciConfig =
+  serverConfigs[searchParams.get('clientId') || '724ec718-c41c-4d51-98b0-84a583f450f9'];
+
+const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
   const davinciClient = await davinci({ config });
-
+  const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
+  let resumed: any;
 
-  await Config.setAsync(config);
-
+  if (continueToken) {
+    resumed = await davinciClient.resume({ continueToken });
+  } else {
+    await Config.setAsync(config);
+  }
   function renderComplete() {
     const clientInfo = davinciClient.getClient();
     const serverInfo = davinciClient.getServer();
@@ -99,7 +102,7 @@ const config: DaVinciConfig = {
     formEl.innerHTML = '';
 
     const clientInfo = davinciClient.getClient();
-    // const clientInfo = node.client;
+    //const clientInfo = node.client;
 
     let formName = '';
 
@@ -140,10 +143,10 @@ const config: DaVinciConfig = {
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
         );
-      } else if (collector.type === 'SocialLoginCollector') {
+      } else if (collector.type === 'IdpCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
-        socialLoginButtonComponent(formEl, collector);
+        socialLoginButtonComponent(formEl, collector, davinciClient.externalIdp(collector));
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -195,12 +198,18 @@ const config: DaVinciConfig = {
     const values = searchParams.getAll(key);
     query[key] = values.length > 1 ? values : values[0];
   }
-  console.log('query', query);
-  const node = await davinciClient.start({ query });
+  let node: Awaited<ReturnType<typeof davinciClient.start>> | null = null;
+
+  if (!resumed) {
+    node = await davinciClient.start({ query });
+  } else {
+    node = resumed;
+    console.log('node is reusmed');
+    console.log(node);
+  }
 
   formEl.addEventListener('submit', async (event) => {
     event.preventDefault();
-
     /**
      * We can just call `next` here and not worry about passing any arguments
      */
@@ -220,7 +229,7 @@ const config: DaVinciConfig = {
     }
   });
 
-  if (node.status !== 'success') {
+  if (node?.status !== 'success') {
     renderForm();
   } else {
     renderComplete();

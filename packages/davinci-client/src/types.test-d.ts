@@ -12,7 +12,7 @@ import type {
   FlowCollector,
   PasswordCollector,
   TextCollector,
-  SocialLoginCollector,
+  IdpCollector,
   SubmitCollector,
 } from './types.js';
 import type * as Types from './types.js';
@@ -76,14 +76,10 @@ describe('Type exports', () => {
     });
 
     describe('ActionCollector Types', () => {
-      it('should validate SocialLoginCollector structure', () => {
-        expectTypeOf<SocialLoginCollector>()
-          .toHaveProperty('category')
-          .toEqualTypeOf<'ActionCollector'>();
-        expectTypeOf<SocialLoginCollector>()
-          .toHaveProperty('type')
-          .toEqualTypeOf<'SocialLoginCollector'>();
-        expectTypeOf<SocialLoginCollector>().toHaveProperty('output').toBeObject();
+      it('should validate IdpCollector structure', () => {
+        expectTypeOf<IdpCollector>().toHaveProperty('category').toEqualTypeOf<'ActionCollector'>();
+        expectTypeOf<IdpCollector>().toHaveProperty('type').toEqualTypeOf<'IdpCollector'>();
+        expectTypeOf<IdpCollector>().toHaveProperty('output').toBeObject();
       });
 
       it('should validate FlowCollector structure', () => {

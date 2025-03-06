@@ -2,7 +2,7 @@ import type {
   FlowCollector,
   PasswordCollector,
   TextCollector,
-  SocialLoginCollector,
+  IdpCollector,
   SubmitCollector,
   ActionCollector,
   SingleValueCollector,
@@ -19,7 +19,7 @@ export type Collectors =
   | PasswordCollector
   | TextCollector
   | SingleSelectCollector
-  | SocialLoginCollector
+  | IdpCollector
   | SubmitCollector
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>

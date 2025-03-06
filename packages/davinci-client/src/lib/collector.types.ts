@@ -250,7 +250,7 @@ export type MultiSelectCollector = MultiValueCollectorWithValue<'MultiSelectColl
 export type ActionCollectorTypes =
   | 'FlowCollector'
   | 'SubmitCollector'
-  | 'SocialLoginCollector'
+  | 'IdpCollector'
   | 'ActionCollector';
 
 export interface ActionCollectorNoUrl<T extends ActionCollectorTypes> {
@@ -284,23 +284,22 @@ export type ActionCollector<T extends ActionCollectorTypes> =
   | ActionCollectorNoUrl<T>
   | ActionCollectorWithUrl<T>;
 
-export type InferActionCollectorType<T extends ActionCollectorTypes> =
-  T extends 'SocialLoginCollector'
-    ? SocialLoginCollector
-    : T extends 'SubmitCollector'
-      ? SubmitCollector
-      : T extends 'FlowCollector'
-        ? FlowCollector
-        : ActionCollectorWithUrl<'ActionCollector'> | ActionCollectorNoUrl<'ActionCollector'>;
+export type InferActionCollectorType<T extends ActionCollectorTypes> = T extends 'IdpCollector'
+  ? IdpCollector
+  : T extends 'SubmitCollector'
+    ? SubmitCollector
+    : T extends 'FlowCollector'
+      ? FlowCollector
+      : ActionCollectorWithUrl<'ActionCollector'> | ActionCollectorNoUrl<'ActionCollector'>;
 
 export type ActionCollectors =
-  | ActionCollectorWithUrl<'SocialLoginCollector'>
+  | ActionCollectorWithUrl<'IdpCollector'>
   | ActionCollectorNoUrl<'ActionCollector'>
   | ActionCollectorNoUrl<'FlowCollector'>
   | ActionCollectorNoUrl<'SubmitCollector'>;
 
 export type FlowCollector = ActionCollectorNoUrl<'FlowCollector'>;
-export type SocialLoginCollector = ActionCollectorWithUrl<'SocialLoginCollector'>;
+export type IdpCollector = ActionCollectorWithUrl<'IdpCollector'>;
 export type SubmitCollector = ActionCollectorNoUrl<'SubmitCollector'>;
 
 /** *********************************************************************

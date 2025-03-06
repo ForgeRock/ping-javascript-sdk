@@ -29,7 +29,7 @@ export type SingleValueCollector<T extends collectors.SingleValueCollectorTypes>
 export type FlowCollector = collectors.FlowCollector;
 export type PasswordCollector = collectors.PasswordCollector;
 export type TextCollector = collectors.TextCollector;
-export type SocialLoginCollector = collectors.SocialLoginCollector;
+export type IdpCollector = collectors.IdpCollector;
 export type SubmitCollector = collectors.SubmitCollector;
 export type ValidatedTextCollector = collectors.ValidatedTextCollector;
 export type ReadOnlyCollector = collectors.ReadOnlyCollector;

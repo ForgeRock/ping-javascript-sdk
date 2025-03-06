@@ -36,9 +36,6 @@ export function returnActionCollector<CollectorType extends ActionCollectorTypes
   collectorType: CollectorType,
 ): ActionCollectors {
   let error = '';
-  if (!('key' in field)) {
-    error = `${error}Key is not found in the field object. `;
-  }
   if (!('label' in field)) {
     error = `${error}Label is not found in the field object. `;
   }
@@ -46,36 +43,31 @@ export function returnActionCollector<CollectorType extends ActionCollectorTypes
     error = `${error}Type is not found in the field object. `;
   }
 
-  if (collectorType === 'SocialLoginCollector') {
+  if (collectorType === 'IdpCollector') {
+    let link;
     if (!('links' in field)) {
-      return {
-        category: 'ActionCollector',
-        error: `${error}Links are not found in the field object. `,
-        type: collectorType,
-        id: `${field.key}-${idx}`,
-        name: field.key,
-        output: {
-          key: field.key,
-          label: field.label,
-          type: field.type,
-          url: null,
-        },
-      };
+      error = `${error}Links property is not found in the field object. `;
+      link = null;
+    } else {
+      link = field.links?.['authenticate']?.href || null;
     }
     return {
       category: 'ActionCollector',
       error: error || null,
       type: collectorType,
-      id: `${field.key}-${idx}`,
-      name: field.key,
+      id: `${field.key || field.type}-${idx}`,
+      name: field.key || field.type,
       output: {
-        key: field.key,
+        key: `${field.key || field.type}-${idx}`,
         label: field.label,
         type: field.type,
-        url: field.links?.['authenticate']?.href || null,
+        url: link,
       },
-    } as InferActionCollectorType<CollectorType>;
+    } as InferActionCollectorType<'IdpCollector'>;
   } else {
+    if (!('key' in field)) {
+      error = `${error}Key is not found in the field object. `;
+    }
     return {
       category: 'ActionCollector',
       error: error || null,
@@ -102,13 +94,13 @@ export function returnFlowCollector(field: StandardFieldValue, idx: number) {
 }
 
 /**
- * @function returnSocialLoginCollector - Returns a social login collector object
+ * @function returnIdpCollector - Returns a social login collector object
  * @param {DaVinciField} field - The field representing the social login button
  * @param {number} idx - The index of the field in the form
  * @returns {SocialLoginCollector} - The social login collector object
  */
-export function returnSocialLoginCollector(field: RedirectFieldValue, idx: number) {
-  return returnActionCollector(field, idx, 'SocialLoginCollector');
+export function returnIdpCollector(field: RedirectFieldValue, idx: number) {
+  return returnActionCollector(field, idx, 'IdpCollector');
 }
 
 /**
@@ -148,7 +140,7 @@ export function returnSingleValueCollector<
       category: 'SingleValueCollector',
       error: error || null,
       type: collectorType,
-      id: `${field?.key || field.type}-${idx}`,
+      id: `${field?.key}-${idx}`,
       name: field.key,
       input: {
         key: field.key,
@@ -365,10 +357,10 @@ export function returnNoValueCollector<
     category: 'NoValueCollector',
     error: error || null,
     type: collectorType || 'NoValueCollector',
-    id: `${field.type}-${idx}`,
-    name: `${field.type}-${idx}`,
+    id: `${field.key || field.type}-${idx}`,
+    name: `${field.key || field.type}-${idx}`,
     output: {
-      key: `${field.type}-${idx}`,
+      key: `${field.key || field.type}-${idx}`,
       label: field.content,
       type: field.type,
     },

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   returnActionCollector,
   returnFlowCollector,
-  returnSocialLoginCollector,
+  returnIdpCollector,
   returnSubmitCollector,
   returnSingleValueCollector,
   returnPasswordCollector,
@@ -48,13 +48,12 @@ describe('Action Collectors', () => {
     it('should handle error cases properly', () => {
       const invalidField = {} as StandardFieldValue;
       const result = returnFlowCollector(invalidField, 1);
-      expect(result.error).toContain('Key is not found');
       expect(result.error).toContain('Label is not found');
       expect(result.error).toContain('Type is not found');
     });
   });
 
-  describe('returnSocialLoginCollector', () => {
+  describe('returnIdpCollector', () => {
     const mockSocialField: RedirectFieldValue = {
       key: 'google-login',
       label: 'Continue with Google',
@@ -67,15 +66,15 @@ describe('Action Collectors', () => {
     };
 
     it('should create a valid social login collector with authentication URL', () => {
-      const result = returnSocialLoginCollector(mockSocialField, 1);
+      const result = returnIdpCollector(mockSocialField, 1);
       expect(result).toEqual({
         category: 'ActionCollector',
         error: null,
-        type: 'SocialLoginCollector',
+        type: 'IdpCollector',
         id: 'google-login-1',
         name: 'google-login',
         output: {
-          key: mockSocialField.key,
+          key: 'google-login-1',
           label: mockSocialField.label,
           type: mockSocialField.type,
           url: 'https://auth.example.com/google',
@@ -93,7 +92,7 @@ describe('Action Collectors', () => {
       // that is why casting as any here works
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const result = returnSocialLoginCollector(fieldWithoutUrl, 1);
+      const result = returnIdpCollector(fieldWithoutUrl, 1);
       if ('url' in result.output) {
         expect(result.output.url).toBeNull();
       }
@@ -103,9 +102,8 @@ describe('Action Collectors', () => {
       const invalidField = {} as StandardFieldValue;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const result = returnSocialLoginCollector(invalidField, 1);
-      expect(result.error).toContain('Key is not found');
-      expect(result.type).toBe('SocialLoginCollector');
+      const result = returnIdpCollector(invalidField, 1);
+      expect(result.type).toBe('IdpCollector');
     });
   });
 
@@ -207,15 +205,15 @@ describe('Action Collectors', () => {
     });
 
     it('creates a social login collector with URL', () => {
-      const result = returnActionCollector(socialLoginField, 1, 'SocialLoginCollector');
+      const result = returnActionCollector(socialLoginField, 1, 'IdpCollector');
       expect(result).toEqual({
         category: 'ActionCollector',
         error: null,
-        type: 'SocialLoginCollector',
+        type: 'IdpCollector',
         id: 'google-login-1',
         name: 'google-login',
         output: {
-          key: 'google-login',
+          key: 'google-login-1',
           label: 'Login with Google',
           type: 'SOCIAL_LOGIN_BUTTON',
           url: 'https://auth.example.com/google',
@@ -224,7 +222,7 @@ describe('Action Collectors', () => {
     });
 
     it('handles missing authentication URL for social login', () => {
-      const result = returnActionCollector(mockField, 1, 'SocialLoginCollector');
+      const result = returnActionCollector(mockField, 1, 'IdpCollector');
       if ('url' in result.output) {
         expect(result.output.url).toBeNull();
       }
@@ -235,7 +233,7 @@ describe('Action Collectors', () => {
       const idx = 3;
       const result = returnActionCollector(field as StandardFieldValue, idx, 'ActionCollector');
       expect(result.error).toBe(
-        'Key is not found in the field object. Label is not found in the field object. Type is not found in the field object. ',
+        'Label is not found in the field object. Type is not found in the field object. Key is not found in the field object. ',
       );
     });
   });
