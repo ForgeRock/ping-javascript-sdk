@@ -84,7 +84,7 @@
     "cz-conventional-changelog": "^3.3.0",
     "cz-git": "^1.6.1",
     "eslint": "^9.8.0",
-    "eslint-config-prettier": "10.0.3",
+    "eslint-config-prettier": "10.1.1",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-package-json": "0.26.2",
     "eslint-plugin-playwright": "^2.0.0",
