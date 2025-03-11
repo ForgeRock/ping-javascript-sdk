@@ -108,7 +108,7 @@ describe('Node Types', () => {
     it('should validate ErrorNode structure', () => {
       const errorNode: ErrorNode = {
         cache: { key: 'test-key' },
-        client: { status: 'error' },
+        client: { collectors: [], action: '', status: 'error' },
         error: {
           message: 'Test error',
           code: 'TEST_ERROR',

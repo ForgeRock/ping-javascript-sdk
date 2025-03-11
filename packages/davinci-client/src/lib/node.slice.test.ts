@@ -88,9 +88,6 @@ describe('The node slice reducers', () => {
       },
       httpStatus: 400,
       server: {
-        id: 'cqm26fxq1v',
-        interactionId: '18d94e62-3625-4c53-bbfe-004a77cc2307',
-        interactionToken: undefined,
         status: 'error',
       },
       status: 'error',

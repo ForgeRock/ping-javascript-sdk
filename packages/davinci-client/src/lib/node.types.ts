@@ -69,6 +69,10 @@ export interface ErrorNode {
     key: string;
   };
   client: {
+    action: string;
+    collectors: Collectors[];
+    description?: string;
+    name?: string;
     status: 'error';
   };
   error: DaVinciError;
