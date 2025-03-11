@@ -24,6 +24,8 @@ describe('Client Types', () => {
         key: 'string',
       },
       client: {
+        action: '',
+        collectors: [],
         status: 'error',
       },
       error: {

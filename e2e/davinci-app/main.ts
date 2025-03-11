@@ -53,10 +53,10 @@ const urlParams = new URLSearchParams(window.location.search);
     formEl.innerHTML = `
       <h2>Complete</h2>
       <span>Session:</span>
-      <pre id="sessionToken">${session}</pre>
+      <pre data-testid="sessionToken" id="sessionToken">${session}</pre>
 
       <span>Authorization:</span>
-      <pre id="authCode">${code}</pre>
+      <pre data-testid="authCode" id="authCode">${code}</pre>
 
       <span>Access Token:</span>
       <span id="accessTokenContainer"></span>
@@ -74,6 +74,7 @@ const urlParams = new URLSearchParams(window.location.search);
       const tokenPreEl = document.getElementById('accessTokenContainer') as HTMLPreElement;
       tokenPreEl.innerHTML = `
         <pre
+          data-testid="access-token"
           id="accessTokenValue"
           style="display: block; max-width: 400px; text-wrap: wrap; overflow-wrap: anywhere;"
         >${tokens?.accessToken}</pre>
@@ -90,11 +91,12 @@ const urlParams = new URLSearchParams(window.location.search);
 
   function renderError() {
     const error = davinciClient.getError();
-
-    formEl.innerHTML = `
-      <h2>Error</h2>
-      <pre>${error?.message}</pre>
-    `;
+    const errorDiv = formEl.querySelector('#error-div');
+    if (errorDiv) {
+      errorDiv.innerHTML = `
+        <pre>${error?.message}</pre>
+        `;
+    }
   }
 
   // Represents the main render function for app
@@ -113,6 +115,17 @@ const urlParams = new URLSearchParams(window.location.search);
     const header = document.createElement('h2');
     header.innerText = formName || '';
     formEl.appendChild(header);
+
+    const error = davinciClient.getError();
+    if (error) {
+      formEl.appendChild(document.createElement('div')).setAttribute('id', 'error-div');
+      const errorDiv = formEl.querySelector('#error-div');
+      if (errorDiv && clientInfo?.status === 'continue') {
+        errorDiv.innerHTML = `
+          <div>${davinciClient.getError()?.message}</div>
+        `;
+      }
+    }
 
     const collectors = davinciClient.getCollectors();
     collectors.forEach((collector) => {
@@ -168,7 +181,7 @@ const urlParams = new URLSearchParams(window.location.search);
       } else if (newNode.status === 'success') {
         renderComplete();
       } else if (newNode.status === 'error') {
-        renderError();
+        renderForm();
       } else {
         console.error('Unknown node status', newNode);
       }
@@ -223,6 +236,7 @@ const urlParams = new URLSearchParams(window.location.search);
     } else if (newNode.status === 'success') {
       renderComplete();
     } else if (newNode.status === 'error') {
+      renderForm();
       renderError();
     } else {
       console.error('Unknown node status', newNode);

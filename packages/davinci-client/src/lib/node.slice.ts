@@ -75,6 +75,7 @@ export const nodeSlice = createSlice({
 
       // Data for the client to consume
       newState.client = {
+        ...(state.client as ContinueNode['client']),
         status: ERROR_STATUS,
       };
 
@@ -91,9 +92,7 @@ export const nodeSlice = createSlice({
 
       // Data that the server users
       newState.server = {
-        id: action.payload.data.id,
-        interactionId: action.payload.data.interactionId,
-        interactionToken: action.payload.data.interactionToken,
+        ...state.server,
         status: ERROR_STATUS,
       };
 
@@ -274,24 +273,19 @@ export const nodeSlice = createSlice({
       return state.client;
     },
     selectCollectors: (state) => {
-      // Let's check if the node has a client and collectors
-      if (state.status !== CONTINUE_STATUS) {
-        console.error(
-          `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS}`,
-        );
-        return [];
+      if (state.client && 'collectors' in state.client) {
+        return state?.client.collectors;
       }
-      return state.client.collectors || [];
+      return [];
     },
     selectCollector: (state, id: string) => {
-      // Let's check if the node has a client and collectors
-      if (state.status !== CONTINUE_STATUS) {
-        console.error(
-          `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS}`,
-        );
-        return;
+      if (state.client && 'collectors' in state.client) {
+        return state.client.collectors?.find((collector) => collector.id === id);
       }
-      return state.client.collectors?.find((collector) => collector.id === id);
+      console.error(
+        `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
+      );
+      return;
     },
     selectError: (state) => {
       return state.error;
