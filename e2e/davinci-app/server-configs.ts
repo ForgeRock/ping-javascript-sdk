@@ -40,4 +40,13 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
         'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
     },
   },
+  '60de77d5-dd2c-41ef-8c40-f8bb2381a359': {
+    clientId: '60de77d5-dd2c-41ef-8c40-f8bb2381a359',
+    redirectUri: window.location.origin + '/',
+    scope: 'openid profile email name revoke',
+    serverConfig: {
+      wellknown:
+        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+    },
+  },
 };

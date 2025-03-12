@@ -24,6 +24,8 @@ test('Should render form fields', async ({ page }) => {
   const data = parsedData.parameters.data;
   expect(data.actionKey).toBe('submit');
   expect(data.formData).toEqual({
+    'checkbox-field-key': [],
+    'combobox-field-key': [],
     ['text-input-key']: 'This is some text',
     ['dropdown-field-key']: '',
     ['radio-group-key']: '',
