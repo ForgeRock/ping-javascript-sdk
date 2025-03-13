@@ -1,34 +1,48 @@
 import { expect, test } from '@playwright/test';
 
 test('Should render form fields', async ({ page }) => {
+  await page.goto('http://localhost:5829/?clientid=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
+  await page.locator('body').click();
   await page.goto('http://localhost:5829/?clientId=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
-  await page.getByRole('heading', { name: 'Select Test Form' }).click();
+  await expect(page.getByRole('heading', { name: 'Select Test Form' })).toBeVisible();
   await page.getByRole('button', { name: 'Form Fields' }).click();
   await page.getByRole('textbox', { name: 'Text Input Label' }).click();
-  await page.getByRole('textbox', { name: 'Text Input Label' }).click();
+  await page.getByRole('textbox', { name: 'Text Input Label' }).fill('The input');
+  await expect(page.getByText('Dropdown List Label')).toBeVisible();
+  await page.locator('#dropdown-field-key').selectOption('dropdown-option1-value');
+  await page.locator('#dropdown-field-key').selectOption('dropdown-option2-value');
+  await expect(page.locator('#dropdown-field-key')).toHaveValue('dropdown-option2-value');
+  await page.getByRole('checkbox', { name: 'option1 label' }).check();
 
-  const txtInput = page.getByRole('textbox', { name: 'Text Input Label' });
-  await txtInput.fill('This is some text');
-  expect(txtInput).toHaveValue('This is some text');
+  await page.getByRole('checkbox', { name: 'option2 label' }).check();
+  await page.getByRole('checkbox', { name: 'option3 label' }).check();
+  await page.getByRole('checkbox', { name: 'option2 label' }).check();
+  await page.getByRole('button', { name: 'Select options ▼' }).click();
+  await page.locator('[id="combobox-field-key-option-option1\\ value"]').check();
+  await page.locator('[id="combobox-field-key-option-option2\\ value"]').check();
+  await page.locator('[id="combobox-field-key-option-option3\\ value"]').check();
+  await page.locator('[id="combobox-field-key-option-option1\\ value"]').uncheck();
+  await page.locator('[id="combobox-field-key-option-option3\\ value"]').uncheck();
+  await page.locator('[id="combobox-field-key-option-option1\\ value"]').check();
+  await page.getByRole('button', { name: 'Apply' }).click();
+  await expect(page.getByRole('button', { name: 'Flow Button' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Flow Link' })).toBeVisible();
+  const requestPromise = page.waitForRequest(
+    (request) => request.url().includes('customForm') && request.method() === 'POST',
+  );
 
-  const flowLink = page.getByRole('button', { name: 'Flow Link' });
-  await flowLink.click();
-
-  const flowButton = page.getByRole('button', { name: 'Flow Button' });
-  await flowButton.click();
-
-  const requestPromise = page.waitForRequest((request) => request.url().includes('/customForm'));
   await page.getByRole('button', { name: 'Submit' }).click();
   const request = await requestPromise;
+
   const parsedData = JSON.parse(request.postData());
   const data = parsedData.parameters.data;
   expect(data.actionKey).toBe('submit');
   expect(data.formData).toEqual({
+    'combobox-field-key': ['option1 value', 'option2 value'],
     'checkbox-field-key': [],
-    'combobox-field-key': [],
-    ['text-input-key']: 'This is some text',
-    ['dropdown-field-key']: '',
-    ['radio-group-key']: '',
+    'dropdown-field-key': 'dropdown-option2-value',
+    'radio-group-key': 'option2 value',
+    'text-input-key': 'The input',
   });
 });
 

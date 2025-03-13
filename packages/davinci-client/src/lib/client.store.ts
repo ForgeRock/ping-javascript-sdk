@@ -17,7 +17,11 @@ import type {
   OutgoingQueryParams,
   StartOptions,
 } from './davinci.types.js';
-import type { SingleValueCollectors, IdpCollector } from './collector.types.js';
+import type {
+  SingleValueCollectors,
+  IdpCollector,
+  MultiSelectCollector,
+} from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
@@ -154,7 +158,7 @@ export async function davinci({
      * @param {SingleValueCollector} collector - the collector to update
      * @returns {function} - a function to call for updating collector value
      */
-    update: (collector: SingleValueCollectors): Updater => {
+    update: (collector: SingleValueCollectors | MultiSelectCollector): Updater => {
       if (!collector.id) {
         console.error('Argument for `collector` has no ID');
         return function () {
@@ -201,7 +205,7 @@ export async function davinci({
         };
       }
 
-      return function (value: string, index?: number) {
+      return function (value: string | string[] | boolean, index?: number) {
         try {
           store.dispatch(nodeSlice.actions.update({ id, value, index }));
           return null;
