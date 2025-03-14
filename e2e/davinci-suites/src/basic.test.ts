@@ -18,13 +18,13 @@ test('Test happy paths on test page', async ({ page }) => {
 
   const sessionToken = await page.locator('#sessionToken').innerText();
   const authCode = await page.locator('#authCode').innerText();
-  await expect(sessionToken).toBeTruthy();
-  await expect(authCode).toBeTruthy();
+  expect(sessionToken).toBeTruthy();
+  expect(authCode).toBeTruthy();
 
   await page.getByText('Get Tokens').click();
 
   const accessToken = await page.locator('#accessTokenValue').innerText();
-  await expect(accessToken).toBeTruthy();
+  expect(accessToken).toBeTruthy();
 
   const logoutButton = page.getByRole('button', { name: 'Logout' });
   await expect(logoutButton).toBeVisible();
@@ -84,4 +84,34 @@ test('ensure query params passed to start are sent off in authorize call', async
 
   const accessToken = await page.locator('#accessTokenValue').innerText();
   expect(accessToken).toBeTruthy();
+});
+
+test('Enter a bad username/password, then enter a good username/password', async ({ page }) => {
+  await page.goto('http://localhost:5829/');
+  await page.getByRole('textbox', { name: 'Username' }).fill('baduser');
+  await page.getByRole('textbox', { name: 'Password' }).fill('1231');
+
+  await page.getByRole('button', { name: 'Sign On' }).click();
+
+  await expect(page.getByText('Invalid username and/or password')).toBeVisible();
+
+  await page.getByRole('textbox', { name: 'Username' }).fill('e2euser@example.com');
+
+  await page.getByRole('textbox', { name: 'Password' }).fill('Demo1234#1');
+
+  await page.getByRole('button', { name: 'Sign On' }).click();
+
+  const authCode = page.getByTestId('authCode');
+  const session = page.getByTestId('sessionToken');
+
+  // just checking that these values on the page are not empty
+  // meaning we got something back from the server
+  await expect(authCode).not.toBeEmpty();
+  await expect(session).not.toBeEmpty();
+
+  await page.getByRole('button', { name: 'Get Tokens' }).click();
+  const accessToken = page.getByTestId('access-token');
+  await expect(accessToken).not.toBeEmpty();
+
+  await page.getByRole('button', { name: 'Logout' }).click();
 });
