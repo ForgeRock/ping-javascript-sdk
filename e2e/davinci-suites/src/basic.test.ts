@@ -89,8 +89,11 @@ test('ensure query params passed to start are sent off in authorize call', async
 test('Enter a bad username/password, then enter a good username/password', async ({ page }) => {
   await page.goto('http://localhost:5829/');
   await page.getByRole('textbox', { name: 'Username' }).fill('baduser');
-  await page.getByRole('textbox', { name: 'Username' }).press('Tab');
   await page.getByRole('textbox', { name: 'Password' }).fill('1231');
+
+  await page.getByRole('button', { name: 'Sign On' }).click();
+
+  await expect(page.getByText('Invalid username and/or password')).toBeVisible();
 
   await page.getByRole('textbox', { name: 'Username' }).fill('e2euser@example.com');
 
