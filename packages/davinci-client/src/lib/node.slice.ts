@@ -276,6 +276,9 @@ export const nodeSlice = createSlice({
       if (state.client && 'collectors' in state.client) {
         return state?.client.collectors;
       }
+      console.error(
+        `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
+      );
       return [];
     },
     selectCollector: (state, id: string) => {
