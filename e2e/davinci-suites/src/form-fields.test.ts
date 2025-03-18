@@ -12,21 +12,20 @@ test('Should render form fields', async ({ page }) => {
   await page.locator('#dropdown-field-key').selectOption('dropdown-option1-value');
   await page.locator('#dropdown-field-key').selectOption('dropdown-option2-value');
   await expect(page.locator('#dropdown-field-key')).toHaveValue('dropdown-option2-value');
-  await page.getByRole('checkbox', { name: 'option1 label' }).check();
+  await page.getByRole('radio', { name: 'option1 label' }).check();
 
-  await page.getByRole('checkbox', { name: 'option2 label' }).check();
-  await page.getByRole('checkbox', { name: 'option3 label' }).check();
-  await page.getByRole('checkbox', { name: 'option2 label' }).check();
-  await page.getByRole('button', { name: 'Select options ▼' }).click();
-  await page.locator('[id="combobox-field-key-option-option1\\ value"]').check();
-  await page.locator('[id="combobox-field-key-option-option2\\ value"]').check();
-  await page.locator('[id="combobox-field-key-option-option3\\ value"]').check();
-  await page.locator('[id="combobox-field-key-option-option1\\ value"]').uncheck();
-  await page.locator('[id="combobox-field-key-option-option3\\ value"]').uncheck();
-  await page.locator('[id="combobox-field-key-option-option1\\ value"]').check();
-  await page.getByRole('button', { name: 'Apply' }).click();
+  await page.getByRole('radio', { name: 'option2 label' }).check();
+  await page.getByRole('radio', { name: 'option3 label' }).check();
+  await page.getByRole('radio', { name: 'option2 label' }).check();
+
+  await page.keyboard.down('Meta');
+  await page.selectOption('.select-option-combobox', [{ label: 'option1 label' }]);
+  await page.selectOption('.select-option-combobox', [{ label: 'option2 label' }]);
+  await page.keyboard.up('Meta');
+
   await expect(page.getByRole('button', { name: 'Flow Button' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Flow Link' })).toBeVisible();
+
   const requestPromise = page.waitForRequest(
     (request) => request.url().includes('customForm') && request.method() === 'POST',
   );

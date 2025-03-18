@@ -12,9 +12,9 @@ import protect from './components/protect.js';
 import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 import { serverConfigs } from './server-configs.js';
-import checkboxComponent from './components/checkbox.js';
 import dropdownComponent from './components/dropdown.js';
 import comboboxComponent from './components/combobox.js';
+import radioComponent from './components/radio.js';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
@@ -198,7 +198,7 @@ const urlParams = new URLSearchParams(window.location.search);
       ) {
         dropdownComponent(formEl, collector, davinciClient.update(collector));
       } else if (collector.type === 'SingleSelectCollector' && collector.input.type === 'RADIO') {
-        checkboxComponent(formEl, collector, davinciClient.update(collector));
+        radioComponent(formEl, collector, davinciClient.update(collector));
       } else if (collector.type === 'MultiSelectCollector' && collector.input.type === 'COMBOBOX') {
         comboboxComponent(formEl, collector, davinciClient.update(collector));
       }
