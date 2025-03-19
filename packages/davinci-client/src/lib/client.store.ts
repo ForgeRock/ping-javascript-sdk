@@ -21,6 +21,7 @@ import type { SingleValueCollectors, IdpCollector } from './collector.types.js';
 import type { InitFlow, Updater } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
+import type { RequestMiddleware } from './effects/request.effect.types.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -30,8 +31,14 @@ import { authorize } from './davinci.utils.js';
  * @param {ConfigurationOptions} options - the configuration options for the client
  * @returns {Observable} - an observable client for DaVinci flows
  */
-export async function davinci({ config }: { config: DaVinciConfig }) {
-  const store = createClientStore();
+export async function davinci({
+  config,
+  requestMiddleware,
+}: {
+  config: DaVinciConfig;
+  requestMiddleware?: RequestMiddleware[];
+}) {
+  const store = createClientStore({ requestMiddleware });
 
   if (!config.serverConfig.wellknown) {
     throw new Error('`wellknown` property is a required as part of the `config.serverOptions`');
