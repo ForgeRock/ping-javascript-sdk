@@ -181,7 +181,7 @@ export function returnSingleValueCollector<
         value: data || '',
         options: options,
       },
-    } as InferSingleValueCollectorType<CollectorType>;
+    } as InferSingleValueCollectorType<'SingleSelectCollector'>;
   } else if ('validation' in field || 'required' in field) {
     const validationArray = [];
 

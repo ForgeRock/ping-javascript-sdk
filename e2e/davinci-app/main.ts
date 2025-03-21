@@ -1,7 +1,7 @@
 import './style.css';
+
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
-
 import type { DaVinciConfig } from '@forgerock/davinci-client/types';
 
 import usernameComponent from './components/text.js';
@@ -11,6 +11,9 @@ import protect from './components/protect.js';
 import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 import { serverConfigs } from './server-configs.js';
+import dropdownComponent from './components/dropdown.js';
+import comboboxComponent from './components/combobox.js';
+import radioComponent from './components/radio.js';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
@@ -129,6 +132,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const collectors = davinciClient.getCollectors();
     collectors.forEach((collector) => {
+      console.log(collector);
       if (collector.type === 'TextCollector' && collector.name === 'protectsdk') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
@@ -170,6 +174,15 @@ const urlParams = new URLSearchParams(window.location.search);
           }),
           renderForm, // Ignore this; it's just for re-rendering the form
         );
+      } else if (
+        collector.type === 'SingleSelectCollector' &&
+        collector.input.type === 'DROPDOWN'
+      ) {
+        dropdownComponent(formEl, collector, davinciClient.update(collector));
+      } else if (collector.type === 'SingleSelectCollector' && collector.input.type === 'RADIO') {
+        radioComponent(formEl, collector, davinciClient.update(collector));
+      } else if (collector.type === 'MultiSelectCollector' && collector.input.type === 'COMBOBOX') {
+        comboboxComponent(formEl, collector, davinciClient.update(collector));
       }
     });
 

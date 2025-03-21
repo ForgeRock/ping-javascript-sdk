@@ -160,14 +160,13 @@ describe('Client Types', () => {
 
 describe('Updater', () => {
   it('should accept string value and optional index', () => {
-    const updater: Updater = (value: string, index?: number) => {
+    const updater: Updater = (value: string | string[] | boolean, index?: number) => {
       return {
         error: { message: 'Invalid value', code: 'INVALID', type: 'state_error' },
         type: 'internal_error',
       };
     };
-
-    expectTypeOf(updater).parameter(0).toBeString();
+    expectTypeOf(updater).parameter(0).toEqualTypeOf<string | string[]>();
     expectTypeOf(updater).parameter(1).toBeNullable();
     expectTypeOf(updater).parameter(1).toBeNullable();
   });
