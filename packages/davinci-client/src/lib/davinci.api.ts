@@ -2,7 +2,14 @@
  * Import the RTK Query library from Redux Toolkit
  * @see https://redux-toolkit.js.org/rtk-query/overview
  */
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+import {
+  createApi,
+  FetchArgs,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  QueryReturnValue,
+} from '@reduxjs/toolkit/query';
 
 /**
  * Import internal modules
@@ -22,6 +29,16 @@ import type {
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
+import { initQuery } from './effects/request.effect.utils.js';
+import { RequestMiddleware } from './effects/request.effect.types.js';
+
+type BaseQueryResponse = Promise<
+  QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>
+>;
+
+interface Extras {
+  requestMiddleware: RequestMiddleware[];
+}
 
 /**
  * @const davinciApi - Define the DaVinci API for Redux state management
@@ -29,6 +46,7 @@ import type { StartNode } from '../types.js';
  */
 export const davinciApi = createApi({
   reducerPath: 'davinci',
+  // TODO: implement extraOptions for request interceptors: https://stackoverflow.com/a/77569083 & https://stackoverflow.com/a/65129117
   baseQuery: fetchBaseQuery({
     prepareHeaders: (headers) => {
       headers.set('Accept', 'application/json');
@@ -49,14 +67,14 @@ export const davinciApi = createApi({
         const state = api.getState() as RootStateWithNode<ContinueNode>;
         const links = state.node.server._links;
         const requestBody = transformActionRequest(state.node, params.action);
+        const requestMiddleware = (api.extra as Extras).requestMiddleware;
 
         let href = '';
 
         if (links && 'next' in links) {
           href = links['next'].href || '';
         }
-
-        const response = await baseQuery({
+        const request: FetchArgs = {
           // TODO: If we don't have a `next.href`, we should handle this better
           url: href,
           credentials: 'include',
@@ -67,7 +85,10 @@ export const davinciApi = createApi({
             interactionToken: state.node.server.interactionToken,
           },
           body: JSON.stringify(requestBody),
-        });
+        };
+        const response: BaseQueryResponse = initQuery(request, 'flow')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => await baseQuery(req));
 
         /**
          * Returns the original response from DaVinci,
@@ -120,6 +141,7 @@ export const davinciApi = createApi({
       async queryFn(body, api, __, baseQuery) {
         const state = api.getState() as RootStateWithNode<ContinueNode>;
         const links = state.node.server._links;
+        const requestMiddleware = (api.extra as Extras).requestMiddleware;
 
         let requestBody;
         let href = '';
@@ -134,7 +156,7 @@ export const davinciApi = createApi({
           requestBody = body;
         }
 
-        const response = await baseQuery({
+        const request: FetchArgs = {
           url: href,
           credentials: 'include',
           method: 'POST',
@@ -144,7 +166,10 @@ export const davinciApi = createApi({
             interactionToken: state.node.server.interactionToken,
           },
           body: JSON.stringify(requestBody),
-        });
+        };
+        const response: BaseQueryResponse = initQuery(request, 'next')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => await baseQuery(req));
 
         /**
          * Returns the original response from DaVinci,
@@ -196,6 +221,7 @@ export const davinciApi = createApi({
        * @method queryFn - This is just a wrapper around the fetch call
        */
       async queryFn(options, api, __, baseQuery) {
+        const requestMiddleware = (api.extra as Extras).requestMiddleware;
         const state = api.getState() as RootStateWithNode<StartNode>;
 
         if (!state) {
@@ -236,14 +262,17 @@ export const davinciApi = createApi({
             url.search = existingParams.toString();
           }
 
-          const response = await baseQuery({
+          const request: FetchArgs = {
             url: url.toString(),
             credentials: 'include',
             method: 'GET',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
             },
-          });
+          };
+          const response: BaseQueryResponse = initQuery(request, 'start')
+            .applyMiddleware(requestMiddleware)
+            .applyQuery(async (req: FetchArgs) => await baseQuery(req));
 
           /**
            * Returns the original response from DaVinci,
@@ -291,8 +320,9 @@ export const davinciApi = createApi({
       },
     }),
     resume: builder.query<unknown, { continueToken: string }>({
-      async queryFn({ continueToken }, _api, _c, baseQuery) {
+      async queryFn({ continueToken }, api, _c, baseQuery) {
         const continueUrl = window.localStorage.getItem('continueUrl') || null;
+        const requestMiddleware = (api.extra as Extras).requestMiddleware;
 
         if (!continueToken) {
           return {
@@ -319,7 +349,7 @@ export const davinciApi = createApi({
           window.localStorage.removeItem('continueUrl');
         }
 
-        const response = await baseQuery({
+        const request: FetchArgs = {
           url: continueUrl,
           credentials: 'include',
           method: 'POST',
@@ -328,7 +358,10 @@ export const davinciApi = createApi({
             Authorization: `Bearer ${continueToken}`,
           },
           body: JSON.stringify({}),
-        });
+        };
+        const response: BaseQueryResponse = initQuery(request, 'resume')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => await baseQuery(req));
 
         return response;
       },
@@ -349,7 +382,6 @@ export const davinciApi = createApi({
         }
 
         const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
-        console.log('resumed handling repsonse');
         handleResponse(cacheEntry, api.dispatch, response?.status || 0);
       },
     }),

@@ -6,7 +6,13 @@ import { davinciApi } from './davinci.api.js';
 import { ErrorNode, ContinueNode, StartNode, SuccessNode } from '../types.js';
 import { wellknownApi } from './wellknown.api.js';
 
-export function createClientStore() {
+import type { RequestMiddleware } from './effects/request.effect.types.js';
+
+export function createClientStore({
+  requestMiddleware,
+}: {
+  requestMiddleware?: RequestMiddleware[];
+}) {
   return configureStore({
     reducer: {
       config: configSlice.reducer,
@@ -15,7 +21,19 @@ export function createClientStore() {
       [wellknownApi.reducerPath]: wellknownApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(davinciApi.middleware).concat(wellknownApi.middleware),
+      getDefaultMiddleware({
+        thunk: {
+          extraArgument: {
+            /**
+             * This becomes the `api.extra` argument, and will be passed into the
+             * customer query wrapper for `baseQuery`
+             */
+            requestMiddleware: requestMiddleware,
+          },
+        },
+      })
+        .concat(davinciApi.middleware)
+        .concat(wellknownApi.middleware),
   });
 }
 

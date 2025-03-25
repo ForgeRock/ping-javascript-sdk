@@ -9,7 +9,7 @@ test('Test happy paths on test page', async ({ page }) => {
 
   await expect(page.getByText('Username/Password Form')).toBeVisible();
 
-  await page.getByLabel('Username').fill('demouser');
+  await page.getByLabel('Username').fill('baduser');
   await page.getByLabel('Password').fill('badpassword');
 
   await page.getByText('Sign On').click();

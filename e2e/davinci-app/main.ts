@@ -2,7 +2,7 @@ import './style.css';
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
 
-import type { DaVinciConfig } from '@forgerock/davinci-client/types';
+import type { DaVinciConfig, RequestMiddleware } from '@forgerock/davinci-client/types';
 
 import usernameComponent from './components/text.js';
 import passwordComponent from './components/password.js';
@@ -18,10 +18,27 @@ const searchParams = new URLSearchParams(qs);
 const config: DaVinciConfig =
   serverConfigs[searchParams.get('clientId') || '724ec718-c41c-4d51-98b0-84a583f450f9'];
 
+const requestMiddleware: RequestMiddleware[] = [
+  (fetchArgs, action, next) => {
+    if (action.type === 'DAVINCI_START') {
+      fetchArgs.url.searchParams.set('start', 'true');
+      fetchArgs.headers?.set('Accept-Language', 'xx-XX');
+    }
+    next();
+  },
+  (fetchArgs, action, next) => {
+    if (action.type === 'DAVINCI_NEXT') {
+      fetchArgs.url.searchParams.set('next', 'true');
+      fetchArgs.headers?.set('Accept-Language', 'zz-ZZ');
+    }
+    next();
+  },
+];
+
 const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
-  const davinciClient = await davinci({ config });
+  const davinciClient = await davinci({ config, requestMiddleware });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: any;
@@ -194,7 +211,7 @@ const urlParams = new URLSearchParams(window.location.search);
    * It returns an unsubscribe function that you can call to stop listening
    */
   davinciClient.subscribe(() => {
-    const node = davinciClient.getClient();
+    const node = davinciClient.getNode();
     console.log('Event emitted from store:', node);
   });
 

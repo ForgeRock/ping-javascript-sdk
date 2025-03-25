@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
+import { password, username } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { navigate } = asyncEvents(page);
@@ -9,8 +10,8 @@ test('Test happy paths on test page', async ({ page }) => {
 
   await expect(page.getByText('Username/Password Form')).toBeVisible();
 
-  await page.getByLabel('Username').fill('demouser');
-  await page.getByLabel('Password').fill('U.CDmhGLK*nrQPDWEN47ZMyJh');
+  await page.getByLabel('Username').fill(username);
+  await page.getByLabel('Password').fill(password);
 
   await page.getByRole('button', { name: 'Sign On' }).click();
 
@@ -68,8 +69,8 @@ test('ensure query params passed to start are sent off in authorize call', async
 
   await expect(page.getByText('Username/Password Form')).toBeVisible();
 
-  await page.getByLabel('Username').fill('demouser');
-  await page.getByLabel('Password').fill('U.CDmhGLK*nrQPDWEN47ZMyJh');
+  await page.getByLabel('Username').fill(username);
+  await page.getByLabel('Password').fill(password);
 
   await page.getByText('Sign On').click();
 
