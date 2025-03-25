@@ -22,12 +22,14 @@ const requestMiddleware: RequestMiddleware[] = [
   (fetchArgs, action, next) => {
     if (action.type === 'DAVINCI_START') {
       fetchArgs.url.searchParams.set('start', 'true');
+      fetchArgs.headers?.set('Accept-Language', 'xx-XX');
     }
     next();
   },
   (fetchArgs, action, next) => {
     if (action.type === 'DAVINCI_NEXT') {
       fetchArgs.url.searchParams.set('next', 'true');
+      fetchArgs.headers?.set('Accept-Language', 'zz-ZZ');
     }
     next();
   },
