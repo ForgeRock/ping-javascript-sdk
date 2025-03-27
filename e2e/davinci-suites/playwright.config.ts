@@ -11,6 +11,7 @@ const config: PlaywrightTestConfig = {
   timeout: 30000,
   use: {
     baseURL,
+    headless: true,
     ignoreHTTPSErrors: true,
     geolocation: { latitude: 24.9884, longitude: -87.3459 },
     bypassCSP: true,

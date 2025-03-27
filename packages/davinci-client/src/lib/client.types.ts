@@ -10,4 +10,13 @@ export interface InternalErrorResponse {
 
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
 
-export type Updater = (value: string, index?: number) => InternalErrorResponse | null;
+export type Updater = (value: string | string[], index?: number) => InternalErrorResponse | null;
+export type Validator = (value: string) =>
+  | string[]
+  | {
+      error: {
+        message: string;
+        type: string;
+      };
+      type: string;
+    };

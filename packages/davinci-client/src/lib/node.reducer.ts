@@ -45,7 +45,7 @@ export const nextCollectorValues = createAction<{
 }>('node/next');
 export const updateCollectorValues = createAction<{
   id: string;
-  value: string | boolean | number | string[];
+  value: string | string[];
   index?: number;
 }>('node/update');
 
@@ -179,7 +179,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
 
       if (collector.category === 'MultiValueCollector') {
         if (Array.isArray(action.payload.value)) {
-          collector.input.value = action.payload.value;
+          collector.input.value = [...action.payload.value];
         } else {
           collector.input.value.push(action.payload.value);
         }
