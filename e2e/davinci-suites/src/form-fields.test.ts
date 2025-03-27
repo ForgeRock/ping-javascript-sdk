@@ -1,27 +1,29 @@
 import { expect, test } from '@playwright/test';
 
+import { asyncEvents } from './utils/async-events.js';
+
 test('Should render form fields', async ({ page }) => {
-  await page.goto('http://localhost:5829/?clientid=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
-  await page.locator('body').click();
-  await page.goto('http://localhost:5829/?clientId=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
-  await expect(page.getByRole('heading', { name: 'Select Test Form' })).toBeVisible();
+  const { navigate } = asyncEvents(page);
+  await navigate('/?clientId=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
+
+  await expect(page.getByText('Select Test Form')).toBeVisible();
   await page.getByRole('button', { name: 'Form Fields' }).click();
-  await page.getByRole('textbox', { name: 'Text Input Label' }).click();
+
+  await expect(page.getByText('Form Fields Test')).toBeVisible();
   await page.getByRole('textbox', { name: 'Text Input Label' }).fill('The input');
-  await expect(page.getByText('Dropdown List Label')).toBeVisible();
+
+  await page.locator('#checkbox-field-key-1').check();
+  await page.locator('#checkbox-field-key-2').check();
+
   await page.locator('#dropdown-field-key').selectOption('dropdown-option1-value');
   await page.locator('#dropdown-field-key').selectOption('dropdown-option2-value');
-  await expect(page.locator('#dropdown-field-key')).toHaveValue('dropdown-option2-value');
-  await page.getByRole('radio', { name: 'option1 label' }).check();
 
-  await page.getByRole('radio', { name: 'option2 label' }).check();
-  await page.getByRole('radio', { name: 'option3 label' }).check();
-  await page.getByRole('radio', { name: 'option2 label' }).check();
+  await page.locator('#radio-group-key').selectOption('option2 label');
 
-  await page.keyboard.down('Meta');
-  await page.selectOption('.select-option-combobox', [{ label: 'option1 label' }]);
-  await page.selectOption('.select-option-combobox', [{ label: 'option2 label' }]);
-  await page.keyboard.up('Meta');
+  await page.locator('#combobox-field-key-1').check();
+  await page.locator('#combobox-field-key-2').check();
+  await page.locator('#combobox-field-key-3').check();
+  await page.locator('#combobox-field-key-2').uncheck();
 
   await expect(page.getByRole('button', { name: 'Flow Button' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Flow Link' })).toBeVisible();
@@ -36,47 +38,30 @@ test('Should render form fields', async ({ page }) => {
   const parsedData = JSON.parse(request.postData());
   const data = parsedData.parameters.data;
   expect(data.actionKey).toBe('submit');
-  expect(data.formData).toEqual({
-    'combobox-field-key': ['option1 value', 'option2 value'],
-    'checkbox-field-key': [],
+  expect(data.formData).toStrictEqual({
+    'text-input-key': 'The input',
+    'checkbox-field-key': ['option1 value', 'option2 value'],
     'dropdown-field-key': 'dropdown-option2-value',
     'radio-group-key': 'option2 value',
-    'text-input-key': 'The input',
+    'combobox-field-key': ['option1 value', 'option3 value'],
   });
 });
 
 test('should render form validation fields', async ({ page }) => {
   await page.goto('http://localhost:5829/?clientId=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
-  await expect(page.getByRole('link', { name: 'Vite logo' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Form Validation' })).toBeVisible();
-  await expect(page.locator('#form')).toContainText('Form Validation');
+
+  await expect(page.getByText('Select Test Form')).toBeVisible();
+
   await page.getByRole('button', { name: 'Form Validation' }).click();
-  await expect(page.getByRole('heading', { name: 'Form Fields Validation' })).toBeVisible();
 
-  await page.getByRole('textbox', { name: 'Username' }).fill('sdk-user');
-  await expect(page.getByRole('textbox', { name: 'Username' })).toHaveValue('sdk-user');
+  await expect(page.getByText('Form Fields Validation')).toBeVisible();
 
-  const password = page.getByRole('textbox', { name: 'Password' });
-  await password.type('password');
-  await expect(password).toHaveValue('password');
+  await page.getByRole('textbox', { name: 'Username' }).fill('@#$');
+  await expect(page.getByText('Must be alphanumeric')).toBeVisible();
 
-  await page.getByRole('textbox', { name: 'Email Address' }).fill('sdk-user@user.com');
-  await expect(page.getByRole('textbox', { name: 'Email Address' })).toHaveValue(
-    'sdk-user@user.com',
-  );
+  await page.getByRole('textbox', { name: 'Email Address' }).fill('abc');
+  await expect(page.getByText('Not a valid email')).toBeVisible();
 
-  const requestPromise = page.waitForRequest((request) => request.url().includes('/customForm'));
-  await page.getByRole('button', { name: 'Submit' }).click();
-
-  const request = await requestPromise;
-  const parsedData = JSON.parse(request.postData());
-
-  const data = parsedData.parameters.data;
-
-  expect(data.actionKey).toBe('submit');
-  expect(data.formData).toEqual({
-    'user.username': 'sdk-user',
-    'user.password': 'password',
-    'user.email': 'sdk-user@user.com',
-  });
+  await page.getByRole('textbox', { name: 'Email Address' }).fill('abc@email.com');
+  await expect(page.getByText('Not a valid email')).not.toBeVisible();
 });

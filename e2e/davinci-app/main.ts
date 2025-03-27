@@ -5,16 +5,15 @@ import { davinci } from '@forgerock/davinci-client';
 
 import type { DaVinciConfig, RequestMiddleware } from '@forgerock/davinci-client/types';
 
-import usernameComponent from './components/text.js';
+import textComponent from './components/text.js';
 import passwordComponent from './components/password.js';
 import submitButtonComponent from './components/submit-button.js';
 import protect from './components/protect.js';
 import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 import { serverConfigs } from './server-configs.js';
-import dropdownComponent from './components/dropdown.js';
-import comboboxComponent from './components/combobox.js';
-import radioComponent from './components/radio.js';
+import singleValueComponent from './components/single-value.js';
+import multiValueComponent from './components/multi-value.js';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
@@ -150,7 +149,6 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const collectors = davinciClient.getCollectors();
     collectors.forEach((collector) => {
-      console.log(collector);
       if (collector.type === 'TextCollector' && collector.name === 'protectsdk') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
@@ -160,10 +158,11 @@ const urlParams = new URLSearchParams(window.location.search);
           davinciClient.update(collector), // Returns an update function for this collector
         );
       } else if (collector.type === 'TextCollector') {
-        usernameComponent(
+        textComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
           davinciClient.update(collector), // Returns an update function for this collector
+          davinciClient.validate(collector), // Returns a validate function for this collector
         );
       } else if (collector.type === 'PasswordCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -192,15 +191,10 @@ const urlParams = new URLSearchParams(window.location.search);
           }),
           renderForm, // Ignore this; it's just for re-rendering the form
         );
-      } else if (
-        collector.type === 'SingleSelectCollector' &&
-        collector.input.type === 'DROPDOWN'
-      ) {
-        dropdownComponent(formEl, collector, davinciClient.update(collector));
-      } else if (collector.type === 'SingleSelectCollector' && collector.input.type === 'RADIO') {
-        radioComponent(formEl, collector, davinciClient.update(collector));
-      } else if (collector.type === 'MultiSelectCollector' && collector.input.type === 'COMBOBOX') {
-        comboboxComponent(formEl, collector, davinciClient.update(collector));
+      } else if (collector.type === 'SingleSelectCollector') {
+        singleValueComponent(formEl, collector, davinciClient.update(collector));
+      } else if (collector.type === 'MultiSelectCollector') {
+        multiValueComponent(formEl, collector, davinciClient.update(collector));
       }
     });
 

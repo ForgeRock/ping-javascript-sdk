@@ -92,7 +92,7 @@ export type SingleSelectFieldValue = {
   label: string;
   options: {
     label: string;
-    value: string | number;
+    value: string;
   }[];
   required?: boolean;
   type: 'RADIO' | 'DROPDOWN';
@@ -104,7 +104,7 @@ export type MultiSelectFieldValue = {
   label: string;
   options: {
     label: string;
-    value: string | number;
+    value: string;
   }[];
   required?: boolean;
   type: 'CHECKBOX' | 'COMBOBOX';

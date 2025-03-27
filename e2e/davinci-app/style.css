@@ -104,6 +104,14 @@ button:focus-visible {
   text-decoration: underline;
 }
 
+.checkbox-wrapper input,
+.checkbox-wrapper label {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 0.5em;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

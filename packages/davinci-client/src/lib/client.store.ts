@@ -22,7 +22,7 @@ import type {
   IdpCollector,
   MultiSelectCollector,
 } from './collector.types.js';
-import type { InitFlow, Updater } from './client.types.js';
+import type { InitFlow, Updater, Validator } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
 import type { RequestMiddleware } from './effects/request.effect.types.js';
@@ -205,7 +205,7 @@ export async function davinci({
         };
       }
 
-      return function (value: string | string[] | boolean, index?: number) {
+      return function (value: string | string[], index?: number) {
         try {
           store.dispatch(nodeSlice.actions.update({ id, value, index }));
           return null;
@@ -225,7 +225,7 @@ export async function davinci({
      * @returns {function} - a function to call for validating collector value
      * @throws {Error} - if the collector is not a SingleValueCollector
      */
-    validate: (collector: SingleValueCollectors) => {
+    validate: (collector: SingleValueCollectors): Validator => {
       if (!collector.id) {
         console.error('Argument for `collector` has no ID');
         return function () {

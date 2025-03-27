@@ -184,14 +184,14 @@ export interface MultiValueCollectorWithValue<T extends MultiValueCollectorTypes
   name: string;
   input: {
     key: string;
-    value: (string | number | boolean)[];
+    value: string[];
     type: string;
   };
   output: {
     key: string;
     label: string;
     type: string;
-    value: (string | number | boolean)[];
+    value: string[];
     options: SelectorOptions[];
   };
 }

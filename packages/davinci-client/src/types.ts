@@ -10,6 +10,7 @@ export type DaVinciConfig = config.DaVinciConfig;
 
 export type Updater = client.Updater;
 export type InitFlow = client.InitFlow;
+export type Validator = client.Validator;
 
 export type StartNode = nodes.StartNode;
 export type ContinueNode = nodes.ContinueNode;
