@@ -1,4 +1,9 @@
 /**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+/**
  * Import the RTK Query library from Redux Toolkit
  * @see https://redux-toolkit.js.org/rtk-query/overview
  */

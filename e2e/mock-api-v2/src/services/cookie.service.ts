@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import * as Cookies from '@effect/platform/Cookies';
 import { Effect, Context, Either } from 'effect';
 

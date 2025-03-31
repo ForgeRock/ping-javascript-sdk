@@ -1,4 +1,9 @@
 /**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+/**
  * Import ConfigOptions type from the JavaScript SDK
  */
 import type { AsyncConfigOptions } from '@forgerock/javascript-sdk/src/config/interfaces';

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { initQuery, middlewareWrapper } from './request.effect.utils.js';
 import middleware from './request.effect.mock.js';
 import type { ActionTypes } from './request.effect.unions.js';

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 import { password, username } from './utils/demo-user.js';

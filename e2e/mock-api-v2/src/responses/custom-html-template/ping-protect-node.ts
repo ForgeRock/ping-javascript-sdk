@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 const PingProtectNode = {
   interactionId: '1894775c-ba76-4989-a303-320f0547c66e',
   connectorId: 'api',

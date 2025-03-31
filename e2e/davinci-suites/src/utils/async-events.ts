@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export function asyncEvents(page) {
   return {
     async clickButton(text, endpoint) {

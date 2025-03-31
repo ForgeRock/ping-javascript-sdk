@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export type BindingDeviceQuery = {
   userId: string;
   realm?: string;

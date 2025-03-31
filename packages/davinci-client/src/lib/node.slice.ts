@@ -1,4 +1,9 @@
 /**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+/**
  * Import the required utilities from Redux Toolkit
  */
 import { createSlice } from '@reduxjs/toolkit';

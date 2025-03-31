@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Config, Effect, Layer, pipe } from 'effect';
 import { RouterBuilder, Middlewares } from 'effect-http';
 import { NodeRuntime } from '@effect/platform-node';

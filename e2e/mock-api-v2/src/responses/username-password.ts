@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 const UsernamePassword = {
   interactionId: '1857e57f-aaad-43a5-9054-259683ae6e36',
   interactionToken:

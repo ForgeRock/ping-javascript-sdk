@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import type { PasswordCollector, Updater } from '@forgerock/davinci-client/types';
 import { dotToCamelCase } from '../helper.js';
 

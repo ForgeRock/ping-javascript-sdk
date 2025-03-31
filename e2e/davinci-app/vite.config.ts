@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import * as path from 'path';
 import { defineConfig } from 'vite';
 

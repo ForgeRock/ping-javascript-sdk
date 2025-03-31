@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Schema } from '@effect/schema';
 
 const PingOnePathParams = Schema.Struct({ envid: Schema.String, connectionid: Schema.String });

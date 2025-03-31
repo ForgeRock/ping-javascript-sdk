@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { GenericError } from './error.types.js';
 import { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 

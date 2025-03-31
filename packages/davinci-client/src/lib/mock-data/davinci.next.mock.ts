@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export const next0 = {
   interactionId: '17f7bb13-1b03-4203-acb4-ccd4afaec908',
   interactionToken:

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { describe, it, expect } from 'vitest';
 import {
   returnActionCollector,

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 const userInfoResponse = {
   sub: '6f00a1ba-1d86-4b87-afb0-0ea1a952bc2e',
   preferred_username: 'demouser',

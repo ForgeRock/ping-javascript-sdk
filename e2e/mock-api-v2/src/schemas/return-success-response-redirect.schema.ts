@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Schema } from '@effect/schema';
 
 const _SuccessResponseRedirect = Schema.Struct({

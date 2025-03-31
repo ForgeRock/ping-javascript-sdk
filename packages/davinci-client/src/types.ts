@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import 'immer'; // Side-effect needed only for getting types in workspace
 
 import type * as collectors from './lib/collector.types.js';

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { describe, expectTypeOf, it } from 'vitest';
 import type {
   SingleValueCollectorTypes,

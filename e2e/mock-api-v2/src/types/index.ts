@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Schema } from '@effect/schema';
 import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from '../schemas/authorize.schema.js';
 import {
