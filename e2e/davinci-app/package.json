@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "nx": {
-    "tags": ["scope:app"]
+    "tags": ["scope:e2e"]
   },
   "scripts": {
     "build": "pnpm nx nxBuild",

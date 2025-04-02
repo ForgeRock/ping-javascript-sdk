@@ -11,6 +11,15 @@
   },
   "references": [
     {
+      "path": "../sdk-types"
+    },
+    {
+      "path": "../effects/oidc"
+    },
+    {
+      "path": "../effects/sdk-request-middleware"
+    },
+    {
       "path": "./tsconfig.lib.json"
     },
     {
