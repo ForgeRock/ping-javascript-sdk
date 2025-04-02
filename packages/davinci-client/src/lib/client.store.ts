@@ -138,8 +138,8 @@ export async function davinci({
      * @returns unknown
      */
     resume: async ({ continueToken }: { continueToken: string }) => {
-      const node = store.dispatch(davinciApi.endpoints.resume.initiate({ continueToken }));
-      return node;
+      store.dispatch(davinciApi.endpoints.resume.initiate({ continueToken }));
+      return store.getState().node;
     },
 
     /**
