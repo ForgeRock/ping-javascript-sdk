@@ -8,7 +8,6 @@ import './style.css';
 
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
-
 import type { DaVinciConfig, RequestMiddleware } from '@forgerock/davinci-client/types';
 
 import textComponent from './components/text.js';
@@ -27,7 +26,7 @@ const searchParams = new URLSearchParams(qs);
 const config: DaVinciConfig =
   serverConfigs[searchParams.get('clientId') || '724ec718-c41c-4d51-98b0-84a583f450f9'];
 
-const requestMiddleware: RequestMiddleware[] = [
+const requestMiddleware: RequestMiddleware<'DAVINCI_NEXT' | 'DAVINCI_START'>[] = [
   (fetchArgs, action, next) => {
     if (action.type === 'DAVINCI_START') {
       fetchArgs.url.searchParams.set('start', 'true');
@@ -55,7 +54,9 @@ const urlParams = new URLSearchParams(window.location.search);
   if (continueToken) {
     resumed = await davinciClient.resume({ continueToken });
   } else {
-    await Config.setAsync(config);
+    // the current davinci-config has a slightly
+    // different middleware type than the old legacy config
+    await Config.setAsync(config as any);
   }
   function renderComplete() {
     const clientInfo = davinciClient.getClient();

@@ -4,16 +4,18 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+
 import {
   FetchArgs,
   FetchBaseQueryError,
   FetchBaseQueryMeta,
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
-import { actionTypes } from './request.effect.unions.js';
 
-import type { ActionTypes, EndpointTypes } from './request.effect.unions.js';
-import type { ModifiedFetchArgs, RequestMiddleware } from './request.effect.types.js';
+import { actionTypes } from './request-mware.derived.js';
+
+import type { ActionTypes, EndpointTypes } from './request-mware.derived.js';
+import type { ModifiedFetchArgs, RequestMiddleware } from './request-mware.types.js';
 
 /**
  * @function middlewareWrapper - A "Node" and "Redux" style middleware that is called just before
@@ -28,11 +30,11 @@ export function middlewareWrapper(
   request: ModifiedFetchArgs,
   // eslint-disable-next-line
   { type, payload }: { type: ActionTypes; payload?: any },
-): (middleware: RequestMiddleware[] | undefined) => ModifiedFetchArgs {
+): (middleware: RequestMiddleware<typeof type, typeof payload>[] | undefined) => ModifiedFetchArgs {
   // no mutation and no reassignment
   const actionCopy = Object.freeze({ type, payload });
 
-  return (middleware: RequestMiddleware[] | undefined) => {
+  return (middleware: RequestMiddleware<typeof type, typeof payload>[] | undefined) => {
     if (!Array.isArray(middleware)) {
       return request;
     }
@@ -63,7 +65,9 @@ export function initQuery(fetchArgs: FetchArgs, endpoint: EndpointTypes) {
     headers: new Headers(fetchArgs.headers as Record<string, string>),
   };
   const queryApi = {
-    applyMiddleware(middleware: RequestMiddleware[] | undefined) {
+    applyMiddleware(
+      middleware: RequestMiddleware<ActionTypes, ModifiedFetchArgs['body']>[] | undefined,
+    ) {
       // Iterates and executes provided middleware functions
       // Allow middleware to mutate `request` argument
       const runMiddleware = middlewareWrapper(modifiedRequest, { type: actionTypes[endpoint] });

@@ -6,11 +6,11 @@
  */
 import 'immer'; // Side-effect needed only for getting types in workspace
 
+import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type * as collectors from './lib/collector.types.js';
 import type * as config from './lib/config.types.js';
 import type * as nodes from './lib/node.types.js';
 import type * as client from './lib/client.types.js';
-import type * as effect from './lib/effects/request.effect.types.js';
 
 export type DaVinciConfig = config.DaVinciConfig;
 
@@ -43,5 +43,4 @@ export type ValidatedTextCollector = collectors.ValidatedTextCollector;
 export type ReadOnlyCollector = collectors.ReadOnlyCollector;
 export type MultiSelectCollector = collectors.MultiSelectCollector;
 export type SingleSelectCollector = collectors.SingleSelectCollector;
-
-export type RequestMiddleware = effect.RequestMiddleware;
+export type { RequestMiddleware };

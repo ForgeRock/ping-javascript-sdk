@@ -15,7 +15,12 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['**/dist', '**/vite.config.*.timestamp*', '**/vitest.config.*.timestamp*'],
+    ignores: [
+      '**/dist',
+      '**/vite.config.*.timestamp*',
+      '**/vitest.config.*.timestamp*',
+      '**/out-tsc',
+    ],
   },
   ...compat.extends('plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'),
   {
@@ -57,6 +62,7 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {
+      'import/extensions': [2, 'ignorePackages'],
       '@nx/enforce-module-boundaries': [
         'warn',
         {
@@ -65,14 +71,30 @@ export default [
           depConstraints: [
             {
               sourceTag: 'scope:e2e',
-              onlyDependOnLibsWithTags: ['scope:app'],
+              onlyDependOnLibsWithTags: ['scope:package'],
             },
             {
               sourceTag: 'scope:package',
-              onlyDependOnLibsWithTags: [],
+              onlyDependOnLibsWithTags: [
+                'scope:sdk-utilities',
+                'scope:sdk-effects',
+                'scope:sdk-types',
+              ],
             },
             {
-              sourceTag: 'scope:types',
+              sourceTag: 'scope:sdk-utilities',
+              onlyDependOnLibsWithTags: ['scope:sdk-types'],
+            },
+            {
+              sourceTag: 'scope:sdk-effects',
+              onlyDependOnLibsWithTags: ['scope:sdk-utilities', 'scope:sdk-types'],
+            },
+            {
+              sourceTag: 'scope:sdk-config',
+              onlyDependOnLibsWithTags: ['scope:sdk-utilities', 'scope:sdk-types'],
+            },
+            {
+              sourceTag: 'scope:sdk-types',
               onlyDependOnLibsWithTags: [],
             },
           ],
@@ -133,7 +155,7 @@ export default [
     },
   },
   {
-    ignores: ['dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
+    ignores: ['**/*.md', 'dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
   },
   packageJson.configs.recommended,
   {
