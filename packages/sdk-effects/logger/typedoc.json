@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/sdk-logger",
+  "entryPoints": ["src/index.ts"]
+}

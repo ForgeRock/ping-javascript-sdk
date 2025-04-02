@@ -1,0 +1,12 @@
+{
+  "name": "@forgerock/local-release-tool",
+  "version": "0.0.0",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {}
+}

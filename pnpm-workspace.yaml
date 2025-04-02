@@ -1,5 +1,7 @@
 packages:
   - 'packages/*'
+  - 'packages/sdk-effects/*'
+  - 'packages/utils/*'
   - '!**/test/**'
   - 'e2e/*'
   - tools/**
