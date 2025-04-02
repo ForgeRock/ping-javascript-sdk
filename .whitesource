@@ -5,7 +5,7 @@
     "enableScan": true,
     "enableVulnerabilityScanning": true,
     "configExternalURL": "",
-    "projectToken": "ping-javascript-sdk",
+    "projectToken": "",
     "baseBranches": [
       "main"
     ],
