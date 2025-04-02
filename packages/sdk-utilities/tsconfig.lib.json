@@ -28,10 +28,5 @@
     "src/**/*.types.test-d.ts",
     "src/**/*.utils.test-d.ts",
     "src/lib/mock-data/*"
-  ],
-  "references": [
-    {
-      "path": "../sdk-utilities/tsconfig.lib.json"
-    }
   ]
 }

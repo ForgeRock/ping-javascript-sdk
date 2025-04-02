@@ -14,7 +14,7 @@ import {
 /**
  * Import internal modules
  */
-import { createAuthorizeUrl } from './authorize.utils.js';
+import { createAuthorizeUrl } from '@forgerock/sdk-utilities';
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
 
 /**

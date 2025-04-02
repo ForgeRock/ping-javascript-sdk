@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@forgerock/javascript-sdk": "4.7.0",
+    "@forgerock/sdk-utilities": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
     "immer": "catalog:"
   },

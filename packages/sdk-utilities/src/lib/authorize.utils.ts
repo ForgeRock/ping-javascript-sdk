@@ -1,33 +1,55 @@
 /**
- * Import the PKCE and ResponseType utilities from the JavaScript SDK
- */
-import { PKCE, ResponseType } from '@forgerock/javascript-sdk';
-import { generateAndStoreAuthUrlValues } from '@forgerock/javascript-sdk/src/oauth2-client/state-pkce';
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 
 /**
- * Define the options for the authorization URL
- * @param clientId The client ID of the application
- * @param redirectUri The redirect URI of the application
- * @param responseType The response type of the authorization request
- * @param scope The scope of the authorization request
+ * Import the PKCE and ResponseType utilities from the JavaScript SDK
  */
-export interface GetAuthorizationUrlOptions {
-  clientId: string;
-  login: 'redirect';
-  redirectUri: string;
-  responseType: string;
-  scope: string;
+import PKCE from './pkce.utils.js';
+import {
+  CreateAuthorizeUrlOptions,
+  GenerateAndStoreAuthUrlValues,
+  ResponseType,
+} from './authorize.utils.types.js';
+
+function getStorageKey(clientId: string, prefix?: string) {
+  return `${prefix || 'FR-SDK'}-authflow-${clientId}`;
+}
+
+/**
+ * Generate and store PKCE values for later use
+ * @param { string } storageKey - Key to store authorization options in sessionStorage
+ * @param {GenerateAndStoreAuthUrlValues} options - Options for generating PKCE values
+ * @returns { state: string, verifier: string, GetAuthorizationUrlOptions }
+ */
+function generateAndStoreAuthUrlValues(options: GenerateAndStoreAuthUrlValues) {
+  const verifier = PKCE.createVerifier();
+  const state = PKCE.createState();
+  const storageKey = getStorageKey(options.clientId, options.prefix);
+
+  const authorizeUrlOptions = {
+    ...options,
+    state,
+    verifier,
+  };
+
+  return [
+    authorizeUrlOptions,
+    () => sessionStorage.setItem(storageKey, JSON.stringify(authorizeUrlOptions)),
+  ] as const;
 }
 
 /**
  * @function createAuthorizeUrl - Create authorization URL for initial call to DaVinci
  * @param baseUrl {string}
- * @param options {GetAuthorizationUrlOptions}
+ * @param options {CreateAuthorizeUrlOptions}
  * @returns {Promise<string>} - the authorization URL
  */
 export async function createAuthorizeUrl(
   authorizeUrl: string,
-  options: GetAuthorizationUrlOptions,
+  options: CreateAuthorizeUrlOptions,
 ): Promise<string> {
   /**
    * Generate state and verifier for PKCE
