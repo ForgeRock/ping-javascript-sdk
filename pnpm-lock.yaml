@@ -286,10 +286,17 @@ importers:
     dependencies:
       '@forgerock/sdk-oidc':
         specifier: workspace:*
+<<<<<<< HEAD
         version: link:../sdk-effects/oidc
       '@forgerock/sdk-request-middleware':
         specifier: workspace:*
         version: link:../sdk-effects/sdk-request-middleware
+=======
+        version: link:../effects/oidc
+      '@forgerock/sdk-request-middleware':
+        specifier: workspace:*
+        version: link:../effects/sdk-request-middleware
+>>>>>>> 585d3cb8 (feat(sdk-utilities,logger,oidc,sdk-request-middleware,sdk-types): added-packages)
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
@@ -317,9 +324,15 @@ importers:
         specifier: ^2.5.1
         version: 2.7.4(@types/node@22.14.1)(typescript@5.8.2)
 
+<<<<<<< HEAD
   packages/sdk-effects/logger: {}
 
   packages/sdk-effects/oidc:
+=======
+  packages/effects/logger: {}
+
+  packages/effects/oidc:
+>>>>>>> 585d3cb8 (feat(sdk-utilities,logger,oidc,sdk-request-middleware,sdk-types): added-packages)
     dependencies:
       '@forgerock/sdk-types':
         specifier: workspace:*
@@ -328,7 +341,11 @@ importers:
         specifier: workspace:*
         version: link:../../sdk-utilities
 
+<<<<<<< HEAD
   packages/sdk-effects/sdk-request-middleware:
+=======
+  packages/effects/sdk-request-middleware:
+>>>>>>> 585d3cb8 (feat(sdk-utilities,logger,oidc,sdk-request-middleware,sdk-types): added-packages)
     dependencies:
       '@reduxjs/toolkit':
         specifier: 'catalog:'
