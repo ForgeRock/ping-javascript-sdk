@@ -24,7 +24,7 @@
   "issueSettingsSAST": {
     "issueType": "repo",
     "minSeverityLevel": "high"
-  }
+  },
   "checkRunSettings": {
     "vulnerableCheckRunConclusionLevel": "failure",
     "displayMode": "diff",
