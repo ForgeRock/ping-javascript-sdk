@@ -12,10 +12,10 @@
     ".": "./dist/src/index.js",
     "./types": "./dist/src/types.d.ts"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
-  "files": ["dist"],
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "typings": "./dist/src/index.d.ts",
+  "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo"],
   "scripts": {
     "lint": "pnpm nx nxLint",
     "test": "pnpm nx nxTest",
