@@ -4,6 +4,7 @@
     "enableCST": true,
     "enableScan": true,
     "configExternalURL": "",
+    "projectToken": "ping-javascript-sdk",
     "projectToken": "",
     "baseBranches": [
       "main"
