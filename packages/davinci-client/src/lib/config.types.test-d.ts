@@ -6,13 +6,13 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { DaVinciConfig, InternalDaVinciConfig } from './config.types.js';
-import type { AsyncConfigOptions } from '@forgerock/sdk-types';
+import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
 import type { WellknownResponse } from './wellknown.types.js';
 
 describe('Config Types', () => {
   describe('DaVinciConfig', () => {
-    it('should extend AsyncConfigOptions', () => {
-      expectTypeOf<DaVinciConfig>().toMatchTypeOf<AsyncConfigOptions>();
+    it('should extend AsyncLegacyConfigOptions', () => {
+      expectTypeOf<DaVinciConfig>().toMatchTypeOf<AsyncLegacyConfigOptions>();
     });
 
     it('should have optional responseType', () => {
@@ -24,7 +24,7 @@ describe('Config Types', () => {
       expectTypeOf<DaVinciConfig>().toHaveProperty('responseType').toBeNullable();
     });
 
-    it('should allow AsyncConfigOptions properties', () => {
+    it('should allow AsyncLegacyConfigOptions properties', () => {
       const config: DaVinciConfig = {
         clientId: 'test-client',
         scope: 'openid profile',

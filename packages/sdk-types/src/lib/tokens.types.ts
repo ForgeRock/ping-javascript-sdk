@@ -11,3 +11,12 @@ export interface Tokens {
   refreshToken?: string;
   tokenExpiry?: number;
 }
+
+/**
+ * API for implementing a custom token store
+ */
+export interface TokenStoreObject {
+  get: (key: string) => Promise<string | null>;
+  set: (key: string, valueToSet: string) => Promise<void>;
+  remove: (key: string) => Promise<void>;
+}

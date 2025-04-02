@@ -36,6 +36,9 @@
     },
     {
       "path": "./packages/sdk-effects/oidc"
+    },
+    {
+      "path": "./packages/sdk-effects/storage"
     }
   ]
 }
