@@ -1,0 +1,44 @@
+{
+  "name": "@forgerock/sdk-utilities",
+  "version": "0.0.1",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:ForgeRock/forgerock-javascript-sdk.git",
+    "directory": "packages/sdk-utilities"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "files": ["dist"],
+  "scripts": {
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
+  },
+  "nx": {
+    "tags": ["scope:utilities"],
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "packages/sdk-utilities/dist",
+          "main": "packages/sdk-utilities/src/index.ts",
+          "tsConfig": "packages/sdk-utilities/tsconfig.lib.json",
+          "generatePackageJson": false,
+          "assets": []
+        }
+      }
+    }
+  }
+}

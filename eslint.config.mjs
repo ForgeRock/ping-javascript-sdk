@@ -69,10 +69,14 @@ export default [
             },
             {
               sourceTag: 'scope:package',
-              onlyDependOnLibsWithTags: [],
+              onlyDependOnLibsWithTags: ['scope:utilities'],
             },
             {
               sourceTag: 'scope:types',
+              onlyDependOnLibsWithTags: [],
+            },
+            {
+              sourceTag: 'scope:utilities',
               onlyDependOnLibsWithTags: [],
             },
           ],
@@ -133,7 +137,7 @@ export default [
     },
   },
   {
-    ignores: ['dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
+    ignores: ['**/*.md', 'dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
   },
   {
     ...packageJson,

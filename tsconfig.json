@@ -18,6 +18,9 @@
     },
     {
       "path": "./packages/davinci-client"
+    },
+    {
+      "path": "./packages/sdk-utilities"
     }
   ]
 }
