@@ -3,14 +3,28 @@
     "configMode": "AUTO",
     "enableCST": true,
     "enableScan": true,
+    "enableVulnerabilityScanning": true,
     "configExternalURL": "",
     "projectToken": "ping-javascript-sdk",
-    "projectToken": "",
     "baseBranches": [
       "main"
     ],
     "enableLicenseViolations": true
   },
+  "scanSettingsSAST": {
+    "enableScan": true,
+    "scanPullRequests": true,
+    "incrementalScan": false,
+    "baseBranches": ["integration"]
+  },
+  "checkRunSettingsSAST": {
+    "checkRunConclusionLevel": "failure",
+    "severityThreshold": "high"
+  },
+  "issueSettingsSAST": {
+    "issueType": "repo",
+    "minSeverityLevel": "high"
+  }
   "checkRunSettings": {
     "vulnerableCheckRunConclusionLevel": "failure",
     "displayMode": "diff",
