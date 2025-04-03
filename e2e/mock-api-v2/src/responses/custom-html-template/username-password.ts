@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 const customHtmlUsernamePassword = {
   id: 'cq77vwelou',
   eventName: 'continue',

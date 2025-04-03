@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export const nodeNext0 = {
   cache: { key: '1234' },
   client: {

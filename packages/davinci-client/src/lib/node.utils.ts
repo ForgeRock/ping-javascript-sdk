@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { DavinciErrorResponse } from './davinci.types';
 import { CollectorErrors } from './node.types';
 

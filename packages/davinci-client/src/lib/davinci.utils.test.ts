@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { describe, it, expect, vi } from 'vitest';
 
 import { handleResponse, transformSubmitRequest, transformActionRequest } from './davinci.utils.js';

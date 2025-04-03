@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Effect } from 'effect';
 import { RouterBuilder } from 'effect-http';
 import { apiSpec } from '../spec.js';

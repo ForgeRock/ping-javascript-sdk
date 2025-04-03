@@ -1,4 +1,9 @@
 /**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+/**
  * Import RTK slices and api
  */
 import { createClientStore, RootState } from './client.store.utils.js';

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({

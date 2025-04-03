@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 class InvalidUsernamePassword {
   readonly _tag = 'InvalidUsernamePassword';
 }

@@ -1,4 +1,9 @@
 /**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+/**
  * Import the createSlice and PayloadAction utilities from Redux Toolkit
  * @see https://redux-toolkit.js.org/api/createslice
  */

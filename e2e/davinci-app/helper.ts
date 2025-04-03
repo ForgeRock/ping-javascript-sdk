@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export function dotToCamelCase(str: string) {
   return str
     .split('.')

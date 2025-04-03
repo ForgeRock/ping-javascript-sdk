@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import type { SingleSelectCollector, Updater } from '@forgerock/davinci-client/types';
 
 /**

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Array } from 'effect';
 import { UsernamePassword } from './username-password.js';
 import { PingProtectNode } from './custom-html-template/ping-protect-node.js';

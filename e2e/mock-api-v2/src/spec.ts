@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { pipe } from 'effect';
 import { Schema } from '@effect/schema';
 import { Api } from 'effect-http';

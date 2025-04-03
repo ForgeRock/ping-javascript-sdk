@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export const actionTypes = {
   start: 'DAVINCI_START',
   next: 'DAVINCI_NEXT',

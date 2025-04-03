@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { describe, it, expect } from 'vitest';
 
 import { error0a, error1a, error1b, error1c, error1f } from './mock-data/davinci.error.mock.js';

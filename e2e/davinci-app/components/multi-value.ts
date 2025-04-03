@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import type { MultiSelectCollector, Updater } from '@forgerock/davinci-client/types';
 
 /**

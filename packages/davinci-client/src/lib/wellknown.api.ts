@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { WellknownResponse } from './wellknown.types.js';
 

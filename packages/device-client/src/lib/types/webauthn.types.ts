@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export type WebAuthnQuery = {
   realm?: string;
   userId: string;

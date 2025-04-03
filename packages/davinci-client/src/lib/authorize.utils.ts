@@ -1,4 +1,9 @@
 /**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+/**
  * Import the PKCE and ResponseType utilities from the JavaScript SDK
  */
 import { PKCE, ResponseType } from '@forgerock/javascript-sdk';

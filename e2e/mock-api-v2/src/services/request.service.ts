@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Effect, Context, pipe, Layer } from 'effect';
 import { HttpError } from 'effect-http';
 

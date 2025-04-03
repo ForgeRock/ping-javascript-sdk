@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { it } from '@effect/vitest';
 import { vi, afterEach, beforeEach, expect } from 'vitest';
 import { CookieService, cookieServiceTest } from '../cookie.service.js';

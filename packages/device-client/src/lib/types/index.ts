@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 export * from './oath.types.js';
 export * from './webauthn.types.js';
 export * from './push-device.types.js';

@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import type { DaVinciConfig } from '@forgerock/davinci-client/types';
 
 export const serverConfigs: Record<string, DaVinciConfig> = {

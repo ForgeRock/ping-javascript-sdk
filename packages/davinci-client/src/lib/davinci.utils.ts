@@ -1,4 +1,9 @@
 /**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+/**
  * Import the used types
  */
 import type { Dispatch } from '@reduxjs/toolkit';

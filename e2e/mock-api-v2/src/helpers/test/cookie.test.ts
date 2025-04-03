@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { it } from '@effect/vitest';
 import { expect } from 'vitest';
 import {

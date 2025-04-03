@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { InitFlow, InternalErrorResponse, Updater } from './client.types.js';

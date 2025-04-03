@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 const returnSuccessResponseRedirect = {
   interactionId: '174edeee-6d5d-4a4c-925e-d5e6a91b9956',
   companyId: '02fb4743-189a-4bc7-9d6c-a919edfe6447',

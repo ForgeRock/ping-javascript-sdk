@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { configureStore } from '@reduxjs/toolkit';
 
 import { configSlice } from './config.slice.js';

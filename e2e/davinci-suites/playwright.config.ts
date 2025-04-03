@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { PlaywrightTestConfig } from '@playwright/test';
 import { workspaceRoot } from '@nx/devkit';
 

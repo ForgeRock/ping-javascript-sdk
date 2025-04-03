@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import type { FlowCollector, InitFlow } from '@forgerock/davinci-client/types';
 
 export default function flowLinkComponent(

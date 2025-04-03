@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { Schema } from '@effect/schema';
 import { Array, Effect, Option, pipe } from 'effect';
 

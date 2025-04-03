@@ -1,3 +1,8 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
 import { type ConfigOptions } from '@forgerock/javascript-sdk';
 import { configureStore } from '@reduxjs/toolkit';
 import { deviceService } from './services/index.js';
