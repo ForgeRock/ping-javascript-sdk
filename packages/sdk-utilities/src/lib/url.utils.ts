@@ -1,0 +1,80 @@
+/**
+ *
+ * Copyright © 2025 Ping Identity Corporation
+ *
+ **/
+
+import type { ConfigurablePaths, CustomPathConfig } from './url.utils.types.js';
+import { getRealmUrlPath } from './realm.utils.js';
+
+/**
+ * Returns the base URL including protocol, hostname and any non-standard port.
+ * The returned URL does not include a trailing slash.
+ */
+function getBaseUrl(url: URL): string {
+  const isNonStandardPort =
+    (url.protocol === 'http:' && ['', '80'].indexOf(url.port) === -1) ||
+    (url.protocol === 'https:' && ['', '443'].indexOf(url.port) === -1);
+  const port = isNonStandardPort ? `:${url.port}` : '';
+  const baseUrl = `${url.protocol}//${url.hostname}${port}`;
+  return baseUrl;
+}
+
+function getEndpointPath(
+  endpoint: ConfigurablePaths,
+  realmPath?: string,
+  customPaths?: CustomPathConfig,
+): string {
+  const realmUrlPath = getRealmUrlPath(realmPath);
+  const defaultPaths = {
+    authenticate: `json/${realmUrlPath}/authenticate`,
+    authorize: `oauth2/${realmUrlPath}/authorize`,
+    accessToken: `oauth2/${realmUrlPath}/access_token`,
+    endSession: `oauth2/${realmUrlPath}/connect/endSession`,
+    userInfo: `oauth2/${realmUrlPath}/userinfo`,
+    revoke: `oauth2/${realmUrlPath}/token/revoke`,
+    sessions: `json/${realmUrlPath}/sessions/`,
+  };
+  if (customPaths && customPaths[endpoint]) {
+    // TypeScript is not correctly reading the condition above
+    // It's thinking that customPaths[endpoint] may result in undefined
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return customPaths[endpoint];
+  } else {
+    return defaultPaths[endpoint];
+  }
+}
+
+function resolve(baseUrl: string, path: string): string {
+  const url = new URL(baseUrl);
+
+  if (path.startsWith('/')) {
+    return `${getBaseUrl(url)}${path}`;
+  }
+
+  const basePath = url.pathname.split('/');
+  const destPath = path.split('/').filter((x) => !!x);
+  const newPath = [...basePath.slice(0, -1), ...destPath].join('/');
+
+  return `${getBaseUrl(url)}${newPath}`;
+}
+
+function parseQuery(fullUrl: string): { [name: string]: string } {
+  const url = new URL(fullUrl);
+  const query: { [name: string]: string } = {};
+  url.searchParams.forEach((v, k) => (query[k] = v));
+  return query;
+}
+
+function stringify(data: { [name: string]: string | undefined }): string {
+  const pairs: string[] = [];
+  for (const k in data) {
+    if (data[k]) {
+      pairs.push(k + '=' + encodeURIComponent(data[k] as string));
+    }
+  }
+  return pairs.join('&');
+}
+
+export { getBaseUrl, getEndpointPath, parseQuery, resolve, stringify };

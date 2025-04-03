@@ -69,10 +69,14 @@ export default [
             },
             {
               sourceTag: 'scope:package',
-              onlyDependOnLibsWithTags: [],
+              onlyDependOnLibsWithTags: ['scope:utilities'],
             },
             {
               sourceTag: 'scope:types',
+              onlyDependOnLibsWithTags: [],
+            },
+            {
+              sourceTag: 'scope:utilities',
               onlyDependOnLibsWithTags: [],
             },
           ],
