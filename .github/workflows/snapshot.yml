@@ -74,6 +74,8 @@ jobs:
 
       - name: Version Packages as Beta
         run: pnpm changeset version --snapshot beta
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Publish packages as beta
         run: pnpm publish -r --tag beta --no-git-checks --registry ${{ inputs.registry }}
