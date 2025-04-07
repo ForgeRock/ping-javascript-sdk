@@ -19,7 +19,7 @@ jobs:
     secrets:
       MEND_EMAIL: ${{ secrets.MEND_EMAIL }}
       MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
-      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
   publish-or-pr:
     permissions:
       contents: write #  to create release (changesets/action)
