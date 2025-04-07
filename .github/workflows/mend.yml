@@ -15,6 +15,9 @@ on:
       MEND_USER_KEY:
         description: Mend user key
         required: true
+      SLACK_WEBHOOK:
+        description: Slack Notifier Incoming Webhook
+        required: true
 
 jobs:
   mend-cli-scan:
