@@ -15,7 +15,7 @@ jobs:
   # Run Mend CLI Scan
   mend-cli-scan:
     name: Mend CLI Scan
-    uses: ./.github/workflows/mend.yaml
+    uses: ./.github/workflows/mend.yml
     secrets:
       MEND_EMAIL: ${{ secrets.MEND_EMAIL }}
       MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
