@@ -21,6 +21,9 @@
     },
     {
       "path": "./packages/sdk-utilities"
+    },
+    {
+      "path": "./packages/effects"
     }
   ]
 }

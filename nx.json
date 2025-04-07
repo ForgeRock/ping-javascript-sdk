@@ -25,7 +25,8 @@
       "!{projectRoot}/test-setup.[jt]s",
       "noEslintConfig",
       "noMarkdown",
-      "workspaceRootIgnores"
+      "workspaceRootIgnores",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)"
     ],
     "noMarkdown": ["!{projectRoot}/*.md", "!{projectRoot}/**/*.md"],
     "noTests": [
@@ -69,7 +70,7 @@
     },
     "test": {
       "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
-      "dependsOn": ["^test"],
+      "dependsOn": ["^test", "^build"],
       "outputs": ["{projectRoot}/coverage"],
       "cache": true
     },
@@ -152,6 +153,20 @@
         "typecheckTargetName": "typecheck"
       },
       "include": ["packages/**/**/*", "e2e/**/**/*"]
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "vite:build",
+        "testTargetName": "vite:test",
+        "serveTargetName": "vite:serve",
+        "devTargetName": "vite:dev",
+        "previewTargetName": "vite:preview",
+        "serveStaticTargetName": "vite:serve-static",
+        "typecheckTargetName": "vite:typecheck",
+        "buildDepsTargetName": "vite:build-deps",
+        "watchDepsTargetName": "vite:watch-deps"
+      }
     }
   ],
   "parallel": 1,
@@ -161,7 +176,6 @@
   },
   "generators": {
     "@nx/js:library": {
-      "publishable": true,
       "outDir": "{projectRoot}/dist",
       "bundler": "tsc",
       "linter": "eslint",

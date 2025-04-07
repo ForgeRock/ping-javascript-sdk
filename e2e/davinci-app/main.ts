@@ -27,7 +27,7 @@ const searchParams = new URLSearchParams(qs);
 const config: DaVinciConfig =
   serverConfigs[searchParams.get('clientId') || '724ec718-c41c-4d51-98b0-84a583f450f9'];
 
-const requestMiddleware: RequestMiddleware[] = [
+const requestMiddleware: RequestMiddleware<'DAVINCI_NEXT' | 'DAVINCI_START'>[] = [
   (fetchArgs, action, next) => {
     if (action.type === 'DAVINCI_START') {
       fetchArgs.url.searchParams.set('start', 'true');

@@ -18,6 +18,7 @@ packages/**/coverage/
 node_modules/
 tests/**/app/index.js*
 tests/**/ie11/ie-bundle.js*
+**/out-tsc/*
 .swc
 .vite
 

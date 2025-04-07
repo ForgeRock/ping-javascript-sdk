@@ -57,6 +57,7 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {
+      'import/extensions': [2, 'ignorePackages'],
       '@nx/enforce-module-boundaries': [
         'warn',
         {
@@ -69,7 +70,7 @@ export default [
             },
             {
               sourceTag: 'scope:package',
-              onlyDependOnLibsWithTags: ['scope:utilities'],
+              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:effects'],
             },
             {
               sourceTag: 'scope:types',
@@ -77,6 +78,10 @@ export default [
             },
             {
               sourceTag: 'scope:utilities',
+              onlyDependOnLibsWithTags: [],
+            },
+            {
+              sourceTag: 'scope:effects',
               onlyDependOnLibsWithTags: [],
             },
           ],
