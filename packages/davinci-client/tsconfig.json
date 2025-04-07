@@ -7,9 +7,13 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": "."
   },
   "references": [
+    {
+      "path": "../effects"
+    },
     {
       "path": "./tsconfig.lib.json"
     },

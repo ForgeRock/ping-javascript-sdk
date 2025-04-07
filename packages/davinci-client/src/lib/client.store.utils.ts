@@ -6,18 +6,18 @@
  */
 import { configureStore } from '@reduxjs/toolkit';
 
+import type { RequestMiddleware } from '@forgerock/effects/types';
 import { configSlice } from './config.slice.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { ErrorNode, ContinueNode, StartNode, SuccessNode } from '../types.js';
 import { wellknownApi } from './wellknown.api.js';
+import { ActionTypes } from '@forgerock/effects/unions';
 
-import type { RequestMiddleware } from './effects/request.effect.types.js';
-
-export function createClientStore({
+export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
 }: {
-  requestMiddleware?: RequestMiddleware[];
+  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
 }) {
   return configureStore({
     reducer: {

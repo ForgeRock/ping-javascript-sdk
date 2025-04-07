@@ -1,0 +1,49 @@
+{
+  "name": "@forgerock/effects",
+  "version": "0.0.1",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./package.json": "./package.json",
+    "./types": "./dist/src/lib/request.types.js",
+    "./unions": "./dist/src/lib/request.unions.js"
+  },
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "files": ["dist/*", "!dist/tsconfig.lib.tsbuildinfo"],
+  "scripts": {
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "catalog:",
+    "tslib": "^2.5.0"
+  },
+  "devDependencies": {
+    "vite": "6.2.5"
+  },
+  "nx": {
+    "tags": ["scope:effects"],
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "packages/effects/dist",
+          "main": "packages/effects/src/index.ts",
+          "tsConfig": "packages/effects/tsconfig.lib.json",
+          "generatePackageJson": false,
+          "assets": []
+        }
+      }
+    }
+  }
+}

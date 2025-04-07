@@ -11,12 +11,11 @@ import {
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
 
-import type { ActionTypes } from './request.effect.unions.js';
+import type { ActionTypes } from './request.unions.js';
 
-export interface Action {
-  type: ActionTypes;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  payload: any;
+export interface Action<Type extends ActionTypes = ActionTypes, Payload = unknown> {
+  type: Type;
+  payload: Payload;
 }
 
 export interface ModifiedFetchArgs extends Omit<FetchArgs, 'url'> {
@@ -24,9 +23,9 @@ export interface ModifiedFetchArgs extends Omit<FetchArgs, 'url'> {
   headers?: Headers;
 }
 
-export type RequestMiddleware = (
+export type RequestMiddleware<Type extends ActionTypes = ActionTypes, Payload = unknown> = (
   req: ModifiedFetchArgs,
-  action: Action,
+  action: Action<Type, Payload>,
   next: () => ModifiedFetchArgs,
 ) => void;
 
@@ -35,8 +34,8 @@ export interface RequestObj {
   init: RequestInit;
 }
 
-export interface QueryApi {
-  applyMiddleware(middleware: RequestMiddleware[]): QueryApi;
+export interface QueryApi<Type extends ActionTypes = ActionTypes, Payload = unknown> {
+  applyMiddleware(middleware: RequestMiddleware<Type, Payload>[]): QueryApi<ActionTypes, unknown>;
   applyQuery(
     callback: (
       request: FetchArgs,

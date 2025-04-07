@@ -20,6 +20,9 @@ import {
 /**
  * Import internal modules
  */
+import { initQuery } from '@forgerock/effects';
+import { RequestMiddleware } from '@forgerock/effects/types';
+
 import { createAuthorizeUrl } from './authorize.utils.js';
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
 
@@ -35,15 +38,14 @@ import type {
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
-import { initQuery } from './effects/request.effect.utils.js';
-import { RequestMiddleware } from './effects/request.effect.types.js';
+import { ActionTypes } from '@forgerock/effects/unions';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>
 >;
 
-interface Extras {
-  requestMiddleware: RequestMiddleware[];
+interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
+  requestMiddleware: RequestMiddleware<ActionType, Payload>[];
 }
 
 /**
