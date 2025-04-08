@@ -13,7 +13,7 @@ import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
 import { wellknownApi } from './wellknown.api.js';
 
-import type { RequestMiddleware } from '@forgerock/effects/types';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/effects/types';
 /**
  * Import the DaVinciRequest types
  */
@@ -32,7 +32,6 @@ import type {
 import type { InitFlow, Updater, Validator } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
-import { ActionTypes } from '@forgerock/effects/unions';
 
 /**
  * Create a client function that returns a set of methods

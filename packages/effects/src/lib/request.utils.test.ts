@@ -12,9 +12,8 @@ import {
 } from '@reduxjs/toolkit/query';
 
 import { initQuery, middlewareWrapper } from './request.utils.js';
+import type { Action, ActionTypes, ModifiedFetchArgs } from './request.types.js';
 import middleware from './request.mock.js';
-import type { ActionTypes } from './request.unions.js';
-import { ModifiedFetchArgs } from './request.types.js';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>

@@ -10,10 +10,13 @@ import {
   FetchBaseQueryMeta,
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
-import { actionTypes } from './request.unions.js';
-
-import type { ActionTypes, EndpointTypes } from './request.unions.js';
-import type { ModifiedFetchArgs, RequestMiddleware } from './request.types.js';
+import { actionTypes } from './request.types.js';
+import type {
+  ActionTypes,
+  EndpointTypes,
+  ModifiedFetchArgs,
+  RequestMiddleware,
+} from './request.types.js';
 
 /**
  * @function middlewareWrapper - A "Node" and "Redux" style middleware that is called just before

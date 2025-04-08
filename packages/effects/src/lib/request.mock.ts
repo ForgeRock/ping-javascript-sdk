@@ -14,8 +14,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { Action, ModifiedFetchArgs, RequestMiddleware } from './request.types.js';
-import type { ActionTypes } from './request.unions.js';
+import type { Action, ActionTypes, ModifiedFetchArgs, RequestMiddleware } from './request.types.js';
 
 type NextFn = () => ModifiedFetchArgs;
 
