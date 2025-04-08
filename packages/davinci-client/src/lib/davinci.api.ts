@@ -21,7 +21,7 @@ import {
  * Import internal modules
  */
 import { initQuery } from '@forgerock/effects';
-import { RequestMiddleware } from '@forgerock/effects/types';
+import type { RequestMiddleware } from '@forgerock/effects/types';
 
 import { createAuthorizeUrl } from './authorize.utils.js';
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
@@ -38,7 +38,7 @@ import type {
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
-import { ActionTypes } from '@forgerock/effects/unions';
+import { ActionTypes } from '@forgerock/effects/types';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>
