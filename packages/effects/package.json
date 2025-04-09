@@ -11,7 +11,7 @@
       "default": "./dist/src/index.js"
     },
     "./package.json": "./package.json",
-    "./types": "./dist/src/lib/request.types.js"
+    "./types": "./dist/src/types.js"
   },
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
