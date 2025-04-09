@@ -281,6 +281,9 @@ importers:
       '@forgerock/javascript-sdk':
         specifier: 4.7.0
         version: 4.7.0
+      '@forgerock/sdk-utilities':
+        specifier: workspace:*
+        version: link:../sdk-utilities
       '@reduxjs/toolkit':
         specifier: 'catalog:'
         version: 2.6.1

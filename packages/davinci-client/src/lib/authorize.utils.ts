@@ -7,8 +7,9 @@
 /**
  * Import the PKCE and ResponseType utilities from the JavaScript SDK
  */
-import { PKCE, ResponseType } from '@forgerock/javascript-sdk';
+import { createChallenge } from '@forgerock/sdk-utilities';
 import { generateAndStoreAuthUrlValues } from '@forgerock/javascript-sdk/src/oauth2-client/state-pkce';
+import { ResponseType } from '@forgerock/javascript-sdk';
 
 /**
  * Define the options for the authorization URL
@@ -50,7 +51,7 @@ export async function createAuthorizeUrl(
     responseType: ResponseType.Code,
   });
 
-  const challenge = await PKCE.createChallenge(authorizeUrlOptions.verifier);
+  const challenge = await createChallenge(authorizeUrlOptions.verifier);
 
   const requestParams = new URLSearchParams({
     code_challenge: challenge,
