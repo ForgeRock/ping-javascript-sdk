@@ -12,6 +12,9 @@
   },
   "references": [
     {
+      "path": "../sdk-utilities"
+    },
+    {
       "path": "../effects"
     },
     {
