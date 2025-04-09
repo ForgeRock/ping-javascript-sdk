@@ -79,12 +79,5 @@ jobs:
 
       - name: Publish packages as beta
         run: pnpm publish -r --tag beta --no-git-checks --registry ${{ inputs.registry }}
-
-      - name: Send GitHub Action data to a Slack workflow
-        if: steps.changesets.outputs.published == 'true'
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          payload-delimiter: '_'
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-          webhook-type: webhook-trigger
-          payload: steps.changesets.outputs.publishedPackages
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
