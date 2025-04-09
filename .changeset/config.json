@@ -8,7 +8,6 @@
   ],
   "commit": false,
   "fixed": [["@forgerock/*"]],
-  "privatePackages": false,
   "linked": [],
   "access": "public",
   "baseBranch": "main",
