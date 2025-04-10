@@ -10,9 +10,9 @@ import {
   FetchBaseQueryMeta,
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
+import type { Action, ActionTypes, ModifiedFetchArgs } from '@forgerock/shared-types';
 
 import { initQuery, middlewareWrapper } from './request.utils.js';
-import type { Action, ActionTypes, ModifiedFetchArgs } from './request.types.js';
 import middleware from './request.mock.js';
 
 type BaseQueryResponse = Promise<
@@ -116,7 +116,11 @@ describe('initQuery function', () => {
     };
 
     const queryApi = initQuery(fetchArgs, endpoint);
-    const response = await queryApi.applyQuery(async (fetchArgs) => await mockQuery(fetchArgs));
+    const response = await queryApi.applyQuery(
+      // TODO: this is being required to be passed in
+      // it probably shouldn't but we can review later
+      async (fetchArgs: FetchArgs) => await mockQuery(fetchArgs),
+    );
 
     expect(resultFetchArgs.url.toString()).toBe('https://www.example.com/');
     expect(resultFetchArgs.headers).toStrictEqual(new Headers());

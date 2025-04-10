@@ -6,7 +6,7 @@
  */
 import { configureStore } from '@reduxjs/toolkit';
 
-import type { ActionTypes, RequestMiddleware } from '@forgerock/effects/types';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/shared-types';
 import { configSlice } from './config.slice.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';

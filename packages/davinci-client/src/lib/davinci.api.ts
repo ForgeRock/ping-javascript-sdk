@@ -21,9 +21,9 @@ import {
  * Import internal modules
  */
 import { initQuery } from '@forgerock/effects';
-import type { RequestMiddleware } from '@forgerock/effects/types';
+import type { RequestMiddleware } from '@forgerock/shared-types';
 
-import { createAuthorizeUrl } from './authorize.utils.js';
+import { createAuthorizeUrl } from '@forgerock/effects';
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
 
 /**
@@ -38,7 +38,7 @@ import type {
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
-import { ActionTypes } from '@forgerock/effects/types';
+import { ActionTypes } from '@forgerock/shared-types';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>
@@ -252,7 +252,7 @@ export const davinciApi = createApi({
             clientId: state?.config?.clientId,
             login: 'redirect', // TODO: improve this in SDK to be more semantic
             redirectUri: state?.config?.redirectUri,
-            responseType: state?.config?.responseType,
+            responseType: state?.config?.responseType as 'code',
             scope: state?.config?.scope,
           });
           const url = new URL(authorizeUrl);

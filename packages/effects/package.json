@@ -23,6 +23,8 @@
     "test:watch": "pnpm nx nxTest --watch"
   },
   "dependencies": {
+    "@forgerock/sdk-utilities": "workspace:*",
+    "@forgerock/shared-types": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
     "tslib": "^2.5.0"
   },

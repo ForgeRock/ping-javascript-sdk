@@ -10,13 +10,14 @@ import {
   FetchBaseQueryMeta,
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
-import { actionTypes } from './request.types.js';
+
+import { actionTypes } from '@forgerock/shared-types';
 import type {
   ActionTypes,
   EndpointTypes,
   ModifiedFetchArgs,
   RequestMiddleware,
-} from './request.types.js';
+} from '@forgerock/shared-types';
 
 /**
  * @function middlewareWrapper - A "Node" and "Redux" style middleware that is called just before

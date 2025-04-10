@@ -6,11 +6,11 @@
  */
 import 'immer'; // Side-effect needed only for getting types in workspace
 
+import type { RequestMiddleware } from '@forgerock/shared-types';
 import type * as collectors from './lib/collector.types.js';
 import type * as config from './lib/config.types.js';
 import type * as nodes from './lib/node.types.js';
 import type * as client from './lib/client.types.js';
-import type { RequestMiddleware } from '@forgerock/effects/types';
 
 export type DaVinciConfig = config.DaVinciConfig;
 

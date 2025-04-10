@@ -6,7 +6,7 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { DaVinciConfig, InternalDaVinciConfig } from './config.types.js';
-import type { AsyncConfigOptions } from '@forgerock/javascript-sdk/src/config/interfaces';
+import type { AsyncConfigOptions } from '@forgerock/shared-types';
 import type { WellknownResponse } from './wellknown.types.js';
 
 describe('Config Types', () => {

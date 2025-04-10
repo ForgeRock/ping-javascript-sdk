@@ -7,12 +7,11 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "resolveJsonModule": true,
-    "baseUrl": "."
+    "resolveJsonModule": true
   },
   "references": [
     {
-      "path": "../sdk-utilities"
+      "path": "../shared-types"
     },
     {
       "path": "../effects"

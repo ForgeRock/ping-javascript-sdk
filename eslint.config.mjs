@@ -66,22 +66,26 @@ export default [
           depConstraints: [
             {
               sourceTag: 'scope:e2e',
-              onlyDependOnLibsWithTags: ['scope:app'],
+              onlyDependOnLibsWithTags: ['scope:package'],
             },
             {
               sourceTag: 'scope:package',
-              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:effects'],
-            },
-            {
-              sourceTag: 'scope:types',
-              onlyDependOnLibsWithTags: [],
+              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:effects', 'scope:shared-types'],
             },
             {
               sourceTag: 'scope:utilities',
-              onlyDependOnLibsWithTags: [],
+              onlyDependOnLibsWithTags: ['scope:shared-types'],
             },
             {
               sourceTag: 'scope:effects',
+              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:shared-types'],
+            },
+            {
+              sourceTag: 'scope:config',
+              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:shared-types'],
+            },
+            {
+              sourceTag: 'scope:shared-types',
               onlyDependOnLibsWithTags: [],
             },
           ],

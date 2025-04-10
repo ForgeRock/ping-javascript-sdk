@@ -7,7 +7,7 @@
 /**
  * Import ConfigOptions type from the JavaScript SDK
  */
-import type { AsyncConfigOptions } from '@forgerock/javascript-sdk/src/config/interfaces';
+import type { AsyncConfigOptions } from '@forgerock/shared-types';
 import { WellknownResponse } from './wellknown.types.js';
 
 export interface DaVinciConfig extends AsyncConfigOptions {
