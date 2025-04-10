@@ -4,12 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "../shared-types"
-    },
-    {
-      "path": "../sdk-utilities"
-    },
-    {
       "path": "./tsconfig.lib.json"
     },
     {

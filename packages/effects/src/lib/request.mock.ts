@@ -14,7 +14,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { Action, ActionTypes, ModifiedFetchArgs, RequestMiddleware } from './request.types.js';
+import type {
+  Action,
+  ActionTypes,
+  ModifiedFetchArgs,
+  RequestMiddleware,
+} from '@forgerock/shared-types';
 
 type NextFn = () => ModifiedFetchArgs;
 

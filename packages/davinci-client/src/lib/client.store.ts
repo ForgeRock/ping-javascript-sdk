@@ -13,7 +13,7 @@ import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
 import { wellknownApi } from './wellknown.api.js';
 
-import type { ActionTypes, RequestMiddleware } from '@forgerock/effects/types';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/shared-types';
 /**
  * Import the DaVinciRequest types
  */

@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "compilerOptions": {},
-  "files": [], // intentionally empty
+  "files": [],
   "references": [
     {
       "path": "./packages/device-client"
@@ -24,6 +24,9 @@
     },
     {
       "path": "./packages/effects"
+    },
+    {
+      "path": "./packages/shared-types"
     }
   ]
 }
