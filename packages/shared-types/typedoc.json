@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/shared-types",
+  "entryPoints": ["src/index.ts"]
+}
