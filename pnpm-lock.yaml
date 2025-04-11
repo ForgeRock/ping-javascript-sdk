@@ -54,8 +54,8 @@ importers:
         specifier: ^3.0.0
         version: 3.3.1
       '@eslint/js':
-        specifier: ~9.23.0
-        version: 9.23.0
+        specifier: ~9.24.0
+        version: 9.24.0
       '@nx/devkit':
         specifier: 20.5.0
         version: 20.5.0(nx@20.5.0(@swc-node/register@1.10.10(@swc/core@1.11.15(@swc/helpers@0.5.15))(@swc/types@0.1.21)(typescript@5.7.3))(@swc/core@1.11.15(@swc/helpers@0.5.15)))
@@ -271,7 +271,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: ^0.19.0
-        version: 0.19.10(effect@3.14.3)(vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1))
+        version: 0.19.10(effect@3.14.3)(vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1))
 
   packages/davinci-client:
     dependencies:
@@ -287,7 +287,7 @@ importers:
     devDependencies:
       vitest:
         specifier: ^3.0.4
-        version: 3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1)
+        version: 3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1)
 
   packages/device-client:
     dependencies:
@@ -1351,10 +1351,6 @@ packages:
 
   '@eslint/eslintrc@3.3.1':
     resolution: {integrity: sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@eslint/js@9.23.0':
-    resolution: {integrity: sha512-35MJ8vCPU0ZMxo7zfev2pypqTwWTofFZO6m4KAtdoFhRpLJUpHTZZ+KB3C7Hb1d7bULYwO4lJXGCi5Se+8OMbw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/js@9.24.0':
@@ -8532,10 +8528,10 @@ snapshots:
       effect: 3.14.3
       fast-check: 3.23.2
 
-  '@effect/vitest@0.19.10(effect@3.14.3)(vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1))':
+  '@effect/vitest@0.19.10(effect@3.14.3)(vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1))':
     dependencies:
       effect: 3.14.3
-      vitest: 3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1)
+      vitest: 3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1)
 
   '@effect/vitest@0.6.12(effect@3.14.3)(vitest@3.0.5)':
     dependencies:
@@ -8668,8 +8664,6 @@ snapshots:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
-
-  '@eslint/js@9.23.0': {}
 
   '@eslint/js@9.24.0': {}
 
@@ -15347,10 +15341,10 @@ snapshots:
       jest-canvas-mock: 2.5.2
       vitest: 3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.7.3))(terser@5.39.0)(yaml@2.7.1)
 
-  vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1):
+  vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.7.3))(terser@5.39.0)(yaml@2.7.1):
     dependencies:
       '@vitest/expect': 3.0.5
-      '@vitest/mocker': 3.0.5(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(vite@6.2.3(@types/node@22.13.16)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.1))
+      '@vitest/mocker': 3.0.5(msw@2.7.3(@types/node@22.13.16)(typescript@5.7.3))(vite@6.2.3(@types/node@22.13.16)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.1))
       '@vitest/pretty-format': 3.1.1
       '@vitest/runner': 3.0.5
       '@vitest/snapshot': 3.0.5
@@ -15387,10 +15381,10 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.7.3))(terser@5.39.0)(yaml@2.7.1):
+  vitest@3.0.5(@types/node@22.13.16)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(terser@5.39.0)(yaml@2.7.1):
     dependencies:
       '@vitest/expect': 3.0.5
-      '@vitest/mocker': 3.0.5(msw@2.7.3(@types/node@22.13.16)(typescript@5.7.3))(vite@6.2.3(@types/node@22.13.16)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.1))
+      '@vitest/mocker': 3.0.5(msw@2.7.3(@types/node@22.13.16)(typescript@5.8.2))(vite@6.2.3(@types/node@22.13.16)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.1))
       '@vitest/pretty-format': 3.1.1
       '@vitest/runner': 3.0.5
       '@vitest/snapshot': 3.0.5
