@@ -1,6 +1,6 @@
 import { Callback } from './callback.types.js';
 import { RequestMiddleware } from './shared-types.js';
-import { Tokens } from './tokens.types.js';
+import { Tokens, TokensError } from './tokens.types.js';
 
 /**
  * Async ConfigOptions for well-known endpoint usage
@@ -45,7 +45,7 @@ export interface AsyncServerConfig extends Omit<ServerConfig, 'baseUrl'> {
 export interface TokenStoreObject {
   get: (clientId: string) => Promise<Tokens>;
   set: (clientId: string, token: Tokens) => Promise<void>;
-  remove: (clientId: string) => Promise<void>;
+  remove: (clientId: string) => Promise<void | TokensError>;
 }
 
 /**
