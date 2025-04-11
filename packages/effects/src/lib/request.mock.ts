@@ -14,8 +14,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { Action, ModifiedFetchArgs, RequestMiddleware } from './request.effect.types.js';
-import type { ActionTypes } from './request.effect.unions.js';
+import type {
+  Action,
+  ActionTypes,
+  ModifiedFetchArgs,
+  RequestMiddleware,
+} from '@forgerock/shared-types';
 
 type NextFn = () => ModifiedFetchArgs;
 
@@ -27,7 +31,7 @@ const add = 'ADD' as ActionTypes;
 const reassignment = 'REASSIGNMENT' as ActionTypes;
 const mutateAction = 'MUTATE-ACTION' as ActionTypes;
 
-const middleware: RequestMiddleware[] = [
+const middleware: RequestMiddleware<ActionTypes>[] = [
   (req: ModifiedFetchArgs, action: Action, next: NextFn): void => {
     switch (action.type) {
       case a:

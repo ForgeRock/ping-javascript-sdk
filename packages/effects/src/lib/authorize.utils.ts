@@ -7,23 +7,10 @@
 /**
  * Import the PKCE and ResponseType utilities from the JavaScript SDK
  */
-import { PKCE, ResponseType } from '@forgerock/javascript-sdk';
-import { generateAndStoreAuthUrlValues } from '@forgerock/javascript-sdk/src/oauth2-client/state-pkce';
+import { createChallenge } from '@forgerock/sdk-utilities';
+import { GetAuthorizationUrlOptions } from '@forgerock/shared-types';
 
-/**
- * Define the options for the authorization URL
- * @param clientId The client ID of the application
- * @param redirectUri The redirect URI of the application
- * @param responseType The response type of the authorization request
- * @param scope The scope of the authorization request
- */
-export interface GetAuthorizationUrlOptions {
-  clientId: string;
-  login: 'redirect';
-  redirectUri: string;
-  responseType: string;
-  scope: string;
-}
+import { generateAndStoreAuthUrlValues } from './state-pkce.js';
 
 /**
  * @function createAuthorizeUrl - Create authorization URL for initial call to DaVinci
@@ -42,15 +29,13 @@ export async function createAuthorizeUrl(
 
   const [authorizeUrlOptions, storeOptions] = generateAndStoreAuthUrlValues({
     clientId: options.clientId,
-    login: options.login,
-    // this type fails when module resolution is Node16
-    // Probably because the javascript-sdk is set to bundler
-    // so we need to make this correct with .js extensions if possible
     serverConfig: { baseUrl },
-    responseType: ResponseType.Code,
+    responseType: 'code',
+    redirectUri: options.redirectUri,
+    scope: options.scope,
   });
 
-  const challenge = await PKCE.createChallenge(authorizeUrlOptions.verifier);
+  const challenge = await createChallenge(authorizeUrlOptions.verifier);
 
   const requestParams = new URLSearchParams({
     code_challenge: challenge,

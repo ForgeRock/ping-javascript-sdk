@@ -57,6 +57,7 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {
+      'import/extensions': [2, 'ignorePackages'],
       '@nx/enforce-module-boundaries': [
         'warn',
         {
@@ -65,14 +66,26 @@ export default [
           depConstraints: [
             {
               sourceTag: 'scope:e2e',
-              onlyDependOnLibsWithTags: ['scope:app'],
+              onlyDependOnLibsWithTags: ['scope:package'],
             },
             {
               sourceTag: 'scope:package',
-              onlyDependOnLibsWithTags: [],
+              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:effects', 'scope:shared-types'],
             },
             {
-              sourceTag: 'scope:types',
+              sourceTag: 'scope:utilities',
+              onlyDependOnLibsWithTags: ['scope:shared-types'],
+            },
+            {
+              sourceTag: 'scope:effects',
+              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:shared-types'],
+            },
+            {
+              sourceTag: 'scope:config',
+              onlyDependOnLibsWithTags: ['scope:utilities', 'scope:shared-types'],
+            },
+            {
+              sourceTag: 'scope:shared-types',
               onlyDependOnLibsWithTags: [],
             },
           ],
@@ -133,7 +146,7 @@ export default [
     },
   },
   {
-    ignores: ['dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
+    ignores: ['**/*.md', 'dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
   },
   {
     ...packageJson,

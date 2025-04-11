@@ -4,17 +4,16 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { initQuery, middlewareWrapper } from './request.effect.utils.js';
-import middleware from './request.effect.mock.js';
-import type { ActionTypes } from './request.effect.unions.js';
 import {
   FetchArgs,
   FetchBaseQueryError,
   FetchBaseQueryMeta,
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
-import { ModifiedFetchArgs } from './request.effect.types.js';
-import { Action } from '@reduxjs/toolkit';
+import type { Action, ActionTypes, ModifiedFetchArgs } from '@forgerock/shared-types';
+
+import { initQuery, middlewareWrapper } from './request.utils.js';
+import middleware from './request.mock.js';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>
@@ -117,7 +116,11 @@ describe('initQuery function', () => {
     };
 
     const queryApi = initQuery(fetchArgs, endpoint);
-    const response = await queryApi.applyQuery(async (fetchArgs) => await mockQuery(fetchArgs));
+    const response = await queryApi.applyQuery(
+      // TODO: this is being required to be passed in
+      // it probably shouldn't but we can review later
+      async (fetchArgs: FetchArgs) => await mockQuery(fetchArgs),
+    );
 
     expect(resultFetchArgs.url.toString()).toBe('https://www.example.com/');
     expect(resultFetchArgs.headers).toStrictEqual(new Headers());
@@ -140,7 +143,9 @@ describe('initQuery function', () => {
     };
 
     const queryApi = initQuery(fetchArgs, endpoint).applyMiddleware(requestMiddleware);
-    const response = await queryApi.applyQuery(async (fetchArgs) => await mockQuery(fetchArgs));
+    const response = await queryApi.applyQuery(
+      async (fetchArgs: FetchArgs) => await mockQuery(fetchArgs),
+    );
 
     expect(resultFetchArgs.url.toString()).toBe('https://www.example.com/?searchParam=abc');
     expect(resultFetchArgs.headers).toStrictEqual(new Headers({ 'x-new-header': '123' }));
@@ -163,7 +168,9 @@ describe('initQuery function', () => {
     };
 
     const queryApi = initQuery(fetchArgs, endpoint).applyMiddleware(undefined);
-    const response = await queryApi.applyQuery(async (fetchArgs) => await mockQuery(fetchArgs));
+    const response = await queryApi.applyQuery(
+      async (fetchArgs: FetchArgs) => await mockQuery(fetchArgs),
+    );
 
     expect(resultFetchArgs.url.toString()).toBe('https://www.example.com/');
     expect(resultFetchArgs.headers).toStrictEqual(new Headers());
@@ -173,7 +180,7 @@ describe('initQuery function', () => {
   it('should initialize query and handle unmatched action type', async () => {
     let resultFetchArgs = {} as FetchArgs;
 
-    const fetchArgs = { url: 'https://www.example.com' };
+    const fetchArgs: FetchArgs = { url: 'https://www.example.com' };
     const endpoint = 'unknown';
     const mockQuery = async (passedFetchArgs: FetchArgs) => {
       resultFetchArgs = passedFetchArgs;
@@ -187,7 +194,9 @@ describe('initQuery function', () => {
 
     // @ts-expect-error - Intentionally testing an unknown action type
     const queryApi = initQuery(fetchArgs, endpoint).applyMiddleware(requestMiddleware);
-    const response = await queryApi.applyQuery(async (fetchArgs) => await mockQuery(fetchArgs));
+    const response = await queryApi.applyQuery(
+      async (fetchArgs: FetchArgs) => await mockQuery(fetchArgs),
+    );
 
     expect(resultFetchArgs.url.toString()).toBe('https://www.example.com/');
     expect(resultFetchArgs.headers).toStrictEqual(new Headers());

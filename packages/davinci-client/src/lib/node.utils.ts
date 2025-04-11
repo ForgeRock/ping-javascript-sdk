@@ -4,8 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { DavinciErrorResponse } from './davinci.types';
-import { CollectorErrors } from './node.types';
+import { DavinciErrorResponse } from './davinci.types.js';
+import { CollectorErrors } from './node.types.js';
 
 export function getCollectorErrors(error: DavinciErrorResponse) {
   const details = error.details;

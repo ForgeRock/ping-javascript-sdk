@@ -1,7 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "moduleResolution": "Bundler",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "target": "ES2022",
     "outDir": "./dist",
     "resolveJsonModule": true,
@@ -28,5 +29,13 @@
     "src/**/*.types.test-d.ts",
     "src/**/*.utils.test-d.ts",
     "src/lib/mock-data/*"
+  ],
+  "references": [
+    {
+      "path": "../shared-types/tsconfig.lib.json"
+    },
+    {
+      "path": "../effects/tsconfig.lib.json"
+    }
   ]
 }

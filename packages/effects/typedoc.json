@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/effects",
+  "entryPoints": ["src/index.ts", "src/types.ts"]
+}
