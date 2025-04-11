@@ -47,7 +47,7 @@ import {
  */
 export const nextCollectorValues = createAction<{
   fields: DaVinciField[];
-  formData: Record<string, unknown>;
+  formData: { value: Record<string, unknown> };
 }>('node/next');
 export const updateCollectorValues = createAction<{
   id: string;
@@ -97,7 +97,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
             }
 
             // *Some* collectors may have default or existing data to display
-            const data = action.payload.formData[field.key];
+            const data =
+              action.payload.formData &&
+              action.payload.formData.value &&
+              action.payload.formData.value[field.key];
 
             // Match specific collectors
             switch (field.type) {

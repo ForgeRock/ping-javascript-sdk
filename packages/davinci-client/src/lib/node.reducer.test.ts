@@ -148,7 +148,9 @@ describe('The node collector reducer', () => {
           },
         ],
         formData: {
-          username: 'This is the default data',
+          value: {
+            username: 'This is the default data',
+          },
         },
       },
     };
