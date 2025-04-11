@@ -54,6 +54,19 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+
       '@nx/enforce-module-boundaries': [
         'warn',
         {
@@ -98,12 +111,6 @@ export default [
       files: ['**/*.ts', '**/*.tsx', '!**/*.spec.ts', '!**/*.test*.ts', '**/*.cts', '**/*.mts'],
       rules: {
         ...config.rules,
-        '@typescript-eslint/no-unused-vars': [
-          'error',
-          {
-            ignoreRestSiblings: true,
-          },
-        ],
       },
     })),
   ...compat

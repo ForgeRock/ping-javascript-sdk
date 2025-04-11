@@ -1,6 +1,6 @@
 import { Callback } from './callback.types.js';
 import { RequestMiddleware } from './shared-types.js';
-import { Tokens, TokensError } from './tokens.types.js';
+import { TokenStoreObject } from './tokens.types.js';
 
 /**
  * Async ConfigOptions for well-known endpoint usage
@@ -37,15 +37,6 @@ export interface ServerConfig {
  */
 export interface AsyncServerConfig extends Omit<ServerConfig, 'baseUrl'> {
   wellknown?: string;
-}
-
-/**
- * API for implementing a custom token store
- */
-export interface TokenStoreObject {
-  get: (clientId: string) => Promise<Tokens>;
-  set: (clientId: string, token: Tokens) => Promise<void>;
-  remove: (clientId: string) => Promise<void | TokensError>;
 }
 
 /**

@@ -7,20 +7,21 @@
  */
 
 import type { ConfigOptions, Tokens } from '@forgerock/shared-types';
+import { TOKEN_ERRORS } from '@forgerock/shared-types';
 
 export function getSessionStorage(config: ConfigOptions) {
   const tokenString = sessionStorage.getItem(`${config.prefix}-${config.clientId}`);
   if (!tokenString) {
     return {
-      error: 'No token found in sessionStorage',
+      error: TOKEN_ERRORS.NO_TOKENS_FOUND_SESSION_STORAGE,
     };
   }
   try {
     const tokens = JSON.parse(tokenString) as Tokens;
     return tokens;
-  } catch (err) {
+  } catch {
     return {
-      error: 'Could not parse token from sessionStorage',
+      error: TOKEN_ERRORS.PARSE_SESSION_STORAGE,
     };
   }
 }

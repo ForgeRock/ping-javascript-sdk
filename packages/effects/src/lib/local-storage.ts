@@ -6,19 +6,21 @@
  * of the MIT license. See the LICENSE file for details.
  *
  */
-import type { ConfigOptions, Tokens } from '@forgerock/shared-types';
+import { TOKEN_ERRORS, type ConfigOptions, type Tokens } from '@forgerock/shared-types';
 
 export function getLocalStorageTokens(Config: ConfigOptions) {
   const tokenString = localStorage.getItem(`${Config.prefix}-${Config.clientId}`);
   if (!tokenString) {
-    return;
+    return {
+      error: TOKEN_ERRORS.NO_TOKENS_FOUND_LOCAL_STORAGE,
+    };
   }
   try {
-    const tokens = JSON.parse(tokenString);
+    const tokens = JSON.parse(tokenString) as Tokens;
     return tokens;
-  } catch (err) {
+  } catch {
     return {
-      error: 'Could not parse token from localStorage',
+      error: TOKEN_ERRORS.PARSE_LOCAL_STORAGE,
     };
   }
 }

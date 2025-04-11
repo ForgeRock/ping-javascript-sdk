@@ -31,16 +31,13 @@ describe('token-storage', () => {
 
   // Fix: Update mockTokenStore to match TokenStoreObject interface exactly
   const mockTokenStore: TokenStoreObject = {
-    get: vi.fn().mockImplementation(async (clientId: string) => mockTokens),
-    set: vi.fn().mockImplementation(async (clientId: string, tokens: Tokens) => undefined),
-    remove: vi.fn().mockImplementation(async (clientId: string) => undefined),
+    get: vi.fn().mockImplementation(async (_clientId: string) => mockTokens),
+    set: vi.fn().mockImplementation(async (_clientId: string, _tokens: Tokens) => undefined),
+    remove: vi.fn().mockImplementation(async (_clientId: string) => undefined),
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTokenStore.get.mockResolvedValue(mockTokens);
-    mockTokenStore.set.mockResolvedValue(undefined);
-    mockTokenStore.remove.mockResolvedValue(undefined);
   });
 
   describe('getTokens', () => {
@@ -151,11 +148,12 @@ describe('token-storage', () => {
     it('should return error for invalid token store type', async () => {
       const invalidConfig: ConfigOptions = {
         clientId: 'test-client',
-        tokenStore: 'invalid' as any,
+        // @ts-expect-error: Testing invalid tokenStore type
+        tokenStore: 'invalid',
       };
       const result = await removeTokens(invalidConfig);
       expect(result).toEqual({
-        error: 'Invalid token store type. Expected "localStorage" or "sessionStorage".',
+        error: TOKEN_ERRORS.INVALID_STORE,
       });
     });
   });

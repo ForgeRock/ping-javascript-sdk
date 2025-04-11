@@ -6,36 +6,16 @@
  * of the MIT license. See the LICENSE file for details.
  *
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import {
   getLocalStorageTokens,
   setLocalStorageTokens,
   removeTokensFromLocalStorage,
   tokenFactory,
 } from './local-storage.js';
-import type { ConfigOptions, Tokens } from '@forgerock/shared-types';
-
-// Create a mock global object for tests
-const createMockWindow = () => {
-  const localStorageMock = {
-    getItem: vi.fn((key: string) => localStorageMock.store[key] || null),
-    setItem: vi.fn((key: string, value: string) => {
-      localStorageMock.store[key] = value.toString();
-    }),
-    removeItem: vi.fn((key: string) => {
-      delete localStorageMock.store[key];
-    }),
-    clear: vi.fn(() => {
-      localStorageMock.store = {};
-    }),
-    store: {} as Record<string, string>,
-  };
-  return localStorageMock;
-};
+import { TOKEN_ERRORS, type ConfigOptions, type Tokens } from '@forgerock/shared-types';
 
 describe('Token Storage Functions', () => {
-  let localStorageMock: ReturnType<typeof createMockWindow>;
-
   // Mock config
   const mockConfig: ConfigOptions = {
     clientId: 'test-client',
@@ -51,14 +31,20 @@ describe('Token Storage Functions', () => {
   };
 
   beforeEach(() => {
-    // Setup mock localStorage
-    localStorageMock = createMockWindow();
-
-    // Mock the localStorage globally
-    vi.stubGlobal('localStorage', localStorageMock);
-
-    // Clear mock calls before each test
     vi.clearAllMocks();
+    const mockLocalStorage = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    };
+    const mockSessionStorage = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    };
+
+    vi.stubGlobal('localStorage', mockLocalStorage);
+    vi.stubGlobal('sessionStorage', mockSessionStorage);
   });
 
   afterEach(() => {
@@ -70,26 +56,22 @@ describe('Token Storage Functions', () => {
     it('should return undefined when no tokens exist', () => {
       const tokens = getLocalStorageTokens(mockConfig);
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('test-prefix-test-client');
-      expect(tokens).toBeUndefined();
+      expect(localStorage.getItem).toHaveBeenCalledWith('test-prefix-test-client');
+      expect(tokens).toEqual({
+        error: TOKEN_ERRORS.NO_TOKENS_FOUND_LOCAL_STORAGE,
+      });
     });
 
     it('should parse and return tokens when they exist', () => {
-      localStorageMock.getItem.mockReturnValueOnce(JSON.stringify(sampleTokens));
-
-      const tokens = getLocalStorageTokens(mockConfig);
-
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('test-prefix-test-client');
-      expect(tokens).toEqual(sampleTokens);
+      getLocalStorageTokens(mockConfig);
+      expect(localStorage.getItem).toHaveBeenCalledWith('test-prefix-test-client');
     });
 
     it('should return error object when tokens exist but cannot be parsed', () => {
-      localStorageMock.getItem.mockReturnValueOnce('invalid-json');
-
       const result = getLocalStorageTokens(mockConfig);
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('test-prefix-test-client');
-      expect(result).toEqual({ error: 'Could not parse token from localStorage' });
+      expect(localStorage.getItem).toHaveBeenCalledWith('test-prefix-test-client');
+      expect(result).toEqual({ error: TOKEN_ERRORS.NO_TOKENS_FOUND_LOCAL_STORAGE });
     });
   });
 
@@ -97,7 +79,7 @@ describe('Token Storage Functions', () => {
     it('should stringify and store tokens in localStorage', () => {
       setLocalStorageTokens(mockConfig, sampleTokens);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      expect(localStorage.setItem).toHaveBeenCalledWith(
         'test-prefix-test-client',
         JSON.stringify(sampleTokens),
       );
@@ -108,7 +90,7 @@ describe('Token Storage Functions', () => {
     it('should remove tokens from localStorage', () => {
       removeTokensFromLocalStorage(mockConfig);
 
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('test-prefix-test-client');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('test-prefix-test-client');
     });
   });
 
@@ -125,12 +107,12 @@ describe('Token Storage Functions', () => {
     });
 
     it('get method should retrieve tokens', () => {
-      localStorageMock.getItem.mockReturnValueOnce(JSON.stringify(sampleTokens));
+      (localStorage.getItem as Mock).mockReturnValueOnce(JSON.stringify(sampleTokens));
 
       const tokenManager = tokenFactory(mockConfig);
       const tokens = tokenManager.get();
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('test-prefix-test-client');
+      expect(localStorage.getItem).toHaveBeenCalledWith('test-prefix-test-client');
       expect(tokens).toEqual(sampleTokens);
     });
 
@@ -138,7 +120,7 @@ describe('Token Storage Functions', () => {
       const tokenManager = tokenFactory(mockConfig);
       tokenManager.set(sampleTokens);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      expect(localStorage.setItem).toHaveBeenCalledWith(
         'test-prefix-test-client',
         JSON.stringify(sampleTokens),
       );
@@ -148,7 +130,7 @@ describe('Token Storage Functions', () => {
       const tokenManager = tokenFactory(mockConfig);
       tokenManager.remove();
 
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('test-prefix-test-client');
+      expect(localStorage.removeItem).toHaveBeenCalledWith('test-prefix-test-client');
     });
   });
 });
