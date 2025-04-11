@@ -98,7 +98,7 @@ const middleware: RequestMiddleware<ActionTypes>[] = [
   },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  (req: ModifiedFetchArgs, action: Action, next: NextFn): void => {
+  (_req: ModifiedFetchArgs, action: Action, next: NextFn): void => {
     switch (action.type) {
       case mutateAction:
         action.type = 'hello' as ActionTypes;

@@ -30,6 +30,7 @@
   "dependencies": {
     "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/shared-types": "workspace:*",
+    "@reduxjs/toolkit": "catalog:",
     "tslib": "^2.5.0"
   },
   "devDependencies": {

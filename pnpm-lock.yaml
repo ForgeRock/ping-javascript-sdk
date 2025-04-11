@@ -316,6 +316,9 @@ importers:
       '@forgerock/shared-types':
         specifier: workspace:*
         version: link:../shared-types
+      '@reduxjs/toolkit':
+        specifier: 'catalog:'
+        version: 2.6.1
       tslib:
         specifier: ^2.5.0
         version: 2.8.1

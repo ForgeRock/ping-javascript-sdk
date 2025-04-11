@@ -11,7 +11,7 @@ import {
   removeKeyFromSessionStorage,
   sessionStorageFactory,
 } from './session-storage.js';
-import type { ConfigOptions, Tokens } from '@forgerock/shared-types';
+import { TOKEN_ERRORS, type ConfigOptions, type Tokens } from '@forgerock/shared-types';
 
 // Create a mock sessionStorage object for tests
 const createMockSessionStorage = () => {
@@ -69,7 +69,7 @@ describe('Session Token Storage Functions', () => {
       const tokens = getSessionStorage(mockConfig);
 
       expect(sessionStorageMock.getItem).toHaveBeenCalledWith('test-prefix-test-client');
-      expect(tokens).toEqual({ error: 'No token found in sessionStorage' });
+      expect(tokens).toEqual({ error: TOKEN_ERRORS.NO_TOKENS_FOUND_SESSION_STORAGE });
     });
 
     it('should parse and return tokens when they exist', () => {
@@ -90,7 +90,7 @@ describe('Session Token Storage Functions', () => {
       const result = getSessionStorage(mockConfig);
 
       expect(sessionStorageMock.getItem).toHaveBeenCalledWith('test-prefix-test-client');
-      expect(result).toEqual({ error: 'Could not parse token from sessionStorage' });
+      expect(result).toEqual({ error: TOKEN_ERRORS.PARSE_SESSION_STORAGE });
     });
   });
 
