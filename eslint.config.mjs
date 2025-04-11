@@ -5,7 +5,6 @@ import js from '@eslint/js';
 import packageJson from 'eslint-plugin-package-json/configs/recommended';
 import typescriptEslintEslintPlugin from '@typescript-eslint/eslint-plugin';
 import nxEslintPlugin from '@nx/eslint-plugin';
-import eslintPluginImport from 'eslint-plugin-import';
 import typescriptEslintParser from '@typescript-eslint/parser';
 
 const compat = new FlatCompat({
@@ -22,7 +21,6 @@ export default [
     plugins: {
       '@typescript-eslint': typescriptEslintEslintPlugin,
       '@nx': nxEslintPlugin,
-      import: eslintPluginImport,
     },
   },
   {
@@ -36,7 +34,6 @@ export default [
   },
   {
     rules: {
-      'import/extensions': [2, 'ignorePackages'],
       '@typescript-eslint/indent': ['error', 2],
       '@typescript-eslint/no-use-before-define': 'warn',
       'max-len': [
@@ -57,7 +54,6 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {
-      'import/extensions': [2, 'ignorePackages'],
       '@nx/enforce-module-boundaries': [
         'warn',
         {
