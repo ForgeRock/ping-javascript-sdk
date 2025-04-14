@@ -3,6 +3,7 @@
 */DS_Store
 **/*.DS_Store
 .pnpm-store/*
+.npm/_logs
 
 # Generated code
 tmp/

@@ -6,9 +6,7 @@
     "url": "git+https://github.com:ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/davinci-client"
   },
-  "sideEffects": [
-    "./src/types.js"
-  ],
+  "sideEffects": ["./src/types.js"],
   "type": "module",
   "exports": {
     ".": "./dist/src/index.js",
@@ -17,11 +15,7 @@
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "typings": "./dist/src/index.d.ts",
-  "files": [
-    "dist",
-    "!dist/tsconfig.lib.tsbuildinfo",
-    "./LICENSE"
-  ],
+  "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo", "./LICENSE"],
   "scripts": {
     "lint": "pnpm nx nxLint",
     "test": "pnpm nx nxTest",
@@ -39,15 +33,11 @@
     "access": "public"
   },
   "nx": {
-    "tags": [
-      "scope:package"
-    ],
+    "tags": ["scope:package"],
     "targets": {
       "build": {
         "executor": "@nx/js:tsc",
-        "outputs": [
-          "{options.outputPath}"
-        ],
+        "outputs": ["{options.outputPath}"],
         "options": {
           "outputPath": "packages/davinci-client/dist",
           "main": "packages/davinci-client/src/index.ts",
