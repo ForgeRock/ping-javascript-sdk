@@ -72,6 +72,14 @@ jobs:
             ./**/.playwright/**
           retention-days: 30
 
+      - name: Update npmrc
+        run: |
+          cat << EOF > ".npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+            //npm.petrov.ca/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
       - name: Version Packages as Beta
         run: pnpm changeset version --snapshot beta
         env:
