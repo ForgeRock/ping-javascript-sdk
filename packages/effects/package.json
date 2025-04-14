@@ -2,6 +2,11 @@
   "name": "@forgerock/effects",
   "version": "0.0.1",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/effects"
+  },
   "sideEffects": false,
   "type": "module",
   "exports": {
