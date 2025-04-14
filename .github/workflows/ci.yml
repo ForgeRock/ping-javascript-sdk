@@ -21,6 +21,9 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+      pages: write
+      id-token: write
+
     steps:
       - uses: actions/checkout@v4
         with:
