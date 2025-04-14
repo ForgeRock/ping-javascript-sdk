@@ -1,5 +1,35 @@
 # @forgerock/davinci-client
 
+## 1.1.0
+
+### Minor Changes
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - adding support for fields in DROPDOWN, CHECKBOX, COMBOBOX, RADIO, FLOW_LINK.
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Introduce request middleware feature to DaVinci Client
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - add support for default data, add support for multivalue/multiselector
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Add support for label and password validate field components
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - adds the ability to call start with query parameters which are appended to the /authorize call
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Replace less valuable `details` property from error with `collectors`
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - add social-login feature to davinci-client
+
+### Patch Changes
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - handle formData lookup with more saftey in case it is not in response
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - fix return value for social-login
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Updated dependency `@forgerock/javascript-sdk` to `4.7.0`.
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Error node is now submittable and a user can recover more gracefully from an error state
+
+- [#238](https://github.com/ForgeRock/ping-javascript-sdk/pull/238) [`4ec7a2e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4ec7a2eaa468e990ba7ad7dc2e241995694380e5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - fixes the checks to determine what node state we are in based on the response from p1
+
 ## 1.0.0
 
 ### Major Changes
