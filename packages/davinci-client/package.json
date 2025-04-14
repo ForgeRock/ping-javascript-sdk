@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com:ForgeRock/ping-javascript-sdk.git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/davinci-client"
   },
   "sideEffects": ["./src/types.js"],
