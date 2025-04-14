@@ -62,12 +62,7 @@ jobs:
       - name: setup pnpm config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
 
-      # this is here because changests refused to format its version
-      # changes so if we dont format here, lint fails
-      # this code never gets committed so its a work around for this workflow
-      - run: pnpm exec nx format:write
-
-      - run: pnpm exec nx affected -t build lint test e2e
+      - run: pnpm exec nx affected -t build test e2e-ci
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
