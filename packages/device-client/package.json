@@ -2,6 +2,11 @@
   "name": "@forgerock/device-client",
   "version": "0.0.1",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/device-client"
+  },
   "sideEffects": false,
   "type": "module",
   "exports": {
