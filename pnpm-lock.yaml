@@ -266,8 +266,8 @@ importers:
         specifier: ^0.73.0
         version: 0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8)
       effect-http-node:
-        specifier: ^0.26.0
-        version: 0.26.0(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8))(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8)
+        specifier: ^0.27.0
+        version: 0.27.0(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8))(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8)
     devDependencies:
       '@effect/vitest':
         specifier: ^0.19.0
@@ -3697,13 +3697,13 @@ packages:
       '@effect/schema': ^0.68.0
       effect: ^3.5.0
 
-  effect-http-node@0.26.0:
-    resolution: {integrity: sha512-5GMW3ct9nXEnSWCfsTH/7lD/ni2RFyIDseEKsFHZkySYYd1ORmq35hjaDtNk2KdsDBDgQbpd9vTMX/8MjW3j3A==}
+  effect-http-node@0.27.0:
+    resolution: {integrity: sha512-E7MC/YYt7mmD1WSNmvuThgFoa6iV0uQ6IZ5ZPDr7zyDoksVmFb2qmDC7Dtv0W/odrfrPVmUoaZKtZ79r8uDmUA==}
     peerDependencies:
-      '@effect/platform': ^0.77.0
-      '@effect/platform-node': ^0.73.0
-      effect: ^3.13.0
-      effect-http: ^0.86.0
+      '@effect/platform': ^0.80.0
+      '@effect/platform-node': ^0.76.0
+      effect: ^3.14.0
+      effect-http: ^0.87.0
 
   effect-http-security@0.4.0:
     resolution: {integrity: sha512-jeuMKWr5kSuOMbHL454ks/Y59WlqvlopfimaCNaG7w39/XfMOQ9C/Emy8GwyHGozBwi42kFiZBCQ4megzng91Q==}
@@ -11396,7 +11396,7 @@ snapshots:
       '@effect/schema': 0.68.27(effect@3.14.8)
       effect: 3.14.8
 
-  effect-http-node@0.26.0(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8))(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8):
+  effect-http-node@0.27.0(@effect/platform-node@0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8))(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect-http@0.73.0(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8):
     dependencies:
       '@effect/platform': 0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8)
       '@effect/platform-node': 0.53.26(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8)
