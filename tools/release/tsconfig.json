@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "files": [],
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "target": "ES2024",
+    "strict": true
+  },
+  "nx": {
+    "addTypecheckTarget": false
+  }
+}
