@@ -26,6 +26,6 @@
   },
   "dependencies": {},
   "nx": {
-    "tags": ["scope:effects"]
+    "tags": ["scope:sdk-effects"]
   }
 }

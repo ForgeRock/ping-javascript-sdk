@@ -36,6 +36,9 @@
     },
     {
       "path": "./tools/release"
+    },
+    {
+      "path": "./packages/effects/storage"
     }
   ]
 }
