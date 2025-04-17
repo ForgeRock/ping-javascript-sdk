@@ -28,6 +28,6 @@
     "@reduxjs/toolkit": "catalog:"
   },
   "nx": {
-    "tags": ["scope:effects"]
+    "tags": ["scope:sdk-effects"]
   }
 }
