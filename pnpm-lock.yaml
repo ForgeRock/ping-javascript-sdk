@@ -338,11 +338,8 @@ importers:
 
   packages/sdk-utilities: {}
 
-<<<<<<< HEAD
   tools/release: {}
 
-=======
->>>>>>> 324d6a61 (feat(sdk-utilities,logger,oidc,sdk-request-middleware,sdk-types): added-packages)
 packages:
 
   '@actions/core@1.11.1':
@@ -1170,7 +1167,6 @@ packages:
     resolution: {integrity: sha512-Y6+WUMsTFWE5jb20IFP4YGa5IrGY/+a/FbOSjDF/wz9gepU2hwCYSXRHP/vPwBvwcY3SVMASt4yXxbXNXigmZQ==}
     engines: {node: '>=18'}
 
-<<<<<<< HEAD
   '@effect/cli@0.59.10':
     resolution: {integrity: sha512-c8UJKSlWyuHheJMnxzDdRFbT608/JPGV462lc2Os9dZiH5999OkcSnrdn2arQz6Nqq2J9tov9oxUiu5FytYeVA==}
     peerDependencies:
@@ -1179,8 +1175,6 @@ packages:
       '@effect/printer-ansi': ^0.42.10
       effect: ^3.14.10
 
-=======
->>>>>>> 324d6a61 (feat(sdk-utilities,logger,oidc,sdk-request-middleware,sdk-types): added-packages)
   '@effect/language-service@0.2.0':
     resolution: {integrity: sha512-DoK41yKGyQv79o0ca8gxEogMlt+IphXkdCXwgenbQjH1BXKD7tJAr0+VsDhblycQcvQ39f1l9NZN9CBqjM9ALA==}
 
@@ -8784,7 +8778,6 @@ snapshots:
       gonzales-pe: 4.3.0
       node-source-walk: 7.0.1
 
-<<<<<<< HEAD
   '@effect/cli@0.59.10(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(@effect/printer-ansi@0.42.10(@effect/typeclass@0.33.10(effect@3.14.8))(effect@3.14.8))(@effect/printer@0.42.10(@effect/typeclass@0.33.10(effect@3.14.8))(effect@3.14.8))(effect@3.14.8)':
     dependencies:
       '@effect/platform': 0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8)
@@ -8795,8 +8788,6 @@ snapshots:
       toml: 3.0.0
       yaml: 2.7.1
 
-=======
->>>>>>> 324d6a61 (feat(sdk-utilities,logger,oidc,sdk-request-middleware,sdk-types): added-packages)
   '@effect/language-service@0.2.0': {}
 
   '@effect/platform-node-shared@0.8.26(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.14.8))(effect@3.14.8))(effect@3.14.8)':
