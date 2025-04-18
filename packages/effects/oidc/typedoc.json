@@ -1,4 +1,0 @@
-{
-  "name": "@forgerock/sdk-oidc",
-  "entryPoints": ["src/index.ts"]
-}

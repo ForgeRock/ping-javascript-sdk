@@ -6,7 +6,7 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { DaVinciConfig, InternalDaVinciConfig } from './config.types.js';
-import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
+import type { AsyncLegacyConfigOptions, AuthorizeUrl } from '@forgerock/sdk-types';
 import type { WellknownResponse } from './wellknown.types.js';
 
 describe('Config Types', () => {
@@ -48,7 +48,7 @@ describe('Config Types', () => {
       const config: InternalDaVinciConfig = {
         wellknownResponse: {
           issuer: 'https://example.com',
-          authorization_endpoint: 'https://example.com/auth',
+          authorization_endpoint: 'https://example.com/auth' as AuthorizeUrl,
           token_endpoint: 'https://example.com/token',
           userinfo_endpoint: 'https://example.com/userinfo',
           jwks_uri: 'https://example.com/jwks',
@@ -97,7 +97,7 @@ describe('Config Types', () => {
         // InternalDaVinciConfig specific property
         wellknownResponse: {
           issuer: 'https://example.com',
-          authorization_endpoint: 'https://example.com/auth',
+          authorization_endpoint: 'https://example.com/auth' as AuthorizeUrl,
           token_endpoint: 'https://example.com/token',
           userinfo_endpoint: 'https://example.com/userinfo',
           jwks_uri: 'https://example.com/jwks',
@@ -135,7 +135,7 @@ describe('WellknownResponse', () => {
   it('should have all required OIDC properties', () => {
     const wellknown: WellknownResponse = {
       issuer: 'https://example.com',
-      authorization_endpoint: 'https://example.com/auth',
+      authorization_endpoint: 'https://example.com/auth' as AuthorizeUrl,
       token_endpoint: 'https://example.com/token',
       userinfo_endpoint: 'https://example.com/userinfo',
       jwks_uri: 'https://example.com/jwks',
@@ -178,7 +178,7 @@ describe('WellknownResponse', () => {
   it('should allow optional OIDC properties', () => {
     const wellknownWithOptionals: WellknownResponse = {
       issuer: 'https://example.com',
-      authorization_endpoint: 'https://example.com/auth',
+      authorization_endpoint: 'https://example.com/auth' as AuthorizeUrl,
       token_endpoint: 'https://example.com/token',
       userinfo_endpoint: 'https://example.com/userinfo',
       jwks_uri: 'https://example.com/jwks',
@@ -233,7 +233,7 @@ describe('WellknownResponse', () => {
   it('should enforce URL format for endpoint properties', () => {
     const wellknown: WellknownResponse = {
       issuer: 'https://example.com',
-      authorization_endpoint: 'https://example.com/auth',
+      authorization_endpoint: 'https://example.com/auth' as AuthorizeUrl,
       token_endpoint: 'https://example.com/token',
       userinfo_endpoint: 'https://example.com/userinfo',
       jwks_uri: 'https://example.com/jwks',

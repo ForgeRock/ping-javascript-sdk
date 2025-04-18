@@ -1,4 +1,0 @@
-{
-  "name": "@forgerock/sdk-request-middleware",
-  "entryPoints": ["src/index.ts"]
-}

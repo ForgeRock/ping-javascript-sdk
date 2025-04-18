@@ -22,6 +22,9 @@
     },
     {
       "path": "../../sdk-utilities/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-request-middleware/tsconfig.lib.json"
     }
   ],
   "exclude": [

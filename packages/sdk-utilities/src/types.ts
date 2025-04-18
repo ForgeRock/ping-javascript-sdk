@@ -8,3 +8,4 @@
  */
 
 export * from './lib/url/am-url.types.js';
+export * from './lib/authorize/authorize.types.js';

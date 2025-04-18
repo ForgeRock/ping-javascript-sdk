@@ -1,12 +1,7 @@
 {
-  "name": "@forgerock/storage",
+  "name": "@forgerock/iframe-manager",
   "version": "0.0.1",
   "private": false,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
-    "directory": "packages/effects/oidc"
-  },
   "type": "module",
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
@@ -20,6 +15,8 @@
     }
   },
   "dependencies": {
+    "@forgerock/sdk-request-middleware": "workspace:*",
+    "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",
     "tslib": "^2.3.0"
   },

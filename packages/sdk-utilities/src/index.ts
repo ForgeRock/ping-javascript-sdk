@@ -9,3 +9,4 @@
 
 export * from './lib/oidc/index.js';
 export * from './lib/url/index.js';
+export * from './lib/authorize/authorize.types.js';

@@ -10,3 +10,6 @@ export * from './lib/legacy-config.types.js';
 export * from './lib/legacy-mware.types.js';
 export * from './lib/tokens.types.js';
 export * from './lib/tokens.derived.js';
+export * from './lib/config.types.js';
+export * from './lib/authorize.types.js';
+export * from './lib/branded.types.js';

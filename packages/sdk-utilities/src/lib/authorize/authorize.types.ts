@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
- *
- * This software may be modified and distributed under the terms
- * of the MIT license. See the LICENSE file for details.
- */
-
 import type { LegacyConfigOptions } from '@forgerock/sdk-types';
 
 /**
@@ -15,6 +8,7 @@ import type { LegacyConfigOptions } from '@forgerock/sdk-types';
  * @param scope The scope of the authorization request
  */
 export type ResponseType = 'code' | 'token';
+
 export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   /**
    * These three properties clientid, scope and redirectUri are required
@@ -29,4 +23,16 @@ export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   verifier?: string;
   query?: Record<string, string>;
   prompt?: 'none' | 'login' | 'consent';
+}
+/**
+ * Generate and store PKCE values for later use
+ * @param { string } storageKey - Key to store authorization options in sessionStorage
+ * @param {GenerateAndStoreAuthUrlValues} options - Options for generating PKCE values
+ * @returns { state: string, verifier: string, GetAuthorizationUrlOptions }
+ */
+
+export interface GenerateAndStoreAuthUrlValues extends GetAuthorizationUrlOptions {
+  login?: 'redirect' | 'embedded';
+  clientId: string;
+  prefix?: string;
 }

@@ -1,3 +1,5 @@
+import { AuthorizeUrl } from '@forgerock/sdk-types';
+
 /*
  * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
@@ -6,7 +8,7 @@
  */
 export interface WellknownResponse {
   issuer: string;
-  authorization_endpoint: string;
+  authorization_endpoint: AuthorizeUrl;
   pushed_authorization_request_endpoint: string;
   token_endpoint: string;
   userinfo_endpoint: string;
@@ -36,7 +38,7 @@ export interface WellknownResponse {
 }
 
 export interface Endpoints {
-  authorize: string;
+  authorize: AuthorizeUrl;
   issuer: string;
   introspection: string;
   tokens: string;

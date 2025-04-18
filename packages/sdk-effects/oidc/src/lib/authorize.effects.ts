@@ -9,10 +9,12 @@
  * Import the PKCE and ResponseType utilities from the JavaScript SDK
  */
 import { createChallenge } from '@forgerock/sdk-utilities';
+import { AuthorizeUrl } from '@forgerock/sdk-types';
 
 import { generateAndStoreAuthUrlValues } from './state-pkce.effects.js';
 
 import type { GetAuthorizationUrlOptions } from './authorize.types.js';
+
 /**
  * @function createAuthorizeUrl - Create authorization URL for initial call to DaVinci
  * @param baseUrl {string}
@@ -20,7 +22,7 @@ import type { GetAuthorizationUrlOptions } from './authorize.types.js';
  * @returns {Promise<string>} - the authorization URL
  */
 export async function createAuthorizeUrl(
-  authorizeUrl: string,
+  authorizeUrl: AuthorizeUrl,
   options: GetAuthorizationUrlOptions,
 ): Promise<string> {
   /**
