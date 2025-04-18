@@ -12,7 +12,7 @@ import {
   setLocalStorageTokens,
   removeTokensFromLocalStorage,
   tokenFactory,
-} from './local-storage.js';
+} from './local-storage.effects.js';
 import { TOKEN_ERRORS, type LegacyConfigOptions, type Tokens } from '@forgerock/sdk-types';
 
 describe('Token Storage Functions', () => {
