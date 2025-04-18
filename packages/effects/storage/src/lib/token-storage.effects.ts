@@ -10,12 +10,12 @@ import {
   getSessionStorage,
   removeKeyFromSessionStorage,
   setSessionStorage,
-} from './session-storage.js';
+} from './session-storage.effects.js';
 import {
   getLocalStorageTokens,
   removeTokensFromLocalStorage,
   setLocalStorageTokens,
-} from './local-storage.js';
+} from './local-storage.effects.js';
 
 export type TokenStoreType = 'localStorage' | 'sessionStorage' | 'custom';
 

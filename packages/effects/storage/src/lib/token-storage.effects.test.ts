@@ -5,9 +5,14 @@ import {
   type TokenStoreObject,
   type Tokens,
 } from '@forgerock/sdk-types';
-import { getTokens, setTokens, removeTokens, tokenStorageFactory } from './token-storage.js';
-import * as sessionStorage from './session-storage.js';
-import * as localStorage from './local-storage.js';
+import {
+  getTokens,
+  setTokens,
+  removeTokens,
+  tokenStorageFactory,
+} from './token-storage.effects.js';
+import * as sessionStorage from './session-storage.effects.js';
+import * as localStorage from './local-storage.effects.js';
 
 // Mock the storage modules
 vi.mock('./session-storage.js', () => ({

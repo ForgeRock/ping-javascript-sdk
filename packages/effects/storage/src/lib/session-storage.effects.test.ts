@@ -10,7 +10,7 @@ import {
   setSessionStorage,
   removeKeyFromSessionStorage,
   sessionStorageFactory,
-} from './session-storage.js';
+} from './session-storage.effects.js';
 import { TOKEN_ERRORS, type LegacyConfigOptions, type Tokens } from '@forgerock/sdk-types';
 
 // Create a mock sessionStorage object for tests
