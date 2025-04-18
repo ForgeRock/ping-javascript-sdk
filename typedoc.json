@@ -1,6 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["packages/*", "packages/effects/*"],
+  "entryPoints": ["packages/*", "packages/sdk-effects/*"],
   "entryPointStrategy": "packages",
   "out": "docs",
   "readme": "none",
