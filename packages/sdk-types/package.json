@@ -1,0 +1,22 @@
+{
+  "name": "@forgerock/sdk-types",
+  "version": "0.0.1",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "files": ["dist"],
+  "nx": {
+    "tags": ["scope:sdk-types"],
+    "name": "@forgerock/sdk-types"
+  }
+}
