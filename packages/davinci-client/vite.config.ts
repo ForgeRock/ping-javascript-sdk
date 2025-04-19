@@ -10,6 +10,7 @@ export default defineConfig({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/davinci-client',
   test: {
+    watch: false,
     typecheck: {
       enabled: true,
       tsconfig: './tsconfig.spec.json',

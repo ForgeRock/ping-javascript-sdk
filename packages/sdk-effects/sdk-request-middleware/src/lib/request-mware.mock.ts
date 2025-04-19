@@ -4,18 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-/*
- * @forgerock/javascript-sdk
- *
- * middleware.mock.data.ts
- *
- * Copyright (c) 2020 ForgeRock. All rights reserved.
- * This software may be modified and distributed under the terms
- * of the MIT license. See the LICENSE file for details.
- */
 
-import type { Action, ModifiedFetchArgs, RequestMiddleware } from './request.effect.types.js';
-import type { ActionTypes } from './request.effect.unions.js';
+import type { ActionTypes } from './request-mware.derived.js';
+import type { Action, ModifiedFetchArgs, RequestMiddleware } from './request-mware.types.js';
 
 type NextFn = () => ModifiedFetchArgs;
 
@@ -27,7 +18,7 @@ const add = 'ADD' as ActionTypes;
 const reassignment = 'REASSIGNMENT' as ActionTypes;
 const mutateAction = 'MUTATE-ACTION' as ActionTypes;
 
-const middleware: RequestMiddleware[] = [
+const middleware: RequestMiddleware<ActionTypes>[] = [
   (req: ModifiedFetchArgs, action: Action, next: NextFn): void => {
     switch (action.type) {
       case a:

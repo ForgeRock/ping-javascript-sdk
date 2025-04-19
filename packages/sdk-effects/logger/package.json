@@ -1,0 +1,31 @@
+{
+  "name": "@forgerock/sdk-logger",
+  "version": "0.0.1",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/sdk-effects/logger"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "scripts": {
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
+  },
+  "dependencies": {},
+  "nx": {
+    "tags": ["scope:sdk-effects"]
+  }
+}

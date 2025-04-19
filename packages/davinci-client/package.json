@@ -22,7 +22,9 @@
     "test:watch": "pnpm nx nxTest --watch"
   },
   "dependencies": {
-    "@forgerock/javascript-sdk": "4.7.0",
+    "@forgerock/sdk-oidc": "workspace:*",
+    "@forgerock/sdk-request-middleware": "workspace:*",
+    "@forgerock/sdk-types": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
     "immer": "catalog:"
   },
