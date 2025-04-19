@@ -5,12 +5,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 /**
- * Import ConfigOptions type from the JavaScript SDK
+ * Import LegacyConfigOptions type from the JavaScript SDK
  */
-import type { AsyncConfigOptions } from '@forgerock/javascript-sdk/src/config/interfaces';
+import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
 import { WellknownResponse } from './wellknown.types.js';
 
-export interface DaVinciConfig extends AsyncConfigOptions {
+export interface DaVinciConfig extends AsyncLegacyConfigOptions {
   responseType?: string;
 }
 
