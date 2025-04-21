@@ -13,6 +13,7 @@ import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
 import { wellknownApi } from './wellknown.api.js';
 
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 /**
  * Import the DaVinciRequest types
  */
@@ -31,7 +32,6 @@ import type {
 import type { InitFlow, Updater, Validator } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
-import type { RequestMiddleware } from './effects/request.effect.types.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -41,12 +41,12 @@ import type { RequestMiddleware } from './effects/request.effect.types.js';
  * @param {ConfigurationOptions} options - the configuration options for the client
  * @returns {Observable} - an observable client for DaVinci flows
  */
-export async function davinci({
+export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
 }: {
   config: DaVinciConfig;
-  requestMiddleware?: RequestMiddleware[];
+  requestMiddleware?: RequestMiddleware<ActionType>[];
 }) {
   const store = createClientStore({ requestMiddleware });
 

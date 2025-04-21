@@ -8,11 +8,11 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    watch: false,
     reporters: ['default'],
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     passWithNoTests: true,
-    watch: !process.env['CI'],
     coverage: {
       enabled: Boolean(process.env['CI']),
       reporter: ['text', 'json', 'html'],

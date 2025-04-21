@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/sdk-types",
+  "entryPoints": ["src/index.ts"]
+}

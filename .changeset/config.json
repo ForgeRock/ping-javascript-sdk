@@ -8,7 +8,6 @@
   ],
   "commit": false,
   "fixed": [["@forgerock/*"]],
-  "privatePackages": false,
   "linked": [],
   "access": "public",
   "baseBranch": "main",
@@ -17,6 +16,7 @@
     "@forgerock/device-client",
     "@forgerock/davinci-app",
     "@forgerock/davinci-suites",
-    "@forgerock/mock-api-v2"
+    "@forgerock/mock-api-v2",
+    "@forgerock/local-release-tool"
   ]
 }

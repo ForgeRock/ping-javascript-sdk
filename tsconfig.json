@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "compilerOptions": {},
-  "files": [], // intentionally empty
+  "files": [],
   "references": [
     {
       "path": "./packages/device-client"
@@ -18,6 +18,24 @@
     },
     {
       "path": "./packages/davinci-client"
+    },
+    {
+      "path": "./packages/sdk-utilities"
+    },
+    {
+      "path": "./packages/sdk-types"
+    },
+    {
+      "path": "./tools/release"
+    },
+    {
+      "path": "./packages/sdk-effects/sdk-request-middleware"
+    },
+    {
+      "path": "./packages/sdk-effects/logger"
+    },
+    {
+      "path": "./packages/sdk-effects/oidc"
     }
   ]
 }
