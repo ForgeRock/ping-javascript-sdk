@@ -70,4 +70,17 @@ test('should render form validation fields', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Email Address' }).fill('abc@email.com');
   await expect(page.getByText('Not a valid email')).not.toBeVisible();
+
+  await page.getByRole('textbox', { name: 'Password' }).fill('1234');
+
+  const requestPromise = page.waitForRequest((request) => request.url().includes('/customForm'));
+  await page.getByRole('button', { name: 'Submit' }).click();
+
+  const request = await requestPromise;
+
+  expect(request.postDataJSON().parameters.data.formData).toEqual({
+    'user.username': '',
+    'user.email': 'abc@email.com',
+    'user.password': '1234',
+  });
 });

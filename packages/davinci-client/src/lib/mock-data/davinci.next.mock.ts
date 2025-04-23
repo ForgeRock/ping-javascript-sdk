@@ -178,3 +178,68 @@ export const next3 = {
     },
   },
 };
+
+export const next4 = {
+  interactionId: '03534806-abbc-4f43-a9b1-8bdba1a57765',
+  companyId: '490b9f38-f20b-4afa-b02e-3cc1315e29ab',
+  connectionId: '8209285e0d2f3fc76bfd23fd10d45e6f',
+  connectorId: 'api',
+  id: 'elvr5pbwzn',
+  capabilityName: 'customForm',
+  enablePolling: false,
+  pollInterval: '2000',
+  pollRetries: '60',
+  pollChallengeStatus: true,
+  form: {
+    components: {
+      fields: [
+        {
+          type: 'ERROR_DISPLAY',
+        },
+        {
+          type: 'LABEL',
+          content:
+            '<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis.</p>',
+        },
+        {
+          type: 'TEXT',
+          key: 'user.username',
+          label: 'Enter your Email Address',
+          required: true,
+        },
+        {
+          type: 'PASSWORD',
+          key: 'user.password',
+          label: 'Enter your Password',
+          required: true,
+        },
+        {
+          type: 'SUBMIT_BUTTON',
+          label: 'Sign On',
+          key: 'submit',
+        },
+      ],
+    },
+    name: 'SDK - Sign On',
+    description: 'This is an out-of-the-box sign on form that prompts for username and password.',
+    category: 'CUSTOM_FORM',
+  },
+  enableMagicLinkAuthentication: true,
+  nodeTitle: 'Sign On',
+  nodeDescription: 'P1 Form - SignOn',
+  envId: '490b9f38-f20b-4afa-b02e-3cc1315e29ab',
+  formId: 'cc713951-1ff3-4c77-8b33-cf91690f0c07',
+  isResponseCompatibleWithMobileAndWebSdks: true,
+  _links: {
+    next: {
+      href: 'https://auth.pingone.com/490b9f38-f20b-4afa-b02e-3cc1315e29ab/davinci/connections/8209285e0d2f3fc76bfd23fd10d45e6f/capabilities/customForm',
+    },
+    self: {
+      href: 'https://auth.pingone.com/490b9f38-f20b-4afa-b02e-3cc1315e29ab/davinci/policy/c233870943cbaa6ff1a021622d074842/start',
+    },
+  },
+  interactionToken:
+    '460b6e374ff40f453eb83e3cf3da33d289538371e293df51afde06dab7ae37963234bb7bac201160b53857e49bdf245367c719ad087efc6d95fa09df4ad3d1bb94b75e1c49d72bd948eddf3a8aff9ebcb4d7a8212741d8d41abb010dd75d26e4d246ef0cea0e2550dc6fbbe36a4492105b28c33f39325291a596cd1ad77cbf95',
+  success: true,
+  startUiSubFlow: true,
+};

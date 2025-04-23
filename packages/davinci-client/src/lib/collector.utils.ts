@@ -180,13 +180,22 @@ export function returnSingleValueCollector<
         value: '',
         type: field.type,
       },
-      output: {
-        key: field.key,
-        label: field.label,
-        type: field.type,
-        value: data || '',
-        options: options,
-      },
+      output:
+        field.key !== undefined
+          ? {
+              key: field.key,
+              label: field.label,
+              type: field.type,
+              value: data || '',
+              options: options,
+              // No default or existing value is passed
+            }
+          : {
+              label: field.label,
+              type: field.type,
+              value: data || '',
+              options: options,
+            },
     } as InferSingleValueCollectorType<'SingleSelectCollector'>;
   } else if ('validation' in field || 'required' in field) {
     const validationArray = [];

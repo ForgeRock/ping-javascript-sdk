@@ -13,6 +13,7 @@ import { next0 } from './mock-data/davinci.next.mock.js';
 import { DaVinciCacheEntry } from './davinci.types.js';
 import { error0a, error3 } from './mock-data/davinci.error.mock.js';
 import { success0 } from './mock-data/davinci.success.mock.js';
+import { nodeNext1 } from './mock-data/node.next.mock.js';
 
 describe('transformSubmitRequest', () => {
   it('should transform node state to DaVinciRequest for next request', () => {
@@ -326,5 +327,24 @@ describe('handleResponse', () => {
 
     const [action] = dispatch.mock.calls[0];
     expect(action.type).toBe('node/failure');
+  });
+  it('should transformSubmitRequest', () => {
+    const n = nodeNext1 as ContinueNode;
+    const result = transformSubmitRequest(n);
+    expect(result).toEqual({
+      eventName: 'continue',
+      id: 'elvr5pbwzn',
+      interactionId: '03534806-abbc-4f43-a9b1-8bdba1a57765',
+      parameters: {
+        data: {
+          actionKey: 'submit',
+          formData: {
+            'user.password': '',
+            'user.username': '',
+          },
+        },
+        eventType: 'submit',
+      },
+    });
   });
 });
