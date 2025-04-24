@@ -4,6 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+
 /** *********************************************************************
  * SINGLE-VALUE COLLECTORS
  */
@@ -15,10 +16,11 @@ export type SingleValueCollectorTypes =
   | 'PasswordCollector'
   | 'SingleValueCollector'
   | 'SingleSelectCollector'
+  | 'SingleSelectObjectCollector'
   | 'TextCollector'
   | 'ValidatedTextCollector';
 
-interface SelectorOptions {
+interface SelectorOption {
   label: string;
   value: string;
 }
@@ -90,7 +92,7 @@ export interface SingleSelectCollectorWithValue<T extends SingleValueCollectorTy
     label: string;
     type: string;
     value: string | number | boolean;
-    options: SelectorOptions[];
+    options: SelectorOption[];
   };
 }
 
@@ -127,7 +129,7 @@ export interface SingleSelectCollectorNoValue<T extends SingleValueCollectorType
     key: string;
     label: string;
     type: string;
-    options: SelectorOptions[];
+    options: SelectorOption[];
   };
 }
 
@@ -143,16 +145,18 @@ export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> =
     ? TextCollector
     : T extends 'SingleSelectCollector'
       ? SingleSelectCollector
-      : T extends 'PasswordCollector'
-        ? PasswordCollector
-        : /**
-           * At this point, we have not passed in a collector type
-           * or we have explicitly passed in 'SingleValueCollector'
-           * So we can return either a SingleValueCollector with value
-           * or without a value.
-           **/
-          | SingleValueCollectorWithValue<'SingleValueCollector'>
-            | SingleValueCollectorNoValue<'SingleValueCollector'>;
+      : T extends 'ValidatedTextCollector'
+        ? ValidatedTextCollector
+        : T extends 'PasswordCollector'
+          ? PasswordCollector
+          : /**
+             * At this point, we have not passed in a collector type
+             * or we have explicitly passed in 'SingleValueCollector'
+             * So we can return either a SingleValueCollector with value
+             * or without a value.
+             **/
+            | SingleValueCollectorWithValue<'SingleValueCollector'>
+              | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 /**
  * SINGLE-VALUE COLLECTOR TYPES
@@ -198,7 +202,7 @@ export interface MultiValueCollectorWithValue<T extends MultiValueCollectorTypes
     label: string;
     type: string;
     value: string[];
-    options: SelectorOptions[];
+    options: SelectorOption[];
   };
 }
 
@@ -218,7 +222,7 @@ export interface MultiValueCollectorNoValue<T extends MultiValueCollectorTypes> 
     label: string;
     type: string;
     value: string[];
-    options: SelectorOptions[];
+    options: SelectorOption[];
   };
 }
 
@@ -245,6 +249,101 @@ export type MultiValueCollector<T extends MultiValueCollectorTypes> =
   | MultiValueCollectorNoValue<T>;
 
 export type MultiSelectCollector = MultiValueCollectorWithValue<'MultiSelectCollector'>;
+
+/** *********************************************************************
+ * OBJECT COLLECTORS
+ */
+
+export type ObjectValueCollectorTypes =
+  | 'DeviceAuthenticationCollector'
+  | 'DeviceRegistrationCollector'
+  | 'ObjectValueCollector'
+  | 'ObjectSelectCollector';
+
+interface ObjectOptionWithValue {
+  type: string;
+  label: string;
+  content: string;
+  default: boolean;
+  value: string;
+  key: string;
+}
+
+interface ObjectOptionNoValue {
+  type: string;
+  label: string;
+  content: string;
+  value: string;
+  key: string;
+}
+
+interface ObjectValue {
+  type: string;
+  id: string;
+  value: string;
+}
+
+export interface ObjectValueCollectorNoValue<T extends ObjectValueCollectorTypes> {
+  category: 'ObjectValueCollector';
+  error: string | null;
+  type: T;
+  id: string;
+  name: string;
+  input: {
+    key: string;
+    value: string | null;
+    type: string;
+  };
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    options: ObjectOptionNoValue[];
+  };
+}
+
+export interface ObjectValueCollectorWithValue<T extends ObjectValueCollectorTypes> {
+  category: 'ObjectValueCollector';
+  error: string | null;
+  type: T;
+  id: string;
+  name: string;
+  input: {
+    key: string;
+    value: ObjectValue | null;
+    type: string;
+  };
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    options: ObjectOptionWithValue[];
+  };
+}
+
+export type InferValueObjectCollectorType<T extends ObjectValueCollectorTypes> =
+  T extends 'DeviceAuthenticationCollector'
+    ? DeviceAuthenticationCollector
+    : T extends 'DeviceRegistrationCollector'
+      ? DeviceRegistrationCollector
+      :
+          | ObjectValueCollectorWithValue<'ObjectValueCollector'>
+          | ObjectValueCollectorNoValue<'ObjectValueCollector'>;
+
+export type ObjectValueCollectors =
+  | ObjectValueCollectorWithValue<'DeviceAuthenticationCollector'>
+  | ObjectValueCollectorNoValue<'DeviceRegistrationCollector'>
+  | ObjectValueCollectorWithValue<'ObjectSelectCollector'>
+  | ObjectValueCollectorNoValue<'ObjectSelectCollector'>;
+
+export type ObjectValueCollector<T extends ObjectValueCollectorTypes> =
+  | ObjectValueCollectorWithValue<T>
+  | ObjectValueCollectorNoValue<T>;
+
+export type DeviceRegistrationCollector =
+  ObjectValueCollectorNoValue<'DeviceRegistrationCollector'>;
+export type DeviceAuthenticationCollector =
+  ObjectValueCollectorWithValue<'DeviceAuthenticationCollector'>;
 
 /** *********************************************************************
  * ACTION COLLECTORS

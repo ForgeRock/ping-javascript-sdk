@@ -28,6 +28,8 @@ import {
   SubmitCollector,
   TextCollector,
   ValidatedTextCollector,
+  DeviceRegistrationCollector,
+  DeviceAuthenticationCollector,
 } from './collector.types.js';
 // ErrorDetail and Links are used as part of the DaVinciError and server._links types respectively
 
@@ -220,6 +222,8 @@ describe('Node Types', () => {
         | ActionCollector<'ActionCollector'>
         | SingleValueCollector<'SingleValueCollector'>
         | MultiSelectCollector
+        | DeviceAuthenticationCollector
+        | DeviceRegistrationCollector
         | ReadOnlyCollector
         | SingleSelectCollector
         | ValidatedTextCollector

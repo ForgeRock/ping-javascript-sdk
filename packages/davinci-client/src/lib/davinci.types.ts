@@ -52,7 +52,7 @@ export interface Links {
   };
 }
 
-export type StandardFieldValue = {
+export type StandardField = {
   type:
     | 'PASSWORD'
     | 'PASSWORD_VERIFY'
@@ -68,20 +68,20 @@ export type StandardFieldValue = {
   required?: boolean;
 };
 
-export type ReadOnlyFieldValue = {
+export type ReadOnlyField = {
   type: 'LABEL';
   content: string;
   key?: string;
 };
 
-export type RedirectFieldValue = {
+export type RedirectField = {
   type: 'SOCIAL_LOGIN_BUTTON';
   key: string;
   label: string;
   links: Links;
 };
 
-export type ValidatedFieldValue = {
+export type ValidatedField = {
   type: 'TEXT';
   key: string;
   label: string;
@@ -92,7 +92,7 @@ export type ValidatedFieldValue = {
   };
 };
 
-export type SingleSelectFieldValue = {
+export type SingleSelectField = {
   inputType: 'SINGLE_SELECT';
   key: string;
   label: string;
@@ -104,7 +104,7 @@ export type SingleSelectFieldValue = {
   type: 'RADIO' | 'DROPDOWN';
 };
 
-export type MultiSelectFieldValue = {
+export type MultiSelectField = {
   inputType: 'MULTI_SELECT';
   key: string;
   label: string;
@@ -116,13 +116,46 @@ export type MultiSelectFieldValue = {
   type: 'CHECKBOX' | 'COMBOBOX';
 };
 
+export type DeviceAuthenticationField = {
+  type: 'DEVICE_AUTHENTICATION';
+  key: string;
+  label: string;
+  devices: {
+    type: string;
+    iconSrc: string;
+    title: string;
+    id: string;
+    default: boolean;
+    value: string;
+  }[];
+  required: boolean;
+};
+
+export type DeviceRegistrationField = {
+  type: 'DEVICE_REGISTRATION';
+  key: string;
+  label: string;
+  devices: {
+    type: string;
+    iconSrc: string;
+    title: string;
+    description: string;
+  }[];
+  required: boolean;
+};
+
+export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField;
+export type MultiValueFields = MultiSelectField;
+export type ReadOnlyFields = ReadOnlyField;
+export type RedirectFields = RedirectField;
+export type SingleValueFields = StandardField | ValidatedField | SingleSelectField;
+
 export type DaVinciField =
-  | StandardFieldValue
-  | ReadOnlyFieldValue
-  | RedirectFieldValue
-  | ValidatedFieldValue
-  | SingleSelectFieldValue
-  | MultiSelectFieldValue;
+  | ComplexValueFields
+  | MultiValueFields
+  | ReadOnlyFields
+  | RedirectFields
+  | SingleValueFields;
 
 /**
  * Next or Continuation Response DaVinci API

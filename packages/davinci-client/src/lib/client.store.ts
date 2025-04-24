@@ -28,6 +28,7 @@ import type {
   SingleValueCollectors,
   IdpCollector,
   MultiSelectCollector,
+  ObjectValueCollectors,
 } from './collector.types.js';
 import type { InitFlow, Updater, Validator } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
@@ -167,7 +168,9 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * @param {SingleValueCollector} collector - the collector to update
      * @returns {function} - a function to call for updating collector value
      */
-    update: (collector: SingleValueCollectors | MultiSelectCollector): Updater => {
+    update: (
+      collector: SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors,
+    ): Updater => {
       if (!collector.id) {
         console.error('Argument for `collector` has no ID');
         return function () {
@@ -197,7 +200,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       if (
         collectorToUpdate.category !== 'MultiValueCollector' &&
         collectorToUpdate.category !== 'SingleValueCollector' &&
-        collectorToUpdate.category !== 'ValidatedSingleValueCollector'
+        collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
+        collectorToUpdate.category !== 'ObjectValueCollector'
       ) {
         console.error(
           'Collector is not a MultiValueCollector, SingleValueCollector or ValidatedSingleValueCollector and cannot be updated',

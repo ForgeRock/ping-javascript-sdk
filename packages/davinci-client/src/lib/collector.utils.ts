@@ -19,14 +19,18 @@ import type {
   InferNoValueCollectorType,
   ValidatedSingleValueCollectorWithValue,
   ValidatedTextCollector,
+  InferValueObjectCollectorType,
+  ObjectValueCollectorTypes,
 } from './collector.types.js';
 import type {
-  MultiSelectFieldValue,
-  ReadOnlyFieldValue,
-  RedirectFieldValue,
-  SingleSelectFieldValue,
-  StandardFieldValue,
-  ValidatedFieldValue,
+  DeviceAuthenticationField,
+  DeviceRegistrationField,
+  MultiSelectField,
+  ReadOnlyField,
+  RedirectField,
+  SingleSelectField,
+  StandardField,
+  ValidatedField,
 } from './davinci.types.js';
 
 /**
@@ -37,7 +41,7 @@ import type {
  * @returns {ActionCollector} The constructed ActionCollector object.
  */
 export function returnActionCollector<CollectorType extends ActionCollectorTypes>(
-  field: RedirectFieldValue | StandardFieldValue,
+  field: RedirectField | StandardField,
   idx: number,
   collectorType: CollectorType,
 ): ActionCollectors {
@@ -95,7 +99,7 @@ export function returnActionCollector<CollectorType extends ActionCollectorTypes
  * @param {number} idx - The index of the field in the form
  * @returns {FlowCollector} - The flow collector object
  */
-export function returnFlowCollector(field: StandardFieldValue, idx: number) {
+export function returnFlowCollector(field: StandardField, idx: number) {
   return returnActionCollector(field, idx, 'FlowCollector');
 }
 
@@ -105,7 +109,7 @@ export function returnFlowCollector(field: StandardFieldValue, idx: number) {
  * @param {number} idx - The index of the field in the form
  * @returns {SocialLoginCollector} - The social login collector object
  */
-export function returnIdpCollector(field: RedirectFieldValue, idx: number) {
+export function returnIdpCollector(field: RedirectField, idx: number) {
   return returnActionCollector(field, idx, 'IdpCollector');
 }
 
@@ -115,7 +119,7 @@ export function returnIdpCollector(field: RedirectFieldValue, idx: number) {
  * @param {number} idx - The index of the field in the form
  * @returns {ActionCollector} - The submit collector object
  */
-export function returnSubmitCollector(field: StandardFieldValue, idx: number) {
+export function returnSubmitCollector(field: StandardField, idx: number) {
   return returnActionCollector(field, idx, 'SubmitCollector');
 }
 
@@ -127,7 +131,7 @@ export function returnSubmitCollector(field: StandardFieldValue, idx: number) {
  * @returns {SingleValueCollector} The constructed SingleValueCollector object.
  */
 export function returnSingleValueCollector<
-  Field extends StandardFieldValue | SingleSelectFieldValue | ValidatedFieldValue,
+  Field extends StandardField | SingleSelectField | ValidatedField,
   CollectorType extends SingleValueCollectorTypes = 'SingleValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType, data?: string) {
   let error = '';
@@ -253,7 +257,7 @@ export function returnSingleValueCollector<
  * @param {number} idx - The index to be used in the id of the PasswordCollector.
  * @returns {PasswordCollector} The constructed PasswordCollector object.
  */
-export function returnPasswordCollector(field: StandardFieldValue, idx: number) {
+export function returnPasswordCollector(field: StandardField, idx: number) {
   return returnSingleValueCollector(field, idx, 'PasswordCollector');
 }
 
@@ -263,7 +267,7 @@ export function returnPasswordCollector(field: StandardFieldValue, idx: number) 
  * @param {number} idx - The index to be used in the id of the TextCollector.
  * @returns {TextCollector} The constructed TextCollector object.
  */
-export function returnTextCollector(field: StandardFieldValue, idx: number, data: string) {
+export function returnTextCollector(field: StandardField, idx: number, data: string) {
   return returnSingleValueCollector(field, idx, 'TextCollector', data);
 }
 /**
@@ -272,11 +276,7 @@ export function returnTextCollector(field: StandardFieldValue, idx: number, data
  * @param {number} idx - The index to be used in the id of the SingleCollector.
  * @returns {SingleValueCollector} The constructed SingleCollector object.
  */
-export function returnSingleSelectCollector(
-  field: SingleSelectFieldValue,
-  idx: number,
-  data: string,
-) {
+export function returnSingleSelectCollector(field: SingleSelectField, idx: number, data: string) {
   return returnSingleValueCollector(field, idx, 'SingleSelectCollector', data);
 }
 
@@ -288,7 +288,7 @@ export function returnSingleSelectCollector(
  * @returns {MultiValueCollector} The constructed MultiValueCollector object.
  */
 export function returnMultiValueCollector<
-  Field extends MultiSelectFieldValue,
+  Field extends MultiSelectField,
   CollectorType extends MultiValueCollectorTypes = 'MultiValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType, data?: string[]) {
   let error = '';
@@ -332,23 +332,108 @@ export function returnMultiValueCollector<
  * @param {number} idx - The index to be used in the id of the DropDownCollector.
  * @returns {SingleValueCollector} The constructed DropDownCollector object.
  */
-export function returnMultiSelectCollector(
-  field: MultiSelectFieldValue,
-  idx: number,
-  data: string[],
-) {
+export function returnMultiSelectCollector(field: MultiSelectField, idx: number, data: string[]) {
   return returnMultiValueCollector(field, idx, 'MultiSelectCollector', data);
 }
 
 /**
- * @function returnMultiValueCollector - Creates a MultiValueCollector object based on the provided field, index, and optional collector type.
+ * @function returnObjectCollector - Creates a ObjectCollector object based on the provided field, index, and optional collector type.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
- * @param {number} idx - The index to be used in the id of the MultiValueCollector.
- * @param {MultiValueCollectorTypes} [collectorType] - Optional type of the MultiValueCollector.
- * @returns {MultiValueCollector} The constructed MultiValueCollector object.
+ * @param {number} idx - The index to be used in the id of the ObjectCollector.
+ * @param {ObjectValueCollectorTypes} [collectorType] - Optional type of the ObjectCollector.
+ * @returns {ObjectCollector} The constructed ObjectCollector object.
+ */
+export function returnObjectCollector<
+  Field extends DeviceAuthenticationField | DeviceRegistrationField,
+  CollectorType extends ObjectValueCollectorTypes = 'ObjectValueCollector',
+>(field: Field, idx: number, collectorType: CollectorType) {
+  let error = '';
+  if (!('key' in field)) {
+    error = `${error}Key is not found in the field object. `;
+  }
+  if (!('label' in field)) {
+    error = `${error}Label is not found in the field object. `;
+  }
+  if (!('type' in field)) {
+    error = `${error}Type is not found in the field object. `;
+  }
+  if (!('devices' in field)) {
+    error = `${error}Options are not found in the field object. `;
+  }
+
+  let devices;
+  if (Array.isArray(field.devices) && field.devices.length === 0) {
+    error = `${error}Options are not an array or is empty. `;
+  }
+  if (field.type === 'DEVICE_AUTHENTICATION') {
+    // Map DaVinci spec to normalized SDK API
+    devices = field.devices.map((device) => ({
+      type: device.type,
+      label: device.title,
+      content: device.value,
+      value: device.id,
+      key: device.id,
+      default: device.default,
+    }));
+  } else {
+    // Map DaVinci spec to normalized SDK API
+    devices = field.devices.map((device, idx) => ({
+      type: device.type,
+      label: device.title,
+      content: device.description,
+      value: device.type,
+      key: `${device.type}-${idx}`,
+    }));
+  }
+
+  return {
+    category: 'ObjectValueCollector',
+    error: error || null,
+    type: collectorType || 'ObjectValueCollector',
+    id: `${field.key}-${idx}`,
+    name: field.key,
+    input: {
+      key: field.key,
+      value: null,
+      type: field.type,
+    },
+    output: {
+      key: field.key,
+      label: field.label,
+      type: field.type,
+      options: devices || [],
+    },
+  } as InferValueObjectCollectorType<CollectorType>;
+}
+
+/**
+ * @function returnObjectSelectCollector - Creates a DropDownCollector object based on the provided field and index.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the DropDownCollector.
+ * @returns {SingleValueCollector} The constructed DropDownCollector object.
+ */
+export function returnObjectSelectCollector(
+  field: DeviceAuthenticationField | DeviceRegistrationField,
+  idx: number,
+) {
+  return returnObjectCollector(
+    field,
+    idx,
+    field.type === 'DEVICE_AUTHENTICATION'
+      ? 'DeviceAuthenticationCollector'
+      : 'DeviceRegistrationCollector',
+  );
+}
+
+/**
+ * @function returnNoValueCollector - Creates a NoValueCollector object based on the provided field, index, and optional collector type.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the NoValueCollector.
+ * @param {NoValueCollectorTypes} [collectorType] - Optional type of the NoValueCollector.
+ * @returns {NoValueCollector} The constructed NoValueCollector object.
  */
 export function returnNoValueCollector<
-  Field extends ReadOnlyFieldValue,
+  Field extends ReadOnlyField,
   CollectorType extends NoValueCollectorTypes = 'NoValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -374,12 +459,12 @@ export function returnNoValueCollector<
 }
 
 /**
- * @function returnMultiSelectCollector - Creates a DropDownCollector object based on the provided field and index.
+ * @function returnReadOnlyCollector - Creates a ReadOnlyCollector object based on the provided field and index.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
- * @param {number} idx - The index to be used in the id of the DropDownCollector.
- * @returns {SingleValueCollector} The constructed DropDownCollector object.
+ * @param {number} idx - The index to be used in the id of the ReadOnlyCollector.
+ * @returns {ReadOnlyCollector} The constructed ReadOnlyCollector object.
  */
-export function returnReadOnlyCollector(field: ReadOnlyFieldValue, idx: number) {
+export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
   return returnNoValueCollector(field, idx, 'ReadOnlyCollector');
 }
 

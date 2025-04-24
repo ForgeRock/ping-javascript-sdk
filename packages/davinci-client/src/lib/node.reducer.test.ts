@@ -7,7 +7,13 @@
 import { describe, it, expect } from 'vitest';
 
 import { nodeCollectorReducer } from './node.reducer.js';
-import { MultiSelectCollector, SubmitCollector, TextCollector } from './collector.types.js';
+import {
+  DeviceAuthenticationCollector,
+  DeviceRegistrationCollector,
+  MultiSelectCollector,
+  SubmitCollector,
+  TextCollector,
+} from './collector.types.js';
 
 describe('The node collector reducer', () => {
   it('should return the initial state', () => {
@@ -480,6 +486,208 @@ describe('The node collector reducer with MultiValueCollector', () => {
             },
           ],
           value: [],
+        },
+      },
+    ]);
+  });
+});
+
+describe('The node collector reducer with DeviceAuthenticationFieldValue', () => {
+  it('should handle collector updates ', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'device-0',
+        value: '42036625-37a5-4c7a-b7c4-ef778838c8e1',
+      },
+    };
+    const state: DeviceAuthenticationCollector[] = [
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'DeviceAuthenticationCollector',
+        id: 'device-0',
+        name: 'device',
+        input: {
+          key: 'device',
+          value: null,
+          type: 'TEXT',
+        },
+        output: {
+          key: 'device',
+          label: 'First Name',
+          type: 'TEXT',
+          options: [
+            {
+              type: 'SMS',
+              label: 'Text Message',
+              value: '55122b45-b192-4a6e-ad54-e2fd8f1a0a47',
+              default: true,
+              content: '***-***-6036',
+              key: '55122b45-b192-4a6e-ad54-e2fd8f1a0a47',
+            },
+            {
+              type: 'EMAIL',
+              label: 'Email',
+              value: '42036625-37a5-4c7a-b7c4-ef778838c8e1',
+              default: false,
+              content: 's***********1@pingidentity.com',
+              key: '42036625-37a5-4c7a-b7c4-ef778838c8e1',
+            },
+            {
+              type: 'VOICE',
+              label: 'Voice',
+              value: 'e958e8c4-505a-4db1-9726-45bf38bed4da',
+              default: false,
+              content: '***-***-6036',
+              key: 'e958e8c4-505a-4db1-9726-45bf38bed4da',
+            },
+          ],
+        },
+      },
+    ];
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'DeviceAuthenticationCollector',
+        id: 'device-0',
+        name: 'device',
+        input: {
+          key: 'device',
+          value: {
+            type: 'EMAIL',
+            id: '42036625-37a5-4c7a-b7c4-ef778838c8e1',
+            value: 's***********1@pingidentity.com',
+          },
+          type: 'TEXT',
+        },
+        output: {
+          key: 'device',
+          label: 'First Name',
+          type: 'TEXT',
+          options: [
+            {
+              type: 'SMS',
+              label: 'Text Message',
+              value: '55122b45-b192-4a6e-ad54-e2fd8f1a0a47',
+              default: true,
+              content: '***-***-6036',
+              key: '55122b45-b192-4a6e-ad54-e2fd8f1a0a47',
+            },
+            {
+              type: 'EMAIL',
+              label: 'Email',
+              value: '42036625-37a5-4c7a-b7c4-ef778838c8e1',
+              default: false,
+              content: 's***********1@pingidentity.com',
+              key: '42036625-37a5-4c7a-b7c4-ef778838c8e1',
+            },
+            {
+              type: 'VOICE',
+              label: 'Voice',
+              value: 'e958e8c4-505a-4db1-9726-45bf38bed4da',
+              default: false,
+              content: '***-***-6036',
+              key: 'e958e8c4-505a-4db1-9726-45bf38bed4da',
+            },
+          ],
+        },
+      },
+    ]);
+  });
+});
+
+describe('The node collector reducer with DeviceRegistrationFieldValue', () => {
+  it('should handle collector updates ', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'device-0',
+        value: 'EMAIL',
+      },
+    };
+    const state: DeviceRegistrationCollector[] = [
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'DeviceRegistrationCollector',
+        id: 'device-0',
+        name: 'device',
+        input: {
+          key: 'device',
+          value: null,
+          type: 'TEXT',
+        },
+        output: {
+          key: 'device',
+          label: 'First Name',
+          type: 'TEXT',
+          options: [
+            {
+              type: 'EMAIL',
+              label: 'Email',
+              content: 'Receive an authentication passcode in your email.',
+              value: 'EMAIL',
+              key: 'VOICE-0',
+            },
+            {
+              type: 'SMS',
+              label: 'Text Message',
+              content: 'Receive an authentication passcode in a text message.',
+              value: 'SMS',
+              key: 'SMS-1',
+            },
+            {
+              type: 'VOICE',
+              label: 'Voice',
+              content: 'Receive a phone call with an authentication passcode.',
+              value: 'VOICE',
+              key: 'VOICE-2',
+            },
+          ],
+        },
+      },
+    ];
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'DeviceRegistrationCollector',
+        id: 'device-0',
+        name: 'device',
+        input: {
+          key: 'device',
+          value: 'EMAIL',
+          type: 'TEXT',
+        },
+        output: {
+          key: 'device',
+          label: 'First Name',
+          type: 'TEXT',
+          options: [
+            {
+              type: 'EMAIL',
+              label: 'Email',
+              content: 'Receive an authentication passcode in your email.',
+              value: 'EMAIL',
+              key: 'VOICE-0',
+            },
+            {
+              type: 'SMS',
+              label: 'Text Message',
+              content: 'Receive an authentication passcode in a text message.',
+              value: 'SMS',
+              key: 'SMS-1',
+            },
+            {
+              type: 'VOICE',
+              label: 'Voice',
+              content: 'Receive a phone call with an authentication passcode.',
+              value: 'VOICE',
+              key: 'VOICE-2',
+            },
+          ],
         },
       },
     ]);
