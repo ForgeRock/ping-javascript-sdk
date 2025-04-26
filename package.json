@@ -76,7 +76,7 @@
     "@playwright/test": "^1.47.2",
     "@swc-node/register": "1.10.10",
     "@swc/cli": "~0.7.0",
-    "@swc/core": "1.11.21",
+    "@swc/core": "1.11.22",
     "@swc/helpers": "0.5.17",
     "@types/eslint": "9.6.1",
     "@types/estree": "^1.0.1",
