@@ -23,6 +23,7 @@ import {
   returnSingleSelectCollector,
   returnMultiSelectCollector,
   returnReadOnlyCollector,
+  returnObjectSelectCollector,
 } from './collector.utils.js';
 import type { DaVinciField } from './davinci.types.js';
 import {
@@ -37,6 +38,8 @@ import {
   TextCollector,
   ReadOnlyCollector,
   ValidatedTextCollector,
+  DeviceAuthenticationCollector,
+  DeviceRegistrationCollector,
 } from './collector.types.js';
 
 /**
@@ -68,6 +71,8 @@ const initialCollectorValues: (
   | SingleValueCollector<'SingleValueCollector'>
   | SingleSelectCollector
   | MultiSelectCollector
+  | DeviceAuthenticationCollector
+  | DeviceRegistrationCollector
   | ReadOnlyCollector
   | ValidatedTextCollector
 )[] = [];
@@ -121,6 +126,11 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 // Intentional fall-through
                 // No data to send
                 return returnFlowCollector(field, idx);
+              }
+              case 'DEVICE_AUTHENTICATION':
+              case 'DEVICE_REGISTRATION': {
+                // Intentional fall-through
+                return returnObjectSelectCollector(field, idx);
               }
               case 'PASSWORD':
               case 'PASSWORD_VERIFY': {
@@ -193,6 +203,43 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.input.value.push(action.payload.value);
         }
         return;
+      }
+
+      if (collector.type === 'DeviceAuthenticationCollector') {
+        if (typeof action.payload.id !== 'string') {
+          throw new Error('Index argument must be a string');
+        }
+        // Iterate through the options object and find option to update
+        const option = collector.output.options.find(
+          (option) => option.value === action.payload.value,
+        );
+
+        if (!option) {
+          throw new Error('No option found matching value to update');
+        }
+
+        // Remap values back to DaVinci spec
+        collector.input.value = {
+          type: option.type,
+          id: option.value,
+          value: option.content,
+        };
+      }
+
+      if (collector.type === 'DeviceRegistrationCollector') {
+        if (typeof action.payload.id !== 'string') {
+          throw new Error('Index argument must be a string');
+        }
+        // Iterate through the options object and find option to update
+        const option = collector.output.options.find(
+          (option) => option.value === action.payload.value,
+        );
+
+        if (!option) {
+          throw new Error('No option found matching value to update');
+        }
+
+        collector.input.value = option.type;
       }
     });
 });

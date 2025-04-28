@@ -18,12 +18,15 @@ import {
   returnValidator,
   returnReadOnlyCollector,
   returnNoValueCollector,
+  returnObjectSelectCollector,
 } from './collector.utils.js';
 import type {
   DaVinciField,
-  ReadOnlyFieldValue,
-  RedirectFieldValue,
-  StandardFieldValue,
+  DeviceAuthenticationField,
+  DeviceRegistrationField,
+  ReadOnlyField,
+  RedirectField,
+  StandardField,
 } from './davinci.types.js';
 import { ValidatedTextCollector } from './collector.types.js';
 
@@ -52,7 +55,7 @@ describe('Action Collectors', () => {
     });
 
     it('should handle error cases properly', () => {
-      const invalidField = {} as StandardFieldValue;
+      const invalidField = {} as StandardField;
       const result = returnFlowCollector(invalidField, 1);
       expect(result.error).toContain('Label is not found');
       expect(result.error).toContain('Type is not found');
@@ -60,7 +63,7 @@ describe('Action Collectors', () => {
   });
 
   describe('returnIdpCollector', () => {
-    const mockSocialField: RedirectFieldValue = {
+    const mockSocialField: RedirectField = {
       key: 'google-login',
       label: 'Continue with Google',
       type: 'SOCIAL_LOGIN_BUTTON',
@@ -105,7 +108,7 @@ describe('Action Collectors', () => {
     });
 
     it('should handle error cases properly', () => {
-      const invalidField = {} as StandardFieldValue;
+      const invalidField = {} as StandardField;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const result = returnIdpCollector(invalidField, 1);
@@ -137,7 +140,7 @@ describe('Action Collectors', () => {
     });
 
     it('should handle error cases properly', () => {
-      const invalidField = {} as StandardFieldValue;
+      const invalidField = {} as StandardField;
       const result = returnSubmitCollector(invalidField, 1);
       expect(result.error).toContain('Key is not found');
       expect(result.type).toBe('SubmitCollector');
@@ -145,7 +148,7 @@ describe('Action Collectors', () => {
   });
 
   describe('returnActionCollector', () => {
-    const mockField: StandardFieldValue = {
+    const mockField: StandardField = {
       key: 'testKey',
       label: 'Test Label',
       type: 'TEXT',
@@ -227,6 +230,12 @@ describe('Action Collectors', () => {
       });
     });
 
+    it('creates an action collector from flow link field type', () => {
+      const result = returnFlowCollector(mockField, 1);
+      expect(result.type).toBe('FlowCollector');
+      expect(result.output).not.toHaveProperty('value');
+    });
+
     it('handles missing authentication URL for social login', () => {
       const result = returnActionCollector(mockField, 1, 'IdpCollector');
       if ('url' in result.output) {
@@ -237,7 +246,7 @@ describe('Action Collectors', () => {
     it('should return an error message when field is missing key, label, or type', () => {
       const field = {};
       const idx = 3;
-      const result = returnActionCollector(field as StandardFieldValue, idx, 'ActionCollector');
+      const result = returnActionCollector(field as StandardField, idx, 'ActionCollector');
       expect(result.error).toBe(
         'Label is not found in the field object. Type is not found in the field object. Key is not found in the field object. ',
       );
@@ -301,7 +310,7 @@ describe('Single Value Collectors', () => {
       const field = {};
       const idx = 3;
       const result = returnSingleValueCollector(
-        field as StandardFieldValue,
+        field as StandardField,
         idx,
         'SingleValueCollector',
       );
@@ -373,7 +382,11 @@ describe('Single Value Collectors', () => {
       expect(result.type).toBe('SingleSelectCollector');
       expect(result.output).toHaveProperty('value', '');
     });
+  });
+});
 
+describe('Multi-Value Collectors', () => {
+  describe('Specialized Multi-Select Collectors', () => {
     it('creates a multi-select collector from combobox field type', () => {
       const comboField: DaVinciField = {
         type: 'COMBOBOX',
@@ -396,17 +409,124 @@ describe('Single Value Collectors', () => {
       expect(result.type).toBe('MultiSelectCollector');
       expect(result.output).toHaveProperty('value', []);
     });
+  });
+});
 
-    it('creates an action collector from flow link field type', () => {
-      const result = returnFlowCollector(mockField, 1);
-      expect(result.type).toBe('FlowCollector');
-      expect(result.output).not.toHaveProperty('value');
+describe('Object value collectors', () => {
+  describe('returnDeviceAuthenticationCollector', () => {
+    const mockField: DeviceAuthenticationField = {
+      key: 'device-auth-key',
+      label: 'Device Authentication',
+      type: 'DEVICE_AUTHENTICATION',
+      devices: [
+        {
+          type: 'device1',
+          iconSrc: 'icon1.png',
+          title: 'Device 1',
+          id: '123123',
+          default: true,
+          value: 'device1-value',
+        },
+        {
+          type: 'device2',
+          iconSrc: 'icon2.png',
+          title: 'Device 2',
+          id: '345345',
+          default: false,
+          value: 'device2-value',
+        },
+      ],
+      required: true,
+    };
+
+    const transformedDevices = mockField.devices.map((device) => ({
+      label: device.title,
+      value: device.id,
+      content: device.value,
+      type: device.type,
+      key: device.id,
+      default: device.default,
+    }));
+
+    it('should create a valid DeviceAuthenticationCollector', () => {
+      const result = returnObjectSelectCollector(mockField, 1);
+      expect(result).toEqual({
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'DeviceAuthenticationCollector',
+        id: 'device-auth-key-1',
+        name: 'device-auth-key',
+        input: {
+          key: mockField.key,
+          value: null,
+          type: mockField.type,
+        },
+        output: {
+          key: mockField.key,
+          label: mockField.label,
+          type: mockField.type,
+          options: transformedDevices,
+        },
+      });
+    });
+  });
+
+  describe('returnDeviceRegistrationCollector', () => {
+    const mockField: DeviceRegistrationField = {
+      key: 'device-reg-key',
+      label: 'Device Registration',
+      type: 'DEVICE_REGISTRATION',
+      devices: [
+        {
+          type: 'device1',
+          iconSrc: 'icon1.png',
+          title: 'Device 1',
+          description: 'Device 1 Description',
+        },
+        {
+          type: 'device2',
+          iconSrc: 'icon2.png',
+          title: 'Device 2',
+          description: 'Device 2 Description',
+        },
+      ],
+      required: true,
+    };
+
+    const transformedDevices = mockField.devices.map((device, idx) => ({
+      label: device.title,
+      value: device.type,
+      content: device.description,
+      type: device.type,
+      key: `${device.type}-${idx}`,
+    }));
+
+    it('should create a valid DeviceRegistrationCollector', () => {
+      const result = returnObjectSelectCollector(mockField, 1);
+      expect(result).toEqual({
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'DeviceRegistrationCollector',
+        id: 'device-reg-key-1',
+        name: 'device-reg-key',
+        input: {
+          key: mockField.key,
+          value: null,
+          type: mockField.type,
+        },
+        output: {
+          key: mockField.key,
+          label: mockField.label,
+          type: mockField.type,
+          options: transformedDevices,
+        },
+      });
     });
   });
 });
 
 describe('No Value Collectors', () => {
-  const mockField: ReadOnlyFieldValue = {
+  const mockField: ReadOnlyField = {
     content: 'Test Label',
     type: 'LABEL',
   };

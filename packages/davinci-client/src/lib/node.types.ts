@@ -14,6 +14,8 @@ import type {
   SingleValueCollector,
   SingleSelectCollector,
   MultiSelectCollector,
+  DeviceAuthenticationCollector,
+  DeviceRegistrationCollector,
   ReadOnlyCollector,
   ValidatedTextCollector,
 } from './collector.types.js';
@@ -30,6 +32,8 @@ export type Collectors =
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>
   | MultiSelectCollector
+  | DeviceAuthenticationCollector
+  | DeviceRegistrationCollector
   | ReadOnlyCollector
   | ValidatedTextCollector;
 
