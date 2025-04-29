@@ -11,7 +11,7 @@
 
 import type { Callback } from './am-callback.types.js';
 import type { LegacyRequestMiddleware } from './legacy-mware.types.js';
-import { TokenStoreObject } from './tokens.types.js';
+import { CustomStorageObject } from './tokens.types.js';
 
 /**
  * Optional configuration for custom paths for actions
@@ -109,7 +109,7 @@ export interface LegacyConfigOptions {
   redirectUri?: string;
   scope?: string;
   serverConfig?: ServerConfig;
-  tokenStore?: TokenStoreObject | 'sessionStorage' | 'localStorage';
+  tokenStore?: CustomStorageObject | 'sessionStorage' | 'localStorage';
   tree?: string;
   type?: string;
   oauthThreshold?: number;

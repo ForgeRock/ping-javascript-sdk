@@ -1,71 +1,128 @@
-import { TokenStoreObject } from '@forgerock/sdk-types';
+/*
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+import { CustomStorageObject } from '@forgerock/sdk-types';
 
 export interface StorageConfig {
-  tokenStore: TokenStoreObject | 'localStorage' | 'sessionStorage';
-  prefix: string;
+  storeType: CustomStorageObject | 'localStorage' | 'sessionStorage';
+  prefix?: string;
 }
 
-export function createStorage(
+interface GenericError {
+  code?: string | number;
+  message: string;
+  type:
+    | 'argument_error'
+    | 'davinci_error'
+    | 'internal_error'
+    | 'network_error'
+    | 'state_error'
+    | 'unknown_error';
+}
+
+export function createStorage<Value>(
   config: StorageConfig,
   storageName: string,
-  customTokenStore?: TokenStoreObject,
+  customStore?: CustomStorageObject,
 ) {
-  const { tokenStore, prefix } = config;
+  const { storeType, prefix = 'pic' } = config;
 
   const key = `${prefix}-${storageName}`;
   return {
-    get: async function storageGet<ReturnValue>(): Promise<ReturnValue | string | null> {
-      if (customTokenStore) {
-        const value = await customTokenStore.get(key);
+    get: async function storageGet(): Promise<Value | GenericError | null> {
+      if (customStore) {
+        const value = await customStore.get(key);
         if (value === null) {
           return value;
         }
-        if (value.startsWith('[') || value.startsWith('{')) {
+        try {
           const parsed = JSON.parse(value);
-          return parsed as ReturnValue;
+          return parsed as Value;
+        } catch {
+          return {
+            code: 'Parse_Error',
+            message: 'Eror parsing value from provided storage',
+            type: 'unknown_error',
+          };
         }
-        return value;
       }
-      if (tokenStore === 'sessionStorage') {
+      if (storeType === 'sessionStorage') {
         const value = await sessionStorage.getItem(key);
         if (value === null) {
           return value;
         }
-        if (value.startsWith('[') || value.startsWith('{')) {
+        try {
           const parsed = JSON.parse(value);
-          return parsed as ReturnValue;
+          return parsed as Value;
+        } catch {
+          return {
+            code: 'Parse_Error',
+            message: 'Eror parsing value from session storage',
+            type: 'unknown_error',
+          };
         }
-        return value;
       }
       const value = await localStorage.getItem(key);
 
       if (value === null) {
         return value;
       }
-
-      if (value.startsWith('[') || value.startsWith('{')) {
+      try {
         const parsed = JSON.parse(value);
-        return parsed as ReturnValue;
+        return parsed as Value;
+      } catch {
+        return {
+          code: 'Parse_Error',
+          message: 'Eror parsing value from local storage',
+          type: 'unknown_error',
+        };
       }
-      return value;
     },
-    set: async function storageSet(value: string | Record<any, any> | any[]) {
-      const valueIsString = typeof value === 'string';
-      const valueToStore = valueIsString ? value : JSON.stringify(value);
-
-      if (customTokenStore) {
-        return await customTokenStore.set(key, valueToStore);
+    set: async function storageSet(value: Value) {
+      const valueToStore = JSON.stringify(value);
+      if (customStore) {
+        try {
+          await customStore.set(key, valueToStore);
+          return Promise.resolve();
+        } catch {
+          return {
+            code: 'Storing_Error',
+            message: 'Eror storing value in custom storage',
+            type: 'unknown_error',
+          };
+        }
       }
-      if (tokenStore === 'sessionStorage') {
-        return await sessionStorage.setItem(key, valueToStore);
+      if (storeType === 'sessionStorage') {
+        try {
+          await sessionStorage.setItem(key, valueToStore);
+          return Promise.resolve();
+        } catch {
+          return {
+            code: 'Storing_Error',
+            message: 'Eror storing value in session storage',
+            type: 'unknown_error',
+          };
+        }
       }
-      return await localStorage.setItem(key, valueToStore);
+      try {
+        await localStorage.setItem(key, valueToStore);
+        return Promise.resolve();
+      } catch {
+        return {
+          code: 'Storing_Error',
+          message: 'Eror storing value in local storage',
+          type: 'unknown_error',
+        };
+      }
     },
     remove: async function storageSet() {
-      if (customTokenStore) {
-        return await customTokenStore.remove(key);
+      if (customStore) {
+        return await customStore.remove(key);
       }
-      if (tokenStore === 'sessionStorage') {
+      if (storeType === 'sessionStorage') {
         return await sessionStorage.removeItem(key);
       }
       return await localStorage.removeItem(key);

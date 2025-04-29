@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/*
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { createStorage, type StorageConfig } from './storage.effects.js';
-import type { TokenStoreObject } from '@forgerock/sdk-types';
+import type { CustomStorageObject } from '@forgerock/sdk-types';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -13,7 +19,7 @@ const localStorageMock = (() => {
       }
       return Promise.resolve(value);
     }),
-    setItem: vi.fn((key: string, value: string | Record<any, any> | any[]) => {
+    setItem: vi.fn((key: string, value: any) => {
       const valueIsString = typeof value === 'string';
       store[key] = valueIsString ? value : JSON.stringify(value);
       return Promise.resolve();
@@ -64,7 +70,7 @@ const sessionStorageMock = (() => {
 
 Object.defineProperty(global, 'sessionStorage', { value: sessionStorageMock });
 
-const mockCustomStore: TokenStoreObject = {
+const mockCustomStore: CustomStorageObject = {
   get: vi.fn((key: string) => Promise.resolve<string | null>(null)),
   set: vi.fn((key: string, value: unknown) => Promise.resolve()),
   remove: vi.fn((key: string) => Promise.resolve()),
@@ -73,6 +79,7 @@ const mockCustomStore: TokenStoreObject = {
 describe('storage Effect', () => {
   const storageName = 'MyStorage';
   const baseConfig: Omit<StorageConfig, 'tokenStore'> = {
+    storeType: 'localStorage',
     prefix: 'testPrefix',
   };
   const expectedKey = `${baseConfig.prefix}-${storageName}`;
@@ -91,14 +98,14 @@ describe('storage Effect', () => {
   describe('with localStorage', () => {
     const config: StorageConfig = {
       ...baseConfig,
-      tokenStore: 'localStorage',
+      storeType: 'localStorage',
     };
 
     const storageInstance = createStorage(config, storageName);
 
     it('should call localStorage.getItem with the correct key and return value', async () => {
-      localStorageMock.setItem(expectedKey, testValue);
-      const result = await storageInstance.get<string>();
+      localStorageMock.setItem(expectedKey, JSON.stringify(testValue));
+      const result = await storageInstance.get();
       expect(localStorageMock.getItem).toHaveBeenCalledTimes(1);
       expect(localStorageMock.getItem).toHaveBeenCalledWith(expectedKey);
       expect(result).toBe(testValue);
@@ -107,7 +114,7 @@ describe('storage Effect', () => {
     });
 
     it('should return null if localStorage.getItem finds no value', async () => {
-      const result = await storageInstance.get<null>();
+      const result = await storageInstance.get();
       expect(localStorageMock.getItem).toHaveBeenCalledTimes(1);
       expect(localStorageMock.getItem).toHaveBeenCalledWith(expectedKey);
       expect(result).toBeNull();
@@ -116,8 +123,8 @@ describe('storage Effect', () => {
     it('should call localStorage.setItem with the correct key and value', async () => {
       await storageInstance.set(testValue);
       expect(localStorageMock.setItem).toHaveBeenCalledTimes(1);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(expectedKey, testValue);
-      expect(await localStorageMock.getItem(expectedKey)).toBe(testValue);
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(expectedKey, JSON.stringify(testValue));
+      expect(await localStorageMock.getItem(expectedKey)).toBe(JSON.stringify(testValue));
       expect(sessionStorageMock.setItem).not.toHaveBeenCalled();
       expect(mockCustomStore.set).not.toHaveBeenCalled();
     });
@@ -145,7 +152,7 @@ describe('storage Effect', () => {
       const testObject = { a: 1, b: 'test' };
       storageInstance.set(testObject);
 
-      const result = await storageInstance.get<typeof testObject>();
+      const result = await storageInstance.get();
       console.log(result);
 
       expect(localStorageMock.getItem).toHaveBeenCalledTimes(1);
@@ -158,13 +165,13 @@ describe('storage Effect', () => {
   describe('with sessionStorage', () => {
     const config: StorageConfig = {
       ...baseConfig,
-      tokenStore: 'sessionStorage',
+      storeType: 'sessionStorage',
     };
     const storageName = 'MyStorage';
     const storageInstance = createStorage(config, storageName);
 
     it('should call sessionStorage.getItem with the correct key and return value', async () => {
-      sessionStorageMock.setItem(expectedKey, testValue);
+      sessionStorageMock.setItem(expectedKey, JSON.stringify(testValue));
       const result = await storageInstance.get();
       expect(sessionStorageMock.getItem).toHaveBeenCalledTimes(1);
       expect(sessionStorageMock.getItem).toHaveBeenCalledWith(expectedKey);
@@ -182,7 +189,7 @@ describe('storage Effect', () => {
     it('should return parsed value if sessionStorage.getItem returns object or array', async () => {
       const obj = { tokens: 123 };
       await storageInstance.set(obj);
-      const result = await storageInstance.get<typeof obj>();
+      const result = await storageInstance.get();
       if (!result) {
         // we should not hit this expect
         expect(false).toBe(true);
@@ -221,13 +228,13 @@ describe('storage Effect', () => {
   describe('with custom TokenStoreObject', () => {
     const config: StorageConfig = {
       ...baseConfig,
-      tokenStore: 'localStorage',
+      storeType: 'localStorage',
     };
     const myStorage = 'MyStorage';
     const storageInstance = createStorage(config, myStorage, mockCustomStore);
 
     it('should call customStore.get with the correct key and return its value', async () => {
-      (mockCustomStore.get as Mock).mockResolvedValueOnce(testValue);
+      (mockCustomStore.get as Mock).mockResolvedValueOnce(JSON.stringify(testValue));
       const result = await storageInstance.get();
       expect(mockCustomStore.get).toHaveBeenCalledTimes(1);
       expect(mockCustomStore.get).toHaveBeenCalledWith(expectedKey);
@@ -248,7 +255,7 @@ describe('storage Effect', () => {
       const jsonString = JSON.stringify(testObject);
       (mockCustomStore.get as Mock).mockResolvedValueOnce(jsonString); // Mock returns JSON string
 
-      const result = await storageInstance.get<typeof testObject>();
+      const result = await storageInstance.get();
 
       expect(mockCustomStore.get).toHaveBeenCalledTimes(1);
       expect(mockCustomStore.get).toHaveBeenCalledWith(expectedKey);
@@ -258,7 +265,7 @@ describe('storage Effect', () => {
     it('should call customStore.set with the correct key and value', async () => {
       await storageInstance.set(testValue);
       expect(mockCustomStore.set).toHaveBeenCalledTimes(1);
-      expect(mockCustomStore.set).toHaveBeenCalledWith(expectedKey, testValue);
+      expect(mockCustomStore.set).toHaveBeenCalledWith(expectedKey, JSON.stringify(testValue));
       expect(localStorageMock.setItem).not.toHaveBeenCalled();
       expect(sessionStorageMock.setItem).not.toHaveBeenCalled();
     });
@@ -282,7 +289,7 @@ describe('storage Effect', () => {
   });
 
   it('should return a function that returns the storage interface', () => {
-    const config: StorageConfig = { ...baseConfig, tokenStore: 'localStorage' };
+    const config: StorageConfig = { ...baseConfig, storeType: 'localStorage' };
     const myStorage = 'MyStorage';
     const storageInterface = createStorage(config, myStorage);
     expect(storageInterface).toHaveProperty('get');
