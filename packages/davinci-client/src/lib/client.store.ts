@@ -32,6 +32,7 @@ import type {
 import type { InitFlow, Updater, Validator } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
+import { NodeStates, StartNode } from '../types.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -125,13 +126,17 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * @param {DaVinciRequest} args - the arguments to pass to the next
      * @returns {Promise} - a promise that resolves to the next node
      */
-    next: async (args?: DaVinciRequest) => {
+    next: async (args?: DaVinciRequest): Promise<NodeStates> => {
       const nodeCheck = nodeSlice.selectSlice(store.getState());
       if (nodeCheck.status === 'start') {
         return {
           ...nodeCheck,
-          error: 'Please use `start` before calling `next`',
-        };
+          error: {
+            status: 'error',
+            type: 'state_error',
+            message: 'Please use `start` before calling `next`',
+          },
+        } satisfies StartNode;
       }
 
       await store.dispatch(davinciApi.endpoints.next.initiate(args));

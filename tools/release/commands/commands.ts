@@ -2,7 +2,7 @@ import { Effect, Stream, Console } from 'effect';
 import { Command } from '@effect/platform';
 
 export const buildPackages = Command.make('pnpm', 'build').pipe(
-  Command.lines,
+  Command.string,
   Stream.tap((line) => Console.log(`Build: ${line}`)),
   Stream.runDrain,
 );
@@ -33,17 +33,7 @@ export const runChangesetsSnapshot = Command.make(
   'version',
   '--snapshot',
   'beta',
-).pipe(
-  Command.lines,
-  Stream.tap((line) => Console.log(`Changesets: ${line}`)),
-  Stream.runDrain, // Consume the stream and wait for completion
-  Effect.tapBoth({
-    onFailure: (error) =>
-      Effect.fail(Console.error(`Changesets snapshot command failed: ${error}`)),
-    onSuccess: () => Console.log('Changesets snapshot completed successfully.'),
-  }),
-  Effect.asVoid,
-);
+).pipe(Command.exitCode);
 
 // Effect to start local registry (run in background)
 export const startLocalRegistry = Command.make('pnpm', 'nx', 'local-registry').pipe(
@@ -66,7 +56,7 @@ export const publishPackages = Command.make(
   '--registry=http://localhost:4873',
   '--no-git-checks',
 ).pipe(
-  Command.lines,
+  Command.string,
   Stream.tap((line) => Console.log(`Publish: ${line}`)),
   Stream.runDrain,
   Effect.tapBoth({
