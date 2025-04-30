@@ -334,6 +334,15 @@ importers:
         specifier: 'catalog:'
         version: 2.7.0
 
+  packages/sdk-effects/storage:
+    dependencies:
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../../sdk-types
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
   packages/sdk-types: {}
 
   packages/sdk-utilities: {}

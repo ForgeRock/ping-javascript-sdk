@@ -10,17 +10,8 @@
  * **************************************************************/
 
 import type { Callback } from './am-callback.types.js';
-import type { Tokens } from './tokens.types.js';
 import type { LegacyRequestMiddleware } from './legacy-mware.types.js';
-
-/**
- * Async ConfigOptions for well-known endpoint usage
- */
-export interface AsyncConfigOptions extends Omit<LegacyConfigOptions, 'serverConfig'> {
-  serverConfig: AsyncServerConfig;
-}
-
-export type ConfigurablePaths = keyof CustomPathConfig;
+import { CustomStorageObject } from './tokens.types.js';
 
 /**
  * Optional configuration for custom paths for actions
@@ -34,7 +25,6 @@ export interface CustomPathConfig {
   revoke?: string;
   sessions?: string;
 }
-
 /**
  * Configuration settings for connecting to a server.
  */
@@ -43,7 +33,6 @@ export interface ServerConfig {
   paths?: CustomPathConfig;
   timeout?: number;
 }
-
 /**
  * Configuration settings for async config with well-known
  */
@@ -52,18 +41,22 @@ export interface AsyncServerConfig extends Omit<ServerConfig, 'baseUrl'> {
 }
 
 /**
- * API for implementing a custom token store
+ * Async LegacyConfigOptions for well-known endpoint usage
  */
-export interface TokenStoreObject {
-  get: (clientId: string) => Promise<Tokens>;
-  set: (clientId: string, token: Tokens) => Promise<void>;
-  remove: (clientId: string) => Promise<void>;
+export interface AsyncLegacyConfigOptions extends Omit<LegacyConfigOptions, 'serverConfig'> {
+  serverConfig: AsyncServerConfig;
 }
+
+export type ConfigurablePaths = keyof CustomPathConfig;
+
+/**
+ * Optional configuration for custom paths for actions
+ */
 
 /**
  * Configuration options with a server configuration specified.
  */
-export interface ValidConfigOptions extends LegacyConfigOptions {
+export interface ValidLegacyConfigOptions extends LegacyConfigOptions {
   serverConfig: ServerConfig;
   // needs logger?
 }
@@ -116,7 +109,7 @@ export interface LegacyConfigOptions {
   redirectUri?: string;
   scope?: string;
   serverConfig?: ServerConfig;
-  tokenStore?: TokenStoreObject | 'sessionStorage' | 'localStorage';
+  tokenStore?: CustomStorageObject | 'sessionStorage' | 'localStorage';
   tree?: string;
   type?: string;
   oauthThreshold?: number;
