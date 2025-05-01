@@ -124,7 +124,7 @@ export interface StartNode {
   client: {
     status: 'start';
   };
-  error: null;
+  error: DaVinciError | null;
   server: {
     status: 'start';
   };

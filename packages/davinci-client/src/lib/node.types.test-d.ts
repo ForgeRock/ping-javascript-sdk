@@ -176,7 +176,7 @@ describe('Node Types', () => {
       };
 
       expectTypeOf<StartNode>().toHaveProperty('cache').toBeNull();
-      expectTypeOf<StartNode>().toHaveProperty('error').toBeNull();
+      expectTypeOf<StartNode>().toHaveProperty('error').toBeNullable();
       expectTypeOf<StartNode>().toHaveProperty('status').toEqualTypeOf<'start'>();
     });
 

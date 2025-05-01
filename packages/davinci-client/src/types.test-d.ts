@@ -22,6 +22,7 @@ import type {
   SubmitCollector,
 } from './types.js';
 import type * as Types from './types.js';
+import { DaVinciError } from './lib/node.types.js';
 
 describe('Type exports', () => {
   it('should validate all types are exported', () => {
@@ -44,7 +45,7 @@ describe('Type exports', () => {
       type ExpectedStartNode = {
         cache: null;
         client: { status: 'start' };
-        error: null;
+        error: DaVinciError | null;
         server: { status: 'start' };
         status: 'start';
       };

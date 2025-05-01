@@ -50,16 +50,20 @@ const program = Effect.gen(function* () {
   yield* Console.log('Git status OK (no staged files found).');
   yield* checkForChangesets;
 
+  yield* Console.log('Running Changesets snapshot version...');
+  const exitCode = yield* runChangesetsSnapshot;
+
+  if (exitCode.valueOf() == 1) {
+    return yield* Effect.fail('Failed to version all snapshots');
+  }
+
   yield* Console.log('Building packages');
   yield* buildPackages;
 
-  yield* Console.log('Running Changesets snapshot version...');
-  yield* runChangesetsSnapshot;
-
   yield* Console.log('Starting Verdaccio');
   yield* startLocalRegistry;
-  yield* Console.log('Waiting for local registry to initialize... (5 seconds)');
-  yield* Effect.sleep('5 seconds');
+  yield* Console.log('Waiting for local registry to initialize... (10 seconds)');
+  yield* Effect.sleep('10 seconds');
 
   yield* Console.log('Publishing packages to local registry...');
   yield* publishPackages;

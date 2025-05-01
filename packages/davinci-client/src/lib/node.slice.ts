@@ -210,7 +210,7 @@ export const nodeSlice = createSlice({
         id: action.payload.data.id,
         interactionId: action.payload.data.interactionId,
         interactionToken: action.payload.data.interactionToken,
-        eventName: action.payload.data.eventName,
+        eventName: action.payload.data.eventName || 'continue',
         status: CONTINUE_STATUS,
       };
 
