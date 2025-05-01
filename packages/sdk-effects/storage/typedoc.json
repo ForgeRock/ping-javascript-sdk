@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/storage",
+  "entryPoints": ["src/index.ts"]
+}

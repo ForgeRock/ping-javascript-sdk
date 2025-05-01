@@ -16,13 +16,13 @@
     "build": "nx affected --target=build",
     "changeset": "changeset",
     "ci:release": "pnpm publish -r --no-git-checks && changeset tag",
-    "ci:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm format",
+    "ci:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm nx format:write",
     "circular-dep-check": "madge --circular .",
     "clean": "shx rm -rf ./{coverage,dist,docs,node_modules,tmp}/ ./{packages,e2e}/*/{dist,node_modules}/ && git clean -fX -e \"!.env*,nx-cloud.env\"",
     "commit": "git cz",
     "commitlint": "commitlint --edit",
     "create-package": "nx g @nx/js:library",
-    "docs": "nx affected --target=typedoc",
+    "generate-docs": "typedoc",
     "format": "pnpm nx format:write",
     "lint": "nx affected --target=lint",
     "local-release": "pnpm ts-node tools/release/release.ts",
@@ -48,6 +48,7 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
+  "dependencies": {},
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.9",
@@ -132,6 +133,5 @@
   },
   "nx": {
     "includedScripts": []
-  },
-  "dependencies": {}
+  }
 }

@@ -91,7 +91,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Build docs
-        run: pnpm typedoc
+        run: pnpm generate-docs
 
       - name: Publish api docs
         if: steps.changesets.outputs.published == 'true'

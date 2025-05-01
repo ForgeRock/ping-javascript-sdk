@@ -10,7 +10,7 @@
   "hideGenerator": true,
   "searchInComments": true,
   "navigationLinks": {
-    "GitHub": "https://github.com/yourusername/yourrepo"
+    "GitHub": "https://github.com/ForgeRock/ping-javascript-sdk"
   },
   "packageOptions": {
     "tsconfig": "tsconfig.lib.json",
