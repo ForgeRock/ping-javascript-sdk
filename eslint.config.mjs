@@ -23,6 +23,7 @@ export default [
   {
     ignores: [
       '**/dist',
+      '**/docs',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
       '**/out-tsc',

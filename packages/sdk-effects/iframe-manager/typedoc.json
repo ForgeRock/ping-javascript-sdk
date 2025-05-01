@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/iframe-manager",
+  "entryPoints": ["src/index.ts"]
+}

@@ -22,7 +22,7 @@
     "commit": "git cz",
     "commitlint": "commitlint --edit",
     "create-package": "nx g @nx/js:library",
-    "docs": "nx affected --target=typedoc",
+    "generate-docs": "typedoc",
     "format": "pnpm nx format:write",
     "lint": "nx affected --target=lint",
     "local-release": "pnpm ts-node tools/release/release.ts",
