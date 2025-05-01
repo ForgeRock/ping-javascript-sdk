@@ -39,6 +39,9 @@
     },
     {
       "path": "./packages/sdk-effects/storage"
+    },
+    {
+      "path": "./packages/sdk-effects/iframe-manager"
     }
   ]
 }
