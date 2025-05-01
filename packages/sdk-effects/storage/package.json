@@ -8,20 +8,19 @@
     "directory": "packages/sdk-effects/storage"
   },
   "type": "module",
-  "main": "./dist/src/index.js",
-  "module": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
   "exports": {
-    "./package.json": "./package.json",
     ".": {
       "types": "./dist/src/index.d.ts",
       "import": "./dist/src/index.js",
       "default": "./dist/src/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "dependencies": {
-    "@forgerock/sdk-types": "workspace:*",
-    "tslib": "^2.3.0"
+    "@forgerock/sdk-types": "workspace:*"
   },
   "nx": {
     "tags": ["scope:sdk-effects"]
