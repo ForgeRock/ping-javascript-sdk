@@ -257,10 +257,12 @@ export type MultiSelectCollector = MultiValueCollectorWithValue<'MultiSelectColl
 export type ObjectValueCollectorTypes =
   | 'DeviceAuthenticationCollector'
   | 'DeviceRegistrationCollector'
+  | 'PhoneNumberCollector'
+  | 'ObjectOptionsCollector'
   | 'ObjectValueCollector'
   | 'ObjectSelectCollector';
 
-interface ObjectOptionWithValue {
+interface DeviceOptionWithDefault {
   type: string;
   label: string;
   content: string;
@@ -269,7 +271,7 @@ interface ObjectOptionWithValue {
   key: string;
 }
 
-interface ObjectOptionNoValue {
+interface DeviceOptionNoDefault {
   type: string;
   label: string;
   content: string;
@@ -277,13 +279,26 @@ interface ObjectOptionNoValue {
   key: string;
 }
 
-interface ObjectValue {
+export interface DeviceValue {
   type: string;
   id: string;
   value: string;
 }
 
-export interface ObjectValueCollectorNoValue<T extends ObjectValueCollectorTypes> {
+export interface PhoneNumberInputValue {
+  countryCode: string;
+  phoneNumber: string;
+}
+
+interface PhoneNumberOutputValue {
+  countryCode?: string;
+  phoneNumber?: string;
+}
+
+export interface ObjectOptionsCollectorWithStringValue<
+  T extends ObjectValueCollectorTypes,
+  V = string,
+> {
   category: 'ObjectValueCollector';
   error: string | null;
   type: T;
@@ -291,18 +306,22 @@ export interface ObjectValueCollectorNoValue<T extends ObjectValueCollectorTypes
   name: string;
   input: {
     key: string;
-    value: string | null;
+    value: V;
     type: string;
   };
   output: {
     key: string;
     label: string;
     type: string;
-    options: ObjectOptionNoValue[];
+    options: DeviceOptionNoDefault[];
   };
 }
 
-export interface ObjectValueCollectorWithValue<T extends ObjectValueCollectorTypes> {
+export interface ObjectOptionsCollectorWithObjectValue<
+  T extends ObjectValueCollectorTypes,
+  V = Record<string, string>,
+  D = Record<string, string>,
+> {
   category: 'ObjectValueCollector';
   error: string | null;
   type: T;
@@ -310,14 +329,38 @@ export interface ObjectValueCollectorWithValue<T extends ObjectValueCollectorTyp
   name: string;
   input: {
     key: string;
-    value: ObjectValue | null;
+    value: V;
     type: string;
   };
   output: {
     key: string;
     label: string;
     type: string;
-    options: ObjectOptionWithValue[];
+    options: DeviceOptionWithDefault[];
+    value?: D | null;
+  };
+}
+
+export interface ObjectValueCollectorWithObjectValue<
+  T extends ObjectValueCollectorTypes,
+  IV = Record<string, string>,
+  OV = Record<string, string>,
+> {
+  category: 'ObjectValueCollector';
+  error: string | null;
+  type: T;
+  id: string;
+  name: string;
+  input: {
+    key: string;
+    value: IV;
+    type: string;
+  };
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    value?: OV | null;
   };
 }
 
@@ -326,24 +369,37 @@ export type InferValueObjectCollectorType<T extends ObjectValueCollectorTypes> =
     ? DeviceAuthenticationCollector
     : T extends 'DeviceRegistrationCollector'
       ? DeviceRegistrationCollector
-      :
-          | ObjectValueCollectorWithValue<'ObjectValueCollector'>
-          | ObjectValueCollectorNoValue<'ObjectValueCollector'>;
+      : T extends 'PhoneNumberCollector'
+        ? PhoneNumberCollector
+        :
+            | ObjectOptionsCollectorWithObjectValue<'ObjectValueCollector'>
+            | ObjectOptionsCollectorWithStringValue<'ObjectValueCollector'>;
 
 export type ObjectValueCollectors =
-  | ObjectValueCollectorWithValue<'DeviceAuthenticationCollector'>
-  | ObjectValueCollectorNoValue<'DeviceRegistrationCollector'>
-  | ObjectValueCollectorWithValue<'ObjectSelectCollector'>
-  | ObjectValueCollectorNoValue<'ObjectSelectCollector'>;
+  | DeviceAuthenticationCollector
+  | DeviceRegistrationCollector
+  | PhoneNumberCollector
+  | ObjectOptionsCollectorWithObjectValue<'ObjectSelectCollector'>
+  | ObjectOptionsCollectorWithStringValue<'ObjectSelectCollector'>;
 
 export type ObjectValueCollector<T extends ObjectValueCollectorTypes> =
-  | ObjectValueCollectorWithValue<T>
-  | ObjectValueCollectorNoValue<T>;
+  | ObjectOptionsCollectorWithObjectValue<T>
+  | ObjectOptionsCollectorWithStringValue<T>
+  | ObjectValueCollectorWithObjectValue<T>;
 
-export type DeviceRegistrationCollector =
-  ObjectValueCollectorNoValue<'DeviceRegistrationCollector'>;
-export type DeviceAuthenticationCollector =
-  ObjectValueCollectorWithValue<'DeviceAuthenticationCollector'>;
+export type DeviceRegistrationCollector = ObjectOptionsCollectorWithStringValue<
+  'DeviceRegistrationCollector',
+  string
+>;
+export type DeviceAuthenticationCollector = ObjectOptionsCollectorWithObjectValue<
+  'DeviceAuthenticationCollector',
+  DeviceValue
+>;
+export type PhoneNumberCollector = ObjectValueCollectorWithObjectValue<
+  'PhoneNumberCollector',
+  PhoneNumberInputValue,
+  PhoneNumberOutputValue
+>;
 
 /** *********************************************************************
  * ACTION COLLECTORS
@@ -448,3 +504,16 @@ export type NoValueCollectors =
 export type NoValueCollector<T extends NoValueCollectorTypes> = NoValueCollectorBase<T>;
 
 export type ReadOnlyCollector = NoValueCollectorBase<'ReadOnlyCollector'>;
+
+export type UnknownCollector = {
+  category: 'UnknownCollector';
+  error: string | null;
+  type: 'UnknownCollector';
+  id: string;
+  name: string;
+  output: {
+    key: string;
+    label: string;
+    type: string;
+  };
+};

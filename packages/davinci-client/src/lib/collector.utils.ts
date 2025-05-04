@@ -21,11 +21,13 @@ import type {
   ValidatedTextCollector,
   InferValueObjectCollectorType,
   ObjectValueCollectorTypes,
+  UnknownCollector,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
   DeviceRegistrationField,
   MultiSelectField,
+  PhoneNumberField,
   ReadOnlyField,
   RedirectField,
   SingleSelectField,
@@ -218,7 +220,7 @@ export function returnSingleValueCollector<
       name: field.key,
       input: {
         key: field.key,
-        value: '',
+        value: data || '',
         type: field.type,
         validation: validationArray,
       },
@@ -313,7 +315,7 @@ export function returnMultiValueCollector<
     name: field.key,
     input: {
       key: field.key,
-      value: [],
+      value: data || [],
       type: field.type,
     },
     output: {
@@ -344,7 +346,7 @@ export function returnMultiSelectCollector(field: MultiSelectField, idx: number,
  * @returns {ObjectCollector} The constructed ObjectCollector object.
  */
 export function returnObjectCollector<
-  Field extends DeviceAuthenticationField | DeviceRegistrationField,
+  Field extends DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField,
   CollectorType extends ObjectValueCollectorTypes = 'ObjectValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -357,15 +359,25 @@ export function returnObjectCollector<
   if (!('type' in field)) {
     error = `${error}Type is not found in the field object. `;
   }
-  if (!('devices' in field)) {
-    error = `${error}Options are not found in the field object. `;
-  }
 
   let devices;
-  if (Array.isArray(field.devices) && field.devices.length === 0) {
-    error = `${error}Options are not an array or is empty. `;
-  }
+  let defaultValue;
+
   if (field.type === 'DEVICE_AUTHENTICATION') {
+    if (!('devices' in field)) {
+      error = `${error}Device options are not found in the field object. `;
+    }
+    if (Array.isArray(field.devices) && field.devices.length === 0) {
+      error = `${error}Device options are not an array or is empty. `;
+    }
+
+    const unmappedDefault = field.devices.find((device) => device.default);
+    defaultValue = {
+      type: unmappedDefault ? unmappedDefault.type : '',
+      value: unmappedDefault ? unmappedDefault.value : '',
+      id: unmappedDefault ? unmappedDefault.id : '',
+    };
+
     // Map DaVinci spec to normalized SDK API
     devices = field.devices.map((device) => ({
       type: device.type,
@@ -375,7 +387,17 @@ export function returnObjectCollector<
       key: device.id,
       default: device.default,
     }));
-  } else {
+  } else if (field.type === 'DEVICE_REGISTRATION') {
+    if (!('devices' in field)) {
+      error = `${error}Device options are not found in the field object. `;
+    }
+
+    if (Array.isArray(field.devices) && field.devices.length === 0) {
+      error = `${error}Device options are not an array or is empty. `;
+    }
+
+    defaultValue = '';
+
     // Map DaVinci spec to normalized SDK API
     devices = field.devices.map((device, idx) => ({
       type: device.type,
@@ -384,6 +406,11 @@ export function returnObjectCollector<
       value: device.type,
       key: `${device.type}-${idx}`,
     }));
+  } else if (field.type === 'PHONE_NUMBER') {
+    defaultValue = {
+      countryCode: field.defaultCountryCode || '',
+      phoneNumber: '',
+    };
   }
 
   return {
@@ -394,14 +421,15 @@ export function returnObjectCollector<
     name: field.key,
     input: {
       key: field.key,
-      value: null,
+      value: defaultValue,
       type: field.type,
     },
     output: {
       key: field.key,
       label: field.label,
       type: field.type,
-      options: devices || [],
+      ...(devices && { options: devices || [] }),
+      ...(defaultValue && { value: defaultValue }),
     },
   } as InferValueObjectCollectorType<CollectorType>;
 }
@@ -423,6 +451,10 @@ export function returnObjectSelectCollector(
       ? 'DeviceAuthenticationCollector'
       : 'DeviceRegistrationCollector',
   );
+}
+
+export function returnObjectValueCollector(field: PhoneNumberField, idx: number) {
+  return returnObjectCollector(field, idx, 'PhoneNumberCollector');
 }
 
 /**
@@ -493,4 +525,19 @@ export function returnValidator(collector: ValidatedTextCollector) {
       return acc;
     }, [] as string[]);
   };
+}
+
+export function returnUnknownCollector(field: Record<string, unknown>, idx: number) {
+  return {
+    category: 'UnknownCollector',
+    error: 'Detected an unknown or unsupported collector type',
+    type: field['type'],
+    id: `${field['key'] || field['type']}-${idx}`,
+    name: field['key'] || field['type'],
+    output: {
+      key: `${field['key'] || field['type']}-${idx}`,
+      label: field['label'] || field['content'],
+      type: field['type'],
+    },
+  } as UnknownCollector;
 }
