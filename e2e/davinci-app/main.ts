@@ -202,6 +202,13 @@ const urlParams = new URLSearchParams(window.location.search);
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
         );
+      } else if (collector.type === 'PhoneNumberCollector') {
+        objectValueComponent(
+          formEl, // You can ignore this; it's just for rendering
+          collector, // This is the plain object of the collector
+          davinciClient.update(collector), // Returns an update function for this collector
+          submitForm,
+        );
       } else if (collector.type === 'IdpCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
