@@ -19,11 +19,13 @@ import {
   returnReadOnlyCollector,
   returnNoValueCollector,
   returnObjectSelectCollector,
+  returnObjectValueCollector,
 } from './collector.utils.js';
 import type {
   DaVinciField,
   DeviceAuthenticationField,
   DeviceRegistrationField,
+  PhoneNumberField,
   ReadOnlyField,
   RedirectField,
   StandardField,
@@ -458,7 +460,11 @@ describe('Object value collectors', () => {
         name: 'device-auth-key',
         input: {
           key: mockField.key,
-          value: null,
+          value: {
+            id: '123123',
+            type: 'device1',
+            value: 'device1-value',
+          },
           type: mockField.type,
         },
         output: {
@@ -466,6 +472,11 @@ describe('Object value collectors', () => {
           label: mockField.label,
           type: mockField.type,
           options: transformedDevices,
+          value: {
+            id: '123123',
+            type: 'device1',
+            value: 'device1-value',
+          },
         },
       });
     });
@@ -511,7 +522,7 @@ describe('Object value collectors', () => {
         name: 'device-reg-key',
         input: {
           key: mockField.key,
-          value: null,
+          value: '',
           type: mockField.type,
         },
         output: {
@@ -521,6 +532,44 @@ describe('Object value collectors', () => {
           options: transformedDevices,
         },
       });
+    });
+  });
+});
+
+describe('returnPhoneNumberCollector', () => {
+  const mockField: PhoneNumberField = {
+    key: 'phone-number-key',
+    defaultCountryCode: null,
+    label: 'Phone Number',
+    type: 'PHONE_NUMBER',
+    required: true,
+  };
+
+  it('should create a phone number collector', () => {
+    const result = returnObjectValueCollector(mockField, 1);
+    expect(result).toEqual({
+      category: 'ObjectValueCollector',
+      error: null,
+      type: 'PhoneNumberCollector',
+      id: 'phone-number-key-1',
+      name: 'phone-number-key',
+      input: {
+        key: mockField.key,
+        value: {
+          countryCode: '',
+          phoneNumber: '',
+        },
+        type: mockField.type,
+      },
+      output: {
+        key: mockField.key,
+        label: mockField.label,
+        type: mockField.type,
+        value: {
+          countryCode: '',
+          phoneNumber: '',
+        },
+      },
     });
   });
 });

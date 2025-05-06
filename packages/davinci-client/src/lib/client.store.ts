@@ -29,6 +29,7 @@ import type {
   IdpCollector,
   MultiSelectCollector,
   ObjectValueCollectors,
+  PhoneNumberInputValue,
 } from './collector.types.js';
 import type { InitFlow, Updater, Validator } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
@@ -223,7 +224,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         };
       }
 
-      return function (value: string | string[], index?: number) {
+      return function (value: string | string[] | PhoneNumberInputValue, index?: number) {
         try {
           store.dispatch(nodeSlice.actions.update({ id, value, index }));
           return null;

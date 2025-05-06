@@ -144,7 +144,20 @@ export type DeviceRegistrationField = {
   required: boolean;
 };
 
-export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField;
+export type PhoneNumberField = {
+  type: 'PHONE_NUMBER';
+  key: string;
+  label: string;
+  defaultCountryCode: string | null;
+  required: boolean;
+};
+
+export type UnknownField = Record<string, unknown>;
+
+export type ComplexValueFields =
+  | DeviceAuthenticationField
+  | DeviceRegistrationField
+  | PhoneNumberField;
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField;
 export type RedirectFields = RedirectField;

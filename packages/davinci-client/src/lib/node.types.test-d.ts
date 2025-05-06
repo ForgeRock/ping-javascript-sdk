@@ -30,6 +30,8 @@ import {
   ValidatedTextCollector,
   DeviceRegistrationCollector,
   DeviceAuthenticationCollector,
+  PhoneNumberCollector,
+  UnknownCollector,
 } from './collector.types.js';
 // ErrorDetail and Links are used as part of the DaVinciError and server._links types respectively
 
@@ -224,9 +226,11 @@ describe('Node Types', () => {
         | MultiSelectCollector
         | DeviceAuthenticationCollector
         | DeviceRegistrationCollector
+        | PhoneNumberCollector
         | ReadOnlyCollector
         | SingleSelectCollector
         | ValidatedTextCollector
+        | UnknownCollector
       >();
 
       // Test that each collector type is part of the union

@@ -18,6 +18,8 @@ import type {
   DeviceRegistrationCollector,
   ReadOnlyCollector,
   ValidatedTextCollector,
+  PhoneNumberCollector,
+  UnknownCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
 import { GenericError } from './error.types.js';
@@ -34,8 +36,10 @@ export type Collectors =
   | MultiSelectCollector
   | DeviceAuthenticationCollector
   | DeviceRegistrationCollector
+  | PhoneNumberCollector
   | ReadOnlyCollector
-  | ValidatedTextCollector;
+  | ValidatedTextCollector
+  | UnknownCollector;
 
 export interface CollectorErrors {
   code: string;
