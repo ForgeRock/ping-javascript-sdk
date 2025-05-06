@@ -316,6 +316,12 @@ importers:
         specifier: ^2.5.1
         version: 2.7.5(@types/node@22.14.1)(typescript@5.7.3)
 
+  packages/protect:
+    dependencies:
+      '@forgerock/javascript-sdk':
+        specifier: 4.7.0
+        version: 4.7.0
+
   packages/oidc-client:
     dependencies:
       '@forgerock/sdk-types':

@@ -1,5 +1,5 @@
 {
-  "name": "@forgeorck/oidc-app",
+  "name": "@forgerock/oidc-app",
   "version": "0.0.1",
   "private": true,
   "scripts": {
