@@ -8,73 +8,73 @@
  */
 
 /**
- * ProtectConfig - Interface for the Protect module configuration parameters
+ * @interface ProtectConfig - Interface for the Protect module configuration parameters
  * @description - envId is required. All other parameters are optional.
  */
 export interface ProtectConfig {
   /**
-   * @param {string} envId - the environment id from your PingOne tenant
+   * @property {string} envId - the environment id from your PingOne tenant
    */
   envId: string;
 
   /**
-   * @param {boolean} [consoleLogEnabled] - true to enable SDK logs in the developer console. default is false
+   * @property {boolean} [consoleLogEnabled] - true to enable SDK logs in the developer console. default is false
    */
   consoleLogEnabled?: boolean;
 
   /**
-   * @param {boolean} [waitForWindowLoad] - true to init the SDK on load event, instead of DOMContentLoaded event. default is true
+   * @property {boolean} [waitForWindowLoad] - true to init the SDK on load event, instead of DOMContentLoaded event. default is true
    */
   waitForWindowLoad?: boolean;
 
   /**
-   * @param {string} [hubUrl] - iframe url for cross-storage device ID
+   * @property {string} [hubUrl] - iframe url for cross-storage device ID
    */
   hubUrl?: string;
 
   /**
-   * @param {boolean} [disableHub] - when true, the SDK store the deviceId to the localStorage only and won't use an iframe (hub). default is false
+   * @property {boolean} [disableHub] - when true, the SDK store the deviceId to the localStorage only and won't use an iframe (hub). default is false
    */
   disableHub?: boolean;
 
   /**
-   * @param {string[]} [deviceAttributesToIgnore] - metadata blacklist
+   * @property {string[]} [deviceAttributesToIgnore] - metadata blacklist
    */
   deviceAttributesToIgnore?: string[];
 
   /**
-   * @param {boolean} [lazyMetadata] - true to calculate the metadata only on getData invocation, otherwise do it automatically on init. default is false
+   * @property {boolean} [lazyMetadata] - true to calculate the metadata only on getData invocation, otherwise do it automatically on init. default is false
    */
   lazyMetadata?: boolean;
 
   /**
-   * @param {boolean} [behavioralDataCollection] - true to collect behavioral data. default is true
+   * @property {boolean} [behavioralDataCollection] - true to collect behavioral data. default is true
    */
   behavioralDataCollection?: boolean;
 
   /**
-   * @param {boolean} [disableTags] - true to skip tag collection. default is false
+   * @property {boolean} [disableTags] - true to skip tag collection. default is false
    */
   disableTags?: boolean;
 
   /**
-   * @param {Record<string, string>} [externalIdentifiers] - optional customer external identifiers that should be reflected on a device entity
+   * @property {Record<string, string>} [externalIdentifiers] - optional customer external identifiers that should be reflected on a device entity
    */
   externalIdentifiers?: Record<string, string>;
 
   /**
-   * @param {number} [deviceKeyRsyncIntervals] - number of days used to window the next time the device attestation should use the device fallback key. default is 14 days
+   * @property {number} [deviceKeyRsyncIntervals] - number of days used to window the next time the device attestation should use the device fallback key. default is 14 days
    */
   deviceKeyRsyncIntervals?: number;
 
   /**
-   * @param {boolean} [enableTrust] - tie the device payload to a non-extractable crypto key stored on the browser for content authenticity verification
+   * @property {boolean} [enableTrust] - tie the device payload to a non-extractable crypto key stored on the browser for content authenticity verification
    */
   enableTrust?: boolean;
 }
 
 /**
- * Protect - Interface for the methods returned by createProtect
+ * @interface Protect - Interface for methods to interact with the PingOne Signals SDK
  */
 export interface Protect {
   /**

@@ -25,7 +25,7 @@ declare global {
  * @async
  * @function createProtect - returns a set of methods to interact with the PingOne Signals SDK
  * @param {ProtectConfig} options - the configuration options for the PingOne Signals SDK
- * @returns {Promise<Protect>} - a set of methods
+ * @returns {Promise<Protect>} - a set of methods to interact with the PingOne Signals SDK
  */
 export async function createProtect(options: ProtectConfig): Promise<Protect> {
   const protectAPI: Protect = {

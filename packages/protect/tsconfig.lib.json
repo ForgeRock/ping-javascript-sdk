@@ -6,6 +6,7 @@
     "target": "ES2022",
     "outDir": "./dist",
     "resolveJsonModule": true,
+    "allowJs": true,
     "moduleDetection": "force",
     "isolatedModules": true,
     "strict": true,
