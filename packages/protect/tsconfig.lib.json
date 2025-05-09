@@ -17,7 +17,7 @@
     "sourceMap": true,
     "lib": ["es2022", "dom", "dom.iterable"]
   },
-  "include": ["src/**/*.ts", "src/**/*.*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.*.ts", "src/lib/signals-sdk.js"],
   "exclude": [
     "src/**/*.*.test-d.ts",
     "src/**/*.test-d.ts",
@@ -27,8 +27,7 @@
     "src/**/*.*test.ts",
     "src/**/*.test-d.ts",
     "src/**/*.types.test-d.ts",
-    "src/**/*.utils.test-d.ts",
-    "src/lib/mock-data/*"
+    "src/**/*.utils.test-d.ts"
   ],
   "references": []
 }

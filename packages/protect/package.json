@@ -7,7 +7,7 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/protect"
   },
-  "sideEffects": true,
+  "sideEffects": ["dist/src/lib/signals-sdk.js"],
   "type": "module",
   "exports": {
     ".": {
@@ -26,5 +26,21 @@
     "test": "pnpm nx nxTest",
     "test:watch": "pnpm nx nxTest --watch"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "nx": {
+    "tags": ["scope:package"],
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "packages/protect/dist",
+          "main": "packages/protect/src/index.ts",
+          "tsConfig": "packages/protect/tsconfig.lib.json",
+          "generatePackageJson": false,
+          "assets": []
+        }
+      }
+    }
+  }
 }
