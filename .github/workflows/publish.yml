@@ -10,6 +10,7 @@ env:
   PNPM_CACHE_FOLDER: .pnpm-store
   NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  CI: true
 
 jobs:
   publish-or-pr:
@@ -42,13 +43,13 @@ jobs:
       - run: pnpm exec playwright install
 
       - uses: nrwl/nx-set-shas@v4
-        with:
-          main-branch-name: main
+
+      - run: git branch --track main origin/main
 
       - name: setup pnpm config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
 
-      - run: pnpm exec nx affected -t build lint test e2e
+      - run: pnpm exec nx affected -t build lint test e2e-ci
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
