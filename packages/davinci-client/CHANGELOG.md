@@ -1,5 +1,22 @@
 # @forgerock/davinci-client
 
+## 1.2.0
+
+### Minor Changes
+
+- [#262](https://github.com/ForgeRock/ping-javascript-sdk/pull/262) [`e38b49e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/e38b49ebd29c304cb362d77e3e9862217f1cc17a) Thanks [@cerebrl](https://github.com/cerebrl)! - Add support for MFA OTP field support with added collectors
+
+- [#246](https://github.com/ForgeRock/ping-javascript-sdk/pull/246) [`0d54b34`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0d54b3461443fcf5c5071a08578f2d418f066073) Thanks [@cerebrl](https://github.com/cerebrl)! - created effects type packages, logger, oidc, and request middleware
+
+### Patch Changes
+
+- [#267](https://github.com/ForgeRock/ping-javascript-sdk/pull/267) [`12179a1`](https://github.com/ForgeRock/ping-javascript-sdk/commit/12179a14a6fc8cba9af34bbc0f3dc87d4319e183) Thanks [@ryanbas21](https://github.com/ryanbas21)! - update type misalignments and fallback to `continue` state when there is no state given
+
+- Updated dependencies [[`04b506c`](https://github.com/ForgeRock/ping-javascript-sdk/commit/04b506c2016324dffeba3a473bfc705843ac3e41), [`0d54b34`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0d54b3461443fcf5c5071a08578f2d418f066073), [`50fd7fa`](https://github.com/ForgeRock/ping-javascript-sdk/commit/50fd7fab9f0dd893528e85cb15f1ba6fdc1fe3e8)]:
+  - @forgerock/sdk-oidc@1.2.0
+  - @forgerock/sdk-types@1.2.0
+  - @forgerock/sdk-request-middleware@1.2.0
+
 ## 1.1.0
 
 ### Minor Changes
