@@ -44,8 +44,6 @@ jobs:
 
       - uses: nrwl/nx-set-shas@v4
 
-      - run: git branch --track main origin/main
-
       - name: setup pnpm config
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
 
