@@ -13,7 +13,7 @@
       "!{workspaceRoot}/contributing_docs/*.md",
       "!{workspaceRoot}/.verdaccio/*"
     ],
-    "sharedGlobals": [],
+    "sharedGlobals": ["{projectRoot}/.github/workflows/*.yml"],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test|mock).[jt]s?(x)?(.snap)",
