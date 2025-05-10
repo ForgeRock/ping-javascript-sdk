@@ -85,3 +85,121 @@ export const nodeNext0 = {
   status: 'continue',
   httpStatus: 200,
 };
+
+export const nodeNext1 = {
+  cache: {
+    key: '1234',
+  },
+  client: {
+    action: 'submit',
+    collectors: [
+      {
+        category: 'SingleValueCollector',
+        error: 'Key is not found in the field object. Label is not found in the field object. ',
+        id: 'undefined-0',
+        input: {
+          key: undefined,
+          type: 'ERROR_DISPLAY',
+          value: '',
+        },
+        name: undefined,
+        output: {
+          key: undefined,
+          label: undefined,
+          type: 'ERROR_DISPLAY',
+          value: '',
+        },
+        type: 'SingleValueCollector',
+      },
+      {
+        category: 'NoValueCollector',
+        error: null,
+        id: 'LABEL-1',
+        name: 'LABEL-1',
+        output: {
+          key: 'LABEL-1',
+          label:
+            '<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis.</p>',
+          type: 'LABEL',
+        },
+        type: 'ReadOnlyCollector',
+      },
+      {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        id: 'user.username-2',
+        input: {
+          key: 'user.username',
+          type: 'TEXT',
+          validation: [
+            {
+              message: 'Value cannot be empty',
+              rule: true,
+              type: 'required',
+            },
+          ],
+          value: '',
+        },
+        name: 'user.username',
+        output: {
+          key: 'user.username',
+          label: 'Enter your Email Address',
+          type: 'TEXT',
+          value: '',
+        },
+        type: 'TextCollector',
+      },
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        id: 'user.password-3',
+        input: {
+          key: 'user.password',
+          type: 'PASSWORD',
+          value: '',
+        },
+        name: 'user.password',
+        output: {
+          key: 'user.password',
+          label: 'Enter your Password',
+          type: 'PASSWORD',
+        },
+        type: 'PasswordCollector',
+      },
+      {
+        category: 'ActionCollector',
+        error: null,
+        id: 'submit-4',
+        name: 'submit',
+        output: {
+          key: 'submit',
+          label: 'Sign On',
+          type: 'SUBMIT_BUTTON',
+        },
+        type: 'SubmitCollector',
+      },
+    ],
+    description: 'This is an out-of-the-box sign on form that prompts for username and password.',
+    name: 'SDK - Sign On',
+    status: 'continue',
+  },
+  error: null,
+  httpStatus: 200,
+  server: {
+    _links: {
+      next: {
+        href: 'https://auth.pingone.com/490b9f38-f20b-4afa-b02e-3cc1315e29ab/davinci/connections/8209285e0d2f3fc76bfd23fd10d45e6f/capabilities/customForm',
+      },
+      self: {
+        href: 'https://auth.pingone.com/490b9f38-f20b-4afa-b02e-3cc1315e29ab/davinci/policy/c233870943cbaa6ff1a021622d074842/start',
+      },
+    },
+    eventName: 'continue',
+    id: 'elvr5pbwzn',
+    interactionId: '03534806-abbc-4f43-a9b1-8bdba1a57765',
+    interactionToken:
+      '460b6e374ff40f453eb83e3cf3da33d289538371e293df51afde06dab7ae37963234bb7bac201160b53857e49bdf245367c719ad087efc6d95fa09df4ad3d1bb94b75e1c49d72bd948eddf3a8aff9ebcb4d7a8212741d8d41abb010dd75d26e4d246ef0cea0e2550dc6fbbe36a4492105b28c33f39325291a596cd1ad77cbf95',
+    status: 'continue',
+  },
+  status: 'continue',
+};
