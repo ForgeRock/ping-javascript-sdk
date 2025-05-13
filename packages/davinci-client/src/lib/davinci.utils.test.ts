@@ -112,6 +112,77 @@ describe('transformSubmitRequest', () => {
     const result = transformSubmitRequest(node);
     expect(result).toEqual(expectedRequest);
   });
+
+  it('should not add undefined values to formData', () => {
+    const node: ContinueNode = {
+      cache: {
+        key: '123',
+      },
+      client: {
+        action: 'SIGNON',
+        collectors: [
+          {
+            category: 'SingleValueCollector',
+            error: null,
+            input: { key: 'username', value: 'john', type: 'TEXT' },
+            output: { key: 'username', label: 'Username', type: 'TEXT', value: '' },
+            type: 'TextCollector',
+            id: 'abc',
+            name: 'username',
+          },
+          {
+            category: 'NoValueCollector',
+            type: 'ReadOnlyCollector',
+            error: null,
+            id: '123',
+            name: 'readOnly',
+            output: {
+              type: '',
+              key: '',
+              label:
+                '<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.Aenean commodo ligula eget dolor.Aenean massa.Cum sociis natoque penatibus et magnis dis.</p>',
+            },
+          },
+          {
+            category: 'SingleValueCollector',
+            error: null,
+            input: { key: 'password', value: 'secret', type: 'PASSWORD' },
+            output: { key: 'password', label: 'Password', type: 'PASSWORD' },
+            type: 'PasswordCollector',
+            id: 'xyz',
+            name: 'password',
+          },
+        ],
+        status: 'continue' as const,
+      },
+      error: null,
+      httpStatus: 200,
+      server: {
+        id: '123',
+        eventName: 'login',
+        interactionId: '456',
+        status: 'continue' as const,
+      },
+      status: 'continue',
+    };
+    const expectedRequest = {
+      id: '123',
+      eventName: 'login',
+      interactionId: '456',
+      parameters: {
+        eventType: 'submit',
+        data: {
+          actionKey: 'SIGNON',
+          formData: {
+            username: 'john',
+            password: 'secret',
+          },
+        },
+      },
+    };
+
+    expect(expectedRequest).toEqual(transformSubmitRequest(node));
+  });
 });
 
 describe('transformActionRequest', () => {
