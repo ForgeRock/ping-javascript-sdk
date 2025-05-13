@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "moduleResolution": "Bundler"
+  },
+  "exclude": ["**/*.spec.ts", "**/*.test.ts"],
+  "include": [
+    "./main.ts",
+    "./helper.ts",
+    "./server-configs.ts",
+    "components/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/protect/tsconfig.lib.json"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
-  "name": "@forgerock/davinci-suites",
+  "name": "@pingidentity/protect-suites",
   "version": "0.0.0",
   "private": true,
-  "description": "DaVinci Client E2E Suites",
+  "description": "Ping Protect E2E Suites",
   "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
   "bugs": {
     "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
@@ -16,6 +16,6 @@
   "type": "module",
   "main": "src/index.js",
   "nx": {
-    "implicitDependencies": ["@forgerock/davinci-app", "@forgerock/mock-api-v2"]
+    "implicitDependencies": ["@pingidentity/protect-app"]
   }
 }
