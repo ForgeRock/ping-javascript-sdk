@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + TS</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>
+        <a href="https://vite.dev" target="_blank">
+          <img src="./public/vite.svg" class="logo" alt="Vite logo" />
+        </a>
+        <a href="https://www.typescriptlang.org/" target="_blank">
+          <img src="./public/typescript.svg" class="logo vanilla" alt="TypeScript logo" />
+        </a>
+        <h2>AM Journey with Ping Protect</h2>
+        <p class="read-the-docs">Click on the Vite and TypeScript logos to learn more</p>
+        <div id="steps">
+          <div id="loader" class="active">Loading...</div>
+          <div id="UsernamePassword">
+            <input class="form-control" type="text" name="username" placeholder="Username" />
+            <input class="form-control" type="password" name="password" placeholder="Password" />
+            <button class="btn btn-primary">Sign In</button>
+          </div>
+          <div id="Name">
+            <input class="form-control" type="text" name="name" placeholder="Name" />
+            <button class="btn btn-primary">Submit Name</button>
+          </div>
+          <div id="ProtectInit">Protect initializing</div>
+          <div id="ProtectEval">Protect evaluating</div>
+          <div id="User">
+            <div>
+              <p>Your user information:</p>
+              <pre></pre>
+            </div>
+            <button class="btn btn-primary">Sign Out</button>
+          </div>
+          <div id="Error">
+            <p>Error code: <span></span></p>
+            <p><a id="start-over" href="/">Start over</a></p>
+          </div>
+          <div id="Fatal">
+            <p>Something unexpected happened. Check the console for details.</p>
+            <p><a id="start-over" href="/">Start over</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
