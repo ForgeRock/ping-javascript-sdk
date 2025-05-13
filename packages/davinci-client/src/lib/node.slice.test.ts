@@ -41,6 +41,49 @@ describe('The node slice reducers', () => {
     expect(nodeSlice.reducer(undefined, action)).toEqual(nodeNext0);
   });
 
+  it('should clear error when we successfully process a node with a next', () => {
+    const actionError = {
+      type: 'node/error',
+      payload: {
+        data: error0a,
+        requestId: '1234',
+        httpStatus: 400,
+      },
+    };
+    const errorState = {
+      cache: {
+        key: '1234',
+      },
+      client: {
+        status: 'error' as const,
+      },
+      error: {
+        code: ' Invalid username and/or password',
+        collectors: [],
+        message: ' Invalid username and/or password',
+        internalHttpStatus: 400,
+        status: 'error',
+        type: 'davinci_error',
+      },
+      httpStatus: 400,
+      server: {
+        status: 'error',
+      },
+      status: 'error',
+    };
+    const errorStateReducer = nodeSlice.reducer(undefined, actionError);
+    expect(errorStateReducer).toEqual(errorState);
+
+    const action = {
+      type: 'node/next',
+      payload: {
+        data: next0,
+        requestId: '1234',
+        httpStatus: 200,
+      },
+    };
+    expect(nodeSlice.reducer(errorStateReducer, action)).toEqual(nodeNext0);
+  });
   it('should handle success node after DaVinci flow', () => {
     const action = {
       type: 'node/success',
@@ -65,6 +108,50 @@ describe('The node slice reducers', () => {
     };
 
     expect(nodeSlice.reducer(undefined, action)).toEqual(nodeSuccess1);
+  });
+
+  it('should clear error when we successfully process a node', () => {
+    const action = {
+      type: 'node/error',
+      payload: {
+        data: error0a,
+        requestId: '1234',
+        httpStatus: 400,
+      },
+    };
+    const errorState = {
+      cache: {
+        key: '1234',
+      },
+      client: {
+        status: 'error' as const,
+      },
+      error: {
+        code: ' Invalid username and/or password',
+        collectors: [],
+        message: ' Invalid username and/or password',
+        internalHttpStatus: 400,
+        status: 'error',
+        type: 'davinci_error',
+      },
+      httpStatus: 400,
+      server: {
+        status: 'error',
+      },
+      status: 'error',
+    };
+    const errorStateReducer = nodeSlice.reducer(undefined, action);
+    expect(errorStateReducer).toEqual(errorState);
+
+    const actionSuccess = {
+      type: 'node/success',
+      payload: {
+        data: success1,
+        requestId: '1234',
+        httpStatus: 200,
+      },
+    };
+    expect(nodeSlice.reducer(errorStateReducer, actionSuccess)).toEqual(nodeSuccess1);
   });
 
   it('should handle error node', () => {

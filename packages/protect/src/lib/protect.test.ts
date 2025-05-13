@@ -171,6 +171,14 @@ describe('protect (success tests)', () => {
 });
 
 describe('protect (error tests)', () => {
+  beforeAll(() => {
+    vi.doMock('./signals-sdk.js', () => {
+      throw new Error('Failed to load PingOne Signals SDK');
+    });
+  });
+  afterAll(() => {
+    vi.doUnmock('./signals-sdk.js');
+  });
   it('should error on failed signals sdk load', async () => {
     await expect(protect(config)).rejects.toThrowError('Failed to load PingOne Signals SDK');
   });

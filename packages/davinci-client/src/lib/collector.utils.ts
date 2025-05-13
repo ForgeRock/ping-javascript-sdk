@@ -374,7 +374,7 @@ export function returnObjectCollector<
     const unmappedDefault = field.options.find((device) => device.default);
     defaultValue = {
       type: unmappedDefault ? unmappedDefault.type : '',
-      value: unmappedDefault ? unmappedDefault.value : '',
+      value: unmappedDefault ? unmappedDefault.description : '',
       id: unmappedDefault ? unmappedDefault.id : '',
     };
 
@@ -382,7 +382,7 @@ export function returnObjectCollector<
     options = field.options.map((device) => ({
       type: device.type,
       label: device.title,
-      content: device.value,
+      content: device.description,
       value: device.id,
       key: device.id,
       default: device.default,

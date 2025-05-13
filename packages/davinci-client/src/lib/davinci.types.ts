@@ -126,7 +126,7 @@ export type DeviceAuthenticationField = {
     title: string;
     id: string;
     default: boolean;
-    value: string;
+    description: string;
   }[];
   required: boolean;
 };
