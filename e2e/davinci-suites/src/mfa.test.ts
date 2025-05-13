@@ -6,76 +6,44 @@
  */
 import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
-//
-test('Test happy paths on test page', async ({ page }) => {
+import { password } from './utils/demo-user.js';
+
+test('Using ACR Values, lets render an OTP form and submit the request', async ({ page }) => {
   const { navigate } = asyncEvents(page);
   await navigate(
-    '/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_value=93928296ac55765e57e30b99da8ddabe',
+    '/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_value=22eb75b5d31d371afe089d6e4a824f5c',
   );
 
-  expect(page.url()).toBe('http://localhost:5829/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0');
+  expect(page.url()).toBe(
+    'http://localhost:5829/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_value=22eb75b5d31d371afe089d6e4a824f5c',
+  );
 
-  await expect(page.getByText('Create Your Profile')).toBeVisible();
-
-  await page.getByLabel('Email Address').fill('test@test.com');
-  await page.getByLabel('Password').fill('apassword');
+  await page.getByLabel('Email Address').fill('mfauser+' + Date.now() + '@user.com');
+  await page.getByLabel('Password').fill(password);
   await page.getByLabel('Placeholder').fill('12345678901');
-
-  const requestPromise = page.waitForRequest((request) =>
-    request
-      .url()
-      .includes(
-        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/davinci/connections/8209285e0d2f3fc76bfd23fd10d45e6f/capabilities/customForm?next=true',
-      ),
-  );
-
   await page.getByRole('button', { name: 'Submit' }).click();
 
-  const request = await requestPromise;
-  const postedData = JSON.parse(request.postData());
+  await page.getByRole('button', { name: 'Text Message' }).click();
+
+  await page.waitForEvent('requestfinished');
+
+  await page.getByText('MFA - Enter Phone Number');
+
+  await page.getByLabel('Country Code').selectOption('United States (1)');
+  await page.getByLabel('Enter Phone Number').fill('12345678901');
+
+  const request = page.waitForRequest((request) =>
+    request.url().endsWith('/capabilities/customForm?next=true'),
+  );
+  await page.getByRole('button', { name: 'Submit' }).click();
+  const posted = await request;
+  const postedData = JSON.parse(posted.postData());
   const data = postedData.parameters.data;
   expect(data).toEqual({
     actionKey: 'submit',
     formData: {
-      'user.email': 'test@test.com',
-      'user.password': 'apassword',
-      'phone-field': { phoneNumber: '12345678901', countryCode: 'CA' },
-    },
-  });
-});
-test('should validate that phone number is sent correctly in the outgoing response', async ({
-  page,
-}) => {
-  const { navigate } = asyncEvents(page);
-  await navigate('/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0');
-
-  expect(page.url()).toBe('http://localhost:5829/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0');
-
-  await expect(page.getByText('Create Your Profile')).toBeVisible();
-
-  await page.getByLabel('Email Address').fill('test@test.com');
-  await page.getByLabel('Password').fill('apassword');
-  await page.getByLabel('Placeholder').fill('12345678901');
-
-  const requestPromise = page.waitForRequest((request) =>
-    request
-      .url()
-      .includes(
-        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/davinci/connections/8209285e0d2f3fc76bfd23fd10d45e6f/capabilities/customForm?next=true',
-      ),
-  );
-
-  await page.getByRole('button', { name: 'Submit' }).click();
-
-  const request = await requestPromise;
-  const postedData = JSON.parse(request.postData());
-  const data = postedData.parameters.data;
-  expect(data).toEqual({
-    actionKey: 'submit',
-    formData: {
-      'user.email': 'test@test.com',
-      'user.password': 'apassword',
-      'phone-field': { phoneNumber: '12345678901', countryCode: 'CA' },
+      countryCode: '1',
+      phoneNumber: '12345678901',
     },
   });
 });

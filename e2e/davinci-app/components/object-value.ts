@@ -38,6 +38,7 @@ export default function objectValueComponent(
     // Add all options from the data
     for (const option of collector.output.options) {
       const buttonEl = document.createElement('button');
+      buttonEl.setAttribute('type', 'button');
 
       // Add change event listener
       buttonEl.addEventListener('click', (event) => {
@@ -81,7 +82,6 @@ export default function objectValueComponent(
       }
 
       updater({ phoneNumber: selectedValue, countryCode: collector.input.value.countryCode });
-      submitForm();
     });
 
     formEl.appendChild(phoneLabel);
