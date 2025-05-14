@@ -11,7 +11,7 @@ export interface StorageConfig {
   prefix?: string;
 }
 
-interface GenericError {
+export interface GenericError {
   code?: string | number;
   message: string;
   type:

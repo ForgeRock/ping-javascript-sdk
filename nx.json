@@ -70,7 +70,7 @@
     },
     "test": {
       "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
-      "dependsOn": ["^test", "^build"],
+      "dependsOn": ["^test", "^build", "^build"],
       "outputs": ["{projectRoot}/coverage"],
       "cache": true
     },

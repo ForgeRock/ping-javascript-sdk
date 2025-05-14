@@ -18,10 +18,10 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../sdk-types/tsconfig.lib.json"
+      "path": "../../sdk-utilities/tsconfig.lib.json"
     },
     {
-      "path": "../../sdk-utilities/tsconfig.lib.json"
+      "path": "../../sdk-types/tsconfig.lib.json"
     }
   ],
   "exclude": [

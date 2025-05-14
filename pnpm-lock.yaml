@@ -302,20 +302,16 @@ importers:
         specifier: ^2.5.1
         version: 2.7.5(@types/node@22.14.1)(typescript@5.7.3)
 
-  packages/sdk-effects/iframe-manager:
+  packages/oidc-client:
     dependencies:
-      '@forgerock/sdk-request-middleware':
-        specifier: workspace:*
-        version: link:../sdk-request-middleware
       '@forgerock/sdk-types':
         specifier: workspace:*
-        version: link:../../sdk-types
-      '@forgerock/sdk-utilities':
+        version: link:../sdk-types
+      '@forgerock/storage':
         specifier: workspace:*
-        version: link:../../sdk-utilities
-      tslib:
-        specifier: ^2.3.0
-        version: 2.8.1
+        version: link:../sdk-effects/storage
+
+  packages/sdk-effects/iframe-manager: {}
 
   packages/sdk-effects/logger: {}
 

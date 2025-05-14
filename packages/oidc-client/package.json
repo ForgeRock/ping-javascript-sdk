@@ -1,7 +1,7 @@
 {
-  "name": "@forgerock/iframe-manager",
+  "name": "@forgerock/oidc-client",
   "version": "0.0.1",
-  "private": false,
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
@@ -14,8 +14,16 @@
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
-  "dependencies": {},
+  "scripts": {
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
+  },
+  "dependencies": {
+    "@forgerock/sdk-types": "workspace:*",
+    "@forgerock/storage": "workspace:*"
+  },
   "nx": {
-    "tags": ["scope:sdk-effects"]
+    "tags": ["scope:package"]
   }
 }

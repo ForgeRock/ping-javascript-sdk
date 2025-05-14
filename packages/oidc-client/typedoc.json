@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/oidc-client",
+  "entryPoints": ["src/index.ts"]
+}
