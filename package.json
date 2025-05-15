@@ -4,7 +4,9 @@
   "private": true,
   "description": "Ping JavaScript SDK",
   "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
-  "bugs": { "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues" },
+  "bugs": {
+    "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ForgeRock/ping-javascript-sdk.git"
@@ -20,8 +22,8 @@
     "commit": "git cz",
     "commitlint": "commitlint --edit",
     "create-package": "nx g @nx/js:library",
-    "generate-docs": "typedoc",
     "format": "pnpm nx format:write",
+    "generate-docs": "typedoc",
     "lint": "nx affected --target=lint",
     "local-release": "pnpm ts-node tools/release/release.ts",
     "nx": "nx",
@@ -42,7 +44,9 @@
     ]
   },
   "config": {
-    "commitizen": { "path": "./node_modules/cz-conventional-changelog" }
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
   "dependencies": {},
   "devDependencies": {
@@ -118,6 +122,11 @@
     "vitest-canvas-mock": "^0.3.3"
   },
   "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531",
-  "engines": { "node": "^20 || ^22", "pnpm": "9.15.9" },
-  "nx": { "includedScripts": [] }
+  "engines": {
+    "node": "^20 || ^22",
+    "pnpm": "9.15.9"
+  },
+  "nx": {
+    "includedScripts": []
+  }
 }

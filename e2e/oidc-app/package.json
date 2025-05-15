@@ -1,0 +1,17 @@
+{
+  "name": "oidc-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm nx nxBuild",
+    "lint": "pnpm nx nxLint",
+    "preview": "pnpm nx nxPreview",
+    "serve": "pnpm nx nxServe"
+  },
+  "dependencies": {
+    "@forgerock/oidc-client": "workspace:*"
+  },
+  "nx": {
+    "tags": ["scope:app"]
+  }
+}
