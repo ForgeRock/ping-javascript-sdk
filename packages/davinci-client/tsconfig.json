@@ -11,6 +11,9 @@
   },
   "references": [
     {
+      "path": "../sdk-effects/logger"
+    },
+    {
       "path": "../sdk-types"
     },
     {

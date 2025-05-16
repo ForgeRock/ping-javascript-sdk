@@ -23,6 +23,7 @@
     "test:watch": "pnpm nx nxTest --watch"
   },
   "dependencies": {
+    "@forgerock/sdk-logger": "workspace:*",
     "@forgerock/sdk-oidc": "workspace:*",
     "@forgerock/sdk-request-middleware": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",

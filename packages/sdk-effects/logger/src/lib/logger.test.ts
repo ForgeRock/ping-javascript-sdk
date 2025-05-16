@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import logger from './logger.effects.js';
+import { logger } from './logger.effects.js';
 
 describe('logger', () => {
   const consoleErrorSpy = vi.spyOn(console, 'error');

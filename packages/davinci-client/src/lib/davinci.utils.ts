@@ -8,6 +8,9 @@
  * Import the used types
  */
 import type { Dispatch } from '@reduxjs/toolkit';
+
+import { logger as loggerFn } from '@forgerock/sdk-logger';
+
 import type { RootState } from './client.store.utils.js';
 
 import { nodeSlice } from './node.slice.js';
@@ -29,7 +32,10 @@ import { InternalErrorResponse } from './client.types.js';
  * @param {ContinueNode} node - The node to transform into a DaVinciRequest
  * @returns {DaVinciRequest} - The transformed request object
  */
-export function transformSubmitRequest(node: ContinueNode): DaVinciRequest {
+export function transformSubmitRequest(
+  node: ContinueNode,
+  logger: ReturnType<typeof loggerFn>,
+): DaVinciRequest {
   // Filter out ActionCollectors as they are not used in form submissions
   const collectors = node.client?.collectors?.filter(
     (collector) =>
@@ -51,6 +57,7 @@ export function transformSubmitRequest(node: ContinueNode): DaVinciRequest {
     acc[collector.input.key] = collector.input.value;
     return acc;
   }, {});
+  logger.debug('Transforming submit request', { node, formData });
 
   return {
     id: node.server.id || '',
@@ -72,7 +79,12 @@ export function transformSubmitRequest(node: ContinueNode): DaVinciRequest {
  * @param {string} action - The action to transform into a DaVinciRequest
  * @returns {DaVinciRequest} - The transformed request object
  */
-export function transformActionRequest(node: ContinueNode, action: string): DaVinciRequest {
+export function transformActionRequest(
+  node: ContinueNode,
+  action: string,
+  logger: ReturnType<typeof loggerFn>,
+): DaVinciRequest {
+  logger.debug('Transforming action request', { node, action });
   return {
     id: node.server.id || '',
     eventName: node.server.eventName || '',
@@ -86,11 +98,17 @@ export function transformActionRequest(node: ContinueNode, action: string): DaVi
   };
 }
 
-export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch, status: number) {
+export function handleResponse(
+  cacheEntry: DaVinciCacheEntry,
+  dispatch: Dispatch,
+  status: number,
+  logger: ReturnType<typeof loggerFn>,
+) {
   /**
    * 5XX errors are treated as unrecoverable failures
    */
   if (cacheEntry.isError && cacheEntry.error.status >= 500) {
+    logger.error('Response of 5XX indicates unrecoverable failure');
     const data = cacheEntry.error.data as unknown;
     const requestId = cacheEntry.requestId;
     dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: cacheEntry.error.status }));
@@ -107,6 +125,7 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
 
     // Filter out client-side "timeout" related unrecoverable failures
     if (data.code === 1999 || data.code === 'requestTimedOut') {
+      logger.error('Error is a client-side timeout');
       dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: cacheEntry.error.status }));
 
       return; // Filter out timeouts
@@ -118,11 +137,13 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
       (data.capabilityName === 'returnSuccessResponseRedirect' ||
         data.capabilityName === 'setSession')
     ) {
+      logger.error('Error is a PingOne Authentication Connector unrecoverable failure');
       dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: cacheEntry.error.status }));
 
       return;
     }
 
+    logger.debug('Response with this error type should be recoverable');
     // If we're still here, we have a 4XX failure that should be recoverable
     dispatch(nodeSlice.actions.error({ data, requestId, httpStatus: cacheEntry.error.status }));
 
@@ -133,6 +154,9 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
    * Check for 3XX errors that result in CORS errors, reported as FETCH_ERROR
    */
   if (cacheEntry.isError && cacheEntry.error.status === 'FETCH_ERROR') {
+    logger.error(
+      'Response with FETCH_ERROR indicates configuration failure. Please ensure a correct Client ID for your OAuth application.',
+    );
     const data = {
       code: cacheEntry.error.status,
       message: 'Fetch Error: Please ensure a correct Client ID for your OAuth application.',
@@ -148,6 +172,7 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
    * we need to handle this as a failure or return as unknown.
    */
   if (cacheEntry.isSuccess && 'error' in cacheEntry.data) {
+    logger.error('Response with `isSuccess` but `error` property indicates unrecoverable failure');
     const data = cacheEntry.data as DaVinciFailureResponse;
     const requestId = cacheEntry.requestId;
     dispatch(
@@ -169,6 +194,9 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
     const status = cacheEntry.data.status.toLowerCase();
 
     if (status === 'failure') {
+      logger.error(
+        'Response with `isSuccess` and `status` of "failure" indicates unrecoverable failure',
+      );
       const data = cacheEntry.data as DaVinciFailureResponse;
       const requestId = cacheEntry.requestId;
       dispatch(
@@ -221,6 +249,7 @@ export function handleResponse(cacheEntry: DaVinciCacheEntry, dispatch: Dispatch
 export function authorize(
   serverSlice: RootState['node']['server'],
   collector: IdpCollector,
+  logger: ReturnType<typeof loggerFn>,
 ): InternalErrorResponse | void {
   if (serverSlice && '_links' in serverSlice) {
     const continueUrl = serverSlice._links?.['continue']?.href ?? null;
@@ -230,6 +259,7 @@ export function authorize(
         window.location.assign(collector.output.url);
       }
     } else {
+      logger.error('No url found in collector, social login needs a url in the collector');
       return {
         error: {
           message:
@@ -239,6 +269,9 @@ export function authorize(
         type: 'internal_error',
       };
     }
+    logger.error(
+      'No Continue Url found, social login needs a continue url to be saved in localStorage',
+    );
     return {
       error: {
         message:
