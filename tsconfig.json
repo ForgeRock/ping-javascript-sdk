@@ -42,6 +42,15 @@
     },
     {
       "path": "./packages/sdk-effects/iframe-manager"
+    },
+    {
+      "path": "./packages/oidc-client"
+    },
+    {
+      "path": "./e2e/oidc-app"
+    },
+    {
+      "path": "./e2e/oidc-suites"
     }
   ]
 }

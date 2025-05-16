@@ -70,7 +70,7 @@
     },
     "test": {
       "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
-      "dependsOn": ["^test", "^build"],
+      "dependsOn": ["^test", "^build", "^build"],
       "outputs": ["{projectRoot}/coverage"],
       "cache": true
     },
@@ -150,23 +150,11 @@
         "previewTargetName": "nxPreview",
         "testTargetName": "nxTest",
         "serveStaticTargetName": "serve-static",
-        "typecheckTargetName": "typecheck"
-      },
-      "include": ["packages/**/**/*", "e2e/**/**/*"]
-    },
-    {
-      "plugin": "@nx/vite/plugin",
-      "options": {
-        "buildTargetName": "vite:build",
-        "testTargetName": "vite:test",
-        "serveTargetName": "vite:serve",
-        "devTargetName": "vite:dev",
-        "previewTargetName": "vite:preview",
-        "serveStaticTargetName": "vite:serve-static",
-        "typecheckTargetName": "vite:typecheck",
+        "typecheckTargetName": "typecheck",
         "buildDepsTargetName": "vite:build-deps",
         "watchDepsTargetName": "vite:watch-deps"
-      }
+      },
+      "include": ["packages/**/**/*", "e2e/**/**/*"]
     }
   ],
   "parallel": 1,
@@ -180,20 +168,17 @@
       "bundler": "tsc",
       "linter": "eslint",
       "unitTestRunner": "vitest"
-    }
-  },
-  "release": {
-    "projects": ["packages/*"],
-    "version": {
-      "generatorOptions": {
-        "versionPrefix": ""
-      },
-      "preVersionCommand": "pnpm nx run-many -t build"
+    },
+    "@nx/web:application": {
+      "style": "css",
+      "linter": "eslint",
+      "unitTestRunner": "none",
+      "e2eTestRunner": "playwright"
     }
   },
   "useDaemonProcess": true,
   "useInferencePlugins": true,
   "defaultBase": "main",
-  "nxCloudId": "679a63312b5df202c4527cb3",
+  "nxCloudId": "6762f3018aed9c5fad7009bb",
   "$schema": "./node_modules/nx/schemas/nx-schema.json"
 }

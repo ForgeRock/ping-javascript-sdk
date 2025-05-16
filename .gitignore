@@ -74,3 +74,5 @@ packages/davinci-client/src/lib/mock-data/*.d.ts
 packages/davinci-client/src/lib/mock-data/*.d.ts.map
 **/**/tsconfig.tsbuildinfo
 **/**/tsconfig.spec.vitest-temp.json
+
+test-output
