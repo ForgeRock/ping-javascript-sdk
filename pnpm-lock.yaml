@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     '@reduxjs/toolkit':
-      specifier: ^2.2.5
-      version: 2.7.0
+      specifier: ^2.8.2
+      version: 2.8.2
     immer:
       specifier: ^10.1.1
       version: 10.1.1
@@ -223,7 +223,7 @@ importers:
         version: 6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.39.2)(yaml@2.7.1)
       vitest:
         specifier: 3.0.5
-        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
       vitest-canvas-mock:
         specifier: ^0.3.3
         version: 0.3.3(vitest@3.0.5)
@@ -265,7 +265,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: ^0.19.0
-        version: 0.19.10(effect@3.14.14)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1))
+        version: 0.19.10(effect@3.14.14)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1))
 
   packages/davinci-client:
     dependencies:
@@ -280,14 +280,14 @@ importers:
         version: link:../sdk-types
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.7.0
+        version: 2.8.2
       immer:
         specifier: 'catalog:'
         version: 10.1.1
     devDependencies:
       vitest:
         specifier: ^3.0.4
-        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
 
   packages/device-client:
     dependencies:
@@ -296,7 +296,7 @@ importers:
         version: 4.7.0
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.7.0
+        version: 2.8.2
     devDependencies:
       msw:
         specifier: ^2.5.1
@@ -332,7 +332,7 @@ importers:
     dependencies:
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.7.0
+        version: 2.8.2
 
   packages/sdk-effects/storage:
     dependencies:
@@ -2071,17 +2071,6 @@ packages:
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
-
-  '@reduxjs/toolkit@2.7.0':
-    resolution: {integrity: sha512-XVwolG6eTqwV0N8z/oDlN93ITCIGIop6leXlGJI/4EKy+0POYkR+ABHRSdGXY+0MQvJBP8yAzh+EYFxTuvmBiQ==}
-    peerDependencies:
-      react: ^16.9.0 || ^17.0.0 || ^18 || ^19
-      react-redux: ^7.2.1 || ^8.1.3 || ^9.0.0
-    peerDependenciesMeta:
-      react:
-        optional: true
-      react-redux:
-        optional: true
 
   '@reduxjs/toolkit@2.8.2':
     resolution: {integrity: sha512-MYlOhQ0sLdw4ud48FoC5w0dH9VfWQjtCjreKwYTT3l+r427qYC5Y8PihNutepr8XrNaBUDQo9khWUwQxZaqt5A==}
@@ -8480,15 +8469,15 @@ snapshots:
     dependencies:
       effect: 3.14.14
 
-  '@effect/vitest@0.19.10(effect@3.14.14)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1))':
+  '@effect/vitest@0.19.10(effect@3.14.14)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1))':
     dependencies:
       effect: 3.14.14
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
 
   '@effect/vitest@0.6.12(effect@3.14.14)(vitest@3.0.5)':
     dependencies:
       effect: 3.14.14
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
 
   '@emnapi/core@1.4.3':
     dependencies:
@@ -9201,7 +9190,7 @@ snapshots:
       semver: 7.7.1
       tsconfig-paths: 4.2.0
       vite: 6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.39.2)(yaml@2.7.1)
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -9430,15 +9419,6 @@ snapshots:
       playwright: 1.52.0
 
   '@polka/url@1.0.0-next.29': {}
-
-  '@reduxjs/toolkit@2.7.0':
-    dependencies:
-      '@standard-schema/spec': 1.0.0
-      '@standard-schema/utils': 0.3.0
-      immer: 10.1.1
-      redux: 5.0.1
-      redux-thunk: 3.1.0(redux@5.0.1)
-      reselect: 5.1.1
 
   '@reduxjs/toolkit@2.8.2':
     dependencies:
@@ -10104,7 +10084,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -10160,7 +10140,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.13
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
 
   '@vitest/utils@3.0.4':
     dependencies:
@@ -15043,9 +15023,9 @@ snapshots:
   vitest-canvas-mock@0.3.3(vitest@3.0.5):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1)
 
-  vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1):
+  vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.39.2)(yaml@2.7.1):
     dependencies:
       '@vitest/expect': 3.0.5
       '@vitest/mocker': 3.0.5(msw@2.7.5(@types/node@22.14.1)(typescript@5.7.3))(vite@6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.39.2)(yaml@2.7.1))

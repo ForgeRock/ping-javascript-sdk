@@ -7,5 +7,5 @@ packages:
   - tools/**
 
 catalog:
-  '@reduxjs/toolkit': ^2.2.5
+  '@reduxjs/toolkit': ^2.8.2
   immer: ^10.1.1
