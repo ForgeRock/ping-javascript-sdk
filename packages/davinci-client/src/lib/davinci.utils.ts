@@ -41,7 +41,9 @@ export function transformSubmitRequest(node: ContinueNode): DaVinciRequest {
   const formData = collectors?.reduce<{
     [key: string]: string | number | boolean | (string | number | boolean)[];
   }>((acc, collector) => {
-    acc[collector.input.key] = collector.input.value;
+    if (collector?.input?.key) {
+      acc[collector.input.key] = collector.input.value;
+    }
     return acc;
   }, {});
 
