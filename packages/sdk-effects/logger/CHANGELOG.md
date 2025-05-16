@@ -1,4 +1,4 @@
-# @forgerock/sdk-utilities
+# @forgerock/sdk-logger
 
 ## 1.2.0
 
