@@ -47,10 +47,10 @@
       "path": "./packages/oidc-client"
     },
     {
-      "path": "./e2e/oidc-app-e2e"
+      "path": "./e2e/oidc-app"
     },
     {
-      "path": "./e2e/oidc-app"
+      "path": "./e2e/oidc-suites"
     }
   ]
 }

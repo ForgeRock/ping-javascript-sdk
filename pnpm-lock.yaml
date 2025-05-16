@@ -273,7 +273,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/oidc-client
 
-  e2e/oidc-app-e2e: {}
+  e2e/oidc-suites: {}
 
   packages/davinci-client:
     dependencies:
