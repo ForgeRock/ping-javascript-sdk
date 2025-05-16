@@ -21,6 +21,7 @@ import {
  * Import internal modules
  */
 import { initQuery } from '@forgerock/sdk-request-middleware';
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
@@ -46,6 +47,7 @@ type BaseQueryResponse = Promise<
 
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
   requestMiddleware: RequestMiddleware<ActionType, Payload>[];
+  logger: ReturnType<typeof loggerFn>;
 }
 
 /**
@@ -74,8 +76,12 @@ export const davinciApi = createApi({
       async queryFn(params, api, __, baseQuery) {
         const state = api.getState() as RootStateWithNode<ContinueNode>;
         const links = state.node.server._links;
-        const requestBody = transformActionRequest(state.node, params.action);
-        const requestMiddleware = (api.extra as Extras).requestMiddleware;
+        const requestBody = transformActionRequest(
+          state.node,
+          params.action,
+          (api.extra as Extras).logger,
+        );
+        const { requestMiddleware, logger } = api.extra as Extras;
 
         let href = '';
 
@@ -94,10 +100,11 @@ export const davinciApi = createApi({
           },
           body: JSON.stringify(requestBody),
         };
+        logger.debug('Davinci API request', request);
         const response: BaseQueryResponse = initQuery(request, 'flow')
           .applyMiddleware(requestMiddleware)
           .applyQuery(async (req: FetchArgs) => await baseQuery(req));
-
+        logger.debug('Davinci API response', response);
         /**
          * Returns the original response from DaVinci,
          * this gets transformed in the onQueryStarted method
@@ -135,7 +142,12 @@ export const davinciApi = createApi({
 
         const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
 
-        handleResponse(cacheEntry, api.dispatch, response?.status || 0);
+        handleResponse(
+          cacheEntry,
+          api.dispatch,
+          response?.status || 0,
+          (api.extra as Extras).logger,
+        );
       },
     }),
 
@@ -149,7 +161,7 @@ export const davinciApi = createApi({
       async queryFn(body, api, __, baseQuery) {
         const state = api.getState() as RootStateWithNode<ContinueNode>;
         const links = state.node.server._links;
-        const requestMiddleware = (api.extra as Extras).requestMiddleware;
+        const { requestMiddleware, logger } = api.extra as Extras;
 
         let requestBody;
         let href = '';
@@ -159,7 +171,7 @@ export const davinciApi = createApi({
         }
 
         if (!body) {
-          requestBody = transformSubmitRequest(state.node);
+          requestBody = transformSubmitRequest(state.node, logger);
         } else {
           requestBody = body;
         }
@@ -175,9 +187,12 @@ export const davinciApi = createApi({
           },
           body: JSON.stringify(requestBody),
         };
+
+        logger.debug('Davinci API request', request);
         const response: BaseQueryResponse = initQuery(request, 'next')
           .applyMiddleware(requestMiddleware)
           .applyQuery(async (req: FetchArgs) => await baseQuery(req));
+        logger.debug('Davinci API response', response);
 
         /**
          * Returns the original response from DaVinci,
@@ -216,7 +231,12 @@ export const davinciApi = createApi({
 
         const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
 
-        handleResponse(cacheEntry, api.dispatch, response?.status || 0);
+        handleResponse(
+          cacheEntry,
+          api.dispatch,
+          response?.status || 0,
+          (api.extra as Extras).logger,
+        );
       },
     }),
 
@@ -229,7 +249,7 @@ export const davinciApi = createApi({
        * @method queryFn - This is just a wrapper around the fetch call
        */
       async queryFn(options, api, __, baseQuery) {
-        const requestMiddleware = (api.extra as Extras).requestMiddleware;
+        const { requestMiddleware, logger } = api.extra as Extras;
         const state = api.getState() as RootStateWithNode<StartNode>;
 
         if (!state) {
@@ -278,9 +298,12 @@ export const davinciApi = createApi({
               'Content-Type': 'application/x-www-form-urlencoded',
             },
           };
+
+          logger.debug('Davinci API request', request);
           const response: BaseQueryResponse = initQuery(request, 'start')
             .applyMiddleware(requestMiddleware)
             .applyQuery(async (req: FetchArgs) => await baseQuery(req));
+          logger.debug('Davinci API response', response);
 
           /**
            * Returns the original response from DaVinci,
@@ -324,13 +347,18 @@ export const davinciApi = createApi({
         }
 
         const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
-        handleResponse(cacheEntry, api.dispatch, response?.status || 0);
+        handleResponse(
+          cacheEntry,
+          api.dispatch,
+          response?.status || 0,
+          (api.extra as Extras).logger,
+        );
       },
     }),
     resume: builder.query<unknown, { continueToken: string }>({
       async queryFn({ continueToken }, api, _c, baseQuery) {
         const continueUrl = window.localStorage.getItem('continueUrl') || null;
-        const requestMiddleware = (api.extra as Extras).requestMiddleware;
+        const { requestMiddleware, logger } = api.extra as Extras;
 
         if (!continueToken) {
           return {
@@ -367,9 +395,12 @@ export const davinciApi = createApi({
           },
           body: JSON.stringify({}),
         };
+
+        logger.debug('Davinci API request', request);
         const response: BaseQueryResponse = initQuery(request, 'resume')
           .applyMiddleware(requestMiddleware)
           .applyQuery(async (req: FetchArgs) => await baseQuery(req));
+        logger.debug('Davinci API response', response);
 
         return response;
       },
@@ -390,7 +421,12 @@ export const davinciApi = createApi({
         }
 
         const cacheEntry: DaVinciCacheEntry = api.getCacheEntry();
-        handleResponse(cacheEntry, api.dispatch, response?.status || 0);
+        handleResponse(
+          cacheEntry,
+          api.dispatch,
+          response?.status || 0,
+          (api.extra as Extras).logger,
+        );
       },
     }),
   }),

@@ -20,6 +20,7 @@ import { getCollectorErrors } from './node.utils.js';
  */
 import type { Draft, PayloadAction } from '@reduxjs/toolkit';
 import type { SubmitCollector } from './collector.types.js';
+import type { GenericError } from './error.types.js';
 import type {
   DavinciErrorResponse,
   DaVinciFailureResponse,
@@ -280,32 +281,54 @@ export const nodeSlice = createSlice({
     },
     selectCollectors: (state) => {
       if (state.client && 'collectors' in state.client) {
-        return state?.client.collectors;
+        return {
+          error: null,
+          state: state?.client.collectors,
+        };
       }
-      console.error(
-        `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
-      );
-      return [];
+      return {
+        error: {
+          code: 'unknown',
+          type: 'state_error',
+          message: `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
+        } as GenericError,
+        state: [],
+      };
     },
     selectCollector: (state, id: string) => {
       if (state.client && 'collectors' in state.client) {
-        return state.client.collectors?.find((collector) => collector.id === id);
+        return {
+          error: null,
+          state: state.client.collectors?.find((collector) => collector.id === id),
+        };
       }
-      console.error(
-        `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
-      );
-      return;
+      return {
+        error: {
+          code: 'unknown',
+          type: 'state_error',
+          message: `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
+        } as GenericError,
+        state: null,
+      };
     },
     selectError: (state) => {
       return state.error;
     },
     selectErrorCollectors: (state) => {
-      if (state.status !== ERROR_STATUS) {
-        console.error(
-          `\`errorCollectors\` are only available on nodes with \`status\` of ${ERROR_STATUS}`,
-        );
+      if (state.status === ERROR_STATUS) {
+        return {
+          error: null,
+          state: state.error?.collectors || [],
+        };
       }
-      return state.error?.collectors || [];
+      return {
+        error: {
+          code: 'unknown',
+          type: 'state_error',
+          message: `\`errorCollectors\` are only available on nodes with \`status\` of ${ERROR_STATUS}`,
+        } as GenericError,
+        state: [],
+      };
     },
     selectServer: (state) => {
       return state.server;

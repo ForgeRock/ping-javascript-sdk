@@ -5,17 +5,18 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { LogLevel, LogMessage } from './logger.types.js';
+import { CustomLogger, LogLevel, LogMessage } from './logger.types.js';
 
-export default function loggerInit(config: { level: LogLevel }) {
+export function logger(config: { level: LogLevel; custom?: CustomLogger }) {
   let logLevel: LogLevel = config.level || 'info';
+  const custom = config.custom;
 
   // Implement log functions
   const logFunctions = {
-    error: (...args: LogMessage[]) => console.error(...args),
-    warn: (...args: LogMessage[]) => console.warn(...args),
-    info: (...args: LogMessage[]) => console.info(...args),
-    debug: (...args: LogMessage[]) => console.debug(...args),
+    error: (...args: LogMessage[]) => custom?.error(...args) || console.error(...args),
+    warn: (...args: LogMessage[]) => custom?.warn(...args) || console.warn(...args),
+    info: (...args: LogMessage[]) => custom?.info(...args) || console.info(...args),
+    debug: (...args: LogMessage[]) => custom?.debug(...args) || console.debug(...args),
   };
 
   // Implement level inclusion
