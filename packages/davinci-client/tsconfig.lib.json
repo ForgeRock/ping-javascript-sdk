@@ -32,6 +32,9 @@
   ],
   "references": [
     {
+      "path": "../sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
       "path": "../sdk-types/tsconfig.lib.json"
     },
     {

@@ -7,6 +7,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
+
 import { configSlice } from './config.slice.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
@@ -15,8 +17,10 @@ import { wellknownApi } from './wellknown.api.js';
 
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
+  logger,
 }: {
   requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
+  logger?: ReturnType<typeof loggerFn>;
 }) {
   return configureStore({
     reducer: {
@@ -33,7 +37,8 @@ export function createClientStore<ActionType extends ActionTypes>({
              * This becomes the `api.extra` argument, and will be passed into the
              * customer query wrapper for `baseQuery`
              */
-            requestMiddleware: requestMiddleware,
+            requestMiddleware,
+            logger,
           },
         },
       })

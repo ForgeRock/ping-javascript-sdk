@@ -6,6 +6,8 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 
+import { logger } from '@forgerock/sdk-logger';
+
 import { handleResponse, transformSubmitRequest, transformActionRequest } from './davinci.utils.js';
 
 import type { ContinueNode } from './node.types.d.ts';
@@ -71,7 +73,7 @@ describe('transformSubmitRequest', () => {
       },
     };
 
-    const result = transformSubmitRequest(node);
+    const result = transformSubmitRequest(node, logger({ level: 'none' }));
     expect(result).toEqual(expectedRequest);
   });
 
@@ -109,7 +111,7 @@ describe('transformSubmitRequest', () => {
       },
     };
 
-    const result = transformSubmitRequest(node);
+    const result = transformSubmitRequest(node, logger({ level: 'none' }));
     expect(result).toEqual(expectedRequest);
   });
 });
@@ -149,7 +151,7 @@ describe('transformActionRequest', () => {
       },
     };
 
-    const result = transformActionRequest(node, action);
+    const result = transformActionRequest(node, action, logger({ level: 'none' }));
     expect(result).toEqual(expectedRequest);
   });
 });
@@ -167,7 +169,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 200;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 
@@ -187,7 +189,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 200;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 
@@ -207,7 +209,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 400;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 
@@ -232,7 +234,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 400;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 
@@ -254,7 +256,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 400;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 
@@ -280,7 +282,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 400;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 
@@ -300,7 +302,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 400;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 
@@ -320,7 +322,7 @@ describe('handleResponse', () => {
     const dispatch = vi.fn();
     const status = 500;
 
-    handleResponse(cacheEntry, dispatch, status);
+    handleResponse(cacheEntry, dispatch, status, logger({ level: 'none' }));
 
     expect(dispatch).toHaveBeenCalledOnce();
 

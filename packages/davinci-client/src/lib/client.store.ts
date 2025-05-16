@@ -7,6 +7,8 @@
 /**
  * Import RTK slices and api
  */
+import { logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
+
 import { createClientStore, RootState } from './client.store.utils.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
@@ -46,18 +48,30 @@ import { NodeStates, StartNode } from '../types.js';
 export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
+  logger,
 }: {
   config: DaVinciConfig;
   requestMiddleware?: RequestMiddleware<ActionType>[];
+  logger?: {
+    level: LogLevel;
+    custom: ReturnType<typeof loggerFn>;
+  };
 }) {
-  const store = createClientStore({ requestMiddleware });
+  const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
+  const store = createClientStore({ requestMiddleware, logger: log });
 
   if (!config.serverConfig.wellknown) {
-    throw new Error('`wellknown` property is a required as part of the `config.serverOptions`');
+    const error = new Error(
+      '`wellknown` property is a required as part of the `config.serverConfig`',
+    );
+    log.error(error.message);
+    throw error;
   }
 
   if (!config.clientId) {
-    throw new Error('`clientId` property is a required as part of the `config`');
+    const error = new Error('`clientId` property is a required as part of the `config`');
+    log.error(error.message);
+    throw error;
   }
 
   const { data: openIdResponse } = await store.dispatch(
@@ -65,7 +79,9 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   );
 
   if (!openIdResponse) {
-    throw new Error('error fetching `wellknown` response for OpenId Configuration');
+    const error = new Error('error fetching `wellknown` response for OpenId Configuration');
+    log.error(error.message);
+    throw error;
   }
 
   store.dispatch(configSlice.actions.set({ ...config, wellknownResponse: openIdResponse }));
@@ -96,7 +112,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
       const serverSlice = nodeSlice.selectors.selectServer(rootState);
 
-      return () => authorize(serverSlice, collector);
+      return () => authorize(serverSlice, collector, log);
     },
 
     /**
@@ -106,7 +122,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      */
     flow: (action: DaVinciAction): InitFlow => {
       if (!action.action) {
-        console.error('Missing `argument.action`');
+        log.error('Missing `argument.action`');
         return async function () {
           return {
             error: { message: 'Missing argument.action', type: 'argument_error' },
@@ -177,7 +193,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       collector: SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors,
     ): Updater => {
       if (!collector.id) {
-        console.error('Argument for `collector` has no ID');
+        log.error('Argument for `collector` has no ID');
         return function () {
           return {
             error: {
@@ -190,11 +206,24 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       const { id } = collector;
-      const collectorToUpdate = nodeSlice.selectors.selectCollector(store.getState(), id);
+      const { error, state: collectorToUpdate } = nodeSlice.selectors.selectCollector(
+        store.getState(),
+        id,
+      );
+
+      if (error) {
+        log.error(error.message);
+        return function () {
+          return {
+            type: 'internal_error' as const,
+            error: { message: error.message, type: 'state_error' as const },
+          };
+        };
+      }
 
       if (!collectorToUpdate) {
         return function () {
-          console.error('Collector not found');
+          log.error('Collector not found');
           return {
             type: 'internal_error' as const,
             error: { message: 'Collector not found', type: 'state_error' as const },
@@ -208,7 +237,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
         collectorToUpdate.category !== 'ObjectValueCollector'
       ) {
-        console.error(
+        log.error(
           'Collector is not a MultiValueCollector, SingleValueCollector or ValidatedSingleValueCollector and cannot be updated',
         );
         return function () {
@@ -245,7 +274,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      */
     validate: (collector: SingleValueCollectors): Validator => {
       if (!collector.id) {
-        console.error('Argument for `collector` has no ID');
+        log.error('Argument for `collector` has no ID');
         return function () {
           return {
             error: { message: 'Argument for `collector` has no ID', type: 'argument_error' },
@@ -255,11 +284,24 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       const { id } = collector;
-      const collectorToUpdate = nodeSlice.selectors.selectCollector(store.getState(), id);
+      const { error, state: collectorToUpdate } = nodeSlice.selectors.selectCollector(
+        store.getState(),
+        id,
+      );
+
+      if (error) {
+        log.error(error.message);
+        return function () {
+          return {
+            type: 'internal_error' as const,
+            error: { message: error.message, type: 'state_error' as const },
+          };
+        };
+      }
 
       if (!collectorToUpdate) {
         return function () {
-          console.error('Collector not found');
+          log.error('Collector not found');
           return {
             type: 'internal_error',
             error: { message: 'Collector not found', type: 'state_error' },
@@ -268,7 +310,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       if (collectorToUpdate.category !== 'ValidatedSingleValueCollector') {
-        console.error('Collector is not a SingleValueCollector and cannot be validated');
+        log.error('Collector is not a SingleValueCollector and cannot be validated');
         return function () {
           return {
             type: 'internal_error',
@@ -281,7 +323,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       if (!('validation' in collectorToUpdate.input)) {
-        console.error('Collector has no validation rules');
+        log.error('Collector has no validation rules');
         return function () {
           return {
             type: 'internal_error',
@@ -308,7 +350,12 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       const client = nodeSlice.selectors.selectClient(state);
       // Let's check if the node has a client and collectors
       if (client && 'collectors' in client) {
-        return nodeSlice.selectors.selectCollectors(state) || [];
+        const { error, state: collectors } = nodeSlice.selectors.selectCollectors(state) || [];
+        if (error) {
+          log.error(error.message);
+          return [];
+        }
+        return collectors;
       }
       // Return an empty array if no client or collectors are found
       return [];
@@ -321,7 +368,12 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
     getErrorCollectors: () => {
       const state = store.getState();
-      return nodeSlice.selectors.selectErrorCollectors(state);
+      const { error, state: collectors } = nodeSlice.selectors.selectErrorCollectors(state);
+      if (error) {
+        log.error(error.message);
+        return [];
+      }
+      return collectors;
     },
 
     /**
@@ -349,7 +401,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         const node = nodeSlice.selectSlice(store.getState());
 
         if (!node.cache?.key) {
-          console.error(`Cannot find current node's cache key or no current node`);
+          log.error(`Cannot find current node's cache key or no current node`);
           return { error: { message: 'Cannot find current node', type: 'state_error' } };
         }
 
@@ -361,7 +413,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       },
       getResponseWithId: (requestId: string) => {
         if (!requestId) {
-          console.error('Please provide the cache key');
+          log.error('Please provide the cache key');
           return { error: { message: 'Please provide the cache key', type: 'argument_error' } };
         }
 

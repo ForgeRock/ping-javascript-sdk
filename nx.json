@@ -194,6 +194,6 @@
   "useDaemonProcess": true,
   "useInferencePlugins": true,
   "defaultBase": "main",
-  "nxCloudId": "679a63312b5df202c4527cb3",
+  "nxCloudId": "6762f3018aed9c5fad7009bb",
   "$schema": "./node_modules/nx/schemas/nx-schema.json"
 }

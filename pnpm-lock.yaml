@@ -269,6 +269,9 @@ importers:
 
   packages/davinci-client:
     dependencies:
+      '@forgerock/sdk-logger':
+        specifier: workspace:*
+        version: link:../sdk-effects/logger
       '@forgerock/sdk-oidc':
         specifier: workspace:*
         version: link:../sdk-effects/oidc
