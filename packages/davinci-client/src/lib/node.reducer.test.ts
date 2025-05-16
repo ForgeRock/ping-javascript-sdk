@@ -11,6 +11,7 @@ import {
   DeviceAuthenticationCollector,
   DeviceRegistrationCollector,
   MultiSelectCollector,
+  PhoneNumberCollector,
   SubmitCollector,
   TextCollector,
 } from './collector.types.js';
@@ -510,7 +511,11 @@ describe('The node collector reducer with DeviceAuthenticationFieldValue', () =>
         name: 'device',
         input: {
           key: 'device',
-          value: null,
+          value: {
+            type: '',
+            id: '',
+            value: '',
+          },
           type: 'TEXT',
         },
         output: {
@@ -616,7 +621,7 @@ describe('The node collector reducer with DeviceRegistrationFieldValue', () => {
         name: 'device',
         input: {
           key: 'device',
-          value: null,
+          value: 'EMAIL',
           type: 'TEXT',
         },
         output: {
@@ -688,6 +693,157 @@ describe('The node collector reducer with DeviceRegistrationFieldValue', () => {
               key: 'VOICE-2',
             },
           ],
+        },
+      },
+    ]);
+  });
+});
+
+describe('The phone number collector reducer', () => {
+  it('should populate phone number collector', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            key: 'phone-number-key',
+            defaultCountryCode: null,
+            label: 'Phone Number',
+            type: 'PHONE_NUMBER',
+            required: true,
+          },
+        ],
+      },
+    };
+    expect(nodeCollectorReducer(undefined, action)).toEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+          },
+          type: 'PHONE_NUMBER',
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+          },
+        },
+      },
+    ]);
+  });
+
+  it('should populate phone number collector with default value', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            key: 'phone-number-key',
+            defaultCountryCode: 'US',
+            label: 'Phone Number',
+            type: 'PHONE_NUMBER',
+            required: true,
+          },
+        ],
+      },
+    };
+    expect(nodeCollectorReducer(undefined, action)).toEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
+          value: {
+            countryCode: 'US',
+            phoneNumber: '',
+          },
+          type: 'PHONE_NUMBER',
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: 'US',
+            phoneNumber: '',
+          },
+        },
+      },
+    ]);
+  });
+
+  it('should handle collector updates ', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'phone-number-key-0',
+        value: {
+          countryCode: 'US',
+          phoneNumber: '555-555-5555',
+        },
+      },
+    };
+    const state: PhoneNumberCollector[] = [
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+          },
+          type: 'PHONE_NUMBER',
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: '',
+          },
+        },
+      },
+    ];
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
+          value: {
+            countryCode: 'US',
+            phoneNumber: '555-555-5555',
+          },
+          type: 'PHONE_NUMBER',
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: '',
+          },
         },
       },
     ]);

@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { LegacyConfigOptions } from '@forgerock/sdk-types';
+import type { LegacyConfigOptions } from './legacy-config.types.js';
 
 /**
  * Define the options for the authorization URL
