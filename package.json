@@ -92,7 +92,7 @@
     "cz-git": "^1.6.1",
     "effect": "^3.12.7",
     "eslint": "^9.8.0",
-    "eslint-config-prettier": "10.1.2",
+    "eslint-config-prettier": "10.1.5",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-package-json": "0.30.0",
     "eslint-plugin-playwright": "^2.0.0",
