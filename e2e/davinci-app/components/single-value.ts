@@ -20,6 +20,7 @@ export default function singleValueComponent(
   // Create the label element
   const labelEl = document.createElement('label');
   labelEl.textContent = collector.output.label || 'Select an option';
+  labelEl.setAttribute('for', collector.output.key || 'dropdown-field');
   labelEl.className = 'dropdown-label';
 
   // Create the select element

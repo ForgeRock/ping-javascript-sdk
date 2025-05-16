@@ -9,6 +9,7 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type { InitFlow, InternalErrorResponse, Updater } from './client.types.js';
 import type { GenericError } from './error.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
+import { PhoneNumberInputValue } from './collector.types.js';
 
 describe('Client Types', () => {
   it('should allow function returning error', async () => {
@@ -166,13 +167,16 @@ describe('Client Types', () => {
 
 describe('Updater', () => {
   it('should accept string value and optional index', () => {
-    const updater: Updater = (value: string | string[] | boolean, index?: number) => {
+    const updater: Updater = (
+      value: string | string[] | boolean | PhoneNumberInputValue,
+      index?: number,
+    ) => {
       return {
         error: { message: 'Invalid value', code: 'INVALID', type: 'state_error' },
         type: 'internal_error',
       };
     };
-    expectTypeOf(updater).parameter(0).toEqualTypeOf<string | string[]>();
+    expectTypeOf(updater).parameter(0).toEqualTypeOf<string | string[] | PhoneNumberInputValue>();
     expectTypeOf(updater).parameter(1).toBeNullable();
     expectTypeOf(updater).parameter(1).toBeNullable();
   });

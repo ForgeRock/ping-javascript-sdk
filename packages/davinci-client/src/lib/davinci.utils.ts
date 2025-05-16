@@ -21,7 +21,7 @@ import type {
   DaVinciSuccessResponse,
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
-import { IdpCollector } from './collector.types.js';
+import { DeviceValue, IdpCollector, PhoneNumberInputValue } from './collector.types.js';
 import { InternalErrorResponse } from './client.types.js';
 
 /**
@@ -35,11 +35,18 @@ export function transformSubmitRequest(node: ContinueNode): DaVinciRequest {
     (collector) =>
       collector.category === 'MultiValueCollector' ||
       collector.category === 'SingleValueCollector' ||
-      collector.category === 'ValidatedSingleValueCollector',
+      collector.category === 'ValidatedSingleValueCollector' ||
+      collector.category === 'ObjectValueCollector',
   );
 
   const formData = collectors?.reduce<{
-    [key: string]: string | number | boolean | (string | number | boolean)[];
+    [key: string]:
+      | string
+      | number
+      | boolean
+      | (string | number | boolean)[]
+      | DeviceValue
+      | PhoneNumberInputValue;
   }>((acc, collector) => {
     acc[collector.input.key] = collector.input.value;
     return acc;

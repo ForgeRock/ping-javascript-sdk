@@ -19,6 +19,8 @@ import socialLoginButtonComponent from './components/social-login-button.js';
 import { serverConfigs } from './server-configs.js';
 import singleValueComponent from './components/single-value.js';
 import multiValueComponent from './components/multi-value.js';
+import labelComponent from './components/label.js';
+import objectValueComponent from './components/object-value.js';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
@@ -58,6 +60,7 @@ const urlParams = new URLSearchParams(window.location.search);
     // different middleware type than the old legacy config
     await Config.setAsync(config as any);
   }
+
   function renderComplete() {
     const clientInfo = davinciClient.getClient();
     const serverInfo = davinciClient.getServer();
@@ -164,6 +167,21 @@ const urlParams = new URLSearchParams(window.location.search);
           collector, // This is the plain object of the collector
           davinciClient.update(collector), // Returns an update function for this collector
         );
+      } else if (
+        collector.type === 'DeviceRegistrationCollector' ||
+        collector.type === 'DeviceAuthenticationCollector'
+      ) {
+        objectValueComponent(
+          formEl, // You can ignore this; it's just for rendering
+          collector, // This is the plain object of the collector
+          davinciClient.update(collector), // Returns an update function for this collector
+          submitForm,
+        );
+      } else if (collector.type === 'ReadOnlyCollector') {
+        labelComponent(
+          formEl, // You can ignore this; it's just for rendering
+          collector, // This is the plain object of the collector
+        );
       } else if (collector.type === 'TextCollector') {
         textComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -183,6 +201,13 @@ const urlParams = new URLSearchParams(window.location.search);
         submitButtonComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
+        );
+      } else if (collector.type === 'PhoneNumberCollector') {
+        objectValueComponent(
+          formEl, // You can ignore this; it's just for rendering
+          collector, // This is the plain object of the collector
+          davinciClient.update(collector), // Returns an update function for this collector
+          submitForm,
         );
       } else if (collector.type === 'IdpCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -206,17 +231,21 @@ const urlParams = new URLSearchParams(window.location.search);
     });
 
     if (davinciClient.getCollectors().find((collector) => collector.name === 'protectsdk')) {
-      const newNode = await davinciClient.next();
+      submitForm();
+    }
+  }
 
-      if (newNode.status === 'continue') {
-        renderForm();
-      } else if (newNode.status === 'success') {
-        renderComplete();
-      } else if (newNode.status === 'error') {
-        renderForm();
-      } else {
-        console.error('Unknown node status', newNode);
-      }
+  async function submitForm() {
+    const newNode = await davinciClient.next();
+
+    if (newNode.status === 'continue') {
+      renderForm();
+    } else if (newNode.status === 'success') {
+      renderComplete();
+    } else if (newNode.status === 'error') {
+      renderForm();
+    } else {
+      console.error('Unknown node status', newNode);
     }
   }
 

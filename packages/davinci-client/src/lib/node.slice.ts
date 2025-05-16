@@ -50,7 +50,7 @@ export const initialNodeState = {
     status: START_STATUS,
   },
   status: START_STATUS,
-};
+} satisfies StartNode;
 
 type NodeStates = ErrorNode | FailureNode | ContinueNode | SuccessNode | StartNode;
 
@@ -203,6 +203,8 @@ export const nodeSlice = createSlice({
         status: CONTINUE_STATUS,
       };
 
+      newState.error = null;
+
       newState.httpStatus = action.payload.httpStatus;
 
       newState.server = {
@@ -256,6 +258,7 @@ export const nodeSlice = createSlice({
         status: SUCCESS_STATUS,
       };
 
+      newState.error = null;
       newState.status = SUCCESS_STATUS;
 
       return newState;

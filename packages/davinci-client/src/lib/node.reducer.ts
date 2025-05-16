@@ -16,7 +16,6 @@ import {
   returnActionCollector,
   returnFlowCollector,
   returnPasswordCollector,
-  returnSingleValueCollector,
   returnIdpCollector,
   returnSubmitCollector,
   returnTextCollector,
@@ -24,8 +23,10 @@ import {
   returnMultiSelectCollector,
   returnReadOnlyCollector,
   returnObjectSelectCollector,
+  returnObjectValueCollector,
+  returnUnknownCollector,
 } from './collector.utils.js';
-import type { DaVinciField } from './davinci.types.js';
+import type { DaVinciField, UnknownField } from './davinci.types.js';
 import {
   ActionCollector,
   MultiSelectCollector,
@@ -40,6 +41,9 @@ import {
   ValidatedTextCollector,
   DeviceAuthenticationCollector,
   DeviceRegistrationCollector,
+  PhoneNumberCollector,
+  PhoneNumberInputValue,
+  UnknownCollector,
 } from './collector.types.js';
 
 /**
@@ -54,7 +58,7 @@ export const nextCollectorValues = createAction<{
 }>('node/next');
 export const updateCollectorValues = createAction<{
   id: string;
-  value: string | string[];
+  value: string | string[] | PhoneNumberInputValue;
   index?: number;
 }>('node/update');
 
@@ -73,8 +77,10 @@ const initialCollectorValues: (
   | MultiSelectCollector
   | DeviceAuthenticationCollector
   | DeviceRegistrationCollector
+  | PhoneNumberCollector
   | ReadOnlyCollector
   | ValidatedTextCollector
+  | UnknownCollector
 )[] = [];
 
 /**
@@ -137,6 +143,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 // No data to send
                 return returnPasswordCollector(field, idx);
               }
+              case 'PHONE_NUMBER': {
+                // No data to send
+                return returnObjectValueCollector(field, idx);
+              }
               case 'TEXT': {
                 const str = data as string;
                 return returnTextCollector(field, idx, str);
@@ -159,8 +169,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
               return returnActionCollector(field, idx, 'ActionCollector');
             }
 
-            const str = data as string;
-            return returnSingleValueCollector(field, idx, 'SingleValueCollector', str);
+            return returnUnknownCollector(field as UnknownField, idx);
           })
         : [];
       return collectors || [];
@@ -189,7 +198,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         collector.category === 'SingleValueCollector' ||
         collector.category === 'ValidatedSingleValueCollector'
       ) {
-        if (Array.isArray(action.payload.value)) {
+        if (typeof action.payload.value !== 'string') {
           throw new Error('SingleValueCollector does not accept an array');
         }
         collector.input.value = action.payload.value;
@@ -197,6 +206,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
 
       if (collector.category === 'MultiValueCollector') {
+        if (typeof action.payload.value !== 'string' && !Array.isArray(action.payload.value)) {
+          throw new Error('MultiValueCollector does not accept an object');
+        }
         if (Array.isArray(action.payload.value)) {
           collector.input.value = [...action.payload.value];
         } else {
@@ -240,6 +252,19 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         }
 
         collector.input.value = option.type;
+      }
+
+      if (collector.type === 'PhoneNumberCollector') {
+        if (typeof action.payload.id !== 'string') {
+          throw new Error('Index argument must be a string');
+        }
+        if (typeof action.payload.value !== 'object') {
+          throw new Error('Value argument must be an object');
+        }
+        if (!('phoneNumber' in action.payload.value) || !('countryCode' in action.payload.value)) {
+          throw new Error('Value argument must contain a phoneNumber and countryCode property');
+        }
+        collector.input.value = action.payload.value;
       }
     });
 });

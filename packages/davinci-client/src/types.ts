@@ -43,4 +43,7 @@ export type ValidatedTextCollector = collectors.ValidatedTextCollector;
 export type ReadOnlyCollector = collectors.ReadOnlyCollector;
 export type MultiSelectCollector = collectors.MultiSelectCollector;
 export type SingleSelectCollector = collectors.SingleSelectCollector;
+export type DeviceRegistrationCollector = collectors.DeviceRegistrationCollector;
+export type DeviceAuthenticationCollector = collectors.DeviceAuthenticationCollector;
+export type PhoneNumberCollector = collectors.PhoneNumberCollector;
 export type { RequestMiddleware };

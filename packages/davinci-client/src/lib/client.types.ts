@@ -4,6 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { PhoneNumberInputValue } from './collector.types.js';
 import { GenericError } from './error.types.js';
 import { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
@@ -16,7 +17,10 @@ export interface InternalErrorResponse {
 
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
 
-export type Updater = (value: string | string[], index?: number) => InternalErrorResponse | null;
+export type Updater = (
+  value: string | string[] | PhoneNumberInputValue,
+  index?: number,
+) => InternalErrorResponse | null;
 export type Validator = (value: string) =>
   | string[]
   | {
