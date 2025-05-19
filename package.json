@@ -81,7 +81,7 @@
     "@swc/helpers": "0.5.17",
     "@types/eslint": "9.6.1",
     "@types/estree": "^1.0.1",
-    "@types/express": "5.0.1",
+    "@types/express": "5.0.2",
     "@types/node": "22.14.1",
     "@typescript-eslint/typescript-estree": "8.23.0",
     "@typescript-eslint/utils": "^8.13.0",
