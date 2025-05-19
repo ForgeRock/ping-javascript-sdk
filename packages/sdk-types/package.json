@@ -2,6 +2,11 @@
   "name": "@forgerock/sdk-types",
   "version": "0.0.1",
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/sdk-types"
+  },
   "type": "module",
   "exports": {
     ".": {

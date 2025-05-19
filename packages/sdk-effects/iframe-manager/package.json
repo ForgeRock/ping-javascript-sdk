@@ -2,6 +2,11 @@
   "name": "@forgerock/iframe-manager",
   "version": "0.0.1",
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/sdk-effects/iframe-manager"
+  },
   "type": "module",
   "exports": {
     ".": {

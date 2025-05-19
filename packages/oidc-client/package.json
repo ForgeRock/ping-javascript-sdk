@@ -1,6 +1,11 @@
 {
   "name": "@forgerock/oidc-client",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/oidc-client"
+  },
   "sideEffects": false,
   "type": "module",
   "exports": {
