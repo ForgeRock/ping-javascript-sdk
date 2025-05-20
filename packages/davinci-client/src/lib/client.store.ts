@@ -31,10 +31,10 @@ import type {
   ObjectValueCollectors,
   PhoneNumberInputValue,
 } from './collector.types.js';
-import type { InitFlow, Updater, Validator } from './client.types.js';
+import type { InitFlow, NodeStates, Updater, Validator } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { authorize } from './davinci.utils.js';
-import { NodeStates, StartNode } from '../types.js';
+import { StartNode } from './node.types.js';
 
 /**
  * Create a client function that returns a set of methods

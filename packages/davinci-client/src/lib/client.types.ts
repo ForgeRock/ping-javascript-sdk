@@ -30,3 +30,5 @@ export type Validator = (value: string) =>
       };
       type: string;
     };
+
+export type NodeStates = StartNode | ContinueNode | ErrorNode | SuccessNode | FailureNode;

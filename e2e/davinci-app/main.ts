@@ -8,7 +8,12 @@ import './style.css';
 
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
-import type { DaVinciConfig, RequestMiddleware } from '@forgerock/davinci-client/types';
+import type {
+  DaVinciConfig,
+  RequestMiddleware,
+  DavinciClient,
+  GetClient,
+} from '@forgerock/davinci-client/types';
 
 import textComponent from './components/text.js';
 import passwordComponent from './components/password.js';
@@ -48,7 +53,7 @@ const requestMiddleware: RequestMiddleware<'DAVINCI_NEXT' | 'DAVINCI_START'>[] =
 const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
-  const davinciClient = await davinci({ config, requestMiddleware });
+  const davinciClient: DavinciClient = await davinci({ config, requestMiddleware });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: any;
@@ -62,7 +67,7 @@ const urlParams = new URLSearchParams(window.location.search);
   }
 
   function renderComplete() {
-    const clientInfo = davinciClient.getClient();
+    const clientInfo: GetClient = davinciClient.getClient();
     const serverInfo = davinciClient.getServer();
 
     let code = '';
