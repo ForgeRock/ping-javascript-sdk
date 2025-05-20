@@ -6,6 +6,7 @@
   "type": "module",
   "main": "./dist/index.js",
   "scripts": {
+    "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
     "serve": "node dist/e2e/mock-api-v2/src/main.js",
     "serve:dev": "nodemon dist/e2e/mock-api-v2/src/main.js",
