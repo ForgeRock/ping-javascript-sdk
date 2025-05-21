@@ -52,7 +52,45 @@ jobs:
 
       - run: pnpm exec playwright install
 
-      - uses: nrwl/nx-set-shas@v4
+      - name: Get base and head SHAs for Nx affected commands
+        id: get-shas
+        run: |
+          set -e  # Exit immediately if a command exits with a non-zero status
+
+          # Check if 'gh' command is available
+          if ! command -v gh &> /dev/null; then
+              echo "Error: GitHub CLI (gh) is not installed." >&2
+              exit 1
+          fi
+
+          # Get latest release tag
+          echo "Fetching latest GitHub release..."
+          LATEST_RELEASE_TAG=$(gh release view --json tagName -q .tagName)
+
+          if [ -z "$LATEST_RELEASE_TAG" ]; then
+            exit 1
+          else
+            echo "Latest release tag: $LATEST_RELEASE_TAG"
+            # Get the commit SHA that this tag points to
+            BASE_SHA=$(git rev-list -n 1 $LATEST_RELEASE_TAG)
+          fi
+
+          # Get current HEAD SHA
+          HEAD_SHA=$(git rev-parse HEAD)
+
+          echo "Base SHA (latest release): $BASE_SHA"
+          echo "Head SHA (current): $HEAD_SHA"
+
+          # Set outputs for use with Nx
+          echo "base_sha=$BASE_SHA" >> $GITHUB_OUTPUT
+          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+
+          # Export as environment variables for immediate use
+          echo "NX_BASE=$BASE_SHA" >> $GITHUB_ENV
+          echo "NX_HEAD=$HEAD_SHA" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # This line is needed for nx affected to work when CI is running on a PR
       - run: git branch --track main origin/main
 
@@ -83,8 +121,8 @@ jobs:
       - name: build docs
         run: pnpm generate-docs
 
-      - name: preview-docs
-        uses: rajyan/preview-pages@v1
+      - name: Publish api docs
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
         with:
           source-dir: docs
           pr-comment: 'none'
