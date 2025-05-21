@@ -3,17 +3,18 @@
     "default": ["{projectRoot}/**/*", "sharedGlobals", "workspaceRootIgnores"],
     "workspaceRootIgnores": [
       "!{projectRoot}/LICENSE",
-      "!{workspaceRoot}/*.md",
       "!{workspaceRoot}/.whitesource",
       "!{workspaceRoot}/commitlint.config.js",
       "!{workspaceRoot}/renovate.json",
       "!{workspaceRoot}/.github/pull_request_template.md",
       "!{workspaceRoot}/.husky/*",
-      "!{workspaceRoot}/.changeset/*.md",
       "!{workspaceRoot}/contributing_docs/*.md",
       "!{workspaceRoot}/.verdaccio/*"
     ],
-    "sharedGlobals": ["{projectRoot}/.github/workflows/*.yml"],
+    "sharedGlobals": [
+      "{projectRoot}/.github/workflows/*.yml",
+      "{workspaceRoot}/.changeset/*.md"
+    ],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test|mock).[jt]s?(x)?(.snap)",
