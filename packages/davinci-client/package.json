@@ -17,6 +17,7 @@
   "typings": "./dist/src/index.d.ts",
   "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo", "./LICENSE"],
   "scripts": {
+    "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
     "test": "pnpm nx nxTest",
     "test:watch": "pnpm nx nxTest --watch"
@@ -35,19 +36,6 @@
     "access": "public"
   },
   "nx": {
-    "tags": ["scope:package"],
-    "targets": {
-      "build": {
-        "executor": "@nx/js:tsc",
-        "outputs": ["{options.outputPath}"],
-        "options": {
-          "outputPath": "packages/davinci-client/dist",
-          "main": "packages/davinci-client/src/index.ts",
-          "tsConfig": "packages/davinci-client/tsconfig.lib.json",
-          "generatePackageJson": false,
-          "assets": []
-        }
-      }
-    }
+    "tags": ["scope:package"]
   }
 }

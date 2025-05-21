@@ -46,9 +46,15 @@ Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 const sessionStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
-    getItem: vi.fn((key: string) => Promise.resolve(store[key] || null)),
+    getItem: vi.fn((key: string) => {
+      const value = store[key];
+      if (value === undefined || value === null) {
+        return Promise.resolve(null);
+      }
+      return Promise.resolve(JSON.parse(value));
+    }),
     setItem: vi.fn((key: string, value: string) => {
-      store[key] = value;
+      store[key] = JSON.stringify(value);
       return Promise.resolve();
     }),
     removeItem: vi.fn((key: string) => {
@@ -201,8 +207,11 @@ describe('storage Effect', () => {
     it('should call sessionStorage.setItem with the correct key and value', async () => {
       await storageInstance.set(testValue);
       expect(sessionStorageMock.setItem).toHaveBeenCalledTimes(1);
-      expect(sessionStorageMock.setItem).toHaveBeenCalledWith(expectedKey, testValue);
-      expect(await sessionStorageMock.getItem(expectedKey)).toBe(testValue);
+      expect(sessionStorageMock.setItem).toHaveBeenCalledWith(
+        expectedKey,
+        JSON.stringify(testValue),
+      );
+      expect(await sessionStorageMock.getItem(expectedKey)).toBe(JSON.stringify(testValue));
       expect(localStorageMock.setItem).not.toHaveBeenCalled();
       expect(mockCustomStore.set).not.toHaveBeenCalled();
     });

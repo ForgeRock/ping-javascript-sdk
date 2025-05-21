@@ -121,7 +121,7 @@
           "targetName": "typecheck"
         },
         "build": {
-          "targetName": "build",
+          "targetName": "nxBuild",
           "configName": "tsconfig.lib.json"
         }
       },

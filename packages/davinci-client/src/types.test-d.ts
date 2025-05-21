@@ -7,7 +7,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expectTypeOf, it } from 'vitest';
 import type {
-  NodeStates,
   StartNode,
   ContinueNode,
   ErrorNode,
@@ -23,6 +22,7 @@ import type {
 } from './types.js';
 import type * as Types from './types.js';
 import { DaVinciError } from './lib/node.types.js';
+import { NodeStates } from './lib/client.types.js';
 
 describe('Type exports', () => {
   it('should validate all types are exported', () => {
