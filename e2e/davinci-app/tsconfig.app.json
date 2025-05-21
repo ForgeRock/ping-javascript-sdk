@@ -13,6 +13,9 @@
   ],
   "references": [
     {
+      "path": "../../packages/sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/davinci-client/tsconfig.lib.json"
     }
   ]

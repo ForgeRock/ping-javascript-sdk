@@ -15,6 +15,9 @@
   },
   "references": [
     {
+      "path": "../../packages/sdk-effects/logger"
+    },
+    {
       "path": "../../packages/davinci-client"
     },
     {

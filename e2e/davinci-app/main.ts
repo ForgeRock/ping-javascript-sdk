@@ -9,10 +9,11 @@ import './style.css';
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
 import type {
+  CustomLogger,
   DaVinciConfig,
-  RequestMiddleware,
   DavinciClient,
   GetClient,
+  RequestMiddleware,
 } from '@forgerock/davinci-client/types';
 
 import textComponent from './components/text.js';
@@ -27,11 +28,33 @@ import multiValueComponent from './components/multi-value.js';
 import labelComponent from './components/label.js';
 import objectValueComponent from './components/object-value.js';
 
+const loggerFn = {
+  error: () => {
+    console.error(`[ERROR] This is a custom logger function output.`);
+  },
+  warn: () => {
+    console.warn(`[WARN] This is a custom logger function output.`);
+  },
+  info: () => {
+    console.info(`[INFO] This is a custom logger function output.`);
+  },
+  debug: () => {
+    console.debug(`[DEBUG] This is a custom logger function output.`);
+  },
+} satisfies CustomLogger;
+
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
 
 const config: DaVinciConfig =
   serverConfigs[searchParams.get('clientId') || '724ec718-c41c-4d51-98b0-84a583f450f9'];
+
+const logger: { level: 'debug'; custom?: typeof loggerFn } = {
+  level: 'debug' as const,
+};
+if (searchParams.get('logFn') === 'true') {
+  logger.custom = loggerFn;
+}
 
 const requestMiddleware: RequestMiddleware<'DAVINCI_NEXT' | 'DAVINCI_START'>[] = [
   (fetchArgs, action, next) => {
@@ -53,7 +76,7 @@ const requestMiddleware: RequestMiddleware<'DAVINCI_NEXT' | 'DAVINCI_START'>[] =
 const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
-  const davinciClient: DavinciClient = await davinci({ config, requestMiddleware });
+  const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: any;

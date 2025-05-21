@@ -14,6 +14,8 @@ import type * as client from './lib/client.types.js';
 import { davinci } from './lib/client.store.js';
 import { nodeSlice } from './lib/node.slice.js';
 
+export type { CustomLogger } from '@forgerock/sdk-logger/types';
+
 export type DaVinciConfig = config.DaVinciConfig;
 
 export type DavinciClient = Awaited<ReturnType<typeof davinci>>;
