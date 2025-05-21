@@ -1,0 +1,91 @@
+name: Release Patch
+on:
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        description: 'Name for the patch branch (typically like "patch-release-1.0.1")'
+        required: true
+
+env:
+  NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  NX_CLOUD_DISTRIBUTED_EXECUTION: true
+  PNPM_CACHE_FOLDER: .pnpm-store
+  NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  CI: true
+
+jobs:
+  create-and-publish-patch:
+    permissions:
+      contents: write #  to create release (changesets/action)
+      issues: write # to post issue comments (changesets/action)
+      pull-requests: write #  to create pull request (changesets/action)
+      id-token: write # give id token write for provenance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      # Check out the provided branch - fail if it doesn't exist
+      - name: Checkout patch branch
+        run: |
+          git checkout ${{ github.event.inputs.branch-name }}
+
+      # Setup environment
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      # This line enables distribution for NX
+      - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
+
+      - run: pnpm exec playwright install
+
+      - uses: nrwl/nx-set-shas@v4
+
+      - name: Setup pnpm config
+        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
+
+      - name: Version packages
+        run: pnpm exec changeset version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # Build and test affected packages
+      - name: Build and test
+        run: pnpm exec nx affected -t build lint test e2e-ci
+
+      - name: Publish patch
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_ACCESS_TOKEN" > .npmrc
+          pnpm publish -r
+        env:
+          NPM_CONFIG_PROVENANCE: 'true'
+          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+
+      # Use changeset tag to create git tags according to changesets config
+      - name: Create and push git tags
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          pnpm exec changeset tag
+          git push --follow-tags
+
+      # Build and publish docs for the patch
+      - name: Build docs
+        run: pnpm generate-docs
+
+      - name: Publish api docs
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        with:
+          folder: docs
+          commit-message: 'chore: release-api-docs-patch'
