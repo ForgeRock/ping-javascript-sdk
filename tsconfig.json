@@ -14,6 +14,12 @@
       "path": "./e2e/davinci-app"
     },
     {
+      "path": "./e2e/oidc-app"
+    },
+    {
+      "path": "./e2e/oidc-suites"
+    },
+    {
       "path": "./e2e/mock-api-v2"
     },
     {
@@ -47,10 +53,7 @@
       "path": "./packages/oidc-client"
     },
     {
-      "path": "./e2e/oidc-app"
-    },
-    {
-      "path": "./e2e/oidc-suites"
+      "path": "./packages/protect"
     }
   ]
 }
