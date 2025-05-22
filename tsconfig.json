@@ -23,6 +23,12 @@
       "path": "./e2e/mock-api-v2"
     },
     {
+      "path": "./e2e/protect-app"
+    },
+    {
+      "path": "./e2e/protect-suites"
+    },
+    {
       "path": "./packages/davinci-client"
     },
     {

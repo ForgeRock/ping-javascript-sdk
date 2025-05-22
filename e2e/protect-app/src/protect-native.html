@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ping Protect Native</title>
+  </head>
+  <body>
+    <div id="app">
+      <a href="https://vite.dev" target="_blank">
+        <img src="/vite.svg" class="logo" alt="Vite logo" />
+      </a>
+      <a href="https://www.typescriptlang.org/" target="_blank">
+        <img src="/typescript.svg" class="logo vanilla" alt="TypeScript logo" />
+      </a>
+      <h2>Ping Protect Native</h2>
+      <p class="read-the-docs">Click on the Vite and TypeScript logos to learn more</p>
+      <a href="/index.html" class="nav">Home</a>
+      <div id="steps">
+        <div id="loader" class="active">Loading...</div>
+        <div id="UsernamePassword">
+          <input class="form-control" type="text" name="username" placeholder="Username" />
+          <input class="form-control" type="password" name="password" placeholder="Password" />
+          <button class="btn btn-primary">Sign In</button>
+        </div>
+        <div id="ProtectInit">Protect initializing</div>
+        <div id="ProtectEval">Protect evaluating</div>
+        <div id="User">
+          <div>
+            <p>Your user information:</p>
+            <pre></pre>
+          </div>
+          <button class="btn btn-primary">Sign Out</button>
+        </div>
+        <div id="Error">
+          <p>Error code: <span></span></p>
+          <p><a id="start-over" href="/">Start over</a></p>
+        </div>
+        <div id="Fatal">
+          <p>Something unexpected happened. Check the console for details.</p>
+          <p><a id="start-over" href="/">Start over</a></p>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="protect-native.ts"></script>
+  </body>
+</html>
