@@ -20,6 +20,8 @@
     "@forgerock/oidc-app",
     "@forgerock/oidc-suites",
     "@forgerock/local-release-tool",
-    "@pingidentity/protect"
+    "@pingidentity/protect",
+    "@pingidentity/protect-app",
+    "@pingidentity/protect-suites"
   ]
 }
