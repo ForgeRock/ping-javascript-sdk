@@ -9,10 +9,6 @@ export type WebAuthnQuery = {
   userId: string;
 };
 
-export type WebAuthnQueryWithUUID = {
-  uuid: string;
-} & WebAuthnQuery;
-
 export type WebAuthnBody = {
   id: string;
   deviceName: string;
@@ -20,15 +16,6 @@ export type WebAuthnBody = {
   credentialId: string;
   createdDate: number;
   lastAccessDate: number;
-};
-
-export type WebAuthnDevicesResponse = {
-  result: WebAuthnDevice[];
-  resultCount: number;
-  pagedResultsCookie: null;
-  totalPagedResultsPolicy: 'NONE';
-  totalPagedResults: -1;
-  remainingPagedResults: -1;
 };
 
 export type WebAuthnDevice = {

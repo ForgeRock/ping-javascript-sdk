@@ -6,6 +6,7 @@
  */
 export * from './oath.types.js';
 export * from './webauthn.types.js';
+export * from './profile-device.types.js';
 export * from './push-device.types.js';
-export * from './binding-device.types.js';
+export * from './bound-device.types.js';
 export * from './updateDeviceProfile.types.js';
