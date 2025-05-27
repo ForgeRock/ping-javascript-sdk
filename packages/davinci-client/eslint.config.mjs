@@ -26,7 +26,10 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
-          ignoredFiles: ['{projectRoot}/vite.config.{js,ts,mjs,mts}'],
+          ignoredFiles: [
+            '{projectRoot}/vite.config.{js,ts,mjs,mts}',
+            '{projectRoot}/eslint.config.{js,cjs,mjs}',
+          ],
         },
       ],
     },
