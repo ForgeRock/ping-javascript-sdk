@@ -420,7 +420,7 @@ describe('Object value collectors', () => {
       key: 'device-auth-key',
       label: 'Device Authentication',
       type: 'DEVICE_AUTHENTICATION',
-      devices: [
+      options: [
         {
           type: 'device1',
           iconSrc: 'icon1.png',
@@ -441,7 +441,7 @@ describe('Object value collectors', () => {
       required: true,
     };
 
-    const transformedDevices = mockField.devices.map((device) => ({
+    const transformedDevices = mockField.options.map((device) => ({
       label: device.title,
       value: device.id,
       content: device.value,
@@ -487,7 +487,7 @@ describe('Object value collectors', () => {
       key: 'device-reg-key',
       label: 'Device Registration',
       type: 'DEVICE_REGISTRATION',
-      devices: [
+      options: [
         {
           type: 'device1',
           iconSrc: 'icon1.png',
@@ -504,7 +504,7 @@ describe('Object value collectors', () => {
       required: true,
     };
 
-    const transformedDevices = mockField.devices.map((device, idx) => ({
+    const transformedDevices = mockField.options.map((device, idx) => ({
       label: device.title,
       value: device.type,
       content: device.description,

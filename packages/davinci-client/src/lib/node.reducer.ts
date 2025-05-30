@@ -242,6 +242,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         if (typeof action.payload.id !== 'string') {
           throw new Error('Index argument must be a string');
         }
+
         // Iterate through the options object and find option to update
         const option = collector.output.options.find(
           (option) => option.value === action.payload.value,

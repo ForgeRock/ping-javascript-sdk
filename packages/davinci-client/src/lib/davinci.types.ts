@@ -120,7 +120,7 @@ export type DeviceAuthenticationField = {
   type: 'DEVICE_AUTHENTICATION';
   key: string;
   label: string;
-  devices: {
+  options: {
     type: string;
     iconSrc: string;
     title: string;
@@ -135,7 +135,7 @@ export type DeviceRegistrationField = {
   type: 'DEVICE_REGISTRATION';
   key: string;
   label: string;
-  devices: {
+  options: {
     type: string;
     iconSrc: string;
     title: string;

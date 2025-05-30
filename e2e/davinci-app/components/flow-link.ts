@@ -16,6 +16,7 @@ export default function flowLinkComponent(
 
   button.classList.add('flow-link');
   button.type = 'button';
+  button.name = collector.output.label || 'no-label-provided-err';
   button.innerText = collector.output.label;
 
   formEl?.appendChild(button);
