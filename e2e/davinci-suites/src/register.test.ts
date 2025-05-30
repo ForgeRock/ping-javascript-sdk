@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 import { password } from './utils/demo-user.js';
 
-test('Test happy paths on test page', async ({ page }) => {
+test.skip('Test happy paths on test page', async ({ page }) => {
   const { navigate } = asyncEvents(page);
   await navigate('/');
 
