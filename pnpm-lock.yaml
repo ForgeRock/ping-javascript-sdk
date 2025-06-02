@@ -223,7 +223,7 @@ importers:
         version: 6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.40.0)(yaml@2.8.0)
       vitest:
         specifier: 3.0.5
-        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
       vitest-canvas-mock:
         specifier: ^0.3.3
         version: 0.3.3(vitest@3.0.5)
@@ -268,7 +268,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: ^0.19.0
-        version: 0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))
+        version: 0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))
 
   e2e/oidc-app:
     dependencies:
@@ -312,7 +312,7 @@ importers:
     devDependencies:
       vitest:
         specifier: ^3.0.4
-        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   packages/device-client:
     dependencies:
@@ -7039,8 +7039,8 @@ packages:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
 
-  webpack-sources@3.3.0:
-    resolution: {integrity: sha512-77R0RDmJfj9dyv5p3bM5pOHa+X8/ZkO9c7kpDstigkC4nIDobadsfSGCwB4bKhMVxqAok8tajaoR8rirM7+VFQ==}
+  webpack-sources@3.3.2:
+    resolution: {integrity: sha512-ykKKus8lqlgXX/1WjudpIEjqsafjOTcOJqxnAbMLAu/KCsDCJ6GBtvscewvTkrn24HsnvFwrSCbenFrhtcCsAA==}
     engines: {node: '>=10.13.0'}
 
   webpack-virtual-modules@0.6.2:
@@ -8432,15 +8432,15 @@ snapshots:
     dependencies:
       effect: 3.16.0
 
-  '@effect/vitest@0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))':
+  '@effect/vitest@0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))':
     dependencies:
       effect: 3.16.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   '@effect/vitest@0.6.12(effect@3.16.0)(vitest@3.0.5)':
     dependencies:
       effect: 3.16.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   '@emnapi/core@1.4.3':
     dependencies:
@@ -9137,7 +9137,7 @@ snapshots:
       semver: 7.7.2
       tsconfig-paths: 4.2.0
       vite: 6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.40.0)(yaml@2.8.0)
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -9995,7 +9995,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -10051,7 +10051,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.14
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   '@vitest/utils@3.0.4':
     dependencies:
@@ -14909,9 +14909,9 @@ snapshots:
   vitest-canvas-mock@0.3.3(vitest@3.0.5):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
-  vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0):
+  vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0):
     dependencies:
       '@vitest/expect': 3.0.5
       '@vitest/mocker': 3.0.5(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(vite@6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.40.0)(yaml@2.8.0))
@@ -14974,7 +14974,7 @@ snapshots:
 
   webidl-conversions@7.0.0: {}
 
-  webpack-sources@3.3.0: {}
+  webpack-sources@3.3.2: {}
 
   webpack-virtual-modules@0.6.2: {}
 
@@ -15003,7 +15003,7 @@ snapshots:
       tapable: 2.2.2
       terser-webpack-plugin: 5.3.14(@swc/core@1.11.21(@swc/helpers@0.5.17))(webpack@5.99.9(@swc/core@1.11.21(@swc/helpers@0.5.17)))
       watchpack: 2.4.4
-      webpack-sources: 3.3.0
+      webpack-sources: 3.3.2
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
