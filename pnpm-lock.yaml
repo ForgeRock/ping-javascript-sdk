@@ -157,7 +157,7 @@ importers:
         version: 2.2.0(eslint@9.27.0(jiti@2.4.2))
       eslint-plugin-prettier:
         specifier: ^5.2.3
-        version: 5.4.0(@types/eslint@9.6.1)(eslint-config-prettier@10.1.5(eslint@9.27.0(jiti@2.4.2)))(eslint@9.27.0(jiti@2.4.2))(prettier@3.5.3)
+        version: 5.4.1(@types/eslint@9.6.1)(eslint-config-prettier@10.1.5(eslint@9.27.0(jiti@2.4.2)))(eslint@9.27.0(jiti@2.4.2))(prettier@3.5.3)
       fast-check:
         specifier: ^4.0.0
         version: 4.1.1
@@ -223,7 +223,7 @@ importers:
         version: 6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.40.0)(yaml@2.8.0)
       vitest:
         specifier: 3.0.5
-        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
       vitest-canvas-mock:
         specifier: ^0.3.3
         version: 0.3.3(vitest@3.0.5)
@@ -268,7 +268,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: ^0.19.0
-        version: 0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))
+        version: 0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))
 
   e2e/oidc-app:
     dependencies:
@@ -312,7 +312,7 @@ importers:
     devDependencies:
       vitest:
         specifier: ^3.0.4
-        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+        version: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   packages/device-client:
     dependencies:
@@ -2067,8 +2067,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@pkgr/core@0.2.4':
-    resolution: {integrity: sha512-ROFF39F6ZrnzSUEmQQZUar0Jt4xVoP9WnDRdWwF4NNcXs3xBTLgBUDoOwW141y1jP+S8nahIbdxbFC7IShw9Iw==}
+  '@pkgr/core@0.2.7':
+    resolution: {integrity: sha512-YLT9Zo3oNPJoBjBc4q8G2mjU4tqIbf5CEOORbUUr48dCD9q3umJ3IPlVqOqDakPfd2HuwccBaqlGhN4Gmr5OWg==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
   '@playwright/test@1.52.0':
@@ -3951,8 +3951,8 @@ packages:
     peerDependencies:
       eslint: '>=8.40.0'
 
-  eslint-plugin-prettier@5.4.0:
-    resolution: {integrity: sha512-BvQOvUhkVQM1i63iMETK9Hjud9QhqBnbtT1Zc642p9ynzBuCe5pybkOnvqZIBypXmMlsGcnU4HZ8sCTPfpAexA==}
+  eslint-plugin-prettier@5.4.1:
+    resolution: {integrity: sha512-9dF+KuU/Ilkq27A8idRP7N2DH8iUR6qXcjF3FR2wETY21PZdBrIjwCau8oboyGj9b7etWmTGEeM8e7oOed6ZWg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       '@types/eslint': '>=8.0.0'
@@ -6528,8 +6528,8 @@ packages:
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
 
-  synckit@0.11.6:
-    resolution: {integrity: sha512-2pR2ubZSV64f/vqm9eLPz/KOvR9Dm+Co/5ChLgeHl0yEDRc6h5hXHoxEQH8Y5Ljycozd3p1k5TTSVdzYGkPvLw==}
+  synckit@0.11.8:
+    resolution: {integrity: sha512-+XZ+r1XGIJGeQk3VvXhT6xx/VpbHsRzsTkGgF6E5RX9TTXD0118l87puaEBZ566FhqblC6U0d4XnubznJDm30A==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
   tapable@2.2.2:
@@ -7039,8 +7039,8 @@ packages:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
 
-  webpack-sources@3.3.0:
-    resolution: {integrity: sha512-77R0RDmJfj9dyv5p3bM5pOHa+X8/ZkO9c7kpDstigkC4nIDobadsfSGCwB4bKhMVxqAok8tajaoR8rirM7+VFQ==}
+  webpack-sources@3.3.2:
+    resolution: {integrity: sha512-ykKKus8lqlgXX/1WjudpIEjqsafjOTcOJqxnAbMLAu/KCsDCJ6GBtvscewvTkrn24HsnvFwrSCbenFrhtcCsAA==}
     engines: {node: '>=10.13.0'}
 
   webpack-virtual-modules@0.6.2:
@@ -8432,15 +8432,15 @@ snapshots:
     dependencies:
       effect: 3.16.0
 
-  '@effect/vitest@0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))':
+  '@effect/vitest@0.19.10(effect@3.16.0)(vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0))':
     dependencies:
       effect: 3.16.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   '@effect/vitest@0.6.12(effect@3.16.0)(vitest@3.0.5)':
     dependencies:
       effect: 3.16.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   '@emnapi/core@1.4.3':
     dependencies:
@@ -9137,7 +9137,7 @@ snapshots:
       semver: 7.7.2
       tsconfig-paths: 4.2.0
       vite: 6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.40.0)(yaml@2.8.0)
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -9356,7 +9356,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@pkgr/core@0.2.4': {}
+  '@pkgr/core@0.2.7': {}
 
   '@playwright/test@1.52.0':
     dependencies:
@@ -9995,7 +9995,7 @@ snapshots:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -10051,7 +10051,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.14
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
   '@vitest/utils@3.0.4':
     dependencies:
@@ -11496,12 +11496,12 @@ snapshots:
       eslint: 9.27.0(jiti@2.4.2)
       globals: 13.24.0
 
-  eslint-plugin-prettier@5.4.0(@types/eslint@9.6.1)(eslint-config-prettier@10.1.5(eslint@9.27.0(jiti@2.4.2)))(eslint@9.27.0(jiti@2.4.2))(prettier@3.5.3):
+  eslint-plugin-prettier@5.4.1(@types/eslint@9.6.1)(eslint-config-prettier@10.1.5(eslint@9.27.0(jiti@2.4.2)))(eslint@9.27.0(jiti@2.4.2))(prettier@3.5.3):
     dependencies:
       eslint: 9.27.0(jiti@2.4.2)
       prettier: 3.5.3
       prettier-linter-helpers: 1.0.0
-      synckit: 0.11.6
+      synckit: 0.11.8
     optionalDependencies:
       '@types/eslint': 9.6.1
       eslint-config-prettier: 10.1.5(eslint@9.27.0(jiti@2.4.2))
@@ -14434,9 +14434,9 @@ snapshots:
 
   symbol-tree@3.2.4: {}
 
-  synckit@0.11.6:
+  synckit@0.11.8:
     dependencies:
-      '@pkgr/core': 0.2.4
+      '@pkgr/core': 0.2.7
 
   tapable@2.2.2: {}
 
@@ -14909,9 +14909,9 @@ snapshots:
   vitest-canvas-mock@0.3.3(vitest@3.0.5):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
+      vitest: 3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0)
 
-  vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0):
+  vitest@3.0.5(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.0.5))(jiti@2.4.2)(jsdom@26.1.0)(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(terser@5.40.0)(yaml@2.8.0):
     dependencies:
       '@vitest/expect': 3.0.5
       '@vitest/mocker': 3.0.5(msw@2.8.5(@types/node@22.14.1)(typescript@5.7.3))(vite@6.2.6(@types/node@22.14.1)(jiti@2.4.2)(terser@5.40.0)(yaml@2.8.0))
@@ -14974,7 +14974,7 @@ snapshots:
 
   webidl-conversions@7.0.0: {}
 
-  webpack-sources@3.3.0: {}
+  webpack-sources@3.3.2: {}
 
   webpack-virtual-modules@0.6.2: {}
 
@@ -15003,7 +15003,7 @@ snapshots:
       tapable: 2.2.2
       terser-webpack-plugin: 5.3.14(@swc/core@1.11.21(@swc/helpers@0.5.17))(webpack@5.99.9(@swc/core@1.11.21(@swc/helpers@0.5.17)))
       watchpack: 2.4.4
-      webpack-sources: 3.3.0
+      webpack-sources: 3.3.2
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
