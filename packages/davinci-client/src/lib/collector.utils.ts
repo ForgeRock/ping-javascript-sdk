@@ -360,18 +360,18 @@ export function returnObjectCollector<
     error = `${error}Type is not found in the field object. `;
   }
 
-  let devices;
+  let options;
   let defaultValue;
 
   if (field.type === 'DEVICE_AUTHENTICATION') {
-    if (!('devices' in field)) {
+    if (!('options' in field)) {
       error = `${error}Device options are not found in the field object. `;
     }
-    if (Array.isArray(field.devices) && field.devices.length === 0) {
+    if (Array.isArray(field.options) && field.options.length === 0) {
       error = `${error}Device options are not an array or is empty. `;
     }
 
-    const unmappedDefault = field.devices.find((device) => device.default);
+    const unmappedDefault = field.options.find((device) => device.default);
     defaultValue = {
       type: unmappedDefault ? unmappedDefault.type : '',
       value: unmappedDefault ? unmappedDefault.value : '',
@@ -379,7 +379,7 @@ export function returnObjectCollector<
     };
 
     // Map DaVinci spec to normalized SDK API
-    devices = field.devices.map((device) => ({
+    options = field.options.map((device) => ({
       type: device.type,
       label: device.title,
       content: device.value,
@@ -388,18 +388,18 @@ export function returnObjectCollector<
       default: device.default,
     }));
   } else if (field.type === 'DEVICE_REGISTRATION') {
-    if (!('devices' in field)) {
+    if (!('options' in field)) {
       error = `${error}Device options are not found in the field object. `;
     }
 
-    if (Array.isArray(field.devices) && field.devices.length === 0) {
+    if (Array.isArray(field.options) && field.options.length === 0) {
       error = `${error}Device options are not an array or is empty. `;
     }
 
     defaultValue = '';
 
     // Map DaVinci spec to normalized SDK API
-    devices = field.devices.map((device, idx) => ({
+    options = field.options.map((device, idx) => ({
       type: device.type,
       label: device.title,
       content: device.description,
@@ -428,7 +428,7 @@ export function returnObjectCollector<
       key: field.key,
       label: field.label,
       type: field.type,
-      ...(devices && { options: devices || [] }),
+      ...(options && { options: options || [] }),
       ...(defaultValue && { value: defaultValue }),
     },
   } as InferValueObjectCollectorType<CollectorType>;
