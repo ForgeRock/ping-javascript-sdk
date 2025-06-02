@@ -427,7 +427,7 @@ describe('Object value collectors', () => {
           title: 'Device 1',
           id: '123123',
           default: true,
-          value: 'device1-value',
+          description: 'device1-value',
         },
         {
           type: 'device2',
@@ -435,7 +435,7 @@ describe('Object value collectors', () => {
           title: 'Device 2',
           id: '345345',
           default: false,
-          value: 'device2-value',
+          description: 'device2-value',
         },
       ],
       required: true,
@@ -444,7 +444,7 @@ describe('Object value collectors', () => {
     const transformedDevices = mockField.options.map((device) => ({
       label: device.title,
       value: device.id,
-      content: device.value,
+      content: device.description,
       type: device.type,
       key: device.id,
       default: device.default,
