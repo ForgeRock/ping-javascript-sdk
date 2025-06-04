@@ -14,6 +14,7 @@
   "updateInternalDependencies": "patch",
   "ignore": [
     "@forgerock/device-client",
+    "@forgerock/device-client-app",
     "@forgerock/davinci-app",
     "@forgerock/davinci-suites",
     "@forgerock/mock-api-v2",

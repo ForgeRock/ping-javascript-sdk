@@ -1,0 +1,19 @@
+{
+  "name": "@forgerock/device-client-app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm nx nxBuild",
+    "lint": "pnpm nx nxLint",
+    "preview": "pnpm nx nxPreview",
+    "serve": "pnpm nx nxServe"
+  },
+  "dependencies": {
+    "@forgerock/device-client": "workspace:*",
+    "@forgerock/javascript-sdk": "4.7.0",
+    "rxjs": "7.8.2"
+  },
+  "nx": {
+    "tags": ["scope:e2e"]
+  }
+}
