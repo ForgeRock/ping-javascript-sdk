@@ -20,6 +20,8 @@
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
     "src/**/*.d.ts",
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.test.utils.ts",
+    "src/lib/mock-data/*"
   ]
 }

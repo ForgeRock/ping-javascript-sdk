@@ -12,7 +12,7 @@ import type {
   ProfileDevice,
   PushDevice,
   WebAuthnDevice,
-} from '../types';
+} from '../types/index.js';
 
 // Mock data
 export const MOCK_OATH_DEVICES: OathResponse = {

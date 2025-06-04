@@ -5,187 +5,17 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { afterEach, afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { deviceClient } from './device.store.js';
+import { handlers } from './device.store.test.utils.js';
 
 import {
   MOCK_PUSH_DEVICES,
   MOCK_BINDING_DEVICES,
   MOCK_OATH_DEVICES,
-  MOCK_DELETED_OATH_DEVICE,
   MOCK_WEBAUTHN_DEVICES,
   MOCK_DEVICE_PROFILE_SUCCESS,
-} from './mock-data/msw-mock-data.js';
-
-// Create handlers
-export const handlers = [
-  // OATH Devices
-  http.get('*/json/realms/:realm/users/:userId/devices/2fa/oath', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json(MOCK_OATH_DEVICES);
-  }),
-
-  http.delete('*/json/realms/:realm/users/:userId/devices/2fa/oath/:uuid', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json(MOCK_DELETED_OATH_DEVICE);
-  }),
-
-  // Push Devices
-  http.get('*/json/realms/:realm/users/:userId/devices/2fa/push', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json({ result: MOCK_PUSH_DEVICES });
-  }),
-
-  http.delete('*/json/realms/:realm/users/:userId/devices/2fa/push/:uuid', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    if (params['uuid'] === 'bad-uuid') {
-      return HttpResponse.json({ error: 'bad uuid' }, { status: 401 });
-    }
-    return HttpResponse.json(MOCK_PUSH_DEVICES[0]);
-  }),
-
-  // WebAuthn Devices
-  http.get('*/json/realms/:realm/users/:userId/devices/2fa/webauthn', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json({ result: MOCK_WEBAUTHN_DEVICES });
-  }),
-
-  http.put('*/json/realms/:realm/users/:userId/devices/2fa/webauthn/:uuid', ({ params }) => {
-    if (params['userId'] === 'bad-uuid') {
-      return HttpResponse.json({ error: 'bad uuid' }, { status: 401 });
-    }
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json({
-      ...MOCK_WEBAUTHN_DEVICES.result[0],
-      deviceName: 'Updated WebAuthn Device',
-    });
-  }),
-
-  http.delete('*/json/realms/:realm/users/:userId/devices/2fa/webauthn/:uuid', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    if (params['uuid'] === 'bad-uuid') {
-      return HttpResponse.json({ error: 'bad-uuid' }, { status: 401 });
-    }
-    return HttpResponse.json(MOCK_WEBAUTHN_DEVICES.result[0]);
-  }),
-
-  // Binding Devices
-  http.get('*/json/realms/:realm/users/:userId/devices/2fa/binding', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json({ result: MOCK_BINDING_DEVICES });
-  }),
-
-  http.put(
-    '*/json/realms/root/realms/:realm/users/:userId/devices/2fa/binding/:uuid',
-    ({ params }) => {
-      if (params['realm'] === 'fake-realm') {
-        return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-      }
-      if (params['userId'] === 'bad-user') {
-        return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-      }
-      if (params['userId'] === 'bad-uuid') {
-        return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-      }
-      return HttpResponse.json({
-        ...MOCK_BINDING_DEVICES.result[0],
-        deviceName: 'Updated Binding Device',
-      });
-    },
-  ),
-
-  http.delete(
-    '*/json/realms/root/realms/:realm/users/:userId/devices/2fa/binding/:uuid',
-    ({ params }) => {
-      if (params['realm'] === 'fake-realm') {
-        return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-      }
-      if (params['userId'] === 'bad-user') {
-        return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-      }
-      if (params['userId'] === 'bad-uuid') {
-        return HttpResponse.json({ error: 'bad uuid' }, { status: 401 });
-      }
-      return HttpResponse.json({ result: MOCK_BINDING_DEVICES.result[0] });
-    },
-  ),
-
-  // profile devices
-  http.get('*/json/realms/:realm/users/:userId/devices/profile', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json({ result: MOCK_DEVICE_PROFILE_SUCCESS });
-  }),
-  http.put('*/json/realms/:realm/users/:userId/devices/profile/:uuid', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    return HttpResponse.json({
-      ...MOCK_DEVICE_PROFILE_SUCCESS.result[0],
-      alias: 'new-name',
-    });
-  }),
-  http.delete('*/json/realms/:realm/users/:userId/devices/profile/:uuid', ({ params }) => {
-    if (params['realm'] === 'fake-realm') {
-      return HttpResponse.json({ error: 'bad realm' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-user') {
-      return HttpResponse.json({ error: 'bad user' }, { status: 401 });
-    }
-    if (params['userId'] === 'bad-uuid') {
-      return HttpResponse.json({ error: 'bad uuid' }, { status: 401 });
-    }
-    return HttpResponse.json(MOCK_DEVICE_PROFILE_SUCCESS.result[0]);
-  }),
-];
+} from './mock-data/device.store.mock.js';
 
 export const server = setupServer(...handlers);
 
@@ -232,8 +62,9 @@ describe('Device Client Store', () => {
         },
       });
 
-      expect(result).toEqual(MOCK_DELETED_OATH_DEVICE);
+      expect(result).toEqual(null);
     });
+
     it('should return error obj if a user does not exist', async () => {
       const badClient = deviceClient(config);
       const result = await badClient.oath.get({
@@ -241,7 +72,8 @@ describe('Device Client Store', () => {
       });
       expect(result).toStrictEqual({ error: new Error('response did not contain data') });
     });
-    it('should return undefined if a realm does not exist', async () => {
+
+    it('should return error obj if a realm does not exist', async () => {
       const badConfig = { ...config, realmPath: 'fake-realm' };
       const badClient = deviceClient(badConfig);
       const result = await badClient.oath.get({
@@ -267,8 +99,9 @@ describe('Device Client Store', () => {
         userId: 'test-user',
         device: MOCK_PUSH_DEVICES[0],
       });
-      expect(result).toEqual(MOCK_PUSH_DEVICES[0]);
+      expect(result).toEqual(null);
     });
+
     it('should fail with a bad uuid', async () => {
       const client = deviceClient(config);
       const result1 = await client.push.delete({
@@ -276,8 +109,11 @@ describe('Device Client Store', () => {
         device: { ...MOCK_PUSH_DEVICES[0], uuid: 'bad-uuid' },
       });
 
-      expect(result1).toStrictEqual({ error: new Error('response did not contain data') });
+      expect(result1).toEqual({
+        error: expect.objectContaining({ message: expect.stringContaining('bad uuid') }),
+      });
     });
+
     it('should fail with a bad userId', async () => {
       const badConfig = { ...config, realmPath: 'bad-realm' };
       const badClient = deviceClient(badConfig);
@@ -287,25 +123,32 @@ describe('Device Client Store', () => {
       });
       const result2 = await badClient.push.get({ userId: 'bad-user' });
 
-      expect(result1).toStrictEqual({ error: new Error('response did not contain data') });
+      expect(result1).toEqual({
+        error: expect.objectContaining({ message: expect.stringContaining('bad user') }),
+      });
       expect(result2).toStrictEqual({ error: new Error('response did not contain data') });
     });
-    it('should return error if a uuid does not exist', async () => {
+
+    it('should return error obj if a uuid does not exist', async () => {
       const badClient = deviceClient(config);
       const result = await badClient.push.delete({
         userId: 'user',
         device: { ...MOCK_PUSH_DEVICES[0], uuid: 'bad-uuid' },
       });
-      expect(result).toStrictEqual({ error: new Error('response did not contain data') });
+      expect(result).toEqual({
+        error: expect.objectContaining({ message: expect.stringContaining('bad uuid') }),
+      });
     });
-    it('should return undefined if a user does not exist', async () => {
+
+    it('should return error obj if a user does not exist', async () => {
       const badClient = deviceClient(config);
       const result = await badClient.push.get({
         userId: 'bad-user',
       });
       expect(result).toStrictEqual({ error: new Error('response did not contain data') });
     });
-    it('should return undefined if a realm does not exist', async () => {
+
+    it('should return error obj if a realm does not exist', async () => {
       const badConfig = { ...config, realmPath: 'fake-realm' };
       const badClient = deviceClient(badConfig);
       const result = await badClient.push.get({
@@ -314,7 +157,7 @@ describe('Device Client Store', () => {
       expect(result).toStrictEqual({ error: new Error('response did not contain data') });
     });
   });
-  //
+
   describe('WebAuthn Device Management', () => {
     const client = deviceClient(config);
 
@@ -347,6 +190,7 @@ describe('Device Client Store', () => {
         deviceName: 'Updated WebAuthn Device',
       });
     });
+
     it('should error when deleting webauthn device with invalid uuid', async () => {
       const mockDevice = MOCK_WEBAUTHN_DEVICES.result[0];
       const result = await client.webAuthn.delete({
@@ -357,7 +201,9 @@ describe('Device Client Store', () => {
         },
       });
 
-      expect(result).toStrictEqual({ error: new Error('response did not contain data') });
+      expect(result).toEqual({
+        error: expect.objectContaining({ message: expect.stringContaining('bad uuid') }),
+      });
     });
 
     it('should delete webauthn device', async () => {
@@ -367,10 +213,10 @@ describe('Device Client Store', () => {
         device: mockDevice,
       });
 
-      expect(result).toEqual(mockDevice);
+      expect(result).toEqual(null);
     });
   });
-  //
+
   describe('Bound Device Management', () => {
     const client = deviceClient(config);
     const mockDevice = MOCK_BINDING_DEVICES.result[0];
@@ -402,9 +248,10 @@ describe('Device Client Store', () => {
         device: mockDevice,
       });
 
-      expect(result).toEqual(mockDevice);
+      expect(result).toEqual(null);
     });
   });
+
   describe('Profile Device', () => {
     const client = deviceClient(config);
 
@@ -413,6 +260,7 @@ describe('Device Client Store', () => {
 
       expect(result).toEqual(MOCK_DEVICE_PROFILE_SUCCESS);
     });
+
     it('should update device profiles', async () => {
       const result = await client.profile.update({
         userId: 'test-user',
@@ -422,6 +270,7 @@ describe('Device Client Store', () => {
 
       expect(result).toEqual({ ...MOCK_DEVICE_PROFILE_SUCCESS.result[0], alias: 'new-name' });
     });
+
     it('should delete device profiles', async () => {
       const result = await client.profile.delete({
         userId: 'hello',
@@ -429,7 +278,7 @@ describe('Device Client Store', () => {
         device: MOCK_DEVICE_PROFILE_SUCCESS.result[0],
       });
 
-      expect(result).toEqual({ ...MOCK_DEVICE_PROFILE_SUCCESS.result[0] });
+      expect(result).toEqual(null);
     });
   });
 });
