@@ -242,6 +242,18 @@ importers:
 
   e2e/davinci-suites: {}
 
+  e2e/device-client-app:
+    dependencies:
+      '@forgerock/device-client':
+        specifier: workspace:*
+        version: link:../../packages/device-client
+      '@forgerock/javascript-sdk':
+        specifier: 4.7.0
+        version: 4.7.0
+      rxjs:
+        specifier: 7.8.2
+        version: 7.8.2
+
   e2e/mock-api-v2:
     dependencies:
       '@effect/language-service':

@@ -44,9 +44,11 @@ const config: ConfigOptions = {
   },
   realmPath: '/your-realm-path',
 };
+```
 
 If there is no realmPath or you wish to override the value, you can do so in the api call itself where you pass in the query.
 
+```
 const apiClient = deviceClient(config);
 ```
 
@@ -205,7 +207,10 @@ apiClient.webauthn
 
 ### Bound Devices Management Example
 
-```typescript const bindingQuery: BindingDeviceQuery = { /* your query parameters */ };
+```typescript
+const bindingQuery: BindingDeviceQuery = {
+  /* your query parameters */
+};
 apiClient.boundDevices
   .get(bindingQuery)
   .then((response) => {
