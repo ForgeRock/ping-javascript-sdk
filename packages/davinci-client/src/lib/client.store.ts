@@ -33,10 +33,16 @@ import type {
   ObjectValueCollectors,
   PhoneNumberInputValue,
 } from './collector.types.js';
-import type { InitFlow, NodeStates, Updater, Validator } from './client.types.js';
+import type {
+  InitFlow,
+  InternalErrorResponse,
+  NodeStates,
+  Updater,
+  Validator,
+} from './client.types.js';
 import { returnValidator } from './collector.utils.js';
-import { authorize } from './davinci.utils.js';
 import { StartNode } from './node.types.js';
+import { returnRedirectUrlForSocialLogin } from './davinci.utils.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -108,12 +114,18 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * @param collector IdpCollector
      * @returns {function}
      */
-    externalIdp: (collector: IdpCollector) => {
+    externalIdp: (collector: IdpCollector): (() => string | InternalErrorResponse) => {
       const rootState: RootState = store.getState();
 
       const serverSlice = nodeSlice.selectors.selectServer(rootState);
 
-      return () => authorize(serverSlice, collector, log);
+      return () => {
+        const result = returnRedirectUrlForSocialLogin(serverSlice, collector, log);
+        if (typeof result == 'string') {
+          return result;
+        }
+        return result;
+      };
     },
 
     /**
