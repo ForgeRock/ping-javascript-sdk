@@ -8,6 +8,7 @@
  * Import RTK slices and api
  */
 import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
+import { createStorage } from '@forgerock/storage';
 
 import { createClientStore, handleUpdateValidateError, RootState } from './client.store.utils.js';
 import { nodeSlice } from './node.slice.js';
@@ -28,7 +29,6 @@ import type {
 } from './davinci.types.js';
 import type {
   SingleValueCollectors,
-  IdpCollector,
   MultiSelectCollector,
   ObjectValueCollectors,
   PhoneNumberInputValue,
@@ -41,8 +41,7 @@ import type {
   Validator,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
-import { StartNode } from './node.types.js';
-import { returnRedirectUrlForSocialLogin } from './davinci.utils.js';
+import { ContinueNode, StartNode } from './node.types.js';
 
 /**
  * Create a client function that returns a set of methods
@@ -66,7 +65,10 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
   const store = createClientStore({ requestMiddleware, logger: log });
-
+  const serverInfo = createStorage<ContinueNode['server']>(
+    { storeType: 'localStorage' },
+    'socialLoginUrl',
+  );
   if (!config.serverConfig.wellknown) {
     const error = new Error(
       '`wellknown` property is a required as part of the `config.serverConfig`',
@@ -114,17 +116,23 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * @param collector IdpCollector
      * @returns {function}
      */
-    externalIdp: (collector: IdpCollector): (() => string | InternalErrorResponse) => {
+    externalIdp: (): (() => Promise<void | InternalErrorResponse>) => {
       const rootState: RootState = store.getState();
-
       const serverSlice = nodeSlice.selectors.selectServer(rootState);
 
-      return () => {
-        const result = returnRedirectUrlForSocialLogin(serverSlice, collector, log);
-        if (typeof result == 'string') {
-          return result;
-        }
-        return result;
+      if (serverSlice && serverSlice.status === 'continue') {
+        return async () => {
+          await serverInfo.set(serverSlice);
+        };
+      }
+      return async () => {
+        return {
+          error: {
+            message:
+              'Not in a continue node state, must be in a continue node to use external idp method',
+            type: 'state_error',
+          },
+        } as InternalErrorResponse;
       };
     },
 
@@ -178,12 +186,32 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * @method: resume - Resume a social login flow when returned to application
      * @returns unknown
      */
-    resume: async ({ continueToken }: { continueToken: string }) => {
-      await store.dispatch(davinciApi.endpoints.resume.initiate({ continueToken }));
+    resume: async ({
+      continueToken,
+    }: {
+      continueToken: string;
+    }): Promise<InternalErrorResponse | NodeStates> => {
+      try {
+        const storedServerInfo = (await serverInfo.get()) as ContinueNode['server'];
+        await store.dispatch(
+          davinciApi.endpoints.resume.initiate({ continueToken, serverInfo: storedServerInfo }),
+        );
+        await serverInfo.remove();
 
-      const node = nodeSlice.selectSlice(store.getState());
+        const node = nodeSlice.selectSlice(store.getState());
 
-      return node;
+        return node;
+      } catch {
+        // logger.error('No url found in collector, social login needs a url in the collector');
+        return {
+          error: {
+            message:
+              'No url found in storage, social login needs a continue url which is saved in local storage. You may have cleared your browser data',
+            type: 'internal_error',
+          },
+          type: 'internal_error',
+        };
+      }
     },
 
     /**

@@ -10,21 +10,18 @@ import { InternalErrorResponse } from 'packages/davinci-client/src/lib/client.ty
 export default function submitButtonComponent(
   formEl: HTMLFormElement,
   collector: IdpCollector,
-  updater: () => string | InternalErrorResponse,
+  updater: () => Promise<void | InternalErrorResponse>,
 ) {
   const button = document.createElement('button');
   console.log('collector', collector);
   button.value = collector.output.label;
   button.innerHTML = collector.output.label;
-  button.onclick = () => {
-    const url = updater();
-    if (typeof url === 'string') {
-      window.location.assign(url);
+  button.onclick = async () => {
+    await updater();
+    if ('url' in collector.output && typeof collector.output.url === 'string') {
+      window.location.assign(collector.output.url);
     } else {
-      /**
-       * this is an error now
-       **/
-      console.error(url);
+      console.error('no url to continue from');
     }
   };
 

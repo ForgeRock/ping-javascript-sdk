@@ -347,10 +347,10 @@ export const davinciApi = createApi({
         handleResponse(cacheEntry, api.dispatch, response?.status || 0, logger);
       },
     }),
-    resume: builder.query<unknown, { continueToken: string }>({
-      async queryFn({ continueToken }, api, _c, baseQuery) {
-        const continueUrl = window.localStorage.getItem('continueUrl') || null;
+    resume: builder.query<unknown, { serverInfo: ContinueNode['server']; continueToken: string }>({
+      async queryFn({ serverInfo, continueToken }, api, _c, baseQuery) {
         const { requestMiddleware, logger } = api.extra as Extras;
+        const links = serverInfo._links;
 
         if (!continueToken) {
           return {
@@ -362,7 +362,12 @@ export const davinciApi = createApi({
             },
           };
         }
-        if (!continueUrl) {
+        if (
+          !links ||
+          !('continue' in links) ||
+          !('href' in links['continue']) ||
+          !links['continue'].href
+        ) {
           return {
             error: {
               data: 'No continue url',
@@ -373,10 +378,7 @@ export const davinciApi = createApi({
           };
         }
 
-        if (continueUrl) {
-          window.localStorage.removeItem('continueUrl');
-        }
-
+        const continueUrl = links['continue'].href;
         const request: FetchArgs = {
           url: continueUrl,
           credentials: 'include',
