@@ -67,7 +67,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   const store = createClientStore({ requestMiddleware, logger: log });
   const serverInfo = createStorage<ContinueNode['server']>(
     { storeType: 'localStorage' },
-    'socialLoginUrl',
+    'serverInfo',
   );
   if (!config.serverConfig.wellknown) {
     const error = new Error(
