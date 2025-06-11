@@ -239,8 +239,7 @@ const urlParams = new URLSearchParams(window.location.search);
         );
       } else if (collector.type === 'IdpCollector') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        collector;
-        socialLoginButtonComponent(formEl, collector, davinciClient.externalIdp(collector));
+        socialLoginButtonComponent(formEl, collector, davinciClient.externalIdp());
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(
           formEl, // You can ignore this; it's just for rendering

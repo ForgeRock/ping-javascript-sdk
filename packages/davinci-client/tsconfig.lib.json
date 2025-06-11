@@ -32,7 +32,7 @@
   ],
   "references": [
     {
-      "path": "../sdk-effects/logger/tsconfig.lib.json"
+      "path": "../sdk-effects/storage/tsconfig.lib.json"
     },
     {
       "path": "../sdk-types/tsconfig.lib.json"
@@ -42,6 +42,9 @@
     },
     {
       "path": "../sdk-effects/oidc/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/logger/tsconfig.lib.json"
     }
   ]
 }

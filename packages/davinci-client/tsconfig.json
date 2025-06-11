@@ -11,7 +11,7 @@
   },
   "references": [
     {
-      "path": "../sdk-effects/logger"
+      "path": "../sdk-effects/storage"
     },
     {
       "path": "../sdk-types"
@@ -21,6 +21,9 @@
     },
     {
       "path": "../sdk-effects/oidc"
+    },
+    {
+      "path": "../sdk-effects/logger"
     },
     {
       "path": "./tsconfig.lib.json"

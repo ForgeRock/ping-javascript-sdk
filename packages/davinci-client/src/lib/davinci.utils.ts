@@ -11,8 +11,6 @@ import type { Dispatch } from '@reduxjs/toolkit';
 
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 
-import type { RootState } from './client.store.utils.js';
-
 import { nodeSlice } from './node.slice.js';
 
 import type {
@@ -24,9 +22,7 @@ import type {
   DaVinciSuccessResponse,
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
-import { DeviceValue, IdpCollector, PhoneNumberInputValue } from './collector.types.js';
-import { InternalErrorResponse } from './client.types.js';
-
+import { DeviceValue, PhoneNumberInputValue } from './collector.types.js';
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions
  * @param {ContinueNode} node - The node to transform into a DaVinciRequest
@@ -243,42 +239,5 @@ export function handleResponse(
       const data = cacheEntry.data as DaVinciFailureResponse;
       dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: status }));
     }
-  }
-}
-
-export function authorize(
-  serverSlice: RootState['node']['server'],
-  collector: IdpCollector,
-  logger: ReturnType<typeof loggerFn>,
-): InternalErrorResponse | void {
-  if (serverSlice && '_links' in serverSlice) {
-    const continueUrl = serverSlice._links?.['continue']?.href ?? null;
-    if (continueUrl) {
-      window.localStorage.setItem('continueUrl', continueUrl);
-      if (collector.output.url) {
-        window.location.assign(collector.output.url);
-      }
-    } else {
-      logger.error('No url found in collector, social login needs a url in the collector');
-      return {
-        error: {
-          message:
-            'No url found in collector, social login needs a url in the collector to navigate to',
-          type: 'network_error',
-        },
-        type: 'internal_error',
-      };
-    }
-    logger.error(
-      'No Continue Url found, social login needs a continue url to be saved in localStorage',
-    );
-    return {
-      error: {
-        message:
-          'No Continue Url found, social login needs a continue url to be saved in localStorage',
-        type: 'network_error',
-      },
-      type: 'internal_error',
-    };
   }
 }
