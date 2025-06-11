@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
  *
  * Copyright © 2025 Ping Identity Corporation. All right reserved.
@@ -8,146 +9,96 @@
  */
 
 import {
-  FRAuth,
   CallbackType,
-  NameCallback,
-  TokenManager,
-  SessionManager,
   Config,
+  FRLoginFailure,
+  FRLoginSuccess,
+  FRStep,
+  NameCallback,
   PasswordCallback,
 } from '@forgerock/javascript-sdk';
-import { deviceClient } from '@forgerock/device-client';
 import { Effect } from 'effect';
-import { DeviceClient } from './types.js';
+import { start, logout, checkFRStep, callNext, getTokens } from './util-effects/index.js';
+import { deviceClient } from '@forgerock/device-client';
 
+const checkForLoginSuccess = (step: FRStep | FRLoginSuccess | FRLoginFailure) => {
+  if (step.type === 'LoginSuccess') {
+    return Effect.succeed(step);
+  } else if (step.type === 'LoginFailure') {
+    return Effect.fail(new Error(`Login failed`));
+  } else {
+    return Effect.fail(
+      new Error(`Unexpected step, expected to be in a LoginSuccess but got ${step.type}`),
+    );
+  }
+};
 /**
  * @function autoscript
  * @description Steps through an authentication journey to test device management
  * @param {function} handleDevice A function that manages the device through the device client
  * @returns {Effect.Effect<string, Error, never>} An effect to run the test
  */
-export const autoscript = (
-  handleDevice: (client: DeviceClient) => Effect.Effect<void, Error, never>,
-) =>
-  Effect.gen(function* () {
-    const url = new URL(window.location.href);
-    const amUrl = url.searchParams.get('amUrl') || 'https://openam-sdks.forgeblocks.com/am';
-    const realmPath = url.searchParams.get('realmPath') || 'alpha';
-    const platformHeader = url.searchParams.get('platformHeader') === 'true' ? true : false;
-    const tree = url.searchParams.get('tree') || 'selfservice';
+export const LoginAndGetClient = Effect.gen(function* () {
+  /**
+   * Make sure this `un` is a real user
+   * this is a manual test and requires a real tenant and a real user
+   * that has devices.
+   */
+  const url = new URL(window.location.href);
+  const un = url.searchParams.get('un') || 'devicetestuser';
+  const pw = url.searchParams.get('pw') || 'password';
+  const amUrl = url.searchParams.get('amUrl') || 'https://openam-sdks.forgeblocks.com/am';
+  const realmPath = url.searchParams.get('realmPath') || 'alpha';
+  const platformHeader = url.searchParams.get('platformHeader') === 'true' ? true : false;
+  const tree = url.searchParams.get('tree') || 'selfservice';
 
+  const config = {
+    realmPath,
+    tree,
+    clientId: 'WebOAuthClient',
+    scope: 'profile email me.read openid',
+    serverConfig: {
+      baseUrl: amUrl,
+      timeout: 3000,
+    },
+  };
+
+  yield* Effect.try(() =>
+    Config.set({
+      platformHeader,
+      realmPath,
+      tree,
+      clientId: 'WebOAuthClient',
+      scope: 'profile email me.read openid',
+      redirectUri: `${window.location.origin}/src/_callback/index.html`,
+      serverConfig: {
+        baseUrl: amUrl,
+        timeout: 3000,
+      },
+    }),
+  );
+  yield* logout;
+
+  yield* start.pipe(
+    Effect.flatMap((step) => checkFRStep(step)),
+    Effect.map((step) => {
+      step.getCallbackOfType<NameCallback>(CallbackType.NameCallback).setName(un);
+      step.getCallbackOfType<PasswordCallback>(CallbackType.PasswordCallback).setPassword(pw);
+      return step;
+    }),
+    Effect.flatMap((step) => callNext(step)),
     /**
-     * Make sure this `un` is a real user
-     * this is a manual test and requires a real tenant and a real user
-     * that has devices.
+     * Don't explicitly need this but if the journey changes
+     * maybe we dont get a LoginSuccess
      */
-    const un = url.searchParams.get('un') || 'devicetestuser';
-    const pw = url.searchParams.get('pw') || 'password';
+    Effect.flatMap((step) => checkForLoginSuccess(step)),
+    Effect.flatMap(() => getTokens),
+  );
 
-    // Configure the SDK
-    yield* Effect.try({
-      try: () => {
-        Config.set({
-          middleware: [
-            (req, action, next) => {
-              switch (action.type) {
-                case 'START_AUTHENTICATE':
-                  if (
-                    action.payload.type === 'service' &&
-                    typeof action.payload.tree === 'string'
-                  ) {
-                    console.log('Starting authentication with service');
-                  }
-                  break;
-                case 'AUTHENTICATE':
-                  if (
-                    action.payload.type === 'service' &&
-                    typeof action.payload.tree === 'string'
-                  ) {
-                    console.log('Continuing authentication with service');
-                  }
-                  break;
-              }
-              next();
-            },
-          ],
-          platformHeader,
-          realmPath,
-          tree,
-          clientId: 'WebOAuthClient',
-          scope: 'profile email me.read openid',
-          redirectUri: `${window.location.origin}/src/_callback/index.html`,
-          serverConfig: {
-            baseUrl: amUrl,
-            timeout: 3000,
-          },
-        });
-        console.log('Configured the SDK');
-      },
-      catch: (err) => new Error(`SDK configuration failed: ${err}`),
-    });
+  const client = deviceClient(config);
+  return client;
+});
 
-    // Log out any user before starting auth journey
-    yield* Effect.tryPromise({
-      try: () => SessionManager.logout(),
-      catch: (err) => new Error(`Logout failed: ${err}`),
-    });
-
-    // Start the authentication journey
-    const step = yield* Effect.tryPromise({
-      try: () => FRAuth.start(),
-      catch: (err) => new Error(`Authentication start failed: ${err}`),
-    });
-
-    // Login with username/password
-    yield* Effect.tryPromise({
-      try: () => {
-        if (step.type !== 'Step') {
-          return Promise.reject(
-            new Error('Expected a step, but received a login success or failure.'),
-          );
-        }
-
-        console.log('Set values on auth tree callbacks');
-        step.getCallbackOfType<NameCallback>(CallbackType.NameCallback).setName(un);
-        step.getCallbackOfType<PasswordCallback>(CallbackType.PasswordCallback).setPassword(pw);
-        return FRAuth.next(step);
-      },
-      catch: (err) => new Error(`Login failed: ${err}`),
-    });
-
-    // Get tokens
-    yield* Effect.tryPromise({
-      try: () => TokenManager.getTokens(),
-      catch: (err) => new Error(`Failed to get tokens: ${err}`),
-    });
-
-    // Create a device client
-    const client = yield* Effect.sync(() => {
-      return deviceClient({
-        realmPath,
-        tree,
-        clientId: 'WebOAuthClient',
-        scope: 'profile email me.read openid',
-        serverConfig: {
-          baseUrl: amUrl,
-          timeout: 3000,
-        },
-      });
-    });
-
-    // Test the device
-    yield* handleDevice(client);
-
-    // Finish autoscript
-    yield* Effect.sync(() => {
-      document.body.innerHTML = `<p class="Test_Complete">Test script complete</p>`;
-    });
-
-    return 'Test script complete';
-  });
-
-// Display error message
 export const handleError = (err: unknown) => {
   console.error(err);
   document.body.innerHTML = `<p class="Test_Failed">Test script failed: ${err}</p>`;

@@ -7,11 +7,10 @@
  *
  */
 
-import { UserManager } from '@forgerock/javascript-sdk';
-import { autoscript, handleError } from '../autoscript.js';
-import { DeviceClient } from '../types.js';
+import { handleError, LoginAndGetClient } from '../autoscript.js';
 import { ProfileDevice } from '@forgerock/device-client/types';
 import { Effect } from 'effect';
+import { getUser } from '../util-effects/index.js';
 
 /**
  * @function handleDeviceProfile
@@ -19,12 +18,10 @@ import { Effect } from 'effect';
  * @param {DeviceClient} client A device client instance from the JS SDK
  * @returns {Effect.Effect<void, Error, never>} An Effect that performs device profile management operations
  */
-function handleDeviceProfile(client: DeviceClient): Effect.Effect<void, Error, never> {
-  return Effect.gen(function* () {
-    const user = yield* Effect.tryPromise({
-      try: () => UserManager.getCurrentUser(),
-      catch: (err) => new Error(`Failed to get current user: ${err}`),
-    });
+const handleDeviceProfile = Effect.gen(function* () {
+    const client = yield* LoginAndGetClient
+    const user = yield* getUser;
+
 
     const query = {
       userId: (user as Record<string, string>).sub,
@@ -73,4 +70,4 @@ function handleDeviceProfile(client: DeviceClient): Effect.Effect<void, Error, n
 }
 
 // Execute the device test
-Effect.runPromise(autoscript(handleDeviceProfile)).then(console.log, handleError);
+Effect.runPromise(handleDeviceProfile).then(console.log, handleError);

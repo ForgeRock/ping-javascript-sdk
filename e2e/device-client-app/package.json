@@ -17,6 +17,6 @@
     "tags": ["scope:e2e"]
   },
   "devDependencies": {
-    "@effect/language-service": "^0.2.0"
+    "@effect/language-service": "^0.20.0"
   }
 }

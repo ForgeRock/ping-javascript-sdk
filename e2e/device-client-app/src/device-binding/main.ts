@@ -7,11 +7,10 @@
  *
  */
 
-import { UserManager } from '@forgerock/javascript-sdk';
-import { autoscript, handleError } from '../autoscript.js';
-import { DeviceClient } from '../types.js';
 import { Device } from '@forgerock/device-client/types';
-import { Effect } from 'effect';
+import { Console, Effect } from 'effect';
+import { LoginAndGetClient, handleError } from '../autoscript.js';
+import { getUser } from '../util-effects/index.js';
 
 /**
  * @function handleDeviceBinding
@@ -19,58 +18,52 @@ import { Effect } from 'effect';
  * @param {DeviceClient} client A device client instance from the JS SDK
  * @returns {Effect.Effect<void, Error, never>} An Effect that performs device binding management operations
  */
-function handleDeviceBinding(client: DeviceClient): Effect.Effect<void, Error, never> {
-  return Effect.gen(function* () {
-    const user = yield* Effect.tryPromise({
-      try: () => UserManager.getCurrentUser(),
-      catch: (err) => new Error(`Failed to get current user: ${err}`),
-    });
 
-    const query = {
-      userId: (user as Record<string, string>).sub,
-      realm: 'alpha',
-    };
+const deviceBinding = Effect.gen(function* () {
+  const client = yield* LoginAndGetClient;
+  const user = yield* getUser;
+  const query = {
+    userId: user.sub,
+    realm: 'alpha',
+  };
 
-    const deviceArr = yield* Effect.promise(() => client.bound.get(query));
-    console.log('GET devices', deviceArr);
+  const deviceArr = yield* Effect.promise(() => client.bound.get(query));
 
-    if (Array.isArray(deviceArr)) {
-      const [device] = deviceArr;
+  if (!deviceArr || 'error' in deviceArr) {
+    yield* Console.log('No devices found or error occurred', deviceArr);
+    return yield* Effect.fail(new Error('No devices found or error occurred'));
+  }
+  yield* Console.log('GET devices', deviceArr);
 
-      if (!device) {
-        yield* Effect.fail(new Error('No device to delete'));
-      }
-      console.log('device', device);
+  const [device] = deviceArr;
 
-      const updatedDevice = yield* Effect.promise(() =>
-        client.bound.update({
-          ...query,
-          device: { ...device, deviceName: 'UpdatedDeviceName' },
-        }),
-      );
+  yield* Console.log('device', device);
 
-      if ('error' in updatedDevice) {
-        yield* Effect.fail(new Error(`Failed to update device: ${updatedDevice.error}`));
-      }
-      console.log('updated device', updatedDevice);
+  const updatedDevice = yield* Effect.promise(() =>
+    client.bound.update({
+      ...query,
+      device: { ...device, deviceName: 'UpdatedDeviceName' },
+    }),
+  );
 
-      const deletedDevice = yield* Effect.promise(() =>
-        client.bound.delete({
-          ...query,
-          device: updatedDevice as Device,
-        }),
-      );
+  if ('error' in updatedDevice) {
+    return yield* Effect.fail(new Error(`Failed to update device: ${updatedDevice.error}`));
+  }
 
-      if (deletedDevice !== null && deletedDevice.error) {
-        yield* Effect.fail(new Error(`Failed to delete device: ${deletedDevice.error}`));
-      }
+  yield* Console.log('updated device', updatedDevice);
 
-      console.log('deleted', deletedDevice);
-    } else {
-      yield* Effect.fail(new Error(`Failed to get devices: ${deviceArr.error}`));
-    }
-  });
-}
+  const deletedDevice = yield* Effect.promise(() =>
+    client.bound.delete({
+      ...query,
+      device: updatedDevice as Device,
+    }),
+  );
 
-// Execute the device test
-Effect.runPromise(autoscript(handleDeviceBinding)).then(console.log, handleError);
+  if (deletedDevice !== null && deletedDevice.error) {
+    return yield* Effect.fail(new Error(`Failed to delete device: ${deletedDevice.error}`));
+  }
+
+  yield* Console.log('deleted', deletedDevice);
+});
+
+Effect.runPromise(deviceBinding).then(console.log).catch(handleError);
