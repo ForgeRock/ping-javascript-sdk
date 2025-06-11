@@ -7,67 +7,54 @@
  *
  */
 
-import { handleError, LoginAndGetClient } from '../autoscript.js';
-import { ProfileDevice } from '@forgerock/device-client/types';
-import { Effect } from 'effect';
-import { getUser } from '../util-effects/index.js';
+import { Console, Effect } from 'effect';
+import { getUser, LoginAndGetClient, handleError, handleSuccess } from '../utils/index.js';
 
-/**
- * @function handleDeviceProfile
- * @description Handles device profile management operations such as getting, updating, and deleting devices
- * @param {DeviceClient} client A device client instance from the JS SDK
- * @returns {Effect.Effect<void, Error, never>} An Effect that performs device profile management operations
- */
-const handleDeviceProfile = Effect.gen(function* () {
-    const client = yield* LoginAndGetClient
-    const user = yield* getUser;
+const deviceProfiling = Effect.gen(function* () {
+  const client = yield* LoginAndGetClient;
+  const user = yield* getUser;
+  const query = {
+    userId: user.sub,
+    realm: 'alpha',
+  };
 
+  const deviceArr = yield* Effect.promise(() => client.profile.get(query));
 
-    const query = {
-      userId: (user as Record<string, string>).sub,
-      realm: 'alpha',
-    };
+  if ((Array.isArray(deviceArr) && !deviceArr.length) || 'error' in deviceArr) {
+    yield* Console.log('No devices found or error occurred', deviceArr);
+    return yield* Effect.fail(new Error('No devices found or error occurred'));
+  }
+  yield* Console.log('GET devices', deviceArr);
 
-    const profileArr = yield* Effect.promise(() => client.profile.get(query));
-    console.log('GET devices', profileArr);
+  const [device] = deviceArr;
 
-    if (Array.isArray(profileArr)) {
-      const [profile] = profileArr;
+  yield* Console.log('device', device);
 
-      if (!profile) {
-        yield* Effect.fail(new Error('No profile to delete'));
-      }
-      console.log('profile', profile);
+  const updatedDevice = yield* Effect.promise(() =>
+    client.profile.update({
+      ...query,
+      device: { ...device, alias: 'UpdatedDeviceName' },
+    }),
+  );
 
-      const updatedProfile = yield* Effect.promise(() =>
-        client.profile.update({
-          ...query,
-          device: { ...profile, alias: 'UpdatedDeviceName' },
-        }),
-      );
+  if ('error' in updatedDevice) {
+    return yield* Effect.fail(new Error(`Failed to update device: ${updatedDevice.error}`));
+  }
 
-      if ('error' in updatedProfile) {
-        yield* Effect.fail(new Error(`Failed to update device: ${updatedProfile.error}`));
-      }
-      console.log('updated device', updatedProfile);
+  yield* Console.log('updated device', updatedDevice);
 
-      const deletedProfile = yield* Effect.promise(() =>
-        client.profile.delete({
-          ...query,
-          device: updatedProfile as ProfileDevice,
-        }),
-      );
+  const deletedDevice = yield* Effect.promise(() =>
+    client.profile.delete({
+      ...query,
+      device: updatedDevice,
+    }),
+  );
 
-      if (deletedProfile !== null && deletedProfile.error) {
-        yield* Effect.fail(new Error(`Failed to delete device: ${deletedProfile.error}`));
-      }
+  if (deletedDevice !== null && deletedDevice.error) {
+    return yield* Effect.fail(new Error(`Failed to delete device: ${deletedDevice.error}`));
+  }
 
-      console.log('deleted', deletedProfile);
-    } else {
-      yield* Effect.fail(new Error(`Failed to get devices: ${profileArr.error}`));
-    }
-  });
-}
+  yield* Console.log('deleted', deletedDevice);
+});
 
-// Execute the device test
-Effect.runPromise(handleDeviceProfile).then(console.log, handleError);
+Effect.runPromise(deviceProfiling).then(handleSuccess).catch(handleError);

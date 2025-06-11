@@ -1,25 +1,53 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/*
- *
- * Copyright © 2025 Ping Identity Corporation. All right reserved.
- *
- * This software may be modified and distributed under the terms
- * of the MIT license. See the LICENSE file for details.
- *
- */
-
+import { deviceClient } from '@forgerock/device-client';
 import {
   CallbackType,
   Config,
+  FRAuth,
   FRLoginFailure,
   FRLoginSuccess,
   FRStep,
   NameCallback,
   PasswordCallback,
+  SessionManager,
+  TokenManager,
+  UserManager,
 } from '@forgerock/javascript-sdk';
-import { Effect } from 'effect';
-import { start, logout, checkFRStep, callNext, getTokens } from './util-effects/index.js';
-import { deviceClient } from '@forgerock/device-client';
+import { Console, Effect } from 'effect';
+
+const logout = Effect.ignore(
+  Effect.tryPromise({
+    try: () => SessionManager.logout(),
+    catch: (err) => new Error(`Logout failed: ${err}`),
+  }),
+);
+
+const start = Effect.tryPromise({
+  try: () => FRAuth.start(),
+  catch: (err) => new Error(`Authentication start failed: ${err}`),
+}).pipe(Effect.tap((step) => Console.log('Called start', step)));
+
+const checkFRStep = (step: FRStep | FRLoginFailure | FRLoginSuccess) =>
+  Effect.try({
+    try: () => {
+      if (step.type == 'LoginSuccess' || step.type == 'LoginFailure') {
+        throw new Error(`Unexpected step type: ${step.type}`);
+      } else {
+        return step;
+      }
+    },
+    catch: (err) => new Error(`Failed to start authentication: ${err}`),
+  });
+
+const callNext = (step: FRStep) =>
+  Effect.tryPromise({
+    try: () => FRAuth.next(step),
+    catch: (err) => new Error(`Failed to proceed to next step: ${err}`),
+  }).pipe(Effect.tap((step) => Console.log('Got next step', step)));
+
+const getTokens = Effect.tryPromise({
+  try: () => TokenManager.getTokens(),
+  catch: (err) => new Error(`Failed to get tokens: ${err}`),
+}).pipe(Effect.tap((tokens) => Console.log('Got Tokens', tokens)));
 
 const checkForLoginSuccess = (step: FRStep | FRLoginSuccess | FRLoginFailure) => {
   if (step.type === 'LoginSuccess') {
@@ -32,25 +60,21 @@ const checkForLoginSuccess = (step: FRStep | FRLoginSuccess | FRLoginFailure) =>
     );
   }
 };
-/**
- * @function autoscript
- * @description Steps through an authentication journey to test device management
- * @param {function} handleDevice A function that manages the device through the device client
- * @returns {Effect.Effect<string, Error, never>} An effect to run the test
- */
+
 export const LoginAndGetClient = Effect.gen(function* () {
+  const url = new URL(window.location.href);
+  const amUrl = url.searchParams.get('amUrl') || 'https://openam-sdks.forgeblocks.com/am';
+  const realmPath = url.searchParams.get('realmPath') || 'alpha';
+  const platformHeader = url.searchParams.get('platformHeader') === 'true' ? true : false;
+  const tree = url.searchParams.get('tree') || 'selfservice';
+
   /**
    * Make sure this `un` is a real user
    * this is a manual test and requires a real tenant and a real user
    * that has devices.
    */
-  const url = new URL(window.location.href);
   const un = url.searchParams.get('un') || 'devicetestuser';
   const pw = url.searchParams.get('pw') || 'password';
-  const amUrl = url.searchParams.get('amUrl') || 'https://openam-sdks.forgeblocks.com/am';
-  const realmPath = url.searchParams.get('realmPath') || 'alpha';
-  const platformHeader = url.searchParams.get('platformHeader') === 'true' ? true : false;
-  const tree = url.searchParams.get('tree') || 'selfservice';
 
   const config = {
     realmPath,
@@ -99,7 +123,17 @@ export const LoginAndGetClient = Effect.gen(function* () {
   return client;
 });
 
+export const getUser = Effect.tryPromise({
+  try: () => UserManager.getCurrentUser() as Promise<Record<string, string>>,
+  catch: (err) => new Error(`Failed to get current user: ${err}`),
+});
+
 export const handleError = (err: unknown) => {
   console.error(err);
   document.body.innerHTML = `<p class="Test_Failed">Test script failed: ${err}</p>`;
+};
+
+export const handleSuccess = () => {
+  console.log('Test script complete');
+  document.body.innerHTML = `<p class="Test_Complete">Test script complete</p>`;
 };

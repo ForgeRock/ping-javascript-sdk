@@ -53,7 +53,7 @@ export const deviceClient = (config: ConfigOptions) => {
        */
       get: async function (query: RetrieveOathQuery): Promise<OathDevice[] | { error: unknown }> {
         try {
-          const response = await store.dispatch(endpoints.getOAthDevices.initiate(query));
+          const response = await store.dispatch(endpoints.getOathDevices.initiate(query));
 
           if (!response || !response.data || !response.data.result) {
             throw new Error('response did not contain data');

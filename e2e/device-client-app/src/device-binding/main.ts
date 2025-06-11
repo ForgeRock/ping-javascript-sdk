@@ -7,17 +7,8 @@
  *
  */
 
-import { Device } from '@forgerock/device-client/types';
 import { Console, Effect } from 'effect';
-import { LoginAndGetClient, handleError } from '../autoscript.js';
-import { getUser } from '../util-effects/index.js';
-
-/**
- * @function handleDeviceBinding
- * @description Handles device binding management operations such as getting, updating, and deleting devices
- * @param {DeviceClient} client A device client instance from the JS SDK
- * @returns {Effect.Effect<void, Error, never>} An Effect that performs device binding management operations
- */
+import { getUser, LoginAndGetClient, handleError, handleSuccess } from '../utils/index.js';
 
 const deviceBinding = Effect.gen(function* () {
   const client = yield* LoginAndGetClient;
@@ -29,7 +20,7 @@ const deviceBinding = Effect.gen(function* () {
 
   const deviceArr = yield* Effect.promise(() => client.bound.get(query));
 
-  if (!deviceArr || 'error' in deviceArr) {
+  if ((Array.isArray(deviceArr) && !deviceArr.length) || 'error' in deviceArr) {
     yield* Console.log('No devices found or error occurred', deviceArr);
     return yield* Effect.fail(new Error('No devices found or error occurred'));
   }
@@ -55,7 +46,7 @@ const deviceBinding = Effect.gen(function* () {
   const deletedDevice = yield* Effect.promise(() =>
     client.bound.delete({
       ...query,
-      device: updatedDevice as Device,
+      device: updatedDevice,
     }),
   );
 
@@ -66,4 +57,4 @@ const deviceBinding = Effect.gen(function* () {
   yield* Console.log('deleted', deletedDevice);
 });
 
-Effect.runPromise(deviceBinding).then(console.log).catch(handleError);
+Effect.runPromise(deviceBinding).then(handleSuccess).catch(handleError);

@@ -52,7 +52,7 @@ export const deviceService = ({ baseUrl, realmPath }: { baseUrl: string; realmPa
     }),
     endpoints: (builder) => ({
       // oath endpoints
-      getOAthDevices: builder.query<OathResponse, RetrieveOathQuery>({
+      getOathDevices: builder.query<OathResponse, RetrieveOathQuery>({
         query: ({ realm = realmPath, userId }) =>
           `json/realms/${realm}/users/${userId}/devices/2fa/oath?_queryFilter=true`,
       }),

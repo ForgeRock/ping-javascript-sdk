@@ -137,9 +137,6 @@ importers:
       cz-git:
         specifier: ^1.6.1
         version: 1.11.1
-      effect:
-        specifier: ^3.12.7
-        version: 3.16.0
       eslint:
         specifier: ^9.8.0
         version: 9.27.0(jiti@2.4.2)
@@ -252,11 +249,11 @@ importers:
         version: 4.7.0
       effect:
         specifier: ^3.12.7
-        version: 3.14.14
+        version: 3.16.0
     devDependencies:
       '@effect/language-service':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.20.0
+        version: 0.20.1
 
   e2e/mock-api-v2:
     dependencies:
@@ -1229,6 +1226,9 @@ packages:
 
   '@effect/language-service@0.2.0':
     resolution: {integrity: sha512-DoK41yKGyQv79o0ca8gxEogMlt+IphXkdCXwgenbQjH1BXKD7tJAr0+VsDhblycQcvQ39f1l9NZN9CBqjM9ALA==}
+
+  '@effect/language-service@0.20.1':
+    resolution: {integrity: sha512-AgFazqxD2rlE0mc8V03BZw1XKghfOv9rrvR0M2xBv5haT4jHw5j07UK+Ln+dyeGmvrVXUT3a8Uc3pEkRJb+XHw==}
 
   '@effect/platform-node-shared@0.8.26':
     resolution: {integrity: sha512-c7yYFvQwse5ar8JZitBM1fTGAQGfBQUqMRKVxKYux4GDMKw6oaZ8g7eQf9PRpMCxIdBMZlPilIablSJ0DtoPVQ==}
@@ -8403,6 +8403,8 @@ snapshots:
       yaml: 2.8.0
 
   '@effect/language-service@0.2.0': {}
+
+  '@effect/language-service@0.20.1': {}
 
   '@effect/platform-node-shared@0.8.26(@effect/platform@0.58.27(@effect/schema@0.68.27(effect@3.16.0))(effect@3.16.0))(effect@3.16.0)':
     dependencies:
