@@ -5,11 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 export type OathDevice = {
-  id: string;
+  _id: string;
+  deviceManagementStatus: boolean;
   deviceName: string;
   uuid: string;
-  createdDate: Date;
-  lastAccessDate: Date;
+  createdDate: number;
+  lastAccessDate: number;
+  _rev: string;
 };
 
 export type DeleteOathQuery = {
@@ -23,17 +25,16 @@ export type RetrieveOathQuery = {
   userId: string;
 };
 
-export type OAthResponse = {
-  _id: string;
-  _rev: string;
-  createdDate: number;
-  lastAccessDate: number;
-  deviceName: string;
-  uuid: string;
-  deviceManagementStatus: boolean;
-}[];
+export type OathResponse = {
+  pagedResultsCookie: string | null;
+  remainingPagedResults: number;
+  resultCount: number;
+  totalPagedResults: number;
+  totalPagedResultsPolicy: string;
+  result: OathDevice[];
+};
 
-export type DeletedOAthDevice = {
+export type DeletedOathDevice = {
   _id: string;
   _rev: string;
   uuid: string;

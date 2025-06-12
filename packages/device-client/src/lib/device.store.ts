@@ -7,10 +7,16 @@
 import { type ConfigOptions } from '@forgerock/javascript-sdk';
 import { configureStore } from '@reduxjs/toolkit';
 import { deviceService } from './services/index.js';
-import { DeleteOathQuery, OathDevice, RetrieveOathQuery } from './types/oath.types.js';
-import { DeleteDeviceQuery, PushDeviceQuery } from './types/push-device.types.js';
-import { WebAuthnBody, WebAuthnQuery, WebAuthnQueryWithUUID } from './types/webauthn.types.js';
-import { BindingDeviceQuery } from './types/binding-device.types.js';
+import { OathDevice, RetrieveOathQuery } from './types/oath.types.js';
+import { DeleteDeviceQuery, PushDevice, PushDeviceQuery } from './types/push-device.types.js';
+import { UpdatedWebAuthnDevice, WebAuthnDevice, WebAuthnQuery } from './types/webauthn.types.js';
+import { BoundDeviceQuery, Device, GetBoundDevicesQuery } from './types/bound-device.types.js';
+import {
+  GetProfileDevices,
+  ProfileDevice,
+  ProfileDevicesQuery,
+} from './types/profile-device.types.js';
+import { handleError } from './device.store.utils.js';
 
 export const deviceClient = (config: ConfigOptions) => {
   const { middleware, reducerPath, reducer, endpoints } = deviceService({
@@ -43,16 +49,20 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function get
        * @param {RetrieveOathQuery} query - The query used to retrieve Oath devices.
-       * @returns {Promise<OAthResponse>} - A promise that resolves to the retrieved data or undefined if the response is not valid.
+       * @returns {Promise<OathDevice[] | { error: unknown }>} - A promise that resolves to the retrieved data or an error object if the response is not valid.
        */
-      get: async function (query: RetrieveOathQuery) {
-        const response = await store.dispatch(endpoints.getOAthDevices.initiate(query));
+      get: async function (query: RetrieveOathQuery): Promise<OathDevice[] | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.getOathDevices.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (!response || !response.data || !response.data.result) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data.result;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
 
       /**
@@ -61,16 +71,22 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function delete
        * @param {DeleteOathQuery & OathDevice} query - The query and device information used to delete the Oath device.
-       * @returns {Promise<DeletedOAthDevice>} - A promise that resolves to the response data or undefined if the response is not valid.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
-      delete: async function (query: DeleteOathQuery & OathDevice) {
-        const response = await store.dispatch(endpoints.deleteOathDevice.initiate(query));
+      delete: async function (
+        query: RetrieveOathQuery & { device: OathDevice },
+      ): Promise<null | { error: unknown }> {
+        try {
+          const { error } = await store.dispatch(endpoints.deleteOathDevice.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (error) {
+            handleError(error, 'Failed to delete device: ');
+          }
+
+          return null;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
     },
 
@@ -86,16 +102,20 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function get
        * @param {PushDeviceQuery} query - The query used to retrieve Push devices.
-       * @returns {Promise<PushDevicesResponse | undefined>} - A promise that resolves to the retrieved data or undefined if the response is not valid.
+       * @returns {Promise<PushDevice[] | { error: unknown }>} - A promise that resolves to the retrieved data or an error object if the response is not valid.
        */
-      get: async function (query: PushDeviceQuery) {
-        const response = await store.dispatch(endpoints.getPushDevices.initiate(query));
+      get: async function (query: PushDeviceQuery): Promise<PushDevice[] | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.getPushDevices.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (!response || !response.data || !response.data.result) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data.result;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
 
       /**
@@ -104,16 +124,20 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function delete
        * @param {DeleteDeviceQuery} query - The query used to delete the Push device.
-       * @returns {Promise<PushDevice>} - A promise that resolves to the response data or undefined if the response is not valid.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
-      delete: async function (query: DeleteDeviceQuery) {
-        const response = await store.dispatch(endpoints.deletePushDevice.initiate(query));
+      delete: async function (query: DeleteDeviceQuery): Promise<null | { error: unknown }> {
+        try {
+          const { error } = await store.dispatch(endpoints.deletePushDevice.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (error) {
+            handleError(error, 'Failed to delete device: ');
+          }
+
+          return null;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
     },
 
@@ -122,23 +146,27 @@ export const deviceClient = (config: ConfigOptions) => {
      *
      * @type {WebAuthnManagement}
      */
-    webauthn: {
+    webAuthn: {
       /**
        * Retrieves WebAuthn devices based on the specified query.
        *
        * @async
        * @function get
        * @param {WebAuthnQuery} query - The query used to retrieve WebAuthn devices.
-       * @returns {Promise<WebAuthnDevicesResponse>} - A promise that resolves to the retrieved data or undefined if the response is not valid.
+       * @returns {Promise<WebAuthnDevicesResponse | { error: unknown }>} - A promise that resolves to the retrieved data or an error object if the response is not valid.
        */
-      get: async function (query: WebAuthnQuery) {
-        const response = await store.dispatch(endpoints.getWebAuthnDevices.initiate(query));
+      get: async function (query: WebAuthnQuery): Promise<WebAuthnDevice[] | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.getWebAuthnDevices.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (!response || !response.data || !response.data.result) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data.result;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
 
       /**
@@ -146,17 +174,23 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function update
-       * @param {WebAuthnQueryWithUUID & WebAuthnBody} query - The query and body used to update the WebAuthn device name.
-       * @returns {Promise<UpdatedWebAuthnDevice | undefined>} - A promise that resolves to the response data or undefined if the response is not valid.
+       * @param {WebAuthnQueryWithUUID & { device: WebAuthnBody } } query - The query and body used to update the WebAuthn device name.
+       * @returns {Promise<UpdatedWebAuthnDevice | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
-      update: async function (query: WebAuthnQueryWithUUID & WebAuthnBody) {
-        const response = await store.dispatch(endpoints.updateWebAuthnDeviceName.initiate(query));
+      update: async function (
+        query: WebAuthnQuery & { device: WebAuthnDevice },
+      ): Promise<UpdatedWebAuthnDevice | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.updateWebAuthnDeviceName.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (!response || !response.data) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
 
       /**
@@ -164,17 +198,25 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function delete
-       * @param {WebAuthnQueryWithUUID & WebAuthnBody} query - The query and body used to delete the WebAuthn device.
-       * @returns {Promise<WebAuthnDevice | undefined>} - A promise that resolves to the response data or undefined if the response is not valid.
+       * @param {WebAuthnQueryWithUUID & { device: WebAuthnBody } } query - The query and body used to delete the WebAuthn device.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
-      delete: async function (query: WebAuthnQueryWithUUID & WebAuthnBody) {
-        const response = await store.dispatch(endpoints.deleteWebAuthnDeviceName.initiate(query));
+      delete: async function (
+        query: WebAuthnQuery & { device: WebAuthnDevice | UpdatedWebAuthnDevice },
+      ): Promise<null | { error: unknown }> {
+        try {
+          const { error } = await store.dispatch(
+            endpoints.deleteWebAuthnDeviceName.initiate(query),
+          );
 
-        if (!response || !response.data) {
-          return undefined;
+          if (error) {
+            handleError(error, 'Failed to delete device: ');
+          }
+
+          return null;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
     },
 
@@ -183,23 +225,27 @@ export const deviceClient = (config: ConfigOptions) => {
      *
      * @type {BoundDevicesManagement}
      */
-    boundDevices: {
+    bound: {
       /**
        * Retrieves bound devices based on the specified query.
        *
        * @async
        * @function get
-       * @param {BindingDeviceQuery} query - The query used to retrieve bound devices.
-       * @returns {Promise<DeviceResponse | undefined>} - A promise that resolves to the retrieved data or undefined if the response is not valid.
+       * @param {BoundDeviceQuery} query - The query used to retrieve bound devices.
+       * @returns {Promise<Device[] | { error: unknown }>} - A promise that resolves to the retrieved data or an error object if the response is not valid.
        */
-      get: async function (query: BindingDeviceQuery) {
-        const response = await store.dispatch(endpoints.getBoundDevices.initiate(query));
+      get: async function (query: GetBoundDevicesQuery): Promise<Device[] | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.getBoundDevices.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (!response || !response.data || !response.data.result) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data.result;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
 
       /**
@@ -207,17 +253,21 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function delete
-       * @param {BindingDeviceQuery} query - The query used to delete the bound device.
-       * @returns {Promise<Device | undefined>} - A promise that resolves to the response data or undefined if the response is not valid.
+       * @param {BoundDeviceQuery} query - The query used to delete the bound device.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
-      delete: async function (query: BindingDeviceQuery) {
-        const response = await store.dispatch(endpoints.deleteBindingDevice.initiate(query));
+      delete: async function (query: BoundDeviceQuery): Promise<null | { error: unknown }> {
+        try {
+          const { error } = await store.dispatch(endpoints.deleteBoundDevice.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (error) {
+            handleError(error, 'Failed to delete device: ');
+          }
+
+          return null;
+        } catch (error) {
+          return { error };
         }
-
-        return response.data;
       },
 
       /**
@@ -225,17 +275,90 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function update
-       * @param {BindingDeviceQuery} query - The query used to update the bound device name.
-       * @returns {Promise<Device | undefined>} - A promise that resolves to the response data or undefined if the response is not valid.
+       * @param {BoundDeviceQuery} query - The query used to update the bound device name.
+       * @returns {Promise<Device | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
-      update: async function (query: BindingDeviceQuery) {
-        const response = await store.dispatch(endpoints.updateBindingDeviceName.initiate(query));
+      update: async function (query: BoundDeviceQuery): Promise<Device | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.updateBoundDevice.initiate(query));
 
-        if (!response || !response.data) {
-          return undefined;
+          if (!response || !response.data) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data;
+        } catch (error) {
+          return { error };
         }
+      },
+    },
+    profile: {
+      /**
+       * Get profile devices
+       *
+       * @async
+       * @function update
+       * @param {GetProfileDevice} query - The query used to get profile devices
+       * @returns {Promise<Device[] | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       */
+      get: async function (
+        query: GetProfileDevices,
+      ): Promise<ProfileDevice[] | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.getDeviceProfiles.initiate(query));
 
-        return response.data;
+          if (!response || !response.data || !response.data.result) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data.result;
+        } catch (error) {
+          return { error };
+        }
+      },
+      /**
+       * Get profile devices
+       *
+       * @async
+       * @function update
+       * @param {ProfileDevicesQuery} query - The query used to update a profile device
+       * @returns {Promise<ProfileDevice | { error: unknown }>} - A promise that resolves to the response data or or an error object if the response is not valid.
+       */
+      update: async function (
+        query: ProfileDevicesQuery,
+      ): Promise<ProfileDevice | { error: unknown }> {
+        try {
+          const response = await store.dispatch(endpoints.updateDeviceProfile.initiate(query));
+
+          if (!response || !response.data) {
+            throw new Error('response did not contain data');
+          }
+
+          return response.data;
+        } catch (error) {
+          return { error };
+        }
+      },
+      /**
+       * Get profile devices
+       *
+       * @async
+       * @function update
+       * @param {ProfileDevicesQuery} query - The query used to update a profile device
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       */
+      delete: async function (query: ProfileDevicesQuery): Promise<null | { error: unknown }> {
+        try {
+          const { error } = await store.dispatch(endpoints.deleteDeviceProfile.initiate(query));
+
+          if (error) {
+            handleError(error, 'Failed to delete device profile: ');
+          }
+
+          return null;
+        } catch (error) {
+          return { error };
+        }
       },
     },
   };

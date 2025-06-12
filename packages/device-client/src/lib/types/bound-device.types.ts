@@ -4,10 +4,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-export type BindingDeviceQuery = {
+export type GetBoundDevicesQuery = {
   userId: string;
   realm?: string;
-} & Device;
+};
+export type BoundDeviceQuery = GetBoundDevicesQuery & { device: Device };
 
 export type DeviceResponse = {
   result: Device[];
@@ -26,6 +27,7 @@ export type Device = {
   deviceId: string;
   deviceName: string;
   uuid: string;
+  recoveryCodes: string[];
   key: {
     kty: string;
     kid: string;

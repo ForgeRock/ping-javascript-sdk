@@ -29,6 +29,9 @@
       "path": "./e2e/protect-suites"
     },
     {
+      "path": "./e2e/device-client-app"
+    },
+    {
       "path": "./packages/davinci-client"
     },
     {

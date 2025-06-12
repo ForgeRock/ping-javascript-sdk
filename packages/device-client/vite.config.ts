@@ -11,7 +11,6 @@ export default defineConfig({
     watch: false,
     reporters: ['default'],
     globals: true,
-    setupFiles: ['./vitest.setup.ts'],
     passWithNoTests: true,
     coverage: {
       enabled: Boolean(process.env['CI']),
@@ -28,5 +27,6 @@ export default defineConfig({
     },
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: ['src/**/*.test.utils.ts'],
   },
 });
