@@ -1,6 +1,6 @@
 # Device Client API
 
-The `deviceClient` API provides a structured interface for managing various types of devices, including Oath devices, Push devices, WebAuthn devices, and bound devices. This API leverages Redux Toolkit Query (RTK Query) for efficient data fetching and state management.
+The `deviceClient` API provides a structured interface for managing various types of devices including OATH devices, PUSH devices, WebAuthn devices, bound devices, and device profiles. This API leverages Redux Toolkit Query (RTK Query) for efficient data fetching and state management.
 
 ## Table of Contents
 
@@ -8,15 +8,16 @@ The `deviceClient` API provides a structured interface for managing various type
 2. [Installation](#installation)
 3. [Configuration](#configuration)
 4. [API Methods](#api-methods)
-   - [Oath Management](#oath-management)
-   - [Push Management](#push-management)
+
+   - [OATH Management](#oath-management)
+   - [PUSH Management](#push-management)
    - [WebAuthn Management](#webauthn-management)
    - [Bound Devices Management](#bound-devices-management)
+   - [Device Profiling Management](#device-profiling-management)
+
 5. [Example Usage](#example-usage)
 6. [Error Handling](#error-handling)
-7. [Authentication](#authentication)
-8. [Best Practices](#best-practices)
-9. [License](#license)
+7. [License](#license)
 
 ## Overview
 
@@ -27,7 +28,7 @@ The `deviceClient` function initializes the API client with the provided configu
 To install the necessary dependencies for using the `deviceClient`, run:
 
 ```bash
-npm install @reduxjs/toolkit @forgerock/device-client --save
+npm install @forgerock/device-client --save
 ```
 
 ## Configuration
@@ -35,7 +36,7 @@ npm install @reduxjs/toolkit @forgerock/device-client --save
 To configure the `deviceClient`, you need to provide a `ConfigOptions` object that includes the base URL for the server and the realm path.
 
 ```typescript
-import { deviceClient } from './path/to/deviceClient';
+import { deviceClient } from '@forgerock/device-client';
 import { type ConfigOptions } from '@forgerock/javascript-sdk';
 
 const config: ConfigOptions = {
@@ -48,118 +49,107 @@ const config: ConfigOptions = {
 
 If there is no realmPath or you wish to override the value, you can do so in the api call itself where you pass in the query.
 
-```
+```typescript
 const apiClient = deviceClient(config);
 ```
 
 ## API Methods
 
-### Oath Management
+### OATH Management
 
 #### Methods
 
-- **get(query: RetrieveOathQuery): Promise<OAthResponse>**
+- **get(query: RetrieveOathQuery): Promise<OathDevice[]>**
 - Retrieves Oath devices based on the specified query.
 
-- **delete(query: DeleteOathQuery & OathDevice): Promise<DeletedOAthDevice>**
+- **delete(query: RetrieveOathQuery & { device: OathDevice }): Promise\<null>**
 - Deletes an Oath device based on the provided query and device information.
 
-### Push Management
+### PUSH Management
 
 #### Methods
 
-- **get(query: PushDeviceQuery): Promise<PushDevicesResponse | undefined>**
+- **get(query: PushDeviceQuery): Promise<PushDevice[]>**
 - Retrieves Push devices based on the specified query.
 
-- **delete(query: DeleteDeviceQuery): Promise<PushDevice>**
+- **delete(query: DeleteDeviceQuery): Promise\<null>**
 - Deletes a Push device based on the provided query.
 
 ### WebAuthn Management
 
 #### Methods
 
-- **get(query: WebAuthnQuery): Promise<WebAuthnDevicesResponse>**
+- **get(query: WebAuthnQuery): Promise<WebAuthnDevice[]>**
 - Retrieves WebAuthn devices based on the specified query.
 
-- **update(query: WebAuthnQueryWithUUID & WebAuthnBody): Promise<UpdatedWebAuthnDevice | undefined>**
+- **update(query: WebAuthnQuery & { device: WebAuthnDevice }): Promise\<UpdatedWebAuthnDevice>**
 - Updates the name of a WebAuthn device based on the provided query and body.
 
-- **delete(query: WebAuthnQueryWithUUID & WebAuthnBody): Promise<WebAuthnDevice | undefined>**
+- **delete(query: WebAuthnQuery & { device: WebAuthnDevice | UpdatedWebAuthnDevice }): Promise\<null>**
 - Deletes a WebAuthn device based on the provided query and body.
 
 ### Bound Devices Management
 
 #### Methods
 
-- **get(query: BindingDeviceQuery): Promise<DeviceResponse | undefined>**
+- **get(query: GetBoundDevicesQuery): Promise\<Device[]>**
 - Retrieves bound devices based on the specified query.
 
-- **delete(query: BindingDeviceQuery): Promise<Device | undefined>**
+- **update(query: BoundDeviceQuery): Promise\<Device>**
+- Updates the name of a bound device based on the provided query.
+
+- **delete(query: BoundDeviceQuery): Promise\<null>**
 - Deletes a bound device based on the provided query.
 
-- **update(query: BindingDeviceQuery): Promise<Device | undefined>**
-- Updates the name of a bound device based on the provided query.
+### Device Profiling Management
+
+#### Methods
+
+- **get(query: GetProfileDevices): Promise\<ProfileDevice[]>**
+- Retrieves device profiles based on the specified query.
+
+- **update(query: ProfileDevicesQuery): Promise\<ProfileDevice>**
+- Updates the name of a device profile based on the provided query.
+
+- **delete(query: ProfileDevicesQuery): Promise\<null>**
+- Deletes a device profile based on the provided query.
 
 ## Example Usage
 
-### Oath Management Example
+### OATH Management Example
 
 ```typescript
 const oathQuery: RetrieveOathQuery = {
   /* your query parameters */
 };
 
-apiClient.oath
-  .get(oathQuery)
-  .then((response) => {
-    console.log('Oath Devices:', response);
-  })
-  .catch((error) => {
-    console.error('Error fetching Oath devices:', error);
-  });
+const getResponse = await apiClient.oath.get(oathQuery);
+console.log('Oath Devices:', getResponse);
 
-const deleteOathQuery: DeleteOathQuery & OathDevice = {
+const deleteOathQuery: RetrieveOathQuery & { device: OathDevice } = {
   /* your delete query */
 };
 
-apiClient.oath
-  .delete(deleteOathQuery)
-  .then((response) => {
-    console.log('Deleted Oath Device:', response);
-  })
-  .catch((error) => {
-    console.error('Error deleting Oath device:', error);
-  });
+const deleteResponse = await apiClient.oath.delete(deleteOathQuery);
+console.log('Deleted Oath Device:', deleteResponse);
 ```
 
-### Push Management Example
+### PUSH Management Example
 
 ```typescript
 const pushQuery: PushDeviceQuery = {
   /* your query parameters */
 };
 
-apiClient.push
-  .get(pushQuery)
-  .then((response) => {
-    console.log('Push Devices:', response);
-  })
-  .catch((error) => {
-    console.error('Error fetching Push devices:', error);
-  });
+const getResponse = await apiClient.push.get(pushQuery);
+console.log('Push Devices:', getResponse);
 
 const deletePushQuery: DeleteDeviceQuery = {
   /* your delete query */
 };
 
-apiClient.push
-  .delete(deletePushQuery)
-  .then((response) => {
-    console.log('Deleted Push Device:', response);
-  })
-  .catch((error) => {
-    console.error('Error deleting Push device:', error);
-  });
+const deleteResponse = await apiClient.push.delete(deletePushQuery);
+console.log('Deleted Push Device:', deleteResponse);
 ```
 
 ### WebAuthn Management Example
@@ -169,82 +159,93 @@ const webAuthnQuery: WebAuthnQuery = {
   /* your query parameters */
 };
 
-apiClient.webauthn
-  .get(webAuthnQuery)
-  .then((response) => {
-    console.log('WebAuthn Devices:', response);
-  })
-  .catch((error) => {
-    console.error('Error fetching WebAuthn devices:', error);
-  });
+const getResponse = await apiClient.webAuthn.get(webAuthnQuery);
+console.log('WebAuthn Devices:', getResponse);
 
-const updateWebAuthnQuery: WebAuthnQueryWithUUID & WebAuthnBody = {
+const updateWebAuthnQuery: WebAuthnQuery & { device: WebAuthnDevice } = {
   /* your update query */
 };
 
-apiClient.webauthn
-  .update(updateWebAuthnQuery)
-  .then((response) => {
-    console.log('Updated WebAuthn Device:', response);
-  })
-  .catch((error) => {
-    console.error('Error updating WebAuthn device:', error);
-  });
+const updateResponse = await apiClient.webAuthn.update(updateWebAuthnQuery);
+console.log('Updated WebAuthn Device:', updateResponse);
 
-const deleteWebAuthnQuery: WebAuthnQueryWithUUID & WebAuthnBody = {
+const deleteWebAuthnQuery: WebAuthnQuery & { device: WebAuthnDevice | UpdatedWebAuthnDevice } = {
   /* your delete query */
 };
 
-apiClient.webauthn
-  .delete(deleteWebAuthnQuery)
-  .then((response) => {
-    console.log('Deleted WebAuthn Device:', response);
-  })
-  .catch((error) => {
-    console.error('Error deleting WebAuthn device:', error);
-  });
+const deleteResponse = await apiClient.webAuthn.delete(deleteWebAuthnQuery);
+console.log('Deleted WebAuthn Device:', deleteResponse);
 ```
 
 ### Bound Devices Management Example
 
 ```typescript
-const bindingQuery: BindingDeviceQuery = {
+const bindingQuery: GetBoundDevicesQuery = {
   /* your query parameters */
 };
-apiClient.boundDevices
-  .get(bindingQuery)
-  .then((response) => {
-    console.log('Bound Devices:', response);
-  })
-  .catch((error) => {
-    console.error('Error fetching bound devices:', error);
-  });
 
-const deleteBindingQuery: BindingDeviceQuery = {
-  /* your delete query */
-};
+const getResponse = await apiClient.bound.get(bindingQuery);
+console.log('Bound Devices:', getResponse);
 
-apiClient.boundDevices
-  .delete(deleteBindingQuery)
-  .then((response) => {
-    console.log('Deleted Bound Device:', response);
-  })
-  .catch((error) => {
-    console.error('Error deleting bound device:', error);
-  });
-
-const updateBindingQuery: BindingDeviceQuery = {
+const updateBindingQuery: BoundDeviceQuery = {
   /* your update query */
 };
 
-apiClient.boundDevices
-  .update(updateBindingQuery)
-  .then((response) => {
-    console.log('Updated Bound Device:', response);
-  })
-  .catch((error) => {
-    console.error('Error updating bound device:', error);
-  });
+const updateResponse = await apiClient.bound.update(updateBindingQuery);
+console.log('Updated Bound Device:', updateResponse);
+
+const deleteBindingQuery: BoundDeviceQuery = {
+  /* your delete query */
+};
+
+const deleteResponse = await apiClient.bound.delete(deleteBindingQuery);
+console.log('Deleted Bound Device:', deleteResponse);
+```
+
+### Device Profiling Management Example
+
+```typescript
+const profileQuery: GetProfileDevices = {
+  /* your query parameters */
+};
+
+const getResponse = await apiClient.profile.get(profileQuery);
+console.log('Device Profiles:', getResponse);
+
+const updateProfileQuery: ProfileDevicesQuery = {
+  /* your update query */
+};
+
+const updateResponse = await apiClient.profile.update(updateProfileQuery);
+console.log('Updated Device Profile:', updateResponse);
+
+const deleteProfileQuery: ProfileDevicesQuery = {
+  /* your delete query */
+};
+
+const deleteResponse = await apiClient.profile.delete(deleteProfileQuery);
+console.log('Deleted Device Profile:', deleteResponse);
+```
+
+## Error Handling
+
+When a device client method makes a request to the server and the response is not valid, it will return a promise that resolves to an error object `{ error: unknown }`. For example, to handle WebAuthn device management errors:
+
+```typescript
+const getResponse = await apiClient.webAuthn.get(query);
+if (!Array.isArray(getResponse) || 'error' in getResponse) {
+  // handle get device error
+}
+
+const updateResponse = await apiClient.webAuthn.update(query);
+if ('error' in updateResponse) {
+  // handle update device error
+}
+
+const deleteResponse = await apiClient.webAuthn.delete(query);
+if (deleteResponse !== null && 'error' in deleteResponse) {
+  // handle delete device error
+}
 ```
 
 ## License
