@@ -18,6 +18,12 @@ import {
 } from './types/profile-device.types.js';
 import { handleError } from './device.store.utils.js';
 
+/**
+ * @function deviceClient
+ * @description Returns a device management object containing methods for handling various device types
+ * @param {ConfigOptions} config The configuration options for the device client
+ * @returns Methods for handling various device types
+ */
 export const deviceClient = (config: ConfigOptions) => {
   const { middleware, reducerPath, reducer, endpoints } = deviceService({
     baseUrl: config.serverConfig?.baseUrl ?? '',
@@ -31,16 +37,9 @@ export const deviceClient = (config: ConfigOptions) => {
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(middleware),
   });
 
-  /**
-   * Device management object containing methods for handling various device types.
-   *
-   * @type {DeviceManagement}
-   */
   return {
     /**
      * Oath device management methods.
-     *
-     * @type {OathManagement}
      */
     oath: {
       /**
@@ -70,8 +69,8 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function delete
-       * @param {DeleteOathQuery & OathDevice} query - The query and device information used to delete the Oath device.
-       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       * @param {RetrieveOathQuery & { device: OathDevice }} query - The query and device information used to delete the Oath device.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to null or an error object if the response is not valid.
        */
       delete: async function (
         query: RetrieveOathQuery & { device: OathDevice },
@@ -92,8 +91,6 @@ export const deviceClient = (config: ConfigOptions) => {
 
     /**
      * Push device management methods.
-     *
-     * @type {PushManagement}
      */
     push: {
       /**
@@ -124,7 +121,7 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function delete
        * @param {DeleteDeviceQuery} query - The query used to delete the Push device.
-       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to null or an error object if the response is not valid.
        */
       delete: async function (query: DeleteDeviceQuery): Promise<null | { error: unknown }> {
         try {
@@ -143,8 +140,6 @@ export const deviceClient = (config: ConfigOptions) => {
 
     /**
      * WebAuthn device management methods.
-     *
-     * @type {WebAuthnManagement}
      */
     webAuthn: {
       /**
@@ -153,7 +148,7 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function get
        * @param {WebAuthnQuery} query - The query used to retrieve WebAuthn devices.
-       * @returns {Promise<WebAuthnDevicesResponse | { error: unknown }>} - A promise that resolves to the retrieved data or an error object if the response is not valid.
+       * @returns {Promise<WebAuthnDevice[] | { error: unknown }>} - A promise that resolves to the retrieved data or an error object if the response is not valid.
        */
       get: async function (query: WebAuthnQuery): Promise<WebAuthnDevice[] | { error: unknown }> {
         try {
@@ -174,7 +169,7 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function update
-       * @param {WebAuthnQueryWithUUID & { device: WebAuthnBody } } query - The query and body used to update the WebAuthn device name.
+       * @param {WebAuthnQuery & { device: WebAuthnDevice }} query - The query and body used to update the WebAuthn device name.
        * @returns {Promise<UpdatedWebAuthnDevice | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
       update: async function (
@@ -198,8 +193,8 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function delete
-       * @param {WebAuthnQueryWithUUID & { device: WebAuthnBody } } query - The query and body used to delete the WebAuthn device.
-       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       * @param {WebAuthnQuery & { device: WebAuthnDevice | UpdatedWebAuthnDevice }} query - The query and body used to delete the WebAuthn device.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to null or an error object if the response is not valid.
        */
       delete: async function (
         query: WebAuthnQuery & { device: WebAuthnDevice | UpdatedWebAuthnDevice },
@@ -222,8 +217,6 @@ export const deviceClient = (config: ConfigOptions) => {
 
     /**
      * Bound devices management methods.
-     *
-     * @type {BoundDevicesManagement}
      */
     bound: {
       /**
@@ -231,7 +224,7 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function get
-       * @param {BoundDeviceQuery} query - The query used to retrieve bound devices.
+       * @param {GetBoundDevicesQuery} query - The query used to retrieve bound devices.
        * @returns {Promise<Device[] | { error: unknown }>} - A promise that resolves to the retrieved data or an error object if the response is not valid.
        */
       get: async function (query: GetBoundDevicesQuery): Promise<Device[] | { error: unknown }> {
@@ -254,7 +247,7 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function delete
        * @param {BoundDeviceQuery} query - The query used to delete the bound device.
-       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to null or an error object if the response is not valid.
        */
       delete: async function (query: BoundDeviceQuery): Promise<null | { error: unknown }> {
         try {
@@ -298,8 +291,8 @@ export const deviceClient = (config: ConfigOptions) => {
        *
        * @async
        * @function update
-       * @param {GetProfileDevice} query - The query used to get profile devices
-       * @returns {Promise<Device[] | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       * @param {GetProfileDevices} query - The query used to get profile devices
+       * @returns {Promise<ProfileDevice[] | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
       get: async function (
         query: GetProfileDevices,
@@ -345,7 +338,7 @@ export const deviceClient = (config: ConfigOptions) => {
        * @async
        * @function update
        * @param {ProfileDevicesQuery} query - The query used to update a profile device
-       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
+       * @returns {Promise<null | { error: unknown }>} - A promise that resolves to null or an error object if the response is not valid.
        */
       delete: async function (query: ProfileDevicesQuery): Promise<null | { error: unknown }> {
         try {

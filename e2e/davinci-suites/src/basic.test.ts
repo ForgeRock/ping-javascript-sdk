@@ -102,9 +102,9 @@ test('Enter a bad username/password, then enter a good username/password', async
 
   await expect(page.getByText(/Invalid username and\/or password|Validation Error/)).toBeVisible();
 
-  await page.getByRole('textbox', { name: 'Username' }).fill('e2euser@example.com');
+  await page.getByRole('textbox', { name: 'Username' }).fill(username);
 
-  await page.getByRole('textbox', { name: 'Password' }).fill('Demo1234#1');
+  await page.getByRole('textbox', { name: 'Password' }).fill(password);
 
   await page.getByRole('button', { name: 'Sign On' }).click();
 

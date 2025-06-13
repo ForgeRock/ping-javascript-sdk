@@ -4,9 +4,7 @@
   "private": true,
   "description": "Ping JavaScript SDK",
   "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
-  "bugs": {
-    "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
-  },
+  "bugs": { "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues" },
   "repository": {
     "type": "git",
     "url": "https://github.com/ForgeRock/ping-javascript-sdk.git"
@@ -44,9 +42,7 @@
     ]
   },
   "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "commitizen": { "path": "./node_modules/cz-conventional-changelog" }
   },
   "dependencies": {},
   "devDependencies": {
@@ -64,16 +60,16 @@
     "@effect/vitest": "^0.6.7",
     "@eslint/eslintrc": "^3.0.0",
     "@eslint/js": "~9.25.0",
-    "@nx/devkit": "21.0.3",
-    "@nx/eslint": "21.0.3",
-    "@nx/eslint-plugin": "21.0.3",
-    "@nx/jest": "21.0.3",
-    "@nx/js": "21.0.3",
-    "@nx/playwright": "21.0.3",
-    "@nx/plugin": "21.0.3",
-    "@nx/vite": "21.0.3",
-    "@nx/web": "21.0.3",
-    "@nx/workspace": "21.0.3",
+    "@nx/devkit": "21.2.0",
+    "@nx/eslint": "21.2.0",
+    "@nx/eslint-plugin": "21.2.0",
+    "@nx/jest": "21.2.0",
+    "@nx/js": "21.2.0",
+    "@nx/playwright": "21.2.0",
+    "@nx/plugin": "21.2.0",
+    "@nx/vite": "21.2.0",
+    "@nx/web": "21.2.0",
+    "@nx/workspace": "21.2.0",
     "@playwright/test": "^1.47.2",
     "@swc-node/register": "1.10.10",
     "@swc/cli": "0.6.0",
@@ -103,7 +99,7 @@
     "jsonc-eslint-parser": "^2.1.0",
     "lint-staged": "^15.0.0",
     "madge": "8.0.0",
-    "nx": "21.0.3",
+    "nx": "21.2.0",
     "playwright": "^1.47.2",
     "prettier": "^3.2.5",
     "shx": "^0.4.0",
@@ -113,7 +109,7 @@
     "typedoc": "^0.27.4",
     "typedoc-github-theme": "0.2.1",
     "typedoc-plugin-rename-defaults": "^0.7.2",
-    "typescript": "5.7.3",
+    "typescript": "5.8.3",
     "typescript-eslint": "^8.19.0",
     "verdaccio": "6.1.2",
     "vite": "6.2.6",
@@ -121,11 +117,6 @@
     "vitest-canvas-mock": "^0.3.3"
   },
   "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531",
-  "engines": {
-    "node": "^20 || ^22",
-    "pnpm": "9.15.9"
-  },
-  "nx": {
-    "includedScripts": []
-  }
+  "engines": { "node": "^20 || ^22", "pnpm": "9.15.9" },
+  "nx": { "includedScripts": [] }
 }
