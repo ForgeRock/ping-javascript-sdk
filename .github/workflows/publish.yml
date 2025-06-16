@@ -89,6 +89,11 @@ jobs:
           files: ./packages/**/coverage/*.xml
           token: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Ensure builds run
+        run: pnpm nx run-many -t build
+        env:
+          NX_CLOUD_DISTRIBUTED_EXECUTION: false
+
       - name: Build docs
         run: pnpm generate-docs
 
