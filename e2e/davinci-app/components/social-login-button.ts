@@ -4,8 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { IdpCollector } from '@forgerock/davinci-client/types';
-import { InternalErrorResponse } from 'packages/davinci-client/src/lib/client.types.js';
+import type { InternalErrorResponse, IdpCollector } from '@forgerock/davinci-client/types';
 
 export default function submitButtonComponent(
   formEl: HTMLFormElement,
