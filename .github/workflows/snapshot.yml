@@ -90,7 +90,7 @@ jobs:
         run: pnpm publish -r --tag beta --no-git-checks --registry ${{ inputs.registry }}
         env:
           NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true # make sure provenance is working on beta releases to npm
+          NPM_CONFIG_PROVENANCE: 'true' # make sure provenance is working on beta releases to npm
 
       - name: Publish packages as beta
         if: ${{ inputs.registry != 'https://registry.npmjs.org' }}

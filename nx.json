@@ -7,7 +7,7 @@
       "!{workspaceRoot}/.verdaccio/*",
       "!{workspaceRoot}/renovate.json",
       "!{projectRoot}/LICENSE",
-      "{projectRoot}/.github/workflows/*.yml",
+      "{workspaceRoot}/.github/workflows/*.yml",
       "{workspaceRoot}/.changeset/*.md",
       "{workspaceRoot}/.changeset/config.json"
     ],
