@@ -49,4 +49,6 @@ export type SingleSelectCollector = collectors.SingleSelectCollector;
 export type DeviceRegistrationCollector = collectors.DeviceRegistrationCollector;
 export type DeviceAuthenticationCollector = collectors.DeviceAuthenticationCollector;
 export type PhoneNumberCollector = collectors.PhoneNumberCollector;
+
+export type InternalErrorResponse = client.InternalErrorResponse;
 export type { RequestMiddleware };
