@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+/* Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -28,7 +27,7 @@ export type ContinueNode = nodes.ContinueNode;
 export type ErrorNode = nodes.ErrorNode;
 export type SuccessNode = nodes.SuccessNode;
 export type FailureNode = nodes.FailureNode;
-
+export type NodeStates = ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
 export type Collectors = nodes.Collectors;
 export type DaVinciValidationError = nodes.DaVinciError;
 
