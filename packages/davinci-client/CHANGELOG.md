@@ -1,5 +1,42 @@
 # @forgerock/davinci-client
 
+## 1.2.0
+
+### Minor Changes
+
+- [#299](https://github.com/ForgeRock/ping-javascript-sdk/pull/299) [`629d3e0`](https://github.com/ForgeRock/ping-javascript-sdk/commit/629d3e00fbdffce254987c25b1183d8ac4d1b5c5) Thanks [@ryanbas21](https://github.com/ryanbas21)! - provide a client type that handles the awaiting of the davinci client initalization and a type for handling getClient call so consumers have the type available easily
+
+- [#293](https://github.com/ForgeRock/ping-javascript-sdk/pull/293) [`95d6bb9`](https://github.com/ForgeRock/ping-javascript-sdk/commit/95d6bb9db24bcbbccf29f415504840c6cc3faff3) Thanks [@cerebrl](https://github.com/cerebrl)! - Implement the logger module to DaVinci Client
+
+- [#262](https://github.com/ForgeRock/ping-javascript-sdk/pull/262) [`e38b49e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/e38b49ebd29c304cb362d77e3e9862217f1cc17a) Thanks [@cerebrl](https://github.com/cerebrl)! - Add support for MFA OTP field support with added collectors
+
+- [#246](https://github.com/ForgeRock/ping-javascript-sdk/pull/246) [`0d54b34`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0d54b3461443fcf5c5071a08578f2d418f066073) Thanks [@cerebrl](https://github.com/cerebrl)! - created effects type packages, logger, oidc, and request middleware
+
+- [#270](https://github.com/ForgeRock/ping-javascript-sdk/pull/270) [`4756348`](https://github.com/ForgeRock/ping-javascript-sdk/commit/475634870558309cf28fd3848a180e9753f0a9a0) Thanks [@cerebrl](https://github.com/cerebrl)! - Implemented phone number collector to support phone number field
+
+### Patch Changes
+
+- [#312](https://github.com/ForgeRock/ping-javascript-sdk/pull/312) [`5d71457`](https://github.com/ForgeRock/ping-javascript-sdk/commit/5d714577f4a508fa37afc2161880affd4ab2127f) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Fixes the device-fields which were changed to options on the object
+
+- [#322](https://github.com/ForgeRock/ping-javascript-sdk/pull/322) [`9a03632`](https://github.com/ForgeRock/ping-javascript-sdk/commit/9a03632e044a325da9bdf4073446c465bb34b2fd) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Return a url from the externalIdp function for app developers to use to redirect their url
+
+- [#270](https://github.com/ForgeRock/ping-javascript-sdk/pull/270) [`4756348`](https://github.com/ForgeRock/ping-javascript-sdk/commit/475634870558309cf28fd3848a180e9753f0a9a0) Thanks [@cerebrl](https://github.com/cerebrl)! - Fixed bugs related to device auth and registration
+
+- [#277](https://github.com/ForgeRock/ping-javascript-sdk/pull/277) [`fb041e0`](https://github.com/ForgeRock/ping-javascript-sdk/commit/fb041e04804adcc8404262b790d10b98c9e46e79) Thanks [@ryanbas21](https://github.com/ryanbas21)! - error states should be cleared from state when a successful next or success node was processed
+
+- [#267](https://github.com/ForgeRock/ping-javascript-sdk/pull/267) [`12179a1`](https://github.com/ForgeRock/ping-javascript-sdk/commit/12179a14a6fc8cba9af34bbc0f3dc87d4319e183) Thanks [@ryanbas21](https://github.com/ryanbas21)! - update type misalignments and fallback to `continue` state when there is no state given
+
+- [#331](https://github.com/ForgeRock/ping-javascript-sdk/pull/331) [`d9dc175`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d9dc1753a07216d07acab5c083daa5a1ee487be3) Thanks [@ryanbas21](https://github.com/ryanbas21)! - export the InternalErrorResponse type
+
+- [#332](https://github.com/ForgeRock/ping-javascript-sdk/pull/332) [`0ea7df7`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0ea7df728c7175ec6aee1d7208063db4947155bb) Thanks [@ryanbas21](https://github.com/ryanbas21)! - add-back-node-states-api
+
+- Updated dependencies [[`04b506c`](https://github.com/ForgeRock/ping-javascript-sdk/commit/04b506c2016324dffeba3a473bfc705843ac3e41), [`0d54b34`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0d54b3461443fcf5c5071a08578f2d418f066073), [`50fd7fa`](https://github.com/ForgeRock/ping-javascript-sdk/commit/50fd7fab9f0dd893528e85cb15f1ba6fdc1fe3e8), [`95d6bb9`](https://github.com/ForgeRock/ping-javascript-sdk/commit/95d6bb9db24bcbbccf29f415504840c6cc3faff3)]:
+  - @forgerock/sdk-oidc@1.2.0
+  - @forgerock/sdk-types@1.2.0
+  - @forgerock/sdk-request-middleware@1.2.0
+  - @forgerock/sdk-logger@1.2.0
+  - @forgerock/storage@1.2.0
+
 ## 1.1.0
 
 ### Minor Changes
