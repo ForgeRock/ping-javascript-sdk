@@ -106,8 +106,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * for the social login being started.
      *
      * This method will save the `continueUrl`
-     * and then replace the window with the authenticate
-     * url from the collector
+     * and then the app developer can use the url
+     * from the collector to redirect their application
      *
      * Can return an error when no continue url is found
      * or no authenticate url is found in the collectors
