@@ -1,4 +1,4 @@
-# @forgerock/sdk-utilities
+# @forgerock/sdk-request-middleware
 
 ## 1.2.0
 
