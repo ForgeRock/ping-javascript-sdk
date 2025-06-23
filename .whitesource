@@ -1,7 +1,6 @@
 {
   "scanSettings": {
     "configMode": "AUTO",
-    "enableCST": true,
     "enableScan": true,
     "enableVulnerabilityScanning": true,
     "configExternalURL": "",
@@ -14,8 +13,8 @@
   "scanSettingsSAST": {
     "enableScan": true,
     "scanPullRequests": true,
-    "incrementalScan": false,
-    "baseBranches": ["integration"]
+    "incrementalScan": true,
+    "exploitabilityScore": true
   },
   "checkRunSettingsSAST": {
     "checkRunConclusionLevel": "failure",
@@ -28,24 +27,27 @@
   "checkRunSettings": {
     "vulnerableCheckRunConclusionLevel": "failure",
     "displayMode": "diff",
-    "useMendCheckNames": true
+    "useMendCheckNames": true,
+    "strictMode": "failure"
   },
   "issueSettings": {
-    "minSeverityLevel": "LOW",
+    "minSeverityLevel": "medium",
     "issueType": "DEPENDENCY"
   },
   "remediateSettings": {
     "workflowRules": {
       "enabled": true
-    }
+    },
+    "enableRenovate": true
   },
   "sca": {
     "enableLicenseScanning": true,
     "enableVulnerabilityScanning": true,
+    "includeDevDependencies": false,
     "severityLevels": [
+      "critical",
       "high",
-      "medium",
-      "low"
+      "medium"
     ]
   }
 }
