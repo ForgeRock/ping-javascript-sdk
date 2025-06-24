@@ -182,7 +182,7 @@ export type ValidatedTextCollector = ValidatedSingleValueCollectorWithValue<'Tex
  */
 
 /**
- * @interface MultiValueCollector - Represents a request to collect a single value from the user, like email or password.
+ * @interface MultiValueCollector - Represents a request to collect multiple values from the user.
  */
 export type MultiValueCollectorTypes = 'MultiSelectCollector' | 'MultiValueCollector';
 
@@ -468,7 +468,7 @@ export type SubmitCollector = ActionCollectorNoUrl<'SubmitCollector'>;
  */
 
 /**
- * @interface NoValueCollector - Represents a collect that collects no value; text only for display.
+ * @interface NoValueCollector - Represents a collector that collects no value; text only for display.
  */
 export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'NoValueCollector';
 
@@ -487,7 +487,7 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
 
 /**
  * Type to help infer the collector based on the collector type
- * Used specifically in the returnMultiValueCollector wrapper function.
+ * Used specifically in the returnNoValueCollector wrapper function.
  * When given a type, it can narrow which type it is returning
  *
  * Note: You can see this type in action in the test file or in the collector.utils file.
@@ -517,3 +517,64 @@ export type UnknownCollector = {
     type: string;
   };
 };
+
+/** *********************************************************************
+ * AUTOMATED COLLECTORS
+ */
+
+/**
+ * @interface AutoCollector - Represents a collector that collects a value programmatically without user intervention.
+ */
+
+export type AutoCollectorCategories = 'SingleValueAutoCollector';
+export type AutoCollectorTypes = AutoCollectorCategories | 'ProtectCollector';
+
+export interface AutoCollector<
+  C extends AutoCollectorCategories,
+  T extends AutoCollectorTypes,
+  V = string,
+> {
+  category: C;
+  error: string | null;
+  type: T;
+  id: string;
+  name: string;
+  input: {
+    key: string;
+    value: V;
+    type: string;
+  };
+  output: {
+    key: string;
+    type: string;
+    config: Record<string, unknown>;
+  };
+}
+
+export type ProtectCollector = AutoCollector<
+  'SingleValueAutoCollector',
+  'ProtectCollector',
+  string
+>;
+export type SingleValueAutoCollector = AutoCollector<
+  'SingleValueAutoCollector',
+  'SingleValueAutoCollector',
+  string
+>;
+
+export type AutoCollectors = ProtectCollector | SingleValueAutoCollector;
+
+/**
+ * Type to help infer the collector based on the collector type
+ * Used specifically in the returnAutoCollector wrapper function.
+ * When given a type, it can narrow which type it is returning
+ *
+ * Note: You can see this type in action in the test file or in the collector.utils file.
+ */
+export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'ProtectCollector'
+  ? ProtectCollector
+  : /**
+     * At this point, we have not passed in a collector type
+     * so we can return a SingleValueAutoCollector
+     **/
+    SingleValueAutoCollector;

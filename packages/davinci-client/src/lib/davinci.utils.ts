@@ -38,7 +38,8 @@ export function transformSubmitRequest(
       collector.category === 'MultiValueCollector' ||
       collector.category === 'SingleValueCollector' ||
       collector.category === 'ValidatedSingleValueCollector' ||
-      collector.category === 'ObjectValueCollector',
+      collector.category === 'ObjectValueCollector' ||
+      collector.category === 'SingleValueAutoCollector',
   );
 
   const formData = collectors?.reduce<{

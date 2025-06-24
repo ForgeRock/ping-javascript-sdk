@@ -21,13 +21,16 @@ import type {
   ValidatedTextCollector,
   InferValueObjectCollectorType,
   ObjectValueCollectorTypes,
+  AutoCollectorTypes,
   UnknownCollector,
+  InferAutoCollectorType,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
   DeviceRegistrationField,
   MultiSelectField,
   PhoneNumberField,
+  ProtectField,
   ReadOnlyField,
   RedirectField,
   SingleSelectField,
@@ -254,6 +257,66 @@ export function returnSingleValueCollector<
 }
 
 /**
+ * @function returnAutoCollector - Creates an AutoCollector object based on the provided field, index, and optional collector type.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the AutoCollector.
+ * @param {AutoCollectorTypes} [collectorType] - Optional type of the AutoCollector.
+ * @returns {AutoCollector} The constructed AutoCollector object.
+ */
+export function returnAutoCollector<
+  Field extends ProtectField,
+  CollectorType extends AutoCollectorTypes = 'SingleValueAutoCollector',
+>(field: Field, idx: number, collectorType: CollectorType, data?: string) {
+  let error = '';
+  if (!('key' in field)) {
+    error = `${error}Key is not found in the field object. `;
+  }
+  if (!('type' in field)) {
+    error = `${error}Type is not found in the field object. `;
+  }
+
+  if (collectorType === 'ProtectCollector') {
+    return {
+      category: 'SingleValueAutoCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field?.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: data || '',
+        type: field.type,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+        config: {
+          behavioralDataCollection: field.behavioralDataCollection,
+          universalDeviceIdentification: field.universalDeviceIdentification,
+        },
+      },
+    } as InferAutoCollectorType<'ProtectCollector'>;
+  } else {
+    return {
+      category: 'SingleValueAutoCollector',
+      error: error || null,
+      type: collectorType || 'SingleValueAutoCollector',
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: data || '',
+        type: field.type,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+      },
+    } as InferAutoCollectorType<CollectorType>;
+  }
+}
+
+/**
  * @function returnPasswordCollector - Creates a PasswordCollector object based on the provided field and index.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the PasswordCollector.
@@ -272,6 +335,7 @@ export function returnPasswordCollector(field: StandardField, idx: number) {
 export function returnTextCollector(field: StandardField, idx: number, data: string) {
   return returnSingleValueCollector(field, idx, 'TextCollector', data);
 }
+
 /**
  * @function returnSingleSelectCollector - Creates a SingleCollector object based on the provided field and index.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
@@ -280,6 +344,16 @@ export function returnTextCollector(field: StandardField, idx: number, data: str
  */
 export function returnSingleSelectCollector(field: SingleSelectField, idx: number, data: string) {
   return returnSingleValueCollector(field, idx, 'SingleSelectCollector', data);
+}
+
+/**
+ * @function returnProtectCollector - Creates a ProtectCollector object based on the provided field and index.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the ProtectCollector.
+ * @returns {ProtectCollector} The constructed ProtectCollector object.
+ */
+export function returnProtectCollector(field: ProtectField, idx: number, data: string) {
+  return returnAutoCollector(field, idx, 'ProtectCollector', data);
 }
 
 /**

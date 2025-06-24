@@ -15,6 +15,9 @@
   },
   "references": [
     {
+      "path": "../../packages/protect"
+    },
+    {
       "path": "../../packages/sdk-effects/logger"
     },
     {
