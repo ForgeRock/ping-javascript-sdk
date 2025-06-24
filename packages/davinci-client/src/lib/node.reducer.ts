@@ -24,6 +24,7 @@ import {
   returnReadOnlyCollector,
   returnObjectSelectCollector,
   returnObjectValueCollector,
+  returnProtectCollector,
   returnUnknownCollector,
 } from './collector.utils.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
@@ -44,6 +45,7 @@ import {
   PhoneNumberCollector,
   PhoneNumberInputValue,
   UnknownCollector,
+  ProtectCollector,
 } from './collector.types.js';
 
 /**
@@ -81,6 +83,7 @@ const initialCollectorValues: (
   | ReadOnlyCollector
   | ValidatedTextCollector
   | UnknownCollector
+  | ProtectCollector
 )[] = [];
 
 /**
@@ -158,6 +161,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
               case 'SUBMIT_BUTTON': {
                 // No data to send
                 return returnSubmitCollector(field, idx);
+              }
+              case 'PROTECT': {
+                const str = data as string;
+                return returnProtectCollector(field, idx, str);
               }
               default:
               // Default is handled below
