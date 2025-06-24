@@ -24,6 +24,7 @@ import {
   returnReadOnlyCollector,
   returnObjectSelectCollector,
   returnObjectValueCollector,
+  returnProtectCollector,
   returnUnknownCollector,
 } from './collector.utils.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
@@ -44,6 +45,7 @@ import {
   PhoneNumberCollector,
   PhoneNumberInputValue,
   UnknownCollector,
+  ProtectCollector,
 } from './collector.types.js';
 
 /**
@@ -81,6 +83,7 @@ const initialCollectorValues: (
   | ReadOnlyCollector
   | ValidatedTextCollector
   | UnknownCollector
+  | ProtectCollector
 )[] = [];
 
 /**
@@ -159,6 +162,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 // No data to send
                 return returnSubmitCollector(field, idx);
               }
+              case 'PROTECT': {
+                const str = data as string;
+                return returnProtectCollector(field, idx, str);
+              }
               default:
               // Default is handled below
             }
@@ -196,10 +203,11 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
 
       if (
         collector.category === 'SingleValueCollector' ||
-        collector.category === 'ValidatedSingleValueCollector'
+        collector.category === 'ValidatedSingleValueCollector' ||
+        collector.category === 'SingleValueAutoCollector'
       ) {
         if (typeof action.payload.value !== 'string') {
-          throw new Error('SingleValueCollector does not accept an array');
+          throw new Error('Value argument must be a string');
         }
         collector.input.value = action.payload.value;
         return;

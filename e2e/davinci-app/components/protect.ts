@@ -10,7 +10,7 @@ import type {
   Updater,
 } from '@forgerock/davinci-client/types';
 
-export default function (
+export default function protectComponent(
   formEl: HTMLFormElement,
   collector: TextCollector | ValidatedTextCollector,
   updater: Updater,
@@ -20,7 +20,6 @@ export default function (
 
   p.innerText = collector.output.label;
   formEl?.appendChild(p);
-
   const error = updater('fakeprofile');
   if (error && 'error' in error) {
     console.error(error.error.message);

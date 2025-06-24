@@ -152,6 +152,13 @@ export type PhoneNumberField = {
   required: boolean;
 };
 
+export type ProtectField = {
+  type: 'PROTECT';
+  key: string;
+  behavioralDataCollection: boolean;
+  universalDeviceIdentification: boolean;
+};
+
 export type UnknownField = Record<string, unknown>;
 
 export type ComplexValueFields =
@@ -161,7 +168,7 @@ export type ComplexValueFields =
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField;
 export type RedirectFields = RedirectField;
-export type SingleValueFields = StandardField | ValidatedField | SingleSelectField;
+export type SingleValueFields = StandardField | ValidatedField | SingleSelectField | ProtectField;
 
 export type DaVinciField =
   | ComplexValueFields
