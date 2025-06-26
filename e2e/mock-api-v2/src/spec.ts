@@ -52,8 +52,7 @@ const MockApi = HttpApi.make('MyApi')
       HttpApiEndpoint.get('UserInfo')`/:envid/as/userinfo`
         .setPath(Schema.Struct({ envid: Schema.String }))
         .addSuccess(UserInfoSchema)
-        .addError(HttpApiError.Unauthorized)
-        .addError(HttpApiError.InternalServerError),
+        .addError(HttpApiError.Unauthorized),
     ),
   );
 

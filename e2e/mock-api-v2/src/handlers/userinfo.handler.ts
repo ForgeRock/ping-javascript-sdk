@@ -12,16 +12,16 @@ import { HttpApiBuilder } from '@effect/platform';
 /**
  * TODO: Need to implement an Authorization middleware
  */
-const userInfoHandler = HttpApiBuilder.group(MockApi, 'Protected Requests', (handlers) =>
+const UserInfoMockHandler = HttpApiBuilder.group(MockApi, 'Protected Requests', (handlers) =>
   handlers.handle('UserInfo', () =>
     Effect.gen(function* () {
       const { getUserInfo } = yield* UserInfo;
 
-      const response = yield* getUserInfo();
+      const response = yield* getUserInfo;
 
       return response;
     }),
   ),
 );
 
-export { userInfoHandler };
+export { UserInfoMockHandler };
