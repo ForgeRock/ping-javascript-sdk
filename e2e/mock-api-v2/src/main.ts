@@ -14,17 +14,25 @@ import { OpenidConfigMock } from './handlers/open-id-configuration.handler.js';
 import { IncrementStepIndexMock } from './middleware/CookieMiddleware.js';
 import { AuthorizeHandlerMock } from './handlers/authorize.handler.js';
 import { AuthorizeMock } from './services/authorize.service.js';
+import { TokensMock } from './services/tokens.service.js';
+import { TokensHandler } from './handlers/token.handler.js';
+import { UserInfoMockHandler } from './handlers/userinfo.handler.js';
+import { UserInfoMockService } from './services/userinfo.service.js';
 
 const APIMock = HttpApiBuilder.api(MockApi).pipe(
   Layer.provide(HealthCheckLive),
   Layer.provide(OpenidConfigMock),
   Layer.provide(AuthorizeHandlerMock),
+  Layer.provide(TokensHandler),
+  Layer.provide(UserInfoMockHandler),
 );
 
 const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(APIMock),
   Layer.provide(AuthorizeMock),
+  Layer.provide(TokensMock),
+  Layer.provide(UserInfoMockService),
   Layer.provide(IncrementStepIndexMock),
   // Layer.provide(AuthorizationLive),
   Layer.provide(HttpApiBuilder.middlewareCors()),

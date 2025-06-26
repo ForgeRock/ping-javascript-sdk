@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Schema } from 'effect';
+import { Layer, Schema } from 'effect';
 import { Effect, Context } from 'effect';
 
 import { userInfoResponse } from '../responses/userinfo/userinfo.js';
@@ -17,19 +17,19 @@ import { HttpApiError } from '@effect/platform';
 
 type UserInfoResponse = Schema.Schema.Type<typeof UserInfoSchema>;
 
-function mock() {
-  return Effect.tryPromise({
-    try: () => Promise.resolve(userInfoResponse),
-    catch: () => new HttpApiError.Unauthorized(),
-  });
-}
 class UserInfo extends Context.Tag('@services/userinfo')<
   UserInfo,
-  { getUserInfo: typeof mock }
+  { getUserInfo: Effect.Effect<UserInfoResponse, HttpApiError.Unauthorized, never> }
 >() {}
 
-const userInfoMock = UserInfo.of({
-  getUserInfo: mock,
-});
+const UserInfoMockService = Layer.succeed(
+  UserInfo,
+  UserInfo.of({
+    getUserInfo: Effect.tryPromise({
+      try: () => Promise.resolve(userInfoResponse),
+      catch: () => new HttpApiError.Unauthorized(),
+    }),
+  }),
+);
 
-export { UserInfo, userInfoMock };
+export { UserInfo, UserInfoMockService };

@@ -8,8 +8,8 @@
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
-    "serve": "node dist/e2e/mock-api-v2/src/main.js",
-    "serve:dev": "nodemon dist/e2e/mock-api-v2/src/main.js",
+    "serve": "node dist/src/main.js",
+    "serve:dev": "nodemon dist/src/main.js",
     "test": "pnpm nx nxTest"
   },
   "dependencies": {
@@ -28,7 +28,7 @@
         "executor": "@nx/js:tsc",
         "outputs": ["{options.outputPath}"],
         "options": {
-          "outputPath": "e2e/mock-api-v2/dist",
+          "outputPath": "./dist",
           "main": "e2e/mock-api-v2/src/main.ts",
           "tsConfig": "e2e/mock-api-v2/tsconfig.app.json",
           "generatePackageJson": true

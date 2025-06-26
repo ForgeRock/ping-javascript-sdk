@@ -9,7 +9,7 @@ import { Tokens } from '../services/tokens.service.js';
 import { HttpApiBuilder } from '@effect/platform';
 import { Effect } from 'effect';
 
-const tokenHandler = HttpApiBuilder.group(MockApi, 'Tokens', (handlers) =>
+const TokensHandler = HttpApiBuilder.group(MockApi, 'Tokens', (handlers) =>
   handlers.handle('Tokens', () =>
     Effect.gen(function* () {
       const { getTokens } = yield* Tokens;
@@ -20,4 +20,4 @@ const tokenHandler = HttpApiBuilder.group(MockApi, 'Tokens', (handlers) =>
   ),
 );
 
-export { tokenHandler };
+export { TokensHandler };

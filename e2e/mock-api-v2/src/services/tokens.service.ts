@@ -6,8 +6,6 @@
  */
 import { Context, Effect, Layer, Schema } from 'effect';
 import { HttpApiError } from '@effect/platform';
-
-import { Request } from './request.service.js';
 import { tokenResponseBody } from '../responses/token/token.js';
 import { TokenResponseBody } from '../schemas/token/token.schema.js';
 
@@ -24,27 +22,18 @@ class Tokens extends Context.Tag('@services/Tokens')<
   }
 >() {}
 
-const mockTokens = Layer.effect(
+const TokensMock = Layer.succeed(
   Tokens,
-  Effect.gen(function* () {
-    const { get } = yield* Request;
-    return {
-      getTokens: (headers) =>
-        Effect.gen(function* () {
-          // throw away our get call in mock env;
-          yield* get<typeof headers, null, TokensResponseBody>('/tokens', {
-            headers,
-            query: null,
-          });
-
-          const response = yield* Effect.tryPromise({
-            try: () => Promise.resolve(tokenResponseBody),
-            catch: () => new HttpApiError.Unauthorized(),
-          });
-          return response;
-        }),
-    };
+  Tokens.of({
+    getTokens: () =>
+      Effect.gen(function* () {
+        const response = yield* Effect.tryPromise({
+          try: () => Promise.resolve(tokenResponseBody),
+          catch: () => new HttpApiError.Unauthorized(),
+        });
+        return response;
+      }),
   }),
 );
 
-export { mockTokens, Tokens };
+export { TokensMock, Tokens };
