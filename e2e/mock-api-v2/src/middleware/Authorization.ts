@@ -1,5 +1,5 @@
 import { Unauthorized } from '@effect/platform/HttpApiError';
-import { HttpApiMiddleware, HttpApiSecurity } from '@effect/platform';
+import { HttpApiMiddleware, HttpApiSecurity, OpenApi } from '@effect/platform';
 import { Brand, Context, Effect, Layer, Redacted } from 'effect';
 
 type BearerTokenValue = string & Brand.Brand<'BearerToken'>;
@@ -10,12 +10,13 @@ class BearerToken extends Context.Tag('BearerToken')<BearerToken, BearerTokenVal
 
 class Authorization extends HttpApiMiddleware.Tag<Authorization>()('Authorization', {
   failure: Unauthorized,
-  provides: BearerToken, // Declare that this middleware provides the bearer token
+  provides: BearerToken,
   security: {
-    myBearer: HttpApiSecurity.bearer,
+    myBearer: HttpApiSecurity.bearer.pipe(
+      HttpApiSecurity.annotate(OpenApi.Description, 'Bearer token for API authentication'),
+    ),
   },
 }) {}
-
 const AuthorizationMock = Layer.effect(
   Authorization,
   Effect.gen(function* () {

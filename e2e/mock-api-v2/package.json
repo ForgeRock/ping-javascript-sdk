@@ -4,7 +4,7 @@
   "private": true,
   "description": "",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./src/main.js",
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
@@ -28,7 +28,7 @@
         "executor": "@nx/js:tsc",
         "outputs": ["{options.outputPath}"],
         "options": {
-          "outputPath": "./dist",
+          "outputPath": "e2e/mock-api-v2/dist",
           "main": "e2e/mock-api-v2/src/main.ts",
           "tsConfig": "e2e/mock-api-v2/tsconfig.app.json",
           "generatePackageJson": true
