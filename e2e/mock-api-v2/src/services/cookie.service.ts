@@ -8,14 +8,14 @@ import * as Cookies from '@effect/platform/Cookies';
 import { Effect, Context, Either } from 'effect';
 
 import { incrementCookieHeader } from '../helpers/cookie.js';
-import { HeaderTypes } from '../types/index.js';
+import { Headers } from '@effect/platform';
 
 /*
  * Define the interface for the Cookie Service
  */
 interface CookieService {
   writeCookie: (
-    headers: HeaderTypes,
+    headers: Headers,
     interactionToken?: string,
   ) => Effect.Effect<Cookies.Cookies, Cookies.CookiesError, never>;
 }
