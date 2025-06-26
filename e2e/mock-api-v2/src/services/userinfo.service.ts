@@ -19,16 +19,22 @@ type UserInfoResponse = Schema.Schema.Type<typeof UserInfoSchema>;
 
 class UserInfo extends Context.Tag('@services/userinfo')<
   UserInfo,
-  { getUserInfo: Effect.Effect<UserInfoResponse, HttpApiError.Unauthorized, never> }
+  {
+    getUserInfo: (
+      token: string,
+    ) => Effect.Effect<UserInfoResponse, HttpApiError.Unauthorized, never>;
+  }
 >() {}
 
 const UserInfoMockService = Layer.succeed(
   UserInfo,
   UserInfo.of({
-    getUserInfo: Effect.tryPromise({
-      try: () => Promise.resolve(userInfoResponse),
-      catch: () => new HttpApiError.Unauthorized(),
-    }),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getUserInfo: (_: string) =>
+      Effect.tryPromise({
+        try: () => Promise.resolve(userInfoResponse),
+        catch: () => new HttpApiError.Unauthorized(),
+      }),
   }),
 );
 

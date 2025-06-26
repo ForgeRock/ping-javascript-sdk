@@ -1,41 +1,43 @@
-// import { Unauthorized } from '@effect/platform/HttpApiError';
-// import { UserInfoTagged } from '../schemas/userinfo/userinfo.schema.js';
-// import { HttpApiMiddleware, HttpApiSecurity } from '@effect/platform';
-// import { Effect, Layer, Redacted } from 'effect';
-//
-// class Authorization extends HttpApiMiddleware.Tag<Authorization>()('Authorization', {
-//   // Define the error schema for unauthorized access
-//   failure: Unauthorized,
-//   // Specify the resource this middleware will provide
-//   provides: UserInfoTagged,
-//   // Add security definitions
-//   security: {
-//     // ┌─── Custom name for the security definition
-//     // ▼
-//     myBearer: HttpApiSecurity.bearer,
-//     // Additional security definitions can be added here.
-//     // They will attempt to be resolved in the order they are defined.
-//   },
-// }) {}
-//
-// const AuthorizationLive = Layer.effect(
-//   Authorization,
-//   Effect.gen(function* () {
-//     yield* Effect.log('creating Authorization middleware');
-//
-//     // Return the security handlers for the middleware
-//     return {
-//       // Define the handler for the Bearer token
-//       // The Bearer token is redacted for security
-//       myBearer: (bearerToken) =>
-//         Effect.gen(function* () {
-//           yield* Effect.log('checking bearer token', Redacted.value(bearerToken));
-//
-//           // Pass through bearer token for future requests?
-//           return bearerToken;
-//         }),
-//     };
-//   }),
-// );
-//
-// export { Authorization, AuthorizationLive };
+import { Unauthorized } from '@effect/platform/HttpApiError';
+import { HttpApiMiddleware, HttpApiSecurity } from '@effect/platform';
+import { Brand, Context, Effect, Layer, Redacted } from 'effect';
+
+type BearerTokenValue = string & Brand.Brand<'BearerToken'>;
+const BearerTokenValue = Brand.nominal<BearerTokenValue>();
+
+// Define a service that holds the bearer token
+class BearerToken extends Context.Tag('BearerToken')<BearerToken, BearerTokenValue>() {}
+
+class Authorization extends HttpApiMiddleware.Tag<Authorization>()('Authorization', {
+  failure: Unauthorized,
+  provides: BearerToken, // Declare that this middleware provides the bearer token
+  security: {
+    myBearer: HttpApiSecurity.bearer,
+  },
+}) {}
+
+const AuthorizationMock = Layer.effect(
+  Authorization,
+  Effect.gen(function* () {
+    yield* Effect.log('creating Authorization middleware');
+
+    return {
+      myBearer: (bearerToken) =>
+        Effect.gen(function* () {
+          const tokenValue = Redacted.value(bearerToken);
+          yield* Effect.log('checking bearer token', tokenValue);
+
+          // Here you could add validation logic if needed
+          // For now, we just pass through any token
+          if (!tokenValue || tokenValue.trim() === '') {
+            return yield* Effect.fail(new Unauthorized());
+          }
+
+          // Return the token value so routes can access it
+          return BearerTokenValue(tokenValue);
+        }),
+    };
+  }),
+);
+
+export { Authorization, AuthorizationMock, BearerToken };

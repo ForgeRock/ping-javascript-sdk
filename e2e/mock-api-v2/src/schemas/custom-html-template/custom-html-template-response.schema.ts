@@ -5,21 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Schema } from 'effect';
+import { ProtectSDKRequestFormData, UsernamePasswordFormData } from './form-data.schema.js';
 
 const PingOnePathParams = Schema.Struct({ envid: Schema.String, connectionid: Schema.String });
-
-const ProtectSDKRequestFormData = Schema.Struct({
-  value: Schema.Struct({
-    protectsdk: Schema.String,
-  }),
-});
-
-const UsernamePasswordFormData = Schema.Struct({
-  value: Schema.Struct({
-    username: Schema.String,
-    password: Schema.String,
-  }),
-});
 
 const PossibleFormDatas = Schema.Union(ProtectSDKRequestFormData, UsernamePasswordFormData);
 

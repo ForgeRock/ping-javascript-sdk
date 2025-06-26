@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Context, Schema } from 'effect';
+import { Schema } from 'effect';
 
 class UserInfoSchema extends Schema.Class<UserInfoSchema>('UserInfo')(
   Schema.Struct({
@@ -20,6 +20,4 @@ class UserInfoSchema extends Schema.Class<UserInfoSchema>('UserInfo')(
   }),
 ) {}
 
-class UserInfoTagged extends Context.Tag('UserInfoTagged')<UserInfoTagged, UserInfoSchema>() {}
-
-export { UserInfoTagged, UserInfoSchema };
+export { UserInfoSchema };
