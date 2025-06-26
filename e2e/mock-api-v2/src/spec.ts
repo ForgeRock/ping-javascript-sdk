@@ -16,6 +16,7 @@ import { PingOneCustomHtmlResponseBody } from './schemas/custom-html-template/cu
 import { TokenResponseBody } from './schemas/token/token.schema.js';
 import { UserInfoSchema } from './schemas/userinfo/userinfo.schema.js';
 import { Authorization } from './middleware/Authorization.js';
+import { SessionMiddleware } from './middleware/Session.js';
 
 const MockApi = HttpApi.make('MyApi')
   .add(
@@ -52,6 +53,7 @@ const MockApi = HttpApi.make('MyApi')
           .addError(HttpApiError.Unauthorized)
           .setPath(Schema.Struct({ envid: Schema.String })),
       )
+      .middleware(SessionMiddleware)
       .annotate(OpenApi.Description, 'Acquire an Access Token from Davinci/P1'),
   )
   .add(

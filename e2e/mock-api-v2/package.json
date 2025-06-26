@@ -7,16 +7,17 @@
   "main": "./src/main.js",
   "scripts": {
     "build": "pnpm nx nxBuild",
+    "dev": "pnpm nx build --watch & node dist/src/main.js --watch-path=./",
     "lint": "pnpm nx nxLint",
     "serve": "node dist/src/main.js",
-    "serve:dev": "nodemon dist/src/main.js",
     "test": "pnpm nx nxTest"
   },
   "dependencies": {
     "@effect/language-service": "catalog:effect",
     "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
-    "effect": "catalog:effect"
+    "effect": "catalog:effect",
+    "nanoid": "5.1.5"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:effect"
