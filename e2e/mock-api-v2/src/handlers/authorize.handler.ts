@@ -18,7 +18,7 @@ const AuthorizeHandlerMock = HttpApiBuilder.group(MockApi, 'Authorization', (han
       const response = yield* handleAuthorize(urlParams);
 
       return response.body;
-    }),
+    }).pipe(Effect.withSpan('DavinciAuthorize')),
   ),
 );
 

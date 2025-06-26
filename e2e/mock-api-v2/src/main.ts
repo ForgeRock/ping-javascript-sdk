@@ -21,6 +21,13 @@ import { UserInfoMockService } from './services/userinfo.service.js';
 import { AuthorizationMock } from './middleware/Authorization.js';
 import { SessionMiddlewareMock } from './middleware/Session.js';
 import { SessionStorage } from './services/session.service.js';
+import { NodeSdk } from '@effect/opentelemetry';
+import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
+
+const NodeSdkLive = NodeSdk.layer(() => ({
+  resource: { serviceName: 'Mock-Api' },
+  spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
+}));
 
 const APIMock = HttpApiBuilder.api(MockApi).pipe(
   Layer.provide(HealthCheckLive),
@@ -40,6 +47,7 @@ const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(SessionMiddlewareMock),
   Layer.provide(SessionStorage.Default),
   Layer.provide(AuthorizeMock),
+  Layer.provide(NodeSdkLive),
   Layer.provide(
     HttpApiBuilder.middlewareCors({
       allowedMethods: ['GET', 'PUT', 'POST', 'OPTIONS'],

@@ -16,7 +16,7 @@ const TokensHandler = HttpApiBuilder.group(MockApi, 'Tokens', (handlers) =>
       const tokens = yield* getTokens(null);
 
       return tokens;
-    }),
+    }).pipe(Effect.withSpan('TokensHandler')),
   ),
 );
 
