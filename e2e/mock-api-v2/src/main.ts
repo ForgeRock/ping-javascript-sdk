@@ -36,7 +36,14 @@ const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(UserInfoMockService),
   Layer.provide(IncrementStepIndexMock),
   Layer.provide(AuthorizationMock),
-  Layer.provide(HttpApiBuilder.middlewareCors()),
+  Layer.provide(
+    HttpApiBuilder.middlewareCors({
+      allowedMethods: ['GET', 'PUT', 'POST', 'OPTIONS'],
+      allowedOrigins: ['http://localhost:5173', 'http://localhost:8443'],
+      credentials: true,
+      maxAge: 3600,
+    }),
+  ),
   HttpServer.withLogAddress,
   Layer.provide(NodeHttpServer.layer(createServer, { port: 9443 })),
 );

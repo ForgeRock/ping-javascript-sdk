@@ -47,7 +47,7 @@ const MockApi = HttpApi.make('MyApi')
   .add(
     HttpApiGroup.make('Tokens')
       .add(
-        HttpApiEndpoint.post('Tokens')`/envid/as/token`
+        HttpApiEndpoint.post('Tokens')`/:envid/as/token`
           .addSuccess(TokenResponseBody)
           .addError(HttpApiError.Unauthorized)
           .setPath(Schema.Struct({ envid: Schema.String })),
@@ -62,8 +62,9 @@ const MockApi = HttpApi.make('MyApi')
           .addSuccess(UserInfoSchema)
           .addError(HttpApiError.Unauthorized),
       )
+      .middleware(Authorization)
       .annotate(OpenApi.Description, 'User Info route that requires a bearer token')
       .annotate(OpenApi.Description, 'Protected routes, that require a bearer token'),
-  )
-  .middleware(Authorization);
+  );
+
 export { MockApi };
