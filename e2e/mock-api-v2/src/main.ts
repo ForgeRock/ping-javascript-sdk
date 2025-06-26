@@ -18,6 +18,7 @@ import { TokensMock } from './services/tokens.service.js';
 import { TokensHandler } from './handlers/token.handler.js';
 import { UserInfoMockHandler } from './handlers/userinfo.handler.js';
 import { UserInfoMockService } from './services/userinfo.service.js';
+import { AuthorizationMock } from './middleware/Authorization.js';
 
 const APIMock = HttpApiBuilder.api(MockApi).pipe(
   Layer.provide(HealthCheckLive),
@@ -34,7 +35,7 @@ const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(TokensMock),
   Layer.provide(UserInfoMockService),
   Layer.provide(IncrementStepIndexMock),
-  // Layer.provide(AuthorizationLive),
+  Layer.provide(AuthorizationMock),
   Layer.provide(HttpApiBuilder.middlewareCors()),
   HttpServer.withLogAddress,
   Layer.provide(NodeHttpServer.layer(createServer, { port: 9443 })),
