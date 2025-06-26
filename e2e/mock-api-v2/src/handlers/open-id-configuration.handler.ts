@@ -19,7 +19,7 @@ import { HttpApiBuilder } from '@effect/platform';
 const OpenidConfigMock = HttpApiBuilder.group(MockApi, 'OpenIDConfig', (handlers) =>
   handlers.handle(
     'openid',
-    Effect.fn(function* () {
+    Effect.fn('OpenId')(function* () {
       const value = yield* Effect.succeed(openidConfigurationResponse);
       return value;
     }),

@@ -30,13 +30,13 @@ export class SessionStorage extends Effect.Service<SessionStorage>()('SessionSto
     };
 
     return {
-      createSession: (data: SessionData) => {
+      createSession: Effect.fn('CreateSessionMiddleware')(function* (data: SessionData) {
         const sessionId = nanoid();
         _store.set(sessionId, data);
-        return Effect.succeed(data);
-      },
+        return data;
+      }),
 
-      getSession: Effect.fn(function* (sessionId: string) {
+      getSession: Effect.fn('GetSessionMiddleware')(function* (sessionId: string) {
         const session = _store.get(sessionId);
 
         if (!session) {
@@ -52,12 +52,15 @@ export class SessionStorage extends Effect.Service<SessionStorage>()('SessionSto
         return session;
       }),
 
-      deleteSession: Effect.fn(function* (sessionId: string) {
+      deleteSession: Effect.fn('DeleteSessionMiddleware')(function* (sessionId: string) {
         _store.delete(sessionId);
         return undefined;
       }),
 
-      updateSession: Effect.fn(function* (sessionId: string, data: SessionData) {
+      updateSession: Effect.fn('UpdateSessionMiddleware')(function* (
+        sessionId: string,
+        data: SessionData,
+      ) {
         if (!_store.has(sessionId)) {
           return new Error('Session not found');
         }
@@ -65,7 +68,10 @@ export class SessionStorage extends Effect.Service<SessionStorage>()('SessionSto
         return data;
       }),
 
-      refreshSession: Effect.fn(function* (sessionId: string, expiryDate?: Date) {
+      refreshSession: Effect.fn('RefreshSessionMiddleware')(function* (
+        sessionId: string,
+        expiryDate?: Date,
+      ) {
         const session = _store.get(sessionId);
 
         if (!session) {
@@ -87,7 +93,7 @@ export class SessionStorage extends Effect.Service<SessionStorage>()('SessionSto
 
       isSessionExpired,
 
-      cleanupExpiredSessions: Effect.fn(function* () {
+      cleanupExpiredSessions: Effect.fn('CleanupExpiredSessionsMiddleware')(function* () {
         for (const [sessionId, session] of _store.entries()) {
           if (isSessionExpired(session)) {
             _store.delete(sessionId);

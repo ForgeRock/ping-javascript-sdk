@@ -22,7 +22,7 @@ const UserInfoMockHandler = HttpApiBuilder.group(MockApi, 'Protected Requests', 
       const response = yield* getUserInfo(authToken);
 
       return response;
-    }),
+    }).pipe(Effect.withSpan('UserInfoHandler')),
   ),
 );
 
