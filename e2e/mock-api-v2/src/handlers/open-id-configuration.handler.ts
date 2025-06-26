@@ -5,15 +5,25 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect } from 'effect';
-import { RouterBuilder } from 'effect-http';
-import { apiSpec } from '../spec.js';
+import { MockApi } from '../spec.js';
 import { openidConfigurationResponse } from '../responses/open-id-configuration.js';
+import { HttpApiBuilder } from '@effect/platform';
 
-const openidConfiguration = RouterBuilder.handler(apiSpec, 'openidConfiguration', () =>
-  // eslint-disable-next-line require-yield
-  Effect.gen(function* () {
-    return openidConfigurationResponse;
-  }),
+/**
+ * TODO: This needs to make a request for an openid configuration in a LIVE environment
+ * The proper way is to probably create a LIVE (effect convention) route, that handles this
+ * then the LIVE app is provided the HttpClient needed
+ *
+ *
+ */
+const OpenidConfigMock = HttpApiBuilder.group(MockApi, 'OpenIDConfig', (handlers) =>
+  handlers.handle(
+    'openid',
+    Effect.fn(function* () {
+      const value = yield* Effect.succeed(openidConfigurationResponse);
+      return value;
+    }),
+  ),
 );
 
-export { openidConfiguration };
+export { OpenidConfigMock };
