@@ -10,6 +10,7 @@ export default [
     rules: {
       '@typescript-eslint/no-empty-interface': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+      'require-yield': 'off',
     },
   },
   {

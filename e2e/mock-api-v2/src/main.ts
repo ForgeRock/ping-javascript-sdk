@@ -19,6 +19,8 @@ import { TokensHandler } from './handlers/token.handler.js';
 import { UserInfoMockHandler } from './handlers/userinfo.handler.js';
 import { UserInfoMockService } from './services/userinfo.service.js';
 import { AuthorizationMock } from './middleware/Authorization.js';
+import { SessionMiddlewareMock } from './middleware/Session.js';
+import { SessionStorage } from './services/session.service.js';
 
 const APIMock = HttpApiBuilder.api(MockApi).pipe(
   Layer.provide(HealthCheckLive),
@@ -31,11 +33,13 @@ const APIMock = HttpApiBuilder.api(MockApi).pipe(
 const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(APIMock),
-  Layer.provide(AuthorizeMock),
   Layer.provide(TokensMock),
-  Layer.provide(UserInfoMockService),
   Layer.provide(IncrementStepIndexMock),
   Layer.provide(AuthorizationMock),
+  Layer.provide(UserInfoMockService),
+  Layer.provide(SessionMiddlewareMock),
+  Layer.provide(SessionStorage.Default),
+  Layer.provide(AuthorizeMock),
   Layer.provide(
     HttpApiBuilder.middlewareCors({
       allowedMethods: ['GET', 'PUT', 'POST', 'OPTIONS'],
