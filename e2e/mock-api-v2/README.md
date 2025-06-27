@@ -3,7 +3,6 @@ A mock API server for simulating Ping Identity and OpenID Connect flows, built u
 ## Features
 
 - Implements endpoints for:
-
   - Healthcheck
   - OpenID Connect Discovery
   - Davinci Authorization
@@ -76,6 +75,13 @@ pnpm test
 - `GET /:envid/as/userinfo`
 - Requires a valid Bearer token.
 - Returns mock user information.
+
+### End Session
+
+- `GET /:envid/as/endSession`
+- Ends the user's session.
+- Accepts `post_logout_redirect_uri` and `state` query parameters for redirects.
+- Returns a confirmation message.
 
 ## Notes
 

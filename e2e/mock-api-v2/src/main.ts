@@ -23,6 +23,8 @@ import { SessionMiddlewareMock } from './middleware/Session.js';
 import { SessionStorage } from './services/session.service.js';
 import { NodeSdk } from '@effect/opentelemetry';
 import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
+import { EndSessionHandlerMock } from './handlers/end-session.handler.js';
+import { RevokeTokenHandler } from './handlers/revoke.handler.js';
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: 'Mock-Api' },
@@ -35,6 +37,8 @@ const APIMock = HttpApiBuilder.api(MockApi).pipe(
   Layer.provide(AuthorizeHandlerMock),
   Layer.provide(TokensHandler),
   Layer.provide(UserInfoMockHandler),
+  Layer.provide(EndSessionHandlerMock),
+  Layer.provide(RevokeTokenHandler),
 );
 
 const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
@@ -51,7 +55,7 @@ const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(
     HttpApiBuilder.middlewareCors({
       allowedMethods: ['GET', 'PUT', 'POST', 'OPTIONS'],
-      allowedOrigins: ['http://localhost:5173', 'http://localhost:8443'],
+      allowedOrigins: ['*'],
       credentials: true,
       maxAge: 3600,
     }),

@@ -10,9 +10,6 @@ import { UserInfo } from '../services/userinfo.service.js';
 import { HttpApiBuilder } from '@effect/platform';
 import { BearerToken } from '../middleware/Authorization.js';
 
-/**
- * TODO: Need to implement an Authorization middleware
- */
 const UserInfoMockHandler = HttpApiBuilder.group(MockApi, 'Protected Requests', (handlers) =>
   handlers.handle('UserInfo', () =>
     Effect.gen(function* () {
