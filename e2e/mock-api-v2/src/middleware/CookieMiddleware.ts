@@ -22,17 +22,35 @@ const IncrementStepIndexMock = Layer.effect(
       // Parse existing stepIndex cookie or default to 0
       const cookies = request.cookies;
       const currentStepIndex = cookies.stepIndex ? parseInt(cookies.stepIndex) : 0;
-      const newStepIndex = currentStepIndex + 1;
 
-      yield* Console.log(`Current stepIndex: ${currentStepIndex}, setting to: ${newStepIndex}`);
+      // Get the request URL path
+      const urlPath = request.url.split('?')[0];
+      // Check if this is an end-session request
+      const isEndSessionRequest = urlPath.includes('/end_session');
+      // Determine the new stepIndex based on the request type
+      let newStepIndex = currentStepIndex;
+      if (isEndSessionRequest) {
+        // Reset the stepIndex for end_session requests
+        newStepIndex = 0;
+        yield* Console.log('End session request detected, resetting stepIndex to: ' + newStepIndex);
+      } else if (urlPath.includes('/authorize') || urlPath.includes('/authenticate')) {
+        // Increment the stepIndex for authorization flow requests
+        newStepIndex = currentStepIndex + 1;
+        yield* Console.log(
+          'Current stepIndex: ' + currentStepIndex + ', incrementing to: ' + newStepIndex,
+        );
+      } else {
+        // For other requests, keep the stepIndex the same
+        yield* Console.log('Request to ' + urlPath + ', keeping stepIndex at: ' + currentStepIndex);
+      }
 
-      // Set the incremented stepIndex cookie in the response
+      // Set the appropriate stepIndex cookie in the response
       yield* HttpApp.appendPreResponseHandler((request, response) =>
         HttpServerResponse.setCookie(response, 'stepIndex', String(newStepIndex), {
           // Optional cookie options
           httpOnly: false,
           secure: false,
-          sameSite: 'lax',
+          sameSite: 'strict',
         }).pipe(
           Effect.catchTag(
             'CookieError',

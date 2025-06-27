@@ -29,9 +29,10 @@ const AuthorizationMock = Layer.effect(
           const tokenValue = Redacted.value(bearerToken);
           yield* Effect.log('checking bearer token', tokenValue);
 
-          // Here you could add validation logic if needed
-          // For now, we just pass through any token
-          if (!tokenValue || tokenValue.trim() === '') {
+          // Validation logic
+          // 1. Check if token is empty
+          // 2. Check if token has been revoked (has REVOKED_ prefix)
+          if (!tokenValue || tokenValue.trim() === '' || tokenValue.startsWith('REVOKED_')) {
             return yield* Effect.fail(new Unauthorized());
           }
 

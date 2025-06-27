@@ -77,6 +77,13 @@ pnpm test
 - Requires a valid Bearer token.
 - Returns mock user information.
 
+### End Session
+
+- `GET /:envid/as/endSession`
+- Ends the user's session.
+- Accepts `post_logout_redirect_uri` and `state` query parameters for redirects.
+- Returns a confirmation message.
+
 ## Notes
 
 - The `customHtmlRoutes` and related endpoints are not currently implemented.
