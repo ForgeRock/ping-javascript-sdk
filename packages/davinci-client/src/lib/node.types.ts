@@ -19,6 +19,7 @@ import type {
   ReadOnlyCollector,
   ValidatedTextCollector,
   PhoneNumberCollector,
+  ProtectCollector,
   UnknownCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
@@ -39,6 +40,7 @@ export type Collectors =
   | PhoneNumberCollector
   | ReadOnlyCollector
   | ValidatedTextCollector
+  | ProtectCollector
   | UnknownCollector;
 
 export interface CollectorErrors {

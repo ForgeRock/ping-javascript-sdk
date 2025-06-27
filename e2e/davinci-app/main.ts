@@ -186,6 +186,7 @@ const urlParams = new URLSearchParams(window.location.search);
     }
 
     const collectors = davinciClient.getCollectors();
+    console.log('Collectors:', collectors);
     collectors.forEach((collector) => {
       if (collector.type === 'TextCollector' && collector.name === 'protectsdk') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -250,6 +251,8 @@ const urlParams = new URLSearchParams(window.location.search);
           }),
           renderForm, // Ignore this; it's just for re-rendering the form
         );
+      } else if (collector.type === 'ProtectCollector') {
+        console.log('ProtectCollector found:', collector);
       } else if (collector.type === 'SingleSelectCollector') {
         singleValueComponent(formEl, collector, davinciClient.update(collector));
       } else if (collector.type === 'MultiSelectCollector') {
