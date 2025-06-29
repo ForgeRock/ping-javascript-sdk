@@ -15,6 +15,7 @@ class FetchError {
 class InvalidProtectNode {
   readonly _tag = 'InvalidProtectNode';
 }
+
 class UnableToFindNextStep {
   readonly _tag = 'UnableToFindNextStep';
 }
