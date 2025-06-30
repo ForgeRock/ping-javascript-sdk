@@ -26,8 +26,11 @@
     "test:watch": "pnpm nx nxTest --watch"
   },
   "dependencies": {
+    "@forgerock/iframe-manager": "workspace:*",
+    "@forgerock/sdk-oidc": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",
-    "@forgerock/storage": "workspace:*"
+    "@forgerock/storage": "workspace:*",
+    "@reduxjs/toolkit": "catalog:"
   },
   "nx": {
     "tags": ["scope:package"]
