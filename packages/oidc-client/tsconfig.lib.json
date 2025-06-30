@@ -21,6 +21,18 @@
     },
     {
       "path": "../sdk-types/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/sdk-request-middleware/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/oidc/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/iframe-manager/tsconfig.lib.json"
     }
   ],
   "exclude": [
