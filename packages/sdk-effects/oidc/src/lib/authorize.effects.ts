@@ -32,7 +32,7 @@ export async function createAuthorizeUrl(
   const [authorizeUrlOptions, storeOptions] = generateAndStoreAuthUrlValues({
     clientId: options.clientId,
     serverConfig: { baseUrl },
-    responseType: 'code',
+    responseType: options.responseType,
     redirectUri: options.redirectUri,
     scope: options.scope,
   });

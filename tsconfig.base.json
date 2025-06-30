@@ -4,6 +4,9 @@
     "declaration": true,
     "declarationMap": true,
     "skipLibCheck": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@sdk-effects/*": ["packages/sdk-effects/*"]
+    }
   }
 }

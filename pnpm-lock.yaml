@@ -288,6 +288,9 @@ importers:
 
   e2e/oidc-app:
     dependencies:
+      '@forgerock/javascript-sdk':
+        specifier: ^4.8.2
+        version: 4.8.2
       '@forgerock/oidc-client':
         specifier: workspace:*
         version: link:../../packages/oidc-client
@@ -348,12 +351,27 @@ importers:
 
   packages/oidc-client:
     dependencies:
+      '@forgerock/iframe-manager':
+        specifier: workspace:*
+        version: link:../sdk-effects/iframe-manager
+      '@forgerock/sdk-logger':
+        specifier: workspace:*
+        version: link:../sdk-effects/logger
+      '@forgerock/sdk-oidc':
+        specifier: workspace:*
+        version: link:../sdk-effects/oidc
+      '@forgerock/sdk-request-middleware':
+        specifier: workspace:*
+        version: link:../sdk-effects/sdk-request-middleware
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
       '@forgerock/storage':
         specifier: workspace:*
         version: link:../sdk-effects/storage
+      '@reduxjs/toolkit':
+        specifier: 'catalog:'
+        version: 2.8.2
 
   packages/protect:
     dependencies:
@@ -1493,6 +1511,9 @@ packages:
 
   '@forgerock/javascript-sdk@4.7.0':
     resolution: {integrity: sha512-0wpy2/ii9F9yKI3r+huqQtp6bVAeajf2+Llq25dvkfxQX19FKKi9KPPMF7JTVti6heYHyo36lxweB7xerB5UTQ==}
+
+  '@forgerock/javascript-sdk@4.8.2':
+    resolution: {integrity: sha512-vk30flcVa0ypa92YOqEPiIZlXxTF+QVrd/ADtn0G5fIAGNUE2LMKpiGVZGAooqdaT9DpAymvaXrWCV9JLDDlMA==}
 
   '@gerrit0/mini-shiki@1.27.2':
     resolution: {integrity: sha512-GeWyHz8ao2gBiUW4OJnQDxXQnFgZQwwQk05t/CVVgNBN7/rK8XZ7xY6YhLVv9tH3VppWWmr9DCl3MwemB/i+Og==}
@@ -8610,6 +8631,14 @@ snapshots:
   '@fastify/busboy@2.1.1': {}
 
   '@forgerock/javascript-sdk@4.7.0':
+    dependencies:
+      '@reduxjs/toolkit': 2.8.2
+      immer: 10.1.1
+    transitivePeerDependencies:
+      - react
+      - react-redux
+
+  '@forgerock/javascript-sdk@4.8.2':
     dependencies:
       '@reduxjs/toolkit': 2.8.2
       immer: 10.1.1
