@@ -39,10 +39,9 @@ async function app() {
       wellknown:
         'https://openam-sdks.forgeblocks.com/am/oauth2/alpha/.well-known/openid-configuration',
     },
+    responseType: 'code',
     skipBackgroundRequest: true,
   });
-
-  await oidcClient.wellKnownConfig();
 
   const params = {
     successParams: ['state', 'code', 'authCode'],

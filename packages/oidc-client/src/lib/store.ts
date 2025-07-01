@@ -1,10 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { wellknownSlice } from './wellknown.slice.js';
+import { fetchWellKnownConfig } from './wellknown.slice.js';
+import { authorizeSlice } from './authorize.slice.js';
 
 export const store = configureStore({
   reducer: {
-    wellknown: wellknownSlice.reducer,
+    [fetchWellKnownConfig.reducerPath]: fetchWellKnownConfig.reducer,
+    [authorizeSlice.reducerPath]: authorizeSlice.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware()
+      .concat(fetchWellKnownConfig.middleware)
+      .concat(authorizeSlice.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

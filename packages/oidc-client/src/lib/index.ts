@@ -4,8 +4,9 @@ import {
   GetAuthorizationUrlOptions,
   getStoredAuthUrlValues,
 } from '@forgerock/sdk-oidc';
-import { RootState, store } from './store.js';
-import { fetchWellknownConfig, wellknownSlice } from './wellknown.slice.js';
+import { store } from './store.js';
+import { fetchWellKnownConfig } from './wellknown.slice.js';
+import { authorizeSlice } from './authorize.slice.js';
 
 interface OIDCConfig {
   prefix?: string;
@@ -13,25 +14,19 @@ interface OIDCConfig {
   serverConfig: {
     wellknown: string;
   };
-}
-
-async function getAuthorizeUrl(options: GetAuthorizationUrlOptions) {
-  const rootState: RootState = store.getState();
-
-  const authorizeEndpoint = wellknownSlice.selectors.getAuthorizeEndpoint(rootState);
-  if (!authorizeEndpoint) {
-    return {
-      err: 'Need an authorize url, have we initialized our wellknown configuration?',
-    };
-  }
-
-  const authorizeUrl = await createAuthorizeUrl(authorizeEndpoint, options);
-
-  return authorizeUrl;
+  responseType: 'code' | 'token';
 }
 
 export function initialize(config: OIDCConfig) {
   const iframeMgr = iFrameManager();
+
+  if (!config?.serverConfig?.wellknown) {
+    return {
+      error: 'requires a wellknown url initializing this factory.',
+    };
+  }
+
+  const wellKnownUrl = config.serverConfig.wellknown;
 
   return {
     authorize: async (
@@ -42,20 +37,35 @@ export function initialize(config: OIDCConfig) {
       },
       timeout = 3000,
     ) => {
-      const authorizeUrl = await getAuthorizeUrl(options);
+      const { data, error } = await store.dispatch(
+        fetchWellKnownConfig.endpoints.fetchWellKnownConfig.initiate(wellKnownUrl),
+      );
 
-      if (typeof authorizeUrl !== 'string') {
+      if (error || !data) {
         return {
-          error:
-            'failure creating authorizeUrl, check the options passed into `authorize` or consider re-intializing the oidc-client',
+          error: `Error fetching wellknown config`,
         };
       }
-      /**
-       * if skip background request is true, should we even make the request?
-       * if we are skipping the background request, we should just return the authorizeUrl
-       */
+
+      const authorizePath = data.authorization_endpoint;
+      const authorizeUrl = await createAuthorizeUrl(authorizePath, options);
+
       if (config.skipBackgroundRequest) {
-        return authorizeUrl;
+        // Would we actually want to do this?
+        // I wonder if we should just return the authorizeUrl
+        // and let the user handle the redirect themselves.
+        // this follows our pattern of not taking some actions on behalf of the app.
+        const { data, error } = await store.dispatch(
+          authorizeSlice.endpoints.handleAuthorize.initiate(authorizeUrl),
+        );
+        if (error || !data) {
+          return {
+            err: `Error handling authorize request`,
+          };
+        }
+        console.log('the data here', data);
+
+        return data;
       }
 
       const { successParams, errorParams } = params;
@@ -93,19 +103,6 @@ export function initialize(config: OIDCConfig) {
       }
 
       return resolvedParams;
-    },
-
-    wellKnownConfig: async () => {
-      if (!config || !config.serverConfig || !config.serverConfig.wellknown) {
-        return {
-          error: 'requires a wellknown url initializing this factory.',
-        };
-      }
-      await store.dispatch(fetchWellknownConfig(config.serverConfig.wellknown));
-
-      return {
-        success: true,
-      };
     },
   };
 }
