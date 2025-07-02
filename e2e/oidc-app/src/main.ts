@@ -43,20 +43,17 @@ async function app() {
     skipBackgroundRequest: true,
   });
 
-  const params = {
-    successParams: ['state', 'code', 'authCode'],
-    errorParams: ['error', 'error_description'],
-  };
+  // const params = {
+  //   successParams: ['state', 'code', 'authCode'],
+  //   errorParams: ['error', 'error_description'],
+  // };
 
-  const result = await oidcClient.authorize(
-    {
-      clientId: 'WebOAuthClient',
-      redirectUri: window.location.origin + '/',
-      responseType: 'code',
-      scope: 'openid',
-    },
-    params,
-  );
+  const result = await oidcClient.authorize({
+    clientId: 'WebOAuthClient',
+    redirectUri: window.location.origin + '/',
+    responseType: 'code',
+    scope: 'openid',
+  });
 
   if (typeof result === 'string') {
     console.log('Authorization URL:', result);

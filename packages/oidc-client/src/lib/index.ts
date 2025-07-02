@@ -6,7 +6,6 @@ import {
 } from '@forgerock/sdk-oidc';
 import { store } from './store.js';
 import { fetchWellKnownConfig } from './wellknown.slice.js';
-import { authorizeSlice } from './authorize.slice.js';
 
 interface OIDCConfig {
   prefix?: string;
@@ -16,6 +15,25 @@ interface OIDCConfig {
   };
   responseType: 'code' | 'token';
 }
+
+interface AuthorizeSuccessResponse {
+  code: string;
+  state: string;
+}
+
+interface AuthorizeUrlResponse {
+  authorizeUrl: string;
+}
+
+interface AuthorizeErrorResponse {
+  error: string;
+  error_description?: string;
+  state?: string;
+}
+
+type AuthorizeResponse = AuthorizeSuccessResponse | AuthorizeUrlResponse | AuthorizeErrorResponse;
+
+export type { AuthorizeSuccessResponse, AuthorizeErrorResponse, AuthorizeResponse, OIDCConfig };
 
 export function initialize(config: OIDCConfig) {
   const iframeMgr = iFrameManager();
@@ -31,12 +49,8 @@ export function initialize(config: OIDCConfig) {
   return {
     authorize: async (
       options: GetAuthorizationUrlOptions,
-      params: {
-        successParams: string[];
-        errorParams: string[];
-      },
       timeout = 3000,
-    ) => {
+    ): Promise<AuthorizeResponse | { error: string }> => {
       const { data, error } = await store.dispatch(
         fetchWellKnownConfig.endpoints.fetchWellKnownConfig.initiate(wellKnownUrl),
       );
@@ -51,58 +65,72 @@ export function initialize(config: OIDCConfig) {
       const authorizeUrl = await createAuthorizeUrl(authorizePath, options);
 
       if (config.skipBackgroundRequest) {
-        // Would we actually want to do this?
-        // I wonder if we should just return the authorizeUrl
-        // and let the user handle the redirect themselves.
-        // this follows our pattern of not taking some actions on behalf of the app.
-        const { data, error } = await store.dispatch(
-          authorizeSlice.endpoints.handleAuthorize.initiate(authorizeUrl),
-        );
-        if (error || !data) {
-          return {
-            err: `Error handling authorize request`,
-          };
-        }
-        console.log('the data here', data);
-
-        return data;
+        return {
+          authorizeUrl,
+        };
       }
 
-      const { successParams, errorParams } = params;
+      try {
+        const resolvedParams = await iframeMgr.getParamsByRedirect({
+          url: authorizeUrl,
+          successParams: ['code', 'state'],
+          errorParams: ['error', 'error_description'],
+          timeout,
+        });
 
-      const resolvedParams = iframeMgr.getParamsByRedirect({
-        url: authorizeUrl,
-        successParams,
-        errorParams,
-        timeout,
-      });
-
-      /***
-       * Not sure if we intended to handle the state matching check
-       * or if we should just return to the user the state?
-       * we currently don't have a way to pass the state back to the user
-       * so we will return the resolvedParams, which will include the state.
-       */
-      if ('state' in resolvedParams) {
-        /**
-         * Using this function removes state from sessionStorage
-         * so we can check the state against the stored value.
-         * If the state matches, we return the resolvedParams.
-         * If the state does not match, we return an error object.
-         */
-        const storedValues = getStoredAuthUrlValues(options.clientId, config.prefix);
-
-        /**
-         * if we have state in our stored values, we should check it against the resolvedParams
-         */
-        if ('state' in storedValues && storedValues.state != resolvedParams.state) {
+        if ('error' in resolvedParams) {
           return {
-            err: 'state mismatch found between stored state and authorize response',
+            error: resolvedParams.error,
+            error_description: resolvedParams.error_description,
+            state: resolvedParams.state,
           };
         }
+
+        if ('code' in resolvedParams && 'state' in resolvedParams) {
+          const storedValues = getStoredAuthUrlValues(options.clientId, config.prefix);
+
+          if ('state' in storedValues && storedValues.state !== resolvedParams.state) {
+            return {
+              error: 'invalid_state',
+              error_description: 'State mismatch found between stored state and authorize response',
+            };
+          }
+
+          return {
+            code: resolvedParams.code,
+            state: resolvedParams.state,
+          };
+        }
+
+        return {
+          error: 'invalid_response',
+          error_description: 'Missing required parameters in authorization response',
+        };
+      } catch (iframeError: unknown) {
+        return {
+          error: 'iframe_error',
+          error_description: (iframeError as Error)?.message || 'Authorization iframe failed',
+        };
+      }
+    },
+
+    createAuthorizeUrl: async (
+      options: GetAuthorizationUrlOptions,
+    ): Promise<{ authorizeUrl: string } | { error: string }> => {
+      const { data, error } = await store.dispatch(
+        fetchWellKnownConfig.endpoints.fetchWellKnownConfig.initiate(wellKnownUrl),
+      );
+
+      if (error || !data) {
+        return {
+          error: `Error fetching wellknown config`,
+        };
       }
 
-      return resolvedParams;
+      const authorizePath = data.authorization_endpoint;
+      const authorizeUrl = await createAuthorizeUrl(authorizePath, options);
+
+      return { authorizeUrl };
     },
   };
 }
