@@ -32,6 +32,7 @@ import type {
   MultiSelectCollector,
   ObjectValueCollectors,
   PhoneNumberInputValue,
+  AutoCollectors,
 } from './collector.types.js';
 import type {
   InitFlow,
@@ -227,11 +228,15 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
     /**
      * @method update - Exclusive method for updating the current node with user provided values
-     * @param {SingleValueCollector} collector - the collector to update
+     * @param {SingleValueCollector | MultiSelectCollector | ObjectValueCollectors | AutoCollectors} collector - the collector to update
      * @returns {function} - a function to call for updating collector value
      */
     update: (
-      collector: SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors,
+      collector:
+        | SingleValueCollectors
+        | MultiSelectCollector
+        | ObjectValueCollectors
+        | AutoCollectors,
     ): Updater => {
       if (!collector.id) {
         return handleUpdateValidateError(
@@ -259,10 +264,11 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         collectorToUpdate.category !== 'MultiValueCollector' &&
         collectorToUpdate.category !== 'SingleValueCollector' &&
         collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
-        collectorToUpdate.category !== 'ObjectValueCollector'
+        collectorToUpdate.category !== 'ObjectValueCollector' &&
+        collectorToUpdate.category !== 'SingleValueAutoCollector'
       ) {
         return handleUpdateValidateError(
-          'Collector is not a MultiValueCollector, SingleValueCollector or ValidatedSingleValueCollector and cannot be updated',
+          'Collector is not a MultiValueCollector, SingleValueCollector, ValidatedSingleValueCollector, ObjectValueCollector, or SingleValueAutoCollector and cannot be updated',
           'state_error',
           log.error,
         );

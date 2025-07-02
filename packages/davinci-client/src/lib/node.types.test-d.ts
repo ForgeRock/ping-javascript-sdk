@@ -32,6 +32,7 @@ import {
   DeviceAuthenticationCollector,
   PhoneNumberCollector,
   UnknownCollector,
+  ProtectCollector,
 } from './collector.types.js';
 // ErrorDetail and Links are used as part of the DaVinciError and server._links types respectively
 
@@ -230,6 +231,7 @@ describe('Node Types', () => {
         | ReadOnlyCollector
         | SingleSelectCollector
         | ValidatedTextCollector
+        | ProtectCollector
         | UnknownCollector
       >();
 
