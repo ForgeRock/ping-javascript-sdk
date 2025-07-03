@@ -112,3 +112,25 @@ jobs:
           folder: docs
           commit-message: 'chore: release-api-docs-beta'
           target-folder: 'beta' # we push to beta folder when we are updating "main"
+
+      # Calculate and save baseline bundle sizes
+      - name: Calculate baseline bundle sizes
+        run: |
+          chmod +x ./scripts/bundle-sizes.sh
+
+          # Don't use any previous baseline for main branch - always create fresh
+          rm -f previous_sizes.json
+
+          echo "📊 Calculating fresh baseline bundle sizes for main branch"
+          ./scripts/bundle-sizes.sh
+
+          echo "✅ Baseline bundle sizes calculated"
+          cat previous_sizes.json
+
+      # Save baseline for PR comparisons
+      - name: Upload baseline bundle sizes
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-size-baseline
+          path: previous_sizes.json
+          retention-days: 30 # Keep baseline for 30 days
