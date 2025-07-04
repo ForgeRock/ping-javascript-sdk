@@ -10,6 +10,12 @@
       "path": "../sdk-types"
     },
     {
+      "path": "../sdk-effects/oidc"
+    },
+    {
+      "path": "../sdk-effects/iframe-manager"
+    },
+    {
       "path": "./tsconfig.lib.json"
     },
     {
