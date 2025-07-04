@@ -4,12 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Schema } from '@effect/schema';
+import { Layer, Schema } from 'effect';
 import { Effect, Context } from 'effect';
-import { HttpError } from 'effect-http';
 
 import { userInfoResponse } from '../responses/userinfo/userinfo.js';
 import { UserInfoSchema } from '../schemas/userinfo/userinfo.schema.js';
+import { HttpApiError } from '@effect/platform';
 
 /***
  * This file should be converted to a Layer that uses Request
@@ -17,44 +17,25 @@ import { UserInfoSchema } from '../schemas/userinfo/userinfo.schema.js';
 
 type UserInfoResponse = Schema.Schema.Type<typeof UserInfoSchema>;
 
-function live<Headers = object>(bearerToken: string, headers: Headers) {
-  return Effect.tryPromise({
-    try: (signal) =>
-      fetch('/userinfo', {
-        signal,
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          ...headers,
-        },
-      }),
-    catch: () => HttpError.unauthorized('failure to get userinfo'),
-  }).pipe(
-    Effect.tryMapPromise({
-      try: (response) => response.json() as PromiseLike<UserInfoResponse>,
-      catch: () => HttpError.internalServerError('failure to parse the response body of user info'),
-    }),
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function mock<Headers = object>(bearerToken: string, headers: Headers) {
-  return Effect.tryPromise({
-    try: () => Promise.resolve(userInfoResponse),
-    catch: () => HttpError.unauthorized('failure to get user info'),
-  });
-}
 class UserInfo extends Context.Tag('@services/userinfo')<
   UserInfo,
-  { getUserInfo: typeof live }
+  {
+    getUserInfo: (
+      token: string,
+    ) => Effect.Effect<UserInfoResponse, HttpApiError.Unauthorized, never>;
+  }
 >() {}
 
-const userInfoLive = UserInfo.of({
-  getUserInfo: live,
-});
+const UserInfoMockService = Layer.succeed(
+  UserInfo,
+  UserInfo.of({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getUserInfo: (_: string) =>
+      Effect.tryPromise({
+        try: () => Promise.resolve(userInfoResponse),
+        catch: () => new HttpApiError.Unauthorized(),
+      }),
+  }),
+);
 
-const userInfoMock = UserInfo.of({
-  getUserInfo: mock,
-});
-
-export { UserInfo, userInfoLive, userInfoMock };
+export { UserInfo, UserInfoMockService };
