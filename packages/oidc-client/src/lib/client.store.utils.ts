@@ -1,36 +1,38 @@
-import type { ResolvedParams } from '@forgerock/iframe-manager';
-import { createAuthorizeUrl, GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
-export async function handleAuthorize(authorizeUrl: string) {
-  const response = await fetch(authorizeUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+import { configureStore } from '@reduxjs/toolkit';
+import { wellknownApi } from './wellknown.api.js';
+
+export function createClientStore<ActionType extends ActionTypes>({
+  requestMiddleware,
+  logger,
+}: {
+  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
+  logger?: ReturnType<typeof loggerFn>;
+}) {
+  return configureStore({
+    reducer: {
+      [wellknownApi.reducerPath]: wellknownApi.reducer,
     },
-    credentials: 'include',
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        thunk: {
+          extraArgument: {
+            /**
+             * This becomes the `api.extra` argument, and will be passed into the
+             * customer query wrapper for `baseQuery`
+             */
+            requestMiddleware,
+            logger,
+          },
+        },
+      }).concat(wellknownApi.middleware),
   });
-
-  const body = await response.json();
-
-  if ('authorizeResponse' in body) {
-    return body.authorizeResponse;
-  }
-  return {
-    error: 'invalid_response',
-    error_description: 'Missing code or state in authorization response after redirect',
-  };
 }
 
-export async function recreateAuthorizeUrl(
-  resolvedParams: ResolvedParams,
-  authorizePath: string,
-  options: GetAuthorizationUrlOptions,
-) {
-  const newAuthorizeUrl = await createAuthorizeUrl(authorizePath, options);
-  return {
-    error: resolvedParams.error,
-    error_description: resolvedParams.error_description,
-    state: resolvedParams.state,
-    redirectUrl: newAuthorizeUrl,
-  };
-}
+type ClientStore = typeof createClientStore;
+
+export type RootState = ReturnType<ReturnType<ClientStore>['getState']>;
+
+export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;
