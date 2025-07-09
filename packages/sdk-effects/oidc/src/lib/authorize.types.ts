@@ -28,6 +28,7 @@ export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   scope: string;
   redirectUri: string;
   responseType: ResponseType;
+  responseMode?: 'fragment' | 'form_post' | 'pi.flow' | 'query';
   state?: string;
   verifier?: string;
   query?: Record<string, string>;

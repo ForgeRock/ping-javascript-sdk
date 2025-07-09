@@ -17,9 +17,6 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../sdk-effects/storage/tsconfig.lib.json"
-    },
-    {
       "path": "../sdk-types/tsconfig.lib.json"
     },
     {
