@@ -18,7 +18,7 @@ export interface GetParamsFromIFrameOptions {
   errorParams: string[];
 }
 
-type ResolvedParams = Record<string, string>;
+export type ResolvedParams = Record<string, string>;
 
 type Noop = () => void;
 
@@ -48,7 +48,7 @@ function searchParamsToRecord(params: URLSearchParams): ResolvedParams {
  * Initializes the Iframe Manager effect.
  * @returns An object containing the API for managing iframe requests.
  */
-export default function iFrameManager() {
+export function iFrameManager() {
   /**
    * Creates a hidden iframe to navigate to the specified URL,
    * waits for a redirect back to the application's origin,
