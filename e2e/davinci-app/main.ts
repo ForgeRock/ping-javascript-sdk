@@ -13,13 +13,15 @@ import type {
   DaVinciConfig,
   DavinciClient,
   GetClient,
+  ProtectCollector,
   RequestMiddleware,
 } from '@forgerock/davinci-client/types';
+import { protect } from '@pingidentity/protect';
 
 import textComponent from './components/text.js';
 import passwordComponent from './components/password.js';
 import submitButtonComponent from './components/submit-button.js';
-import protect from './components/protect.js';
+import protectComponent from './components/protect.js';
 import flowLinkComponent from './components/flow-link.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 import { serverConfigs } from './server-configs.js';
@@ -77,9 +79,13 @@ const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
   const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
+  const protectAPI = await protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: any;
+
+  // Initialize Protect
+  await protectAPI.start();
 
   if (continueToken) {
     resumed = await davinciClient.resume({ continueToken });
@@ -186,11 +192,12 @@ const urlParams = new URLSearchParams(window.location.search);
     }
 
     const collectors = davinciClient.getCollectors();
+
     collectors.forEach((collector) => {
       if (collector.type === 'TextCollector' && collector.name === 'protectsdk') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
-        protect(
+        protectComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
           davinciClient.update(collector), // Returns an update function for this collector
@@ -238,7 +245,6 @@ const urlParams = new URLSearchParams(window.location.search);
           submitForm,
         );
       } else if (collector.type === 'IdpCollector') {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         socialLoginButtonComponent(formEl, collector, davinciClient.externalIdp());
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(
@@ -257,8 +263,21 @@ const urlParams = new URLSearchParams(window.location.search);
       }
     });
 
-    if (davinciClient.getCollectors().find((collector) => collector.name === 'protectsdk')) {
+    if (
+      davinciClient
+        .getCollectors()
+        .find((collector) => collector.type === 'TextCollector' && collector.name === 'protectsdk')
+    ) {
       submitForm();
+    }
+  }
+
+  async function updateProtectCollector(protectCollector: ProtectCollector) {
+    const data = await protectAPI.getData();
+    const updater = davinciClient.update(protectCollector);
+    const error = updater(data);
+    if (error && 'error' in error) {
+      console.error(error.error.message);
     }
   }
 
@@ -311,6 +330,15 @@ const urlParams = new URLSearchParams(window.location.search);
 
   formEl.addEventListener('submit', async (event) => {
     event.preventDefault();
+
+    // Evaluate Protect data
+    const protectCollector = davinciClient
+      .getCollectors()
+      .find((collector) => collector.type === 'ProtectCollector');
+    if (protectCollector) {
+      await updateProtectCollector(protectCollector);
+    }
+
     /**
      * We can just call `next` here and not worry about passing any arguments
      */

@@ -16,7 +16,8 @@
   "dependencies": {
     "@forgerock/davinci-client": "workspace:*",
     "@forgerock/javascript-sdk": "4.7.0",
-    "@forgerock/sdk-logger": "workspace:*"
+    "@forgerock/sdk-logger": "workspace:*",
+    "@pingidentity/protect": "workspace:*"
   },
   "devDependencies": {}
 }
