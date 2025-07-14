@@ -132,7 +132,7 @@
         "buildDepsTargetName": "vite:build-deps",
         "watchDepsTargetName": "vite:watch-deps"
       },
-      "include": ["packages/**/**/*", "e2e/**/**/*"]
+      "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"]
     }
   ],
   "parallel": 1,

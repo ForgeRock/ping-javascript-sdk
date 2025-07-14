@@ -13,6 +13,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
+    "@forgerock/pingone-scripts",
     "@forgerock/device-client",
     "@forgerock/device-client-app",
     "@forgerock/davinci-app",

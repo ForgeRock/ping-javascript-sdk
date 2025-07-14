@@ -1,8 +1,8 @@
 {
-  "name": "@forgerock/user-scripts",
+  "name": "@forgerock/pingone-scripts",
   "version": "0.0.0",
   "private": true,
-  "description": "User scripts for the Ping JavaScript SDK",
+  "description": "Scripts for interacting with PingOne",
   "keywords": [],
   "license": "ISC",
   "author": "",
@@ -16,15 +16,20 @@
   "overrides": {
     "@effect/platform": "^0.88.0",
     "@effect/platform-node": "^0.90.0",
-    "effect": "^3.16.0"
+    "@effect/vitest": "^0.24.0",
+    "effect": "^3.16.0",
+    "vitest": "3.2.4"
   },
   "dependencies": {
     "@effect/platform": "^0.88.0",
     "@effect/platform-node": "^0.90.0",
-    "effect": "^3.16.0"
+    "effect": "^3.16.0",
+    "vitest": "3.2.4"
   },
   "devDependencies": {
-    "@effect/language-service": "^0.26.0"
+    "@effect/language-service": "^0.26.0",
+    "@effect/vitest": "^0.24.0",
+    "vitest": "3.2.4"
   },
   "nx": {
     "tags": ["scope:tool"],
@@ -34,7 +39,7 @@
         "outputs": ["{options.outputPath}"],
         "options": {
           "outputPath": "dist",
-          "main": "index.js",
+          "main": "src/index.ts",
           "tsConfig": "tsconfig.app.json",
           "generatePackageJson": true
         }
