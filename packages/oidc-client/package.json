@@ -31,7 +31,8 @@
     "@forgerock/sdk-oidc": "workspace:*",
     "@forgerock/sdk-request-middleware": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",
-    "@reduxjs/toolkit": "catalog:"
+    "@reduxjs/toolkit": "catalog:",
+    "effect": "^3.12.7"
   },
   "nx": {
     "tags": ["scope:package"]
