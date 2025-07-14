@@ -118,7 +118,7 @@
       "options": {
         "targetName": "nxLint"
       },
-      "include": ["e2e/**/**/*", "packages/**/**/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"]
     },
     {
       "plugin": "@nx/vite/plugin",
@@ -143,13 +143,10 @@
   "generators": {
     "@nx/js:library": {
       "outDir": "{projectRoot}/dist",
-      "bundler": "tsc",
-      "linter": "eslint",
       "unitTestRunner": "vitest"
     },
     "@nx/web:application": {
       "style": "css",
-      "linter": "eslint",
       "unitTestRunner": "none",
       "e2eTestRunner": "playwright"
     }
