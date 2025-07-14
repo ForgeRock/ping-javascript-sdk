@@ -63,6 +63,9 @@
     },
     {
       "path": "./packages/protect"
+    },
+    {
+      "path": "./tools/user-scripts"
     }
   ]
 }

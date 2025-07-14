@@ -1,9 +1,9 @@
 import { Effect } from 'effect';
-import { UserServer } from './lib/user-scripts.js';
+import { UserRuntime, UserService } from './lib/user-scripts.js';
 
-export const deleteUser = (userId: string, accessToken: string) =>
-  UserServer.pipe(
-    Effect.flatMap((userService) => userService.deleteUser(userId, accessToken)),
-    Effect.provide(UserServer.Default),
-    Effect.runPromise,
+export const deleteUser = (baseUrl: string, envId: string, userId: string, accessToken: string) =>
+  UserRuntime.runPromise(
+    UserService.pipe(
+      Effect.flatMap((userService) => userService.deleteUser(baseUrl, envId, userId, accessToken)),
+    ),
   );
