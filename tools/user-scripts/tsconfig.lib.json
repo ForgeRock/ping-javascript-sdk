@@ -3,7 +3,8 @@
   "files": [],
   "include": ["**/*.ts"],
   "compilerOptions": {
-    "rootDir": ".",
+    "outDir": "dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "target": "ES2024",

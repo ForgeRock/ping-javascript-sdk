@@ -3,13 +3,20 @@
   "files": [],
   "include": ["**/*.ts"],
   "compilerOptions": {
-    "rootDir": ".",
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "target": "ES2024",
-    "strict": true
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true
   },
   "nx": {
     "addTypecheckTarget": false
-  }
+  },
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
 }

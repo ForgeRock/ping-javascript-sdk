@@ -7,6 +7,7 @@
   "license": "ISC",
   "author": "",
   "main": "./dist/index.js",
+  "files": ["dist", "!dist/.tsbuildinfo"],
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
