@@ -6,7 +6,7 @@
   "keywords": [],
   "license": "ISC",
   "author": "",
-  "main": "./dist/index.js",
+  "main": "./dist/src/index.js",
   "files": ["dist", "!dist/.tsbuildinfo"],
   "scripts": {
     "build": "pnpm nx nxBuild",
@@ -29,22 +29,9 @@
   },
   "devDependencies": {
     "@effect/language-service": "^0.26.0",
-    "@effect/vitest": "^0.24.0",
-    "vitest": "3.2.4"
+    "@effect/vitest": "^0.24.0"
   },
   "nx": {
-    "tags": ["scope:tool"],
-    "targets": {
-      "build": {
-        "executor": "@nx/js:tsc",
-        "outputs": ["{options.outputPath}"],
-        "options": {
-          "outputPath": "dist",
-          "main": "src/index.ts",
-          "tsConfig": "tsconfig.app.json",
-          "generatePackageJson": true
-        }
-      }
-    }
+    "tags": ["scope:tool"]
   }
 }

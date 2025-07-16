@@ -1,14 +1,36 @@
 {
   "extends": "../../tsconfig.base.json",
   "files": [],
-  "include": ["**/*.ts"],
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "vitest.config.ts",
+    "src/**/*.*.test-d.ts",
+    "src/**/*.test-d.ts",
+    "vite.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.*test.ts",
+    "src/**/*.test-d.ts",
+    "src/**/*.types.test-d.ts",
+    "src/**/*.utils.test-d.ts",
+    "src/lib/mock-data/*"
+  ],
   "compilerOptions": {
-    "outDir": "dist",
-    "tsBuildInfoFile": "./dist/.tsbuildinfo",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "nodenext",
     "module": "NodeNext",
-    "target": "ES2024",
+    "target": "ES2022",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
     "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": true,
+    "declaration": true,
+    "declarationMap": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "lib": ["es2022", "dom", "dom.iterable"],
     "plugins": [
       {
         "name": "@effect/language-service",
@@ -18,5 +40,6 @@
   },
   "nx": {
     "addTypecheckTarget": false
-  }
+  },
+  "references": []
 }

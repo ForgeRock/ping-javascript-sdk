@@ -4,8 +4,13 @@ packages:
   - 'packages/utils/*'
   - '!**/test/**'
   - 'e2e/*'
-  - tools/**
+  - tools/*
+  - 'scratchpad'
 
 catalog:
   '@reduxjs/toolkit': ^2.8.2
   immer: ^10.1.1
+
+catalogs:
+  effect:
+    '@effect/cli': ^0.67.1

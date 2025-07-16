@@ -103,7 +103,7 @@
           "configName": "tsconfig.lib.json"
         }
       },
-      "include": ["e2e/**/**/*", "packages/**/**/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"]
     },
     {
       "plugin": "@nx/playwright/plugin",

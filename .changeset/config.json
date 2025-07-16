@@ -13,6 +13,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
+    "scratchpad",
     "@forgerock/pingone-scripts",
     "@forgerock/device-client",
     "@forgerock/device-client-app",
