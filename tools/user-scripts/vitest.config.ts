@@ -6,6 +6,7 @@ export default defineConfig(() => ({
   plugins: [],
   test: {
     watch: false,
+    passWithNoTests: true,
     globals: true,
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],

@@ -14,9 +14,11 @@ export const CreateUserResponse = Schema.Struct({
     self: Schema.Struct({
       href: Schema.String,
     }),
-    environment: Schema.Struct({
-      href: Schema.String,
-    }),
+    environment: Schema.optional(
+      Schema.Struct({
+        href: Schema.String,
+      }),
+    ),
     population: Schema.Struct({
       href: Schema.String,
     }),
@@ -49,14 +51,16 @@ export const CreateUserResponse = Schema.Struct({
     }),
   }),
   id: Schema.String,
-  environment: Schema.Struct({
-    id: Schema.String,
-  }),
+  environment: Schema.optional(
+    Schema.Struct({
+      id: Schema.String,
+    }),
+  ),
   population: Schema.Struct({
     id: Schema.String,
   }),
   createdAt: Schema.String,
-  email: Schema.String,
+  email: Schema.optional(Schema.String),
   enabled: Schema.Boolean,
   lifecycle: Schema.Struct({
     status: Schema.String,
@@ -70,6 +74,7 @@ export const CreateUserResponse = Schema.Struct({
   updatedAt: Schema.String,
   username: Schema.String,
 });
+
 export const getUsersResponse = Schema.Struct({
   _links: Schema.Struct({
     self: Schema.Struct({
@@ -110,31 +115,41 @@ export const getUsersResponse = Schema.Struct({
             href: Schema.String,
           }),
         }),
-        _embedded: Schema.Struct({
-          password: Schema.Struct({
-            environment: Schema.Struct({
-              id: Schema.String,
+        _embedded: Schema.optional(
+          Schema.Struct({
+            password: Schema.Struct({
+              environment: Schema.optional(
+                Schema.Struct({
+                  id: Schema.String,
+                }),
+              ),
+              user: Schema.optional(
+                Schema.Struct({
+                  id: Schema.String,
+                }),
+              ),
+              passwordPolicy: Schema.optional(
+                Schema.Struct({
+                  id: Schema.String,
+                }),
+              ),
+              status: Schema.String,
+              lastChangedAt: Schema.optional(Schema.String),
             }),
-            user: Schema.Struct({
-              id: Schema.String,
-            }),
-            passwordPolicy: Schema.Struct({
-              id: Schema.String,
-            }),
-            status: Schema.String,
-            lastChangedAt: Schema.String,
           }),
-        }),
+        ),
         id: Schema.String,
-        environment: Schema.Struct({
-          id: Schema.String,
-        }),
+        environment: Schema.optional(
+          Schema.Struct({
+            id: Schema.String,
+          }),
+        ),
         account: Schema.Struct({
           canAuthenticate: Schema.Boolean,
           status: Schema.String,
         }),
         createdAt: Schema.String,
-        email: Schema.String,
+        email: Schema.optional(Schema.String),
         enabled: Schema.Boolean,
         identityProvider: Schema.Struct({
           type: Schema.String,
@@ -149,10 +164,12 @@ export const getUsersResponse = Schema.Struct({
           status: Schema.String,
         }),
         mfaEnabled: Schema.Boolean,
-        name: Schema.Struct({
-          given: Schema.String,
-          family: Schema.String,
-        }),
+        name: Schema.optional(
+          Schema.Struct({
+            given: Schema.optional(Schema.String),
+            family: Schema.optional(Schema.String),
+          }),
+        ),
         population: Schema.Struct({
           id: Schema.String,
         }),
@@ -164,4 +181,9 @@ export const getUsersResponse = Schema.Struct({
   }),
   count: Schema.Number,
   size: Schema.Number,
+});
+export const TokenResponse = Schema.Struct({
+  access_token: Schema.String,
+  token_type: Schema.String,
+  expires_in: Schema.Number,
 });

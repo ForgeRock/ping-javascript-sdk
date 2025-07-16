@@ -4,7 +4,8 @@ packages:
   - 'packages/utils/*'
   - '!**/test/**'
   - 'e2e/*'
-  - tools/**
+  - tools/*
+  - 'scratchpad'
 
 catalog:
   '@reduxjs/toolkit': ^2.8.2
@@ -12,9 +13,9 @@ catalog:
 
 catalogs:
   effect:
-    'effect': '^3.16.5'
-    '@effect/cli': '^0.66.0'
+    'effect': '^3.12.7'
     '@effect/language-service': '^0.23.0'
-    '@effect/platform': '0.84.9'
-    '@effect/platform-node': '0.85.14'
+    '@effect/platform': '^0.84.9'
+    '@effect/platform-node': '^0.85.14'
     '@effect/vitest': '^0.23.9'
+    '@effect/cli': ^0.67.1

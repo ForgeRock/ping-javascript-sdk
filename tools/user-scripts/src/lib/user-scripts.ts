@@ -1,7 +1,7 @@
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
-import { Data, Effect, ManagedRuntime } from 'effect';
+import { Config, Data, Effect, ManagedRuntime } from 'effect';
 import { NodeHttpClient } from '@effect/platform-node';
-import { getUsersResponse } from './schemas.js';
+import { getUsersResponse, TokenResponse } from './schemas.js';
 
 export class UnexpectedStatus extends Data.TaggedError('UnExpectedStatus')<{
   message: string;
@@ -23,41 +23,56 @@ export class DeleteUserError extends Data.TaggedError('DeleteUserError')<{
   cause: string;
 }> {}
 
+export class FailureToAcquireToken extends Data.TaggedError('FailureToAcquireToken')<{
+  message: string;
+  cause: string;
+}> {}
+
 export class UserService extends Effect.Service<UserService>()('@users/service', {
   dependencies: [NodeHttpClient.layerUndici],
   effect: Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
+    const clientId = yield* Config.string('CLIENT_ID');
+    const clientSecret = yield* Config.string('CLIENT_SECRET');
+    const envId = yield* Config.string('ENV_ID');
+    const AUTH_URL = yield* Config.string('AUTH_URL');
+    const API_URL = yield* Config.string('API_URL');
+
+    const tokenResponse = yield* HttpClientRequest.post(AUTH_URL).pipe(
+      HttpClientRequest.setHeader('Content-Type', 'application/x-www-form-urlencoded'),
+      HttpClientRequest.appendUrl(`/${envId}/as/token`),
+      HttpClientRequest.setUrlParam('grant_type', 'client_credentials'),
+      HttpClientRequest.setHeader('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`),
+      client.execute,
+      Effect.flatMap(HttpClientResponse.filterStatusOk),
+      Effect.flatMap(HttpClientResponse.schemaBodyJson(TokenResponse)),
+    );
 
     return {
-      deleteUser: (baseUrl: string, envId: string, userId: string, accessToken: string) =>
+      deleteUser: (userId: string) =>
         Effect.gen(function* () {
-          const response = yield* HttpClientRequest.post(baseUrl)
-            .pipe(
-              HttpClientRequest.setHeader('Content-Type', 'application/json'),
-              HttpClientRequest.setMethod('DELETE'),
-              HttpClientRequest.appendUrl(`/environments/${envId}/users/${userId}`),
-              HttpClientRequest.bearerToken(accessToken),
-              client.execute,
-              Effect.flatMap(HttpClientResponse.filterStatusOk),
-            )
-            .pipe(
-              Effect.catchTag('ResponseError', (e) =>
-                Effect.fail(
-                  new DeleteUserError({
-                    message: `Failed to delete user, error in response: ${e}`,
-                    cause: e.message,
-                  }),
-                ),
+          const response = yield* HttpClientRequest.del(API_URL).pipe(
+            HttpClientRequest.appendUrl(`/v1/environments/${envId}/users/${userId}`),
+            HttpClientRequest.bearerToken(tokenResponse.access_token),
+            client.execute,
+            Effect.flatMap(HttpClientResponse.filterStatusOk),
+            Effect.catchTag('ResponseError', (e) =>
+              Effect.fail(
+                new DeleteUserError({
+                  message: `Failed to delete user, error in response: ${e}`,
+                  cause: e.message,
+                }),
               ),
-              Effect.catchTag('RequestError', (e) =>
-                Effect.fail(
-                  new DeleteUserError({
-                    message: `Failed to delete user, error in request: ${e}`,
-                    cause: e.message,
-                  }),
-                ),
+            ),
+            Effect.catchTag('RequestError', (e) =>
+              Effect.fail(
+                new DeleteUserError({
+                  message: `Failed to delete user, error in request: ${e}`,
+                  cause: e.message,
+                }),
               ),
-            );
+            ),
+          );
 
           /**
            * Docs says we should expect a 204 response for success
@@ -73,49 +88,16 @@ export class UserService extends Effect.Service<UserService>()('@users/service',
 
           return response;
         }),
-      getUsers: (
-        baseUrl: string,
-        envId: string,
-        accessToken: string,
-        filterTerm: string,
-        query: string,
-      ) =>
-        HttpClientRequest.get(baseUrl)
-          .pipe(
-            HttpClientRequest.setHeader('Content-Type', 'application/json'),
-            HttpClientRequest.appendUrl(`/environments/${envId}/users`),
-            HttpClientRequest.appendUrlParam('filter', `${filterTerm} eq "${query}"`),
-            HttpClientRequest.bearerToken(accessToken),
-            client.execute,
-            Effect.flatMap(HttpClientResponse.filterStatusOk),
-            Effect.flatMap(HttpClientResponse.schemaBodyJson(getUsersResponse)),
-          )
-          .pipe(
-            Effect.catchTag('ResponseError', (e) =>
-              Effect.fail(
-                new GetUsersError({
-                  message: `Failed to get users, error in response: ${e}`,
-                  cause: e.message,
-                }),
-              ),
-            ),
-            Effect.catchTag('RequestError', (e) =>
-              Effect.fail(
-                new GetUsersError({
-                  message: `Failed to get users, error in request: ${e}`,
-                  cause: e.message,
-                }),
-              ),
-            ),
-            Effect.catchTag('ParseError', (e) =>
-              Effect.fail(
-                new GetUsersError({
-                  message: `Failed to parse response for users: ${e}`,
-                  cause: e.message,
-                }),
-              ),
-            ),
-          ),
+      getUsers: (filterTerm: string, query: string) =>
+        HttpClientRequest.get(API_URL).pipe(
+          HttpClientRequest.setHeader('Content-Type', 'application/json'),
+          HttpClientRequest.appendUrl(`/v1/environments/${envId}/users`),
+          HttpClientRequest.appendUrlParam('filter', `${filterTerm} eq "${query}"`),
+          HttpClientRequest.bearerToken(tokenResponse.access_token),
+          client.execute,
+          Effect.flatMap(HttpClientResponse.filterStatusOk),
+          Effect.flatMap(HttpClientResponse.schemaBodyJson(getUsersResponse)),
+        ),
     };
   }),
 }) {}

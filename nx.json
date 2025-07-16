@@ -70,19 +70,19 @@
       "inputs": ["production", "^production"]
     },
     "preview": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^build"]
     },
     "serve:dev": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^build"]
     },
     "test:watch": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^test:watch"]
     },
     "test:coverage": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^test:coverage"],
       "outputs": ["{projectRoot}/./coverage"],
       "cache": true
@@ -103,7 +103,7 @@
           "configName": "tsconfig.lib.json"
         }
       },
-      "include": ["e2e/**/**/*", "packages/**/**/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"]
     },
     {
       "plugin": "@nx/playwright/plugin",

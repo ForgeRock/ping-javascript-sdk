@@ -1,0 +1,15 @@
+{
+  "keep": {
+    "days": true,
+    "amount": 14
+  },
+  "auditLog": "/Users/ryan.basmajian/programming/ping-javascript-sdk/scratchpad/logs/.064038e150928591711bbc599375c67ff8c2d941-audit.json",
+  "files": [
+    {
+      "date": 1752851759539,
+      "name": "/Users/ryan.basmajian/programming/ping-javascript-sdk/scratchpad/logs/mcp-puppeteer-2025-07-18.log",
+      "hash": "2dcdd0c232d90f00ee72fc300e425501a6beedf6d7eb12ce6b38bfb875fd4341"
+    }
+  ],
+  "hashType": "sha256"
+}
