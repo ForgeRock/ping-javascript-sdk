@@ -26,7 +26,7 @@ async function app() {
 
     if ('error' in response) {
       console.error('Authorization Error:', response);
-      window.location.assign(response.redirectUrl);
+      // window.location.assign(response.redirectUrl);
       return;
     } else if ('code' in response) {
       console.log('Authorization Code:', response.code);
