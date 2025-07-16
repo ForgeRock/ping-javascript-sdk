@@ -4,4 +4,8 @@
 '@forgerock/oidc-client': minor
 ---
 
-authorize functionality in oidc-client
+Implement authorize functionality in oidc-client
+
+- Provide authorize URL method for URL creation
+- Provide background method for authorization without redirection
+- Introduce Micro from the Effect package

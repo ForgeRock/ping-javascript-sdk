@@ -116,7 +116,7 @@ export function iFrameManager() {
               // 1. Check for Error Parameters
               if (hasErrorParams(searchParams, errorParams)) {
                 cleanup();
-                resolve(parsedParams); // Reject with all parsed params for context
+                reject(parsedParams); // Reject with all parsed params for context
                 return;
               }
 

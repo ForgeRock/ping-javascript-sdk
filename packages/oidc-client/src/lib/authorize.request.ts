@@ -1,87 +1,70 @@
-import { iFrameManager } from '@forgerock/iframe-manager';
-import { createAuthorizeUrl, GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
+/*
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+import { CustomLogger } from '@forgerock/sdk-logger';
+import { GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
-import { createAuthorizeOptions, handleError, handleResponse } from './authorize.request.utils.js';
+import {
+  authorizeFetchµ,
+  createAuthorizeUrlµ,
+  authorizeIframeµ,
+  buildAuthorizeOptionsµ,
+  createAuthorizeErrorµ,
+} from './authorize.request.utils.js';
 
 import type { WellKnownResponse } from '@forgerock/sdk-types';
 
 import type { OidcConfig } from './config.types.js';
+import { AuthorizeErrorResponse, AuthorizeSuccessResponse } from './authorize.request.types.js';
 
-export async function authorize(
+export async function authorizeµ(
   wellknown: WellKnownResponse,
   config: OidcConfig,
+  log: CustomLogger,
   options?: GetAuthorizationUrlOptions,
 ) {
-  const authorizePath = wellknown.authorization_endpoint;
-  const optionsWithDefaults = createAuthorizeOptions(config, options);
-
-  let response: Record<string, unknown>;
-
-  try {
-    /**
-     * If we support the pi.flow field, this means we are using a PingOne server.
-     * PingOne servers do not support redirection through iframes because they
-     * set iframe's to DENY.
-     */
-    if (wellknown.response_modes_supported?.includes('pi.flow')) {
-      /**
-       * We need to make a post (or a get) request and both are supported by
-       * PingOne.
-       */
-      const authorizeUrlMicro = Micro.promise(() =>
-        createAuthorizeUrl(authorizePath, {
-          ...optionsWithDefaults,
-          prompt: 'none',
-          responseMode: 'pi.flow',
-        }),
-      );
-
-      const fetchMicro = (url: string) =>
-        Micro.promise(() =>
-          fetch(url, {
-            method: 'POST',
-            credentials: 'include',
+  return buildAuthorizeOptionsµ(wellknown, config, options).pipe(
+    Micro.flatMap(([url, config, options]) => createAuthorizeUrlµ(url, config, options)),
+    Micro.tap((url) => log.debug('Authorize URL created', url)),
+    Micro.tapError((url) => Micro.sync(() => log.error('Error creating authorize URL', url))),
+    Micro.flatMap(([url, config, options]) => {
+      if (options.responseMode === 'pi.flow') {
+        /**
+         * If we support the pi.flow field, this means we are using a PingOne server.
+         * PingOne servers do not support redirection through iframes because they
+         * set iframe's to DENY.
+         */
+        return authorizeFetchµ(url).pipe(
+          Micro.flatMap((response) => {
+            if ('authorizeResponse' in response) {
+              log.debug('Received authorize response', response.authorizeResponse);
+              return Micro.succeed(response.authorizeResponse);
+            }
+            log.error('Error in authorize response', response);
+            return Micro.fail(createAuthorizeErrorµ(response, wellknown, config, options));
           }),
         );
-
-      const authorizeRequest = authorizeUrlMicro.pipe(
-        Micro.flatMap(fetchMicro),
-        Micro.flatMap((response) => Micro.promise(response.json)),
-      );
-      response = await Micro.runPromise(authorizeRequest);
-    } else {
-      const authorizeUrlMicro = Micro.promise(() =>
-        createAuthorizeUrl(authorizePath, {
-          ...optionsWithDefaults,
-          prompt: 'none',
-        }),
-      );
-
-      const iframeMicro = (url: string) =>
-        Micro.promise(() =>
-          iFrameManager().getParamsByRedirect({
-            url,
-            /***
-             * https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2
-             * The client MUST ignore unrecognized response parameters.
-             */
-            successParams: ['code', 'state'],
-            errorParams: ['error', 'error_description'],
-            timeout: config.serverConfig.timeout || 3000,
+      } else {
+        /**
+         * If the response mode is not pi.flow, then we are likely using a traditional
+         * redirect based server supporting iframes. An example would be PingAM.
+         */
+        return authorizeIframeµ(url, config).pipe(
+          Micro.flatMap((response) => {
+            if ('code' in response && 'state' in response) {
+              log.debug('Received authorization code', response);
+              return Micro.succeed(response as unknown as AuthorizeSuccessResponse);
+            }
+            log.error('Error in authorize response', response);
+            const errorResponse = response as unknown as AuthorizeErrorResponse;
+            return Micro.fail(createAuthorizeErrorµ(errorResponse, wellknown, config, options));
           }),
         );
-
-      const authorizeRequest = authorizeUrlMicro.pipe(Micro.flatMap(iframeMicro));
-      response = await Micro.runPromise(authorizeRequest);
-    }
-
-    // Normalize response, for both success and failure, to handle both
-    // fetch and iframe
-    return await handleResponse(response, authorizePath, optionsWithDefaults);
-  } catch (error) {
-    // If an error occurs, we return an error response with the authorize URL
-    // so the application can handle the redirect.
-    return handleError(error, authorizePath, optionsWithDefaults);
-  }
+      }
+    }),
+  );
 }

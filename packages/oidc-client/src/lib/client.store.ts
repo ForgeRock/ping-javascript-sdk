@@ -1,17 +1,23 @@
+/*
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
 import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { exitIsSuccess } from 'effect/Micro';
 
+import { authorizeµ } from './authorize.request.js';
 import { createClientStore } from './client.store.utils.js';
+import { GenericError } from './error.types.js';
 import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 import type { OidcConfig } from './config.types.js';
-import { GenericError } from './error.types.js';
-import { authorize } from './authorize.request.js';
-import { AuthorizeErrorResponse, AuthorizeSuccessResponse } from './authorize.request.types.js';
-import { createAuthorizeOptions } from './authorize.request.utils.js';
+import { Micro } from 'effect';
 
 export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   config,
@@ -56,7 +62,13 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   return {
     authorize: {
       url: async (options?: GetAuthorizationUrlOptions): Promise<string | GenericError> => {
-        const optionsWithDefaults = createAuthorizeOptions(config, { ...options });
+        const optionsWithDefaults = {
+          clientId: config.clientId,
+          redirectUri: config.redirectUri,
+          scope: config.scope || 'openid',
+          responseType: config.responseType || 'code',
+          ...options,
+        };
 
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
@@ -74,9 +86,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
 
         return createAuthorizeUrl(wellknown.authorization_endpoint, optionsWithDefaults);
       },
-      background: async (
-        options?: GetAuthorizationUrlOptions,
-      ): Promise<AuthorizeSuccessResponse | AuthorizeErrorResponse | GenericError> => {
+      background: async (options?: GetAuthorizationUrlOptions) => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -91,7 +101,15 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           return err;
         }
 
-        return authorize(wellknown, config, options);
+        const result = await Micro.runPromiseExit(
+          await authorizeµ(wellknown, config, log, options),
+        );
+
+        if (exitIsSuccess(result)) {
+          return result.value;
+        } else {
+          return result.cause;
+        }
       },
     },
   };
