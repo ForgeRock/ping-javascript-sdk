@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../sdk-effects/storage"
+    },
+    {
       "path": "../sdk-types"
     },
     {
