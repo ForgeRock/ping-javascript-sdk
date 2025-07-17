@@ -2,6 +2,7 @@ import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-midd
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
 import { configureStore } from '@reduxjs/toolkit';
+import { oidcApi } from './oidc.api.js';
 import { wellknownApi } from './wellknown.api.js';
 
 export function createClientStore<ActionType extends ActionTypes>({
@@ -13,6 +14,7 @@ export function createClientStore<ActionType extends ActionTypes>({
 }) {
   return configureStore({
     reducer: {
+      [oidcApi.reducerPath]: oidcApi.reducer,
       [wellknownApi.reducerPath]: wellknownApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -27,7 +29,9 @@ export function createClientStore<ActionType extends ActionTypes>({
             logger,
           },
         },
-      }).concat(wellknownApi.middleware),
+      })
+        .concat(wellknownApi.middleware)
+        .concat(oidcApi.middleware),
   });
 }
 
