@@ -16,7 +16,7 @@ async function app() {
   // create object from URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
-  // const state = urlParams.get('state');
+  const state = urlParams.get('state');
   // get error and error_description if they exist
   const error = urlParams.get('error');
   // const errorDescription = urlParams.get('error_description');
@@ -26,10 +26,18 @@ async function app() {
 
     if ('error' in response) {
       console.error('Authorization Error:', response);
-      // window.location.assign(response.redirectUrl);
+      window.location.assign(response.redirectUrl);
       return;
     } else if ('code' in response) {
       console.log('Authorization Code:', response.code);
+    }
+  } else if (code && state) {
+    const response = await oidcClient.token.exchange(code, state);
+
+    if ('error' in response) {
+      console.error('Token Exchange Error:', response);
+    } else {
+      console.log('Token Exchange Response:', response);
     }
   }
 }
