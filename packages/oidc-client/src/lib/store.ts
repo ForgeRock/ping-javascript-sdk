@@ -2,7 +2,7 @@ import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-midd
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
 import { configureStore } from '@reduxjs/toolkit';
-import { fetchWellKnownConfig } from './wellknown.api.js';
+import { wellknownApi } from './wellknown.api.js';
 import { authorizeSlice } from './authorize.slice.js';
 
 export function createOidcStore<ActionType extends ActionTypes>({
@@ -14,7 +14,7 @@ export function createOidcStore<ActionType extends ActionTypes>({
 }) {
   return configureStore({
     reducer: {
-      [fetchWellKnownConfig.reducerPath]: fetchWellKnownConfig.reducer,
+      [wellknownApi.reducerPath]: wellknownApi.reducer,
       [authorizeSlice.reducerPath]: authorizeSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -30,7 +30,7 @@ export function createOidcStore<ActionType extends ActionTypes>({
           },
         },
       })
-        .concat(fetchWellKnownConfig.middleware)
+        .concat(wellknownApi.middleware)
         .concat(authorizeSlice.middleware),
   });
 }

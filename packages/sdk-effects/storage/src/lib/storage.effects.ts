@@ -6,9 +6,29 @@
  */
 import { CustomStorageObject } from '@forgerock/sdk-types';
 
-export interface StorageConfig {
-  storeType: CustomStorageObject | 'localStorage' | 'sessionStorage';
+export interface StorageClient<Value> {
+  get: () => Promise<Value | GenericError | null>;
+  set: (value: Value) => Promise<void | {
+    code: string;
+    message: string;
+    type: string;
+  }>;
+  remove: () => Promise<void>;
+}
+
+export type StorageConfig = BrowserStorageConfig | CustomStorageConfig;
+
+export interface BrowserStorageConfig {
+  type: 'localStorage' | 'sessionStorage';
   prefix?: string;
+  name: string;
+}
+
+export interface CustomStorageConfig {
+  type: 'custom';
+  prefix?: string;
+  name: string;
+  custom: CustomStorageObject;
 }
 
 export interface GenericError {
@@ -23,18 +43,18 @@ export interface GenericError {
     | 'unknown_error';
 }
 
-export function createStorage<Value>(
-  config: StorageConfig,
-  storageName: string,
-  customStore?: CustomStorageObject,
-) {
-  const { storeType, prefix = 'pic' } = config;
+export function createStorage<Value>(config: StorageConfig) {
+  const { type: storeType, prefix = 'pic', name } = config;
 
-  const key = `${prefix}-${storageName}`;
+  if (storeType === 'custom' && !('custom' in config)) {
+    throw new Error('Custom storage configuration must include a custom storage object');
+  }
+
+  const key = `${prefix}-${name}`;
   return {
     get: async function storageGet(): Promise<Value | GenericError | null> {
-      if (customStore) {
-        const value = await customStore.get(key);
+      if ('custom' in config) {
+        const value = await config.custom.get(key);
         if (value === null) {
           return value;
         }
@@ -83,9 +103,9 @@ export function createStorage<Value>(
     },
     set: async function storageSet(value: Value) {
       const valueToStore = JSON.stringify(value);
-      if (customStore) {
+      if ('custom' in config) {
         try {
-          await customStore.set(key, valueToStore);
+          await config.custom.set(key, valueToStore);
           return Promise.resolve();
         } catch {
           return {
@@ -119,8 +139,8 @@ export function createStorage<Value>(
       }
     },
     remove: async function storageSet() {
-      if (customStore) {
-        return await customStore.remove(key);
+      if ('custom' in config) {
+        return await config.custom.remove(key);
       }
       if (storeType === 'sessionStorage') {
         return await sessionStorage.removeItem(key);

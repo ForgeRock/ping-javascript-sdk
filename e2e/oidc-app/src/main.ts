@@ -30,6 +30,12 @@ async function app() {
       return;
     } else if ('code' in response) {
       console.log('Authorization Code:', response.code);
+      const tokenResponse = await oidcClient.token.exchange(response.code, response.state);
+      if ('error' in response) {
+        console.error('Token Exchange Error:', tokenResponse);
+      } else {
+        console.log('Token Exchange Response:', tokenResponse);
+      }
     }
   } else if (code && state) {
     const response = await oidcClient.token.exchange(code, state);

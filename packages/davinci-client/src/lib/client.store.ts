@@ -66,10 +66,10 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
   const store = createClientStore({ requestMiddleware, logger: log });
-  const serverInfo = createStorage<ContinueNode['server']>(
-    { storeType: 'localStorage' },
-    'serverInfo',
-  );
+  const serverInfo = createStorage<ContinueNode['server']>({
+    type: 'localStorage',
+    name: 'serverInfo',
+  });
   if (!config.serverConfig.wellknown) {
     const error = new Error(
       '`wellknown` property is a required as part of the `config.serverConfig`',

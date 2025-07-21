@@ -105,6 +105,7 @@ export function createAuthorizeErrorµ(
     try: async () => {
       const url = await createAuthorizeUrl(wellknown.authorization_endpoint, {
         ...options,
+        prompt: 'none',
       });
       return {
         error: res.error,
