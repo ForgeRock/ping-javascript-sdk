@@ -5,13 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
-import { createAuthorizeUrl, getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
-import { createStorage } from '@forgerock/storage';
+import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { createStorage, StorageConfig } from '@forgerock/storage';
 import { Micro } from 'effect';
-import { exitIsSuccess } from 'effect/Micro';
+import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ } from './authorize.request.js';
 import { createClientStore } from './client.store.utils.js';
+import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
 import { GenericError } from './error.types.js';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi, wellknownSelector } from './wellknown.api.js';
@@ -20,14 +21,14 @@ import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-midd
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 import type { OidcConfig } from './config.types.js';
-import { AuthorizeErrorResponse } from './authorize.request.types.js';
-import { TokenExchangeOptions } from './client.store.types.js';
-import { TokenRequestOptions } from './token.types.js';
+import type { AuthorizeErrorResponse } from './authorize.request.types.js';
+import type { TokenExchangeErrorResponse } from './exchange.types.js';
 
 export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
   logger,
+  storage,
 }: {
   config: OidcConfig;
   requestMiddleware?: RequestMiddleware<ActionType>[];
@@ -35,8 +36,14 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
     level: LogLevel;
     custom?: CustomLogger;
   };
+  storage?: Partial<StorageConfig>;
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
+  const storageClient = createStorage({
+    type: 'localStorage',
+    name: 'oidcTokens',
+    ...storage,
+  } as StorageConfig);
   const store = createClientStore({ requestMiddleware, logger: log });
 
   if (!config?.serverConfig?.wellknown) {
@@ -113,6 +120,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
 
         if (exitIsSuccess(result)) {
           return result.value;
+        } else if (exitIsFail(result)) {
+          return result.cause.error;
         } else {
           return {
             error: 'Authorization failure',
@@ -123,7 +132,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       },
     },
     token: {
-      exchange: async (code: string, state: string, options?: TokenExchangeOptions) => {
+      exchange: async (code: string, state: string, options?: Partial<StorageConfig>) => {
         const storeState = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, storeState);
 
@@ -138,50 +147,37 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           return err;
         }
 
-        // TODO: Validate state
-        const values = getStoredAuthUrlValues(config.clientId, options?.prefix);
-
-        if (values.state !== state) {
-          const err = {
-            error: 'State mismatch',
-            type: 'auth_error',
-          } as GenericError;
-
-          log.error(err.error);
-
-          return err;
-        }
-
-        const requestOptions: TokenRequestOptions = {
-          code,
-          config,
-          endpoint: wellknown.token_endpoint,
-        };
-        if (values.verifier) {
-          requestOptions.verifier = values.verifier;
-        }
-
-        const { data, error } = await store.dispatch(
-          oidcApi.endpoints.exchange.initiate(requestOptions),
+        const buildTokenExchangeµ = Micro.sync(() =>
+          createValuesµ(code, config, state, wellknown, options),
+        ).pipe(
+          Micro.flatMap((options) => validateValuesµ(options)),
+          Micro.flatMap((requestOptions) =>
+            Micro.promise(
+              async () => await store.dispatch(oidcApi.endpoints.exchange.initiate(requestOptions)),
+            ),
+          ),
+          Micro.flatMap(({ data, error }) => handleTokenResponseµ(data, error)),
+          Micro.flatMap((data) =>
+            Micro.promise(async () => {
+              await storageClient.set(data);
+              return data;
+            }),
+          ),
         );
 
-        if (error || !data) {
-          const err = {
-            error: 'Error exchanging token',
-            type: 'network_error',
-          } as GenericError;
+        const result = await Micro.runPromiseExit(buildTokenExchangeµ);
 
-          log.error(err.error);
-
-          return err;
+        if (exitIsSuccess(result)) {
+          return result.value;
+        } else if (exitIsFail(result) && 'error' in result.cause) {
+          return result.cause.error;
+        } else {
+          return {
+            error: 'Token Exchange failure',
+            message: result.cause.message,
+            type: 'exchange_error',
+          } as TokenExchangeErrorResponse;
         }
-
-        // TODO: handle response and errors; if success, store tokens and return them
-        createStorage({ storeType: 'localStorage' }, 'oidcTokens', options?.customStorage).set(
-          data,
-        );
-
-        return data;
       },
     },
   };

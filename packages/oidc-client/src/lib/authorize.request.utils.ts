@@ -45,8 +45,8 @@ export function authorizeFetchµ(url: string) {
 
 export function authorizeIframeµ(url: string, config: OidcConfig) {
   return Micro.tryPromise({
-    try: () =>
-      iFrameManager().getParamsByRedirect({
+    try: () => {
+      const params = iFrameManager().getParamsByRedirect({
         url,
         /***
          * https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2
@@ -55,15 +55,17 @@ export function authorizeIframeµ(url: string, config: OidcConfig) {
         successParams: ['code', 'state'],
         errorParams: ['error', 'error_description'],
         timeout: config.serverConfig.timeout || 3000,
-      }),
+      });
+      return params;
+    },
     catch: (err) => {
-      let message = 'Error fetching authorization URL';
+      let message = 'Error calling authorization URL';
       if (err instanceof Error) {
         message = err.message;
       }
 
       return {
-        error: 'Authorization Notwork Failure',
+        error: 'Authorization Network Failure',
         error_description: message,
         type: 'auth_error',
       } as AuthorizeErrorResponse;
@@ -102,17 +104,10 @@ export function createAuthorizeErrorµ(
   options: GetAuthorizationUrlOptions,
 ) {
   return Micro.tryPromise({
-    try: async () => {
-      const url = await createAuthorizeUrl(wellknown.authorization_endpoint, {
+    try: () =>
+      createAuthorizeUrl(wellknown.authorization_endpoint, {
         ...options,
-      });
-      return {
-        error: res.error,
-        error_description: res.error_description,
-        type: 'auth_error',
-        redirectUrl: url,
-      } as AuthorizeErrorResponse;
-    },
+      }),
     catch: (error) => {
       let message = 'Error creating authorization URL';
       if (error instanceof Error) {
@@ -124,7 +119,16 @@ export function createAuthorizeErrorµ(
         type: 'auth_error',
       } as AuthorizeErrorResponse;
     },
-  });
+  }).pipe(
+    Micro.flatMap((url) => {
+      return Micro.fail({
+        error: res.error,
+        error_description: res.error_description,
+        type: 'auth_error',
+        redirectUrl: url,
+      } as AuthorizeErrorResponse);
+    }),
+  );
 }
 
 export function createAuthorizeUrlµ(

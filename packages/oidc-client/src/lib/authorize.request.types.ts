@@ -14,5 +14,5 @@ export interface AuthorizeErrorResponse {
   error: string;
   error_description: string;
   redirectUrl?: string; // URL to redirect the user to for re-authorization
-  type: 'auth_error' | 'wellknown_error' | 'network_error' | 'unknown_error';
+  type: 'auth_error' | 'argument_error' | 'wellknown_error';
 }

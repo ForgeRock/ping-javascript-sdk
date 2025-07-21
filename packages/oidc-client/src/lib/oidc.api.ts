@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { OidcConfig } from './config.types.js';
-import { TokenExchangeResponse } from './token.types.js';
+import { TokenExchangeResponse } from './exchange.types.js';
 
 export const oidcApi = createApi({
   reducerPath: 'oidc',
@@ -37,6 +37,15 @@ export const oidcApi = createApi({
           },
           body,
         };
+      },
+      transformResponse: (res) => {
+        if (!res || typeof res !== 'object') {
+          throw new Error('Invalid response from token exchange');
+        }
+        if ('access_token' in res) {
+          return res as TokenExchangeResponse;
+        }
+        throw new Error('Token exchange response does not contain access_token');
       },
     }),
   }),
