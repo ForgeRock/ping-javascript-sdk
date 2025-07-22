@@ -79,13 +79,16 @@ const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
   const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
-  const protectAPI = await protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
+  const protectAPI = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: any;
 
   // Initialize Protect
-  await protectAPI.start();
+  const error = await protectAPI.start();
+  if (error?.error) {
+    console.error('Error starting Protect:', error.error);
+  }
 
   if (continueToken) {
     resumed = await davinciClient.resume({ continueToken });
@@ -274,6 +277,11 @@ const urlParams = new URLSearchParams(window.location.search);
 
   async function updateProtectCollector(protectCollector: ProtectCollector) {
     const data = await protectAPI.getData();
+    if (typeof data !== 'string' && 'error' in data) {
+      console.error(`Failed to retrieve data from PingOne Protect: ${data.error}`);
+      return;
+    }
+
     const updater = davinciClient.update(protectCollector);
     const error = updater(data);
     if (error && 'error' in error) {
