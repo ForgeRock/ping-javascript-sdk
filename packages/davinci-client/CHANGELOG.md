@@ -1,5 +1,20 @@
 # @forgerock/davinci-client
 
+## 1.3.0
+
+### Minor Changes
+
+- [#340](https://github.com/ForgeRock/ping-javascript-sdk/pull/340) [`0fa522a`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0fa522ab734a9b5adf41883abf25fa8600aaf6a9) Thanks [@ancheetah](https://github.com/ancheetah)! - Implemented Ping Protect collector
+
+### Patch Changes
+
+- Updated dependencies [[`dc4d4bd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/dc4d4bdb5aa781660de631f45b22620e400d9f4a)]:
+  - @forgerock/sdk-oidc@1.3.0
+  - @forgerock/sdk-logger@1.3.0
+  - @forgerock/sdk-request-middleware@1.3.0
+  - @forgerock/storage@1.3.0
+  - @forgerock/sdk-types@1.3.0
+
 ## 1.2.0
 
 ### Minor Changes
