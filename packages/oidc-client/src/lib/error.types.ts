@@ -6,7 +6,8 @@
  */
 export interface GenericError {
   code?: string | number;
-  message: string;
+  error: string;
+  message?: string;
   type:
     | 'argument_error'
     | 'auth_error'

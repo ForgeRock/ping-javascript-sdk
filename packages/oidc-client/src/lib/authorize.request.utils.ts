@@ -108,8 +108,8 @@ export function createAuthorizeErrorµ(
         prompt: 'none',
       });
       return {
-        error: 'AuthorizationUrlError',
-        error_description: `Error creating authorization URL for ${url}`,
+        error: res.error,
+        error_description: res.error_description,
         type: 'auth_error',
         redirectUrl: url,
       } as AuthorizeErrorResponse;
