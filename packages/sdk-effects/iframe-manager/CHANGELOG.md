@@ -1,5 +1,15 @@
 # @forgerock/iframe-manager
 
+## 1.3.0
+
+### Minor Changes
+
+- [#344](https://github.com/ForgeRock/ping-javascript-sdk/pull/344) [`dc4d4bd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/dc4d4bdb5aa781660de631f45b22620e400d9f4a) Thanks [@cerebrl](https://github.com/cerebrl)! - Implement authorize functionality in oidc-client
+
+  - Provide authorize URL method for URL creation
+  - Provide background method for authorization without redirection
+  - Introduce Micro from the Effect package
+
 ## 1.2.0
 
 ### Minor Changes
