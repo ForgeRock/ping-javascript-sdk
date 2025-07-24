@@ -41,8 +41,6 @@ declare global {
  * @param {ProtectConfig} options - the configuration options for the PingOne Signals SDK
  * @returns {Promise<Protect>} - a set of methods to interact with the PingOne Signals SDK
  */
-// TODO: Handle initialization errors
-// TODO: changeset?
 export function protect(options: ProtectConfig): Protect {
   let protectApiInitialized = false;
 

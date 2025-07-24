@@ -6,6 +6,7 @@
  */
 import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
+import { password, username } from './utils/demo-user.js';
 
 test('Test middleware on test page', async ({ page }) => {
   const networkArray = [];
@@ -23,6 +24,13 @@ test('Test middleware on test page', async ({ page }) => {
   expect(page.url()).toBe('http://localhost:5829/');
 
   await expect(page.getByText('Username/Password Form')).toBeVisible();
+
+  await page.getByLabel('Username').fill(username);
+  await page.getByLabel('Password').fill(password);
+
+  await page.getByRole('button', { name: 'Sign On' }).click();
+
+  await expect(page.getByText('Complete')).toBeVisible();
 
   const startRequest = networkArray.find((req) => req.url.includes('/authorize'));
   const nextRequest = networkArray.find((req) => req.url.includes('/customHTMLTemplate'));

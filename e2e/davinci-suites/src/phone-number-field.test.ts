@@ -65,7 +65,7 @@ test('Login - add phone device - authenticate with phone device', async ({ page 
    * Go to page
    ***/
   expect(page.url()).toContain(
-    'http://localhost:5829/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e',
+    'http://localhost:5829/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0',
   );
 
   /**
