@@ -99,30 +99,30 @@ export interface Protect {
   /**
    * @async
    * @method start - Method to initialize and start the PingOne Signals SDK
-   * @returns {Promise<void>} - Returns a promise
+   * @returns {Promise<void | { error: unknown }>} - Returns an error if PingOne Signals SDK failed to load
    */
-  start: () => Promise<void>;
+  start: () => Promise<void | { error: unknown }>;
 
   /**
    * @async
    * @method getData - Method to get the device data
-   * @returns {Promise<string>} - Returns the device data
+   * @returns {Promise<string | { error: unknown }>} - Returns the device data or an error if PingOne Signals SDK failed to load
    */
-  getData: () => Promise<string>;
+  getData: () => Promise<string | { error: unknown }>;
 
   /**
    * @method pauseBehavioralData - Method to pause the behavioral data collection
-   * @returns {void}
+   * @returns {void | { error: unknown }} - Returns an error if PingOne Signals SDK failed to load
    * @description Pause the behavioral data collection only; device profile data will still be collected
    */
-  pauseBehavioralData: () => void;
+  pauseBehavioralData: () => void | { error: unknown };
 
   /**
    * @method resumeBehavioralData - Method to resume the behavioral data collection
-   * @returns {void}
+   * @returns {void | { error: unknown }} - Returns an error if PingOne Signals SDK failed to load
    * @description Resume the behavioral data collection
    */
-  resumeBehavioralData: () => void;
+  resumeBehavioralData: () => void | { error: unknown };
 
   /**
    * @method getPauseBehavioralData
