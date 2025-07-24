@@ -6,6 +6,7 @@
 .npm/_logs
 
 # Generated code
+logs/*
 tmp/
 e2e/**/dist
 */dist/*

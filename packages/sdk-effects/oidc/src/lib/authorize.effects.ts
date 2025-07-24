@@ -32,7 +32,7 @@ export async function createAuthorizeUrl(
   const [authorizeUrlOptions, storeOptions] = generateAndStoreAuthUrlValues({
     clientId: options.clientId,
     serverConfig: { baseUrl },
-    responseType: 'code',
+    responseType: options.responseType,
     redirectUri: options.redirectUri,
     scope: options.scope,
   });
@@ -43,8 +43,9 @@ export async function createAuthorizeUrl(
     code_challenge: challenge,
     code_challenge_method: 'S256',
     client_id: options.clientId,
+    prompt: options.prompt || '',
     redirect_uri: options.redirectUri,
-    response_mode: 'pi.flow',
+    response_mode: options.responseMode || '',
     response_type: options.responseType,
     scope: options.scope,
     state: authorizeUrlOptions.state,

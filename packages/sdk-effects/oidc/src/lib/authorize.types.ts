@@ -16,6 +16,9 @@ import type { LegacyConfigOptions } from '@forgerock/sdk-types';
  */
 export type ResponseType = 'code' | 'token';
 export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
+  successParams?: string[];
+  errorParams?: string[];
+
   /**
    * These three properties clientid, scope and redirectUri are required
    * when using this type, which are not required when defining Config.
@@ -25,6 +28,7 @@ export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   scope: string;
   redirectUri: string;
   responseType: ResponseType;
+  responseMode?: 'fragment' | 'form_post' | 'pi.flow' | 'query';
   state?: string;
   verifier?: string;
   query?: Record<string, string>;

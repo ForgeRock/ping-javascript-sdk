@@ -267,6 +267,7 @@ export const davinciApi = createApi({
             login: 'redirect', // TODO: improve this in SDK to be more semantic
             redirectUri: state?.config?.redirectUri,
             responseType: state?.config?.responseType as 'code',
+            responseMode: 'pi.flow',
             scope: state?.config?.scope,
           });
           const url = new URL(authorizeUrl);
