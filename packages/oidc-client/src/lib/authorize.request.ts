@@ -39,14 +39,19 @@ export async function authorizeµ(
          * set iframe's to DENY.
          */
         return authorizeFetchµ(url).pipe(
-          Micro.flatMap((response) => {
-            if ('authorizeResponse' in response) {
-              log.debug('Received authorize response', response.authorizeResponse);
-              return Micro.succeed(response.authorizeResponse);
-            }
-            log.error('Error in authorize response', response);
-            return Micro.fail(createAuthorizeErrorµ(response, wellknown, config, options));
-          }),
+          Micro.flatMap(
+            (response): Micro.Micro<AuthorizeSuccessResponse, AuthorizeErrorResponse, never> => {
+              if ('authorizeResponse' in response) {
+                log.debug('Received authorize response', response.authorizeResponse);
+                return Micro.succeed(response.authorizeResponse);
+              }
+              log.error('Error in authorize response', response);
+              // For redirection, we need to remore `pi.flow` from the options
+              const redirectOptions = options;
+              delete redirectOptions.responseMode;
+              return createAuthorizeErrorµ(response, wellknown, config, options);
+            },
+          ),
         );
       } else {
         /**
@@ -54,15 +59,17 @@ export async function authorizeµ(
          * redirect based server supporting iframes. An example would be PingAM.
          */
         return authorizeIframeµ(url, config).pipe(
-          Micro.flatMap((response) => {
-            if ('code' in response && 'state' in response) {
-              log.debug('Received authorization code', response);
-              return Micro.succeed(response as unknown as AuthorizeSuccessResponse);
-            }
-            log.error('Error in authorize response', response);
-            const errorResponse = response as unknown as AuthorizeErrorResponse;
-            return Micro.fail(createAuthorizeErrorµ(errorResponse, wellknown, config, options));
-          }),
+          Micro.flatMap(
+            (response): Micro.Micro<AuthorizeSuccessResponse, AuthorizeErrorResponse, never> => {
+              if ('code' in response && 'state' in response) {
+                log.debug('Received authorization code', response);
+                return Micro.succeed(response as unknown as AuthorizeSuccessResponse);
+              }
+              log.error('Error in authorize response', response);
+              const errorResponse = response as unknown as AuthorizeErrorResponse;
+              return createAuthorizeErrorµ(errorResponse, wellknown, config, options);
+            },
+          ),
         );
       }
     }),
