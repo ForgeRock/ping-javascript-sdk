@@ -85,7 +85,8 @@ const mockCustomStore: CustomStorageObject = {
 describe('storage Effect', () => {
   const storageName = 'MyStorage';
   const baseConfig: Omit<StorageConfig, 'tokenStore'> = {
-    storeType: 'localStorage',
+    type: 'localStorage',
+    name: storageName,
     prefix: 'testPrefix',
   };
   const expectedKey = `${baseConfig.prefix}-${storageName}`;
@@ -104,10 +105,11 @@ describe('storage Effect', () => {
   describe('with localStorage', () => {
     const config: StorageConfig = {
       ...baseConfig,
-      storeType: 'localStorage',
+      name: storageName,
+      type: 'localStorage',
     };
 
-    const storageInstance = createStorage(config, storageName);
+    const storageInstance = createStorage(config);
 
     it('should call localStorage.getItem with the correct key and return value', async () => {
       localStorageMock.setItem(expectedKey, JSON.stringify(testValue));
@@ -169,12 +171,13 @@ describe('storage Effect', () => {
   });
 
   describe('with sessionStorage', () => {
+    const storageName = 'MyStorage';
     const config: StorageConfig = {
       ...baseConfig,
-      storeType: 'sessionStorage',
+      name: storageName,
+      type: 'sessionStorage',
     };
-    const storageName = 'MyStorage';
-    const storageInstance = createStorage(config, storageName);
+    const storageInstance = createStorage(config);
 
     it('should call sessionStorage.getItem with the correct key and return value', async () => {
       sessionStorageMock.setItem(expectedKey, JSON.stringify(testValue));
@@ -235,12 +238,13 @@ describe('storage Effect', () => {
   });
 
   describe('with custom TokenStoreObject', () => {
+    const myStorage = 'MyStorage';
     const config: StorageConfig = {
       ...baseConfig,
-      storeType: 'localStorage',
+      type: 'custom',
+      custom: mockCustomStore,
     };
-    const myStorage = 'MyStorage';
-    const storageInstance = createStorage(config, myStorage, mockCustomStore);
+    const storageInstance = createStorage(config);
 
     it('should call customStore.get with the correct key and return its value', async () => {
       (mockCustomStore.get as Mock).mockResolvedValueOnce(JSON.stringify(testValue));
@@ -298,9 +302,9 @@ describe('storage Effect', () => {
   });
 
   it('should return a function that returns the storage interface', () => {
-    const config: StorageConfig = { ...baseConfig, storeType: 'localStorage' };
     const myStorage = 'MyStorage';
-    const storageInterface = createStorage(config, myStorage);
+    const config: StorageConfig = { ...baseConfig, type: 'localStorage' };
+    const storageInterface = createStorage(config);
     expect(storageInterface).toHaveProperty('get');
     expect(storageInterface).toHaveProperty('set');
     expect(storageInterface).toHaveProperty('remove');

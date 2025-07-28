@@ -1,17 +1,11 @@
-/*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
- *
- * This software may be modified and distributed under the terms
- * of the MIT license. See the LICENSE file for details.
- */
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
 import { configureStore } from '@reduxjs/toolkit';
-import { oidcApi } from './oidc.api.js';
 import { wellknownApi } from './wellknown.api.js';
+import { authorizeSlice } from './authorize.slice.js';
 
-export function createClientStore<ActionType extends ActionTypes>({
+export function createOidcStore<ActionType extends ActionTypes>({
   requestMiddleware,
   logger,
 }: {
@@ -20,8 +14,8 @@ export function createClientStore<ActionType extends ActionTypes>({
 }) {
   return configureStore({
     reducer: {
-      [oidcApi.reducerPath]: oidcApi.reducer,
       [wellknownApi.reducerPath]: wellknownApi.reducer,
+      [authorizeSlice.reducerPath]: authorizeSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -37,12 +31,6 @@ export function createClientStore<ActionType extends ActionTypes>({
         },
       })
         .concat(wellknownApi.middleware)
-        .concat(oidcApi.middleware),
+        .concat(authorizeSlice.middleware),
   });
 }
-
-type ClientStore = typeof createClientStore;
-
-export type RootState = ReturnType<ReturnType<ClientStore>['getState']>;
-
-export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;

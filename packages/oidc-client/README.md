@@ -4,7 +4,7 @@ A generic OpenID Connect (OIDC) client library for JavaScript and TypeScript, de
 
 ```js
 // Initialize OIDC Client
-const oidcClient = oidc({
+const oidcClient1 = oidc({
   /* config */
 });
 

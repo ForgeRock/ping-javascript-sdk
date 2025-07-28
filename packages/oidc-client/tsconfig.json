@@ -4,7 +4,22 @@
   "include": [],
   "references": [
     {
+      "path": "../sdk-effects/storage"
+    },
+    {
       "path": "../sdk-types"
+    },
+    {
+      "path": "../sdk-effects/sdk-request-middleware"
+    },
+    {
+      "path": "../sdk-effects/oidc"
+    },
+    {
+      "path": "../sdk-effects/logger"
+    },
+    {
+      "path": "../sdk-effects/iframe-manager"
     },
     {
       "path": "../sdk-effects/sdk-request-middleware"
