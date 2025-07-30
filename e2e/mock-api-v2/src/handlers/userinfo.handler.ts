@@ -5,18 +5,22 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect } from 'effect';
-import { RouterBuilder } from 'effect-http';
-import { apiSpec } from '../spec.js';
+import { MockApi } from '../spec.js';
 import { UserInfo } from '../services/userinfo.service.js';
+import { HttpApiBuilder } from '@effect/platform';
+import { BearerToken } from '../middleware/Authorization.js';
 
-const userInfoHandler = RouterBuilder.handler(apiSpec, 'UserInfo', (request, security) =>
-  Effect.gen(function* () {
-    const { getUserInfo } = yield* UserInfo;
+const UserInfoMockHandler = HttpApiBuilder.group(MockApi, 'Protected Requests', (handlers) =>
+  handlers.handle('UserInfo', () =>
+    Effect.gen(function* () {
+      const authToken = yield* BearerToken;
+      const { getUserInfo } = yield* UserInfo;
 
-    const response = yield* getUserInfo(security, {});
+      const response = yield* getUserInfo(authToken);
 
-    return response;
-  }),
+      return response;
+    }).pipe(Effect.withSpan('UserInfoHandler')),
+  ),
 );
 
-export { userInfoHandler };
+export { UserInfoMockHandler };

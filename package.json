@@ -4,7 +4,9 @@
   "private": true,
   "description": "Ping JavaScript SDK",
   "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
-  "bugs": { "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues" },
+  "bugs": {
+    "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ForgeRock/ping-javascript-sdk.git"
@@ -26,6 +28,7 @@
     "local-release": "pnpm ts-node tools/release/release.ts",
     "nx": "nx",
     "preinstall": "npx only-allow pnpm",
+    "postinstall": "ts-patch install",
     "prepare": "node .husky/install.mjs",
     "serve": "nx serve",
     "test": "CI=true nx affected:test",
@@ -42,9 +45,13 @@
     ]
   },
   "config": {
-    "commitizen": { "path": "./node_modules/cz-conventional-changelog" }
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
-  "dependencies": {},
+  "dependencies": {
+    "ts-patch": "3.3.0"
+  },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.9",
@@ -53,11 +60,6 @@
     "@commitlint/config-conventional": "^19.1.0",
     "@commitlint/prompt": "^19.1.0",
     "@effect/cli": "0.59.10",
-    "@effect/language-service": "^0.2.0",
-    "@effect/platform": "^0.58.27",
-    "@effect/platform-node": "^0.53.26",
-    "@effect/schema": "^0.68.23",
-    "@effect/vitest": "^0.6.7",
     "@eslint/eslintrc": "^3.0.0",
     "@eslint/js": "~9.25.0",
     "@nx/devkit": "21.2.0",
@@ -117,6 +119,11 @@
     "vitest-canvas-mock": "^0.3.3"
   },
   "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531",
-  "engines": { "node": "^20 || ^22", "pnpm": "9.15.9" },
-  "nx": { "includedScripts": [] }
+  "engines": {
+    "node": "^20 || ^22",
+    "pnpm": "9.15.9"
+  },
+  "nx": {
+    "includedScripts": []
+  }
 }

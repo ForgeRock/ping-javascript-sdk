@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Schema } from '@effect/schema';
+import { Schema } from 'effect';
 
 const AuthorizePath = Schema.Struct({ envid: Schema.String });
 
@@ -26,8 +26,9 @@ const _DavinciAuthorizeQuery = Schema.Struct({
   code: Schema.String,
   code_challenge: Schema.String,
   code_challenge_method: Schema.String,
-  acr_values: Schema.String, // this should be optional
+  acr_values: Schema.optional(Schema.String), // this should be optional
 });
+
 interface DavinciAuthorizeQuery extends Schema.Schema.Type<typeof _DavinciAuthorizeQuery> {}
 const DavinciAuthorizeQuery: Schema.Schema<DavinciAuthorizeQuery, DavinciAuthorizeQuery> =
   _DavinciAuthorizeQuery;

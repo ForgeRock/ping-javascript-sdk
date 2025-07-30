@@ -1,0 +1,46 @@
+import { Unauthorized } from '@effect/platform/HttpApiError';
+import { HttpApiMiddleware, HttpApiSecurity, OpenApi } from '@effect/platform';
+import { Brand, Context, Effect, Layer, Redacted } from 'effect';
+
+type BearerTokenValue = string & Brand.Brand<'BearerToken'>;
+const BearerTokenValue = Brand.nominal<BearerTokenValue>();
+
+// Define a service that holds the bearer token
+class BearerToken extends Context.Tag('BearerToken')<BearerToken, BearerTokenValue>() {}
+
+class Authorization extends HttpApiMiddleware.Tag<Authorization>()('Authorization', {
+  failure: Unauthorized,
+  provides: BearerToken,
+  security: {
+    myBearer: HttpApiSecurity.bearer.pipe(
+      HttpApiSecurity.annotate(OpenApi.Description, 'Bearer token for API authentication'),
+    ),
+  },
+}) {}
+
+const AuthorizationMock = Layer.effect(
+  Authorization,
+  Effect.gen(function* () {
+    yield* Effect.log('creating Authorization middleware');
+
+    return {
+      myBearer: (bearerToken) =>
+        Effect.gen(function* () {
+          const tokenValue = Redacted.value(bearerToken);
+          yield* Effect.log('checking bearer token', tokenValue);
+
+          // Validation logic
+          // 1. Check if token is empty
+          // 2. Check if token has been revoked (has REVOKED_ prefix)
+          if (!tokenValue || tokenValue.trim() === '' || tokenValue.startsWith('REVOKED_')) {
+            return yield* Effect.fail(new Unauthorized());
+          }
+
+          // Return the token value so routes can access it
+          return BearerTokenValue(tokenValue);
+        }),
+    };
+  }),
+);
+
+export { Authorization, AuthorizationMock, BearerToken };

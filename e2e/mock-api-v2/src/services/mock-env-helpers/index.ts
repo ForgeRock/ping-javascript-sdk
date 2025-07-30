@@ -4,8 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Schema } from '@effect/schema';
-import { Array, Effect, Option, pipe } from 'effect';
+import { Array, Effect, Option, pipe, Schema } from 'effect';
 
 import { UnableToFindNextStep } from '../../errors/index.js';
 import { PingOneCustomHtmlRequestBody } from '../../schemas/custom-html-template/custom-html-template-request.schema.js';
@@ -13,6 +12,7 @@ import { ResponseMapKeys, responseMap } from '../../responses/index.js';
 
 import { CustomHtmlRequestBody, QueryTypes } from '../../types/index.js';
 import { validator } from '../../helpers/match.js';
+import { HttpApiError } from '@effect/platform';
 
 type DavinciFormData = Schema.Schema.Type<
   typeof PingOneCustomHtmlRequestBody
@@ -64,6 +64,7 @@ const getFirstElementAndRespond = (query: QueryTypes) =>
       status: 200 as const,
       body,
     })),
+    Effect.catchTag('NoSuchElementException', () => new HttpApiError.NotFound()),
   );
 
 /**

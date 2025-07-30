@@ -10,12 +10,8 @@ export default [
     rules: {
       '@typescript-eslint/no-empty-interface': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+      'require-yield': 'off',
     },
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx'],
-    // Override or add rules here
-    rules: {},
   },
   {
     files: ['**/*.js', '**/*.jsx'],

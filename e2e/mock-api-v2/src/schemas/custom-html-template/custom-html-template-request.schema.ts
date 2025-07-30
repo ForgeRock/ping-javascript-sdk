@@ -4,19 +4,13 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Schema } from '@effect/schema';
+import { Schema } from 'effect';
+import { FormDataResponseUsernamePassword, PingProtectSDKResponse } from './form-data.schema.js';
 
 /**
  * Schemas of what FormData may look like in a Ping Request
  *
  */
-const FormDataResponseUsernamePassword = Schema.Struct({
-  username: Schema.String,
-  password: Schema.String,
-});
-
-const PingProtectSDKResponse = Schema.Struct({ pingprotectsdk: Schema.String });
-
 const PossibleFormDatas = Schema.Struct({
   value: Schema.Union(FormDataResponseUsernamePassword, PingProtectSDKResponse),
 });

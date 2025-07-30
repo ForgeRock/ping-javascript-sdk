@@ -4,18 +4,20 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect } from 'effect';
-import { RouterBuilder } from 'effect-http';
-import { apiSpec } from '../spec.js';
+import { MockApi } from '../spec.js';
 import { Tokens } from '../services/tokens.service.js';
+import { HttpApiBuilder } from '@effect/platform';
+import { Effect } from 'effect';
 
-const tokenHandler = RouterBuilder.handler(apiSpec, 'PingOneToken', () =>
-  Effect.gen(function* () {
-    const { getTokens } = yield* Tokens;
-    const tokens = yield* getTokens(null);
+const TokensHandler = HttpApiBuilder.group(MockApi, 'Tokens', (handlers) =>
+  handlers.handle('Tokens', () =>
+    Effect.gen(function* () {
+      const { getTokens } = yield* Tokens;
+      const tokens = yield* getTokens(null);
 
-    return tokens;
-  }),
+      return tokens;
+    }).pipe(Effect.withSpan('TokensHandler')),
+  ),
 );
 
-export { tokenHandler };
+export { TokensHandler };
