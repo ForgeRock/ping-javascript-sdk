@@ -10,6 +10,7 @@ import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import { configureStore } from '@reduxjs/toolkit';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi } from './wellknown.api.js';
+import { GenericError } from './error.types.js';
 
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
@@ -39,6 +40,43 @@ export function createClientStore<ActionType extends ActionTypes>({
         .concat(wellknownApi.middleware)
         .concat(oidcApi.middleware),
   });
+}
+
+export function createError(
+  type: 'no_tokens' | 'no_access_token' | 'no_id_token',
+  log: ReturnType<typeof loggerFn>,
+) {
+  let error: GenericError;
+
+  if (type === 'no_tokens') {
+    error = {
+      error: 'No tokens found in storage',
+      message: 'Required for ending session and revoking access token',
+      type: 'state_error',
+    } as const;
+  } else if (type === 'no_access_token') {
+    error = {
+      error: 'No access token found',
+      message: 'No access token found in storage; required for revoking access token',
+      type: 'state_error',
+    } as const;
+  } else if (type === 'no_id_token') {
+    error = {
+      error: 'No ID token found',
+      message: 'No ID token found in storage; required for ending session',
+      type: 'state_error',
+    } as const;
+  } else {
+    error = {
+      error: 'Unknown error type',
+      message: 'An unknown error occurred while creating the error object',
+      type: 'unknown_error',
+    } as const;
+  }
+
+  log.error(error.error);
+
+  return error;
 }
 
 type ClientStore = typeof createClientStore;

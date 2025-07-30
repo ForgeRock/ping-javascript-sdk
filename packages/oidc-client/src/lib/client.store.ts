@@ -11,7 +11,7 @@ import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ } from './authorize.request.js';
-import { createClientStore } from './client.store.utils.js';
+import { createClientStore, createError } from './client.store.utils.js';
 import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
 import { GenericError } from './error.types.js';
 import { oidcApi } from './oidc.api.js';
@@ -20,7 +20,7 @@ import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
-import type { OidcConfig } from './config.types.js';
+import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { AuthorizeErrorResponse } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 
@@ -39,7 +39,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   storage?: Partial<StorageConfig>;
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
-  const storageClient = createStorage({
+  const storageClient = createStorage<OauthTokens>({
     type: 'localStorage',
     name: 'oidcTokens',
     ...storage,
@@ -159,7 +159,12 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           Micro.flatMap(({ data, error }) => handleTokenResponseµ(data, error)),
           Micro.flatMap((data) =>
             Micro.promise(async () => {
-              await storageClient.set(data);
+              await storageClient.set({
+                accessToken: data.access_token,
+                idToken: data.id_token,
+                refreshToken: data.refresh_token,
+                expiresAt: data.expires_in,
+              });
               return data;
             }),
           ),
@@ -177,6 +182,141 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             message: result.cause.message,
             type: 'exchange_error',
           } as TokenExchangeErrorResponse;
+        }
+      },
+    },
+    user: {
+      info: async () => {
+        const state = store.getState();
+        const wellknown = wellknownSelector(wellknownUrl, state);
+
+        if (!wellknown?.userinfo_endpoint) {
+          const err = {
+            error: 'Wellknown missing userinfo endpoint',
+            type: 'wellknown_error',
+          } as AuthorizeErrorResponse;
+
+          log.error(err.error);
+
+          return err;
+        }
+
+        const tokens = await storageClient.get();
+
+        if (!tokens || !('accessToken' in tokens)) {
+          const err = {
+            error: 'No access token found',
+            type: 'auth_error',
+          } as AuthorizeErrorResponse;
+
+          log.error(err.error);
+
+          return err;
+        }
+
+        return await store.dispatch(
+          oidcApi.endpoints.userInfo.initiate({
+            accessToken: tokens.accessToken,
+            endpoint: wellknown.userinfo_endpoint,
+          }),
+        );
+      },
+      logout: async () => {
+        const state = store.getState();
+        const wellknown = wellknownSelector(wellknownUrl, state);
+
+        if (!wellknown?.end_session_endpoint) {
+          const err = {
+            error: 'Wellknown missing end session endpoint',
+            type: 'wellknown_error',
+          } as AuthorizeErrorResponse;
+
+          log.error(err.error);
+
+          return err;
+        }
+
+        const tokens = await storageClient.get();
+
+        if (!tokens) {
+          return createError('no_tokens', log);
+        }
+
+        if (!('accessToken' in tokens)) {
+          return createError('no_access_token', log);
+        }
+
+        if (!('idToken' in tokens)) {
+          return createError('no_id_token', log);
+        }
+
+        const logout = Micro.zip(
+          Micro.tryPromise({
+            try: () =>
+              store.dispatch(
+                oidcApi.endpoints.endSession.initiate({
+                  idToken: tokens.idToken,
+                  endpoint:
+                    wellknown.ping_end_idp_session_endpoint || wellknown.end_session_endpoint,
+                }),
+              ),
+            catch: () => {
+              const err = {
+                error: 'Logout request failed',
+                message: 'network_error',
+              } as GenericError;
+
+              log.error(err);
+
+              return err;
+            },
+          }),
+          Micro.tryPromise({
+            try: () =>
+              store.dispatch(
+                oidcApi.endpoints.revoke.initiate({
+                  accessToken: tokens.accessToken,
+                  clientId: config.clientId,
+                  endpoint: wellknown.revocation_endpoint,
+                }),
+              ),
+            catch: () => {
+              const err = {
+                error: 'Revoke request failed',
+                message: 'network_error',
+              } as GenericError;
+
+              log.error(err);
+
+              return err;
+            },
+          }),
+        ).pipe(
+          Micro.flatMap(([sessionResponse, revokeResponse]) =>
+            Micro.gen(function* () {
+              const deleteResponse = yield* Micro.promise(storageClient.remove);
+              return {
+                sessionResponse: sessionResponse,
+                revokeResponse: revokeResponse,
+                deleteResponse,
+              };
+            }),
+          ),
+        );
+
+        const result = await Micro.runPromiseExit(logout);
+
+        if (exitIsSuccess(result)) {
+          await storageClient.remove();
+          return result.value;
+        } else if (exitIsFail(result)) {
+          return result.cause.error;
+        } else {
+          return {
+            error: 'Logout failure',
+            message: result.cause.message,
+            type: 'auth_error',
+          } as GenericError;
         }
       },
     },

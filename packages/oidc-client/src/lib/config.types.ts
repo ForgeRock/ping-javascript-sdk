@@ -20,3 +20,10 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
 export interface InternalDaVinciConfig extends OidcConfig {
   wellknownResponse: WellKnownResponse;
 }
+
+export interface OauthTokens {
+  accessToken: string;
+  idToken: string;
+  refreshToken?: string;
+  expiresAt?: number;
+}

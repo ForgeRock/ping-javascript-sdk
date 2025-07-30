@@ -2,7 +2,7 @@ import { OidcConfig } from './config.types.js';
 
 export interface TokenExchangeResponse {
   access_token: string;
-  id_token?: string;
+  id_token: string;
   refresh_token?: string;
   expires_in?: number;
   scope?: string;

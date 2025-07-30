@@ -15,7 +15,7 @@ const pingOneConfig = {
   config: {
     clientId: '654b14e2-7cc5-4977-8104-c4113e43c537',
     redirectUri: 'http://localhost:8443/',
-    scope: 'openid',
+    scope: 'openid revoke',
     serverConfig: {
       wellknown:
         'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
@@ -30,12 +30,8 @@ async function app() {
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
   const state = urlParams.get('state');
-  // get error and error_description if they exist
-  const error = urlParams.get('error');
-  // const errorDescription = urlParams.get('error_description');
 
-  // Handle background authorization flow
-  if (!code && !error) {
+  document.getElementById('login')?.addEventListener('click', async () => {
     const response = await oidcClient.authorize.background();
 
     if ('error' in response) {
@@ -52,15 +48,30 @@ async function app() {
     } else if ('code' in response) {
       console.log('Authorization Code:', response.code);
       const tokenResponse = await oidcClient.token.exchange(response.code, response.state);
+
       if ('error' in response) {
         console.error('Token Exchange Error:', tokenResponse);
       } else {
         console.log('Token Exchange Response:', tokenResponse);
+        document.getElementById('logout')!.style.display = 'block';
+        document.getElementById('login')!.style.display = 'none';
       }
     }
+  });
 
-    // Handle the user redirecting after authentication
-  } else if (code && state) {
+  document.getElementById('logout')?.addEventListener('click', async () => {
+    const response = await oidcClient.user.logout();
+
+    if (response && 'error' in response) {
+      console.error('Logout Error:', response);
+    } else {
+      console.log('Logout successful');
+      document.getElementById('logout')!.style.display = 'none';
+      document.getElementById('login')!.style.display = 'block';
+    }
+  });
+
+  if (code && state) {
     const response = await oidcClient.token.exchange(code, state);
 
     if ('error' in response) {
