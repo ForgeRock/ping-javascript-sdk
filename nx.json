@@ -70,19 +70,19 @@
       "inputs": ["production", "^production"]
     },
     "preview": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^build"]
     },
     "serve:dev": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^build"]
     },
     "test:watch": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^test:watch"]
     },
     "test:coverage": {
-      "inputs": ["default", "^default", "noMarkdown", "^noMarkdown"],
+      "inputs": ["default", "^default"],
       "dependsOn": ["^test:coverage"],
       "outputs": ["{projectRoot}/./coverage"],
       "cache": true
@@ -103,7 +103,7 @@
           "configName": "tsconfig.lib.json"
         }
       },
-      "include": ["e2e/**/**/*", "packages/**/**/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"]
     },
     {
       "plugin": "@nx/playwright/plugin",
@@ -118,7 +118,7 @@
       "options": {
         "targetName": "nxLint"
       },
-      "include": ["e2e/**/**/*", "packages/**/**/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"]
     },
     {
       "plugin": "@nx/vite/plugin",
@@ -132,7 +132,7 @@
         "buildDepsTargetName": "vite:build-deps",
         "watchDepsTargetName": "vite:watch-deps"
       },
-      "include": ["packages/**/**/*", "e2e/**/**/*"]
+      "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"]
     }
   ],
   "parallel": 1,
@@ -143,13 +143,10 @@
   "generators": {
     "@nx/js:library": {
       "outDir": "{projectRoot}/dist",
-      "bundler": "tsc",
-      "linter": "eslint",
       "unitTestRunner": "vitest"
     },
     "@nx/web:application": {
       "style": "css",
-      "linter": "eslint",
       "unitTestRunner": "none",
       "e2eTestRunner": "playwright"
     }

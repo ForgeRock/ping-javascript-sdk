@@ -1,0 +1,27 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "composite": false,
+    "incremental": false,
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "target": "ES2022",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "sourceMap": true
+  },
+  "references": [
+    {
+      "path": "../tools/user-scripts"
+    }
+  ]
+}

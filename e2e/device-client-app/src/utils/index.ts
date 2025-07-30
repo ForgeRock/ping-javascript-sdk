@@ -108,6 +108,7 @@ export const LoginAndGetClient = Effect.gen(function* () {
     Effect.map((step) => {
       step.getCallbackOfType<NameCallback>(CallbackType.NameCallback).setName(un);
       step.getCallbackOfType<PasswordCallback>(CallbackType.PasswordCallback).setPassword(pw);
+
       return step;
     }),
     Effect.flatMap((step) => callNext(step)),
