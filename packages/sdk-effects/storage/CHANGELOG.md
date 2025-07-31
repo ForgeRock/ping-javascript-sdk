@@ -1,5 +1,16 @@
 # @forgerock/storage
 
+## 1.3.0
+
+### Minor Changes
+
+- [#348](https://github.com/ForgeRock/ping-javascript-sdk/pull/348) [`beb349a`](https://github.com/ForgeRock/ping-javascript-sdk/commit/beb349a9a13e7bb8fbad35bf9bda9e340545cffa) Thanks [@cerebrl](https://github.com/cerebrl)! - Implemented token exchange within OIDC Client
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-types@1.3.0
+
 ## 1.2.0
 
 ### Minor Changes
