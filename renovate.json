@@ -13,7 +13,7 @@
   "prConcurrentLimit": 10,
   "labels": ["dependencies"],
   "npm": {
-    "fileMatch": ["(^|/)(package\\.json)$"]
+    "managerFilePatterns": ["/(^|/)(package\\.json)$/"]
   },
   "ignoreDeps": [
     "nx",
