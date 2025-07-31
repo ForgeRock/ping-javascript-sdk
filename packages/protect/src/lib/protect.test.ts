@@ -19,14 +19,11 @@ import { CallbackType, HiddenValueCallback } from '@forgerock/javascript-sdk';
 
 const config: ProtectConfig = {
   envId: '12345',
-  consoleLogEnabled: true,
   deviceAttributesToIgnore: ['userAgent'],
-  lazyMetadata: false,
   behavioralDataCollection: true,
-  deviceKeyRsyncIntervals: 14,
-  enableTrust: false,
   disableTags: false,
   disableHub: false,
+  universalDeviceIdentification: false,
 };
 
 describe('protect (with successfully loaded signals sdk)', () => {
