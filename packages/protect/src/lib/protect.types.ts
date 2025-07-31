@@ -73,6 +73,11 @@ export interface ProtectConfig {
    * @property {boolean} [enableTrust] - tie the device payload to a non-extractable crypto key stored on the browser for content authenticity verification
    */
   enableTrust?: boolean;
+
+  /**
+   * @property {boolean} [universalDeviceIdentification] - set to true if you want the device data in the SDK payload to be provided as a signed JWT
+   */
+  universalDeviceIdentification?: boolean;
 }
 
 export interface ProtectInitializeConfig
