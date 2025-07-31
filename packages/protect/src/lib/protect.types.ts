@@ -20,11 +20,6 @@ export interface ProtectConfig {
   envId: string;
 
   /**
-   * @property {boolean} [consoleLogEnabled] - true to enable SDK logs in the developer console. default is false
-   */
-  consoleLogEnabled?: boolean;
-
-  /**
    * @property {boolean} [waitForWindowLoad] - true to init the SDK on load event, instead of DOMContentLoaded event. default is true
    */
   waitForWindowLoad?: boolean;
@@ -45,11 +40,6 @@ export interface ProtectConfig {
   deviceAttributesToIgnore?: string[];
 
   /**
-   * @property {boolean} [lazyMetadata] - true to calculate the metadata only on getData invocation, otherwise do it automatically on init. default is false
-   */
-  lazyMetadata?: boolean;
-
-  /**
    * @property {boolean} [behavioralDataCollection] - true to collect behavioral data. default is true
    */
   behavioralDataCollection?: boolean;
@@ -65,22 +55,24 @@ export interface ProtectConfig {
   externalIdentifiers?: Record<string, string>;
 
   /**
-   * @property {number} [deviceKeyRsyncIntervals] - number of days used to window the next time the device attestation should use the device fallback key. default is 14 days
+   * @property {boolean} [universalDeviceIdentification] - set to true if you want the device data in the SDK payload to be provided as a signed JWT
    */
-  deviceKeyRsyncIntervals?: number;
-
-  /**
-   * @property {boolean} [enableTrust] - tie the device payload to a non-extractable crypto key stored on the browser for content authenticity verification
-   */
-  enableTrust?: boolean;
+  universalDeviceIdentification?: boolean;
 }
 
-export interface ProtectInitializeConfig
-  extends Omit<ProtectConfig, 'envId' | 'waitForWindowLoad' | 'hubUrl' | 'externalIdentifiers'> {
+export interface ProtectInitializeConfig {
   _type: 'PingOneProtect';
   _action: 'protect_initialize';
   envId?: string;
+  consoleLogEnabled?: boolean;
+  deviceAttributesToIgnore?: string[];
   customHost?: string;
+  lazyMetadata?: boolean;
+  behavioralDataCollection?: boolean;
+  deviceKeyRsyncIntervals?: number;
+  enableTrust?: boolean;
+  disableTags?: boolean;
+  disableHub?: boolean;
 }
 
 export interface ProtectEvaluationConfig {
