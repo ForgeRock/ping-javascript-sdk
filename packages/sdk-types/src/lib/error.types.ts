@@ -8,11 +8,14 @@ export interface GenericError {
   code?: string | number;
   error: string;
   message?: string;
+  status?: number | string;
   type:
     | 'argument_error'
     | 'auth_error'
+    | 'davinci_error'
     | 'internal_error'
     | 'network_error'
+    | 'parse_error'
     | 'state_error'
     | 'unknown_error'
     | 'wellknown_error';

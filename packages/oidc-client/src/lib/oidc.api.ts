@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { OidcConfig } from './config.types.js';
 import { TokenExchangeResponse } from './exchange.types.js';
+import { transformError } from './oidc.api.utils.js';
 
 export const oidcApi = createApi({
   reducerPath: 'oidc',
@@ -21,11 +22,18 @@ export const oidcApi = createApi({
           },
         };
       },
-      transformResponse: (res) => {
-        if (res && typeof res === 'object') {
-          return null; // Successful logout, no content expected
+      transformErrorResponse: (error) => {
+        let message = 'An error occurred while trying to end the session';
+
+        if (error.status === 400) {
+          message = 'Bad request to end session endpoint';
+        } else if (error.status === 401) {
+          message = 'Unauthorized request to end session endpoint';
+        } else if (error.status === 403) {
+          message = 'Forbidden request to end session endpoint';
         }
-        throw new Error('Invalid response from end session endpoint');
+
+        return transformError('End Session Error', message, error.status);
       },
     }),
     exchange: builder.mutation<
@@ -60,17 +68,21 @@ export const oidcApi = createApi({
           body,
         };
       },
-      transformResponse: (res) => {
-        if (!res || typeof res !== 'object') {
-          throw new Error('Invalid response from token exchange');
+      transformErrorResponse: (error) => {
+        let message = 'An error occurred while exchanging the authorization code';
+
+        if (error.status === 400) {
+          message = 'Bad request to token exchange endpoint';
+        } else if (error.status === 401) {
+          message = 'Unauthorized request to token exchange endpoint';
+        } else if (error.status === 403) {
+          message = 'Forbidden request to token exchange endpoint';
         }
-        if ('access_token' in res) {
-          return res as TokenExchangeResponse;
-        }
-        throw new Error('Token exchange response does not contain access_token');
+
+        return transformError('Token Exchange Error', message, error.status);
       },
     }),
-    revoke: builder.mutation<null, { accessToken: string; clientId?: string; endpoint: string }>({
+    revoke: builder.mutation<object, { accessToken: string; clientId?: string; endpoint: string }>({
       query: ({ accessToken, clientId, endpoint }) => {
         const body = new URLSearchParams({
           ...(clientId ? { client_id: clientId } : {}),
@@ -86,11 +98,18 @@ export const oidcApi = createApi({
           body,
         };
       },
-      transformResponse: (res) => {
-        if (res && typeof res === 'object') {
-          return null; // Successful revoke, no content expected
+      transformErrorResponse: (error) => {
+        let message = 'An error occurred while revoking the token';
+
+        if (error.status === 400) {
+          message = 'Bad request to revoke endpoint';
+        } else if (error.status === 401) {
+          message = 'Unauthorized request to revoke endpoint';
+        } else if (error.status === 403) {
+          message = 'Forbidden request to revoke endpoint';
         }
-        throw new Error('Invalid response from token revoke endpoint');
+
+        return transformError('Token Revoke Error', message, error.status);
       },
     }),
     userInfo: builder.mutation<TokenExchangeResponse, { accessToken: string; endpoint: string }>({
@@ -105,11 +124,18 @@ export const oidcApi = createApi({
           },
         };
       },
-      transformResponse: (res) => {
-        if (!res || typeof res !== 'object') {
-          throw new Error('Invalid response from userinfo endpoint');
+      transformErrorResponse: (error) => {
+        let message = 'An error occurred while fetching user info';
+
+        if (error.status === 400) {
+          message = 'Bad request to user info endpoint';
+        } else if (error.status === 401) {
+          message = 'Unauthorized request to user info endpoint';
+        } else if (error.status === 403) {
+          message = 'Forbidden request to user info endpoint';
         }
-        return res as TokenExchangeResponse;
+
+        return transformError('User Info Error', message, error.status);
       },
     }),
   }),

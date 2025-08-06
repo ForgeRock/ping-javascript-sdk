@@ -4,6 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { GenericError } from '@forgerock/sdk-types';
+
 import type {
   FlowCollector,
   PasswordCollector,
@@ -23,7 +25,6 @@ import type {
   UnknownCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
-import { GenericError } from './error.types.js';
 
 export type Collectors =
   | FlowCollector
@@ -74,9 +75,10 @@ export interface ContinueNode {
   status: 'continue';
 }
 
-export interface DaVinciError extends GenericError {
+export interface DaVinciError extends Omit<GenericError, 'error'> {
   collectors?: CollectorErrors[];
   internalHttpStatus?: number;
+  message: string;
   status: 'error' | 'failure' | 'unknown';
 }
 

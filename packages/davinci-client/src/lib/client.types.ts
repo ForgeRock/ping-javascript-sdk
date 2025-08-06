@@ -4,14 +4,15 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { PhoneNumberInputValue } from './collector.types.js';
-import { GenericError } from './error.types.js';
-import { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
+import type { GenericError } from '@forgerock/sdk-types';
+
+import type { PhoneNumberInputValue } from './collector.types.js';
+import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
 export type FlowNode = ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
 
 export interface InternalErrorResponse {
-  error: GenericError;
+  error: Omit<GenericError, 'error'> & { message: string };
   type: 'internal_error';
 }
 

@@ -6,6 +6,7 @@
  */
 
 export * from './lib/am-callback.types.js';
+export * from './lib/error.types.js';
 export * from './lib/legacy-config.types.js';
 export * from './lib/legacy-mware.types.js';
 export * from './lib/branded.types.js';

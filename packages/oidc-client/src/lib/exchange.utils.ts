@@ -2,12 +2,15 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Micro } from 'effect';
 
+import { getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
+
+import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
+import type { GenericError, WellKnownResponse } from '@forgerock/sdk-types';
+import type { StorageConfig } from '@forgerock/storage';
+
 import type { TokenExchangeResponse, TokenRequestOptions } from './exchange.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
-import { GenericError, StorageConfig } from '@forgerock/storage';
-import { GetAuthorizationUrlOptions, getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
-import { OidcConfig } from './config.types.js';
-import { WellKnownResponse } from '@forgerock/sdk-types';
+import type { OidcConfig } from './config.types.js';
 
 export function createValuesµ(
   code: string,
@@ -30,7 +33,7 @@ export function createValuesµ(
 export function handleTokenResponseµ(
   data: TokenExchangeResponse | undefined,
   error?: FetchBaseQueryError | SerializedError,
-) {
+): Micro.Micro<TokenExchangeResponse, TokenExchangeErrorResponse, never> {
   if (error) {
     let message;
     if ('status' in error) {

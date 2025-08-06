@@ -7,11 +7,21 @@
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, SerializedError } from '@reduxjs/toolkit';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi } from './wellknown.api.js';
-import { GenericError } from './error.types.js';
 
+import type { GenericError } from '@forgerock/sdk-types';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+
+/**
+ * @function createClientStore
+ * @description Creates a Redux store configured with OIDC and well-known APIs.
+ * @param param - Configuration options for the client store.
+ * @param {RequestMiddleware} param.requestMiddleware - An array of request middleware functions to be applied to the store.
+ * @param {ReturnType<typeof loggerFn>} param.logger - An optional logger function for logging messages.
+ * @returns { ReturnType<typeof configureStore> } - Returns a configured Redux store with OIDC and well-known APIs.
+ */
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
   logger,
@@ -42,7 +52,37 @@ export function createClientStore<ActionType extends ActionTypes>({
   });
 }
 
-export function createError(
+/**
+ * @function createLogoutError
+ * @description Creates a logout error object based on the provided data and error.
+ * @param  {object | null | undefined} data - The data returned from the logout API call.
+ * @param {FetchBaseQueryError | SerializedError} error - An optional error object that may contain details about the error that occurred during the logout process.
+ * @returns {null | GenericError} - Returns a `GenericError` object if an error occurred, or `null` if no error is present.
+ */
+export function createLogoutError(
+  data: object | null | undefined,
+  error?: FetchBaseQueryError | SerializedError,
+): null | GenericError {
+  if (error) {
+    let message = 'An error occurred while ending the session';
+    let status: number | string = 'unknown';
+    if ('message' in error && error.message) {
+      message = error.message;
+    }
+    if ('status' in error) {
+      status = error.status;
+    }
+    return {
+      error: 'End Session failure',
+      message,
+      type: 'auth_error',
+      status,
+    } as const;
+  }
+  return null;
+}
+
+export function createTokenError(
   type: 'no_tokens' | 'no_access_token' | 'no_id_token',
   log: ReturnType<typeof loggerFn>,
 ) {
@@ -50,31 +90,31 @@ export function createError(
 
   if (type === 'no_tokens') {
     error = {
-      error: 'No tokens found in storage',
+      error: 'Token_Error',
       message: 'Required for ending session and revoking access token',
       type: 'state_error',
     } as const;
   } else if (type === 'no_access_token') {
     error = {
-      error: 'No access token found',
+      error: 'Token_Error',
       message: 'No access token found in storage; required for revoking access token',
       type: 'state_error',
     } as const;
   } else if (type === 'no_id_token') {
     error = {
-      error: 'No ID token found',
+      error: 'Token_Error',
       message: 'No ID token found in storage; required for ending session',
       type: 'state_error',
     } as const;
   } else {
     error = {
-      error: 'Unknown error type',
+      error: 'Token_Error',
       message: 'An unknown error occurred while creating the error object',
       type: 'unknown_error',
     } as const;
   }
 
-  log.error(error.error);
+  log.error(error.message || 'Error occurred related to tokens');
 
   return error;
 }
