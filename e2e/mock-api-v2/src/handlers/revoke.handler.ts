@@ -9,7 +9,7 @@ import { Tokens } from '../services/tokens.service.js';
 import { HttpApiBuilder } from '@effect/platform';
 import { Effect } from 'effect';
 
-const RevokeTokenHandler = HttpApiBuilder.group(MockApi, 'TokenRevocation', (handlers) =>
+const RevokeTokenHandler = HttpApiBuilder.group(MockApi, 'Revoke', (handlers) =>
   handlers.handle('RevokeToken', () =>
     Effect.gen(function* () {
       const { revokeToken } = yield* Tokens;

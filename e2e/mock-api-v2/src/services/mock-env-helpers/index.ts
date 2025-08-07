@@ -7,16 +7,12 @@
 import { Array, Effect, Option, pipe, Schema } from 'effect';
 
 import { UnableToFindNextStep } from '../../errors/index.js';
-import { PingOneCustomHtmlRequestBody } from '../../schemas/custom-html-template/custom-html-template-request.schema.js';
 import { ResponseMapKeys, responseMap } from '../../responses/index.js';
+import { CapabilitiesResponse } from '../../schemas/capabilities/capabilities.response.schema.js';
 
-import { CustomHtmlRequestBody, QueryTypes } from '../../types/index.js';
+import { QueryTypes } from '../../types/index.js';
 import { validator } from '../../helpers/match.js';
 import { HttpApiError } from '@effect/platform';
-
-type DavinciFormData = Schema.Schema.Type<
-  typeof PingOneCustomHtmlRequestBody
->['parameters']['data'];
 
 /**
  * Given data in the shape of Ping's Request formData.value
@@ -24,7 +20,7 @@ type DavinciFormData = Schema.Schema.Type<
  * And then `value` off the object.
  *
  */
-const mapDataToValue = (data: Option.Option<DavinciFormData>) =>
+const mapDataToValue = (data: Option.Option<Schema.Schema.Type<typeof CapabilitiesResponse>>) =>
   pipe(
     data,
     Option.map((data) => data.formData),
@@ -60,25 +56,21 @@ const getFirstElementAndRespond = (query: QueryTypes) =>
     Option.fromNullable(query?.acr_values),
     Option.map((acr) => responseMap[acr as ResponseMapKeys]),
     Effect.flatMap(getFirstElement),
-    Effect.map((body) => ({
-      status: 200 as const,
-      body,
-    })),
     Effect.catchTag('NoSuchElementException', () => new HttpApiError.NotFound()),
   );
 
 /**
- * helper function that dives into a request body for CustomHtmlRequestBody
+ * helper function that dives into a request body for Capabilities Response
  * and will apply a validator function to ensure the request passes validation
  */
-const validateCustomHtmlRequest = <Body extends CustomHtmlRequestBody>(body: Body) =>
+const validateCapabilitiesResponse = (body: any) =>
   pipe(
     body,
     Option.fromNullable,
     Option.map((body) => body.parameters),
-    Option.map((body) => body.data),
+    Option.map((parameters) => parameters.data),
     Option.map((data) => data.formData),
-    Option.map((data) => data.value),
+    Option.map((formData) => formData.value),
     Effect.flatMap(validator),
   );
 
@@ -87,5 +79,5 @@ export {
   getFirstElementAndRespond,
   getArrayFromResponseMap,
   mapDataToValue,
-  validateCustomHtmlRequest,
+  validateCapabilitiesResponse,
 };

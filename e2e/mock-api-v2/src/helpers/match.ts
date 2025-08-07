@@ -6,12 +6,10 @@
  */
 import { Effect, Match, Schema } from 'effect';
 
-import { InvalidUsernamePassword, InvalidProtectNode } from '../errors/index.js';
-import { PingOneCustomHtmlRequestBody } from '../schemas/custom-html-template/custom-html-template-request.schema.js';
+import { HttpApiError } from '@effect/platform';
+import { CapabilitiesRequestBody } from '../schemas/capabilities/capabilities.request.schema.js';
 
-type PingRequestData = Schema.Schema.Type<
-  typeof PingOneCustomHtmlRequestBody
->['parameters']['data']['formData']['value'];
+type PingRequestData = Schema.Schema.Type<typeof CapabilitiesRequestBody>;
 /**
  * Using this to match on the data types, realistically, this will be a schema of possible
  * response bodies we want to validate against they validate to our conditions.
@@ -20,18 +18,19 @@ type PingRequestData = Schema.Schema.Type<
  * or we can continue to the next step in the flow
  */
 const validator = Match.type<PingRequestData>().pipe(
-  Match.when({ username: Match.string, password: Match.string }, ({ username, password }) => {
-    return Effect.if(username == 'testuser' && password === 'Password', {
-      onFalse: () => Effect.fail(new InvalidUsernamePassword()),
-      onTrue: () => Effect.succeed(true),
-    });
-  }),
-  Match.when({ pingprotectsdk: Match.string }, ({ pingprotectsdk }) => {
-    return Effect.if(pingprotectsdk.length > 1, {
-      onTrue: () => Effect.succeed(true),
-      onFalse: () => Effect.fail(new InvalidProtectNode()),
-    });
-  }),
-  Match.exhaustive,
+  Match.when(
+    { parameters: { data: { formData: { username: Match.string, password: Match.string } } } },
+    ({ parameters }) =>
+      Effect.if(
+        parameters.data.formData.username == 'testuser' &&
+          parameters.data.formData.password === 'Password',
+        {
+          onFalse: () => Effect.fail(new HttpApiError.Unauthorized()),
+          onTrue: () => Effect.succeed(true),
+        },
+      ),
+  ),
+  Match.orElse(() => Effect.succeed(true)),
 );
+
 export { validator, PingRequestData };
