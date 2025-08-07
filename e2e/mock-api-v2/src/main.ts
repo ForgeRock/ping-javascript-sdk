@@ -13,7 +13,6 @@ import { HealthCheckLive } from './handlers/healthcheck.handler.js';
 import { OpenidConfigMock } from './handlers/open-id-configuration.handler.js';
 import { IncrementStepIndexMock } from './middleware/CookieMiddleware.js';
 import { AuthorizeHandlerMock } from './handlers/authorize.handler.js';
-import { AuthorizeMock } from './services/authorize.service.js';
 import { TokensMock } from './services/tokens.service.js';
 import { TokensHandler } from './handlers/token.handler.js';
 import { UserInfoMockHandler } from './handlers/userinfo.handler.js';
@@ -25,6 +24,15 @@ import { NodeSdk } from '@effect/opentelemetry';
 import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
 import { EndSessionHandlerMock } from './handlers/end-session.handler.js';
 import { RevokeTokenHandler } from './handlers/revoke.handler.js';
+
+const Services = [
+  Layer.provide(TokensMock),
+  Layer.provide(IncrementStepIndexMock),
+  Layer.provide(AuthorizationMock),
+  Layer.provide(UserInfoMockService),
+  Layer.provide(SessionMiddlewareMock),
+  Layer.provide(SessionStorage.Default),
+] as const;
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: 'Mock-Api' },
@@ -39,19 +47,11 @@ const APIMock = HttpApiBuilder.api(MockApi).pipe(
   Layer.provide(UserInfoMockHandler),
   Layer.provide(EndSessionHandlerMock),
   Layer.provide(RevokeTokenHandler),
+  ...Services,
 );
 
 const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
-  Layer.provide(APIMock),
-  Layer.provide(TokensMock),
-  Layer.provide(IncrementStepIndexMock),
-  Layer.provide(AuthorizationMock),
-  Layer.provide(UserInfoMockService),
-  Layer.provide(SessionMiddlewareMock),
-  Layer.provide(SessionStorage.Default),
-  Layer.provide(AuthorizeMock),
-  Layer.provide(NodeSdkLive),
   Layer.provide(
     HttpApiBuilder.middlewareCors({
       allowedMethods: ['GET', 'PUT', 'POST', 'OPTIONS'],
@@ -60,8 +60,11 @@ const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
       maxAge: 3600,
     }),
   ),
+  Layer.provide(APIMock),
+
+  Layer.provide(NodeSdkLive),
   HttpServer.withLogAddress,
   Layer.provide(NodeHttpServer.layer(createServer, { port: 9443 })),
 );
 
-Layer.launch(ServerMock).pipe(NodeRuntime.runMain);
+Layer.launch(ServerMock).pipe(() => NodeRuntime.runMain());
