@@ -1,5 +1,5 @@
 {
-  "name": "@pingidentity/protect-app",
+  "name": "@forgerock/protect-app",
   "version": "0.0.0",
   "description": "Ping Protect Test Apps",
   "private": true,
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@forgerock/javascript-sdk": "4.7.0",
-    "@pingidentity/protect": "workspace:*"
+    "@forgerock/protect": "workspace:*"
   },
   "nx": {
     "tags": ["scope:e2e"]

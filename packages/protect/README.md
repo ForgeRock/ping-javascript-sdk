@@ -24,7 +24,7 @@ The Ping Protect module is intended to be used along with the ForgeRock JavaScri
 2. PingOne tenant with Protect enabled
 3. A Ping Protect Service configured in AIC or AM
 4. A journey/tree with the appropriate Protect Nodes
-5. A client application with the `@forgerock/javascript-sdk` and `@pingidentity/protect` modules installed
+5. A client application with the `@forgerock/javascript-sdk` and `@forgerock/protect` modules installed
 
 ### Integrate into a Client Application
 
@@ -33,12 +33,12 @@ The Ping Protect module is intended to be used along with the ForgeRock JavaScri
 Install both modules and their latest versions:
 
 ```sh
-npm install @forgerock/javascript-sdk @pingidentity/protect
+npm install @forgerock/javascript-sdk @forgerock/protect
 ```
 
 #### Initialization (Recommended)
 
-The `@pingidentity/protect` module has a `protect()` function that accepts configuration options and returns a set of methods for interacting with Protect. The two main responsibilities of the Ping Protect module are the initialization of the profiling and data collection and the completion and preparation of the collected data for the server. You can find these two methods on the API returned by `protect()`.
+The `@forgerock/protect` module has a `protect()` function that accepts configuration options and returns a set of methods for interacting with Protect. The two main responsibilities of the Ping Protect module are the initialization of the profiling and data collection and the completion and preparation of the collected data for the server. You can find these two methods on the API returned by `protect()`.
 
 - `start()`
 - `getData()`
@@ -48,7 +48,7 @@ When calling `protect()`, you have many different options to configure what and 
 The `start` method can be called at application startup, or when you receive the `PingOneProtectInitializeCallback` callback from the server. We recommend you call `start` as soon as you can to collect as much data as possible for higher accuracy.
 
 ```js
-import { protect } from '@pingidentity/protect';
+import { protect } from '@forgerock/protect';
 
 // Call early in your application startup
 const protectApi = protect({ envId: '12345' });
@@ -61,12 +61,8 @@ Alternatively, you can delay the initialization until you receive the instructio
 
 ```js
 if (step.getCallbacksOfType('PingOneProtectInitializeCallback')) {
-  try {
-    // Asynchronous call
-    await protectApi.start();
-  } catch (err) {
-    // handle error
-  }
+  // Asynchronous call
+  await protectApi.start();
 }
 ```
 
@@ -84,12 +80,8 @@ At some point in the journey, and as late as possible in order to collect as muc
 let data;
 
 if (step.getCallbacksOfType('PingOneProtectEvaluationCallback')) {
-  try {
-    // Asynchronous call
-    data = await protectApi.getData();
-  } catch (err) {
-    // handle error
-  }
+  // Asynchronous call
+  data = await protectApi.getData();
 }
 ```
 
@@ -108,14 +100,12 @@ The Protect API methods will return an error object if they fail. When you encou
 ```js
 if (step.getCallbacksOfType('PingOneProtectInitializeCallback')) {
   const callback = step.getCallbackOfType('PingOneProtectInitializeCallback');
-  try {
-    // Asynchronous call
-    const error = await protectApi.start();
-    if (error) {
-      callback.setClientError(error.error);
-    }
-  } catch (err) {
-    callback.setClientError(err.message);
+
+  // Asynchronous call
+  const result = await protectApi.start();
+
+  if (result?.error) {
+    callback.setClientError(result.error);
   }
 }
 ```
@@ -123,18 +113,14 @@ if (step.getCallbacksOfType('PingOneProtectInitializeCallback')) {
 A similar process is used for the evaluation step.
 
 ```js
-let data;
-
 if (step.getCallbacksOfType('PingOneProtectEvaluationCallback')) {
   const callback = step.getCallbackOfType('PingOneProtectEvaluationCallback');
-  try {
-    // Asynchronous call
-    data = await protectApi.getData();
-    if (typeof data !== 'string' && 'error' in data) {
-      callback.setClientError(data.error);
-    }
-  } catch (err) {
-    callback.setClientError(err.message);
+
+  // Asynchronous call
+  const result = await protectApi.getData();
+
+  if (typeof result !== 'string' && 'error' in result) {
+    callback.setClientError(data.error);
   }
 }
 ```
@@ -148,7 +134,7 @@ The Ping Protect module is intended to be used along with the DaVinci client to 
 1. A PingOne environment with PingOne Protect added
 2. A worker application configured in your PingOne environment
 3. A DaVinci flow with the appropriate Protect connectors
-4. A client application with the `@forgerock/davinci-client` and `@pingidentity/protect` modules installed
+4. A client application with the `@forgerock/davinci-client` and `@forgerock/protect` modules installed
 
 ### Integrate into a Client Application
 
@@ -157,10 +143,10 @@ The Ping Protect module is intended to be used along with the DaVinci client to 
 Install both modules and their latest versions:
 
 ```sh
-npm install @forgerock/davinci-client @pingidentity/protect
+npm install @forgerock/davinci-client @forgerock/protect
 ```
 
-The `@pingidentity/protect` module has a `protect()` function that accepts configuration options and returns a set of methods for interacting with Protect. The two main responsibilities of the Ping Protect module are the initialization of the profiling and data collection and the completion and preparation of the collected data for the server. You can find these two methods on the API returned by `protect()`.
+The `@forgerock/protect` module has a `protect()` function that accepts configuration options and returns a set of methods for interacting with Protect. The two main responsibilities of the Ping Protect module are the initialization of the profiling and data collection and the completion and preparation of the collected data for the server. You can find these two methods on the API returned by `protect()`.
 
 - `start()`
 - `getData()`
@@ -170,7 +156,7 @@ When calling `protect()`, you have many different options to configure what and 
 The `start` method can be called at application startup, or when you receive the `ProtectCollector` from the server. We recommend you call `start` as soon as you can to collect as much data as possible for higher accuracy.
 
 ```js
-import { protect } from '@pingidentity/protect';
+import { protect } from '@forgerock/protect';
 
 // Call early in your application startup
 const protectApi = protect({ envId: '12345' });
@@ -185,20 +171,16 @@ Alternatively, you can delay the initialization until you receive the instructio
 const collectors = davinciClient.getCollectors();
 collectors.forEach((collector) => {
   if (collector.type === 'ProtectCollector') {
-    try {
-      // Optionally use configuration options from the flow to initialize the protect module
-      const config = collector.output.config;
+    // Optionally use configuration options from the flow to initialize the protect module
+    const config = collector.output.config;
 
-      // Initialize the Protect module and begin collecting data
-      const protectApi = protect({
-        envId: '12345',
-        behavioralDataCollection: config.behavioralDataCollection,
-        universalDeviceIdentification: config.universalDeviceIdentification,
-      });
-      await protectApi.start();
-    } catch (err) {
-      // handle error
-    }
+    // Initialize the Protect module and begin collecting data
+    const protectApi = protect({
+      envId: '12345',
+      behavioralDataCollection: config.behavioralDataCollection,
+      universalDeviceIdentification: config.universalDeviceIdentification,
+    });
+    await protectApi.start();
   }
   ...
 });
@@ -235,17 +217,17 @@ The Protect API methods will return an error object if they fail. You may use th
 **Example**: Handling error messages on `start`
 
 ```js
-const error = await protectApi.start();
-if (error) {
-  console.error(`Error initializing Protect: ${error.error}`);
+const result = await protectApi.start();
+if (result?.error) {
+  console.error(`Error initializing Protect: ${result.error}`);
 }
 ```
 
 **Example**: Handling error messages on `getData`
 
 ```js
-const data = await protectApi.getData();
-if (typeof data !== 'string' && 'error' in data) {
-  console.error(`Failed to retrieve data from Protect: ${data.error}`);
+const result = await protectApi.getData();
+if (typeof result !== 'string' && 'error' in result) {
+  console.error(`Failed to retrieve data from Protect: ${result.error}`);
 }
 ```

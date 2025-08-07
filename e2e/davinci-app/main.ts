@@ -13,10 +13,12 @@ import type {
   DaVinciConfig,
   DavinciClient,
   GetClient,
+  InternalErrorResponse,
+  NodeStates,
   ProtectCollector,
   RequestMiddleware,
 } from '@forgerock/davinci-client/types';
-import { protect } from '@pingidentity/protect';
+import { protect } from '@forgerock/protect';
 
 import textComponent from './components/text.js';
 import passwordComponent from './components/password.js';
@@ -82,7 +84,7 @@ const urlParams = new URLSearchParams(window.location.search);
   const protectAPI = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
-  let resumed: any;
+  let resumed: InternalErrorResponse | NodeStates | undefined;
 
   // Initialize Protect
   const error = await protectAPI.start();
@@ -331,9 +333,13 @@ const urlParams = new URLSearchParams(window.location.search);
   if (!resumed) {
     node = await davinciClient.start({ query });
   } else {
-    node = resumed;
-    console.log('node is resumed');
-    console.log(node);
+    if (!resumed.error) {
+      node = resumed;
+      console.log('node is resumed');
+      console.log(node);
+    } else {
+      console.error('Error resuming flow:', resumed.error);
+    }
   }
 
   formEl.addEventListener('submit', async (event) => {
