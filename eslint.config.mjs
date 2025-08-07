@@ -50,6 +50,7 @@ export default [
   {
     rules: {
       'import/extensions': [2, 'ignorePackages'],
+      'require-yield': 'off',
       '@typescript-eslint/indent': ['error', 2],
       '@typescript-eslint/no-use-before-define': 'warn',
       'max-len': [

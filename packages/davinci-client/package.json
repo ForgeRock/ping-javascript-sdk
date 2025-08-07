@@ -32,7 +32,7 @@
     "immer": "catalog:"
   },
   "devDependencies": {
-    "vitest": "^3.0.4"
+    "vitest": "catalog:vitest"
   },
   "publishConfig": {
     "access": "public"

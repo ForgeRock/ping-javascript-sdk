@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@effect/language-service": "catalog:effect",
-    "@effect/opentelemetry": "0.53.1",
+    "@effect/opentelemetry": "catalog:effect",
     "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
     "@opentelemetry/sdk-logs": "0.202.0",
