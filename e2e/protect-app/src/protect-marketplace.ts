@@ -8,7 +8,7 @@
  */
 
 import './style.css';
-import { protect } from '@pingidentity/protect';
+import { protect } from '@forgerock/protect';
 import {
   CallbackType,
   FRAuth,
