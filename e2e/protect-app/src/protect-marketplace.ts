@@ -8,7 +8,7 @@
  */
 
 import './style.css';
-import { protect } from '@pingidentity/protect';
+import { protect } from '@forgerock/protect';
 import {
   CallbackType,
   FRAuth,
@@ -64,10 +64,10 @@ const showUser = (user) => {
 };
 
 // Get the next step using the FRAuth API
-const nextStep = (event?: Event, step?: FRStep) => {
+const nextStep = async (event?: Event, step?: FRStep) => {
   event?.preventDefault();
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  FRAuth.next(step).then(handleStep).catch(handleFatalError);
+  await FRAuth.next(step).then(handleStep).catch(handleFatalError);
 };
 
 // Define custom handlers to render and submit each expected step
@@ -193,7 +193,7 @@ const handleFatalError = (err) => {
 };
 
 // Begin the login flow
-nextStep();
+await nextStep();
 
 document.getElementById('Error')?.addEventListener('click', nextStep);
 document.getElementById('start-over')?.addEventListener('click', nextStep);

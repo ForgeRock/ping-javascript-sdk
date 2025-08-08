@@ -20,11 +20,6 @@ export interface ProtectConfig {
   envId: string;
 
   /**
-   * @property {boolean} [consoleLogEnabled] - true to enable SDK logs in the developer console. default is false
-   */
-  consoleLogEnabled?: boolean;
-
-  /**
    * @property {boolean} [waitForWindowLoad] - true to init the SDK on load event, instead of DOMContentLoaded event. default is true
    */
   waitForWindowLoad?: boolean;
@@ -45,11 +40,6 @@ export interface ProtectConfig {
   deviceAttributesToIgnore?: string[];
 
   /**
-   * @property {boolean} [lazyMetadata] - true to calculate the metadata only on getData invocation, otherwise do it automatically on init. default is false
-   */
-  lazyMetadata?: boolean;
-
-  /**
    * @property {boolean} [behavioralDataCollection] - true to collect behavioral data. default is true
    */
   behavioralDataCollection?: boolean;
@@ -65,22 +55,39 @@ export interface ProtectConfig {
   externalIdentifiers?: Record<string, string>;
 
   /**
-   * @property {number} [deviceKeyRsyncIntervals] - number of days used to window the next time the device attestation should use the device fallback key. default is 14 days
+   * @property {boolean} [universalDeviceIdentification] - set to true if you want the device data in the SDK payload to be provided as a signed JWT
    */
-  deviceKeyRsyncIntervals?: number;
+  universalDeviceIdentification?: boolean;
 
   /**
-   * @property {boolean} [enableTrust] - tie the device payload to a non-extractable crypto key stored on the browser for content authenticity verification
+   * @property {boolean} [agentIdentification] - set to true if you are using risk policies that contain the PingID Device Trust predictor. default is false
    */
-  enableTrust?: boolean;
+  agentIdentification?: boolean;
+
+  /**
+   * @property {number} [agentTimeout] - If agentIdentification is true, use agentTimeout to specify the timeout the trust agent should use if you don't want to use the default timeout setting. Can be between 200 and 10,000 milliseconds. Default is 5000.
+   */
+  agentTimeout?: number;
+
+  /**
+   * @property {number} [agentPort] - If agentIdentification is true, use agentPort to specify the port to use when connecting to the trust agent if you don't want to use the default port. Default is 9400.
+   */
+  agentPort?: number;
 }
 
-export interface ProtectInitializeConfig
-  extends Omit<ProtectConfig, 'envId' | 'waitForWindowLoad' | 'hubUrl' | 'externalIdentifiers'> {
+export interface ProtectInitializeConfig {
   _type: 'PingOneProtect';
   _action: 'protect_initialize';
   envId?: string;
+  consoleLogEnabled?: boolean;
+  deviceAttributesToIgnore?: string[];
   customHost?: string;
+  lazyMetadata?: boolean;
+  behavioralDataCollection?: boolean;
+  deviceKeyRsyncIntervals?: number;
+  enableTrust?: boolean;
+  disableTags?: boolean;
+  disableHub?: boolean;
 }
 
 export interface ProtectEvaluationConfig {
@@ -99,30 +106,30 @@ export interface Protect {
   /**
    * @async
    * @method start - Method to initialize and start the PingOne Signals SDK
-   * @returns {Promise<void | { error: unknown }>} - Returns an error if PingOne Signals SDK failed to load
+   * @returns {Promise<void | { error: string }>} - Returns an error if PingOne Signals SDK failed to load
    */
-  start: () => Promise<void | { error: unknown }>;
+  start: () => Promise<void | { error: string }>;
 
   /**
    * @async
    * @method getData - Method to get the device data
-   * @returns {Promise<string | { error: unknown }>} - Returns the device data or an error if PingOne Signals SDK failed to load
+   * @returns {Promise<string | { error: string }>} - Returns the device data or an error if PingOne Signals SDK failed to load
    */
-  getData: () => Promise<string | { error: unknown }>;
+  getData: () => Promise<string | { error: string }>;
 
   /**
    * @method pauseBehavioralData - Method to pause the behavioral data collection
-   * @returns {void | { error: unknown }} - Returns an error if PingOne Signals SDK failed to load
+   * @returns {void | { error: string }} - Returns an error if PingOne Signals SDK failed to load
    * @description Pause the behavioral data collection only; device profile data will still be collected
    */
-  pauseBehavioralData: () => void | { error: unknown };
+  pauseBehavioralData: () => void | { error: string };
 
   /**
    * @method resumeBehavioralData - Method to resume the behavioral data collection
-   * @returns {void | { error: unknown }} - Returns an error if PingOne Signals SDK failed to load
+   * @returns {void | { error: string }} - Returns an error if PingOne Signals SDK failed to load
    * @description Resume the behavioral data collection
    */
-  resumeBehavioralData: () => void | { error: unknown };
+  resumeBehavioralData: () => void | { error: string };
 
   /**
    * @method getPauseBehavioralData
