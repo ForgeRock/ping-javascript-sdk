@@ -54,8 +54,19 @@ async function app() {
       } else {
         console.log('Token Exchange Response:', tokenResponse);
         document.getElementById('logout')!.style.display = 'block';
+        document.getElementById('userinfo')!.style.display = 'block';
         document.getElementById('login')!.style.display = 'none';
       }
+    }
+  });
+
+  document.getElementById('userinfo')?.addEventListener('click', async () => {
+    const userInfo = await oidcClient.user.info();
+
+    if ('error' in userInfo) {
+      console.error('User Info Error:', userInfo);
+    } else {
+      console.log('User Info:', userInfo);
     }
   });
 
@@ -67,6 +78,7 @@ async function app() {
     } else {
       console.log('Logout successful');
       document.getElementById('logout')!.style.display = 'none';
+      document.getElementById('userinfo')!.style.display = 'none';
       document.getElementById('login')!.style.display = 'block';
     }
   });

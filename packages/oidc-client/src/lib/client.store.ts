@@ -11,19 +11,34 @@ import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ } from './authorize.request.js';
-import { createClientStore, createError } from './client.store.utils.js';
+import { createClientStore, createLogoutError, createTokenError } from './client.store.utils.js';
 import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
-import { GenericError } from './error.types.js';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type { AuthorizeErrorResponse } from './authorize.request.types.js';
-import type { TokenExchangeErrorResponse } from './exchange.types.js';
+import type {
+  AuthorizeErrorResponse,
+  AuthorizeSuccessResponse,
+} from './authorize.request.types.js';
+import type { TokenExchangeErrorResponse, TokenExchangeResponse } from './exchange.types.js';
 
+/**
+ * @function oidc
+ * @description Factory function to create an OIDC client with methods for authorization, token exchange,
+ *              user info retrieval, and logout. It initializes the client with the provided configuration,
+ *              request middleware, logger, and storage options.
+ * @param parameter - configuration object containing the OIDC client configuration, request middleware, logger,
+ * @param {OidcConfig} parameter.config - OIDC configuration including server details, client ID, redirect URI,
+ *              storage options, scope, and response type.
+ * @param {RequestMiddleware} parameter.requestMiddleware - optional array of request middleware functions to process requests.
+ * @param {{ level: LogLevel, custom: CustomLogger }} parameter.logger - optional logger configuration with log level and custom logger.
+ * @param {Partial<StorageConfig>} parameter.storage - optional storage configuration for persisting OIDC tokens.
+ * @returns {ReturnType<typeof oidc>} - Returns an object with methods for authorization, token exchange, user info retrieval, and logout.
+ */
 export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
@@ -72,7 +87,16 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   }
 
   return {
+    /**
+     * An object containing methods for the creation, and background use, of the authorization URL
+     */
     authorize: {
+      /**
+       * @function url
+       * @description Creates an authorization URL with the provided options or defaults from the configuration.
+       * @param {GetAuthorizationUrlOptions} options - Optional parameters to customize the authorization URL.
+       * @returns {Promise<string | GenericError>} - Returns a promise that resolves to the authorization URL or an error.
+       */
       url: async (options?: GetAuthorizationUrlOptions): Promise<string | GenericError> => {
         const optionsWithDefaults = {
           clientId: config.clientId,
@@ -98,7 +122,14 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
 
         return createAuthorizeUrl(wellknown.authorization_endpoint, optionsWithDefaults);
       },
-      background: async (options?: GetAuthorizationUrlOptions) => {
+      /**
+       * @function background - Initiates the authorization process in the background, returning an authorization URL or an error.
+       * @param {GetAuthorizationUrlOptions} options - Optional parameters to customize the authorization URL.
+       * @returns {Promise<AuthorizeErrorResponse | AuthorizeSuccessResponse>} - Returns a promise that resolves to the authorization URL or an error response.
+       */
+      background: async (
+        options?: GetAuthorizationUrlOptions,
+      ): Promise<AuthorizeErrorResponse | AuthorizeSuccessResponse> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -131,8 +162,24 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
       },
     },
+    /**
+     * An object containing methods for token exchange
+     */
     token: {
-      exchange: async (code: string, state: string, options?: Partial<StorageConfig>) => {
+      /**
+       * @function exchange
+       * @description Exchanges an authorization code for tokens using the token endpoint from the wellknown configuration
+       *              and stores them in the configured storage.
+       * @param {string} code - The authorization code received from the authorization server.
+       * @param {string} state - The state parameter from the authorization URL creation.
+       * @param {Partial<StorageConfig>} options - Optional storage configuration for persisting tokens.
+       * @returns {Promise<TokenExchangeResponse | GenericError | TokenExchangeErrorResponse>}
+       */
+      exchange: async (
+        code: string,
+        state: string,
+        options?: Partial<StorageConfig>,
+      ): Promise<TokenExchangeResponse | GenericError | TokenExchangeErrorResponse> => {
         const storeState = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, storeState);
 
@@ -140,7 +187,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           const err = {
             error: 'Wellknown missing token endpoint',
             type: 'wellknown_error',
-          } as AuthorizeErrorResponse;
+          } as const;
 
           log.error(err.error);
 
@@ -152,8 +199,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         ).pipe(
           Micro.flatMap((options) => validateValuesµ(options)),
           Micro.flatMap((requestOptions) =>
-            Micro.promise(
-              async () => await store.dispatch(oidcApi.endpoints.exchange.initiate(requestOptions)),
+            Micro.promise(() =>
+              store.dispatch(oidcApi.endpoints.exchange.initiate(requestOptions)),
             ),
           ),
           Micro.flatMap(({ data, error }) => handleTokenResponseµ(data, error)),
@@ -174,7 +221,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
 
         if (exitIsSuccess(result)) {
           return result.value;
-        } else if (exitIsFail(result) && 'error' in result.cause) {
+        } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
           return {
@@ -185,8 +232,16 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
       },
     },
+    /**
+     * An object containing methods for user info retrieval and logout
+     */
     user: {
-      info: async () => {
+      /**
+       * @function info - Retrieves user information using the userinfo endpoint from the wellknown configuration.
+       *                  It requires an access token stored in the configured storage.
+       * @returns {Promise<GenericError | TokenExchangeResponse>} - Returns a promise that resolves to user information or an error response.
+       */
+      info: async (): Promise<GenericError | TokenExchangeResponse> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -207,21 +262,70 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           const err = {
             error: 'No access token found',
             type: 'auth_error',
-          } as AuthorizeErrorResponse;
+          } as const;
 
           log.error(err.error);
 
           return err;
         }
 
-        return await store.dispatch(
-          oidcApi.endpoints.userInfo.initiate({
-            accessToken: tokens.accessToken,
-            endpoint: wellknown.userinfo_endpoint,
+        const info = Micro.promise(() =>
+          store.dispatch(
+            oidcApi.endpoints.userInfo.initiate({
+              accessToken: tokens.accessToken,
+              endpoint: wellknown.userinfo_endpoint,
+            }),
+          ),
+        ).pipe(
+          Micro.flatMap(({ data, error }) => {
+            if (error) {
+              let message = 'An error occurred while fetching user info';
+              let status: number | string = 'unknown';
+              if ('message' in error && error.message) {
+                message = error.message;
+              }
+              if ('status' in error) {
+                status = error.status;
+              }
+              return Micro.fail({
+                error: 'User Info retrieval failure',
+                message,
+                type: 'auth_error',
+                status,
+              } as const);
+            }
+            return Micro.succeed(data);
           }),
         );
+
+        const result = await Micro.runPromiseExit(info);
+
+        if (exitIsSuccess(result)) {
+          return result.value;
+        } else if (exitIsFail(result)) {
+          return result.cause.error;
+        } else {
+          return {
+            error: 'User Info retrieval failure',
+            message: result.cause.message,
+            type: 'auth_error',
+          } as const;
+        }
       },
-      logout: async () => {
+      /**
+       * @function logout
+       * @description Logs out the user by revoking tokens and clearing the storage.
+       *              It uses the end session endpoint from the wellknown configuration.
+       * @returns {Promise<GenericError | any>} - Returns a promise that resolves to the logout response or an error.
+       */
+      logout: async (): Promise<
+        | GenericError
+        | {
+            sessionResponse: GenericError | null;
+            revokeResponse: GenericError | null;
+            deleteResponse: void;
+          }
+      > => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -229,7 +333,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           const err = {
             error: 'Wellknown missing end session endpoint',
             type: 'wellknown_error',
-          } as AuthorizeErrorResponse;
+          } as const;
 
           log.error(err.error);
 
@@ -239,65 +343,46 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         const tokens = await storageClient.get();
 
         if (!tokens) {
-          return createError('no_tokens', log);
+          return createTokenError('no_tokens', log);
         }
 
         if (!('accessToken' in tokens)) {
-          return createError('no_access_token', log);
+          return createTokenError('no_access_token', log);
         }
 
         if (!('idToken' in tokens)) {
-          return createError('no_id_token', log);
+          return createTokenError('no_id_token', log);
         }
 
         const logout = Micro.zip(
-          Micro.tryPromise({
-            try: () =>
-              store.dispatch(
-                oidcApi.endpoints.endSession.initiate({
-                  idToken: tokens.idToken,
-                  endpoint:
-                    wellknown.ping_end_idp_session_endpoint || wellknown.end_session_endpoint,
-                }),
-              ),
-            catch: () => {
-              const err = {
-                error: 'Logout request failed',
-                message: 'network_error',
-              } as GenericError;
+          // End session with the ID token
+          Micro.promise(() =>
+            store.dispatch(
+              oidcApi.endpoints.endSession.initiate({
+                idToken: tokens.idToken,
+                endpoint: wellknown.ping_end_idp_session_endpoint || wellknown.end_session_endpoint,
+              }),
+            ),
+          ).pipe(Micro.map(({ data, error }) => createLogoutError(data, error))),
 
-              log.error(err);
-
-              return err;
-            },
-          }),
-          Micro.tryPromise({
-            try: () =>
-              store.dispatch(
-                oidcApi.endpoints.revoke.initiate({
-                  accessToken: tokens.accessToken,
-                  clientId: config.clientId,
-                  endpoint: wellknown.revocation_endpoint,
-                }),
-              ),
-            catch: () => {
-              const err = {
-                error: 'Revoke request failed',
-                message: 'network_error',
-              } as GenericError;
-
-              log.error(err);
-
-              return err;
-            },
-          }),
+          // Revoke the access token
+          Micro.promise(() =>
+            store.dispatch(
+              oidcApi.endpoints.revoke.initiate({
+                accessToken: tokens.accessToken,
+                clientId: config.clientId,
+                endpoint: wellknown.revocation_endpoint,
+              }),
+            ),
+          ).pipe(Micro.map(({ data, error }) => createLogoutError(data, error))),
         ).pipe(
+          // Delete local token and return combined results
           Micro.flatMap(([sessionResponse, revokeResponse]) =>
-            Micro.gen(function* () {
-              const deleteResponse = yield* Micro.promise(storageClient.remove);
+            Micro.promise(async () => {
+              const deleteResponse = await storageClient.remove();
               return {
-                sessionResponse: sessionResponse,
-                revokeResponse: revokeResponse,
+                sessionResponse,
+                revokeResponse,
                 deleteResponse,
               };
             }),
@@ -307,16 +392,15 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         const result = await Micro.runPromiseExit(logout);
 
         if (exitIsSuccess(result)) {
-          await storageClient.remove();
           return result.value;
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
           return {
-            error: 'Logout failure',
+            error: 'Logout_Failure',
             message: result.cause.message,
             type: 'auth_error',
-          } as GenericError;
+          } as const;
         }
       },
     },

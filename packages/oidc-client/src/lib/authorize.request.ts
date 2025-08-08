@@ -21,6 +21,15 @@ import type { WellKnownResponse } from '@forgerock/sdk-types';
 import type { OidcConfig } from './config.types.js';
 import { AuthorizeErrorResponse, AuthorizeSuccessResponse } from './authorize.request.types.js';
 
+/**
+ * @function authorizeµ
+ * @description Creates an authorization URL for the OIDC client.
+ * @param {WellKnownResponse} wellknown - The well-known configuration for the OIDC server.
+ * @param {OidcConfig} config - The OIDC client configuration.
+ * @param {CustomLogger} log - The logger instance for logging debug information.
+ * @param {GetAuthorizationUrlOptions} options - Optional parameters for the authorization request.
+ * @returns {Micro.Micro<AuthorizeSuccessResponse, AuthorizeErrorResponse, never>} - A micro effect that resolves to the authorization response.
+ */
 export async function authorizeµ(
   wellknown: WellKnownResponse,
   config: OidcConfig,
@@ -37,13 +46,18 @@ export async function authorizeµ(
          * If we support the pi.flow field, this means we are using a PingOne server.
          * PingOne servers do not support redirection through iframes because they
          * set iframe's to DENY.
+         *
+         * We do not use RTK Query for this because we don't want caching, or store
+         * updates, and want the request to be made similar to the iframe method below.
+         *
+         * This returns a Micro that resolves to the parsed response JSON.
          */
         return authorizeFetchµ(url).pipe(
           Micro.flatMap(
             (response): Micro.Micro<AuthorizeSuccessResponse, AuthorizeErrorResponse, never> => {
-              if ('authorizeResponse' in response) {
-                log.debug('Received authorize response', response.authorizeResponse);
-                return Micro.succeed(response.authorizeResponse);
+              if ('code' in response) {
+                log.debug('Received code in response', response);
+                return Micro.succeed(response);
               }
               log.error('Error in authorize response', response);
               // For redirection, we need to remore `pi.flow` from the options
@@ -57,6 +71,9 @@ export async function authorizeµ(
         /**
          * If the response mode is not pi.flow, then we are likely using a traditional
          * redirect based server supporting iframes. An example would be PingAM.
+         *
+         * This returns a Micro that's either the success URL parameters or error URL
+         * parameters.
          */
         return authorizeIframeµ(url, config).pipe(
           Micro.flatMap(

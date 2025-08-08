@@ -19,8 +19,8 @@ import { getCollectorErrors } from './node.utils.js';
  * Import the types
  */
 import type { Draft, PayloadAction } from '@reduxjs/toolkit';
+
 import type { SubmitCollector } from './collector.types.js';
-import type { GenericError } from './error.types.js';
 import type {
   DavinciErrorResponse,
   DaVinciFailureResponse,
@@ -294,7 +294,7 @@ export const nodeSlice = createSlice({
           code: 'unknown',
           type: 'state_error',
           message: `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
-        } as GenericError,
+        } as const,
         state: [],
       };
     },
@@ -310,7 +310,7 @@ export const nodeSlice = createSlice({
           code: 'unknown',
           type: 'state_error',
           message: `\`collectors\` are only available on nodes with \`status\` of ${CONTINUE_STATUS} or ${ERROR_STATUS}`,
-        } as GenericError,
+        } as const,
         state: null,
       };
     },
@@ -329,7 +329,7 @@ export const nodeSlice = createSlice({
           code: 'unknown',
           type: 'state_error',
           message: `\`errorCollectors\` are only available on nodes with \`status\` of ${ERROR_STATUS}`,
-        } as GenericError,
+        } as const,
         state: [],
       };
     },

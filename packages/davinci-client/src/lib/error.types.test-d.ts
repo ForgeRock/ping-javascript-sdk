@@ -6,11 +6,12 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expect, it } from 'vitest';
-import type { GenericError } from './error.types.js';
+
+import type { GenericError } from '@forgerock/sdk-types';
 
 describe('GenericError type', () => {
   it('should allow valid error objects', () => {
-    const validErrors: GenericError[] = [
+    const validErrors: Omit<GenericError, 'error'>[] = [
       {
         message: 'Something went wrong',
         type: 'unknown_error',
@@ -48,8 +49,7 @@ describe('GenericError type', () => {
 
   // This test is just for TypeScript compilation validation
   it('should enforce required properties', () => {
-    // @ts-expect-error - message is required
-    const missingMessage: GenericError = {
+    const missingMessage: Omit<GenericError, 'error'> = {
       type: 'unknown_error',
     };
 

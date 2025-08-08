@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { CustomStorageObject } from '@forgerock/sdk-types';
+import { CustomStorageObject, GenericError } from '@forgerock/sdk-types';
 
 export interface StorageClient<Value> {
   get: () => Promise<Value | GenericError | null>;
@@ -31,18 +31,6 @@ export interface CustomStorageConfig {
   custom: CustomStorageObject;
 }
 
-export interface GenericError {
-  code?: string | number;
-  message: string;
-  type:
-    | 'argument_error'
-    | 'davinci_error'
-    | 'internal_error'
-    | 'network_error'
-    | 'state_error'
-    | 'unknown_error';
-}
-
 export function createStorage<Value>(config: StorageConfig) {
   const { type: storeType, prefix = 'pic', name } = config;
 
@@ -63,9 +51,9 @@ export function createStorage<Value>(config: StorageConfig) {
           return parsed as Value;
         } catch {
           return {
-            code: 'Parse_Error',
-            message: 'Eror parsing value from provided storage',
-            type: 'unknown_error',
+            error: 'Parse_Error',
+            message: 'Error parsing value from provided storage',
+            type: 'parse_error',
           };
         }
       }
@@ -79,9 +67,9 @@ export function createStorage<Value>(config: StorageConfig) {
           return parsed as Value;
         } catch {
           return {
-            code: 'Parse_Error',
-            message: 'Eror parsing value from session storage',
-            type: 'unknown_error',
+            error: 'Parse_Error',
+            message: 'Error parsing value from session storage',
+            type: 'parse_error',
           };
         }
       }
@@ -95,9 +83,9 @@ export function createStorage<Value>(config: StorageConfig) {
         return parsed as Value;
       } catch {
         return {
-          code: 'Parse_Error',
-          message: 'Eror parsing value from local storage',
-          type: 'unknown_error',
+          error: 'Parse_Error',
+          message: 'Error parsing value from local storage',
+          type: 'parse_error',
         };
       }
     },
@@ -110,7 +98,7 @@ export function createStorage<Value>(config: StorageConfig) {
         } catch {
           return {
             code: 'Storing_Error',
-            message: 'Eror storing value in custom storage',
+            message: 'Error storing value in custom storage',
             type: 'unknown_error',
           };
         }
@@ -122,7 +110,7 @@ export function createStorage<Value>(config: StorageConfig) {
         } catch {
           return {
             code: 'Storing_Error',
-            message: 'Eror storing value in session storage',
+            message: 'Error storing value in session storage',
             type: 'unknown_error',
           };
         }
@@ -133,7 +121,7 @@ export function createStorage<Value>(config: StorageConfig) {
       } catch {
         return {
           code: 'Storing_Error',
-          message: 'Eror storing value in local storage',
+          message: 'Error storing value in local storage',
           type: 'unknown_error',
         };
       }

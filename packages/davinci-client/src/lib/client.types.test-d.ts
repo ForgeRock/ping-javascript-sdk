@@ -6,10 +6,12 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expectTypeOf, it } from 'vitest';
+
+import type { GenericError } from '@forgerock/sdk-types';
+
 import type { InitFlow, InternalErrorResponse, Updater } from './client.types.js';
-import type { GenericError } from './error.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
-import { PhoneNumberInputValue } from './collector.types.js';
+import type { PhoneNumberInputValue } from './collector.types.js';
 
 describe('Client Types', () => {
   it('should allow function returning error', async () => {
@@ -189,8 +191,10 @@ describe('Updater', () => {
 
     const withoutError: Updater = () => null;
 
-    expectTypeOf(withError).returns.toMatchTypeOf<{ error: GenericError } | null>();
-    expectTypeOf(withoutError).returns.toMatchTypeOf<{ error: GenericError } | null>();
+    expectTypeOf(withError).returns.toMatchTypeOf<{ error: Omit<GenericError, 'error'> } | null>();
+    expectTypeOf(withoutError).returns.toMatchTypeOf<{
+      error: Omit<GenericError, 'error'>;
+    } | null>();
 
     // Test both are valid Updater types
     expectTypeOf(withError).toMatchTypeOf<Updater>();
