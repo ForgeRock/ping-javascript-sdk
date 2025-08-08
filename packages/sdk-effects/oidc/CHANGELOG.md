@@ -1,5 +1,22 @@
 # @forgerock/sdk-oidc
 
+## 1.3.0
+
+### Minor Changes
+
+- [#348](https://github.com/ForgeRock/ping-javascript-sdk/pull/348) [`beb349a`](https://github.com/ForgeRock/ping-javascript-sdk/commit/beb349a9a13e7bb8fbad35bf9bda9e340545cffa) Thanks [@cerebrl](https://github.com/cerebrl)! - Implemented token exchange within OIDC Client
+
+- [#344](https://github.com/ForgeRock/ping-javascript-sdk/pull/344) [`dc4d4bd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/dc4d4bdb5aa781660de631f45b22620e400d9f4a) Thanks [@cerebrl](https://github.com/cerebrl)! - Implement authorize functionality in oidc-client
+  - Provide authorize URL method for URL creation
+  - Provide background method for authorization without redirection
+  - Introduce Micro from the Effect package
+
+### Patch Changes
+
+- Updated dependencies [[`6c06e70`](https://github.com/ForgeRock/ping-javascript-sdk/commit/6c06e709a7aa503cda2e4f2b923cace1abcebd3c)]:
+  - @forgerock/sdk-types@1.3.0
+  - @forgerock/sdk-utilities@1.3.0
+
 ## 1.2.0
 
 ### Minor Changes
