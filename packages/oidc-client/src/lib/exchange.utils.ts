@@ -3,9 +3,11 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Micro } from 'effect';
 
 import { getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
-
-import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
-import type { GenericError, WellKnownResponse } from '@forgerock/sdk-types';
+import type {
+  GenericError,
+  WellKnownResponse,
+  GetAuthorizationUrlOptions,
+} from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type { TokenExchangeResponse, TokenRequestOptions } from './exchange.types.js';

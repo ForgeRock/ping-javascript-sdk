@@ -11,7 +11,7 @@ import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ } from './authorize.request.js';
-import { createClientStore, createLogoutError, createTokenError } from './client.store.utils.js';
+import { createClientStore, createTokenError } from './client.store.utils.js';
 import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi, wellknownSelector } from './wellknown.api.js';
@@ -25,6 +25,7 @@ import type {
   AuthorizeSuccessResponse,
 } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse, TokenExchangeResponse } from './exchange.types.js';
+import { logoutµ } from './logout.request.js';
 
 /**
  * @function oidc
@@ -354,42 +355,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           return createTokenError('no_id_token', log);
         }
 
-        const logout = Micro.zip(
-          // End session with the ID token
-          Micro.promise(() =>
-            store.dispatch(
-              oidcApi.endpoints.endSession.initiate({
-                idToken: tokens.idToken,
-                endpoint: wellknown.ping_end_idp_session_endpoint || wellknown.end_session_endpoint,
-              }),
-            ),
-          ).pipe(Micro.map(({ data, error }) => createLogoutError(data, error))),
-
-          // Revoke the access token
-          Micro.promise(() =>
-            store.dispatch(
-              oidcApi.endpoints.revoke.initiate({
-                accessToken: tokens.accessToken,
-                clientId: config.clientId,
-                endpoint: wellknown.revocation_endpoint,
-              }),
-            ),
-          ).pipe(Micro.map(({ data, error }) => createLogoutError(data, error))),
-        ).pipe(
-          // Delete local token and return combined results
-          Micro.flatMap(([sessionResponse, revokeResponse]) =>
-            Micro.promise(async () => {
-              const deleteResponse = await storageClient.remove();
-              return {
-                sessionResponse,
-                revokeResponse,
-                deleteResponse,
-              };
-            }),
-          ),
+        const result = await Micro.runPromiseExit(
+          logoutµ({ tokens, config, wellknown, store, storageClient }),
         );
-
-        const result = await Micro.runPromiseExit(logout);
 
         if (exitIsSuccess(result)) {
           return result.value;

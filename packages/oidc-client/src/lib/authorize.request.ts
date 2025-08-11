@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { CustomLogger } from '@forgerock/sdk-logger';
-import { GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
+import { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import { Micro } from 'effect';
 
 import {

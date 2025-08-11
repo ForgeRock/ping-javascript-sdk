@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@forgerock/javascript-sdk": "^4.8.2",
-    "@forgerock/oidc-client": "workspace:*"
+    "@forgerock/oidc-client": "workspace:*",
+    "@forgerock/sdk-types": "workspace:*"
   },
   "nx": {
     "tags": ["scope:app"]

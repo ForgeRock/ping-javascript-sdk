@@ -6,6 +6,8 @@
  */
 import type { LegacyConfigOptions } from './legacy-config.types.js';
 
+export type ResponseType = 'code' | 'token';
+
 /**
  * Define the options for the authorization URL
  * @param clientId The client ID of the application
@@ -13,22 +15,24 @@ import type { LegacyConfigOptions } from './legacy-config.types.js';
  * @param responseType The response type of the authorization request
  * @param scope The scope of the authorization request
  */
-export type ResponseType = 'code' | 'token';
 
 export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   /**
-   * These three properties clientid, scope and redirectUri are required
+   * These four properties clientid, scope, responseType and redirectUri are required
    * when using this type, which are not required when defining Config.
    */
   clientId: string;
-  login?: 'redirect' | 'embedded';
   scope: string;
   redirectUri: string;
   responseType: ResponseType;
+  responseMode?: 'fragment' | 'form_post' | 'pi.flow' | 'query';
+  login?: 'redirect' | 'embedded';
   state?: string;
   verifier?: string;
   query?: Record<string, string>;
   prompt?: 'none' | 'login' | 'consent';
+  successParams?: string[];
+  errorParams?: string[];
 }
 /**
  * Generate and store PKCE values for later use

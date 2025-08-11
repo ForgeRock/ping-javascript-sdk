@@ -4,12 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { createAuthorizeUrl, GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
+import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
 import { iFrameManager, ResolvedParams } from '@forgerock/iframe-manager';
 
-import type { WellKnownResponse } from '@forgerock/sdk-types';
+import type { WellKnownResponse, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 import type {
   AuthorizeErrorResponse,
