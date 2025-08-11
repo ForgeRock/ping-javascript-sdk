@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
 import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Micro } from 'effect';
@@ -5,7 +11,6 @@ import { Micro } from 'effect';
 import { getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
 
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
-import type { GenericError, WellKnownResponse } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type { TokenExchangeResponse, TokenRequestOptions } from './exchange.types.js';
@@ -16,18 +21,20 @@ export function createValuesµ(
   code: string,
   config: OidcConfig,
   state: string,
-  wellknown: WellKnownResponse,
+  endpoint: string,
   options?: Partial<StorageConfig>,
 ) {
-  const storedValues = getStoredAuthUrlValues(config.clientId, options?.prefix);
+  return Micro.sync(() => {
+    const storedValues = getStoredAuthUrlValues(config.clientId, options?.prefix);
 
-  return {
-    code,
-    config,
-    state,
-    storedValues,
-    wellknown,
-  };
+    return {
+      code,
+      config,
+      state,
+      storedValues,
+      endpoint,
+    };
+  });
 }
 
 export function handleTokenResponseµ(
@@ -65,13 +72,13 @@ export function validateValuesµ({
   config,
   state,
   storedValues,
-  wellknown,
+  endpoint,
 }: {
   code: string;
   config: OidcConfig;
   state: string;
   storedValues: GetAuthorizationUrlOptions;
-  wellknown: { token_endpoint: string };
+  endpoint: string;
 }) {
   if (!storedValues || storedValues.state !== state) {
     const err = {
@@ -79,14 +86,14 @@ export function validateValuesµ({
       message:
         'The provided state does not match the stored state. This is likely due to passing in used, returned, authorize parameters.',
       type: 'state_error',
-    } as GenericError;
+    } as const;
 
-    return Micro.fail(err as GenericError);
+    return Micro.fail(err);
   }
   return Micro.succeed({
     code,
     config,
-    endpoint: wellknown.token_endpoint,
+    endpoint,
     ...(storedValues.verifier && { verifier: storedValues.verifier }), // Optional PKCE
   } as TokenRequestOptions);
 }

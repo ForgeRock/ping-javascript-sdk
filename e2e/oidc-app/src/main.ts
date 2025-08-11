@@ -55,6 +55,7 @@ async function app() {
         console.log('Token Exchange Response:', tokenResponse);
         document.getElementById('logout')!.style.display = 'block';
         document.getElementById('userinfo')!.style.display = 'block';
+        document.getElementById('tokens')!.style.display = 'block';
         document.getElementById('login')!.style.display = 'none';
       }
     }
@@ -79,7 +80,18 @@ async function app() {
       console.log('Logout successful');
       document.getElementById('logout')!.style.display = 'none';
       document.getElementById('userinfo')!.style.display = 'none';
+      document.getElementById('tokens')!.style.display = 'none';
       document.getElementById('login')!.style.display = 'block';
+    }
+  });
+
+  document.getElementById('tokens')?.addEventListener('click', async () => {
+    const tokens = await oidcClient.token.get({ backgroundRenew: true });
+
+    if ('error' in tokens) {
+      console.error('Token Retrieval Error:', tokens);
+    } else {
+      console.log('Tokens:', tokens);
     }
   });
 

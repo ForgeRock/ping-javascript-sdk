@@ -30,7 +30,7 @@ import { AuthorizeErrorResponse, AuthorizeSuccessResponse } from './authorize.re
  * @param {GetAuthorizationUrlOptions} options - Optional parameters for the authorization request.
  * @returns {Micro.Micro<AuthorizeSuccessResponse, AuthorizeErrorResponse, never>} - A micro effect that resolves to the authorization response.
  */
-export async function authorizeµ(
+export function authorizeµ(
   wellknown: WellKnownResponse,
   config: OidcConfig,
   log: CustomLogger,
@@ -60,7 +60,7 @@ export async function authorizeµ(
                 return Micro.succeed(response);
               }
               log.error('Error in authorize response', response);
-              // For redirection, we need to remore `pi.flow` from the options
+              // For redirection, we need to remove `pi.flow` from the options
               const redirectOptions = options;
               delete redirectOptions.responseMode;
               return createAuthorizeErrorµ(response, wellknown, config, options);

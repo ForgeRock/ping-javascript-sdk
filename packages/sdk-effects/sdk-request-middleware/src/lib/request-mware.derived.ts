@@ -6,6 +6,7 @@
  */
 
 export const actionTypes = {
+  // DaVinci
   start: 'DAVINCI_START',
   next: 'DAVINCI_NEXT',
   flow: 'DAVINCI_FLOW',
@@ -13,6 +14,13 @@ export const actionTypes = {
   error: 'DAVINCI_ERROR',
   failure: 'DAVINCI_FAILURE',
   resume: 'DAVINCI_RESUME',
+
+  // OIDC
+  authorize: 'AUTHORIZE',
+  tokenExchange: 'TOKEN_EXCHANGE',
+  revoke: 'REVOKE',
+  userInfo: 'USER_INFO',
+  endSession: 'END_SESSION',
 } as const;
 
 export type ActionTypes = (typeof actionTypes)[keyof typeof actionTypes];

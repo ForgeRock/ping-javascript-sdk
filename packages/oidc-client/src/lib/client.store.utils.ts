@@ -82,10 +82,7 @@ export function createLogoutError(
   return null;
 }
 
-export function createTokenError(
-  type: 'no_tokens' | 'no_access_token' | 'no_id_token',
-  log: ReturnType<typeof loggerFn>,
-) {
+export function createTokenError(type: 'no_tokens' | 'no_access_token' | 'no_id_token') {
   let error: GenericError;
 
   if (type === 'no_tokens') {
@@ -113,8 +110,6 @@ export function createTokenError(
       type: 'unknown_error',
     } as const;
   }
-
-  log.error(error.message || 'Error occurred related to tokens');
 
   return error;
 }
