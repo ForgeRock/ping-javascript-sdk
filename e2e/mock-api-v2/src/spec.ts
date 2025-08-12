@@ -28,10 +28,12 @@ import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from './schemas/author
 import { SuccessResponseRedirect } from './schemas/return-success-response-redirect.schema.js';
 import { CapabilitiesPathParams } from './schemas/capabilities/capabilities.path.schema.js';
 import { CapabilitiesRequestBody } from './schemas/capabilities/capabilities.request.schema.js';
+import { addStepCookie } from './addStepCookie.openapi.js';
 
 const MockApi = HttpApi.make('MyApi')
   .annotate(OpenApi.Title, 'PingOne OIDC and OAuth2 Mock API')
   .annotate(OpenApi.Version, '1.0.0')
+  .annotate(OpenApi.Transform, addStepCookie)
   .annotate(
     OpenApi.Description,
     'Mock API for PingOne OIDC and OAuth2 flows including authorization, token issuance, token validation, token revocation, and end session. All endpoints are grouped under PingAM for unified testing.',
@@ -55,7 +57,7 @@ const MockApi = HttpApi.make('MyApi')
   // Authorization
   .add(
     HttpApiGroup.make('Authorization').add(
-      HttpApiEndpoint.get('authorize')`/:envid/davinci/authorize`
+      HttpApiEndpoint.get('authorize', `/:envid/davinci/authorize`)
         .setPath(Schema.Struct({ envid: Schema.String }))
         .setHeaders(DavinciAuthorizeHeaders)
         .setUrlParams(DavinciAuthorizeQuery)
@@ -74,7 +76,8 @@ const MockApi = HttpApi.make('MyApi')
     HttpApiGroup.make('Capabilities').add(
       HttpApiEndpoint.post(
         'capabilities',
-      )`/:envid/davinci/connections/:connectionID/capabilities/:capabilityName`
+        `/:envid/davinci/connections/:connectionID/capabilities/:capabilityName`,
+      )
         .setPayload(CapabilitiesRequestBody)
         .setPath(CapabilitiesPathParams)
         .setUrlParams(CapabilitiesQueryParams)
@@ -83,10 +86,11 @@ const MockApi = HttpApi.make('MyApi')
         .addError(HttpApiError.NotFound)
         .addError(HttpApiError.Unauthorized),
     ),
+    // .middleware(IncrementStepIndexMock),
   )
   .add(
     HttpApiGroup.make('OpenIDConfig').add(
-      HttpApiEndpoint.get('openid')`/:envid/as/.well-known/openid-configuration`
+      HttpApiEndpoint.get('openid', `/:envid/as/.well-known/openid-configuration`)
         .setPath(Schema.Struct({ envid: Schema.String }))
         .addSuccess(openIdConfigurationResponseSchema)
         .annotate(OpenApi.Summary, 'OIDC Configuration')
@@ -98,88 +102,101 @@ const MockApi = HttpApi.make('MyApi')
   )
   // Tokens
   .add(
-    HttpApiGroup.make('Tokens').add(
-      HttpApiEndpoint.post('Tokens')`/:envid/as/token`
-        .addSuccess(TokenResponseBody)
-        .addError(HttpApiError.Unauthorized)
-        .setPath(Schema.Struct({ envid: Schema.String }))
-        .annotate(OpenApi.Summary, 'Token Endpoint')
-        .annotate(
-          OpenApi.Description,
-          'Issues access tokens, ID tokens, and refresh tokens after successful authentication',
-        ),
-    ),
+    HttpApiGroup.make('Tokens')
+      .add(
+        HttpApiEndpoint.post('Tokens', `/:envid/as/token`)
+          .addSuccess(TokenResponseBody)
+          .addError(HttpApiError.Unauthorized)
+          .setPath(Schema.Struct({ envid: Schema.String }))
+          .annotate(OpenApi.Summary, 'Token Endpoint')
+          .annotate(
+            OpenApi.Description,
+            'Issues access tokens, ID tokens, and refresh tokens after successful authentication',
+          ),
+      )
+      .middleware(Authorization)
+      .middleware(SessionMiddleware),
   )
   // Protected Requests
   .add(
-    HttpApiGroup.make('ProtectedRequests').add(
-      HttpApiEndpoint.get('UserInfo')`/:envid/as/userinfo`
-        .setPath(Schema.Struct({ envid: Schema.String }))
-        .addSuccess(UserInfoSchema)
-        .addError(HttpApiError.Unauthorized)
-        .annotate(OpenApi.Summary, 'UserInfo Endpoint')
-        .annotate(
-          OpenApi.Description,
-          'Returns claims about the authenticated end-user. Requires a valid access token.',
-        ),
-    ),
+    HttpApiGroup.make('ProtectedRequests')
+      .add(
+        HttpApiEndpoint.get('UserInfo', `/:envid/as/userinfo`)
+          .setPath(Schema.Struct({ envid: Schema.String }))
+          .addSuccess(UserInfoSchema)
+          .addError(HttpApiError.Unauthorized)
+          .annotate(OpenApi.Summary, 'UserInfo Endpoint')
+          .annotate(
+            OpenApi.Description,
+            'Returns claims about the authenticated end-user. Requires a valid access token.',
+          ),
+      )
+      .middleware(Authorization)
+      .middleware(SessionMiddleware),
   )
   // SessionManagement
   .add(
-    HttpApiGroup.make('SessionManagement').add(
-      HttpApiEndpoint.get('EndSession')`/:envid/as/endSession`
-        .setPath(EndSessionPath)
-        .setUrlParams(EndSessionQuery)
-        .setHeaders(EndSessionHeaders)
-        .addSuccess(
-          Schema.Union(
-            Schema.String,
-            Schema.Struct({
-              status: Schema.Number,
-              headers: Schema.Record({ key: Schema.String, value: Schema.String }),
-              body: Schema.String,
-            }),
+    HttpApiGroup.make('SessionManagement')
+      .add(
+        HttpApiEndpoint.get('EndSession', `/:envid/as/endSession`)
+          .setPath(EndSessionPath)
+          .setUrlParams(EndSessionQuery)
+          .setHeaders(EndSessionHeaders)
+          .addSuccess(
+            Schema.Union(
+              Schema.String,
+              Schema.Struct({
+                status: Schema.Number,
+                headers: Schema.Record({ key: Schema.String, value: Schema.String }),
+                body: Schema.String,
+              }),
+            ),
+          )
+          .addError(HttpApiError.Unauthorized)
+          .annotate(OpenApi.Summary, 'End Session Endpoint')
+          .annotate(
+            OpenApi.Description,
+            'OIDC RP-initiated logout endpoint that terminates the user session and invalidates tokens',
           ),
-        )
-        .addError(HttpApiError.Unauthorized)
-        .annotate(OpenApi.Summary, 'End Session Endpoint')
-        .annotate(
-          OpenApi.Description,
-          'OIDC RP-initiated logout endpoint that terminates the user session and invalidates tokens',
-        ),
-    ),
+      )
+      .middleware(Authorization)
+      .middleware(SessionMiddleware),
   )
   // Protected Requests
   .add(
-    HttpApiGroup.make('ProtectedRequests').add(
-      HttpApiEndpoint.get('UserInfo')`/:envid/as/userinfo`
-        .setPath(Schema.Struct({ envid: Schema.String }))
-        .addSuccess(UserInfoSchema)
-        .addError(HttpApiError.Unauthorized)
-        .annotate(OpenApi.Summary, 'UserInfo Endpoint')
-        .annotate(
-          OpenApi.Description,
-          'Returns claims about the authenticated end-user. Requires a valid access token.',
-        ),
-    ),
+    HttpApiGroup.make('ProtectedRequests')
+      .add(
+        HttpApiEndpoint.get('UserInfo', `/:envid/as/userinfo`)
+          .setPath(Schema.Struct({ envid: Schema.String }))
+          .addSuccess(UserInfoSchema)
+          .addError(HttpApiError.Unauthorized)
+          .annotate(OpenApi.Summary, 'UserInfo Endpoint')
+          .annotate(
+            OpenApi.Description,
+            'Returns claims about the authenticated end-user. Requires a valid access token.',
+          ),
+      )
+      .middleware(Authorization)
+      .middleware(SessionMiddleware),
   )
   .add(
-    HttpApiGroup.make('Revoke').add(
-      HttpApiEndpoint.post('RevokeToken')`/:envid/as/revoke`
-        .setPath(RevokePath)
-        .setPayload(RevokeRequestBody)
-        .addSuccess(RevokeResponseBody)
-        .addError(HttpApiError.Unauthorized)
-        .annotate(OpenApi.Summary, 'Token Revocation Endpoint')
-        .annotate(
-          OpenApi.Description,
-          'Allows clients to notify the authorization server that a previously obtained refresh or access token is no longer needed',
-        ),
-    ),
+    HttpApiGroup.make('Revoke')
+      .add(
+        HttpApiEndpoint.post('RevokeToken', `/:envid/as/revoke`)
+          .setPath(RevokePath)
+          .setPayload(RevokeRequestBody)
+          .addSuccess(RevokeResponseBody)
+          .addError(HttpApiError.Unauthorized)
+          .annotate(OpenApi.Summary, 'Token Revocation Endpoint')
+          .annotate(
+            OpenApi.Description,
+            'Allows clients to notify the authorization server that a previously obtained refresh or access token is no longer needed',
+          ),
+      )
+      .middleware(Authorization)
+      .middleware(SessionMiddleware), // Applies to token, end session, revoke
   )
   // Middlewares for relevant endpoints
-  .middleware(SessionMiddleware) // Applies to token, end session, revoke
-  .middleware(Authorization) // Applies to userinfo
   .annotate(
     OpenApi.Description,
     'All PingAM endpoints for OIDC and OAuth2 flows grouped together.',

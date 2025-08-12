@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, pipe } from 'effect';
+import { Console, Effect, pipe } from 'effect';
 import { MockApi } from '../spec.js';
 import {
   HttpApiBuilder,
@@ -25,6 +25,7 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
        * If it is not present, we return a 404 Not Found error.
        */
       const acr_value = urlParams?.acr_values ?? '';
+      console.log('acr_value', acr_value);
 
       if (!acr_value) {
         return yield* Effect.fail(new HttpApiError.NotFound());
@@ -38,12 +39,14 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
       const req = yield* HttpServerRequest.HttpServerRequest;
 
       const stepIndexCookie = req.cookies['stepIndex'];
+      console.log(req.cookies);
 
       /**
        * If we are here with no step index that means we can't continue through a flow.
        * We should error
        */
       if (!stepIndexCookie) {
+        console.log('no step index');
         return yield* Effect.fail(new HttpApiError.NotFound());
       }
 
@@ -89,6 +92,7 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
          * and we have no more steps to process.
          */
         const body = yield* HttpBody.json(returnSuccessResponseRedirect).pipe(
+          Effect.tap(Console.log(`here stepIndex: ${stepIndex}`)),
           /**
            * Decide on a better way to handle this error possibiltiy
            */

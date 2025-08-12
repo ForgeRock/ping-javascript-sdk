@@ -1,63 +1,74 @@
+/**
+ * Copyright (c) 2025 Ping Identity Corporation.
+ * MIT License
+ */
 import {
-  HttpServerResponse,
   HttpApiMiddleware,
   HttpApp,
   HttpServerRequest,
+  HttpServerResponse,
 } from '@effect/platform';
 import { ResponseError } from '@effect/platform/HttpServerError';
 import { Console, Effect, Layer } from 'effect';
 
-class IncrementStepIndex extends HttpApiMiddleware.Tag<IncrementStepIndex>()(
+// Export the tag so you can .middleware(IncrementStepIndex) in your spec if desired
+export class IncrementStepIndex extends HttpApiMiddleware.Tag<IncrementStepIndex>()(
   'IncrementStepIndex',
 ) {}
-const IncrementStepIndexMock = Layer.effect(
+
+export const IncrementStepIndexMock = Layer.effect(
   IncrementStepIndex,
   Effect.gen(function* () {
-    yield* Console.log('In middleware');
+    yield* Console.log('IncrementStepIndex: init');
 
     return Effect.gen(function* () {
-      // Get the current request to read cookies
+      // Read cookies from the current request
       const request = yield* HttpServerRequest.HttpServerRequest;
 
       // Parse existing stepIndex cookie or default to 0
       const cookies = request.cookies;
-      const currentStepIndex = cookies.stepIndex ? parseInt(cookies.stepIndex) : 0;
+      const currentStepIndex = cookies.stepIndex ? parseInt(cookies.stepIndex, 10) : 0;
 
-      // Get the request URL path
-      const urlPath = request.url.split('?')[0];
-      // Check if this is an end-session request
-      const isEndSessionRequest = urlPath.includes('/end_session');
-      // Determine the new stepIndex based on the request type
+      // Normalize URL (strip query) and detect special flows
+      const urlPath = request.url.split('?')[0] ?? '';
+      const isEndSessionRequest =
+        urlPath.includes('/endSession') || urlPath.includes('/end_session');
+      const isAuthFlowRequest = urlPath.includes('/authorize') || urlPath.includes('/authenticate');
+
+      // Decide next value
       let newStepIndex = currentStepIndex;
       if (isEndSessionRequest) {
-        // Reset the stepIndex for end_session requests
         newStepIndex = 0;
-        yield* Console.log('End session request detected, resetting stepIndex to: ' + newStepIndex);
-      } else if (urlPath.includes('/authorize') || urlPath.includes('/authenticate')) {
-        // Increment the stepIndex for authorization flow requests
+        yield* Console.log(
+          `IncrementStepIndex: end-session detected → resetting stepIndex to ${newStepIndex}`,
+        );
+      } else if (isAuthFlowRequest) {
         newStepIndex = currentStepIndex + 1;
         yield* Console.log(
-          'Current stepIndex: ' + currentStepIndex + ', incrementing to: ' + newStepIndex,
+          `IncrementStepIndex: auth flow → ${currentStepIndex} -> ${newStepIndex}`,
         );
       } else {
-        // For other requests, keep the stepIndex the same
-        yield* Console.log('Request to ' + urlPath + ', keeping stepIndex at: ' + currentStepIndex);
+        yield* Console.log(
+          `IncrementStepIndex: other route ${urlPath} → keeping stepIndex ${currentStepIndex}`,
+        );
       }
 
-      // Set the appropriate stepIndex cookie in the response
-      yield* HttpApp.appendPreResponseHandler((request, response) =>
-        HttpServerResponse.setCookie(response, 'stepIndex', String(newStepIndex), {
-          // Optional cookie options
+      // Write cookie just before the response is sent
+      yield* HttpApp.appendPreResponseHandler((req, res) =>
+        HttpServerResponse.setCookie(res, 'stepIndex', String(newStepIndex), {
+          // NOTE: mock defaults; tighten in prod (httpOnly: true, secure: true, sameSite: 'lax')
           httpOnly: false,
           secure: false,
           sameSite: 'strict',
+          path: '/',
         }).pipe(
+          // If cookie setting fails, convert to a typed ResponseError for consistent diagnostics
           Effect.catchTag(
             'CookieError',
             () =>
               new ResponseError({
-                request,
-                response,
+                request: req,
+                response: res,
                 reason: 'Decode',
                 cause: 'error updating the stepIndex cookie',
               }),
@@ -67,5 +78,3 @@ const IncrementStepIndexMock = Layer.effect(
     });
   }),
 );
-
-export { IncrementStepIndexMock };
