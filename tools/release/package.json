@@ -8,5 +8,9 @@
   "author": "",
   "main": "index.js",
   "scripts": {},
-  "dependencies": {}
+  "dependencies": {
+    "@effect/platform": "catalog:effect",
+    "@effect/platform-node": "catalog:effect",
+    "effect": "catalog:effect"
+  }
 }

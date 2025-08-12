@@ -25,6 +25,7 @@ test.describe('Test basic login flow with Ping Protect', () => {
     await page.goto('/protect-native');
     await expect(page.url()).toBe('http://localhost:8443/protect-native');
 
+    await expect(page.getByText('Ping Protect Native')).toBeVisible();
     await expect(page.getByText('Protect initializing')).toBeVisible();
 
     await page.getByPlaceholder('Username').fill(username);

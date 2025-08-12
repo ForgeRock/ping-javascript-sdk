@@ -45,7 +45,7 @@ export function protect(options: ProtectConfig): Protect {
   let protectApiInitialized = false;
 
   return {
-    start: async (): Promise<void | { error: unknown }> => {
+    start: async (): Promise<void | { error: string }> => {
       try {
         /*
          * Load the Ping Signals SDK
@@ -59,29 +59,52 @@ export function protect(options: ProtectConfig): Protect {
         return { error: 'Failed to load PingOne Signals SDK' };
       }
 
-      await window._pingOneSignals.init(options);
+      try {
+        await window._pingOneSignals.init(options);
 
-      if (options.behavioralDataCollection === true) {
+        if (options.behavioralDataCollection === true) {
+          window._pingOneSignals.resumeBehavioralData();
+        }
+      } catch (err) {
+        console.error('error initializing ping protect', err);
+        return { error: 'Failed to initialize PingOne Signals SDK' };
+      }
+    },
+    getData: async (): Promise<string | { error: string }> => {
+      if (!protectApiInitialized) {
+        return { error: 'PingOne Signals SDK is not initialized' };
+      }
+
+      try {
+        return await window._pingOneSignals.getData();
+      } catch (err) {
+        console.error('error getting data from ping protect', err);
+        return { error: 'Failed to get data from Protect' };
+      }
+    },
+    pauseBehavioralData: (): void | { error: string } => {
+      if (!protectApiInitialized) {
+        return { error: 'PingOne Signals SDK is not initialized' };
+      }
+
+      try {
+        window._pingOneSignals.pauseBehavioralData();
+      } catch (err) {
+        console.error('error pausing behavioral data in ping protect', err);
+        return { error: 'Failed to pause behavioral data in Protect' };
+      }
+    },
+    resumeBehavioralData: (): void | { error: string } => {
+      if (!protectApiInitialized) {
+        return { error: 'PingOne Signals SDK is not initialized' };
+      }
+
+      try {
         window._pingOneSignals.resumeBehavioralData();
+      } catch (err) {
+        console.error('error resuming behavioral data in ping protect', err);
+        return { error: 'Failed to resume behavioral data in Protect' };
       }
-    },
-    getData: async (): Promise<string | { error: unknown }> => {
-      if (!protectApiInitialized) {
-        return { error: 'PingOne Signals SDK is not initialized' };
-      }
-      return await window._pingOneSignals.getData();
-    },
-    pauseBehavioralData: (): void | { error: unknown } => {
-      if (!protectApiInitialized) {
-        return { error: 'PingOne Signals SDK is not initialized' };
-      }
-      window._pingOneSignals.pauseBehavioralData();
-    },
-    resumeBehavioralData: (): void | { error: unknown } => {
-      if (!protectApiInitialized) {
-        return { error: 'PingOne Signals SDK is not initialized' };
-      }
-      window._pingOneSignals.resumeBehavioralData();
     },
 
     /** ***********************************************************************************************

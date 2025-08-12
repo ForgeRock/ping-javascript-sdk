@@ -19,7 +19,7 @@ const config: PlaywrightTestConfig = {
   },
   webServer: [
     {
-      command: 'pnpm nx serve @pingidentity/protect-app',
+      command: 'pnpm nx serve @forgerock/protect-app',
       port: 8443,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,

@@ -8,7 +8,7 @@
  */
 
 import './style.css';
-import { protect } from '@pingidentity/protect';
+import { protect } from '@forgerock/protect';
 import {
   CallbackType,
   Config,
@@ -23,7 +23,7 @@ import {
   UserManager,
 } from '@forgerock/javascript-sdk';
 
-const protectAPI = await protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
+const protectAPI = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
 const FATAL = 'Fatal';
 
 await Config.setAsync({
@@ -78,10 +78,10 @@ const showUser = (user) => {
 };
 
 // Get the next step using the FRAuth API
-const nextStep = (event?: Event, step?: FRStep) => {
+const nextStep = async (event?: Event, step?: FRStep) => {
   event?.preventDefault();
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  FRAuth.next(step).then(handleStep).catch(handleFatalError);
+  await FRAuth.next(step).then(handleStep).catch(handleFatalError);
 };
 
 // Define custom handlers to render and submit each expected step
@@ -106,30 +106,34 @@ const handlers = {
     const protectCallback = step.getCallbackOfType<PingOneProtectInitializeCallback>(
       CallbackType.PingOneProtectInitializeCallback,
     );
-    try {
-      await protectAPI.start();
-      console.log('protect initialized');
-    } catch (err) {
-      console.error('error initailizing protect', err.message);
-      protectCallback.setClientError(err.message);
+    const result = await protectAPI.start();
+    console.log('protect initialized');
+
+    if (result?.error) {
+      console.error('error initailizing protect', result.error);
+      protectCallback.setClientError(result.error);
     }
+
     nextStep(event, step);
   },
   ProtectEval: async (step: FRStep) => {
     console.log('protect evaluating');
-    let data;
+
     const protectCallback = step.getCallbackOfType<PingOneProtectEvaluationCallback>(
       CallbackType.PingOneProtectEvaluationCallback,
     );
-    try {
-      data = await protectAPI.getData();
+
+    const result = await protectAPI.getData();
+
+    if (typeof result !== 'string' && 'error' in result) {
+      console.error('error getting data', result.error);
+      protectCallback.setClientError(result.error);
+    } else {
       console.log('received data');
-    } catch (err) {
-      console.error('error getting data', err.message);
-      protectCallback.setClientError(err.message);
+      protectCallback.setData(result);
+      console.log('set data on evaluation callback');
     }
-    protectCallback.setData(data);
-    console.log('set data on evaluation callback');
+
     nextStep(event, step);
   },
   Error: (step) => {
@@ -204,7 +208,7 @@ const handleFatalError = (err) => {
 };
 
 // Begin the login flow
-nextStep();
+await nextStep();
 
 document.getElementById('Error')?.addEventListener('click', nextStep);
 document.getElementById('start-over')?.addEventListener('click', nextStep);

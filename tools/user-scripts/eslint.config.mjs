@@ -30,6 +30,7 @@ export default [
             '{projectRoot}/vite.config.{js,ts,mjs,mts}',
             '{projectRoot}/eslint.config.{js,cjs,mjs}',
           ],
+          ignoredDependencies: ['@effect/platform', '@effect/platform-node'],
         },
       ],
     },

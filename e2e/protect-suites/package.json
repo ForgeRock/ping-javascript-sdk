@@ -1,5 +1,5 @@
 {
-  "name": "@pingidentity/protect-suites",
+  "name": "@forgerock/protect-suites",
   "version": "0.0.0",
   "private": true,
   "description": "Ping Protect E2E Suites",
@@ -16,6 +16,6 @@
   "type": "module",
   "main": "src/index.js",
   "nx": {
-    "implicitDependencies": ["@pingidentity/protect-app"]
+    "implicitDependencies": ["@forgerock/protect-app"]
   }
 }
