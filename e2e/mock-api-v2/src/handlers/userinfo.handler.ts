@@ -10,7 +10,7 @@ import { UserInfo } from '../services/userinfo.service.js';
 import { HttpApiBuilder } from '@effect/platform';
 import { BearerToken } from '../middleware/Authorization.js';
 
-const UserInfoMockHandler = HttpApiBuilder.group(MockApi, 'Protected Requests', (handlers) =>
+const UserInfoMockHandler = HttpApiBuilder.group(MockApi, 'ProtectedRequests', (handlers) =>
   handlers.handle('UserInfo', () =>
     Effect.gen(function* () {
       const authToken = yield* BearerToken;

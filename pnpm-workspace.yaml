@@ -13,9 +13,13 @@ catalog:
 
 catalogs:
   effect:
-    'effect': '^3.12.7'
-    '@effect/language-service': '^0.23.0'
-    '@effect/platform': '^0.84.9'
-    '@effect/platform-node': '^0.85.14'
+    'effect': '^3.17.2'
+    '@effect/cli': '^0.69.0'
+    '@effect/language-service': '^0.35.2'
+    '@effect/platform': '^0.90.0'
+    '@effect/platform-node': '0.94.2'
     '@effect/vitest': '^0.23.9'
-    '@effect/cli': ^0.67.1
+    '@effect/opentelemetry': '^0.56.1'
+
+  vitest:
+    'vitest': '^3.0.4'

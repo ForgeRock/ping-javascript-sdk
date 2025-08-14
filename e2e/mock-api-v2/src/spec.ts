@@ -7,86 +7,104 @@
 import { Schema } from 'effect';
 import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup, OpenApi } from '@effect/platform';
 import { openIdConfigurationResponseSchema } from './schemas/open-id-configuration/open-id-configuration-response.schema.js';
-import {
-  AuthorizePath,
-  DavinciAuthorizeHeaders,
-  DavinciAuthorizeQuery,
-} from './schemas/authorize.schema.js';
-import { PingOneCustomHtmlResponseBody } from './schemas/custom-html-template/custom-html-template-response.schema.js';
 import { TokenResponseBody } from './schemas/token/token.schema.js';
 import { UserInfoSchema } from './schemas/userinfo/userinfo.schema.js';
 import { Authorization } from './middleware/Authorization.js';
 import { SessionMiddleware } from './middleware/Session.js';
 import {
-  EndSessionPath,
   EndSessionQuery,
   EndSessionHeaders,
+  EndSessionPath,
 } from './schemas/end-session.schema.js';
 import {
   RevokePath,
   RevokeRequestBody,
   RevokeResponseBody,
 } from './schemas/revoke/revoke.schema.js';
+import { CapabilitiesQueryParams } from './schemas/capabilities/capabilities.query.schema.js';
+import { CapabilitiesHeaders } from './schemas/capabilities/capabilities.headers.schema.js';
+import { CapabilitiesResponse } from './schemas/capabilities/capabilities.response.schema.js';
+import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from './schemas/authorize.schema.js';
+import { SuccessResponseRedirect } from './schemas/return-success-response-redirect.schema.js';
+import { CapabilitiesPathParams } from './schemas/capabilities/capabilities.path.schema.js';
+import { CapabilitiesRequestBody } from './schemas/capabilities/capabilities.request.schema.js';
+import { addStepCookie } from './addStepCookie.openapi.js';
 
 const MockApi = HttpApi.make('MyApi')
-  .annotate(OpenApi.Title, 'PingOne OIDC Mock API')
+  .annotate(OpenApi.Title, 'PingOne OIDC and OAuth2 Mock API')
   .annotate(OpenApi.Version, '1.0.0')
+  .annotate(OpenApi.Transform, addStepCookie)
   .annotate(
     OpenApi.Description,
-    'Mock API for PingOne OIDC flows including authorization, token issuance, token validation, token revocation, and end session. This API implements a simplified version of the OpenID Connect and OAuth 2.0 protocols for testing purposes.',
+    'Mock API for PingOne OIDC and OAuth2 flows including authorization, token issuance, token validation, token revocation, and end session. All endpoints are grouped under PingAM for unified testing.',
   )
   .annotate(OpenApi.License, { name: 'MIT License', url: 'https://opensource.org/licenses/MIT' })
   .annotate(OpenApi.Servers, [
     { url: 'http://localhost:9443', description: 'Local development server' },
   ])
+  // Healthcheck
   .add(
-    HttpApiGroup.make('Healthcheck')
-      .add(
-        HttpApiEndpoint.get('HealthCheck')`/healthcheck`
-          .addSuccess(Schema.String)
-          .annotate(OpenApi.Summary, 'Server Health Check')
-          .annotate(
-            OpenApi.Description,
-            'Returns a simple health status to verify the server is operational',
-          ),
+    HttpApiGroup.make('Healthcheck').add(
+      HttpApiEndpoint.get('HealthCheck')`/healthcheck`
+        .addSuccess(Schema.String)
+        .annotate(OpenApi.Summary, 'Server Health Check')
+        .annotate(
+          OpenApi.Description,
+          'Returns a simple health status to verify the server is operational',
+        ),
+    ),
+  )
+  // Authorization
+  .add(
+    HttpApiGroup.make('Authorization').add(
+      HttpApiEndpoint.get('authorize', `/:envid/davinci/authorize`)
+        .setPath(Schema.Struct({ envid: Schema.String }))
+        .setHeaders(DavinciAuthorizeHeaders)
+        .setUrlParams(DavinciAuthorizeQuery)
+        .addSuccess(CapabilitiesResponse)
+        .addSuccess(SuccessResponseRedirect)
+        .addError(HttpApiError.NotFound)
+        .annotate(OpenApi.Summary, 'Authorization Endpoint')
+        .annotate(
+          OpenApi.Description,
+          'Initiates the authorization process and returns a URL for the user to authenticate',
+        ),
+    ),
+  )
+  // Capabilities
+  .add(
+    HttpApiGroup.make('Capabilities').add(
+      HttpApiEndpoint.post(
+        'capabilities',
+        `/:envid/davinci/connections/:connectionID/capabilities/:capabilityName`,
       )
-      .annotate(OpenApi.Description, 'Server health monitoring endpoints'),
+        .setPayload(CapabilitiesRequestBody)
+        .setPath(CapabilitiesPathParams)
+        .setUrlParams(CapabilitiesQueryParams)
+        .setHeaders(CapabilitiesHeaders)
+        .addSuccess(CapabilitiesResponse)
+        .addError(HttpApiError.NotFound)
+        .addError(HttpApiError.Unauthorized),
+    ),
+    // .middleware(IncrementStepIndexMock),
   )
   .add(
-    HttpApiGroup.make('OpenIDConfig')
-      .add(
-        HttpApiEndpoint.get('openid')`/:envid/as/.well-known/openid-configuration`
-          .setPath(Schema.Struct({ envid: Schema.String }))
-          .addSuccess(openIdConfigurationResponseSchema)
-          .annotate(OpenApi.Summary, 'OIDC Configuration')
-          .annotate(
-            OpenApi.Description,
-            'Returns the OpenID Connect configuration for this provider including available endpoints and supported features',
-          ),
-      )
-      .annotate(OpenApi.Description, 'OpenID Connect discovery endpoints'),
+    HttpApiGroup.make('OpenIDConfig').add(
+      HttpApiEndpoint.get('openid', `/:envid/as/.well-known/openid-configuration`)
+        .setPath(Schema.Struct({ envid: Schema.String }))
+        .addSuccess(openIdConfigurationResponseSchema)
+        .annotate(OpenApi.Summary, 'OIDC Configuration')
+        .annotate(
+          OpenApi.Description,
+          'Returns the OpenID Connect configuration for this provider including available endpoints and supported features',
+        ),
+    ),
   )
-  .add(
-    HttpApiGroup.make('Authorization')
-      .add(
-        HttpApiEndpoint.get('DavinciAuthorize')`/:envid/as/authorize`
-          .setPath(AuthorizePath)
-          .setUrlParams(DavinciAuthorizeQuery)
-          .setHeaders(DavinciAuthorizeHeaders)
-          .addSuccess(PingOneCustomHtmlResponseBody)
-          .addError(HttpApiError.NotFound)
-          .annotate(OpenApi.Summary, 'Authorization Endpoint')
-          .annotate(
-            OpenApi.Description,
-            'OIDC authorization endpoint that initiates the authentication flow and returns HTML for login form rendering',
-          ),
-      )
-      .annotate(OpenApi.Description, 'OAuth 2.0/OIDC authorization endpoints'),
-  )
+  // Tokens
   .add(
     HttpApiGroup.make('Tokens')
       .add(
-        HttpApiEndpoint.post('Tokens')`/:envid/as/token`
+        HttpApiEndpoint.post('Tokens', `/:envid/as/token`)
           .addSuccess(TokenResponseBody)
           .addError(HttpApiError.Unauthorized)
           .setPath(Schema.Struct({ envid: Schema.String }))
@@ -96,13 +114,14 @@ const MockApi = HttpApi.make('MyApi')
             'Issues access tokens, ID tokens, and refresh tokens after successful authentication',
           ),
       )
-      .middleware(SessionMiddleware)
-      .annotate(OpenApi.Description, 'OAuth 2.0/OIDC token issuance endpoints'),
+      .middleware(Authorization)
+      .middleware(SessionMiddleware),
   )
+  // Protected Requests
   .add(
-    HttpApiGroup.make('Protected Requests')
+    HttpApiGroup.make('ProtectedRequests')
       .add(
-        HttpApiEndpoint.get('UserInfo')`/:envid/as/userinfo`
+        HttpApiEndpoint.get('UserInfo', `/:envid/as/userinfo`)
           .setPath(Schema.Struct({ envid: Schema.String }))
           .addSuccess(UserInfoSchema)
           .addError(HttpApiError.Unauthorized)
@@ -113,15 +132,13 @@ const MockApi = HttpApi.make('MyApi')
           ),
       )
       .middleware(Authorization)
-      .annotate(
-        OpenApi.Description,
-        'Endpoints that require a valid access token for authorization',
-      ),
+      .middleware(SessionMiddleware),
   )
+  // SessionManagement
   .add(
     HttpApiGroup.make('SessionManagement')
       .add(
-        HttpApiEndpoint.get('EndSession')`/:envid/as/endSession`
+        HttpApiEndpoint.get('EndSession', `/:envid/as/endSession`)
           .setPath(EndSessionPath)
           .setUrlParams(EndSessionQuery)
           .setHeaders(EndSessionHeaders)
@@ -142,13 +159,30 @@ const MockApi = HttpApi.make('MyApi')
             'OIDC RP-initiated logout endpoint that terminates the user session and invalidates tokens',
           ),
       )
-      .middleware(SessionMiddleware)
-      .annotate(OpenApi.Description, 'Endpoints for managing user sessions and logout flows'),
+      .middleware(Authorization)
+      .middleware(SessionMiddleware),
+  )
+  // Protected Requests
+  .add(
+    HttpApiGroup.make('ProtectedRequests')
+      .add(
+        HttpApiEndpoint.get('UserInfo', `/:envid/as/userinfo`)
+          .setPath(Schema.Struct({ envid: Schema.String }))
+          .addSuccess(UserInfoSchema)
+          .addError(HttpApiError.Unauthorized)
+          .annotate(OpenApi.Summary, 'UserInfo Endpoint')
+          .annotate(
+            OpenApi.Description,
+            'Returns claims about the authenticated end-user. Requires a valid access token.',
+          ),
+      )
+      .middleware(Authorization)
+      .middleware(SessionMiddleware),
   )
   .add(
-    HttpApiGroup.make('TokenRevocation')
+    HttpApiGroup.make('Revoke')
       .add(
-        HttpApiEndpoint.post('RevokeToken')`/:envid/as/revoke`
+        HttpApiEndpoint.post('RevokeToken', `/:envid/as/revoke`)
           .setPath(RevokePath)
           .setPayload(RevokeRequestBody)
           .addSuccess(RevokeResponseBody)
@@ -159,8 +193,13 @@ const MockApi = HttpApi.make('MyApi')
             'Allows clients to notify the authorization server that a previously obtained refresh or access token is no longer needed',
           ),
       )
-      .middleware(SessionMiddleware)
-      .annotate(OpenApi.Description, 'Endpoints for invalidating tokens and terminating access'),
+      .middleware(Authorization)
+      .middleware(SessionMiddleware), // Applies to token, end session, revoke
+  )
+  // Middlewares for relevant endpoints
+  .annotate(
+    OpenApi.Description,
+    'All PingAM endpoints for OIDC and OAuth2 flows grouped together.',
   );
 
 export { MockApi };
