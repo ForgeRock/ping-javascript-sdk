@@ -7,7 +7,6 @@
 export interface AuthorizeSuccessResponse {
   code: string;
   state: string;
-  redirectUrl?: string; // Optional, used when the response is from a P1 server
 }
 
 export interface AuthorizeErrorResponse {

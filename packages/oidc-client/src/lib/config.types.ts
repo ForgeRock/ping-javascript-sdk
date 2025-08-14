@@ -7,6 +7,7 @@
 import type { AsyncLegacyConfigOptions, WellKnownResponse } from '@forgerock/sdk-types';
 
 export interface OidcConfig extends AsyncLegacyConfigOptions {
+  // Redundant properties are redeclared to define as required
   clientId: string;
   redirectUri: string;
   scope: string;
@@ -26,4 +27,5 @@ export interface OauthTokens {
   idToken: string;
   refreshToken?: string;
   expiresAt?: number;
+  expiryTimestamp?: number;
 }

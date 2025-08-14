@@ -21,11 +21,12 @@ import {
  * Import internal modules
  */
 import { initQuery } from '@forgerock/sdk-request-middleware';
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
-import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
+
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
 /**
  * Import the DaVinci types
@@ -39,7 +40,6 @@ import type {
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
-import { ActionTypes } from '@forgerock/sdk-request-middleware';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>

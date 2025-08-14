@@ -13,6 +13,7 @@ export interface GenericError {
     | 'argument_error'
     | 'auth_error'
     | 'davinci_error'
+    | 'exchange_error'
     | 'internal_error'
     | 'network_error'
     | 'parse_error'
