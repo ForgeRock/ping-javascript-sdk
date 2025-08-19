@@ -15,10 +15,10 @@
   },
   "references": [
     {
-      "path": "../../packages/protect"
+      "path": "../../packages/sdk-effects/logger"
     },
     {
-      "path": "../../packages/sdk-effects/logger"
+      "path": "../../packages/protect"
     },
     {
       "path": "../../packages/davinci-client"

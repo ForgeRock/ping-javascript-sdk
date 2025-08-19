@@ -22,8 +22,8 @@ test.describe('Test basic login flow with Ping Protect', () => {
       return Promise.resolve(true);
     });
 
-    await page.goto('/protect-native');
-    await expect(page.url()).toBe('http://localhost:8443/protect-native');
+    await page.goto('/protect-native.html');
+    await expect(page.url()).toBe('http://localhost:8443/protect-native.html');
 
     await expect(page.getByText('Ping Protect Native')).toBeVisible();
     await expect(page.getByText('Protect initializing')).toBeVisible();
@@ -34,6 +34,7 @@ test.describe('Test basic login flow with Ping Protect', () => {
 
     await expect(page.getByText('Protect evaluating')).toBeVisible();
 
+    await page.waitForRequest('https://openam-sdks.forgeblocks.com/am/oauth2/alpha/userinfo');
     await expect(page.getByText('Your user information:')).toBeVisible();
     await expect(page.getByText('sdkuser@example.com')).toBeVisible();
 
