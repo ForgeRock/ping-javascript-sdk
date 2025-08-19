@@ -7,8 +7,6 @@
  *
  */
 
-import FRStep from '@forgerock/javascript-sdk/src/fr-auth/fr-step';
-
 /**
  * @interface ProtectConfig - Interface for the Protect module configuration parameters
  * @description - envId is required. All other parameters are optional.
@@ -75,30 +73,6 @@ export interface ProtectConfig {
   agentPort?: number;
 }
 
-export interface ProtectInitializeConfig {
-  _type: 'PingOneProtect';
-  _action: 'protect_initialize';
-  envId?: string;
-  consoleLogEnabled?: boolean;
-  deviceAttributesToIgnore?: string[];
-  customHost?: string;
-  lazyMetadata?: boolean;
-  behavioralDataCollection?: boolean;
-  deviceKeyRsyncIntervals?: number;
-  enableTrust?: boolean;
-  disableTags?: boolean;
-  disableHub?: boolean;
-}
-
-export interface ProtectEvaluationConfig {
-  _type: 'PingOneProtect';
-  _action: 'protect_risk_evaluation';
-  envId: string;
-  pauseBehavioralData: boolean;
-}
-
-export type ProtectType = 'initialize' | 'evaluate' | 'none';
-
 /**
  * @interface Protect - Interface for methods to interact with the PingOne Signals SDK
  */
@@ -130,42 +104,4 @@ export interface Protect {
    * @description Resume the behavioral data collection
    */
   resumeBehavioralData: () => void | { error: string };
-
-  /**
-   * @method getPauseBehavioralData
-   * @param {FRStep} step - A journey step
-   * @returns {boolean}
-   * @description - Required when using Ping Protect Marketplace nodes
-   */
-  getPauseBehavioralData: (step: FRStep) => boolean;
-
-  /**
-   * @method getNodeConfig - Method for getting the Protect intitialization config options
-   * @param {FRStep} step - A journey step
-   * @returns {ProtectInitializeConfig | undefined} - The Protect config options
-   */
-  getNodeConfig: (step: FRStep) => ProtectInitializeConfig | undefined;
-
-  /**
-   * @method getPingProtectType - Method for getting the type of step in the Protect flow
-   * @param {FRStep} step - A journey step
-   * @returns {ProtectType} - The type of step in the Protect flow
-   */
-  getProtectType: (step: FRStep) => ProtectType;
-
-  /**
-   * @method setNodeClientError - Method for setting an error on a Ping Protect Marketplace node
-   * @param {FRStep} step - A journey step
-   * @param {string} value - The error message to set
-   * @returns {void}
-   */
-  setNodeClientError: (step: FRStep, value: string) => void;
-
-  /**
-   * @method setNodeInputValue - Method for setting an input value on a Ping Protect Marketplace node
-   * @param {FRStep} step - A journey step
-   * @param {string} value - The value to set the input to
-   * @returns {void}
-   */
-  setNodeInputValue: (step: FRStep, value: string) => void;
 }

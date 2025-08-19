@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "moduleResolution": "Bundler",
-    "module": "ES2020",
-    "target": "ES2020",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "target": "ES2022",
     "outDir": "./dist",
     "resolveJsonModule": true,
     "allowJs": true,
@@ -14,9 +14,9 @@
     "noImplicitOverride": true,
     "declaration": true,
     "declarationMap": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "sourceMap": true,
-    "lib": ["es2020", "dom", "dom.iterable"]
+    "lib": ["es2022", "dom", "dom.iterable"]
   },
   "include": ["src/**/*.ts", "src/**/*.*.ts", "src/lib/signals-sdk.js"],
   "exclude": [

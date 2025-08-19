@@ -403,11 +403,7 @@ importers:
         specifier: ^3.12.7
         version: 3.17.7
 
-  packages/protect:
-    dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: 4.7.0
-        version: 4.7.0
+  packages/protect: {}
 
   packages/sdk-effects/iframe-manager: {}
 
