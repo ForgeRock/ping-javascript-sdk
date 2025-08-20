@@ -33,7 +33,8 @@ test.describe('User tests', () => {
 
     await page.getByRole('button', { name: 'User Info' }).click();
     await expect(page.locator('#userInfo')).not.toBeEmpty();
-    await expect(page.getByText('sdkuser')).toBeVisible();
+    await expect(page.getByText('Sdk User')).toBeVisible();
+    await expect(page.getByText('sdkuser@example.com')).toBeVisible();
   });
 
   test('get user info from PingOne', async ({ page }) => {
@@ -54,5 +55,6 @@ test.describe('User tests', () => {
     await page.getByRole('button', { name: 'User Info' }).click();
     await expect(page.locator('#userInfo')).not.toBeEmpty();
     await expect(page.getByText('demouser')).toBeVisible();
+    await expect(page.getByText('demouser@user.com')).toBeVisible();
   });
 });
