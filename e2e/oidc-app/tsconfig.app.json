@@ -20,6 +20,9 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
+      "path": "../../packages/sdk-types/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/oidc-client/tsconfig.lib.json"
     }
   ]

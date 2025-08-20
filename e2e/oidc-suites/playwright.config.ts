@@ -1,68 +1,31 @@
-import { defineConfig, devices } from '@playwright/test';
-import { nxE2EPreset } from '@nx/playwright/preset';
+import { defineConfig } from '@playwright/test';
 import { workspaceRoot } from '@nx/devkit';
 
 // For CI, you may want to set BASE_URL to the deployed application.
 const baseURL = process.env['BASE_URL'] || 'http://localhost:8443';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  ...nxE2EPreset(__filename, { testDir: './src' }),
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  outputDir: './.playwright',
+  testDir: './src',
+  reporter: process.env.CI ? 'github' : 'list',
+  timeout: 30000,
   use: {
     baseURL,
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    headless: true,
+    ignoreHTTPSErrors: true,
+    geolocation: { latitude: 24.9884, longitude: -87.3459 },
+    bypassCSP: true,
+    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
   },
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm exec nx run oidc-app:serve',
-    url: 'http://localhost:8443',
-    reuseExistingServer: true,
+    command: 'pnpm nx serve @forgerock/oidc-app',
+    port: 8443,
+    ignoreHTTPSErrors: true,
+    reuseExistingServer: !process.env.CI,
     cwd: workspaceRoot,
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    // Uncomment for mobile browsers support
-    /* {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    }, */
-
-    // Uncomment for branded browsers
-    /* {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    } */
-  ],
 });

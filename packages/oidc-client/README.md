@@ -4,7 +4,7 @@ A generic OpenID Connect (OIDC) client library for JavaScript and TypeScript, de
 
 ```js
 // Initialize OIDC Client
-const oidcClient1 = oidc({
+const oidcClient = oidc({
   /* config */
 });
 
@@ -13,12 +13,10 @@ const authResponse = oidcClient.authorize.background(); // Returns code and stat
 const authUrl = oidcClient.authorize.url(); // Returns Auth URL or error
 
 // Tokens API
-const newTokens = oidcClient.tokens.exchange({
+const newTokens = oidcClient.token.exchange({
   /* code, state */
 }); // Returns new tokens or error
-const existingTokens = oidcClient.tokens.get(); // Returns existing tokens or error
-const revokeResponse = oidcClient.tokens.revoke(); // Returns null or error
-const endSessionResponse = oidcClient.tokens.endSession(); // Returns null or error
+const existingTokens = oidcClient.token.get(); // Returns existing tokens or error
 
 // User API
 const user = oidcClient.user.info(); // Returns user object or error

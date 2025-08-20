@@ -5,7 +5,6 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { CustomLogger } from '@forgerock/sdk-logger';
-import { GetAuthorizationUrlOptions } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
 import {
@@ -16,10 +15,12 @@ import {
   createAuthorizeErrorµ,
 } from './authorize.request.utils.js';
 
-import type { WellKnownResponse } from '@forgerock/sdk-types';
-
+import type { GetAuthorizationUrlOptions, WellKnownResponse } from '@forgerock/sdk-types';
 import type { OidcConfig } from './config.types.js';
-import { AuthorizeErrorResponse, AuthorizeSuccessResponse } from './authorize.request.types.js';
+import type {
+  AuthorizeErrorResponse,
+  AuthorizeSuccessResponse,
+} from './authorize.request.types.js';
 
 /**
  * @function authorizeµ

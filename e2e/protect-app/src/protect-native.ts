@@ -26,19 +26,6 @@ import {
 const protectAPI = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
 const FATAL = 'Fatal';
 
-await Config.setAsync({
-  clientId: 'WebOAuthClient',
-  redirectUri: `${window.location.origin}/callback.html`,
-  scope: 'openid profile email',
-  serverConfig: {
-    wellknown:
-      'https://openam-sdks.forgeblocks.com/am/oauth2/alpha/.well-known/openid-configuration',
-    timeout: 3000,
-  },
-  realmPath: 'alpha',
-  tree: 'TEST_Protect',
-});
-
 // Check URL for query parameters
 const url = new URL(document.location.href);
 const params = url.searchParams;
@@ -208,8 +195,24 @@ const handleFatalError = (err) => {
 };
 
 // Begin the login flow
-await nextStep();
+const startLoginFlow = async () => {
+  await Config.setAsync({
+    clientId: 'WebOAuthClient',
+    redirectUri: `${window.location.origin}/callback.html`,
+    scope: 'openid profile email',
+    serverConfig: {
+      wellknown:
+        'https://openam-sdks.forgeblocks.com/am/oauth2/alpha/.well-known/openid-configuration',
+      timeout: 3000,
+    },
+    realmPath: 'alpha',
+    tree: 'TEST_Protect',
+  });
+  await nextStep();
+};
 
 document.getElementById('Error')?.addEventListener('click', nextStep);
 document.getElementById('start-over')?.addEventListener('click', nextStep);
 document.getElementById('Fatal')?.addEventListener('click', nextStep);
+
+await startLoginFlow();

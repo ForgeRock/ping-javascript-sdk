@@ -14,11 +14,13 @@
       "import": "./dist/src/index.js",
       "default": "./dist/src/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./types": "./dist/src/types.d.ts"
   },
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
+  "files": ["dist"],
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
@@ -33,9 +35,26 @@
     "@forgerock/sdk-types": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
-    "effect": "^3.12.7"
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:effect",
+    "msw": "catalog:"
   },
   "nx": {
-    "tags": ["scope:package"]
+    "tags": ["scope:package"],
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "packages/oidc-client/dist",
+          "main": "packages/oidc-client/src/index.ts",
+          "tsConfig": "packages/oidc-client/tsconfig.lib.json",
+          "generatePackageJson": false,
+          "assets": []
+        }
+      }
+    }
   }
 }

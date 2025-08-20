@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <title>E2E Test | Ping Identity JavaScript SDK</title>
+
+    <style>
+      #logout,
+      #userinfo {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <a href="/">Home</a>
+      <h1>OIDC App | PingAM Login</h1>
+      <button id="login-background">Login (Background)</button>
+      <button id="login-redirect">Login (Redirect)</button>
+      <button id="get-tokens">Get Tokens</button>
+      <button id="renew-tokens">Renew Tokens</button>
+      <button id="logout">Logout</button>
+      <button id="userinfo">User Info</button>
+      <a href="/ping-am/">Start Over</a>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

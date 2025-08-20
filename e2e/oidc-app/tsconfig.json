@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../../packages/sdk-types"
+    },
+    {
       "path": "../../packages/oidc-client"
     },
     {

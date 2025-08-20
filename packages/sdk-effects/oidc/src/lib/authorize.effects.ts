@@ -12,7 +12,7 @@ import { createChallenge } from '@forgerock/sdk-utilities';
 
 import { generateAndStoreAuthUrlValues } from './state-pkce.effects.js';
 
-import type { GetAuthorizationUrlOptions } from './authorize.types.js';
+import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 /**
  * @function createAuthorizeUrl - Create authorization URL for initial call to DaVinci
