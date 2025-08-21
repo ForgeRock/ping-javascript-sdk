@@ -1,4 +1,4 @@
 {
-  "name": "@forgerock/oidc-client",
+  "name": "@forgerock/protect",
   "entryPoints": ["src/index.ts", "src/types.ts"]
 }

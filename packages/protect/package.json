@@ -28,6 +28,9 @@
   "dependencies": {
     "@forgerock/javascript-sdk": "4.7.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "nx": {
     "tags": ["scope:package"],
     "targets": {
