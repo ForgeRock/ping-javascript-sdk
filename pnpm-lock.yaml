@@ -416,11 +416,7 @@ importers:
         specifier: 'catalog:'
         version: 2.10.4(@types/node@22.14.1)(typescript@5.8.3)
 
-  packages/protect:
-    dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: 4.7.0
-        version: 4.7.0
+  packages/protect: {}
 
   packages/sdk-effects/iframe-manager: {}
 

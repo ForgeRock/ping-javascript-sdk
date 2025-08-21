@@ -14,7 +14,6 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname + '/src', 'index.html'),
         protectNative: path.resolve(__dirname + '/src', 'protect-native.html'),
-        protectMarketplace: path.resolve(__dirname + '/src', 'protect-marketplace.html'),
       },
       output: {
         entryFileNames: '[name].js',
