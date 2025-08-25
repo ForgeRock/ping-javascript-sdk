@@ -18,14 +18,10 @@ import { validator } from '../helpers/match.js';
 import { returnSuccessResponseRedirect } from '../responses/return-success-redirect.js';
 
 const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (handlers) =>
-  handlers.handle('capabilities', ({ urlParams, payload }) =>
+  handlers.handle('capabilities', ({ payload }) =>
     Effect.gen(function* () {
-      /**
-       * We expect an acr_value query parameter to be present in the request.
-       * If it is not present, we return a 404 Not Found error.
-       */
-      const acr_value = urlParams?.acr_values ?? '';
-      console.log('acr_value', acr_value);
+      const req = yield* HttpServerRequest.HttpServerRequest;
+      const acr_value = req.cookies.acr_values ?? '';
 
       if (!acr_value) {
         return yield* Effect.fail(new HttpApiError.NotFound());
@@ -35,8 +31,6 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
        * We need a step index cookie to determine which step of the authentication process we are on.
        * If the cookie is not present, we return a 404 Not Found error.
        */
-
-      const req = yield* HttpServerRequest.HttpServerRequest;
 
       const stepIndexCookie = req.cookies['stepIndex'];
       console.log(req.cookies);
