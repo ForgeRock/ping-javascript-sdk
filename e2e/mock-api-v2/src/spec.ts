@@ -29,6 +29,7 @@ import { SuccessResponseRedirect } from './schemas/return-success-response-redir
 import { CapabilitiesPathParams } from './schemas/capabilities/capabilities.path.schema.js';
 import { CapabilitiesRequestBody } from './schemas/capabilities/capabilities.request.schema.js';
 import { addStepCookie } from './addStepCookie.openapi.js';
+import { IncrementStepIndex } from './middleware/CookieMiddleware.js';
 
 const MockApi = HttpApi.make('MyApi')
   .annotate(OpenApi.Title, 'PingOne OIDC and OAuth2 Mock API')
@@ -64,6 +65,7 @@ const MockApi = HttpApi.make('MyApi')
         .addSuccess(CapabilitiesResponse)
         .addSuccess(SuccessResponseRedirect)
         .addError(HttpApiError.NotFound)
+        .addError(HttpApiError.InternalServerError)
         .annotate(OpenApi.Summary, 'Authorization Endpoint')
         .annotate(
           OpenApi.Description,
@@ -87,7 +89,7 @@ const MockApi = HttpApi.make('MyApi')
           .addError(HttpApiError.NotFound)
           .addError(HttpApiError.Unauthorized),
       )
-      .middleware(IncrementStepIndexMock),
+      .middleware(IncrementStepIndex),
   )
   .add(
     HttpApiGroup.make('OpenIDConfig').add(
