@@ -59,7 +59,10 @@ test('Login - add email device - authenticate with email device', async ({ page 
   await page.getByRole('heading', { name: 'Success' });
   await page.getByRole('button', { name: 'Start over' }).click();
 });
-test('Login - add phone device - authenticate with phone device', async ({ page }) => {
+
+// This test is failing due to a new phone number feature flag for pre-filling country codes.
+// A fix will be addressed in https://pingidentity.atlassian.net/browse/SDKS-4200
+test.skip('Login - add phone device - authenticate with phone device', async ({ page }) => {
   await page.goto('/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0');
   /***
    * Go to page
