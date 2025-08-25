@@ -21,7 +21,7 @@ import {
   RevokeRequestBody,
   RevokeResponseBody,
 } from './schemas/revoke/revoke.schema.js';
-import { CapabilitiesQueryParams } from './schemas/capabilities/capabilities.query.schema.js';
+
 import { CapabilitiesHeaders } from './schemas/capabilities/capabilities.headers.schema.js';
 import { CapabilitiesResponse } from './schemas/capabilities/capabilities.response.schema.js';
 import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from './schemas/authorize.schema.js';
@@ -73,20 +73,21 @@ const MockApi = HttpApi.make('MyApi')
   )
   // Capabilities
   .add(
-    HttpApiGroup.make('Capabilities').add(
-      HttpApiEndpoint.post(
-        'capabilities',
-        `/:envid/davinci/connections/:connectionID/capabilities/:capabilityName`,
+    HttpApiGroup.make('Capabilities')
+      .add(
+        HttpApiEndpoint.post(
+          'capabilities',
+          `/:envid/davinci/connections/:connectionID/capabilities/:capabilityName`,
+        )
+          .setPayload(CapabilitiesRequestBody)
+          .setPath(CapabilitiesPathParams)
+
+          .setHeaders(CapabilitiesHeaders)
+          .addSuccess(CapabilitiesResponse)
+          .addError(HttpApiError.NotFound)
+          .addError(HttpApiError.Unauthorized),
       )
-        .setPayload(CapabilitiesRequestBody)
-        .setPath(CapabilitiesPathParams)
-        .setUrlParams(CapabilitiesQueryParams)
-        .setHeaders(CapabilitiesHeaders)
-        .addSuccess(CapabilitiesResponse)
-        .addError(HttpApiError.NotFound)
-        .addError(HttpApiError.Unauthorized),
-    ),
-    // .middleware(IncrementStepIndexMock),
+      .middleware(IncrementStepIndexMock),
   )
   .add(
     HttpApiGroup.make('OpenIDConfig').add(
