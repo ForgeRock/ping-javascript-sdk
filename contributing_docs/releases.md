@@ -63,7 +63,7 @@ your `{packageRoot}/package.json` has the following:
 
 ```
 "publishConfig": {
-  "access": true
+  "access": "public"
 }
 ```
 
