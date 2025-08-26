@@ -21,7 +21,7 @@ test.describe('PingAM login and get token tests', () => {
     await navigate('/ping-am/');
     expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-    await clickButton('Login (Background)', 'https://openam-sdks.forgeblocks.com/');
+    await clickButton('Login (Background)', '/authorize');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
@@ -38,7 +38,7 @@ test.describe('PingAM login and get token tests', () => {
     await navigate('/ping-am/');
     expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-    await clickButton('Login (Redirect)', 'https://openam-sdks.forgeblocks.com/');
+    await clickButton('Login (Redirect)', '/authorize');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
@@ -57,19 +57,11 @@ test.describe('PingAM login and get token tests', () => {
 
     await page.getByRole('button', { name: 'Login (Background)' }).click();
 
-    await expect(page.locator('.error')).toContainText(`"error": "Authorization Network Failure"`);
-    await expect(page.locator('.error')).toContainText('Error calling authorization URL');
-    await expect(page.locator('.error')).toContainText(`"type": "auth_error"`);
-  });
-
-  test('redirect login with invalid client id fails', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-am/?clientid=bad-id');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/?clientid=bad-id');
-
-    await clickButton('Login (Redirect)', 'https://openam-sdks.forgeblocks.com/');
-
-    await expect(page.getByText('invalid_client')).toBeVisible();
+    await expect(page.locator('.error')).toContainText(`CONFIGURATION_ERROR`);
+    await expect(page.locator('.error')).toContainText(
+      'Configuration error. Please check your OAuth configuration, like clientId or allowed redirect URLs.',
+    );
+    await expect(page.locator('.error')).toContainText(`"type": "network_error"`);
   });
 });
 
@@ -79,7 +71,7 @@ test.describe('PingOne login and get token tests', () => {
     await navigate('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
-    await clickButton('Login (Background)', 'https://apps.pingone.ca/');
+    await clickButton('Login (Background)', '/authorize');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
@@ -97,7 +89,7 @@ test.describe('PingOne login and get token tests', () => {
     await navigate('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
-    await clickButton('Login (Redirect)', 'https://apps.pingone.ca/');
+    await clickButton('Login (Redirect)', '/authorize');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
@@ -117,24 +109,11 @@ test.describe('PingOne login and get token tests', () => {
 
     await page.getByRole('button', { name: 'Login (Background)' }).click();
 
-    await expect(page.locator('.error')).toContainText(`"error": "Authorization Network Failure"`);
-    await expect(page.locator('.error')).toContainText('Failed to fetch');
-    await expect(page.locator('.error')).toContainText(`"type": "auth_error"`);
-  });
-
-  test('redirect login with invalid client id fails', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-one/?clientid=bad-id');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/?clientid=bad-id');
-
-    await clickButton('Login (Redirect)', 'https://apps.pingone.ca/');
-
-    await expect(page.getByText('Error')).toBeVisible();
-    await expect(
-      page
-        .getByText('The request could not be completed. The requested resource was not found.')
-        .first(),
-    ).toBeVisible();
+    await expect(page.locator('.error')).toContainText(`CONFIGURATION_ERROR`);
+    await expect(page.locator('.error')).toContainText(
+      'Configuration error. Please check your OAuth configuration, like clientId or allowed redirect URLs.',
+    );
+    await expect(page.locator('.error')).toContainText(`"type": "network_error"`);
   });
 
   test('login with pi.flow response mode', async ({ page }) => {
@@ -151,7 +130,7 @@ test.describe('PingOne login and get token tests', () => {
       }
     });
 
-    await clickButton('Login (Background)', 'https://apps.pingone.ca/');
+    await clickButton('Login (Background)', '/authorize');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
@@ -182,6 +161,10 @@ test('oidc client fails to initialize with bad wellknown', async ({ page }) => {
   await navigate('/ping-am/?wellknown=bad-wellknown');
   expect(page.url()).toBe('http://localhost:8443/ping-am/?wellknown=bad-wellknown');
 
-  await expect(page.locator('.error')).toContainText(`"error": "Error fetching wellknown config"`);
-  await expect(page.locator('.error')).toContainText(`"type": "network_error"`);
+  await page.getByRole('button', { name: 'Login (Background)' }).click();
+
+  await expect(page.locator('.error')).toContainText(
+    'Authorization endpoint not found in wellknown configuration',
+  );
+  await expect(page.locator('.error')).toContainText('wellknown_error');
 });

@@ -49,7 +49,8 @@ export function logoutµ({
     // Delete local token and return combined results
     Micro.flatMap(([sessionResponse, revokeResponse]) =>
       Micro.promise(async () => {
-        const deleteResponse = await storageClient.remove();
+        const deleteRes = await storageClient.remove();
+        const deleteResponse = typeof deleteRes === 'undefined' ? null : deleteRes;
         return {
           sessionResponse,
           revokeResponse,
