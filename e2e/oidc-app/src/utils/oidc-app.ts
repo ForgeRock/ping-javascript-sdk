@@ -32,7 +32,7 @@ function displayTokenResponse(
   } else {
     console.log('Token Response:', response);
     document.getElementById('logout').style.display = 'block';
-    document.getElementById('userinfo').style.display = 'block';
+    document.getElementById('user-info-btn').style.display = 'block';
     document.getElementById('login-background').style.display = 'none';
     document.getElementById('login-redirect').style.display = 'none';
 
@@ -107,10 +107,10 @@ export async function oidcApp({ config, urlParams }) {
     displayTokenResponse(response);
   });
 
-  document.getElementById('userinfo').addEventListener('click', async () => {
+  document.getElementById('user-info-btn').addEventListener('click', async () => {
     const userInfo = await oidcClient.user.info();
 
-    if ('error' in userInfo) {
+    if (typeof userInfo === 'object' && 'error' in userInfo) {
       console.error('User Info Error:', userInfo);
       displayError(userInfo);
     } else {
@@ -132,7 +132,7 @@ export async function oidcApp({ config, urlParams }) {
     } else {
       console.log('Logout successful');
       document.getElementById('logout').style.display = 'none';
-      document.getElementById('userinfo').style.display = 'none';
+      document.getElementById('user-info-btn').style.display = 'none';
       document.getElementById('login-background').style.display = 'block';
       document.getElementById('login-redirect').style.display = 'block';
       window.location.assign(window.location.origin + window.location.pathname);

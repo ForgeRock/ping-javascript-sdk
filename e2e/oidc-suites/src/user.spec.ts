@@ -57,4 +57,29 @@ test.describe('User tests', () => {
     await expect(page.getByText('demouser')).toBeVisible();
     await expect(page.getByText('demouser@user.com')).toBeVisible();
   });
+
+  test('get user info should error with missing token', async ({ page }) => {
+    const { navigate, clickButton } = asyncEvents(page);
+    await navigate('/ping-am/');
+    expect(page.url()).toBe('http://localhost:8443/ping-am/');
+
+    await clickButton('Login (Background)', 'https://openam-sdks.forgeblocks.com/');
+
+    await page.getByLabel('User Name').fill(pingAmUsername);
+    await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
+    await page.getByRole('button', { name: 'Next' }).click();
+
+    await page.waitForURL('http://localhost:8443/ping-am/**');
+    expect(page.url()).toContain('code');
+    expect(page.url()).toContain('state');
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
+    await expect(page.locator('#accessToken-0')).not.toHaveText('undefined');
+
+    await page.evaluate(() => window.localStorage.clear());
+    await page.getByRole('button', { name: 'User Info' }).click();
+
+    await expect(page.locator('#userInfo')).not.toBeVisible();
+    await expect(page.locator('.error')).toContainText(`"error": "No access token found"`);
+    await expect(page.locator('.error')).toContainText(`"type": "auth_error"`);
+  });
 });
