@@ -10,6 +10,7 @@ import { createClientStore, createLogoutError } from './client.store.utils.js';
 import { OauthTokens, OidcConfig } from './config.types.js';
 import { WellKnownResponse } from '@forgerock/sdk-types';
 import { createStorage } from '@forgerock/storage';
+import { LogoutErrorResult, LogoutSuccessResult } from './client.types.js';
 
 export function logoutµ({
   tokens,
@@ -48,15 +49,33 @@ export function logoutµ({
   ).pipe(
     // Delete local token and return combined results
     Micro.flatMap(([sessionResponse, revokeResponse]) =>
-      Micro.promise(async () => {
-        const deleteRes = await storageClient.remove();
-        const deleteResponse = typeof deleteRes === 'undefined' ? null : deleteRes;
-        return {
-          sessionResponse,
-          revokeResponse,
-          deleteResponse,
-        };
-      }),
+      Micro.promise(() => storageClient.remove()).pipe(
+        Micro.flatMap((deleteRes) => {
+          const deleteResponse = typeof deleteRes === 'undefined' ? null : deleteRes;
+
+          const isInnerRequestError =
+            (sessionResponse && 'error' in sessionResponse) ||
+            (revokeResponse && 'error' in revokeResponse) ||
+            (deleteResponse && typeof deleteResponse === 'object' && 'error' in deleteResponse);
+
+          if (isInnerRequestError) {
+            const result: LogoutErrorResult = {
+              error: 'Inner request error',
+              sessionResponse,
+              revokeResponse,
+              deleteResponse,
+            };
+            return Micro.fail(result);
+          } else {
+            const result: LogoutSuccessResult = {
+              sessionResponse: null,
+              revokeResponse: null,
+              deleteResponse: null,
+            };
+            return Micro.succeed(result);
+          }
+        }),
+      ),
     ),
   );
 }
