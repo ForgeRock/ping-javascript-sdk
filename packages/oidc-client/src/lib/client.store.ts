@@ -19,7 +19,12 @@ import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
-import type { GetTokensOptions, LogoutResult } from './client.types.js';
+import type {
+  GetTokensOptions,
+  LogoutResult,
+  RevokeResult,
+  UserInfoResponse,
+} from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type {
   AuthorizeErrorResponse,
@@ -160,7 +165,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       },
     },
     /**
-     * An object containing methods for token exchange
+     * An object containing methods for token management
      */
     token: {
       /**
@@ -301,6 +306,87 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
       },
+      /**
+       * @method revoke
+       * @description Revokes an access token using the revocation endpoint from the wellknown configuration.
+       *              It requires an access token stored in the configured storage.
+       * @returns {Promise<GenericError | RevokeResult>} - Returns a promise that resolves to the revoke response or an error response.
+       */
+      revoke: async (): Promise<GenericError | RevokeResult> => {
+        const state = store.getState();
+        const wellknown = wellknownSelector(wellknownUrl, state);
+
+        if (!wellknown?.revocation_endpoint) {
+          return {
+            error: 'Wellknown missing revocation endpoint',
+            type: 'wellknown_error',
+          };
+        }
+
+        const tokens = await storageClient.get();
+
+        if (!tokens || !('accessToken' in tokens)) {
+          return {
+            error: 'No access token found',
+            type: 'state_error',
+          };
+        }
+
+        const revokeµ = Micro.promise(() =>
+          store.dispatch(
+            oidcApi.endpoints.revoke.initiate({
+              accessToken: tokens.accessToken,
+              clientId: config.clientId,
+              endpoint: wellknown.revocation_endpoint,
+            }),
+          ),
+        ).pipe(
+          Micro.map(({ error }) => {
+            if (error) {
+              let message = 'An error occurred while revoking the token';
+              let status: number | string = 'unknown';
+              if ('message' in error && error.message) {
+                message = error.message;
+              }
+              if ('status' in error) {
+                status = error.status;
+              }
+              return {
+                error: 'Token revocation failure',
+                message,
+                type: 'auth_error',
+                status,
+              } as GenericError;
+            }
+
+            return null;
+          }),
+          // Delete local token and return combined results
+          Micro.flatMap((revokeResponse) =>
+            Micro.promise(() => storageClient.remove()).pipe(
+              Micro.map((deleteResponse) => ({
+                isError: !!(revokeResponse && 'error' in revokeResponse),
+                revokeResponse,
+                deleteResponse,
+              })),
+            ),
+          ),
+        );
+
+        const result = await Micro.runPromiseExit(revokeµ);
+
+        if (exitIsSuccess(result)) {
+          return result.value;
+        } else if (exitIsFail(result)) {
+          return result.cause.error;
+        } else {
+          return {
+            error: 'Token revocation failure',
+            message: result.cause.message,
+            type: 'auth_error',
+          };
+        }
+      },
     },
 
     /**
@@ -311,9 +397,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        * @method info
        * @description Retrieves user information using the userinfo endpoint from the wellknown configuration.
        *              It requires an access token stored in the configured storage.
-       * @returns {Promise<GenericError | unknown>} - Returns a promise that resolves to user information or an error response.
+       * @returns {Promise<GenericError | UserInfoResponse>} - Returns a promise that resolves to user information or an error response.
        */
-      info: async (): Promise<GenericError | unknown> => {
+      info: async (): Promise<GenericError | UserInfoResponse> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -390,6 +476,13 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         if (!wellknown?.end_session_endpoint) {
           return {
             error: 'Wellknown missing end session endpoint',
+            type: 'wellknown_error',
+          };
+        }
+
+        if (!wellknown?.revocation_endpoint) {
+          return {
+            error: 'Wellknown missing revocation endpoint',
             type: 'wellknown_error',
           };
         }

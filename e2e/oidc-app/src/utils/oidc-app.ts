@@ -26,7 +26,7 @@ function displayTokenResponse(
   response: OauthTokens | TokenExchangeErrorResponse | GenericError | AuthorizeErrorResponse,
 ) {
   const appEl = document.getElementById('app');
-  if ('error' in response) {
+  if ('error' in response || !('accessToken' in response)) {
     console.error('Token Error:', response);
     displayError(response);
   } else {
@@ -110,7 +110,7 @@ export async function oidcApp({ config, urlParams }) {
   document.getElementById('user-info-btn').addEventListener('click', async () => {
     const userInfo = await oidcClient.user.info();
 
-    if (typeof userInfo === 'object' && 'error' in userInfo) {
+    if ('error' in userInfo) {
       console.error('User Info Error:', userInfo);
       displayError(userInfo);
     } else {
@@ -123,10 +123,24 @@ export async function oidcApp({ config, urlParams }) {
     }
   });
 
+  document.getElementById('revoke').addEventListener('click', async () => {
+    const response = await oidcClient.token.revoke();
+
+    if ('error' in response || response.isError) {
+      console.error('Token Revocation Error:', response);
+      displayError(response);
+    } else {
+      const appEl = document.getElementById('app');
+      const userInfoEl = document.createElement('div');
+      userInfoEl.innerHTML = `<p>Token successfully revoked</p>`;
+      appEl.appendChild(userInfoEl);
+    }
+  });
+
   document.getElementById('logout').addEventListener('click', async () => {
     const response = await oidcClient.user.logout();
 
-    if (response && 'error' in response) {
+    if ('error' in response || response.isError) {
       console.error('Logout Error:', response);
       displayError(response);
     } else {

@@ -115,6 +115,7 @@ describe('Ping AM', () => {
       });
 
       expect(result).toStrictEqual({
+        isError: false,
         sessionResponse: null,
         revokeResponse: null,
         deleteResponse: undefined,
@@ -140,6 +141,7 @@ describe('Ping AM', () => {
       });
 
       expect(result).toStrictEqual({
+        isError: true,
         sessionResponse: {
           error: 'End Session failure',
           message: 'An error occurred while ending the session',
@@ -170,6 +172,7 @@ describe('Ping AM', () => {
       });
 
       expect(result).toStrictEqual({
+        isError: true,
         sessionResponse: null,
         revokeResponse: {
           error: 'End Session failure',
@@ -205,6 +208,7 @@ describe('PingOne', () => {
       });
 
       expect(result).toStrictEqual({
+        isError: false,
         sessionResponse: null,
         revokeResponse: null,
         deleteResponse: undefined,
@@ -231,6 +235,7 @@ describe('PingOne', () => {
       });
 
       expect(result).toStrictEqual({
+        isError: true,
         sessionResponse: {
           error: 'End Session failure',
           message: 'An error occurred while ending the session',
@@ -262,6 +267,7 @@ describe('PingOne', () => {
       });
 
       expect(result).toStrictEqual({
+        isError: true,
         sessionResponse: null,
         revokeResponse: {
           error: 'End Session failure',
