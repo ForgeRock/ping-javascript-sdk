@@ -69,7 +69,7 @@ test.describe('PingAM login and get token tests', () => {
 
     await clickButton('Login (Redirect)', 'https://openam-sdks.forgeblocks.com/');
 
-    await expect(page.getByText('invalid_client')).toBeDefined();
+    await expect(page.getByText('invalid_client')).toBeVisible();
   });
 });
 
@@ -129,10 +129,12 @@ test.describe('PingOne login and get token tests', () => {
 
     await clickButton('Login (Redirect)', 'https://apps.pingone.ca/');
 
-    await expect(page.getByText('Error')).toBeDefined();
+    await expect(page.getByText('Error')).toBeVisible();
     await expect(
-      page.getByText('The request could not be completed. The requested resource was not found.'),
-    ).toBeDefined();
+      page
+        .getByText('The request could not be completed. The requested resource was not found.')
+        .first(),
+    ).toBeVisible();
   });
 
   test('login with pi.flow response mode', async ({ page }) => {
