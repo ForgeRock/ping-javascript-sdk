@@ -336,7 +336,7 @@ export const oidcApi = createApi({
         return response as { data: object };
       },
     }),
-    userInfo: builder.mutation<TokenExchangeResponse, { accessToken: string; endpoint: string }>({
+    userInfo: builder.mutation<unknown, { accessToken: string; endpoint: string }>({
       queryFn: async ({ accessToken, endpoint }, api, _, baseQuery) => {
         const { requestMiddleware, logger } = api.extra as Extras;
 
@@ -375,7 +375,7 @@ export const oidcApi = createApi({
 
         logger.debug('OIDC userInfo API response', response);
 
-        return response as { data: TokenExchangeResponse };
+        return response as { data: unknown };
       },
     }),
   }),

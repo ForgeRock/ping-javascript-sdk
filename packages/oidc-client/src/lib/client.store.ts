@@ -22,7 +22,7 @@ import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-ty
 import type { GetTokensOptions, LogoutResult } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
-import type { TokenExchangeErrorResponse, TokenExchangeResponse } from './exchange.types.js';
+import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 
@@ -305,9 +305,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        * @method info
        * @description Retrieves user information using the userinfo endpoint from the wellknown configuration.
        *              It requires an access token stored in the configured storage.
-       * @returns {Promise<GenericError | TokenExchangeResponse>} - Returns a promise that resolves to user information or an error response.
+       * @returns {Promise<GenericError | unknown>} - Returns a promise that resolves to user information or an error response.
        */
-      info: async (): Promise<GenericError | TokenExchangeResponse> => {
+      info: async (): Promise<GenericError | unknown> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
