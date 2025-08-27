@@ -50,7 +50,12 @@ export function logoutµ({
     Micro.flatMap(([sessionResponse, revokeResponse]) =>
       Micro.promise(async () => {
         const deleteResponse = await storageClient.remove();
+        const isError = !!(
+          (sessionResponse && 'error' in sessionResponse) ||
+          (revokeResponse && 'error' in revokeResponse)
+        );
         return {
+          isError,
           sessionResponse,
           revokeResponse,
           deleteResponse,

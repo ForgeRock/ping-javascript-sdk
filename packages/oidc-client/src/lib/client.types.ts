@@ -7,11 +7,17 @@ export interface GetTokensOptions {
   storageOptions?: Partial<StorageConfig>;
 }
 
-export type LogoutResult = Promise<
-  | GenericError
-  | {
-      sessionResponse: GenericError | null;
-      revokeResponse: GenericError | null;
-      deleteResponse: void;
-    }
->;
+export type RevokeResult = {
+  isError: boolean;
+  revokeResponse: GenericError | null;
+  deleteResponse: void;
+};
+
+export type LogoutResult = RevokeResult & {
+  sessionResponse: GenericError | null;
+};
+
+export type UserInfoResponse = {
+  sub: string;
+  [key: string]: unknown;
+};
