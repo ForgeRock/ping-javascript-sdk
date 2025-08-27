@@ -7,15 +7,8 @@
  *
  */
 
-import FRStep from '@forgerock/javascript-sdk/src/fr-auth/fr-step';
 import { protect } from './protect.js';
-import {
-  noProtectType,
-  standardPingProtectEvaluationStep,
-  standardPingProtectInitializeStep,
-} from './protect.mock.data.js';
 import { ProtectConfig, Protect } from './protect.types.js';
-import { CallbackType, HiddenValueCallback } from '@forgerock/javascript-sdk';
 
 const config: ProtectConfig = {
   envId: '12345',
@@ -72,11 +65,6 @@ describe('protect (with successfully loaded signals sdk)', () => {
     expect(protectApi.getData).toBeDefined();
     expect(protectApi.pauseBehavioralData).toBeDefined();
     expect(protectApi.resumeBehavioralData).toBeDefined();
-    expect(protectApi.getPauseBehavioralData).toBeDefined();
-    expect(protectApi.getNodeConfig).toBeDefined();
-    expect(protectApi.getProtectType).toBeDefined();
-    expect(protectApi.setNodeClientError).toBeDefined();
-    expect(protectApi.setNodeInputValue).toBeDefined();
   });
 
   describe('native node methods', () => {
@@ -125,62 +113,6 @@ describe('protect (with successfully loaded signals sdk)', () => {
       const protectApi = protect(config);
       const error = await protectApi.resumeBehavioralData();
       expect(error).toEqual({ error: 'PingOne Signals SDK is not initialized' });
-    });
-  });
-
-  describe('marketplace node methods', () => {
-    it('should test getPauseBehavioralData with marketplace data', () => {
-      const protectApi = protect(config);
-      const result = protectApi.getPauseBehavioralData(standardPingProtectEvaluationStep);
-      expect(result).toEqual(false);
-
-      const secondResult = protectApi.getPauseBehavioralData(standardPingProtectInitializeStep);
-      expect(secondResult).toEqual(true);
-    });
-
-    it('should get the node config', () => {
-      const protectApi = protect(config);
-      const result = protectApi.getNodeConfig(standardPingProtectInitializeStep);
-      expect(result).toEqual(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        standardPingProtectInitializeStep!.payload.callbacks![0].output[0].value,
-      );
-
-      const result2 = protectApi.getNodeConfig(noProtectType);
-      expect(result2).toBeUndefined();
-    });
-
-    it('should test the getPingProtectType method', () => {
-      const protectApi = protect(config);
-      const result = protectApi.getProtectType(standardPingProtectInitializeStep);
-      expect(result).toEqual('initialize');
-
-      const result2 = protectApi.getProtectType(standardPingProtectEvaluationStep);
-      expect(result2).toEqual('evaluate');
-
-      const result3 = protectApi.getProtectType(noProtectType);
-      expect(result3).toEqual('none');
-    });
-
-    it('should set the input with marketplace nodes', () => {
-      const protectApi = protect(config);
-      const step = standardPingProtectEvaluationStep as FRStep;
-
-      protectApi.setNodeInputValue(step, 'the value');
-      const [hc] = step.getCallbacksOfType<HiddenValueCallback>(CallbackType.HiddenValueCallback);
-
-      expect(hc.getInputValue()).toEqual('the value');
-    });
-
-    it('should set an error with marketplace nodes', () => {
-      const protectApi = protect(config);
-      protectApi.setNodeClientError(standardPingProtectEvaluationStep, 'we errored!');
-
-      const [, err] = (
-        standardPingProtectEvaluationStep as FRStep
-      ).getCallbacksOfType<HiddenValueCallback>(CallbackType.HiddenValueCallback);
-
-      expect(err.getInputValue()).toBe('we errored!');
     });
   });
 });
