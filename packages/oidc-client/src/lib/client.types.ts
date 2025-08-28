@@ -12,6 +12,6 @@ export type LogoutResult = Promise<
   | {
       sessionResponse: GenericError | null;
       revokeResponse: GenericError | null;
-      deleteResponse: void;
+      deleteResponse: GenericError | null;
     }
 >;

@@ -21,10 +21,7 @@ import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-ty
 
 import type { GetTokensOptions, LogoutResult } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type {
-  AuthorizeErrorResponse,
-  AuthorizeSuccessResponse,
-} from './authorize.request.types.js';
+import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse, TokenExchangeResponse } from './exchange.types.js';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
@@ -59,8 +56,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
   const oauthThreshold = config.oauthThreshold || 30 * 1000; // Default to 30 seconds
   const storageClient = createStorage<OauthTokens>({
-    type: 'localStorage',
-    name: 'oidcTokens',
+    type: storage?.type || 'localStorage',
+    name: storage?.name || config.clientId,
+    prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
   const store = createClientStore({ requestMiddleware, logger: log });
@@ -84,10 +82,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   );
 
   if (error || !data) {
-    return {
-      error: `Error fetching wellknown config`,
-      type: 'network_error',
-    };
+    log.error(`Error fetching wellknown config. Please check the URL: ${wellknownUrl}`);
   }
 
   return {
@@ -130,7 +125,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        */
       background: async (
         options?: GetAuthorizationUrlOptions,
-      ): Promise<AuthorizeErrorResponse | AuthorizeSuccessResponse> => {
+      ): Promise<AuthorizationSuccess | AuthorizationError> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -143,7 +138,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         const result = await Micro.runPromiseExit(
-          await authorizeµ(wellknown, config, log, options),
+          await authorizeµ(wellknown, config, log, store, options),
         );
 
         if (exitIsSuccess(result)) {
@@ -220,13 +215,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        * @method get
        * @description Retrieves the current OAuth tokens from storage, or auto-renew if backgroundRenew is true.
        * @param {GetTokensOptions} param - An object containing options for the token retrieval.
-       * @returns {Promise<OauthTokens | TokenExchangeErrorResponse | AuthorizeErrorResponse | GenericError>}
+       * @returns {Promise<OauthTokens | TokenExchangeErrorResponse | AuthorizationError | GenericError>}
        */
       get: async (
         options?: GetTokensOptions,
-      ): Promise<
-        OauthTokens | TokenExchangeErrorResponse | AuthorizeErrorResponse | GenericError
-      > => {
+      ): Promise<OauthTokens | TokenExchangeErrorResponse | AuthorizationError | GenericError> => {
         const { backgroundRenew, authorizeOptions, storageOptions } = options || {};
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
@@ -269,6 +262,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           wellknown,
           config,
           log,
+          store,
           authorizeOptions,
         ).pipe(
           Micro.flatMap((response): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> => {

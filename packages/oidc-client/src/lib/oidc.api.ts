@@ -1,4 +1,4 @@
-import { createApi, FetchArgs, fetchBaseQuery } from '@reduxjs/toolkit/query';
+import { createApi, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { OidcConfig } from './config.types.js';
 import { transformError } from './oidc.api.utils.js';
 
@@ -10,6 +10,8 @@ import {
 } from '@forgerock/sdk-request-middleware';
 
 import type { TokenExchangeResponse } from './exchange.types.js';
+import { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize.request.types.js';
+import { iFrameManager } from '@forgerock/iframe-manager';
 
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
   requestMiddleware: RequestMiddleware<ActionType, Payload>[];
@@ -20,6 +22,159 @@ export const oidcApi = createApi({
   reducerPath: 'oidc',
   baseQuery: fetchBaseQuery(),
   endpoints: (builder) => ({
+    authorizeFetch: builder.mutation<AuthorizeSuccessResponse, { url: string }>({
+      queryFn: async ({ url }, api, _, baseQuery) => {
+        const { requestMiddleware, logger } = api.extra as Extras;
+
+        const request: FetchArgs = {
+          url,
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+          },
+        };
+
+        logger.debug('OIDC authorize API request', request);
+
+        const response = await initQuery(request, 'authorize')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => await baseQuery(req));
+
+        if (response.error) {
+          const responseError = response.error;
+
+          // If the details field is present in data, use it to create a more specific error response
+          if (
+            responseError.data &&
+            typeof responseError.data === 'object' &&
+            'details' in responseError.data &&
+            Array.isArray(responseError.data.details)
+          ) {
+            logger.debug('Error in authorize response', responseError);
+
+            const details = responseError.data.details[0] as {
+              code: string;
+              message: string;
+            };
+
+            response.error = {
+              status: responseError.status,
+              statusText: 'AUTHORIZE_ERROR',
+              data: {
+                error: details.code,
+                error_description: details.message,
+                type: 'auth_error',
+              },
+            } as FetchBaseQueryError;
+            return response;
+          }
+
+          logger.error('Error in OAuth configuration', responseError);
+
+          // Since this is likely a configuration issue, avoid providing a redirect URL
+          response.error = {
+            status: responseError.status,
+            statusText: 'CONFIGURATION_ERROR',
+            data: {
+              error: 'CONFIGURATION_ERROR',
+              error_description:
+                'Configuration error. Please check your OAuth configuration, like clientId or allowed redirect URLs.',
+              type: 'network_error',
+            },
+          } as FetchBaseQueryError;
+          return response;
+        }
+
+        logger.debug('OIDC Authorize fetch API response', response);
+
+        return response as { data: AuthorizeSuccessResponse };
+      },
+    }),
+    authorizeIframe: builder.mutation<AuthorizationSuccess, { url: string }>({
+      queryFn: async ({ url }, api) => {
+        const { requestMiddleware, logger } = api.extra as Extras;
+
+        const request: FetchArgs = {
+          url,
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+          },
+        };
+
+        logger.debug('OIDC authorize API request', request);
+
+        const response = await initQuery(request, 'authorize')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => {
+            try {
+              const res = await iFrameManager().getParamsByRedirect({
+                url: req.url,
+                /***
+                 * https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2
+                 * The client MUST ignore unrecognized response parameters.
+                 */
+                successParams: ['code', 'state'],
+                errorParams: ['error', 'error_description'],
+                timeout: req.timeout || 3000,
+              });
+              return { data: res };
+            } catch (error) {
+              return {
+                error: {
+                  status: 400,
+                  message: 'Unknown error occurred calling authorize endpoint',
+                  data: error,
+                },
+              };
+            }
+          });
+
+        if ('error' in response) {
+          logger.error('Received authorization code', response);
+          return {
+            error: {
+              status: 400,
+              statusText: 'CONFIGURATION_ERROR',
+              data: {
+                error: 'CONFIGURATION_ERROR',
+                error_description:
+                  'Configuration error. Please check your OAuth configuration, like clientId or allowed redirect URLs.',
+                type: 'network_error',
+              },
+            },
+          };
+        }
+
+        const data = response.data as {
+          code?: string;
+          state?: string;
+          error?: string;
+          error_description?: string;
+        };
+
+        // TODO: Consider refactoring iframe manager to reject when an error occurs
+        if ('error' in data) {
+          logger.debug('Error in authorize response', response);
+          return {
+            error: {
+              status: 400,
+              statusText: 'AUTHORIZE_ERROR',
+              data: {
+                error: data.error || 'Unknown_Error',
+                error_description:
+                  data.error_description || 'An unknown error occurred during authorization',
+                type: 'auth_error',
+              },
+            },
+          };
+        }
+
+        return { data: response.data } as { data: AuthorizationSuccess };
+      },
+    }),
     endSession: builder.mutation<null, { idToken: string; endpoint: string }>({
       queryFn: async ({ idToken, endpoint }, api, _, baseQuery) => {
         const { requestMiddleware, logger } = api.extra as Extras;

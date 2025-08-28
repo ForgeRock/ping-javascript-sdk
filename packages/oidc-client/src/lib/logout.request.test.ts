@@ -117,7 +117,7 @@ describe('Ping AM', () => {
       expect(result).toStrictEqual({
         sessionResponse: null,
         revokeResponse: null,
-        deleteResponse: undefined,
+        deleteResponse: null,
       });
     }),
   );
@@ -147,7 +147,7 @@ describe('Ping AM', () => {
           status: 400,
         },
         revokeResponse: null,
-        deleteResponse: undefined,
+        deleteResponse: null,
       });
     }),
   );
@@ -177,7 +177,7 @@ describe('Ping AM', () => {
           type: 'auth_error',
           status: 400,
         },
-        deleteResponse: undefined,
+        deleteResponse: null,
       });
     }),
   );
@@ -207,7 +207,7 @@ describe('PingOne', () => {
       expect(result).toStrictEqual({
         sessionResponse: null,
         revokeResponse: null,
-        deleteResponse: undefined,
+        deleteResponse: null,
       });
     }),
   );
@@ -238,7 +238,7 @@ describe('PingOne', () => {
           status: 400,
         },
         revokeResponse: null,
-        deleteResponse: undefined,
+        deleteResponse: null,
       });
     }),
   );
@@ -269,7 +269,7 @@ describe('PingOne', () => {
           type: 'auth_error',
           status: 400,
         },
-        deleteResponse: undefined,
+        deleteResponse: null,
       });
     }),
   );
