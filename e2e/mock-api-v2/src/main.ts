@@ -66,7 +66,7 @@ const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
 
   Layer.provide(NodeSdkLive),
   HttpServer.withLogAddress,
-  Layer.provide(NodeHttpServer.layer(createServer, { port: 9443 })),
+  Layer.provide(NodeHttpServer.layer(createServer, { port: 9443, host: 'localhost' })),
 );
 
 Layer.launch(ServerMock).pipe(NodeRuntime.runMain);
