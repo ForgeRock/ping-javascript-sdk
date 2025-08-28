@@ -6,12 +6,13 @@
  */
 import { Array } from 'effect';
 import { UsernamePassword } from './username-password.js';
+import { returnSuccessResponseRedirect } from './return-success-redirect.js';
 
 import { InvalidUsernamePassword } from './invalid-username-password.js';
 
 type ResponseMapKeys = keyof typeof responseMap;
 const responseMap = {
-  UsernamePassword: Array.make(UsernamePassword),
+  UsernamePassword: Array.make(UsernamePassword, returnSuccessResponseRedirect),
 } as const;
 
 type ErrorMapKeys = keyof typeof errorMap;

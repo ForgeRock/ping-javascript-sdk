@@ -25,7 +25,6 @@ import {
 import { CapabilitiesHeaders } from './schemas/capabilities/capabilities.headers.schema.js';
 import { CapabilitiesResponse } from './schemas/capabilities/capabilities.response.schema.js';
 import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from './schemas/authorize.schema.js';
-import { SuccessResponseRedirect } from './schemas/return-success-response-redirect.schema.js';
 import { CapabilitiesPathParams } from './schemas/capabilities/capabilities.path.schema.js';
 import { CapabilitiesRequestBody } from './schemas/capabilities/capabilities.request.schema.js';
 import { addStepCookie } from './addStepCookie.openapi.js';
@@ -63,7 +62,6 @@ const MockApi = HttpApi.make('MyApi')
         .setHeaders(DavinciAuthorizeHeaders)
         .setUrlParams(DavinciAuthorizeQuery)
         .addSuccess(CapabilitiesResponse)
-        .addSuccess(SuccessResponseRedirect)
         .addError(HttpApiError.NotFound)
         .addError(HttpApiError.InternalServerError)
         .annotate(OpenApi.Summary, 'Authorization Endpoint')
@@ -87,7 +85,8 @@ const MockApi = HttpApi.make('MyApi')
           .setHeaders(CapabilitiesHeaders)
           .addSuccess(CapabilitiesResponse)
           .addError(HttpApiError.NotFound)
-          .addError(HttpApiError.Unauthorized),
+          .addError(HttpApiError.Unauthorized)
+          .addError(HttpApiError.InternalServerError),
       )
       .middleware(IncrementStepIndex),
   )
