@@ -18,8 +18,9 @@ const AuthorizeHandlerMock = HttpApiBuilder.group(MockApi, 'Authorization', (han
 
       const res = yield* pipe(
         HttpServerResponse.json(body),
-        HttpServerResponse.setCookie('acr_values', acr_value),
-        Effect.catchTag('CookieError', () => new HttpApiError.InternalServerError()),
+        Effect.flatMap(HttpServerResponse.setCookie('acr_values', acr_value, { path: '/' })),
+        Effect.catchTag('CookieError', () => Effect.fail(new HttpApiError.InternalServerError())),
+        Effect.catchTag('HttpBodyError', () => Effect.fail(new HttpApiError.InternalServerError())),
       );
 
       return res;
