@@ -11,7 +11,7 @@
     "serve": "pnpm nx nxServe"
   },
   "dependencies": {
-    "@forgerock/javascript-sdk": "4.7.0",
+    "@forgerock/javascript-sdk": "4.8.2",
     "@forgerock/protect": "workspace:*"
   },
   "nx": {

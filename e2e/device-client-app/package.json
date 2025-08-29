@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@forgerock/device-client": "workspace:*",
-    "@forgerock/javascript-sdk": "4.7.0",
+    "@forgerock/javascript-sdk": "4.8.2",
     "effect": "^3.12.7"
   },
   "nx": {
