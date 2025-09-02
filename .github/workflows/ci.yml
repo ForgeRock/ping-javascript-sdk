@@ -85,7 +85,7 @@ jobs:
           message: Deployed ${{ github.sha }} to https://ForgeRock.github.io/ping-javascript-sdk/pr-${{ github.event.number }}/${{github.sha}} branch gh-pages in ForgeRock/ping-javascript-sdk
 
       - name: Download baseline bundle sizes
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v11
         with:
           workflow: publish.yml
           branch: main
