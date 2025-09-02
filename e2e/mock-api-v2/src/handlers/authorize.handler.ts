@@ -4,28 +4,26 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect } from 'effect';
-
+import { Effect, pipe } from 'effect';
 import { MockApi } from '../spec.js';
-import { HttpApiBuilder, HttpApiError } from '@effect/platform';
+import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platform';
 import { getFirstElementAndRespond } from '../services/mock-env-helpers/index.js';
 
 const AuthorizeHandlerMock = HttpApiBuilder.group(MockApi, 'Authorization', (handlers) =>
   handlers.handle('authorize', ({ urlParams }) =>
     Effect.gen(function* () {
-      /**
-       * We expect an acr_value query parameter to be present in the request.
-       * If it is not present, we return a 404 Not Found error.
-       */
       const acr_value = urlParams?.acr_values ?? '';
 
-      if (!acr_value) {
-        return yield* Effect.fail(new HttpApiError.NotFound());
-      }
+      const body = yield* getFirstElementAndRespond(urlParams);
 
-      const response = yield* getFirstElementAndRespond(urlParams);
+      const res = yield* pipe(
+        HttpServerResponse.json(body),
+        Effect.flatMap(HttpServerResponse.setCookie('acr_values', acr_value, { path: '/' })),
+        Effect.catchTag('CookieError', () => Effect.fail(new HttpApiError.InternalServerError())),
+        Effect.catchTag('HttpBodyError', () => Effect.fail(new HttpApiError.InternalServerError())),
+      );
 
-      return response;
+      return res;
     }).pipe(Effect.withSpan('DavinciAuthorize')),
   ),
 );

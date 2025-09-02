@@ -4,12 +4,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Console, Effect, pipe } from 'effect';
+import { Effect, pipe } from 'effect';
 import { MockApi } from '../spec.js';
 import {
   HttpApiBuilder,
   HttpApiError,
-  HttpBody,
   HttpServerRequest,
   HttpServerResponse,
 } from '@effect/platform';
@@ -18,15 +17,13 @@ import { validator } from '../helpers/match.js';
 import { returnSuccessResponseRedirect } from '../responses/return-success-redirect.js';
 
 const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (handlers) =>
-  handlers.handle('capabilities', ({ urlParams, payload }) =>
+  handlers.handle('capabilities', ({ payload }) =>
     Effect.gen(function* () {
-      /**
-       * We expect an acr_value query parameter to be present in the request.
-       * If it is not present, we return a 404 Not Found error.
-       */
-      const acr_value = urlParams?.acr_values ?? '';
-      console.log('acr_value', acr_value);
+      const req = yield* HttpServerRequest.HttpServerRequest;
+      console.log('request cookies', req.cookies);
+      const acr_value = req.cookies.acr_values ?? '';
 
+      console.log('acr_value', acr_value);
       if (!acr_value) {
         return yield* Effect.fail(new HttpApiError.NotFound());
       }
@@ -36,15 +33,13 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
        * If the cookie is not present, we return a 404 Not Found error.
        */
 
-      const req = yield* HttpServerRequest.HttpServerRequest;
-
       const stepIndexCookie = req.cookies['stepIndex'];
-      console.log(req.cookies);
 
       /**
        * If we are here with no step index that means we can't continue through a flow.
        * We should error
        */
+      console.log('step index cookie', stepIndexCookie);
       if (!stepIndexCookie) {
         console.log('no step index');
         return yield* Effect.fail(new HttpApiError.NotFound());
@@ -76,59 +71,49 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
        */
       const steps = responseMap[acr_value];
 
-      /**
-       * This may not be the best way to write this.
-       * An alternative option would be for us to include the success response we want to return,
-       * in the response map.
-       *
-       * then we can check if we are at the last step. if we are we write the cookie
-       * and then we return the success response (last item in array)
-       *
-       * for now, this returns a default success response and writes cookies.
-       */
-      if (stepIndex + 1 >= steps.length) {
+      if (stepIndex + 1 === steps.length - 1) {
         /**
          * we need to return a success because we have not failed yet,
          * and we have no more steps to process.
          */
-        const body = yield* HttpBody.json(returnSuccessResponseRedirect).pipe(
-          Effect.tap(Console.log(`here stepIndex: ${stepIndex}`)),
-          /**
-           * Decide on a better way to handle this error possibiltiy
-           */
-          Effect.catchTag('HttpBodyError', () =>
-            Effect.fail(
-              new HttpApiError.HttpApiDecodeError({
-                message: 'Failed to encode body',
-                issues: [],
-              }),
+        const body = responseMap[stepIndex];
+
+        return yield* pipe(
+          HttpServerResponse.json(body),
+          Effect.flatMap((res) => HttpServerResponse.setCookie(res, 'ST', 'MockApiCookie123')),
+          Effect.flatMap((res) =>
+            HttpServerResponse.setCookie(
+              res,
+              'interactionId',
+              returnSuccessResponseRedirect.interactionId,
+              {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+              },
             ),
           ),
-        );
-        return pipe(
-          HttpServerResponse.json(body),
-          HttpServerResponse.setCookie('ST', 'MockApiCookie123'),
-          HttpServerResponse.setCookie(
-            'interactionId',
-            returnSuccessResponseRedirect.interactionId,
-            {
-              httpOnly: true,
-              secure: true,
-              sameSite: 'strict',
-            },
+          Effect.flatMap((res) =>
+            HttpServerResponse.setCookie(
+              res,
+              'interactionToken',
+              returnSuccessResponseRedirect.interactionToken,
+              {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+              },
+            ),
           ),
-          HttpServerResponse.setCookie(
-            'interactionToken',
-            returnSuccessResponseRedirect.interactionToken,
-            {
-              httpOnly: true,
-              secure: true,
-              sameSite: 'strict',
-            },
+          Effect.flatMap((res) => HttpServerResponse.removeCookie(res, 'stepIndex')),
+          Effect.flatMap((res) => HttpServerResponse.setStatus(res, 200)),
+          Effect.flatMap((res) =>
+            HttpServerResponse.setHeader(res, 'Content-Type', 'application/json'),
           ),
-          HttpServerResponse.removeCookie('stepIndex'),
-          HttpServerResponse.setStatus(200),
-          HttpServerResponse.setHeader('Content-Type', 'application/json'),
+          Effect.catchTag('CookieError', () => Effect.fail(new HttpApiError.InternalServerError())),
+          Effect.catchTag('HttpBodyError', () =>
+            Effect.fail(new HttpApiError.InternalServerError()),
+          ),
         );
       }
 

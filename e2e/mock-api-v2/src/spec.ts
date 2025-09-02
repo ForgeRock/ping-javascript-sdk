@@ -21,14 +21,14 @@ import {
   RevokeRequestBody,
   RevokeResponseBody,
 } from './schemas/revoke/revoke.schema.js';
-import { CapabilitiesQueryParams } from './schemas/capabilities/capabilities.query.schema.js';
+
 import { CapabilitiesHeaders } from './schemas/capabilities/capabilities.headers.schema.js';
 import { CapabilitiesResponse } from './schemas/capabilities/capabilities.response.schema.js';
 import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from './schemas/authorize.schema.js';
-import { SuccessResponseRedirect } from './schemas/return-success-response-redirect.schema.js';
 import { CapabilitiesPathParams } from './schemas/capabilities/capabilities.path.schema.js';
 import { CapabilitiesRequestBody } from './schemas/capabilities/capabilities.request.schema.js';
 import { addStepCookie } from './addStepCookie.openapi.js';
+import { IncrementStepIndex } from './middleware/CookieMiddleware.js';
 
 const MockApi = HttpApi.make('MyApi')
   .annotate(OpenApi.Title, 'PingOne OIDC and OAuth2 Mock API')
@@ -62,8 +62,8 @@ const MockApi = HttpApi.make('MyApi')
         .setHeaders(DavinciAuthorizeHeaders)
         .setUrlParams(DavinciAuthorizeQuery)
         .addSuccess(CapabilitiesResponse)
-        .addSuccess(SuccessResponseRedirect)
         .addError(HttpApiError.NotFound)
+        .addError(HttpApiError.InternalServerError)
         .annotate(OpenApi.Summary, 'Authorization Endpoint')
         .annotate(
           OpenApi.Description,
@@ -73,20 +73,22 @@ const MockApi = HttpApi.make('MyApi')
   )
   // Capabilities
   .add(
-    HttpApiGroup.make('Capabilities').add(
-      HttpApiEndpoint.post(
-        'capabilities',
-        `/:envid/davinci/connections/:connectionID/capabilities/:capabilityName`,
+    HttpApiGroup.make('Capabilities')
+      .add(
+        HttpApiEndpoint.post(
+          'capabilities',
+          `/:envid/davinci/connections/:connectionID/capabilities/:capabilityName`,
+        )
+          .setPayload(CapabilitiesRequestBody)
+          .setPath(CapabilitiesPathParams)
+
+          .setHeaders(CapabilitiesHeaders)
+          .addSuccess(CapabilitiesResponse)
+          .addError(HttpApiError.NotFound)
+          .addError(HttpApiError.Unauthorized)
+          .addError(HttpApiError.InternalServerError),
       )
-        .setPayload(CapabilitiesRequestBody)
-        .setPath(CapabilitiesPathParams)
-        .setUrlParams(CapabilitiesQueryParams)
-        .setHeaders(CapabilitiesHeaders)
-        .addSuccess(CapabilitiesResponse)
-        .addError(HttpApiError.NotFound)
-        .addError(HttpApiError.Unauthorized),
-    ),
-    // .middleware(IncrementStepIndexMock),
+      .middleware(IncrementStepIndex),
   )
   .add(
     HttpApiGroup.make('OpenIDConfig').add(

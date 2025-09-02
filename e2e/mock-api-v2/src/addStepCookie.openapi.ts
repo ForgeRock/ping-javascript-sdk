@@ -9,7 +9,7 @@ export const addStepCookie = (spec: any) => {
   const FLOW_TAGS = new Set(['Authorization', 'Capabilities']);
   const FLOW_PATH_MATCHERS = [
     /\/davinci\/authorize\b/,
-    /\/davinci\/connections\/[^/]+\/capabilities\//,
+    /\/davinci\/connections\/[^/]+\/capabilities/,
   ];
 
   const shouldAnnotate = (path: string, op: any) =>
@@ -30,6 +30,18 @@ export const addStepCookie = (spec: any) => {
           'Current flow step. Server initializes on first request and increments thereafter.',
         schema: { type: 'integer', minimum: 0 },
         example: 2,
+      });
+    }
+    const alreadyAcrValues = op.parameters.some(
+      (p: any) => p && p.in === 'cookie' && p.name === 'acr_values',
+    );
+    if (!alreadyAcrValues && !op.tags?.includes('Authorization')) {
+      op.parameters.push({
+        name: 'acr_values',
+        in: 'cookie',
+        required: false,
+        description: 'The acr_values that were used to initiate the authorization flow.',
+        schema: { type: 'string' },
       });
     }
   };
