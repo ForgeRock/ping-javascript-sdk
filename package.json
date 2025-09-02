@@ -91,7 +91,7 @@
     "eslint": "^9.8.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.31.0",
-    "eslint-plugin-package-json": "0.30.0",
+    "eslint-plugin-package-json": "0.56.0",
     "eslint-plugin-playwright": "^2.0.0",
     "eslint-plugin-prettier": "^5.2.3",
     "fast-check": "^4.0.0",
