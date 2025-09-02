@@ -26,7 +26,7 @@ jobs:
     steps:
       # Clone the repo
       - name: Clone the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{github.event.pull_request.head.repo.full_name}}
