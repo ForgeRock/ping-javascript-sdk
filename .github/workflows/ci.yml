@@ -50,6 +50,8 @@ jobs:
 
       - run: pnpm exec nx-cloud record -- nx format:check
       - run: pnpm exec nx affected -t build typecheck lint test e2e-ci
+      - run: npx nx-cloud fix-ci
+        if: always()
 
       - uses: codecov/codecov-action@v5
         with:
