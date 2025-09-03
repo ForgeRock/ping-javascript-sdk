@@ -80,6 +80,8 @@ jobs:
         env:
           NX_CLOUD_DISTRIBUTED_EXECUTION: false
 
+      - run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm
+
       - name: build docs
         run: pnpm generate-docs
 
