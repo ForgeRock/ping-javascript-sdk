@@ -13,7 +13,6 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "ping-javascript-sdk",
     "scratchpad",
     "@forgerock/pingone-scripts",
     "@forgerock/device-client",
