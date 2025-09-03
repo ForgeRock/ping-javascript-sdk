@@ -24,6 +24,7 @@ import type {
   AutoCollectorTypes,
   UnknownCollector,
   InferAutoCollectorType,
+  PhoneNumberOutputValue,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -422,7 +423,7 @@ export function returnMultiSelectCollector(field: MultiSelectField, idx: number,
 export function returnObjectCollector<
   Field extends DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField,
   CollectorType extends ObjectValueCollectorTypes = 'ObjectValueCollector',
->(field: Field, idx: number, collectorType: CollectorType) {
+>(field: Field, idx: number, collectorType: CollectorType, prefillData?: PhoneNumberOutputValue) {
   let error = '';
   if (!('key' in field)) {
     error = `${error}Key is not found in the field object. `;
@@ -481,9 +482,11 @@ export function returnObjectCollector<
       key: `${device.type}-${idx}`,
     }));
   } else if (field.type === 'PHONE_NUMBER') {
+    const prefilledCountryCode = prefillData?.countryCode;
+    const prefilledPhone = prefillData?.phoneNumber;
     defaultValue = {
-      countryCode: field.defaultCountryCode || '',
-      phoneNumber: '',
+      countryCode: prefilledCountryCode ? prefilledCountryCode : field.defaultCountryCode || '',
+      phoneNumber: prefilledPhone || '',
     };
   }
 
@@ -527,8 +530,12 @@ export function returnObjectSelectCollector(
   );
 }
 
-export function returnObjectValueCollector(field: PhoneNumberField, idx: number) {
-  return returnObjectCollector(field, idx, 'PhoneNumberCollector');
+export function returnObjectValueCollector(
+  field: PhoneNumberField,
+  idx: number,
+  prefillData: PhoneNumberOutputValue,
+) {
+  return returnObjectCollector(field, idx, 'PhoneNumberCollector', prefillData);
 }
 
 /**

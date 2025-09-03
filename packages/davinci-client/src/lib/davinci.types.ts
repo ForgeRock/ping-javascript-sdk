@@ -149,7 +149,8 @@ export type PhoneNumberField = {
   key: string;
   label: string;
   defaultCountryCode: string | null;
-  required: boolean;
+  required: boolean; // TODO: add to phone collector
+  validatePhoneNumber: boolean; // TODO: add to phone collector
 };
 
 export type ProtectField = {
