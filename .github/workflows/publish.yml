@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         id: cache
         with:
-          node-version: '22.14.0'
+          node-version-file: '.node-version'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -39,6 +39,14 @@ jobs:
       # This line enables distribution
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
       - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - run: pnpm exec playwright install
 
