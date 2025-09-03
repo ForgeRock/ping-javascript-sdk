@@ -8,11 +8,12 @@
  */
 import { oidc } from '@forgerock/oidc-client';
 import type {
-  AuthorizeErrorResponse,
+  AuthorizationError,
+  GenericError,
+  GetAuthorizationUrlOptions,
   OauthTokens,
   TokenExchangeErrorResponse,
 } from '@forgerock/oidc-client/types';
-import { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 let tokenIndex = 0;
 
@@ -23,7 +24,7 @@ function displayError(error) {
 }
 
 function displayTokenResponse(
-  response: OauthTokens | TokenExchangeErrorResponse | GenericError | AuthorizeErrorResponse,
+  response: OauthTokens | TokenExchangeErrorResponse | GenericError | AuthorizationError,
 ) {
   const appEl = document.getElementById('app');
   if ('error' in response) {

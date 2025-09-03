@@ -7,117 +7,10 @@
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
-import { iFrameManager, ResolvedParams } from '@forgerock/iframe-manager';
-
 import type { WellKnownResponse, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
-import type {
-  AuthorizeErrorResponse,
-  AuthorizeSuccessResponse,
-} from './authorize.request.types.js';
+import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { OidcConfig } from './config.types.js';
-
-/**
- * @function authorizeFetchµ
- * @description Fetches the authorization response from the given URL.
- * @param {string} url - The URL to fetch the authorization response from.
- * @returns {Micro.Micro<AuthorizeSuccessResponse, AuthorizeErrorResponse, never>} - A micro effect that resolves to the authorization response.
- */
-export function authorizeFetchµ(
-  url: string,
-): Micro.Micro<AuthorizeSuccessResponse | AuthorizeErrorResponse, AuthorizeErrorResponse, never> {
-  return Micro.tryPromise({
-    try: async () => {
-      const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      const resJson = (await response.json()) as
-        | { authorizeResponse: AuthorizeSuccessResponse }
-        | unknown;
-
-      if (!resJson || typeof resJson !== 'object') {
-        return {
-          error: 'Authorization Network Failure',
-          error_description: 'Failed to fetch authorization response',
-          type: 'auth_error',
-        };
-      }
-
-      if ('authorizeResponse' in resJson) {
-        // Return authorizeResponse as it contains the code and state
-        return resJson.authorizeResponse as AuthorizeSuccessResponse;
-      } else if ('details' in resJson && resJson.details && Array.isArray(resJson.details)) {
-        const details = resJson.details[0] as { code: string; message: string };
-        // Return error response
-        return {
-          error: details.code || 'Unknown_Error',
-          error_description: details.message || 'An error occurred during authorization',
-          type: 'auth_error',
-        };
-      }
-
-      // Unrecognized response format
-      return {
-        error: 'Authorization Network Failure',
-        error_description: 'Unexpected response format from authorization endpoint',
-        type: 'auth_error',
-      };
-    },
-    catch: (err) => {
-      let message = 'Error fetching authorization URL';
-      if (err instanceof Error) {
-        message = err.message;
-      }
-
-      return {
-        error: 'Authorization Network Failure',
-        error_description: message,
-        type: 'auth_error',
-      } as AuthorizeErrorResponse;
-    },
-  });
-}
-
-/**
- * @function authorizeIframeµ
- * @description Fetches the authorization response from the given URL using an iframe.
- * @param {string} url - The authorization URL to be used for the iframe.
- * @param {OidcConfig} config - The OIDC client configuration.
- * @returns {Micro.Micro<ResolvedParams, AuthorizeErrorResponse, never>}
- */
-export function authorizeIframeµ(
-  url: string,
-  config: OidcConfig,
-): Micro.Micro<ResolvedParams, AuthorizeErrorResponse, never> {
-  return Micro.tryPromise({
-    try: () => {
-      const params = iFrameManager().getParamsByRedirect({
-        url,
-        /***
-         * https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2
-         * The client MUST ignore unrecognized response parameters.
-         */
-        successParams: ['code', 'state'],
-        errorParams: ['error', 'error_description'],
-        timeout: config.serverConfig.timeout || 3000,
-      });
-      return params;
-    },
-    catch: (err) => {
-      let message = 'Error calling authorization URL';
-      if (err instanceof Error) {
-        message = err.message;
-      }
-
-      return {
-        error: 'Authorization Network Failure',
-        error_description: message,
-        type: 'auth_error',
-      } as AuthorizeErrorResponse;
-    },
-  });
-}
 
 type BuildAuthorizationData = [string, OidcConfig, GetAuthorizationUrlOptions];
 export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
@@ -134,7 +27,7 @@ export function buildAuthorizeOptionsµ(
   wellknown: WellKnownResponse,
   config: OidcConfig,
   options?: OptionalAuthorizeOptions,
-): Micro.Micro<BuildAuthorizationData, AuthorizeErrorResponse, never> {
+): Micro.Micro<BuildAuthorizationData, AuthorizationError, never> {
   const isPiFlow = wellknown.response_modes_supported?.includes('pi.flow');
   return Micro.sync(
     (): BuildAuthorizationData => [
@@ -164,9 +57,8 @@ export function buildAuthorizeOptionsµ(
 export function createAuthorizeErrorµ(
   res: { error: string; error_description: string },
   wellknown: WellKnownResponse,
-  config: OidcConfig,
   options: GetAuthorizationUrlOptions,
-): Micro.Micro<never, AuthorizeErrorResponse, never> {
+): Micro.Micro<never, AuthorizationError, never> {
   return Micro.tryPromise({
     try: () =>
       createAuthorizeUrl(wellknown.authorization_endpoint, {
@@ -181,7 +73,7 @@ export function createAuthorizeErrorµ(
         error: 'AuthorizationUrlError',
         error_description: message,
         type: 'auth_error',
-      } as AuthorizeErrorResponse;
+      } as const;
     },
   }).pipe(
     Micro.flatMap((url) => {
@@ -190,7 +82,7 @@ export function createAuthorizeErrorµ(
         error_description: res.error_description,
         type: 'auth_error',
         redirectUrl: url,
-      } as AuthorizeErrorResponse);
+      } as const);
     }),
   );
 }
@@ -201,20 +93,19 @@ export function createAuthorizeErrorµ(
  * @param {string} path - The path to the authorization endpoint.
  * @param { OidcConfig } config - The OIDC client configuration.
  * @param { GetAuthorizationUrlOptions } options - Optional parameters for the authorization request.
- * @returns { Micro.Micro<[string, OidcConfig, GetAuthorizationUrlOptions], AuthorizeErrorResponse, never> }
+ * @returns { Micro.Micro<[string, OidcConfig, GetAuthorizationUrlOptions], AuthorizationError, never> }
  */
 export function createAuthorizeUrlµ(
   path: string,
   config: OidcConfig,
   options: GetAuthorizationUrlOptions,
-): Micro.Micro<[string, OidcConfig, GetAuthorizationUrlOptions], AuthorizeErrorResponse, never> {
+): Micro.Micro<[string, GetAuthorizationUrlOptions], AuthorizationError, never> {
   return Micro.tryPromise({
     try: async () => [
       await createAuthorizeUrl(path, {
         ...options,
         prompt: 'none',
       }),
-      config,
       options,
     ],
     catch: (error) => {
@@ -226,7 +117,20 @@ export function createAuthorizeUrlµ(
         error: 'AuthorizationUrlError',
         error_description: message,
         type: 'auth_error',
-      } as AuthorizeErrorResponse;
+      } as const;
     },
   });
+}
+
+export function handleResponseµ(
+  response: AuthorizationSuccess | AuthorizationError,
+  wellknown: WellKnownResponse,
+  config: OidcConfig,
+  options: GetAuthorizationUrlOptions,
+): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> {
+  if ('code' in response) {
+    return Micro.sync(() => response);
+  } else {
+    return createAuthorizeErrorµ(response, wellknown, options);
+  }
 }

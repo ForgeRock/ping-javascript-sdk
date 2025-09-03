@@ -14,6 +14,6 @@
     "@forgerock/sdk-types": "workspace:*"
   },
   "nx": {
-    "tags": ["scope:app"]
+    "tags": ["scope:e2e"]
   }
 }
