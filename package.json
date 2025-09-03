@@ -49,9 +49,6 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
-  "dependencies": {
-    "ts-patch": "3.3.0"
-  },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.9",
@@ -81,6 +78,8 @@
     "@types/estree": "^1.0.1",
     "@types/express": "5.0.1",
     "@types/node": "22.14.1",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
     "@typescript-eslint/typescript-estree": "8.23.0",
     "@typescript-eslint/utils": "^8.13.0",
     "@vitest/coverage-v8": "^3.0.5",
@@ -102,12 +101,14 @@
     "lint-staged": "^15.0.0",
     "madge": "8.0.0",
     "nx": "21.2.3",
+    "pkg-pr-new": "^0.0.51",
     "playwright": "^1.47.2",
     "prettier": "^3.2.5",
     "shx": "^0.4.0",
     "swc-loader": "0.2.6",
     "ts-node": "10.9.2",
     "tslib": "^2.5.0",
+    "ts-patch": "3.3.0",
     "typedoc": "^0.27.4",
     "typedoc-github-theme": "0.2.1",
     "typedoc-plugin-rename-defaults": "^0.7.2",

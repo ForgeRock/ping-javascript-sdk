@@ -38,9 +38,10 @@ test.describe('Logout tests', () => {
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    const amNavigation = page.waitForURL('http://localhost:8443/ping-am/**');
-    await page.getByRole('button', { name: 'Next' }).click();
-    await amNavigation;
+    await Promise.all([
+      page.waitForURL('http://localhost:8443/ping-am/**'),
+      page.getByRole('button', { name: 'Next' }).click(),
+    ]);
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.getByRole('button', { name: 'Login (Background)' })).toBeHidden();
@@ -74,9 +75,10 @@ test.describe('Logout tests', () => {
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    const p1Navigation = page.waitForURL('http://localhost:8443/ping-one/**');
-    await page.getByRole('button', { name: 'Sign On' }).click();
-    await p1Navigation;
+    await Promise.all([
+      page.waitForURL('http://localhost:8443/ping-one/**'),
+      page.getByRole('button', { name: 'Sign On' }).click(),
+    ]);
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.getByRole('button', { name: 'Login (Background)' })).toBeHidden();
