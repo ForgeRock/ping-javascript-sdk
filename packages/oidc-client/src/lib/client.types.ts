@@ -2,8 +2,9 @@ import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-ty
 import type { StorageConfig } from '@forgerock/storage';
 
 export interface GetTokensOptions {
-  backgroundRenew?: boolean;
   authorizeOptions?: GetAuthorizationUrlOptions;
+  backgroundRenew?: boolean;
+  forceRenew?: boolean;
   storageOptions?: Partial<StorageConfig>;
 }
 
