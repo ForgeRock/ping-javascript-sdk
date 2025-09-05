@@ -12,6 +12,7 @@ import {
 import type { TokenExchangeResponse } from './exchange.types.js';
 import { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize.request.types.js';
 import { iFrameManager } from '@forgerock/iframe-manager';
+import { UserInfoResponse } from './client.types.js';
 
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
   requestMiddleware: RequestMiddleware<ActionType, Payload>[];
@@ -336,7 +337,7 @@ export const oidcApi = createApi({
         return response as { data: object };
       },
     }),
-    userInfo: builder.mutation<TokenExchangeResponse, { accessToken: string; endpoint: string }>({
+    userInfo: builder.mutation<UserInfoResponse, { accessToken: string; endpoint: string }>({
       queryFn: async ({ accessToken, endpoint }, api, _, baseQuery) => {
         const { requestMiddleware, logger } = api.extra as Extras;
 
@@ -375,7 +376,7 @@ export const oidcApi = createApi({
 
         logger.debug('OIDC userInfo API response', response);
 
-        return response as { data: TokenExchangeResponse };
+        return response as { data: UserInfoResponse };
       },
     }),
   }),
