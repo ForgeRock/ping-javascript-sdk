@@ -81,7 +81,10 @@ export default function objectValueComponent(
         return;
       }
 
-      updater({ phoneNumber: selectedValue, countryCode: collector.input.value.countryCode });
+      updater({
+        phoneNumber: selectedValue,
+        countryCode: collector.output.value?.countryCode || '',
+      });
     });
 
     formEl.appendChild(phoneLabel);

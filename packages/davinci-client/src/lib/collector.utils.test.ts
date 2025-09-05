@@ -30,7 +30,7 @@ import type {
   RedirectField,
   StandardField,
 } from './davinci.types.js';
-import { ValidatedTextCollector } from './collector.types.js';
+import { PhoneNumberOutputValue, ValidatedTextCollector } from './collector.types.js';
 
 describe('Action Collectors', () => {
   describe('returnFlowCollector', () => {
@@ -537,16 +537,17 @@ describe('Object value collectors', () => {
 });
 
 describe('returnPhoneNumberCollector', () => {
-  const mockField: PhoneNumberField = {
-    key: 'phone-number-key',
-    defaultCountryCode: null,
-    label: 'Phone Number',
-    type: 'PHONE_NUMBER',
-    required: true,
-  };
+  it('input value is empty when no prefill or default country code', () => {
+    const mockField: PhoneNumberField = {
+      key: 'phone-number-key',
+      defaultCountryCode: null,
+      label: 'Phone Number',
+      type: 'PHONE_NUMBER',
+      required: true,
+      validatePhoneNumber: true,
+    };
 
-  it('should create a phone number collector', () => {
-    const result = returnObjectValueCollector(mockField, 1);
+    const result = returnObjectValueCollector(mockField, 1, {});
     expect(result).toEqual({
       category: 'ObjectValueCollector',
       error: null,
@@ -568,6 +569,162 @@ describe('returnPhoneNumberCollector', () => {
         value: {
           countryCode: '',
           phoneNumber: '',
+        },
+      },
+    });
+  });
+
+  it('default country code is set on collector when not prefilled', () => {
+    const mockField: PhoneNumberField = {
+      key: 'phone-number-key',
+      defaultCountryCode: 'US',
+      label: 'Phone Number',
+      type: 'PHONE_NUMBER',
+      required: true,
+      validatePhoneNumber: true,
+    };
+    const result = returnObjectValueCollector(mockField, 1, {});
+    expect(result).toEqual({
+      category: 'ObjectValueCollector',
+      error: null,
+      type: 'PhoneNumberCollector',
+      id: 'phone-number-key-1',
+      name: 'phone-number-key',
+      input: {
+        key: mockField.key,
+        value: {
+          countryCode: mockField.defaultCountryCode,
+          phoneNumber: '',
+        },
+        type: mockField.type,
+      },
+      output: {
+        key: mockField.key,
+        label: mockField.label,
+        type: mockField.type,
+        value: {
+          countryCode: mockField.defaultCountryCode,
+          phoneNumber: '',
+        },
+      },
+    });
+  });
+
+  it('prefilled country code is set on collector', () => {
+    const mockField: PhoneNumberField = {
+      key: 'phone-number-key',
+      defaultCountryCode: 'US',
+      label: 'Phone Number',
+      type: 'PHONE_NUMBER',
+      required: true,
+      validatePhoneNumber: true,
+    };
+    const prefillMock: PhoneNumberOutputValue = {
+      countryCode: 'CA',
+    };
+    const result = returnObjectValueCollector(mockField, 1, prefillMock);
+    expect(result).toEqual({
+      category: 'ObjectValueCollector',
+      error: null,
+      type: 'PhoneNumberCollector',
+      id: 'phone-number-key-1',
+      name: 'phone-number-key',
+      input: {
+        key: mockField.key,
+        value: {
+          countryCode: prefillMock.countryCode,
+          phoneNumber: '',
+        },
+        type: mockField.type,
+      },
+      output: {
+        key: mockField.key,
+        label: mockField.label,
+        type: mockField.type,
+        value: {
+          countryCode: prefillMock.countryCode,
+          phoneNumber: '',
+        },
+      },
+    });
+    expect(result.input.value.countryCode).not.toEqual(mockField.defaultCountryCode);
+    expect(result.output.value?.countryCode).not.toEqual(mockField.defaultCountryCode);
+  });
+
+  it('prefilled phone number is set on collector', () => {
+    const mockField: PhoneNumberField = {
+      key: 'phone-number-key',
+      defaultCountryCode: null,
+      label: 'Phone Number',
+      type: 'PHONE_NUMBER',
+      required: true,
+      validatePhoneNumber: true,
+    };
+    const prefillMock: PhoneNumberOutputValue = {
+      phoneNumber: '1234567890',
+    };
+    const result = returnObjectValueCollector(mockField, 1, prefillMock);
+    expect(result).toEqual({
+      category: 'ObjectValueCollector',
+      error: null,
+      type: 'PhoneNumberCollector',
+      id: 'phone-number-key-1',
+      name: 'phone-number-key',
+      input: {
+        key: mockField.key,
+        value: {
+          countryCode: '',
+          phoneNumber: prefillMock.phoneNumber,
+        },
+        type: mockField.type,
+      },
+      output: {
+        key: mockField.key,
+        label: mockField.label,
+        type: mockField.type,
+        value: {
+          countryCode: '',
+          phoneNumber: prefillMock.phoneNumber,
+        },
+      },
+    });
+  });
+
+  it('prefilled values are set on collector', () => {
+    const mockField: PhoneNumberField = {
+      key: 'phone-number-key',
+      defaultCountryCode: 'US',
+      label: 'Phone Number',
+      type: 'PHONE_NUMBER',
+      required: true,
+      validatePhoneNumber: true,
+    };
+    const prefillMock: PhoneNumberOutputValue = {
+      countryCode: 'CA',
+      phoneNumber: '1234567890',
+    };
+    const result = returnObjectValueCollector(mockField, 1, prefillMock);
+    expect(result).toEqual({
+      category: 'ObjectValueCollector',
+      error: null,
+      type: 'PhoneNumberCollector',
+      id: 'phone-number-key-1',
+      name: 'phone-number-key',
+      input: {
+        key: mockField.key,
+        value: {
+          countryCode: prefillMock.countryCode,
+          phoneNumber: prefillMock.phoneNumber,
+        },
+        type: mockField.type,
+      },
+      output: {
+        key: mockField.key,
+        label: mockField.label,
+        type: mockField.type,
+        value: {
+          countryCode: prefillMock.countryCode,
+          phoneNumber: prefillMock.phoneNumber,
         },
       },
     });
