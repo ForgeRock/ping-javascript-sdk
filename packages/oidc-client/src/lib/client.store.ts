@@ -220,7 +220,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       get: async (
         options?: GetTokensOptions,
       ): Promise<OauthTokens | TokenExchangeErrorResponse | AuthorizationError | GenericError> => {
-        const { backgroundRenew, authorizeOptions, storageOptions } = options || {};
+        const { authorizeOptions, forceRenew, backgroundRenew, storageOptions } = options || {};
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -242,13 +242,17 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
-        // If we have tokens, and they are NOT expired, return them
-        if (tokens && !isExpiryWithinThreshold(oauthThreshold, tokens.expiryTimestamp)) {
+        // If forceRenew is false, we have tokens, and they are NOT expired, return them
+        if (
+          !forceRenew &&
+          tokens &&
+          !isExpiryWithinThreshold(oauthThreshold, tokens.expiryTimestamp)
+        ) {
           return tokens;
         }
 
-        // If backgroundRenew is false, return token, regardless of expiration, or the "no tokens found" error
-        if (!backgroundRenew) {
+        // If backgroundRenew and forceRenew is false return token, regardless of expiration, or the "no tokens found" error
+        if (!backgroundRenew && !forceRenew) {
           return (
             tokens || {
               error: 'No tokens found',
@@ -257,7 +261,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           );
         }
 
-        // If we're here, backgroundRenew is true and we have no OR expired tokens, so renewal is needed
+        // If we're here, backgroundRenew is true and we have no tokens, expired tokens or forceRenew is true
         const attemptAuthorizeGetTokensµ = authorizeµ(
           wellknown,
           config,
@@ -277,6 +281,14 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             });
           }),
           Micro.tap(async (tokens) => {
+            await store.dispatch(
+              oidcApi.endpoints.revoke.initiate({
+                accessToken: tokens.accessToken,
+                clientId: config.clientId,
+                endpoint: wellknown.revocation_endpoint,
+              }),
+            );
+            await storageClient.remove();
             await storageClient.set(tokens);
           }),
         );
