@@ -44,6 +44,7 @@ import {
   DeviceRegistrationCollector,
   PhoneNumberCollector,
   PhoneNumberInputValue,
+  PhoneNumberOutputValue,
   UnknownCollector,
   ProtectCollector,
 } from './collector.types.js';
@@ -147,8 +148,8 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 return returnPasswordCollector(field, idx);
               }
               case 'PHONE_NUMBER': {
-                // No data to send
-                return returnObjectValueCollector(field, idx);
+                const prefillData = data as PhoneNumberOutputValue;
+                return returnObjectValueCollector(field, idx, prefillData);
               }
               case 'TEXT': {
                 const str = data as string;

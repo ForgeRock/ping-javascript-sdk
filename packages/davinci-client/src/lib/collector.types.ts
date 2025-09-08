@@ -290,7 +290,7 @@ export interface PhoneNumberInputValue {
   phoneNumber: string;
 }
 
-interface PhoneNumberOutputValue {
+export interface PhoneNumberOutputValue {
   countryCode?: string;
   phoneNumber?: string;
 }
