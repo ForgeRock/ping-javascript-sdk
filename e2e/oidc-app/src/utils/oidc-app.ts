@@ -27,13 +27,13 @@ function displayTokenResponse(
   response: OauthTokens | TokenExchangeErrorResponse | GenericError | AuthorizationError,
 ) {
   const appEl = document.getElementById('app');
-  if ('error' in response) {
+  if ('error' in response || !('accessToken' in response)) {
     console.error('Token Error:', response);
     displayError(response);
   } else {
     console.log('Token Response:', response);
     document.getElementById('logout').style.display = 'block';
-    document.getElementById('userinfo').style.display = 'block';
+    document.getElementById('user-info-btn').style.display = 'block';
     document.getElementById('login-background').style.display = 'none';
     document.getElementById('login-redirect').style.display = 'none';
 
@@ -108,7 +108,7 @@ export async function oidcApp({ config, urlParams }) {
     displayTokenResponse(response);
   });
 
-  document.getElementById('userinfo').addEventListener('click', async () => {
+  document.getElementById('user-info-btn').addEventListener('click', async () => {
     const userInfo = await oidcClient.user.info();
 
     if ('error' in userInfo) {
@@ -124,16 +124,30 @@ export async function oidcApp({ config, urlParams }) {
     }
   });
 
+  document.getElementById('revoke').addEventListener('click', async () => {
+    const response = await oidcClient.token.revoke();
+
+    if ('error' in response) {
+      console.error('Token Revocation Error:', response);
+      displayError(response);
+    } else {
+      const appEl = document.getElementById('app');
+      const userInfoEl = document.createElement('div');
+      userInfoEl.innerHTML = `<p>Token successfully revoked</p>`;
+      appEl.appendChild(userInfoEl);
+    }
+  });
+
   document.getElementById('logout').addEventListener('click', async () => {
     const response = await oidcClient.user.logout();
 
-    if (response && 'error' in response) {
+    if ('error' in response) {
       console.error('Logout Error:', response);
       displayError(response);
     } else {
       console.log('Logout successful');
       document.getElementById('logout').style.display = 'none';
-      document.getElementById('userinfo').style.display = 'none';
+      document.getElementById('user-info-btn').style.display = 'none';
       document.getElementById('login-background').style.display = 'block';
       document.getElementById('login-redirect').style.display = 'block';
       window.location.assign(window.location.origin + window.location.pathname);

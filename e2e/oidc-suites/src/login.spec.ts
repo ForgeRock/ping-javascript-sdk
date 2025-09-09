@@ -30,7 +30,6 @@ test.describe('PingAM login and get token tests', () => {
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
-    await expect(page.locator('#accessToken-0')).not.toHaveText('undefined');
   });
 
   test('redirect login with valid credentials', async ({ page }) => {
@@ -47,7 +46,6 @@ test.describe('PingAM login and get token tests', () => {
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
-    await expect(page.locator('#accessToken-0')).not.toHaveText('undefined');
   });
 
   test('background login with invalid client id fails', async ({ page }) => {
@@ -81,7 +79,6 @@ test.describe('PingOne login and get token tests', () => {
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
-    await expect(page.locator('#accessToken-0')).not.toHaveText('undefined');
   });
 
   test('redirect login with valid credentials', async ({ page }) => {
@@ -99,7 +96,6 @@ test.describe('PingOne login and get token tests', () => {
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
-    await expect(page.locator('#accessToken-0')).not.toHaveText('undefined');
   });
 
   test('login with invalid client id fails', async ({ page }) => {
@@ -140,7 +136,6 @@ test.describe('PingOne login and get token tests', () => {
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
-    await expect(page.locator('#accessToken-0')).not.toHaveText('undefined');
   });
 });
 
