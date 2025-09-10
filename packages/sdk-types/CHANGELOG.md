@@ -1,5 +1,11 @@
 # @forgerock/sdk-types
 
+## 1.3.0
+
+### Patch Changes
+
+- [#363](https://github.com/ForgeRock/ping-javascript-sdk/pull/363) [`6c06e70`](https://github.com/ForgeRock/ping-javascript-sdk/commit/6c06e709a7aa503cda2e4f2b923cace1abcebd3c) Thanks [@cerebrl](https://github.com/cerebrl)! - Implement OIDC logout and user info request; includes type updates and global error type
+
 ## 1.2.0
 
 ### Minor Changes
