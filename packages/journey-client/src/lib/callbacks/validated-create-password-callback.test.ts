@@ -8,13 +8,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { CallbackType } from '../../auth/enums.js';
-import type { Callback } from '../interfaces.js';
+import { callbackType } from '@forgerock/sdk-types';
+import type { Callback } from '@forgerock/sdk-types';
 import ValidatedCreatePasswordCallback from './validated-create-password-callback.js';
 
 describe('ValidatedCreatePasswordCallback', () => {
   const payload: Callback = {
-    type: CallbackType.ValidatedCreatePasswordCallback,
+    type: callbackType.ValidatedCreatePasswordCallback,
     output: [
       {
         name: 'echoOn',
@@ -68,6 +68,7 @@ describe('ValidatedCreatePasswordCallback', () => {
     expect(cb.isRequired()).toBe(true);
     expect(cb.getPolicies().policyRequirements).toStrictEqual(['a', 'b']);
     expect(cb.getFailedPolicies()).toStrictEqual([{ failedPolicies: { c: 'c', d: 'd' } }]);
+    if (!cb.payload.input) throw new Error('Input is not defined');
     expect(cb.payload.input[0].value).toBe('abcd123');
     expect(cb.payload.input[1].value).toBe(true);
   });
@@ -75,8 +76,7 @@ describe('ValidatedCreatePasswordCallback', () => {
   it('writes validate only to `false` for submission', () => {
     const cb = new ValidatedCreatePasswordCallback(payload);
     cb.setValidateOnly(false);
+    if (!cb.payload.input) throw new Error('Input is not defined');
     expect(cb.payload.input[1].value).toBe(false);
   });
-});
-
 });

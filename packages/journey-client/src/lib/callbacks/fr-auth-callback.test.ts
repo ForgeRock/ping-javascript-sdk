@@ -8,9 +8,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import FRCallback from '.';
-import { CallbackType } from '../../auth/enums.js';
-import type { Callback } from '../interfaces.js';
+import FRCallback from './index.js';
+import { callbackType } from '@forgerock/sdk-types';
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('FRCallback', () => {
   it('reads/writes basic properties', () => {
@@ -28,7 +28,7 @@ describe('FRCallback', () => {
           value: 'Username:',
         },
       ],
-      type: CallbackType.NameCallback,
+      type: callbackType.NameCallback,
     };
     const cb = new FRCallback(payload);
     cb.setInputValue('superman');
@@ -37,6 +37,4 @@ describe('FRCallback', () => {
     expect(cb.getOutputValue('prompt')).toBe('Username:');
     expect(cb.getInputValue()).toBe('superman');
   });
-});
-
 });

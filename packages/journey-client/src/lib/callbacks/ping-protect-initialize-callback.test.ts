@@ -9,7 +9,7 @@
  */
 
 import { vi, describe, expect, it } from 'vitest';
-import { CallbackType } from '../interfaces.js';
+import { callbackType } from '@forgerock/sdk-types';
 import PingOneProtectInitializeCallback from './ping-protect-initialize-callback.js';
 
 describe('PingOneProtectInitializeCallback', () => {
@@ -18,7 +18,7 @@ describe('PingOneProtectInitializeCallback', () => {
   });
   it('should test the getConfig method', () => {
     const callback = new PingOneProtectInitializeCallback({
-      type: 'PingOneProtectInitializeCallback' as CallbackType,
+      type: callbackType.PingOneProtectInitializeCallback,
       input: [
         {
           name: 'IDToken1signals',
@@ -90,7 +90,7 @@ describe('PingOneProtectInitializeCallback', () => {
   });
   it('should test the setClientError method', () => {
     const callback = new PingOneProtectInitializeCallback({
-      type: 'PingOneProtectInitializeCallback' as CallbackType,
+      type: callbackType.PingOneProtectInitializeCallback,
       input: [
         {
           name: 'IDToken1signals',

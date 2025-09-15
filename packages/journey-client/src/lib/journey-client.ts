@@ -1,196 +1,140 @@
 /*
- * @forgerock/javascript-sdk
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
- * index.ts
- *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
-import Config, { StepOptions } from '../config.js';
-import Auth from '../auth/index.js';
-import { CallbackType } from './interfaces.js';
-import type RedirectCallback from './callbacks/redirect-callback.js';
-import FRLoginFailure from './fr-login-failure.js';
-import FRLoginSuccess from './fr-login-success.js';
+import { createJourneyStore } from './journey.store.js';
+import { JourneyClientConfig, StepOptions } from './config.types.js';
+import { journeyApi } from './journey.api.js';
+import { setConfig } from './journey.slice.js';
+import { createStorage } from '@forgerock/storage';
+import { GenericError, callbackType, type Step } from '@forgerock/sdk-types';
 import FRStep from './fr-step.js';
+import RedirectCallback from './callbacks/redirect-callback.js';
+import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
+import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
-/**
- * Provides access to the OpenAM authentication tree API.
- */
-abstract class FRAuth {
-  public static get previousStepKey() {
-    return `${Config.get().prefix}-PreviousStep`;
-  }
+export async function journey({
+  config,
+  requestMiddleware,
+  logger,
+}: {
+  config: JourneyClientConfig;
+  requestMiddleware?: RequestMiddleware[];
+  logger?: {
+    level: LogLevel;
+    custom?: CustomLogger;
+  };
+}) {
+  const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
 
-  /**
-   * Requests the next step in the authentication tree.
-   *
-   * Call `FRAuth.next()` recursively.  At each step, check for session token or error, otherwise
-   * populate the step's callbacks and call `next()` again.
-   *
-   * Example:
-   *
-   * ```js
-   * async function nextStep(previousStep) {
-   *   const thisStep = await FRAuth.next(previousStep);
-   *
-   *   switch (thisStep.type) {
-   *     case StepType.LoginSuccess:
-   *       const token = thisStep.getSessionToken();
-   *       break;
-   *     case StepType.LoginFailure:
-   *       const detail = thisStep.getDetail();
-   *       break;
-   *     case StepType.Step:
-   *       // Populate `thisStep` callbacks here, and then continue
-   *       thisStep.setInputValue('foo');
-   *       nextStep(thisStep);
-   *       break;
-   *   }
-   * }
-   * ```
-   *
-   * @param previousStep The previous step with its callback values populated
-   * @param options Configuration overrides
-   * @return The next step in the authentication tree
-   */
-  public static async next(
-    previousStep?: FRStep,
-    options?: StepOptions,
-  ): Promise<FRStep | FRLoginSuccess | FRLoginFailure> {
-    const nextPayload = await Auth.next(previousStep ? previousStep.payload : undefined, options);
+  const store = createJourneyStore({ requestMiddleware, logger: log, config });
+  store.dispatch(setConfig(config));
 
-    if (nextPayload.authId) {
-      // If there's an authId, tree has not been completed
-      const callbackFactory = options ? options.callbackFactory : undefined;
-      return new FRStep(nextPayload, callbackFactory);
-    }
+  const stepStorage = createStorage<{ step: Step }>({
+    type: 'sessionStorage',
+    name: 'journey-step',
+  });
 
-    if (!nextPayload.authId && nextPayload.ok) {
-      // If there's no authId, and the response is OK, tree is complete
-      return new FRLoginSuccess(nextPayload);
-    }
-
-    // If there's no authId, and the response is not OK, tree has failure
-    return new FRLoginFailure(nextPayload);
-  }
-
-  /**
-   * Redirects to the URL identified in the RedirectCallback and saves the full
-   * step information to localStorage for retrieval when user returns from login.
-   *
-   * Example:
-   * ```js
-   * forgerock.FRAuth.redirect(step);
-   * ```
-   */
-  public static redirect(step: FRStep): void {
-    const cb = step.getCallbackOfType(CallbackType.RedirectCallback) as RedirectCallback;
-    const redirectUrl = cb.getRedirectUrl();
-
-    localStorage.setItem(this.previousStepKey, JSON.stringify(step));
-    location.assign(redirectUrl);
-  }
-
-  /**
-   * Resumes a tree after returning from an external client or provider.
-   * Requires the full URL of the current window. It will parse URL for
-   * key-value pairs as well as, if required, retrieves previous step.
-   *
-   * Example;
-   * ```js
-   * forgerock.FRAuth.resume(window.location.href)
-   * ```
-   */
-  public static async resume(
-    url: string,
-    options?: StepOptions,
-  ): Promise<FRStep | FRLoginSuccess | FRLoginFailure> {
-    const parsedUrl = new URL(url);
-    const code = parsedUrl.searchParams.get('code');
-    const error = parsedUrl.searchParams.get('error');
-    const errorCode = parsedUrl.searchParams.get('errorCode');
-    const errorMessage = parsedUrl.searchParams.get('errorMessage');
-    const form_post_entry = parsedUrl.searchParams.get('form_post_entry');
-    const nonce = parsedUrl.searchParams.get('nonce');
-    const RelayState = parsedUrl.searchParams.get('RelayState');
-    const responsekey = parsedUrl.searchParams.get('responsekey');
-    const scope = parsedUrl.searchParams.get('scope');
-    const state = parsedUrl.searchParams.get('state');
-    const suspendedId = parsedUrl.searchParams.get('suspendedId');
-    const authIndexValue = parsedUrl.searchParams.get('authIndexValue') ?? undefined;
-
-    let previousStep;
-
-    function requiresPreviousStep() {
-      return (code && state) || form_post_entry || responsekey;
-    }
+  const self = {
+    start: async (options?: StepOptions) => {
+      const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
+      return data ? new FRStep(data) : undefined;
+    },
 
     /**
-     * If we are returning back from a provider, the previous redirect step data is required.
-     * Retrieve the previous step from localStorage, and then delete it to remove stale data.
-     * If suspendedId is present, no previous step data is needed, so skip below conditional.
+     * Submits the current Step payload to the authentication API and retrieves the next FRStep in the journey.
+     * The `step` to be submitted is provided within the `options` object.
+     *
+     * @param options An object containing the current Step payload and optional StepOptions.
+     * @returns A Promise that resolves to the next FRStep in the journey, or undefined if the journey ends.
      */
-    if (requiresPreviousStep()) {
-      const redirectStepString = localStorage.getItem(this.previousStepKey);
+    next: async (step: Step, options?: StepOptions) => {
+      const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
+      return data ? new FRStep(data) : undefined;
+    },
 
-      if (!redirectStepString) {
-        throw new Error('Error: could not retrieve original redirect information.');
+    redirect: async (step: FRStep) => {
+      const cb = step.getCallbackOfType(callbackType.RedirectCallback) as RedirectCallback;
+      if (!cb) {
+        throw new Error('RedirectCallback not found on step');
+      }
+      const redirectUrl = cb.getRedirectUrl();
+      const err = await stepStorage.set({ step: step.payload });
+      if (err && (err as GenericError).type) {
+        log.warn('Failed to persist step before redirect', err);
+      }
+      window.location.assign(redirectUrl);
+    },
+
+    resume: async (url: string, options?: StepOptions) => {
+      const parsedUrl = new URL(url);
+      const code = parsedUrl.searchParams.get('code');
+      const state = parsedUrl.searchParams.get('state');
+      const form_post_entry = parsedUrl.searchParams.get('form_post_entry');
+      const responsekey = parsedUrl.searchParams.get('responsekey');
+
+      let previousStep: Step | undefined; // Declare previousStep here
+
+      function requiresPreviousStep() {
+        return (code && state) || form_post_entry || responsekey;
       }
 
-      try {
-        previousStep = JSON.parse(redirectStepString);
-      } catch (err) {
-        throw new Error('Error: could not parse redirect params or step information');
+      // Type guard for GenericError (assuming GenericError has 'error' and 'message' properties)
+      function isGenericError(obj: unknown): obj is GenericError {
+        return typeof obj === 'object' && obj !== null && 'error' in obj && 'message' in obj;
       }
 
-      localStorage.removeItem(this.previousStepKey);
-    }
+      // Type guard for { step: FRStep }
+      function isStoredStep(obj: unknown): obj is { step: Step } {
+        return (
+          typeof obj === 'object' &&
+          obj !== null &&
+          'step' in obj &&
+          typeof (obj as any).step === 'object'
+        );
+      }
 
-    /**
-     * Construct options object from the options parameter and key-value pairs from URL.
-     * Ensure query parameters from current URL are the last properties spread in the object.
-     */
-    const nextOptions = {
-      ...options,
-      query: {
-        // Conditionally spread properties into object. Don't spread props with undefined/null.
-        ...(code && { code }),
-        ...(error && { error }),
-        ...(errorCode && { errorCode }),
-        ...(errorMessage && { errorMessage }),
-        ...(form_post_entry && { form_post_entry }),
-        ...(nonce && { nonce }),
-        ...(RelayState && { RelayState }),
-        ...(responsekey && { responsekey }),
-        ...(scope && { scope }),
-        ...(state && { state }),
-        ...(suspendedId && { suspendedId }),
-        // Allow developer to add or override params with their own.
-        ...(options && options.query),
-      },
-      ...((options?.tree ?? authIndexValue) && {
-        tree: options?.tree ?? authIndexValue,
-      }),
-    };
+      if (requiresPreviousStep()) {
+        const stored = await stepStorage.get();
 
-    return await this.next(previousStep, nextOptions);
-  }
+        if (stored) {
+          if (isGenericError(stored)) {
+            // If the stored item is a GenericError, it means something went wrong during storage/retrieval
+            // or the previous step was an error.
+            throw new Error(`Error retrieving previous step: ${stored.message || stored.error}`);
+          } else if (isStoredStep(stored)) {
+            previousStep = stored.step;
+          }
+        }
+        await stepStorage.remove();
 
-  /**
-   * Requests the first step in the authentication tree.
-   * This is essentially an alias to calling FRAuth.next without a previous step.
-   *
-   * @param options Configuration overrides
-   * @return The next step in the authentication tree
-   */
-  public static async start(
-    options?: StepOptions,
-  ): Promise<FRStep | FRLoginSuccess | FRLoginFailure> {
-    return await FRAuth.next(undefined, options);
-  }
+        if (!previousStep) {
+          throw new Error(
+            'Error: previous step information not found in storage for resume operation.',
+          );
+        }
+      }
+
+      const nextOptions = {
+        ...options,
+        query: {
+          ...(options && options.query), // Spread options.query first
+          ...(code && { code }),
+          ...(state && { state }),
+          ...(form_post_entry && { form_post_entry }),
+          ...(responsekey && { responsekey }),
+        },
+      };
+
+      if (previousStep) {
+        return await self.next(previousStep, nextOptions);
+      } else {
+        return await self.start(nextOptions);
+      }
+    },
+  };
+  return self;
 }
-
-export default FRAuth;

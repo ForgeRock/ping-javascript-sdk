@@ -26,11 +26,10 @@ import type {
   Geolocation,
   ProfileConfigOptions,
 } from './interfaces.js';
-import Collector from './collector.js';
+import { reduceToObject, reduceToString } from '@forgerock/sdk-utilities';
 import { logger } from '@forgerock/sdk-logger';
 
 const FRLogger = logger({ level: 'info' });
-import Config from '../config.js';
 
 /**
  * @class FRDevice - Collects user device metadata
@@ -53,7 +52,7 @@ import Config from '../config.js';
  * });
  * ```
  */
-class FRDevice extends Collector {
+class FRDevice {
   config: BaseProfileConfig = {
     fontNames,
     devicePlatforms,
@@ -63,8 +62,10 @@ class FRDevice extends Collector {
     platformProps,
   };
 
-  constructor(config?: ProfileConfigOptions) {
-    super();
+  private prefix: string;
+
+  constructor(config?: ProfileConfigOptions, prefix = 'forgerock') {
+    this.prefix = prefix;
     if (config) {
       Object.keys(config).forEach((key: string) => {
         if (!configurableCategories.includes(key)) {
@@ -75,12 +76,15 @@ class FRDevice extends Collector {
     }
   }
 
-  getBrowserMeta(): { [key: string]: string } {
+  getBrowserMeta(): Record<string, string | number | null> {
     if (typeof navigator === 'undefined') {
       FRLogger.warn('Cannot collect browser metadata. navigator is not defined.');
       return {};
     }
-    return this.reduceToObject(this.config.browserProps, navigator);
+    return reduceToObject(
+      this.config.browserProps,
+      navigator as unknown as Record<string, unknown>,
+    );
   }
 
   getBrowserPluginsNames(): string {
@@ -88,7 +92,10 @@ class FRDevice extends Collector {
       FRLogger.warn('Cannot collect browser plugin information. navigator.plugins is not defined.');
       return '';
     }
-    return this.reduceToString(Object.keys(navigator.plugins), navigator.plugins);
+    return reduceToString(
+      Object.keys(navigator.plugins),
+      navigator.plugins as unknown as Record<string, { filename: string }>,
+    );
   }
 
   getDeviceName(): string {
@@ -122,19 +129,22 @@ class FRDevice extends Collector {
       FRLogger.warn('Cannot collect screen information. screen is not defined.');
       return {};
     }
-    return this.reduceToObject(this.config.displayProps, screen);
+    return reduceToObject(this.config.displayProps, screen as unknown as Record<string, unknown>);
   }
 
-  getHardwareMeta(): { [key: string]: string } {
+  getHardwareMeta(): Record<string, string | number | null> {
     if (typeof navigator === 'undefined') {
       FRLogger.warn('Cannot collect OS metadata. Navigator is not defined.');
       return {};
     }
-    return this.reduceToObject(this.config.hardwareProps, navigator);
+    return reduceToObject(
+      this.config.hardwareProps,
+      navigator as unknown as Record<string, unknown>,
+    );
   }
 
   getIdentifier(): string {
-    const storageKey = `${Config.get().prefix}-DeviceID`;
+    const storageKey = `${this.prefix}-DeviceID`;
 
     if (!(typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues)) {
       FRLogger.warn('Cannot generate profile ID. Crypto and/or getRandomValues is not supported.');
@@ -193,18 +203,15 @@ class FRDevice extends Collector {
       );
       return Promise.resolve({});
     }
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve) => {
+    return new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(
         (position) =>
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           }),
-        (error) => {
-          FRLogger.warn(
-            'Cannot collect geolocation information. ' + error.code + ': ' + error.message,
-          );
+        () => {
+          FRLogger.warn('Cannot collect geolocation information. Geolocation API error.');
           resolve({});
         },
         {
@@ -216,12 +223,15 @@ class FRDevice extends Collector {
     });
   }
 
-  getOSMeta(): { [key: string]: string } {
+  getOSMeta(): Record<string, string | number | null> {
     if (typeof navigator === 'undefined') {
       FRLogger.warn('Cannot collect OS metadata. navigator is not defined.');
       return {};
     }
-    return this.reduceToObject(this.config.platformProps, navigator);
+    return reduceToObject(
+      this.config.platformProps,
+      navigator as unknown as Record<string, unknown>,
+    );
   }
 
   async getProfile({ location, metadata }: CollectParameters): Promise<DeviceProfileData> {
@@ -256,7 +266,7 @@ class FRDevice extends Collector {
   getTimezoneOffset(): number | null {
     try {
       return new Date().getTimezoneOffset();
-    } catch (err) {
+    } catch {
       FRLogger.warn('Cannot collect timezone information. getTimezoneOffset is not defined.');
       return null;
     }
@@ -264,7 +274,3 @@ class FRDevice extends Collector {
 }
 
 export default FRDevice;
-
-
- FRDevice;
-

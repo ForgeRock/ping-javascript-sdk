@@ -9,22 +9,10 @@
  * Legacy configuration options for the SDK
  * **************************************************************/
 
-import type { Callback } from './am-callback.types.js';
+import type { Callback, CustomPathConfig } from './am-callback.types.js';
 import type { LegacyRequestMiddleware } from './legacy-mware.types.js';
 import { CustomStorageObject } from './tokens.types.js';
 
-/**
- * Optional configuration for custom paths for actions
- */
-export interface CustomPathConfig {
-  authenticate?: string;
-  authorize?: string;
-  accessToken?: string;
-  endSession?: string;
-  userInfo?: string;
-  revoke?: string;
-  sessions?: string;
-}
 /**
  * Configuration settings for connecting to a server.
  */
@@ -46,8 +34,6 @@ export interface AsyncServerConfig extends Omit<ServerConfig, 'baseUrl'> {
 export interface AsyncLegacyConfigOptions extends Omit<LegacyConfigOptions, 'serverConfig'> {
   serverConfig: AsyncServerConfig;
 }
-
-export type ConfigurablePaths = keyof CustomPathConfig;
 
 /**
  * Optional configuration for custom paths for actions

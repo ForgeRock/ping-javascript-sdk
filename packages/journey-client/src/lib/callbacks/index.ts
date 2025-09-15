@@ -1,15 +1,11 @@
 /*
- * @forgerock/javascript-sdk
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
- * index.ts
- *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { CallbackType } from '../interfaces.js';
-import type { Callback, NameValue } from '../interfaces.js';
+import { type CallbackType, type Callback, type NameValue } from '@forgerock/sdk-types';
 
 /**
  * Base class for authentication tree callback wrappers.

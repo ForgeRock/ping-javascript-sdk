@@ -103,8 +103,7 @@
           "configName": "tsconfig.lib.json"
         }
       },
-      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"],
-      "exclude": ["packages/journey-client/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"]
     },
     {
       "plugin": "@nx/playwright/plugin",
@@ -137,7 +136,7 @@
     },
     {
       "plugin": "@nx/js/typescript",
-      "include": ["packages/journey-client/*"],
+      "include": ["packages/journey-client/**"],
       "options": {
         "typecheck": {
           "targetName": "typecheck"

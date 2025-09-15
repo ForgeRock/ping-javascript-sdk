@@ -7,8 +7,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { vi, expect, describe, it, beforeAll } from 'vitest';
-import Config from '../config';
+import { vi, expect, describe, it } from 'vitest';
 import FRDevice from './index.js';
 
 Object.defineProperty(window, 'crypto', {
@@ -18,14 +17,6 @@ Object.defineProperty(window, 'crypto', {
   },
 });
 
-beforeAll(() => {
-  Config.set({
-    serverConfig: {
-      baseUrl: 'http://am.example.com:8443',
-      timeout: 3000,
-    },
-  });
-});
 describe('Test DeviceProfile', () => {
   it('should return basic metadata', async () => {
     const device = new FRDevice();
@@ -33,6 +24,7 @@ describe('Test DeviceProfile', () => {
       location: false,
       metadata: true,
     });
+    if (!profile.metadata) throw new Error('Metadata is not defined');
     const userAgent = profile.metadata.browser.userAgent as string;
     const appName = profile.metadata.browser.appName as string;
     const appVersion = profile.metadata.browser.appVersion as string;
@@ -54,6 +46,7 @@ describe('Test DeviceProfile', () => {
       location: false,
       metadata: true,
     });
+    if (!profile.metadata) throw new Error('Metadata is not defined');
     const userAgent = profile.metadata.browser.userAgent as string;
     const display = profile.metadata.hardware.display;
     const deviceName = profile.metadata.platform.deviceName as string;
@@ -69,6 +62,7 @@ describe('Test DeviceProfile', () => {
       location: false,
       metadata: true,
     });
+    if (!profile.metadata) throw new Error('Metadata is not defined');
     const userAgent = profile.metadata.browser.userAgent as string;
     const appName = profile.metadata.browser.appName as string;
     const appVersion = profile.metadata.browser.appVersion as string;

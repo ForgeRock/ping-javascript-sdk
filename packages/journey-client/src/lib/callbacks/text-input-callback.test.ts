@@ -8,13 +8,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { CallbackType } from '../interfaces.js';
-import type { Callback } from '../../auth/interfaces.js';
+import { callbackType } from '@forgerock/sdk-types';
+import type { Callback } from '@forgerock/sdk-types';
 import TextInputCallback from './text-input-callback.js';
 
 describe('TextInputCallback', () => {
   const payload: Callback = {
-    type: CallbackType.TextInputCallback,
+    type: callbackType.TextInputCallback,
     output: [
       {
         name: 'prompt',

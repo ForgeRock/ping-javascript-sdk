@@ -5,10 +5,18 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/packages/journey-client',
   plugins: [],
   test: {
+    deps: {
+      optimizer: {
+        web: {
+          include: ['vitest-canvas-mock'],
+        },
+      },
+    },
+    setupFiles: ['./vitest.setup.ts'],
     watch: false,
     globals: true,
     passWithNoTests: true,
-    environment: 'node',
+    environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {

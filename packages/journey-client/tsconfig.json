@@ -4,13 +4,16 @@
   "include": [],
   "references": [
     {
-      "path": "../sdk-effects/sdk-request-middleware"
+      "path": "../sdk-effects/storage"
     },
     {
       "path": "../sdk-utilities"
     },
     {
       "path": "../sdk-types"
+    },
+    {
+      "path": "../sdk-effects/sdk-request-middleware"
     },
     {
       "path": "../sdk-effects/logger"

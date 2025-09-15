@@ -9,24 +9,7 @@
  */
 
 import FRCallback from './index.js';
-import type { Callback } from '../interfaces.js';
-//"input": [
-//                    {
-//                        "name": "IDToken1token",
-//                        "value": ""
-//                    },
-//                    {
-//                        "name": "IDToken1action",
-//                        "value": ""
-//                    },
-//                    {
-//                        "name": "IDToken1clientError",
-//                        "value": ""
-//                    },
-//                    {
-//                        "name": "IDToken1payload",
-//                        "value": ""
-//                    }
+import type { Callback } from '@forgerock/sdk-types';
 
 /**
  * Represents a callback used to integrate reCAPTCHA.

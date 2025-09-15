@@ -8,9 +8,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { plural } from '../utils/strings.js';
-import { PolicyKey } from './enums.js';
-import { getProp } from './helpers.js';
+import { getProp, plural } from '@forgerock/sdk-utilities';
+import { PolicyKey } from '@forgerock/sdk-types';
 import type { MessageCreator } from './interfaces.js';
 
 const defaultMessageCreator: MessageCreator = {

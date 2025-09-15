@@ -8,9 +8,6 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { getRealmUrlPath } from '@forgerock/sdk-utilities';
-import type { ConfigurablePaths, CustomPathConfig } from '../interfaces.js';
-
 /**
  * Returns the base URL including protocol, hostname and any non-standard port.
  * The returned URL does not include a trailing slash.
@@ -20,34 +17,15 @@ function getBaseUrl(url: URL): string {
     (url.protocol === 'http:' && ['', '80'].indexOf(url.port) === -1) ||
     (url.protocol === 'https:' && ['', '443'].indexOf(url.port) === -1);
   const port = isNonStandardPort ? `:${url.port}` : '';
-  const baseUrl = `${url.protocol}//${url.hostname}${port}`;
-  return baseUrl;
-}
 
-function getEndpointPath(
-  endpoint: ConfigurablePaths,
-  realmPath?: string,
-  customPaths?: CustomPathConfig,
-): string {
-  const realmUrlPath = getRealmUrlPath(realmPath);
-  const defaultPaths = {
-    authenticate: `json/${realmUrlPath}/authenticate`,
-    authorize: `oauth2/${realmUrlPath}/authorize`,
-    accessToken: `oauth2/${realmUrlPath}/access_token`,
-    endSession: `oauth2/${realmUrlPath}/connect/endSession`,
-    userInfo: `oauth2/${realmUrlPath}/userinfo`,
-    revoke: `oauth2/${realmUrlPath}/token/revoke`,
-    sessions: `json/${realmUrlPath}/sessions/`,
-  };
-  if (customPaths && customPaths[endpoint]) {
-    // TypeScript is not correctly reading the condition above
-    // It's thinking that customPaths[endpoint] may result in undefined
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return customPaths[endpoint];
-  } else {
-    return defaultPaths[endpoint];
+  let hostname = url.hostname;
+  // Detect IPv6 hostnames and wrap them in square brackets
+  if (hostname.includes(':') && !hostname.startsWith('[') && !hostname.endsWith(']')) {
+    hostname = `[${hostname}]`;
   }
+
+  const baseUrl = `${url.protocol}//${hostname}${port}`;
+  return baseUrl;
 }
 
 function resolve(baseUrl: string, path: string): string {
@@ -81,4 +59,4 @@ function stringify(data: Record<string, string | undefined>): string {
   return pairs.join('&');
 }
 
-export { getBaseUrl, getEndpointPath, parseQuery, resolve, stringify };
+export { getBaseUrl, parseQuery, resolve, stringify };

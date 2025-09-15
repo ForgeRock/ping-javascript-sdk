@@ -1,16 +1,12 @@
 /*
- * @forgerock/javascript-sdk
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
- * attribute-input-callback.ts
- *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
 import FRCallback from './index.js';
-import type { Callback, PolicyRequirement } from '../interfaces.js';
-
 
 /**
  * Represents a callback used to collect attributes.
@@ -51,13 +47,10 @@ class AttributeInputCallback<T extends string | number | boolean> extends FRCall
    * Gets the callback's failed policies.
    */
   public getFailedPolicies(): PolicyRequirement[] {
-    const failedPolicies = this.getOutputByName<PolicyRequirement[]>(
-      'failedPolicies',
-      [],
-    ) as unknown as string[];
+    const failedPoliciesJsonStrings = this.getOutputByName<string[]>('failedPolicies', []);
     try {
-      return failedPolicies.map((v) => JSON.parse(v)) as PolicyRequirement[];
-    } catch (err) {
+      return failedPoliciesJsonStrings.map((v) => JSON.parse(v)) as PolicyRequirement[];
+    } catch {
       throw new Error(
         'Unable to parse "failed policies" from the ForgeRock server. The JSON within `AttributeInputCallback` was either malformed or missing.',
       );
@@ -67,10 +60,8 @@ class AttributeInputCallback<T extends string | number | boolean> extends FRCall
   /**
    * Gets the callback's applicable policies.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public getPolicies(): Record<string, any> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.getOutputByName<Record<string, any>>('policies', {});
+  public getPolicies(): Record<string, unknown> {
+    return this.getOutputByName<Record<string, unknown>>('policies', {});
   }
 
   /**

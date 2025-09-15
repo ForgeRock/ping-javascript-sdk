@@ -8,8 +8,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import FRPolicy from './index.js';
-import { PolicyKey } from './enums.js';
+import FRPolicy, { MessageCreator } from './index.js';
+import { PolicyKey } from '@forgerock/sdk-types';
 
 describe('The IDM error handling', () => {
   const property = 'userName';
@@ -56,15 +56,19 @@ describe('The IDM error handling', () => {
   it('error handling is extensible by customer', () => {
     const test = {
       customMessage: {
-        CUSTOM_POLICY: (property: string, params: { policyRequirement: string }): string =>
-          `this is a custom message for "${params.policyRequirement}" policy of ${property}`,
+        CUSTOM_POLICY: (property: string, params?: { [key: string]: unknown }): string =>
+          `this is a custom message for "${params?.policyRequirement}" policy of ${property}`,
       },
       expectedString: `this is a custom message for "CUSTOM_POLICY" policy of ${property}`,
       policy: {
         policyRequirement: 'CUSTOM_POLICY',
       },
     };
-    const message = FRPolicy.parsePolicyRequirement(property, test.policy, test.customMessage);
+    const message = FRPolicy.parsePolicyRequirement(
+      property,
+      test.policy,
+      test.customMessage as MessageCreator,
+    );
     expect(message).toBe(test.expectedString);
   });
 
@@ -151,11 +155,11 @@ describe('The IDM error handling', () => {
         result: false,
       },
     };
-    const customMessage = {
+    const customMessage: MessageCreator = {
       [PolicyKey.Unique]: (property: string): string =>
         `this is a custom message for "UNIQUE" policy of ${property}`,
-      CUSTOM_POLICY: (property: string, params: { policyRequirement: string }): string =>
-        `this is a custom message for "${params.policyRequirement}" policy of ${property}`,
+      CUSTOM_POLICY: (property: string, params?: { [key: string]: unknown }): string =>
+        `this is a custom message for "${params?.policyRequirement}" policy of ${property}`,
     };
     const expected = [
       {
@@ -194,6 +198,4 @@ describe('The IDM error handling', () => {
     const errorObjArr = FRPolicy.parseErrors(errorResponse, customMessage);
     expect(errorObjArr).toEqual(expected);
   });
-});
-;
 });

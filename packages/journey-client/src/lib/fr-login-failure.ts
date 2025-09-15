@@ -1,18 +1,13 @@
 /*
- * @forgerock/javascript-sdk
- *
- * fr-login-failure.ts
- *
  * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { Step, AuthResponse, FailureDetail } from '@forgerock/sdk-types';
+import { StepType } from '@forgerock/sdk-types';
 import FRPolicy from './fr-policy/index.js';
 import type { MessageCreator, ProcessedPropertyError } from './fr-policy/interfaces.js';
-import type { Step } from './interfaces.js';
-import { StepType } from './enums.js';
-import type { AuthResponse, FailureDetail } from './interfaces.js';
 
 class FRLoginFailure implements AuthResponse {
   /**

@@ -10,11 +10,11 @@
 
 import { describe, expect, it, beforeAll } from 'vitest';
 import ReCaptchaEnterpriseCallback from './recaptcha-enterprise-callback.js';
-import { CallbackType } from '../../auth/enums.js';
-import { Callback } from '../interfaces.js';
+import { callbackType } from '@forgerock/sdk-types';
+import { Callback } from '@forgerock/sdk-types';
 
 const recaptchaCallback: Callback = {
-  type: 'ReCaptchaEnterpriseCallback' as CallbackType.ReCaptchaEnterpriseCallback,
+  type: callbackType.ReCaptchaEnterpriseCallback,
   output: [
     {
       name: 'recaptchaSiteKey',
@@ -81,6 +81,4 @@ describe('enterprise recaptcha', () => {
     const className = callback.getElementClass();
     expect(className).toBe('g-recaptcha');
   });
-});
-
 });

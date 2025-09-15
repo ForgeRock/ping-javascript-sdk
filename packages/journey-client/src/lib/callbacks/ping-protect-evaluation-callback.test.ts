@@ -9,7 +9,7 @@
  */
 
 import { vi, describe, it, expect } from 'vitest';
-import { CallbackType } from '../interfaces.js';
+import { callbackType } from '@forgerock/sdk-types';
 import PingOneProtectEvaluationCallback from './ping-protect-evaluation-callback.js';
 
 describe('PingOneProtectEvaluationCallback', () => {
@@ -18,7 +18,7 @@ describe('PingOneProtectEvaluationCallback', () => {
   });
   it('should test that the pauseBehavior method can be called', () => {
     const callback = new PingOneProtectEvaluationCallback({
-      type: 'PingOneProtectEvaluationCallback' as CallbackType.PingOneProtectEvaluationCallback,
+      type: callbackType.PingOneProtectEvaluationCallback,
       output: [{ name: 'pauseBehavioralData', value: true }],
     });
     const mock = vi.spyOn(callback, 'getPauseBehavioralData');
@@ -27,7 +27,7 @@ describe('PingOneProtectEvaluationCallback', () => {
   });
   it('should test setData method', () => {
     const callback = new PingOneProtectEvaluationCallback({
-      type: 'PingOneProtectEvaluationCallback' as CallbackType.PingOneProtectEvaluationCallback,
+      type: callbackType.PingOneProtectEvaluationCallback,
       output: [{ name: 'signals', value: '' }],
       input: [
         {
@@ -47,7 +47,7 @@ describe('PingOneProtectEvaluationCallback', () => {
   });
   it('should test setClientError method', () => {
     const callback = new PingOneProtectEvaluationCallback({
-      type: 'PingOneProtectEvaluationCallback' as CallbackType.PingOneProtectEvaluationCallback,
+      type: callbackType.PingOneProtectEvaluationCallback,
       output: [{ name: 'signals', value: '' }],
       input: [
         {

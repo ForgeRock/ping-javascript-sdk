@@ -15,7 +15,7 @@
     "enableScan": true,
     "scanPullRequests": true,
     "incrementalScan": false,
-    "baseBranches": ["integration"]
+    "baseBranches": ["main"]
   },
   "checkRunSettingsSAST": {
     "checkRunConclusionLevel": "failure",

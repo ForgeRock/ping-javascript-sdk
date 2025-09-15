@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./out-tsc/vitest",
     "types": [
@@ -16,7 +16,8 @@
     "importHelpers": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true
   },
   "include": [
     "vite.config.ts",

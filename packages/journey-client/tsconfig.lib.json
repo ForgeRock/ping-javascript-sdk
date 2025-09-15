@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "rootDir": "src",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": false,
@@ -14,11 +13,14 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["node", "vitest/globals"]
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"],
   "references": [
+    {
+      "path": "../sdk-effects/storage/tsconfig.lib.json"
+    },
     {
       "path": "../sdk-effects/sdk-request-middleware/tsconfig.lib.json"
     },

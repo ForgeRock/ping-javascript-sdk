@@ -1,16 +1,13 @@
 /*
- * @forgerock/javascript-sdk
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
- * factory.ts
- *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { callbackType } from '@forgerock/sdk-types';
 import FRCallback from './index.js';
-import { CallbackType } from '../interfaces.js';
-import type { Callback } from '../interfaces.js';
+import type { Callback } from '@forgerock/sdk-types';
 import AttributeInputCallback from './attribute-input-callback.js';
 import ChoiceCallback from './choice-callback.js';
 import ConfirmationCallback from './confirmation-callback.js';
@@ -41,53 +38,53 @@ type FRCallbackFactory = (callback: Callback) => FRCallback;
  */
 function createCallback(callback: Callback): FRCallback {
   switch (callback.type) {
-    case CallbackType.BooleanAttributeInputCallback:
+    case callbackType.BooleanAttributeInputCallback:
       return new AttributeInputCallback<boolean>(callback);
-    case CallbackType.ChoiceCallback:
+    case callbackType.ChoiceCallback:
       return new ChoiceCallback(callback);
-    case CallbackType.ConfirmationCallback:
+    case callbackType.ConfirmationCallback:
       return new ConfirmationCallback(callback);
-    case CallbackType.DeviceProfileCallback:
+    case callbackType.DeviceProfileCallback:
       return new DeviceProfileCallback(callback);
-    case CallbackType.HiddenValueCallback:
+    case callbackType.HiddenValueCallback:
       return new HiddenValueCallback(callback);
-    case CallbackType.KbaCreateCallback:
+    case callbackType.KbaCreateCallback:
       return new KbaCreateCallback(callback);
-    case CallbackType.MetadataCallback:
+    case callbackType.MetadataCallback:
       return new MetadataCallback(callback);
-    case CallbackType.NameCallback:
+    case callbackType.NameCallback:
       return new NameCallback(callback);
-    case CallbackType.NumberAttributeInputCallback:
+    case callbackType.NumberAttributeInputCallback:
       return new AttributeInputCallback<number>(callback);
-    case CallbackType.PasswordCallback:
+    case callbackType.PasswordCallback:
       return new PasswordCallback(callback);
-    case CallbackType.PingOneProtectEvaluationCallback:
+    case callbackType.PingOneProtectEvaluationCallback:
       return new PingOneProtectEvaluationCallback(callback);
-    case CallbackType.PingOneProtectInitializeCallback:
+    case callbackType.PingOneProtectInitializeCallback:
       return new PingOneProtectInitializeCallback(callback);
-    case CallbackType.PollingWaitCallback:
+    case callbackType.PollingWaitCallback:
       return new PollingWaitCallback(callback);
-    case CallbackType.ReCaptchaCallback:
+    case callbackType.ReCaptchaCallback:
       return new ReCaptchaCallback(callback);
-    case CallbackType.ReCaptchaEnterpriseCallback:
+    case callbackType.ReCaptchaEnterpriseCallback:
       return new ReCaptchaEnterpriseCallback(callback);
-    case CallbackType.RedirectCallback:
+    case callbackType.RedirectCallback:
       return new RedirectCallback(callback);
-    case CallbackType.SelectIdPCallback:
+    case callbackType.SelectIdPCallback:
       return new SelectIdPCallback(callback);
-    case CallbackType.StringAttributeInputCallback:
+    case callbackType.StringAttributeInputCallback:
       return new AttributeInputCallback<string>(callback);
-    case CallbackType.SuspendedTextOutputCallback:
+    case callbackType.SuspendedTextOutputCallback:
       return new SuspendedTextOutputCallback(callback);
-    case CallbackType.TermsAndConditionsCallback:
+    case callbackType.TermsAndConditionsCallback:
       return new TermsAndConditionsCallback(callback);
-    case CallbackType.TextInputCallback:
+    case callbackType.TextInputCallback:
       return new TextInputCallback(callback);
-    case CallbackType.TextOutputCallback:
+    case callbackType.TextOutputCallback:
       return new TextOutputCallback(callback);
-    case CallbackType.ValidatedCreatePasswordCallback:
+    case callbackType.ValidatedCreatePasswordCallback:
       return new ValidatedCreatePasswordCallback(callback);
-    case CallbackType.ValidatedCreateUsernameCallback:
+    case callbackType.ValidatedCreateUsernameCallback:
       return new ValidatedCreateUsernameCallback(callback);
     default:
       return new FRCallback(callback);

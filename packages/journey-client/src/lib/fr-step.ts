@@ -1,20 +1,20 @@
 /*
- * @forgerock/javascript-sdk
- *
- * fr-step.ts
- *
  * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { CallbackType } from './interfaces.js';
-import type { Callback, Step } from './interfaces.js';
+import {
+  type CallbackType,
+  type Callback,
+  type Step,
+  type AuthResponse,
+} from '@forgerock/sdk-types';
 import type FRCallback from './callbacks/index.js';
 import type { FRCallbackFactory } from './callbacks/factory.js';
 import createCallback from './callbacks/factory.js';
-import { StepType } from './enums.js';
-import type { AuthResponse } from './interfaces.js';
+import { StepType } from '@forgerock/sdk-types';
 
 /**
  * Represents a single step of an authentication tree.
