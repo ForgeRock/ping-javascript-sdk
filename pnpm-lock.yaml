@@ -382,6 +382,24 @@ importers:
         specifier: 'catalog:'
         version: 2.10.4(@types/node@22.14.1)(typescript@5.8.3)
 
+  packages/journey-client:
+    dependencies:
+      '@forgerock/sdk-logger':
+        specifier: workspace:*
+        version: link:../sdk-effects/logger
+      '@forgerock/sdk-request-middleware':
+        specifier: workspace:*
+        version: link:../sdk-effects/sdk-request-middleware
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
+      '@forgerock/sdk-utilities':
+        specifier: workspace:*
+        version: link:../sdk-utilities
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
   packages/oidc-client:
     dependencies:
       '@forgerock/iframe-manager':

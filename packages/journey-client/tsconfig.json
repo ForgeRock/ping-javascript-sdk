@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "../sdk-effects/sdk-request-middleware"
+    },
+    {
+      "path": "../sdk-utilities"
+    },
+    {
+      "path": "../sdk-types"
+    },
+    {
+      "path": "../sdk-effects/logger"
+    },
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}

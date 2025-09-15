@@ -1,0 +1,109 @@
+/*
+ * @forgerock/javascript-sdk
+ *
+ * index.ts
+ *
+ * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+
+import type { ServerConfig, StepOptions } from '../config.js';
+import Config from '../config.js';
+import { ActionTypes } from '../config/enums.js';
+import { REQUESTED_WITH, X_REQUESTED_PLATFORM } from '../shared/constants.js';
+import { middlewareWrapper } from '@forgerock/sdk-request-middleware';
+import type { Step } from '../interfaces.js';
+import { stringify, resolve } from '../utils/url.js';
+import { withTimeout } from '../utils/timeout.js';
+import { getEndpointPath } from '@forgerock/sdk-utilities';
+
+/**
+ * Provides direct access to the OpenAM authentication tree API.
+ */
+abstract class Auth {
+  /**
+   * Gets the next step in the authentication tree.
+   *
+   * @param {Step} previousStep The previous step, including any required input.
+   * @param {StepOptions} options Configuration default overrides.
+   * @return {Step} The next step in the authentication tree.
+   */
+  public static async next(previousStep?: Step, options?: StepOptions): Promise<Step> {
+    const { middleware, platformHeader, realmPath, serverConfig, tree, type } = Config.get(options);
+    const query = options ? options.query : {};
+    const url = this.constructUrl(serverConfig, realmPath, tree, query);
+    const requestOptions = this.configureRequest(previousStep);
+
+    const runMiddleware = middlewareWrapper(
+      {
+        ...requestOptions,
+        url: new URL(url),
+        headers: new Headers(requestOptions.headers),
+      },
+      {
+        type: previousStep ? ActionTypes.Authenticate : ActionTypes.StartAuthenticate,
+        payload: {
+          tree,
+          type: type ? type : 'service',
+        },
+      },
+    );
+    const req = runMiddleware(middleware);
+
+    if (platformHeader) {
+      if (req.headers) {
+        req.headers.set('X-Requested-Platform', X_REQUESTED_PLATFORM);
+      }
+    }
+
+    const res = await withTimeout(fetch(req.url.toString(), req), serverConfig.timeout);
+    const json = await this.getResponseJson<Step>(res);
+    return json;
+  }
+
+  private static constructUrl(
+    serverConfig: ServerConfig,
+    realmPath?: string,
+    tree?: string,
+    query?: Record<string, string>,
+  ): string {
+    const treeParams = tree ? { authIndexType: 'service', authIndexValue: tree } : undefined;
+    const params: Record<string, string | undefined> = { ...query, ...treeParams };
+    const queryString = Object.keys(params).length > 0 ? `?${stringify(params)}` : '';
+    const path = getEndpointPath({
+      endpoint: 'authenticate',
+      realmPath,
+      customPaths: serverConfig.paths,
+    });
+    const url = resolve(serverConfig.baseUrl, `${path}${queryString}`);
+    return url;
+  }
+
+  private static configureRequest(step?: Step): RequestInit {
+    const init: RequestInit = {
+      body: step ? JSON.stringify(step) : undefined,
+      credentials: 'include',
+      headers: new Headers({
+        Accept: 'application/json',
+        'Accept-API-Version': 'protocol=1.0,resource=2.1',
+        'Content-Type': 'application/json',
+        'X-Requested-With': REQUESTED_WITH,
+      }),
+      method: 'POST',
+    };
+
+    return init;
+  }
+
+  private static async getResponseJson<T>(res: Response): Promise<T> {
+    const contentType = res.headers.get('content-type');
+    const isJson = contentType && contentType.indexOf('application/json') > -1;
+    const json = isJson ? await res.json() : {};
+    json.status = res.status;
+    json.ok = res.ok;
+    return json;
+  }
+}
+
+export default Auth;

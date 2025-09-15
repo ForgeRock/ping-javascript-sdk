@@ -1,0 +1,30 @@
+{
+  "name": "@forgerock/journey-client",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm nx nxBuild",
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
+  },
+  "dependencies": {
+    "@forgerock/sdk-logger": "workspace:*",
+    "@forgerock/sdk-types": "workspace:*",
+    "@forgerock/sdk-utilities": "workspace:*",
+    "@forgerock/sdk-request-middleware": "workspace:*",
+    "tslib": "^2.3.0"
+  }
+}

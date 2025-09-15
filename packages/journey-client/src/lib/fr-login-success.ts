@@ -1,0 +1,48 @@
+/*
+ * @forgerock/javascript-sdk
+ *
+ * fr-login-success.ts
+ *
+ * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+
+import type { Step } from './interfaces.js';
+import { StepType } from './enums.js';
+import type { AuthResponse } from './interfaces.js';
+
+class FRLoginSuccess implements AuthResponse {
+  /**
+   * The type of step.
+   */
+  public readonly type = StepType.LoginSuccess;
+
+  /**
+   * @param payload The raw payload returned by OpenAM
+   */
+  constructor(public payload: Step) {}
+
+  /**
+   * Gets the step's realm.
+   */
+  public getRealm(): string | undefined {
+    return this.payload.realm;
+  }
+
+  /**
+   * Gets the step's session token.
+   */
+  public getSessionToken(): string | undefined {
+    return this.payload.tokenId;
+  }
+
+  /**
+   * Gets the step's success URL.
+   */
+  public getSuccessUrl(): string | undefined {
+    return this.payload.successUrl;
+  }
+}
+
+export default FRLoginSuccess;
