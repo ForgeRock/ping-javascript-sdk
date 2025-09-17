@@ -25,6 +25,8 @@ import type {
   UnknownCollector,
   InferAutoCollectorType,
   PhoneNumberOutputValue,
+  MultiValueCollectors,
+  ObjectValueCollectors,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -208,7 +210,7 @@ export function returnSingleValueCollector<
         rule: field.validation?.regex || '',
       });
     }
-    if ('required' in field) {
+    if ('required' in field && field.required === true) {
       validationArray.push({
         type: 'required',
         message: 'Value cannot be empty',
@@ -382,6 +384,15 @@ export function returnMultiValueCollector<
     error = `${error}Options are not found in the field object. `;
   }
 
+  const validationArray = [];
+  if ('required' in field && field.required === true) {
+    validationArray.push({
+      type: 'required',
+      message: 'Value cannot be empty',
+      rule: true,
+    });
+  }
+
   return {
     category: 'MultiValueCollector',
     error: error || null,
@@ -392,6 +403,7 @@ export function returnMultiValueCollector<
       key: field.key,
       value: data || [],
       type: field.type,
+      validation: validationArray.length ? validationArray : undefined,
     },
     output: {
       key: field.key,
@@ -433,6 +445,15 @@ export function returnObjectCollector<
   }
   if (!('type' in field)) {
     error = `${error}Type is not found in the field object. `;
+  }
+
+  const validationArray = [];
+  if ('required' in field && field.required === true) {
+    validationArray.push({
+      type: 'required',
+      message: 'Value cannot be empty',
+      rule: true,
+    });
   }
 
   let options;
@@ -482,6 +503,14 @@ export function returnObjectCollector<
       key: `${device.type}-${idx}`,
     }));
   } else if (field.type === 'PHONE_NUMBER') {
+    if ('validatePhoneNumber' in field && field.validatePhoneNumber === true) {
+      validationArray.push({
+        type: 'validatePhoneNumber',
+        message: 'Phone number should be validated',
+        rule: true,
+      });
+    }
+
     const prefilledCountryCode = prefillData?.countryCode;
     const prefilledPhone = prefillData?.phoneNumber;
     defaultValue = {
@@ -500,6 +529,7 @@ export function returnObjectCollector<
       key: field.key,
       value: defaultValue,
       type: field.type,
+      validation: validationArray.length ? validationArray : undefined,
     },
     output: {
       key: field.key,
@@ -583,28 +613,38 @@ export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
 
 /**
  * @function returnValidator - Creates a validator function based on the provided collector
- * @param collector {ValidatedTextCollector} - The collector to which the value will be validated
+ * @param {ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors} collector - The collector to which the value will be validated
  * @returns {function} - A "validator" function that validates the input value
  */
-export function returnValidator(collector: ValidatedTextCollector) {
+export function returnValidator(
+  collector: ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors,
+) {
   const rules = collector.input.validation;
-  return (value: string) => {
-    return rules.reduce((acc, next) => {
-      if (next.type === 'required' && !value) {
-        acc.push(next.message);
-      } else if (next.type === 'regex') {
-        try {
-          const result = new RegExp(next.rule).test(value);
-          if (!result) {
+  return (value: string | string[] | Record<string, string>) => {
+    return (
+      rules?.reduce((acc, next) => {
+        if (next.type === 'required') {
+          if (
+            !value ||
+            (Array.isArray(value) && !value.length) ||
+            (typeof value === 'object' && !Array.isArray(value) && !Object.keys(value).length)
+          ) {
             acc.push(next.message);
           }
-        } catch (err) {
-          const error = err as Error;
-          acc.push(error.message);
+        } else if (next.type === 'regex' && typeof value === 'string') {
+          try {
+            const result = new RegExp(next.rule).test(value);
+            if (!result) {
+              acc.push(next.message);
+            }
+          } catch (err) {
+            const error = err as Error;
+            acc.push(error.message);
+          }
         }
-      }
-      return acc;
-    }, [] as string[]);
+        return acc;
+      }, [] as string[]) ?? []
+    );
   };
 }
 
