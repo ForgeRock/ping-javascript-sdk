@@ -54,25 +54,23 @@ ignore:
 
 # Configure the comment that Codecov posts on pull requests.
 comment:
-  layout: 'header, diff, flags, files'
+  layout: 'header, diff, components, files'
   behavior: default
   require_changes: false # Post a comment even if there are no coverage changes
   require_head: true # Only post a comment if there is a coverage report for the head commit
 
-# Configure how flags are managed. This allows for different coverage
-# targets for different parts of the codebase.
-flag_management:
+component_management:
   default_rules:
-    # Carry forward coverage from previous commits for all flags.
+    # Carry forward coverage from previous commits for all components.
     carryforward: true
-  individual_flags:
-    # This rule applies to all flags that start with "package-".
-    # It is expected that the CI script uploads coverage reports with flags
+  individual_components:
+    # This rule applies to all components that start with "package-".
+    # It is expected that the CI script uploads coverage reports with components
     # like "package-davinci-client", "package-oidc-client", etc.
     # This makes the configuration future-proof for new packages.
-    - name: package-*
+    - component_id: package-*
       paths:
-        - packages/ # Only consider files in the packages directory for these flags
+        - packages/ # Only consider files in the packages directory for these components
       statuses:
         - type: project
           target: 80% # Higher target for packages

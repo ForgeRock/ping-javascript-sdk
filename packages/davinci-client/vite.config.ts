@@ -46,14 +46,10 @@ export default defineConfig({
         '**/vitest.{workspace,projects}.[jt]s?(on)',
         '**/.{eslint,mocha,prettier}rc.{?(c|m)js,yml}',
       ],
-      reporter: [
-        ['text', { skipEmpty: true }],
-        ['html', { skipEmpty: true }],
-        ['json', { skipEmpty: true }],
-      ],
+      reporter: ['text', 'html', 'json'],
       enabled: Boolean(process.env['CI']),
       reportsDirectory: './coverage',
-      provider: 'v8',
+      provider: 'v8' as const,
     },
   },
 });
