@@ -7,7 +7,7 @@
 import type { Step, AuthResponse } from '@forgerock/sdk-types';
 import { StepType } from '@forgerock/sdk-types';
 
-class FRLoginSuccess implements AuthResponse {
+class JourneyLoginSuccess implements AuthResponse {
   /**
    * The type of step.
    */
@@ -40,4 +40,4 @@ class FRLoginSuccess implements AuthResponse {
   }
 }
 
-export default FRLoginSuccess;
+export default JourneyLoginSuccess;

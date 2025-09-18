@@ -8,7 +8,6 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-/* eslint-disable max-len */
 export const authenticateInputWithRpidAndAllowCredentials = `/*
 * Copyright 2018-2020 ForgeRock AS. All Rights Reserved
 *

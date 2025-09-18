@@ -9,16 +9,16 @@
  */
 
 import JourneyStep from '../journey-step.js';
-import FRQRCode from './fr-qrcode.js';
-import { otpQRCodeStep, pushQRCodeStep } from './fr-qr-code.mock.data.js';
+import JourneyQRCode from './journey-qrcode.js';
+import { otpQRCodeStep, pushQRCodeStep } from '../journey-qrcode/journey-qr-code.mock.data.js';
 // import WebAuthn step as it's similar in structure for testing non-QR Code steps
-import { webAuthnRegJSCallback70 } from '../fr-webauthn/fr-webauthn.mock.data.js';
+import { webAuthnRegJSCallback70 } from '../journey-webauthn/journey-webauthn.mock.data.js';
 
 describe('Class for managing QR Codes', () => {
   it('should return true for step containing OTP QR Code callbacks', () => {
     const expected = true;
     const step = new JourneyStep(otpQRCodeStep);
-    const result = FRQRCode.isQRCodeStep(step);
+    const result = JourneyQRCode.isQRCodeStep(step);
 
     expect(result).toBe(expected);
   });
@@ -26,7 +26,7 @@ describe('Class for managing QR Codes', () => {
   it('should return true for step containing Push QR Code callbacks', () => {
     const expected = true;
     const step = new JourneyStep(pushQRCodeStep);
-    const result = FRQRCode.isQRCodeStep(step);
+    const result = JourneyQRCode.isQRCodeStep(step);
 
     expect(result).toBe(expected);
   });
@@ -34,7 +34,7 @@ describe('Class for managing QR Codes', () => {
   it('should return false for step containing WebAuthn step', () => {
     const expected = false;
     const step = new JourneyStep(webAuthnRegJSCallback70);
-    const result = FRQRCode.isQRCodeStep(step);
+    const result = JourneyQRCode.isQRCodeStep(step);
 
     expect(result).toBe(expected);
   });
@@ -50,7 +50,7 @@ describe('Class for managing QR Codes', () => {
         'r=ForgeRock&period=30&digits=6&b=032b75',
     };
     const step = new JourneyStep(otpQRCodeStep);
-    const result = FRQRCode.getQRCodeData(step);
+    const result = JourneyQRCode.getQRCodeData(step);
 
     expect(result).toStrictEqual(expected);
   });
@@ -71,7 +71,7 @@ describe('Class for managing QR Codes', () => {
         'XNzYWdlP19hY3Rpb249YXV0aGVudGljYXRl&b=032b75',
     };
     const step = new JourneyStep(pushQRCodeStep);
-    const result = FRQRCode.getQRCodeData(step);
+    const result = JourneyQRCode.getQRCodeData(step);
 
     expect(result).toStrictEqual(expected);
   });
