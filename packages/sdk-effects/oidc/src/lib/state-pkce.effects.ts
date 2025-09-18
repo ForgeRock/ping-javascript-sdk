@@ -10,7 +10,7 @@ import { createVerifier, createState } from '@forgerock/sdk-utilities';
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 function getStorageKey(clientId: string, prefix?: string) {
-  return `${prefix || 'FR-SDK'}-authflow-${clientId}`;
+  return `${prefix || 'Journey-SDK'}-authflow-${clientId}`;
 }
 
 /**
