@@ -11,15 +11,15 @@ import {
   type Step,
   type AuthResponse,
 } from '@forgerock/sdk-types';
-import type FRCallback from './callbacks/index.js';
-import type { FRCallbackFactory } from './callbacks/factory.js';
+import type JourneyCallback from './callbacks/index.js';
+import type { JourneyCallbackFactory } from './callbacks/factory.js';
 import createCallback from './callbacks/factory.js';
 import { StepType } from '@forgerock/sdk-types';
 
 /**
  * Represents a single step of an authentication tree.
  */
-class FRStep implements AuthResponse {
+class JourneyStep implements AuthResponse {
   /**
    * The type of step.
    */
@@ -28,15 +28,15 @@ class FRStep implements AuthResponse {
   /**
    * The callbacks contained in this step.
    */
-  public callbacks: FRCallback[] = [];
+  public callbacks: JourneyCallback[] = [];
 
   /**
    * @param payload The raw payload returned by OpenAM
-   * @param callbackFactory A function that returns am implementation of FRCallback
+   * @param callbackFactory A function that returns am implementation of JourneyCallback
    */
   constructor(
     public payload: Step,
-    callbackFactory?: FRCallbackFactory,
+    callbackFactory?: JourneyCallbackFactory,
   ) {
     if (payload.callbacks) {
       this.callbacks = this.convertCallbacks(payload.callbacks, callbackFactory);
@@ -48,7 +48,7 @@ class FRStep implements AuthResponse {
    *
    * @param type The type of callback to find.
    */
-  public getCallbackOfType<T extends FRCallback>(type: CallbackType): T {
+  public getCallbackOfType<T extends JourneyCallback>(type: CallbackType): T {
     const callbacks = this.getCallbacksOfType<T>(type);
     if (callbacks.length !== 1) {
       throw new Error(`Expected 1 callback of type "${type}", but found ${callbacks.length}`);
@@ -61,7 +61,7 @@ class FRStep implements AuthResponse {
    *
    * @param type The type of callback to find.
    */
-  public getCallbacksOfType<T extends FRCallback>(type: CallbackType): T[] {
+  public getCallbacksOfType<T extends JourneyCallback>(type: CallbackType): T[] {
     return this.callbacks.filter((x) => x.getType() === type) as T[];
   }
 
@@ -102,8 +102,8 @@ class FRStep implements AuthResponse {
 
   private convertCallbacks(
     callbacks: Callback[],
-    callbackFactory?: FRCallbackFactory,
-  ): FRCallback[] {
+    callbackFactory?: JourneyCallbackFactory,
+  ): JourneyCallback[] {
     const converted = callbacks.map((x: Callback) => {
       // This gives preference to the provided factory and falls back to our default implementation
       return (callbackFactory || createCallback)(x) || createCallback(x);
@@ -115,7 +115,7 @@ class FRStep implements AuthResponse {
 /**
  * A function that can populate the provided authentication tree step.
  */
-type FRStepHandler = (step: FRStep) => void;
+type JourneyStepHandler = (step: JourneyStep) => void;
 
-export default FRStep;
-export type { FRStepHandler };
+export default JourneyStep;
+export type { JourneyStepHandler };

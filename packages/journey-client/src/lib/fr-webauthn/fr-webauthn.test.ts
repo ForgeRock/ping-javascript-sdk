@@ -22,30 +22,30 @@ import {
   webAuthnRegMetaCallback70StoredUsername,
   webAuthnAuthMetaCallback70StoredUsername,
 } from './fr-webauthn.mock.data.js';
-import FRStep from '../fr-step.js';
+import JourneyStep from '../journey-step.js';
 
 describe('Test FRWebAuthn class with 6.5.3 "Passwordless"', () => {
   it('should return Registration type with register text-output callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnRegJSCallback653 as any);
+    const step = new JourneyStep(webAuthnRegJSCallback653 as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Registration);
   });
   it('should return Authentication type with authenticate text-output callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnAuthJSCallback653 as any);
+    const step = new JourneyStep(webAuthnAuthJSCallback653 as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Authentication);
   });
   // it('should return Registration type with register metadata callbacks', () => {
   //   // eslint-disable-next-line
-  //   const step = new FRStep(webAuthnRegMetaCallback653 as any);
+  //   const step = new JourneyStep(webAuthnRegMetaCallback653 as any);
   //   const stepType = FRWebAuthn.getWebAuthnStepType(step);
   //   expect(stepType).toBe(WebAuthnStepType.Registration);
   // });
   // it('should return Authentication type with authenticate metadata callbacks', () => {
   //   // eslint-disable-next-line
-  //   const step = new FRStep(webAuthnAuthMetaCallback653 as any);
+  //   const step = new JourneyStep(webAuthnAuthMetaCallback653 as any);
   //   const stepType = FRWebAuthn.getWebAuthnStepType(step);
   //   expect(stepType).toBe(WebAuthnStepType.Authentication);
   // });
@@ -54,26 +54,26 @@ describe('Test FRWebAuthn class with 6.5.3 "Passwordless"', () => {
 describe('Test FRWebAuthn class with 7.0 "Passwordless"', () => {
   it('should return Registration type with register text-output callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnRegJSCallback70 as any);
+    const step = new JourneyStep(webAuthnRegJSCallback70 as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Registration);
   });
   it('should return Authentication type with authenticate text-output callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnAuthJSCallback70 as any);
+    const step = new JourneyStep(webAuthnAuthJSCallback70 as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     console.log('the step type', stepType, WebAuthnStepType.Authentication);
     expect(stepType).toBe(WebAuthnStepType.Authentication);
   });
   it('should return Registration type with register metadata callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnRegMetaCallback70 as any);
+    const step = new JourneyStep(webAuthnRegMetaCallback70 as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Registration);
   });
   it('should return Authentication type with authenticate metadata callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnAuthMetaCallback70 as any);
+    const step = new JourneyStep(webAuthnAuthMetaCallback70 as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Authentication);
   });
@@ -82,25 +82,25 @@ describe('Test FRWebAuthn class with 7.0 "Passwordless"', () => {
 describe('Test FRWebAuthn class with 7.0 "Usernameless"', () => {
   it('should return Registration type with register text-output callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnRegJSCallback70StoredUsername as any);
+    const step = new JourneyStep(webAuthnRegJSCallback70StoredUsername as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Registration);
   });
   it('should return Authentication type with authenticate text-output callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnAuthJSCallback70StoredUsername as any);
+    const step = new JourneyStep(webAuthnAuthJSCallback70StoredUsername as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Authentication);
   });
   it('should return Registration type with register metadata callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnRegMetaCallback70StoredUsername as any);
+    const step = new JourneyStep(webAuthnRegMetaCallback70StoredUsername as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Registration);
   });
   it('should return Authentication type with authenticate metadata callbacks', () => {
     // eslint-disable-next-line
-    const step = new FRStep(webAuthnAuthMetaCallback70StoredUsername as any);
+    const step = new JourneyStep(webAuthnAuthMetaCallback70StoredUsername as any);
     const stepType = FRWebAuthn.getWebAuthnStepType(step);
     expect(stepType).toBe(WebAuthnStepType.Authentication);
   });

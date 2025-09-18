@@ -8,11 +8,11 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import FRCallback from './index.js';
+import JourneyCallback from './index.js';
 import { callbackType } from '@forgerock/sdk-types';
 import type { Callback } from '@forgerock/sdk-types';
 
-describe('FRCallback', () => {
+describe('JourneyCallback', () => {
   it('reads/writes basic properties', () => {
     const payload: Callback = {
       _id: 0,
@@ -30,7 +30,7 @@ describe('FRCallback', () => {
       ],
       type: callbackType.NameCallback,
     };
-    const cb = new FRCallback(payload);
+    const cb = new JourneyCallback(payload);
     cb.setInputValue('superman');
 
     expect(cb.getType()).toBe('NameCallback');

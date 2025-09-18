@@ -8,7 +8,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import FRStep from '../fr-step.js';
+import JourneyStep from '../journey-step.js';
 import FRRecoveryCodes from './index.js';
 import {
   displayRecoveryCodesResponse,
@@ -19,24 +19,24 @@ import {
 
 describe('Class for managing the Display Recovery Codes node', () => {
   it('should return true if Display Recovery Codes step', () => {
-    const step = new FRStep(displayRecoveryCodesResponse);
+    const step = new JourneyStep(displayRecoveryCodesResponse);
     const isDisplayStep = FRRecoveryCodes.isDisplayStep(step);
     expect(isDisplayStep).toBe(true);
   });
 
   it('should return false if not Display Recovery Codes step', () => {
-    const step = new FRStep(otherResponse);
+    const step = new JourneyStep(otherResponse);
     const isDisplayStep = FRRecoveryCodes.isDisplayStep(step);
     expect(isDisplayStep).toBe(false);
   });
 
   it('should return the Recovery Codes as array of strings', () => {
-    const step = new FRStep(displayRecoveryCodesResponse);
+    const step = new JourneyStep(displayRecoveryCodesResponse);
     const recoveryCodes = FRRecoveryCodes.getCodes(step);
     expect(recoveryCodes).toStrictEqual(expectedRecoveryCodes);
   });
   it('should return a display name from the getDisplayName method', () => {
-    const step = new FRStep(displayRecoveryCodesResponse);
+    const step = new JourneyStep(displayRecoveryCodesResponse);
     const displayName = FRRecoveryCodes.getDeviceName(step);
     expect(displayName).toStrictEqual(expectedDeviceName);
   });

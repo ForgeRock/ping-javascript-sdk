@@ -4,13 +4,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import FRCallback from './index.js';
+import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
 
 /**
  * Represents a callback used to collect a username.
  */
-class NameCallback extends FRCallback {
+class NameCallback extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

@@ -7,7 +7,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { callbackType, type Step } from '@forgerock/sdk-types';
-import FRStep from './fr-step.js';
+import JourneyStep from './journey-step.js';
 import NameCallback from './callbacks/name-callback.js';
 
 describe('fr-step.ts', () => {
@@ -36,7 +36,7 @@ describe('fr-step.ts', () => {
   };
 
   it('should correctly initialize with a payload', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     expect(step.payload).toEqual(stepPayload);
     expect(step.callbacks).toHaveLength(3);
     expect(step.callbacks[0]).toBeInstanceOf(NameCallback);
@@ -44,26 +44,26 @@ describe('fr-step.ts', () => {
 
   it('should get a single callback of a specific type', () => {
     const singleCallbackPayload: Step = { ...stepPayload, callbacks: [stepPayload.callbacks![1]] };
-    const step = new FRStep(singleCallbackPayload);
+    const step = new JourneyStep(singleCallbackPayload);
     const cb = step.getCallbackOfType(callbackType.PasswordCallback);
     expect(cb).toBeDefined();
     expect(cb.getType()).toBe(callbackType.PasswordCallback);
   });
 
   it('should throw an error if getCallbackOfType finds no matching callbacks', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     const err = `Expected 1 callback of type "TermsAndConditionsCallback", but found 0`;
     expect(() => step.getCallbackOfType(callbackType.TermsAndConditionsCallback)).toThrow(err);
   });
 
   it('should throw an error if getCallbackOfType finds multiple matching callbacks', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     const err = `Expected 1 callback of type "NameCallback", but found 2`;
     expect(() => step.getCallbackOfType(callbackType.NameCallback)).toThrow(err);
   });
 
   it('should get all callbacks of a specific type', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     const callbacks = step.getCallbacksOfType(callbackType.NameCallback);
     expect(callbacks).toHaveLength(2);
     expect(callbacks[0].getType()).toBe(callbackType.NameCallback);
@@ -71,31 +71,31 @@ describe('fr-step.ts', () => {
   });
 
   it('should return an empty array if getCallbacksOfType finds no matches', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     const callbacks = step.getCallbacksOfType(callbackType.TermsAndConditionsCallback);
     expect(callbacks).toHaveLength(0);
   });
 
   it('should set the value of a specific callback', () => {
     const singleCallbackPayload: Step = { ...stepPayload, callbacks: [stepPayload.callbacks![1]] };
-    const step = new FRStep(singleCallbackPayload);
+    const step = new JourneyStep(singleCallbackPayload);
     step.setCallbackValue(callbackType.PasswordCallback, 'password123');
     const cb = step.getCallbackOfType(callbackType.PasswordCallback);
     expect(cb.getInputValue()).toBe('password123');
   });
 
   it('should return the description', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     expect(step.getDescription()).toBe('Step description');
   });
 
   it('should return the header', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     expect(step.getHeader()).toBe('Step header');
   });
 
   it('should return the stage', () => {
-    const step = new FRStep(stepPayload);
+    const step = new JourneyStep(stepPayload);
     expect(step.getStage()).toBe('Step stage');
   });
 });
