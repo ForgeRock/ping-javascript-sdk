@@ -8,7 +8,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { vi, expect, describe, it } from 'vitest';
-import FRDevice from './index.js';
+import JourneyDevice from './index.js';
 
 Object.defineProperty(window, 'crypto', {
   writable: true,
@@ -19,7 +19,7 @@ Object.defineProperty(window, 'crypto', {
 
 describe('Test DeviceProfile', () => {
   it('should return basic metadata', async () => {
-    const device = new FRDevice();
+    const device = new JourneyDevice();
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -41,7 +41,7 @@ describe('Test DeviceProfile', () => {
   });
 
   it('should return metadata without any display props', async () => {
-    const device = new FRDevice({ displayProps: [] });
+    const device = new JourneyDevice({ displayProps: [] });
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -57,7 +57,7 @@ describe('Test DeviceProfile', () => {
   });
 
   it('should return metadata according to narrowed browser props', async () => {
-    const device = new FRDevice({ browserProps: ['userAgent'] });
+    const device = new JourneyDevice({ browserProps: ['userAgent'] });
     const profile = await device.getProfile({
       location: false,
       metadata: true,

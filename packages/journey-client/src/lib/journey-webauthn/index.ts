@@ -50,17 +50,17 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  *
  * ```js
  * // Determine if a step is a WebAuthn step
- * const stepType = FRWebAuthn.getWebAuthnStepType(step);
+ * const stepType = JourneyWebAuthn.getWebAuthnStepType(step);
  * if (stepType === WebAuthnStepType.Registration) {
  *   // Register a new device
- *   await FRWebAuthn.register(step);
+ *   await JourneyWebAuthn.register(step);
  * } else if (stepType === WebAuthnStepType.Authentication) {
  *   // Authenticate with a registered device
- *   await FRWebAuthn.authenticate(step);
+ *   await JourneyWebAuthn.authenticate(step);
  * }
  * ```
  */
-abstract class FRWebAuthn {
+abstract class JourneyWebAuthn {
   /**
    * Determines if the given step is a WebAuthn step.
    *
@@ -507,7 +507,7 @@ abstract class FRWebAuthn {
   }
 }
 
-export default FRWebAuthn;
+export default JourneyWebAuthn;
 export type {
   RelyingParty,
   WebAuthnAuthenticationMetadata,

@@ -6,10 +6,10 @@
 
 import type { Step, AuthResponse, FailureDetail } from '@forgerock/sdk-types';
 import { StepType } from '@forgerock/sdk-types';
-import FRPolicy from './fr-policy/index.js';
-import type { MessageCreator, ProcessedPropertyError } from './fr-policy/interfaces.js';
+import JourneyPolicy from './journey-policy/index.js';
+import type { MessageCreator, ProcessedPropertyError } from './journey-policy/interfaces.js';
 
-class FRLoginFailure implements AuthResponse {
+class JourneyLoginFailure implements AuthResponse {
   /**
    * The type of step.
    */
@@ -45,7 +45,7 @@ class FRLoginFailure implements AuthResponse {
    * Gets processed failure message.
    */
   public getProcessedMessage(messageCreator?: MessageCreator): ProcessedPropertyError[] {
-    return FRPolicy.parseErrors(this.payload, messageCreator);
+    return JourneyPolicy.parseErrors(this.payload, messageCreator);
   }
 
   /**
@@ -56,4 +56,4 @@ class FRLoginFailure implements AuthResponse {
   }
 }
 
-export default FRLoginFailure;
+export default JourneyLoginFailure;

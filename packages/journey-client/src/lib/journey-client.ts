@@ -12,6 +12,8 @@ import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { GenericError, callbackType, type Step } from '@forgerock/sdk-types';
 import JourneyStep from './journey-step.js';
+import JourneyLoginSuccess from './journey-login-success.js';
+import JourneyLoginFailure from './journey-login-failure.js';
 import RedirectCallback from './callbacks/redirect-callback.js';
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
@@ -69,7 +71,10 @@ export async function journey({
       window.location.assign(redirectUrl);
     },
 
-    resume: async (url: string, options?: StepOptions) => {
+    resume: async (
+      url: string,
+      options?: StepOptions,
+    ): Promise<JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | undefined> => {
       const parsedUrl = new URL(url);
       const code = parsedUrl.searchParams.get('code');
       const state = parsedUrl.searchParams.get('state');

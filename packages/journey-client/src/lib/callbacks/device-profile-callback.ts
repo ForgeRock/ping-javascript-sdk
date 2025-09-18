@@ -6,7 +6,7 @@
 
 import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
-import type { DeviceProfileData } from '../fr-device/interfaces.js';
+import type { DeviceProfileData } from '../journey-device/interfaces.js';
 
 /**
  * Represents a callback used to collect device profile data.
