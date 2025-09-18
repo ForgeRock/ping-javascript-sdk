@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "emitDeclarationOnly": false,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "importHelpers": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"],
+  "references": [
+    {
+      "path": "../sdk-effects/storage/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/sdk-request-middleware/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-utilities/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-types/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/logger/tsconfig.lib.json"
+    }
+  ]
+}

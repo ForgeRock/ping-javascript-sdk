@@ -133,23 +133,25 @@
         "watchDepsTargetName": "vite:watch-deps"
       },
       "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"]
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["packages/journey-client/**"],
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json"
+        }
+      }
     }
   ],
   "parallel": 1,
   "workspaceLayout": {
     "appsDir": "",
     "libsDir": ""
-  },
-  "generators": {
-    "@nx/js:library": {
-      "outDir": "{projectRoot}/dist",
-      "unitTestRunner": "vitest"
-    },
-    "@nx/web:application": {
-      "style": "css",
-      "unitTestRunner": "none",
-      "e2eTestRunner": "playwright"
-    }
   },
   "useDaemonProcess": true,
   "useInferencePlugins": true,

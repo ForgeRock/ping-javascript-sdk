@@ -15,8 +15,17 @@
       "import": "./dist/src/index.js",
       "default": "./dist/src/index.js"
     },
+    "./constants": {
+      "types": "./dist/src/lib/constants/index.d.ts",
+      "import": "./dist/src/lib/constants/index.js",
+      "default": "./dist/src/lib/constants/index.js"
+    },
     "./package.json": "./package.json",
-    "./types": "./dist/src/types.js"
+    "./types": {
+      "types": "./dist/src/types.d.ts",
+      "import": "./dist/src/types.js",
+      "default": "./dist/src/types.js"
+    }
   },
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",

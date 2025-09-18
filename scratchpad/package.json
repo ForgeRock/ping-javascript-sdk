@@ -15,7 +15,7 @@
     "serve": "tsx ./src/main.ts"
   },
   "dependencies": {
-    "@forgerock/pingone-scripts": "workspace:*"
+    "@forgerock/journey-client": "workspace:*"
   },
   "devDependencies": {
     "dotenv": "17.2.0",
