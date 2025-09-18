@@ -23,7 +23,7 @@ vi.mock('@forgerock/storage', () => ({
   createStorage: vi.fn(() => mockStorageInstance),
 }));
 
-vi.mock('./fr-device/index.js', () => ({
+vi.mock('./journey-device/index.js', () => ({
   default: vi.fn(() => ({
     getProfile: vi.fn().mockResolvedValue({}),
   })),
