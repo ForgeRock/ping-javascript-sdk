@@ -12,7 +12,7 @@
 import { callbackType } from '@forgerock/sdk-types';
 import type HiddenValueCallback from '../callbacks/hidden-value-callback.js';
 import type MetadataCallback from '../callbacks/metadata-callback.js';
-import type FRStep from '../fr-step.js';
+import type JourneyStep from '../journey-step.js';
 import { WebAuthnOutcome, WebAuthnOutcomeType, WebAuthnStepType } from './enums.js';
 import {
   arrayBufferToString,
@@ -67,7 +67,7 @@ abstract class FRWebAuthn {
    * @param step The step to evaluate
    * @return A WebAuthnStepType value
    */
-  public static getWebAuthnStepType(step: FRStep): WebAuthnStepType {
+  public static getWebAuthnStepType(step: JourneyStep): WebAuthnStepType {
     const outcomeCallback = this.getOutcomeCallback(step);
     const metadataCallback = this.getMetadataCallback(step);
     const textOutputCallback = this.getTextOutputCallback(step);
@@ -102,7 +102,7 @@ abstract class FRWebAuthn {
    * @param step The step that contains WebAuthn authentication data
    * @return The populated step
    */
-  public static async authenticate(step: FRStep): Promise<FRStep> {
+  public static async authenticate(step: JourneyStep): Promise<JourneyStep> {
     const { hiddenCallback, metadataCallback, textOutputCallback } = this.getCallbacks(step);
     if (hiddenCallback && (metadataCallback || textOutputCallback)) {
       let outcome: ReturnType<typeof this.getAuthenticationOutcome>;
@@ -170,9 +170,9 @@ abstract class FRWebAuthn {
   // be inferred from the type so `typeof deviceName` will not just return string
   // but the actual name of the deviceName passed in as a generic.
   public static async register<T extends string = ''>(
-    step: FRStep,
+    step: JourneyStep,
     deviceName?: T,
-  ): Promise<FRStep> {
+  ): Promise<JourneyStep> {
     const { hiddenCallback, metadataCallback, textOutputCallback } = this.getCallbacks(step);
     if (hiddenCallback && (metadataCallback || textOutputCallback)) {
       let outcome: OutcomeWithName<string, AttestationType, PublicKeyCredential>;
@@ -239,7 +239,7 @@ abstract class FRWebAuthn {
    * @param step The step that contains WebAuthn callbacks
    * @return The WebAuthn callbacks
    */
-  public static getCallbacks(step: FRStep): WebAuthnCallbacks {
+  public static getCallbacks(step: JourneyStep): WebAuthnCallbacks {
     const hiddenCallback = this.getOutcomeCallback(step);
     const metadataCallback = this.getMetadataCallback(step);
     const textOutputCallback = this.getTextOutputCallback(step);
@@ -263,7 +263,7 @@ abstract class FRWebAuthn {
    * @param step The step that contains WebAuthn callbacks
    * @return The metadata callback
    */
-  public static getMetadataCallback(step: FRStep): MetadataCallback | undefined {
+  public static getMetadataCallback(step: JourneyStep): MetadataCallback | undefined {
     return step.getCallbacksOfType<MetadataCallback>(callbackType.MetadataCallback).find((x) => {
       const cb = x.getOutputByName<WebAuthnMetadata | undefined>('data', undefined);
       // eslint-disable-next-line no-prototype-builtins
@@ -277,7 +277,7 @@ abstract class FRWebAuthn {
    * @param step The step that contains WebAuthn callbacks
    * @return The hidden value callback
    */
-  public static getOutcomeCallback(step: FRStep): HiddenValueCallback | undefined {
+  public static getOutcomeCallback(step: JourneyStep): HiddenValueCallback | undefined {
     return step
       .getCallbacksOfType<HiddenValueCallback>(callbackType.HiddenValueCallback)
       .find((x) => x.getOutputByName<string>('id', '') === 'webAuthnOutcome');
@@ -290,7 +290,7 @@ abstract class FRWebAuthn {
    * @param step The step that contains WebAuthn callbacks
    * @return The metadata callback
    */
-  public static getTextOutputCallback(step: FRStep): TextOutputCallback | undefined {
+  public static getTextOutputCallback(step: JourneyStep): TextOutputCallback | undefined {
     return step
       .getCallbacksOfType<TextOutputCallback>(callbackType.TextOutputCallback)
       .find((x) => {

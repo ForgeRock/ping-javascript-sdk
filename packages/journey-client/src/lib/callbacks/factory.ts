@@ -6,7 +6,7 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import FRCallback from './index.js';
+import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
 import AttributeInputCallback from './attribute-input-callback.js';
 import ChoiceCallback from './choice-callback.js';
@@ -31,12 +31,12 @@ import TextOutputCallback from './text-output-callback.js';
 import ValidatedCreatePasswordCallback from './validated-create-password-callback.js';
 import ValidatedCreateUsernameCallback from './validated-create-username-callback.js';
 
-type FRCallbackFactory = (callback: Callback) => FRCallback;
+type JourneyCallbackFactory = (callback: Callback) => JourneyCallback;
 
 /**
  * @hidden
  */
-function createCallback(callback: Callback): FRCallback {
+function createCallback(callback: Callback): JourneyCallback {
   switch (callback.type) {
     case callbackType.BooleanAttributeInputCallback:
       return new AttributeInputCallback<boolean>(callback);
@@ -87,9 +87,9 @@ function createCallback(callback: Callback): FRCallback {
     case callbackType.ValidatedCreateUsernameCallback:
       return new ValidatedCreateUsernameCallback(callback);
     default:
-      return new FRCallback(callback);
+      return new JourneyCallback(callback);
   }
 }
 
 export default createCallback;
-export type { FRCallbackFactory };
+export type { JourneyCallbackFactory };

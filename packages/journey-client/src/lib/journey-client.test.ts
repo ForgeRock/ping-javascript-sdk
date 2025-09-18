@@ -7,7 +7,7 @@
 
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { journey } from './journey-client.js';
-import FRStep from './fr-step.js';
+import JourneyStep from './journey-step.js';
 import { JourneyClientConfig } from './config.types.js';
 import { callbackType, Step } from '@forgerock/sdk-types';
 
@@ -66,7 +66,7 @@ describe('journey-client', () => {
     const request = mockFetch.mock.calls[0][0] as Request;
     // TODO: This should be /journeys?_action=start, but the current implementation calls /authenticate
     expect(request.url).toBe('https://test.com/json/realms/root/authenticate');
-    expect(step).toBeInstanceOf(FRStep);
+    expect(step).toBeInstanceOf(JourneyStep);
     expect(step && step.payload).toEqual(mockStepResponse);
   });
 
@@ -89,7 +89,7 @@ describe('journey-client', () => {
         },
       ],
     };
-    const initialStep = new FRStep(initialStepPayload);
+    const initialStep = new JourneyStep(initialStepPayload);
 
     mockFetch.mockResolvedValue(new Response(JSON.stringify(nextStepPayload)));
 
@@ -103,7 +103,7 @@ describe('journey-client', () => {
     expect(request.url).toBe('https://test.com/json/realms/root/authenticate');
     expect(request.method).toBe('POST');
     expect(await request.json()).toEqual(initialStep.payload);
-    expect(nextStep).toBeInstanceOf(FRStep);
+    expect(nextStep).toBeInstanceOf(JourneyStep);
     expect(nextStep && nextStep.payload).toEqual(nextStepPayload);
   });
 
@@ -117,7 +117,7 @@ describe('journey-client', () => {
         },
       ],
     };
-    const step = new FRStep(mockStepPayload);
+    const step = new JourneyStep(mockStepPayload);
 
     const assignMock = vi.fn();
     const locationSpy = vi.spyOn(window, 'location', 'get').mockReturnValue({
@@ -163,7 +163,7 @@ describe('journey-client', () => {
 
       expect(request.method).toBe('POST');
       expect(await request.json()).toEqual(previousStepPayload);
-      expect(step).toBeInstanceOf(FRStep);
+      expect(step).toBeInstanceOf(JourneyStep);
       expect(step && step.payload).toEqual(nextStepPayload);
     });
 
@@ -192,7 +192,7 @@ describe('journey-client', () => {
       const request = mockFetch.mock.calls[0][0] as Request;
       expect(request.method).toBe('POST');
       expect(await request.json()).toEqual(plainStepPayload); // Expect the plain payload to be sent
-      expect(step).toBeInstanceOf(FRStep); // The returned step should still be an FRStep instance
+      expect(step).toBeInstanceOf(JourneyStep); // The returned step should still be an JourneyStep instance
       expect(step && step.payload).toEqual(nextStepPayload);
     });
 
@@ -228,7 +228,7 @@ describe('journey-client', () => {
       // TODO: This should be /journeys?_action=start, but the current implementation calls /authenticate
       const url = new URL(request.url);
       expect(url.origin + url.pathname).toBe('https://test.com/json/realms/root/authenticate');
-      expect(step).toBeInstanceOf(FRStep);
+      expect(step).toBeInstanceOf(JourneyStep);
       expect(step && step.payload).toEqual(mockStepResponse);
     });
   });

@@ -92,26 +92,26 @@ authenticateUser();
 
 The `journey()` factory function returns a client instance with the following methods:
 
-- `client.start(options?: StepOptions): Promise<FRStep | undefined>`
-  Initiates a new authentication journey. Returns the first `FRStep` in the journey.
+- `client.start(options?: StepOptions): Promise<JourneyStep | undefined>`
+  Initiates a new authentication journey. Returns the first `JourneyStep` in the journey.
 
-- `client.next(options: { step: Step; options?: StepOptions }): Promise<FRStep | undefined>`
-  Submits the current `Step` payload (obtained from `FRStep.payload`) to the authentication API and retrieves the next `FRStep` in the journey.
+- `client.next(options: { step: Step; options?: StepOptions }): Promise<JourneyStep | undefined>`
+  Submits the current `Step` payload (obtained from `JourneyStep.payload`) to the authentication API and retrieves the next `JourneyStep` in the journey.
 
-- `client.redirect(step: FRStep): Promise<void>`
+- `client.redirect(step: JourneyStep): Promise<void>`
   Handles `RedirectCallback`s by storing the current step and redirecting the browser to the specified URL. This is typically used for external authentication providers.
 
-- `client.resume(url: string, options?: StepOptions): Promise<FRStep | undefined>`
+- `client.resume(url: string, options?: StepOptions): Promise<JourneyStep | undefined>`
   Resumes an authentication journey after an external redirect (e.g., from an OAuth provider). It retrieves the previously stored step and combines it with URL parameters to continue the flow.
 
 ### Handling Callbacks
 
-The `FRStep` object provides methods to easily access and manipulate callbacks:
+The `JourneyStep` object provides methods to easily access and manipulate callbacks:
 
-- `step.getCallbackOfType<T extends FRCallback>(type: CallbackType): T`
+- `step.getCallbackOfType<T extends JourneyCallback>(type: CallbackType): T`
   Retrieves a single callback of a specific type. Throws an error if zero or more than one callback of that type is found.
 
-- `step.getCallbacksOfType<T extends FRCallback>(type: CallbackType): T[]`
+- `step.getCallbacksOfType<T extends JourneyCallback>(type: CallbackType): T[]`
   Retrieves all callbacks of a specific type as an array.
 
 - `callback.getPrompt(): string` (example for `NameCallback`, `PasswordCallback`)
