@@ -410,6 +410,7 @@ describe('Multi-Value Collectors', () => {
       const result = returnMultiSelectCollector(comboField, 1, []);
       expect(result.type).toBe('MultiSelectCollector');
       expect(result.output).toHaveProperty('value', []);
+      expect(result.input).toHaveProperty('validation');
     });
   });
 });
@@ -438,7 +439,7 @@ describe('Object value collectors', () => {
           description: 'device2-value',
         },
       ],
-      required: true,
+      required: false,
     };
 
     const transformedDevices = mockField.options.map((device) => ({
@@ -524,6 +525,13 @@ describe('Object value collectors', () => {
           key: mockField.key,
           value: '',
           type: mockField.type,
+          validation: [
+            {
+              message: 'Value cannot be empty',
+              rule: true,
+              type: 'required',
+            },
+          ],
         },
         output: {
           key: mockField.key,
@@ -561,6 +569,18 @@ describe('returnPhoneNumberCollector', () => {
           phoneNumber: '',
         },
         type: mockField.type,
+        validation: [
+          {
+            message: 'Value cannot be empty',
+            rule: true,
+            type: 'required',
+          },
+          {
+            message: 'Phone number should be validated',
+            rule: true,
+            type: 'validatePhoneNumber',
+          },
+        ],
       },
       output: {
         key: mockField.key,
@@ -580,8 +600,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: 'US',
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const result = returnObjectValueCollector(mockField, 1, {});
     expect(result).toEqual({
@@ -616,8 +636,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: 'US',
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       countryCode: 'CA',
@@ -657,8 +677,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: null,
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       phoneNumber: '1234567890',
@@ -696,8 +716,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: 'US',
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       countryCode: 'CA',
