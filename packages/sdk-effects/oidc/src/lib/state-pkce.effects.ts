@@ -7,9 +7,12 @@
 
 import { createVerifier, createState } from '@forgerock/sdk-utilities';
 
-import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type {
+  GenerateAndStoreAuthUrlValues,
+  GetAuthorizationUrlOptions,
+} from '@forgerock/sdk-types';
 
-function getStorageKey(clientId: string, prefix?: string) {
+export function getStorageKey(clientId: string, prefix?: string) {
   return `${prefix || 'FR-SDK'}-authflow-${clientId}`;
 }
 
@@ -19,11 +22,6 @@ function getStorageKey(clientId: string, prefix?: string) {
  * @param {GenerateAndStoreAuthUrlValues} options - Options for generating PKCE values
  * @returns { state: string, verifier: string, GetAuthorizationUrlOptions }
  */
-interface GenerateAndStoreAuthUrlValues extends GetAuthorizationUrlOptions {
-  login?: 'redirect' | 'embedded';
-  clientId: string;
-  prefix?: string;
-}
 
 export function generateAndStoreAuthUrlValues(
   options: GenerateAndStoreAuthUrlValues,
