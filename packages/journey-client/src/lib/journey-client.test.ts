@@ -7,7 +7,7 @@
 
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { journey } from './journey-client.js';
-import JourneyStep from './journey-step.js';
+import { createJourneyStep, JourneyStep } from './journey-step.utils.js';
 import { JourneyClientConfig } from './config.types.js';
 import { callbackType, Step } from '@forgerock/sdk-types';
 
@@ -55,7 +55,7 @@ describe('journey-client', () => {
   });
 
   test('start() should fetch and return the first step', async () => {
-    const mockStepResponse: Step = { callbacks: [] };
+    const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
     mockFetch.mockResolvedValue(new Response(JSON.stringify(mockStepResponse)));
 
     const client = await journey({ config: mockConfig });
@@ -66,12 +66,13 @@ describe('journey-client', () => {
     const request = mockFetch.mock.calls[0][0] as Request;
     // TODO: This should be /journeys?_action=start, but the current implementation calls /authenticate
     expect(request.url).toBe('https://test.com/json/realms/root/authenticate');
-    expect(step).toBeInstanceOf(JourneyStep);
+    expect(step).toHaveProperty('type', 'Step');
     expect(step && step.payload).toEqual(mockStepResponse);
   });
 
   test('next() should send the current step and return the next step', async () => {
     const initialStepPayload: Step = {
+      authId: 'test-auth-id',
       callbacks: [
         {
           type: callbackType.NameCallback,
@@ -81,6 +82,7 @@ describe('journey-client', () => {
       ],
     };
     const nextStepPayload: Step = {
+      authId: 'test-auth-id',
       callbacks: [
         {
           type: callbackType.PasswordCallback,
@@ -89,12 +91,12 @@ describe('journey-client', () => {
         },
       ],
     };
-    const initialStep = new JourneyStep(initialStepPayload);
+    const initialStep = initialStepPayload;
 
     mockFetch.mockResolvedValue(new Response(JSON.stringify(nextStepPayload)));
 
     const client = await journey({ config: mockConfig });
-    const nextStep = await client.next(initialStep.payload, {});
+    const nextStep = await client.next(initialStep, {});
     expect(nextStep).toBeDefined();
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -102,8 +104,8 @@ describe('journey-client', () => {
     // TODO: This should be /journeys?_action=next, but the current implementation calls /authenticate
     expect(request.url).toBe('https://test.com/json/realms/root/authenticate');
     expect(request.method).toBe('POST');
-    expect(await request.json()).toEqual(initialStep.payload);
-    expect(nextStep).toBeInstanceOf(JourneyStep);
+    expect(await request.json()).toEqual(initialStep);
+    expect(nextStep).toHaveProperty('type', 'Step');
     expect(nextStep && nextStep.payload).toEqual(nextStepPayload);
   });
 
@@ -117,7 +119,7 @@ describe('journey-client', () => {
         },
       ],
     };
-    const step = new JourneyStep(mockStepPayload);
+    const step = createJourneyStep(mockStepPayload);
 
     const assignMock = vi.fn();
     const locationSpy = vi.spyOn(window, 'location', 'get').mockReturnValue({
@@ -141,7 +143,7 @@ describe('journey-client', () => {
       };
       mockStorageInstance.get.mockResolvedValue({ step: previousStepPayload });
 
-      const nextStepPayload: Step = { callbacks: [] };
+      const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       mockFetch.mockResolvedValue(new Response(JSON.stringify(nextStepPayload)));
 
       const client = await journey({ config: mockConfig });
@@ -163,7 +165,7 @@ describe('journey-client', () => {
 
       expect(request.method).toBe('POST');
       expect(await request.json()).toEqual(previousStepPayload);
-      expect(step).toBeInstanceOf(JourneyStep);
+      expect(step).toHaveProperty('type', 'Step');
       expect(step && step.payload).toEqual(nextStepPayload);
     });
 
@@ -176,7 +178,7 @@ describe('journey-client', () => {
       };
       mockStorageInstance.get.mockResolvedValue({ step: plainStepPayload });
 
-      const nextStepPayload: Step = { callbacks: [] };
+      const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       mockFetch.mockResolvedValue(new Response(JSON.stringify(nextStepPayload)));
 
       const client = await journey({ config: mockConfig });
@@ -192,7 +194,7 @@ describe('journey-client', () => {
       const request = mockFetch.mock.calls[0][0] as Request;
       expect(request.method).toBe('POST');
       expect(await request.json()).toEqual(plainStepPayload); // Expect the plain payload to be sent
-      expect(step).toBeInstanceOf(JourneyStep); // The returned step should still be an JourneyStep instance
+      expect(step).toHaveProperty('type', 'Step'); // The returned step should still be an JourneyStep instance
       expect(step && step.payload).toEqual(nextStepPayload);
     });
 
@@ -212,7 +214,7 @@ describe('journey-client', () => {
     test('should call start() with URL params when no previous step is required', async () => {
       mockStorageInstance.get.mockResolvedValue(undefined);
 
-      const mockStepResponse: Step = { callbacks: [] };
+      const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
       mockFetch.mockResolvedValue(new Response(JSON.stringify(mockStepResponse)));
 
       const client = await journey({ config: mockConfig });
@@ -228,7 +230,7 @@ describe('journey-client', () => {
       // TODO: This should be /journeys?_action=start, but the current implementation calls /authenticate
       const url = new URL(request.url);
       expect(url.origin + url.pathname).toBe('https://test.com/json/realms/root/authenticate');
-      expect(step).toBeInstanceOf(JourneyStep);
+      expect(step).toHaveProperty('type', 'Step');
       expect(step && step.payload).toEqual(mockStepResponse);
     });
   });

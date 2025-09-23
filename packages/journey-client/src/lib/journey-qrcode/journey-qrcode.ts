@@ -9,7 +9,7 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import JourneyStep from '../journey-step.js';
+import { JourneyStep } from '../journey-step.utils.js';
 import TextOutputCallback from '../callbacks/text-output-callback.js';
 import HiddenValueCallback from '../callbacks/hidden-value-callback.js';
 

@@ -12,7 +12,7 @@
 import { callbackType } from '@forgerock/sdk-types';
 import type HiddenValueCallback from '../callbacks/hidden-value-callback.js';
 import type MetadataCallback from '../callbacks/metadata-callback.js';
-import type JourneyStep from '../journey-step.js';
+import type { JourneyStep } from '../journey-step.utils.js';
 import { WebAuthnOutcome, WebAuthnOutcomeType, WebAuthnStepType } from './enums.js';
 import {
   arrayBufferToString,

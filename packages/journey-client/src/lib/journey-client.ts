@@ -11,12 +11,19 @@ import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { GenericError, callbackType, type Step } from '@forgerock/sdk-types';
-import JourneyStep from './journey-step.js';
-import JourneyLoginSuccess from './journey-login-success.js';
-import JourneyLoginFailure from './journey-login-failure.js';
+import { JourneyStep } from './journey-step.utils.js';
+import {
+  createJourneyLoginSuccess,
+  JourneyLoginSuccess,
+} from './journey-login-success.utils.js';
+import {
+  createJourneyLoginFailure,
+  JourneyLoginFailure,
+} from './journey-login-failure.utils.js';
 import RedirectCallback from './callbacks/redirect-callback.js';
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import { createJourneyObject } from './journey.utils.js';
 
 export async function journey({
   config,
@@ -43,7 +50,7 @@ export async function journey({
   const self = {
     start: async (options?: StepOptions) => {
       const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      return data ? new JourneyStep(data) : undefined;
+      return data ? createJourneyObject(data) : undefined;
     },
 
     /**
@@ -55,7 +62,7 @@ export async function journey({
      */
     next: async (step: Step, options?: StepOptions) => {
       const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      return data ? new JourneyStep(data) : undefined;
+      return data ? createJourneyObject(data) : undefined;
     },
 
     redirect: async (step: JourneyStep) => {
@@ -74,7 +81,7 @@ export async function journey({
     resume: async (
       url: string,
       options?: StepOptions,
-    ): Promise<JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | undefined> => {
+    ): Promise<ReturnType<typeof createJourneyObject> | undefined> => {
       const parsedUrl = new URL(url);
       const code = parsedUrl.searchParams.get('code');
       const state = parsedUrl.searchParams.get('state');

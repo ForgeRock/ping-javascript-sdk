@@ -10,7 +10,7 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 import type TextOutputCallback from '../callbacks/text-output-callback.js';
-import type JourneyStep from '../journey-step.js';
+import type { JourneyStep } from '../journey-step.utils.js';
 import { parseDeviceNameText, parseDisplayRecoveryCodesText } from './script-parser.js';
 
 /**
