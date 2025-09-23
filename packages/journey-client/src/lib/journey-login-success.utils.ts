@@ -40,5 +40,5 @@ export {
   getRealm,
   getSessionToken,
   getSuccessUrl,
-  JourneyLoginSuccess,
+  type JourneyLoginSuccess,
 };

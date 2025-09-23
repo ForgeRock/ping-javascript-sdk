@@ -26,6 +26,13 @@ type JourneyStep = AuthResponse & {
   getStage: () => string | undefined;
 };
 
+function getCallbacksOfType<T extends JourneyCallback>(
+  callbacks: JourneyCallback[],
+  type: CallbackType,
+): T[] {
+  return callbacks.filter((x) => x.getType() === type) as T[];
+}
+
 function getCallbackOfType<T extends JourneyCallback>(
   callbacks: JourneyCallback[],
   type: CallbackType,
@@ -35,13 +42,6 @@ function getCallbackOfType<T extends JourneyCallback>(
     throw new Error(`Expected 1 callback of type "${type}", but found ${callbacksOfType.length}`);
   }
   return callbacksOfType[0];
-}
-
-function getCallbacksOfType<T extends JourneyCallback>(
-  callbacks: JourneyCallback[],
-  type: CallbackType,
-): T[] {
-  return callbacks.filter((x) => x.getType() === type) as T[];
 }
 
 function setCallbackValue(callbacks: JourneyCallback[], type: CallbackType, value: unknown): void {
@@ -76,9 +76,7 @@ function convertCallbacks(
 }
 
 function createJourneyStep(payload: Step, callbackFactory?: JourneyCallbackFactory): JourneyStep {
-  const callbacks = payload.callbacks
-    ? convertCallbacks(payload.callbacks, callbackFactory)
-    : [];
+  const callbacks = payload.callbacks ? convertCallbacks(payload.callbacks, callbackFactory) : [];
   return {
     payload,
     callbacks,

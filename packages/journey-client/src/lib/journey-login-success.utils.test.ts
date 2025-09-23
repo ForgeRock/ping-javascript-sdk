@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { createJourneyLoginSuccess } from './journey-login-success.utils';
+import { createJourneyLoginSuccess } from './journey-login-success.utils.js';
 import { StepType } from '@forgerock/sdk-types';
 
 describe('createJourneyLoginSuccess', () => {

@@ -7,7 +7,7 @@
 
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { journey } from './journey-client.js';
-import { createJourneyStep, JourneyStep } from './journey-step.utils.js';
+import { createJourneyStep } from './journey-step.utils.js';
 import { JourneyClientConfig } from './config.types.js';
 import { callbackType, Step } from '@forgerock/sdk-types';
 

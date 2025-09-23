@@ -5,21 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { JourneyStep } from './journey-step.utils.js';
 import { createJourneyStore } from './journey.store.js';
 import { JourneyClientConfig, StepOptions } from './config.types.js';
 import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { GenericError, callbackType, type Step } from '@forgerock/sdk-types';
-import { JourneyStep } from './journey-step.utils.js';
-import {
-  createJourneyLoginSuccess,
-  JourneyLoginSuccess,
-} from './journey-login-success.utils.js';
-import {
-  createJourneyLoginFailure,
-  JourneyLoginFailure,
-} from './journey-login-failure.utils.js';
 import RedirectCallback from './callbacks/redirect-callback.js';
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
