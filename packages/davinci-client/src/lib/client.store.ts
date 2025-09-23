@@ -33,6 +33,7 @@ import type {
   ObjectValueCollectors,
   PhoneNumberInputValue,
   AutoCollectors,
+  MultiValueCollectors,
 } from './collector.types.js';
 import type {
   InitFlow,
@@ -290,11 +291,13 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
     /**
      * @method validate - Method for validating the value against validation rules
-     * @param {SingleValueCollector} collector - the collector to validate
+     * @param {SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors} collector - the collector to validate
      * @returns {function} - a function to call for validating collector value
-     * @throws {Error} - if the collector is not a SingleValueCollector
+     * @throws {Error} - if the collector cannot be validated
      */
-    validate: (collector: SingleValueCollectors): Validator => {
+    validate: (
+      collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors,
+    ): Validator => {
       if (!collector.id) {
         return handleUpdateValidateError(
           'Argument for `collector` has no ID',
@@ -317,9 +320,13 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         return handleUpdateValidateError('Collector not found', 'state_error', log.error);
       }
 
-      if (collectorToUpdate.category !== 'ValidatedSingleValueCollector') {
+      if (
+        collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
+        collectorToUpdate.category !== 'ObjectValueCollector' &&
+        collectorToUpdate.category !== 'MultiValueCollector'
+      ) {
         return handleUpdateValidateError(
-          'Collector is not a SingleValueCollector and cannot be validated',
+          'Collector is not a SingleValueCollector, ObjectValueCollector, or MultiValueCollector and cannot be validated',
           'state_error',
           log.error,
         );

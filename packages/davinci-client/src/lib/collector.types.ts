@@ -37,6 +37,12 @@ interface ValidationRegex {
   rule: string;
 }
 
+interface ValidationPhoneNumber {
+  type: 'validatePhoneNumber';
+  message: string;
+  rule: boolean;
+}
+
 export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTypes> {
   category: 'SingleValueCollector';
   error: string | null;
@@ -196,6 +202,7 @@ export interface MultiValueCollectorWithValue<T extends MultiValueCollectorTypes
     key: string;
     value: string[];
     type: string;
+    validation?: ValidationRequired[];
   };
   output: {
     key: string;
@@ -216,12 +223,12 @@ export interface MultiValueCollectorNoValue<T extends MultiValueCollectorTypes> 
     key: string;
     value: string[];
     type: string;
+    validation?: ValidationRequired[];
   };
   output: {
     key: string;
     label: string;
     type: string;
-    value: string[];
     options: SelectorOption[];
   };
 }
@@ -308,6 +315,7 @@ export interface ObjectOptionsCollectorWithStringValue<
     key: string;
     value: V;
     type: string;
+    validation?: ValidationRequired[];
   };
   output: {
     key: string;
@@ -331,6 +339,7 @@ export interface ObjectOptionsCollectorWithObjectValue<
     key: string;
     value: V;
     type: string;
+    validation?: ValidationRequired[];
   };
   output: {
     key: string;
@@ -355,6 +364,7 @@ export interface ObjectValueCollectorWithObjectValue<
     key: string;
     value: IV;
     type: string;
+    validation?: (ValidationRequired | ValidationPhoneNumber)[];
   };
   output: {
     key: string;

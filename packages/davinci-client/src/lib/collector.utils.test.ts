@@ -30,7 +30,12 @@ import type {
   RedirectField,
   StandardField,
 } from './davinci.types.js';
-import { PhoneNumberOutputValue, ValidatedTextCollector } from './collector.types.js';
+import {
+  MultiSelectCollector,
+  PhoneNumberCollector,
+  PhoneNumberOutputValue,
+  ValidatedTextCollector,
+} from './collector.types.js';
 
 describe('Action Collectors', () => {
   describe('returnFlowCollector', () => {
@@ -410,6 +415,7 @@ describe('Multi-Value Collectors', () => {
       const result = returnMultiSelectCollector(comboField, 1, []);
       expect(result.type).toBe('MultiSelectCollector');
       expect(result.output).toHaveProperty('value', []);
+      expect(result.input).toHaveProperty('validation');
     });
   });
 });
@@ -438,7 +444,7 @@ describe('Object value collectors', () => {
           description: 'device2-value',
         },
       ],
-      required: true,
+      required: false,
     };
 
     const transformedDevices = mockField.options.map((device) => ({
@@ -524,6 +530,13 @@ describe('Object value collectors', () => {
           key: mockField.key,
           value: '',
           type: mockField.type,
+          validation: [
+            {
+              message: 'Value cannot be empty',
+              rule: true,
+              type: 'required',
+            },
+          ],
         },
         output: {
           key: mockField.key,
@@ -561,6 +574,18 @@ describe('returnPhoneNumberCollector', () => {
           phoneNumber: '',
         },
         type: mockField.type,
+        validation: [
+          {
+            message: 'Value cannot be empty',
+            rule: true,
+            type: 'required',
+          },
+          {
+            message: 'Phone number should be validated',
+            rule: true,
+            type: 'validatePhoneNumber',
+          },
+        ],
       },
       output: {
         key: mockField.key,
@@ -580,8 +605,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: 'US',
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const result = returnObjectValueCollector(mockField, 1, {});
     expect(result).toEqual({
@@ -616,8 +641,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: 'US',
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       countryCode: 'CA',
@@ -657,8 +682,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: null,
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       phoneNumber: '1234567890',
@@ -696,8 +721,8 @@ describe('returnPhoneNumberCollector', () => {
       defaultCountryCode: 'US',
       label: 'Phone Number',
       type: 'PHONE_NUMBER',
-      required: true,
-      validatePhoneNumber: true,
+      required: false,
+      validatePhoneNumber: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       countryCode: 'CA',
@@ -778,17 +803,40 @@ describe('Return collector validator', () => {
   const validatedTextCollector = {
     input: {
       validation: [
-        { type: 'required', message: 'This field is required' },
+        { type: 'required', message: 'This field is required', rule: true },
         { type: 'regex', message: 'Invalid format', rule: '^[a-zA-Z0-9]+$' },
       ],
     },
   } as ValidatedTextCollector;
 
+  const objectValueCollector = {
+    input: {
+      validation: [
+        { type: 'required', message: 'This field is required', rule: true },
+        { type: 'validatePhoneNumber', message: 'Phone number should be validated', rule: true },
+      ],
+    },
+  } as PhoneNumberCollector;
+
+  const multiValueCollector = {
+    input: {
+      validation: [{ type: 'required', message: 'This field is required', rule: true }],
+    },
+  } as MultiSelectCollector;
+
   const validator = returnValidator(validatedTextCollector);
+  const objValidator = returnValidator(objectValueCollector);
+  const multiValueValidator = returnValidator(multiValueCollector);
 
   it('should return an error message for required validation when value is empty', () => {
     const result = validator('');
     expect(result).toContain('This field is required');
+
+    const objResult = objValidator({});
+    expect(objResult).toContain('This field is required');
+
+    const multiValueResult = multiValueValidator({});
+    expect(multiValueResult).toContain('This field is required');
   });
 
   it('should return an error message for regex validation when value does not match the pattern', () => {
@@ -799,6 +847,12 @@ describe('Return collector validator', () => {
   it('should return no error messages when value passes all validations', () => {
     const result = validator('validValue123');
     expect(result).toEqual([]);
+
+    const objResult = objValidator({ countryCode: 'US', phoneNumber: '1234567890' });
+    expect(objResult).toEqual([]);
+
+    const multiValueResult = multiValueValidator(['a', 'b', 'c']);
+    expect(multiValueResult).toEqual([]);
   });
 
   it('should handle invalid regex patterns gracefully', () => {
