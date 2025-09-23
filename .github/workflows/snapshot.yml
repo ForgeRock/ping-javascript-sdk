@@ -2,107 +2,24 @@ name: Snapshots
 on:
   workflow_dispatch:
     inputs:
-      registry:
-        description: 'Npm Registry or Private Registry'
-        required: false
-        default: 'https://registry.npmjs.org/'
-        type: choice
-        options:
-          - https://registry.npmjs.org/
-          - https://npm.petrov.ca
       branch:
         description: 'Branch to publish from'
         required: false
         default: 'main'
         type: string
 
-env:
-  NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-  NX_CLOUD_DISTRIBUTED_EXECUTION: true
-  PNPM_CACHE_FOLDER: .pnpm-store
-  NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  HUSKY: 0
-
 jobs:
-  publish-snapshot:
+  call-trusted-publish:
+    name: Call trusted publish (beta dist-tag)
+    uses: ./.github/workflows/publish.yml
+    with:
+      branch: ${{ inputs.branch }}
+      dist_tag: beta
+      prerelease: beta
+      access: public
     permissions:
-      contents: write #  to create release (changesets/action)
-      issues: write # to post issue comments (changesets/action)
-      pull-requests: write #  to create pull request (changesets/action)
-      id-token: write # give id token write for provenance
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ inputs.branch }}
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - uses: actions/setup-node@v4
-        id: cache
-        with:
-          node-version-file: '.node-version'
-          cache: 'pnpm'
-
-      - run: pnpm install --frozen-lockfile
-
-      # This line enables distribution
-      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
-      - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - run: pnpm exec playwright install
-
-      - uses: nrwl/nx-set-shas@v4
-        with:
-          main-branch-name: main
-
-      - name: setup pnpm config
-        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
-
-      - run: pnpm exec nx run-many -t build test e2e-ci
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: |
-            ./**/.playwright/**
-          retention-days: 30
-
-      - name: Update npmrc
-        run: |
-          cat << EOF > ".npmrc"
-            //registry.npmjs.org/:_authToken=$NPM_TOKEN
-            //npm.petrov.ca/:_authToken=$NPM_TOKEN
-          EOF
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-      - name: Version Packages as Beta
-        run: pnpm changeset version --snapshot beta
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Publish packages as beta
-        if: ${{ inputs.registry == 'https://registry.npmjs.org/' }}
-        run: pnpm publish -r --tag beta --no-git-checks --registry ${{ inputs.registry }}
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          NPM_CONFIG_PROVENANCE: 'true' # make sure provenance is working on beta releases to npm
-
-      - name: Publish packages as beta
-        if: ${{ inputs.registry != 'https://registry.npmjs.org/' }}
-        run: pnpm publish -r --tag beta --no-git-checks --registry ${{ inputs.registry }}
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          NPM_CONFIG_PROVENANCE: false # verdaccio doesn't support provenance
+      contents: write
+      id-token: write
+      issues: write
+      pull-requests: write
+    secrets: inherit
