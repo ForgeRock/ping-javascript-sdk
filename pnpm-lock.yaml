@@ -454,8 +454,8 @@ importers:
         version: link:../tools/user-scripts
     devDependencies:
       dotenv:
-        specifier: 17.2.0
-        version: 17.2.0
+        specifier: 17.2.2
+        version: 17.2.2
       tsx:
         specifier: 4.17.0
         version: 4.17.0
@@ -4235,8 +4235,8 @@ packages:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
-  dotenv@17.2.0:
-    resolution: {integrity: sha512-Q4sgBT60gzd0BB0lSyYD3xM4YxrXA9y4uBDof1JNYGzOXrQdQ6yX+7XIAqoFOGQFOTK1D3Hts5OllpxMDZFONQ==}
+  dotenv@17.2.2:
+    resolution: {integrity: sha512-Sf2LSQP+bOlhKWWyhFsn0UsfdK/kCWRv1iuA2gXAwt3dyNabr6QSj00I2V10pidqz69soatm9ZwZvpQMTIOd5Q==}
     engines: {node: '>=12'}
 
   dotenv@8.6.0:
@@ -12144,7 +12144,7 @@ snapshots:
 
   dotenv@16.4.7: {}
 
-  dotenv@17.2.0: {}
+  dotenv@17.2.2: {}
 
   dotenv@8.6.0: {}
 
