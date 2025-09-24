@@ -57,6 +57,9 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
@@ -178,6 +181,9 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: 'pnpm'
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - run: pnpm install --frozen-lockfile
 
