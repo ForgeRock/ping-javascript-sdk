@@ -24,6 +24,9 @@ export default [
     ignores: [
       '**/dist',
       '**/docs',
+      '**/node_modules',
+      '**/coverage',
+      '**/tmp',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
       '**/out-tsc',

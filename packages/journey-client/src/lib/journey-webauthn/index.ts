@@ -12,7 +12,7 @@
 import { callbackType } from '@forgerock/sdk-types';
 import type HiddenValueCallback from '../callbacks/hidden-value-callback.js';
 import type MetadataCallback from '../callbacks/metadata-callback.js';
-import type JourneyStep from '../journey-step.js';
+import type { JourneyStep } from '../journey-step.utils.js';
 import { WebAuthnOutcome, WebAuthnOutcomeType, WebAuthnStepType } from './enums.js';
 import {
   arrayBufferToString,
@@ -50,17 +50,17 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  *
  * ```js
  * // Determine if a step is a WebAuthn step
- * const stepType = FRWebAuthn.getWebAuthnStepType(step);
+ * const stepType = JourneyWebAuthn.getWebAuthnStepType(step);
  * if (stepType === WebAuthnStepType.Registration) {
  *   // Register a new device
- *   await FRWebAuthn.register(step);
+ *   await JourneyWebAuthn.register(step);
  * } else if (stepType === WebAuthnStepType.Authentication) {
  *   // Authenticate with a registered device
- *   await FRWebAuthn.authenticate(step);
+ *   await JourneyWebAuthn.authenticate(step);
  * }
  * ```
  */
-abstract class FRWebAuthn {
+abstract class JourneyWebAuthn {
   /**
    * Determines if the given step is a WebAuthn step.
    *
@@ -507,7 +507,7 @@ abstract class FRWebAuthn {
   }
 }
 
-export default FRWebAuthn;
+export default JourneyWebAuthn;
 export type {
   RelyingParty,
   WebAuthnAuthenticationMetadata,
