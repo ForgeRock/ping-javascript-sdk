@@ -21,7 +21,10 @@
   },
   "references": [
     {
-      "path": "../tools/user-scripts"
+      "path": "../packages/sdk-types"
+    },
+    {
+      "path": "../packages/journey-client"
     }
   ]
 }

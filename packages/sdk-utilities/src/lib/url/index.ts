@@ -6,3 +6,4 @@
  */
 
 export * from './am-url.utils.js';
+export * from './url.utils.js';
