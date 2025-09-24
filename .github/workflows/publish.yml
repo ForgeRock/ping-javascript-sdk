@@ -3,30 +3,28 @@ on:
   push:
     branches:
       - main
-  # allow other workflows to call this one (for snapshots)
-  workflow_call:
+  workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch or ref to publish from'
+        description: 'Branch/ref to publish from'
         required: false
-        type: string
         default: 'main'
+        type: string
       dist_tag:
         description: 'npm dist-tag'
         required: false
-        type: string
         default: 'beta'
+        type: string
       prerelease:
-        description: 'changesets prerelease tag (e.g., beta, canary)'
+        description: 'changesets prerelease tag (beta/canary)'
         required: false
-        type: string
         default: 'beta'
+        type: string
       access:
         description: 'npm access'
         required: false
-        type: string
         default: 'public'
-
+        type: string
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
@@ -57,6 +55,7 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - run: pnpm install --frozen-lockfile
 
@@ -156,13 +155,12 @@ jobs:
           path: previous_sizes.json
           retention-days: 30
 
-  # --- new reusable job used by the snapshot wrapper ---
-  trusted-publish:
-    if: ${{ github.event_name != 'push' }}
-    name: Trusted Snapshot Publish
+  snapshot:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    name: Publish Snapshots
     permissions:
-      contents: write # read+write repo (okay for artifacts/logs)
-      id-token: write # REQUIRED: OIDC for npm Trusted Publishers
+      contents: write
+      id-token: write
       issues: write
       pull-requests: write
     runs-on: ubuntu-latest
