@@ -9,7 +9,7 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import FRStep from '../fr-step.js';
+import JourneyStep from '../journey-step.js';
 import TextOutputCallback from '../callbacks/text-output-callback.js';
 import HiddenValueCallback from '../callbacks/hidden-value-callback.js';
 
@@ -35,10 +35,10 @@ export type QRCodeData = {
 abstract class FRQRCode {
   /**
    * @method isQRCodeStep - determines if step contains QR Code callbacks
-   * @param {FRStep} step - step object from AM response
+   * @param {JourneyStep} step - step object from AM response
    * @returns {boolean}
    */
-  public static isQRCodeStep(step: FRStep): boolean {
+  public static isQRCodeStep(step: JourneyStep): boolean {
     const hiddenValueCb = step.getCallbacksOfType(callbackType.HiddenValueCallback);
 
     // QR Codes step should have at least one HiddenValueCallback
@@ -50,10 +50,10 @@ abstract class FRQRCode {
 
   /**
    * @method getQRCodeData - gets the necessary information from the QR Code callbacks
-   * @param {FRStep} step - step object from AM response
+   * @param {JourneyStep} step - step object from AM response
    * @returns {QRCodeData}
    */
-  public static getQRCodeData(step: FRStep): QRCodeData {
+  public static getQRCodeData(step: JourneyStep): QRCodeData {
     const hiddenValueCb = step.getCallbacksOfType(callbackType.HiddenValueCallback);
 
     // QR Codes step should have at least one HiddenValueCallback

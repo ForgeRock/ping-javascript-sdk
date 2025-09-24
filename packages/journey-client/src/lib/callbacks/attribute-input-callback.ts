@@ -6,7 +6,7 @@
  */
 
 import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
-import FRCallback from './index.js';
+import JourneyCallback from './index.js';
 
 /**
  * Represents a callback used to collect attributes.
@@ -14,7 +14,7 @@ import FRCallback from './index.js';
  * @typeparam T Maps to StringAttributeInputCallback, NumberAttributeInputCallback and
  *     BooleanAttributeInputCallback, respectively
  */
-class AttributeInputCallback<T extends string | number | boolean> extends FRCallback {
+class AttributeInputCallback<T extends string | number | boolean> extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

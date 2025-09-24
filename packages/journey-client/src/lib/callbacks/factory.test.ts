@@ -32,7 +32,7 @@ import TextInputCallback from './text-input-callback.js';
 import TextOutputCallback from './text-output-callback.js';
 import ValidatedCreatePasswordCallback from './validated-create-password-callback.js';
 import ValidatedCreateUsernameCallback from './validated-create-username-callback.js';
-import FRCallback from './index.js';
+import JourneyCallback from './index.js';
 
 describe('Callback Factory', () => {
   const testCases = [
@@ -76,10 +76,10 @@ describe('Callback Factory', () => {
     });
   });
 
-  it('should create a base FRCallback for an unknown type', () => {
+  it('should create a base JourneyCallback for an unknown type', () => {
     const payload: Callback = { type: 'UnknownCallback' as any, input: [], output: [] };
     const callback = createCallback(payload);
-    expect(callback).toBeInstanceOf(FRCallback);
+    expect(callback).toBeInstanceOf(JourneyCallback);
     // Ensure it's not an instance of a more specific class
     expect(callback).not.toBeInstanceOf(NameCallback);
   });

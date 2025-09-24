@@ -4,7 +4,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import FRCallback from './index.js';
+import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
 
 interface IdPValue {
@@ -17,7 +17,7 @@ interface IdPValue {
 /**
  * Represents a callback used to collect an answer to a choice.
  */
-class SelectIdPCallback extends FRCallback {
+class SelectIdPCallback extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

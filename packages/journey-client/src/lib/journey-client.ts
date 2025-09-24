@@ -11,7 +11,7 @@ import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { GenericError, callbackType, type Step } from '@forgerock/sdk-types';
-import FRStep from './fr-step.js';
+import JourneyStep from './journey-step.js';
 import RedirectCallback from './callbacks/redirect-callback.js';
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
@@ -41,22 +41,22 @@ export async function journey({
   const self = {
     start: async (options?: StepOptions) => {
       const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      return data ? new FRStep(data) : undefined;
+      return data ? new JourneyStep(data) : undefined;
     },
 
     /**
-     * Submits the current Step payload to the authentication API and retrieves the next FRStep in the journey.
+     * Submits the current Step payload to the authentication API and retrieves the next JourneyStep in the journey.
      * The `step` to be submitted is provided within the `options` object.
      *
      * @param options An object containing the current Step payload and optional StepOptions.
-     * @returns A Promise that resolves to the next FRStep in the journey, or undefined if the journey ends.
+     * @returns A Promise that resolves to the next JourneyStep in the journey, or undefined if the journey ends.
      */
     next: async (step: Step, options?: StepOptions) => {
       const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      return data ? new FRStep(data) : undefined;
+      return data ? new JourneyStep(data) : undefined;
     },
 
-    redirect: async (step: FRStep) => {
+    redirect: async (step: JourneyStep) => {
       const cb = step.getCallbackOfType(callbackType.RedirectCallback) as RedirectCallback;
       if (!cb) {
         throw new Error('RedirectCallback not found on step');
@@ -87,7 +87,7 @@ export async function journey({
         return typeof obj === 'object' && obj !== null && 'error' in obj && 'message' in obj;
       }
 
-      // Type guard for { step: FRStep }
+      // Type guard for { step: JourneyStep }
       function isStoredStep(obj: unknown): obj is { step: Step } {
         return (
           typeof obj === 'object' &&

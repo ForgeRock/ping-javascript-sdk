@@ -10,7 +10,7 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 import type TextOutputCallback from '../callbacks/text-output-callback.js';
-import type FRStep from '../fr-step.js';
+import type JourneyStep from '../journey-step.js';
 import { parseDeviceNameText, parseDisplayRecoveryCodesText } from './script-parser.js';
 
 /**
@@ -28,7 +28,7 @@ import { parseDeviceNameText, parseDisplayRecoveryCodesText } from './script-par
  * ```
  */
 abstract class FRRecoveryCodes {
-  public static getDeviceName(step: FRStep): string {
+  public static getDeviceName(step: JourneyStep): string {
     const text = this.getDisplayCallback(step)?.getOutputByName('message', '') ?? '';
     return parseDeviceNameText(text);
   }
@@ -38,7 +38,7 @@ abstract class FRRecoveryCodes {
    * @param step The step to evaluate
    * @return Recovery Code values in array
    */
-  public static getCodes(step: FRStep): string[] {
+  public static getCodes(step: JourneyStep): string[] {
     const text = this.getDisplayCallback(step)?.getOutputByName('message', '');
     return parseDisplayRecoveryCodesText(text || '');
   }
@@ -49,7 +49,7 @@ abstract class FRRecoveryCodes {
    * @param step The step to evaluate
    * @return Is this step a Display Recovery Codes step
    */
-  public static isDisplayStep(step: FRStep): boolean {
+  public static isDisplayStep(step: JourneyStep): boolean {
     return !!this.getDisplayCallback(step);
   }
 
@@ -59,7 +59,7 @@ abstract class FRRecoveryCodes {
    * @param step The step to evaluate
    * @return gets the Display Recovery Codes' callback
    */
-  private static getDisplayCallback(step: FRStep): TextOutputCallback | undefined {
+  private static getDisplayCallback(step: JourneyStep): TextOutputCallback | undefined {
     return step
       .getCallbacksOfType<TextOutputCallback>(callbackType.TextOutputCallback)
       .find((x) => {
