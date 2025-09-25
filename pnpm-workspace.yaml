@@ -24,3 +24,8 @@ catalogs:
 
   vitest:
     'vitest': '^3.0.4'
+
+link-workspace-packages: true
+strict-peer-dependencies: false
+save-workspace-protocol: rolling
+save-prefix: ''
