@@ -13,6 +13,8 @@ import { oidc } from './client.store.js';
 
 import type { OidcConfig } from './config.types.js';
 
+Object.defineProperty(global, 'localStorage', { value: null });
+
 vi.stubGlobal(
   'sessionStorage',
   (() => {

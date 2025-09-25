@@ -66,6 +66,9 @@ const config: OidcConfig = {
   responseType: 'code',
 };
 
+Object.defineProperty(global, 'sessionStorage', { value: null });
+Object.defineProperty(global, 'localStorage', { value: null });
+
 const customStorage: Record<string, string> = {};
 const storageClient = createStorage<OauthTokens>({
   type: 'custom',
