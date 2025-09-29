@@ -1,0 +1,41 @@
+/*
+ * @forgerock/javascript-sdk
+ *
+ * attribute-input-callback.test.ts
+ *
+ * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+
+import { callbackType } from '@forgerock/sdk-types';
+import type { Callback } from '@forgerock/sdk-types';
+import TextInputCallback from './text-input-callback.js';
+
+describe('TextInputCallback', () => {
+  const payload: Callback = {
+    type: callbackType.TextInputCallback,
+    output: [
+      {
+        name: 'prompt',
+        value: 'Provide a nickname for this account',
+      },
+    ],
+    input: [
+      {
+        name: 'IDToken1',
+        value: '',
+      },
+    ],
+  };
+
+  it('reads/writes basic properties', () => {
+    const cb = new TextInputCallback(payload);
+
+    expect(cb.getPrompt()).toBe('Provide a nickname for this account');
+
+    cb.setInput('Test setting input');
+
+    expect(cb.getInputValue()).toBe('Test setting input');
+  });
+});

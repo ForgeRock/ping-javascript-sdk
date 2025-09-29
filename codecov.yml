@@ -1,23 +1,36 @@
+# A more comprehensive Codecov configuration
 codecov:
-  require_ci_to_pass: false
+  # Require CI to pass before Codecov processes reports. This ensures that
+  # coverage is only measured on successful builds.
+  require_ci_to_pass: true
   notify:
-    wait_for_ci: false
+    # Wait for CI to finish before sending notifications.
+    wait_for_ci: true
+
 coverage:
+  # Set a higher default target for project and patch coverage.
+  # This encourages a better testing culture.
   status:
     project:
       default:
-        target: 40%
-        threshold: 1%
+        target: 70%
+        threshold: 2% # Allow for a small drop in coverage
     patch:
       default:
-        target: 40%
-        threshold: 1%
+        target: 80% # New code should be well-tested
+        threshold: 0% # Do not allow new code to decrease coverage
+
   parsers:
     v1:
       include_full_missed_files: true
+
+  # Configure how coverage is displayed.
   range: '70...100'
   round: down
   precision: 2
+
+# Ignore files that are not relevant for code coverage.
+# This keeps the coverage report clean and focused on the source code.
 ignore:
   - '**/dist/**/*'
   - '**/*.mock*'
@@ -35,33 +48,37 @@ ignore:
   - '**/*.md'
   - '**/LICENSE'
   - '**/*.json'
+  - 'e2e/**/*' # E2E tests are not unit tests
+  - 'tools/**/*' # Tooling scripts
+  - 'scripts/**/*' # Other scripts
 
+# Configure the comment that Codecov posts on pull requests.
 comment:
-  layout: 'header, diff, files'
+  layout: 'header, diff, components, files'
   behavior: default
-  require_changes: false
-  require_base: false
-  require_head: true
-  hide_project_coverage: false
+  require_changes: false # Post a comment even if there are no coverage changes
+  require_head: true # Only post a comment if there is a coverage report for the head commit
 
-bundle_analysis:
-  status: 'informational'
-
-flag_management:
+component_management:
   default_rules:
+    # Carry forward coverage from previous commits for all components.
     carryforward: true
-    statuses:
-      - type: project
-        target: 40%
-      - type: patch
-        target: 40%
-  individual_flags:
-    - name: package-*
+  individual_components:
+    # This rule applies to all components that start with "package-".
+    # It is expected that the CI script uploads coverage reports with components
+    # like "package-davinci-client", "package-oidc-client", etc.
+    # This makes the configuration future-proof for new packages.
+    - component_id: package-*
       paths:
-        - packages/*/
-      carryforward: true
+        - packages/ # Only consider files in the packages directory for these components
       statuses:
         - type: project
-          target: 40%
+          target: 80% # Higher target for packages
+          threshold: 2%
         - type: patch
-          target: 40%
+          target: 90% # New code in packages should be very well-tested
+          threshold: 0%
+
+# Enable bundle analysis to track the size of the published packages.
+bundle_analysis:
+  status: 'informational'
