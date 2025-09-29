@@ -5,6 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { GenericError } from './error.types.js';
+
 export interface Tokens {
   accessToken: string;
   idToken?: string;
@@ -16,7 +18,7 @@ export interface Tokens {
  * API for implementing a custom token store
  */
 export interface CustomStorageObject {
-  get: (key: string) => Promise<string | null>;
-  set: (key: string, valueToSet: string) => Promise<void>;
-  remove: (key: string) => Promise<void>;
+  get: (key: string) => Promise<string | null | GenericError>;
+  set: (key: string, valueToSet: string) => Promise<void | GenericError>;
+  remove: (key: string) => Promise<void | GenericError>;
 }

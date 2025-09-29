@@ -372,14 +372,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           // Delete local token and return combined results
           Micro.flatMap((revokeResponse) =>
             Micro.promise(() => storageClient.remove()).pipe(
-              Micro.flatMap((deleteRes) => {
-                const deleteResponse = typeof deleteRes === 'undefined' ? null : deleteRes;
-
+              Micro.flatMap((deleteResponse) => {
                 const isInnerRequestError =
                   (revokeResponse && 'error' in revokeResponse) ||
-                  (deleteResponse &&
-                    typeof deleteResponse === 'object' &&
-                    'error' in deleteResponse);
+                  (deleteResponse && 'error' in deleteResponse);
 
                 if (isInnerRequestError) {
                   const result: RevokeErrorResult = {

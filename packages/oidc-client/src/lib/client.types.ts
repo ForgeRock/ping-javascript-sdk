@@ -9,20 +9,25 @@ export interface GetTokensOptions {
 }
 
 export type RevokeSuccessResult = {
+  revokeResponse: null;
+  deleteResponse: null;
+};
+
+export type RevokeErrorResult = {
+  error: string;
   revokeResponse: GenericError | null;
   deleteResponse: GenericError | null;
 };
 
-export type RevokeErrorResult = RevokeSuccessResult & {
-  error: string;
-};
-
 export type LogoutSuccessResult = RevokeSuccessResult & {
-  sessionResponse: GenericError | null;
+  sessionResponse: null;
 };
 
-export type LogoutErrorResult = LogoutSuccessResult & {
+export type LogoutErrorResult = {
   error: string;
+  sessionResponse: GenericError | null;
+  revokeResponse: GenericError | null;
+  deleteResponse: GenericError | null;
 };
 
 export type UserInfoResponse = {
