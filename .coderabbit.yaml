@@ -1,7 +1,0 @@
-reviews:
-  profile: chill
-  poem: false
-  # You can specify coding guideline documents here.
-  # CodeRabbit will scan these files to understand your team’s standards.
-  # guidelines:
-  #   - "**/GEMINI.md"

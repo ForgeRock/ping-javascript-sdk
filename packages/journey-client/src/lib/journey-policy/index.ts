@@ -32,7 +32,7 @@ import defaultMessageCreator from './message-creator.js';
  *   const messagesClassMethod = FRPolicy.parseErrors(thisStep, messageCreator)
  * }
  */
-abstract class FRPolicy {
+abstract class JourneyPolicy {
   /**
    * Parses policy errors and generates human readable error messages.
    *
@@ -115,5 +115,5 @@ abstract class FRPolicy {
   }
 }
 
-export default FRPolicy;
+export default JourneyPolicy;
 export type { MessageCreator, ProcessedPropertyError };

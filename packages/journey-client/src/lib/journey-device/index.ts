@@ -27,22 +27,20 @@ import type {
   ProfileConfigOptions,
 } from './interfaces.js';
 import { reduceToObject, reduceToString } from '@forgerock/sdk-utilities';
-import { logger } from '@forgerock/sdk-logger';
-
-const FRLogger = logger({ level: 'info' });
+import { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { LogLevel } from '@forgerock/sdk-logger';
+type Logger = ReturnType<typeof loggerFn>;
 
 /**
- * @class FRDevice - Collects user device metadata
+ * @class JourneyDevice - Collects user device metadata.
  *
  * Example:
  *
  * ```js
  * // Instantiate new device object (w/optional config, if needed)
- * const device = new forgerock.FRDevice(
+ * const device = new forgerock.JourneyDevice({
  *   // optional configuration
- * );
- * // override any instance methods, if needed
- * // e.g.: device.getDisplayMeta = () => {};
+ * });
  *
  * // Call getProfile with required argument obj of boolean properties
  * // of location and metadata
@@ -52,33 +50,40 @@ const FRLogger = logger({ level: 'info' });
  * });
  * ```
  */
-class FRDevice {
-  config: BaseProfileConfig = {
-    fontNames,
-    devicePlatforms,
-    displayProps,
-    browserProps,
-    hardwareProps,
-    platformProps,
-  };
-
+class JourneyDevice {
+  private config: BaseProfileConfig;
+  private logger: Logger;
   private prefix: string;
 
-  constructor(config?: ProfileConfigOptions, prefix = 'forgerock') {
+  constructor(
+    configOptions?: ProfileConfigOptions,
+    logLevel: LogLevel = 'info',
+    prefix = 'forgerock',
+  ) {
+    this.logger = loggerFn({ level: logLevel });
     this.prefix = prefix;
-    if (config) {
-      Object.keys(config).forEach((key: string) => {
+    this.config = {
+      fontNames,
+      devicePlatforms,
+      displayProps,
+      browserProps,
+      hardwareProps,
+      platformProps,
+    };
+
+    if (configOptions) {
+      Object.keys(configOptions).forEach((key: string) => {
         if (!configurableCategories.includes(key)) {
           throw new Error('Device profile configuration category does not exist.');
         }
-        this.config[key as Category] = config[key as Category];
+        this.config[key as Category] = configOptions[key as Category] as string[];
       });
     }
   }
 
-  getBrowserMeta(): Record<string, string | number | null> {
+  public getBrowserMeta(): Record<string, string | number | null> {
     if (typeof navigator === 'undefined') {
-      FRLogger.warn('Cannot collect browser metadata. navigator is not defined.');
+      this.logger.warn('Cannot collect browser metadata. navigator is not defined.');
       return {};
     }
     return reduceToObject(
@@ -87,9 +92,11 @@ class FRDevice {
     );
   }
 
-  getBrowserPluginsNames(): string {
+  public getBrowserPluginsNames(): string {
     if (!(typeof navigator !== 'undefined' && navigator.plugins)) {
-      FRLogger.warn('Cannot collect browser plugin information. navigator.plugins is not defined.');
+      this.logger.warn(
+        'Cannot collect browser plugin information. navigator.plugins is not defined.',
+      );
       return '';
     }
     return reduceToString(
@@ -98,9 +105,9 @@ class FRDevice {
     );
   }
 
-  getDeviceName(): string {
+  public getDeviceName(): string {
     if (typeof navigator === 'undefined') {
-      FRLogger.warn('Cannot collect device name. navigator is not defined.');
+      this.logger.warn('Cannot collect device name. navigator is not defined.');
       return '';
     }
     const userAgent = navigator.userAgent;
@@ -124,17 +131,17 @@ class FRDevice {
     }
   }
 
-  getDisplayMeta(): { [key: string]: string | number | null } {
+  public getDisplayMeta(): { [key: string]: string | number | null } {
     if (typeof screen === 'undefined') {
-      FRLogger.warn('Cannot collect screen information. screen is not defined.');
+      this.logger.warn('Cannot collect screen information. screen is not defined.');
       return {};
     }
     return reduceToObject(this.config.displayProps, screen as unknown as Record<string, unknown>);
   }
 
-  getHardwareMeta(): Record<string, string | number | null> {
+  public getHardwareMeta(): Record<string, string | number | null> {
     if (typeof navigator === 'undefined') {
-      FRLogger.warn('Cannot collect OS metadata. Navigator is not defined.');
+      this.logger.warn('Cannot collect OS metadata. Navigator is not defined.');
       return {};
     }
     return reduceToObject(
@@ -143,15 +150,17 @@ class FRDevice {
     );
   }
 
-  getIdentifier(): string {
+  public getIdentifier(): string {
     const storageKey = `${this.prefix}-DeviceID`;
 
     if (!(typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues)) {
-      FRLogger.warn('Cannot generate profile ID. Crypto and/or getRandomValues is not supported.');
+      this.logger.warn(
+        'Cannot generate profile ID. Crypto and/or getRandomValues is not supported.',
+      );
       return '';
     }
     if (!localStorage) {
-      FRLogger.warn('Cannot store profile ID. localStorage is not supported.');
+      this.logger.warn('Cannot store profile ID. localStorage is not supported.');
       return '';
     }
     let id = localStorage.getItem(storageKey);
@@ -163,20 +172,20 @@ class FRDevice {
     return id;
   }
 
-  getInstalledFonts(): string {
+  public getInstalledFonts(): string {
     if (typeof document === 'undefined') {
-      FRLogger.warn('Cannot collect font data. Global document object is undefined.');
+      this.logger.warn('Cannot collect font data. Global document object is undefined.');
       return '';
     }
     const canvas = document.createElement('canvas');
     if (!canvas) {
-      FRLogger.warn('Cannot collect font data. Browser does not support canvas element');
+      this.logger.warn('Cannot collect font data. Browser does not support canvas element');
       return '';
     }
     const context = canvas.getContext && canvas.getContext('2d');
 
     if (!context) {
-      FRLogger.warn('Cannot collect font data. Browser does not support 2d canvas context');
+      this.logger.warn('Cannot collect font data. Browser does not support 2d canvas context');
       return '';
     }
     const text = 'abcdefghi0123456789';
@@ -196,9 +205,9 @@ class FRDevice {
     return installedFonts;
   }
 
-  async getLocationCoordinates(): Promise<Geolocation | Record<string, unknown>> {
+  public async getLocationCoordinates(): Promise<Geolocation | Record<string, unknown>> {
     if (!(typeof navigator !== 'undefined' && navigator.geolocation)) {
-      FRLogger.warn(
+      this.logger.warn(
         'Cannot collect geolocation information. navigator.geolocation is not defined.',
       );
       return Promise.resolve({});
@@ -211,7 +220,7 @@ class FRDevice {
             longitude: position.coords.longitude,
           }),
         () => {
-          FRLogger.warn('Cannot collect geolocation information. Geolocation API error.');
+          this.logger.warn('Cannot collect geolocation information. Geolocation API error.');
           resolve({});
         },
         {
@@ -223,9 +232,9 @@ class FRDevice {
     });
   }
 
-  getOSMeta(): Record<string, string | number | null> {
+  public getOSMeta(): Record<string, string | number | null> {
     if (typeof navigator === 'undefined') {
-      FRLogger.warn('Cannot collect OS metadata. navigator is not defined.');
+      this.logger.warn('Cannot collect OS metadata. navigator is not defined.');
       return {};
     }
     return reduceToObject(
@@ -234,7 +243,16 @@ class FRDevice {
     );
   }
 
-  async getProfile({ location, metadata }: CollectParameters): Promise<DeviceProfileData> {
+  public getTimezoneOffset(): number | null {
+    try {
+      return new Date().getTimezoneOffset();
+    } catch {
+      this.logger.warn('Cannot collect timezone information. getTimezoneOffset is not defined.');
+      return null;
+    }
+  }
+
+  public async getProfile({ location, metadata }: CollectParameters): Promise<DeviceProfileData> {
     const profile: DeviceProfileData = {
       identifier: this.getIdentifier(),
     };
@@ -262,15 +280,6 @@ class FRDevice {
     }
     return profile;
   }
-
-  getTimezoneOffset(): number | null {
-    try {
-      return new Date().getTimezoneOffset();
-    } catch {
-      FRLogger.warn('Cannot collect timezone information. getTimezoneOffset is not defined.');
-      return null;
-    }
-  }
 }
 
-export default FRDevice;
+export { JourneyDevice };

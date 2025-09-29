@@ -9,7 +9,7 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import JourneyStep from '../journey-step.js';
+import { JourneyStep } from '../journey-step.utils.js';
 import TextOutputCallback from '../callbacks/text-output-callback.js';
 import HiddenValueCallback from '../callbacks/hidden-value-callback.js';
 
@@ -20,19 +20,19 @@ export type QRCodeData = {
 };
 
 /**
- * @class FRQRCode - A utility class for handling QR Code steps
+ * @class JourneyQRCode - A utility class for handling QR Code steps
  *
  * Example:
  *
  * ```js
- * const isQRCodeStep = FRQRCode.isQRCodeStep(step);
+ * const isQRCodeStep = JourneyQRCode.isQRCodeStep(step);
  * let qrCodeData;
  * if (isQRCodeStep) {
- *   qrCodeData = FRQRCode.getQRCodeData(step);
+ *   qrCodeData = JourneyQRCode.getQRCodeData(step);
  * }
  * ```
  */
-abstract class FRQRCode {
+abstract class JourneyQRCode {
   /**
    * @method isQRCodeStep - determines if step contains QR Code callbacks
    * @param {JourneyStep} step - step object from AM response
@@ -93,4 +93,4 @@ abstract class FRQRCode {
   }
 }
 
-export default FRQRCode;
+export default JourneyQRCode;

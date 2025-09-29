@@ -7,19 +7,25 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { vi, expect, describe, it } from 'vitest';
-import FRDevice from './index.js';
+import { vi, expect, describe, it, afterEach, beforeEach, SpyInstance } from 'vitest';
+import { JourneyDevice } from './index.js';
 
+// Patch window.crypto.getRandomValues to return Uint32Array for compatibility
 Object.defineProperty(window, 'crypto', {
   writable: true,
   value: {
-    getRandomValues: vi.fn().mockImplementation(() => ['714524572', '2799534390', '3707617532']),
+    getRandomValues: vi.fn().mockImplementation((arr: Uint32Array) => {
+      arr[0] = 714524572;
+      arr[1] = 2799534390;
+      arr[2] = 3707617532;
+      return arr;
+    }),
   },
 });
 
 describe('Test DeviceProfile', () => {
   it('should return basic metadata', async () => {
-    const device = new FRDevice();
+    const device = new JourneyDevice();
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -41,7 +47,7 @@ describe('Test DeviceProfile', () => {
   });
 
   it('should return metadata without any display props', async () => {
-    const device = new FRDevice({ displayProps: [] });
+    const device = new JourneyDevice({ displayProps: [] });
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -57,7 +63,7 @@ describe('Test DeviceProfile', () => {
   });
 
   it('should return metadata according to narrowed browser props', async () => {
-    const device = new FRDevice({ browserProps: ['userAgent'] });
+    const device = new JourneyDevice({ browserProps: ['userAgent'] });
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -76,5 +82,46 @@ describe('Test DeviceProfile', () => {
     expect(display).toHaveProperty('width');
     expect(display).toHaveProperty('height');
     expect(deviceName.length).toBeGreaterThan(1);
+  });
+
+  describe('logLevel tests', () => {
+    let warnSpy: SpyInstance;
+    const originalNavigator = global.navigator;
+
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      delete global.navigator;
+    });
+
+    afterEach(() => {
+      warnSpy.mockRestore();
+      global.navigator = originalNavigator;
+    });
+
+    it('should not log warnings if logLevel is "error"', () => {
+      const device = new JourneyDevice(undefined, 'error');
+      device.getBrowserMeta();
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should log warnings if logLevel is "warn"', () => {
+      const device = new JourneyDevice(undefined, 'warn');
+      device.getBrowserMeta();
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Cannot collect browser metadata. navigator is not defined.',
+      );
+    });
+  });
+
+  it('should use custom prefix for device identifier', () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+    const device = new JourneyDevice(undefined, 'info', 'my-custom-prefix');
+    device.getIdentifier();
+
+    expect(setItemSpy).toHaveBeenCalledWith('my-custom-prefix-DeviceID', expect.any(String));
+
+    setItemSpy.mockRestore();
   });
 });

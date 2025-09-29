@@ -5,16 +5,17 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { JourneyStep } from './journey-step.utils.js';
 import { createJourneyStore } from './journey.store.js';
 import { JourneyClientConfig, StepOptions } from './config.types.js';
 import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { GenericError, callbackType, type Step } from '@forgerock/sdk-types';
-import JourneyStep from './journey-step.js';
 import RedirectCallback from './callbacks/redirect-callback.js';
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import { createJourneyObject } from './journey.utils.js';
 
 export async function journey({
   config,
@@ -41,7 +42,7 @@ export async function journey({
   const self = {
     start: async (options?: StepOptions) => {
       const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      return data ? new JourneyStep(data) : undefined;
+      return data ? createJourneyObject(data) : undefined;
     },
 
     /**
@@ -53,7 +54,7 @@ export async function journey({
      */
     next: async (step: Step, options?: StepOptions) => {
       const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      return data ? new JourneyStep(data) : undefined;
+      return data ? createJourneyObject(data) : undefined;
     },
 
     redirect: async (step: JourneyStep) => {
@@ -69,7 +70,10 @@ export async function journey({
       window.location.assign(redirectUrl);
     },
 
-    resume: async (url: string, options?: StepOptions) => {
+    resume: async (
+      url: string,
+      options?: StepOptions,
+    ): Promise<ReturnType<typeof createJourneyObject> | undefined> => {
       const parsedUrl = new URL(url);
       const code = parsedUrl.searchParams.get('code');
       const state = parsedUrl.searchParams.get('state');

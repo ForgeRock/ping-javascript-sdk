@@ -86,10 +86,10 @@ export interface WellKnownResponse {
   code_challenge_methods_supported?: string[];
 }
 
-type FRCallbackFactory = (callback: Callback) => any;
+type JourneyCallbackFactory = (callback: Callback) => any;
 
 export interface LegacyConfigOptions {
-  callbackFactory?: FRCallbackFactory;
+  callbackFactory?: JourneyCallbackFactory;
   clientId?: string;
   middleware?: LegacyRequestMiddleware[];
   realmPath?: string;
