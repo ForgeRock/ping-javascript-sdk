@@ -5,15 +5,20 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
     },
+    "./journey-device": "./dist/src/lib/journey-device/index.js",
+    "./journey-policy": "./dist/src/lib/journey-policy/index.js",
+    "./journey-qrcode": "./dist/src/lib/journey-qrcode/journey-qrcode.js",
+    "./journey-recoverycodes": "./dist/src/lib/recovery-codes/index.js",
+    "./journey-webauthn": "./dist/src/lib/journey-webauthn/index.js",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
