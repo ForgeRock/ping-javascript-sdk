@@ -104,6 +104,9 @@ jobs:
           HOME: ${{ github.workspace }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
+      - run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm --comment=off
+        if: steps.changesets.outputs.published == 'false'
+
       - name: Send GitHub Action data to a Slack workflow
         if: steps.changesets.outputs.published == 'true'
         uses: slackapi/slack-github-action@v2.1.1
