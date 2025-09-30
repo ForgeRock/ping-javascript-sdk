@@ -95,3 +95,54 @@ We provide verdaccio two ways:
   topological graph.
 
 - Publishing to a hosted private registry: Please message @ryanbas21 on slack.
+
+# Patch Releases
+
+In the event a patch release is required, we should always fix the bug on `main` before releasing any code.
+
+This follows the trunk based development style of releasing which is best suited for changesets.
+
+Once the bug is confirmed fixed, we can cherry-pick the fix from main, onto the latest release branch.
+
+This cherry-pick should contain a changeset, if it does not, we will need to add one.
+
+Once we have that new release branch confirmed working, and it has a changeset, we can push the branch to github.
+
+We can then use the workflow_dispatch github workflow, called patch-release.yml, pass in the branch to release from as an input.
+
+This will kickoff the release workflow, including building, testing, linting, etc.
+
+Once passing, we will attempt to publish with provenance from CI (signing the packages).
+
+It is worth noting that we could be on 1.0.1 on `npm` and our `main` branch may be on versions `1.0.0`. But because we push the tag up, changesets should respect the tag, and versions should be triggered based on the tag in the Release PR
+
+## Patch Release Process
+
+- Identify and fix the bug on main first
+  This allows us to properly reproduce and verify the fix
+  It ensures proper code review through your normal PR process
+  The fix gets merged to main and will be included in future releases
+
+- After the fix is merged to main, cherry-pick it to a patch branch
+
+- Create a branch from the last release tag (e.g., v1.0.0)
+
+- Cherry-pick the bugfix commit(s) from main to this patch branch
+
+- Add a changeset file describing the patch change
+
+- Push the patch branch and run the patch workflow
+
+- This will publish the patch version (e.g., 1.0.1)
+
+- No need to merge back to main
+
+  Since the fix already exists on main, there's no need to merge back
+  This prevents any potential merge conflicts or duplication
+
+This approach provides several benefits:
+
+- Ensures the bug is properly identified and fixed first
+- Maintains normal code review process
+- Creates a clean git history with the fix clearly flowing from main to the patch branch
+- Avoids duplication of changes or complicated merge operations
