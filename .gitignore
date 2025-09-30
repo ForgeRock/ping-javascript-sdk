@@ -83,3 +83,9 @@ test-output
 # Gemini local knowledge base files
 GEMINI.md
 **/GEMINI.md
+
+# Nix and direnv
+.direnv/
+result*
+!.envrc
+
