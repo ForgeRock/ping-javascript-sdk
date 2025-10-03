@@ -28,7 +28,7 @@ runs:
       with:
         run_install: false
 
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
         node-version-file: ${{ inputs.node-version-file }}
         cache: 'pnpm'
@@ -45,6 +45,8 @@ runs:
     - name: Nx Cloud start
       run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
       shell: bash
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
 
     - name: Cache Playwright browsers
       uses: actions/cache@v4

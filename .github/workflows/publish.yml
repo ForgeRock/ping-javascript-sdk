@@ -37,10 +37,10 @@ jobs:
   publish-or-pr:
     if: github.event_name == 'push'
     permissions:
-      contents: write # changesets/action
+      contents: write
       issues: write
       pull-requests: write
-      id-token: write # OIDC for provenance if npm publish happens here
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - name: Setup Project
@@ -54,18 +54,9 @@ jobs:
         with:
           node-version-file: '.node-version'
           pnpm-cache-folder: .pnpm-store
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - run: pnpm exec nx affected -t build lint test e2e-ci
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: |
-            ./**/.playwright/**
-          retention-days: 30
-
-      - run: git status
       - name: publish
         uses: changesets/action@v1
         id: changesets
@@ -79,9 +70,6 @@ jobs:
         env:
           HOME: ${{ github.workspace }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm --comment=off
-        if: steps.changesets.outputs.published == 'false'
 
       - name: Publish Release Steps
         if: steps.changesets.outputs.published == 'true'
@@ -130,51 +118,16 @@ jobs:
     env:
       HUSKY: 0
     steps:
-      - uses: actions/checkout@v4
+      - name: Setup Project
+        uses: ./.github/actions/setup
         with:
           fetch-depth: 0
           ref: ${{ inputs.branch }}
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - uses: actions/setup-node@v5
-        with:
+          token: ${{ secrets.GH_TOKEN }}
           node-version-file: '.node-version'
-          cache: 'pnpm'
-
-      - name: Update npm
-        run: npm install -g npm@latest
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - run: pnpm exec playwright install
-
-      - uses: nrwl/nx-set-shas@v4
-        with:
-          main-branch-name: main
-
-      - name: setup pnpm config
-        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
-
-      - run: pnpm exec nx run-many -t build test e2e-ci
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: |
-            ./**/.playwright/**
-          retention-days: 30
+          pnpm-cache-folder: .pnpm-store
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Version Packages as prerelease
         run: pnpm changeset version --snapshot ${{ inputs.prerelease }}
