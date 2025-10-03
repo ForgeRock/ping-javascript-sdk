@@ -114,7 +114,7 @@ jobs:
           payload-delimiter: '_'
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
-          payload: steps.changesets.outputs.publishedPackages
+          payload: $ {{ steps.changesets.outputs.publishedPackages }}
 
       - uses: codecov/codecov-action@v5
         with:
