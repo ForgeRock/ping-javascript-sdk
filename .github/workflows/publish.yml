@@ -43,41 +43,17 @@ jobs:
       id-token: write # OIDC for provenance if npm publish happens here
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Setup Project
+        uses: ./.github/actions/setup
         with:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
+
       - uses: actions/setup-node@v5
         id: cache
         with:
           node-version-file: '.node-version'
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Update npm
-        run: npm install -g npm@latest
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - run: pnpm exec playwright install
-
-      - uses: nrwl/nx-set-shas@v4
-
-      - name: setup pnpm config
-        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
+          pnpm-cache-folder: .pnpm-store
 
       - run: pnpm exec nx affected -t build lint test e2e-ci
 
@@ -107,39 +83,20 @@ jobs:
       - run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm --comment=off
         if: steps.changesets.outputs.published == 'false'
 
-      - name: Send GitHub Action data to a Slack workflow
+      - name: Publish Release Steps
         if: steps.changesets.outputs.published == 'true'
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: ./.github/actions/publish-release
         with:
-          payload-delimiter: '_'
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-          webhook-type: webhook-trigger
-          payload: $ {{ steps.changesets.outputs.publishedPackages }}
+          publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+          slackWebhook: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - uses: codecov/codecov-action@v5
-        with:
-          files: ./packages/**/coverage/*.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Ensure builds run
-        run: pnpm nx run-many -t build
-        env:
-          NX_CLOUD_DISTRIBUTED_EXECUTION: false
-
-      - name: Build docs
-        run: pnpm generate-docs
-
-      - name: Publish api docs
-        if: steps.changesets.outputs.published == 'true'
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
-        with:
-          folder: docs
-          commit-message: 'chore: release-api-docs'
-
-      - name: Publish api docs [beta]
+      - name: Publish Beta Steps
         if: steps.changesets.outputs.published == 'false'
-        id: latest-deploy
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        uses: ./.github/actions/publish-beta
+        with:
+          branch: main
+
+      - uses: JamesIves/github-pages-deploy-action@v4.7.3
         with:
           folder: docs
           commit-message: 'chore: release-api-docs-beta'

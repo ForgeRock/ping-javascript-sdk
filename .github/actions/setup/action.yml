@@ -1,0 +1,78 @@
+name: 'Setup Project'
+description: 'Centralized setup for CI jobs'
+inputs:
+  fetch-depth:
+    description: 'Git fetch depth'
+    required: false
+    default: '0'
+  token:
+    description: 'GitHub token'
+    required: true
+  node-version-file:
+    description: 'Node version file'
+    required: false
+    default: '.node-version'
+  pnpm-cache-folder:
+    description: 'pnpm cache folder'
+    required: false
+    default: '.pnpm-store'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: ${{ inputs.fetch-depth }}
+        token: ${{ inputs.token }}
+
+    - uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+        cache: 'pnpm'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Update npm
+      run: npm install -g npm@latest
+      shell: bash
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash
+
+    - name: Nx Cloud start
+      run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
+      shell: bash
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+
+    - name: Install Playwright
+      run: pnpm exec playwright install
+      shell: bash
+
+    - uses: nrwl/nx-set-shas@v4
+
+    - name: Setup pnpm config
+      run: pnpm config set store-dir ${{ inputs.pnpm-cache-folder }}
+      shell: bash
+
+    - name: Run Nx build/lint/test/e2e
+      run: pnpm exec nx affected -t build lint test e2e-ci
+      shell: bash
+
+    - name: Upload Playwright report
+      uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: |
+          ./**/.playwright/**
+        retention-days: 30
