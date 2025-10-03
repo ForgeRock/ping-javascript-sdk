@@ -38,6 +38,10 @@ runs:
       run: npm install -g npm@latest
       shell: bash
 
+    - name: Setup pnpm config
+      run: pnpm config set store-dir ${{ inputs.pnpm-cache-folder }} --global
+      shell: bash
+
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       shell: bash
@@ -61,10 +65,6 @@ runs:
       shell: bash
 
     - uses: nrwl/nx-set-shas@v4
-
-    - name: Setup pnpm config
-      run: pnpm config set store-dir ${{ inputs.pnpm-cache-folder }}
-      shell: bash
 
     - name: Run Nx build/lint/test/e2e
       run: pnpm exec nx affected -t build lint test e2e-ci
