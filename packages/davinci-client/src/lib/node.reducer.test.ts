@@ -7,14 +7,18 @@
 import { describe, it, expect } from 'vitest';
 
 import { nodeCollectorReducer } from './node.reducer.js';
-import {
+import type {
   DeviceAuthenticationCollector,
   DeviceRegistrationCollector,
+  FidoAuthenticationCollector,
+  FidoRegistrationCollector,
   MultiSelectCollector,
   PhoneNumberCollector,
+  ProtectCollector,
   SubmitCollector,
   TextCollector,
 } from './collector.types.js';
+import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
 
 describe('The node collector reducer', () => {
   it('should return the initial state', () => {
@@ -433,6 +437,7 @@ describe('The node collector reducer with MultiValueCollector', () => {
           key: 'color',
           value: [],
           type: 'TEXT',
+          validation: null,
         },
         output: {
           key: 'color',
@@ -467,6 +472,7 @@ describe('The node collector reducer with MultiValueCollector', () => {
           key: 'color',
           value: ['red'],
           type: 'TEXT',
+          validation: null,
         },
         output: {
           key: 'color',
@@ -517,6 +523,7 @@ describe('The node collector reducer with DeviceAuthenticationFieldValue', () =>
             value: '',
           },
           type: 'TEXT',
+          validation: null,
         },
         output: {
           key: 'device',
@@ -566,6 +573,7 @@ describe('The node collector reducer with DeviceAuthenticationFieldValue', () =>
             value: 's***********1@pingidentity.com',
           },
           type: 'TEXT',
+          validation: null,
         },
         output: {
           key: 'device',
@@ -623,6 +631,7 @@ describe('The node collector reducer with DeviceRegistrationFieldValue', () => {
           key: 'device',
           value: 'EMAIL',
           type: 'TEXT',
+          validation: null,
         },
         output: {
           key: 'device',
@@ -665,6 +674,7 @@ describe('The node collector reducer with DeviceRegistrationFieldValue', () => {
           key: 'device',
           value: 'EMAIL',
           type: 'TEXT',
+          validation: null,
         },
         output: {
           key: 'device',
@@ -729,6 +739,7 @@ describe('The phone number collector reducer', () => {
             phoneNumber: '',
           },
           type: 'PHONE_NUMBER',
+          validation: null,
         },
         output: {
           key: 'phone-number-key',
@@ -772,6 +783,7 @@ describe('The phone number collector reducer', () => {
             phoneNumber: '',
           },
           type: 'PHONE_NUMBER',
+          validation: null,
         },
         output: {
           key: 'phone-number-key',
@@ -811,6 +823,7 @@ describe('The phone number collector reducer', () => {
             phoneNumber: '',
           },
           type: 'PHONE_NUMBER',
+          validation: null,
         },
         output: {
           key: 'phone-number-key',
@@ -836,6 +849,7 @@ describe('The phone number collector reducer', () => {
             phoneNumber: '555-555-5555',
           },
           type: 'PHONE_NUMBER',
+          validation: null,
         },
         output: {
           key: 'phone-number-key',
@@ -843,6 +857,258 @@ describe('The phone number collector reducer', () => {
           type: 'PHONE_NUMBER',
           value: {
             countryCode: '',
+          },
+        },
+      },
+    ]);
+  });
+});
+
+describe('The node collector reducer with ProtectFieldValue', () => {
+  it('should handle collector updates', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'protect-key-0',
+        value: 'mock-data',
+      },
+    };
+
+    const state: ProtectCollector[] = [
+      {
+        category: 'SingleValueAutoCollector',
+        error: null,
+        type: 'ProtectCollector',
+        id: 'protect-key-0',
+        name: 'protect-key',
+        input: {
+          key: 'protect-key',
+          value: '',
+          type: 'PROTECT',
+        },
+        output: {
+          key: 'protect-key',
+          type: 'PROTECT',
+          config: {
+            behavioralDataCollection: true,
+            universalDeviceIdentification: false,
+          },
+        },
+      },
+    ];
+
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'SingleValueAutoCollector',
+        error: null,
+        type: 'ProtectCollector',
+        id: 'protect-key-0',
+        name: 'protect-key',
+        input: {
+          key: 'protect-key',
+          value: 'mock-data',
+          type: 'PROTECT',
+        },
+        output: {
+          key: 'protect-key',
+          type: 'PROTECT',
+          config: {
+            behavioralDataCollection: true,
+            universalDeviceIdentification: false,
+          },
+        },
+      },
+    ]);
+  });
+});
+
+describe('The node collector reducer with FidoRegistrationFieldValue', () => {
+  it('should handle collector updates ', () => {
+    // todo: declare inputValue type as FidoRegistrationInputValue
+    const mockInputValue = {
+      attestationValue: {
+        id: '1HHEH4ATYSax0K-TBW-YpA',
+        type: 'public-key',
+        rawId: '1HHEH4ATYSax0K+TBW+YpA==',
+        authenticatorAttachment: 'platform',
+        response: {
+          clientDataJSON: 'mock-client-data-json',
+          attestationObject: 'mock-attestation-object',
+        },
+      },
+    };
+    const publicKeyCredentialCreationOptions: FidoRegistrationOptions = {
+      rp: {
+        name: 'Example RP',
+        id: 'example.com',
+      },
+      user: {
+        id: [1],
+        displayName: 'Test User',
+        name: 'testuser',
+      },
+      challenge: [1, 2, 3, 4],
+      pubKeyCredParams: [
+        {
+          type: 'public-key',
+          alg: -7,
+        },
+      ],
+      timeout: 60000,
+      authenticatorSelection: {
+        residentKey: 'required',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
+      attestation: 'none',
+      extensions: {
+        credProps: true,
+        hmacCreateSecret: true,
+      },
+    };
+
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'fido2-registration-0',
+        value: mockInputValue,
+      },
+    };
+
+    const state: FidoRegistrationCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoRegistrationCollector',
+        id: 'fido2-registration-0',
+        name: 'fido2-registration',
+        input: {
+          key: 'fido2-registration',
+          value: {},
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-registration',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialCreationOptions,
+            action: 'REGISTER',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ];
+
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoRegistrationCollector',
+        id: 'fido2-registration-0',
+        name: 'fido2-registration',
+        input: {
+          key: 'fido2-registration',
+          value: mockInputValue,
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-registration',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialCreationOptions,
+            action: 'REGISTER',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ]);
+  });
+});
+
+describe('The node collector reducer with FidoAuthenticationFieldValue', () => {
+  it('should handle collector updates ', () => {
+    // todo: declare inputValue type as FidoAuthenticationInputValue
+    const mockInputValue = {
+      assertionValue: {
+        id: 'p_DyLMDrLOpMbuDLA-wnFA',
+        rawId: 'p/DyLMDrLOpMbuDLA+wnFA==',
+        type: 'public-key',
+        response: {
+          clientDataJSON: 'mock-client-data-json',
+          authenticatorData: 'mock-authenticator-data',
+          signature: 'mock-signature',
+          userHandle: 'mock-user-handle',
+        },
+      },
+    };
+    const publicKeyCredentialRequestOptions: FidoAuthenticationOptions = {
+      challenge: [1, 2, 3, 4],
+      timeout: 60000,
+      rpId: 'example.com',
+      allowCredentials: [
+        {
+          type: 'public-key',
+          id: [1, 2, 3, 4],
+        },
+      ],
+      userVerification: 'preferred',
+    };
+
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'fido2-authentication-0',
+        value: mockInputValue,
+      },
+    };
+
+    const state: FidoAuthenticationCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoAuthenticationCollector',
+        id: 'fido2-authentication-0',
+        name: 'fido2-authentication',
+        input: {
+          key: 'fido2-authentication',
+          value: {},
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-authentication',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialRequestOptions,
+            action: 'AUTHENTICATE',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ];
+
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoAuthenticationCollector',
+        id: 'fido2-authentication-0',
+        name: 'fido2-authentication',
+        input: {
+          key: 'fido2-authentication',
+          value: mockInputValue,
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-authentication',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialRequestOptions,
+            action: 'AUTHENTICATE',
+            trigger: 'BUTTON',
           },
         },
       },

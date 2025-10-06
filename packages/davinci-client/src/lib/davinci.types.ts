@@ -149,8 +149,8 @@ export type PhoneNumberField = {
   key: string;
   label: string;
   defaultCountryCode: string | null;
-  required: boolean; // TODO: add to phone collector
-  validatePhoneNumber: boolean; // TODO: add to phone collector
+  required: boolean;
+  validatePhoneNumber: boolean;
 };
 
 export type ProtectField = {
@@ -160,12 +160,54 @@ export type ProtectField = {
   universalDeviceIdentification: boolean;
 };
 
+export interface FidoRegistrationOptions
+  extends Omit<PublicKeyCredentialCreationOptions, 'challenge' | 'user'> {
+  challenge: number[];
+  user: {
+    id: number[];
+    name: string;
+    displayName: string;
+  };
+}
+
+export type FidoRegistrationField = {
+  type: 'FIDO2';
+  key: string;
+  label: string;
+  publicKeyCredentialCreationOptions: FidoRegistrationOptions;
+  action: 'REGISTER';
+  trigger: string;
+  required: boolean;
+};
+
+export interface FidoAuthenticationOptions
+  extends Omit<PublicKeyCredentialRequestOptions, 'challenge' | 'allowCredentials'> {
+  challenge: number[];
+  allowCredentials?: {
+    id: number[];
+    transports?: AuthenticatorTransport[];
+    type: PublicKeyCredentialType;
+  }[];
+}
+
+export type FidoAuthenticationField = {
+  type: 'FIDO2';
+  key: string;
+  label: string;
+  publicKeyCredentialRequestOptions: FidoAuthenticationOptions;
+  action: 'AUTHENTICATE';
+  trigger: string;
+  required: boolean;
+};
+
 export type UnknownField = Record<string, unknown>;
 
 export type ComplexValueFields =
   | DeviceAuthenticationField
   | DeviceRegistrationField
-  | PhoneNumberField;
+  | PhoneNumberField
+  | FidoRegistrationField
+  | FidoAuthenticationField;
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField;
 export type RedirectFields = RedirectField;

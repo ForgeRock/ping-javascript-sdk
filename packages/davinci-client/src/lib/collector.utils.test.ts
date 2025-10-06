@@ -20,17 +20,22 @@ import {
   returnNoValueCollector,
   returnObjectSelectCollector,
   returnObjectValueCollector,
+  returnSingleValueAutoCollector,
+  returnObjectValueAutoCollector,
 } from './collector.utils.js';
 import type {
   DaVinciField,
   DeviceAuthenticationField,
   DeviceRegistrationField,
+  FidoAuthenticationField,
+  FidoRegistrationField,
   PhoneNumberField,
+  ProtectField,
   ReadOnlyField,
   RedirectField,
   StandardField,
 } from './davinci.types.js';
-import {
+import type {
   MultiSelectCollector,
   PhoneNumberCollector,
   PhoneNumberOutputValue,
@@ -472,6 +477,7 @@ describe('Object value collectors', () => {
             value: 'device1-value',
           },
           type: mockField.type,
+          validation: null,
         },
         output: {
           key: mockField.key,
@@ -622,6 +628,7 @@ describe('returnPhoneNumberCollector', () => {
           phoneNumber: '',
         },
         type: mockField.type,
+        validation: null,
       },
       output: {
         key: mockField.key,
@@ -661,6 +668,7 @@ describe('returnPhoneNumberCollector', () => {
           phoneNumber: '',
         },
         type: mockField.type,
+        validation: null,
       },
       output: {
         key: mockField.key,
@@ -702,6 +710,7 @@ describe('returnPhoneNumberCollector', () => {
           phoneNumber: prefillMock.phoneNumber,
         },
         type: mockField.type,
+        validation: null,
       },
       output: {
         key: mockField.key,
@@ -742,6 +751,7 @@ describe('returnPhoneNumberCollector', () => {
           phoneNumber: prefillMock.phoneNumber,
         },
         type: mockField.type,
+        validation: null,
       },
       output: {
         key: mockField.key,
@@ -799,6 +809,155 @@ describe('No Value Collectors', () => {
   });
 });
 
+describe('returnSingleValueAutoCollector', () => {
+  it('should create a valid ProtectCollector', () => {
+    const mockField: ProtectField = {
+      type: 'PROTECT',
+      key: 'protect-key',
+      behavioralDataCollection: true,
+      universalDeviceIdentification: false,
+    };
+    const result = returnSingleValueAutoCollector(mockField, 1, 'ProtectCollector');
+    expect(result).toEqual({
+      category: 'SingleValueAutoCollector',
+      error: null,
+      type: 'ProtectCollector',
+      id: 'protect-key-1',
+      name: 'protect-key',
+      input: {
+        key: mockField.key,
+        value: '',
+        type: mockField.type,
+      },
+      output: {
+        key: mockField.key,
+        type: mockField.type,
+        config: {
+          behavioralDataCollection: mockField.behavioralDataCollection,
+          universalDeviceIdentification: mockField.universalDeviceIdentification,
+        },
+      },
+    });
+  });
+});
+
+describe('returnObjectValueAutoCollector', () => {
+  it('should create a valid FidoRegistrationCollector', () => {
+    const mockField: FidoRegistrationField = {
+      type: 'FIDO2',
+      key: 'fido2',
+      label: 'Register your security key',
+      action: 'REGISTER',
+      trigger: 'BUTTON',
+      required: true,
+      publicKeyCredentialCreationOptions: {
+        rp: {
+          name: 'Example RP',
+          id: 'example.com',
+        },
+        user: {
+          id: [1],
+          displayName: 'Test User',
+          name: 'testuser',
+        },
+        challenge: [1, 2, 3, 4],
+        pubKeyCredParams: [
+          {
+            type: 'public-key',
+            alg: -7,
+          },
+        ],
+        timeout: 60000,
+        authenticatorSelection: {
+          residentKey: 'required',
+          requireResidentKey: true,
+          userVerification: 'required',
+        },
+        attestation: 'none',
+        extensions: {
+          credProps: true,
+          hmacCreateSecret: true,
+        },
+      },
+    };
+    const result = returnObjectValueAutoCollector(mockField, 1, 'FidoRegistrationCollector');
+    expect(result).toEqual({
+      category: 'ObjectValueAutoCollector',
+      error: null,
+      type: 'FidoRegistrationCollector',
+      id: 'fido2-1',
+      name: 'fido2',
+      input: {
+        key: mockField.key,
+        value: {},
+        type: mockField.type,
+        validation: [
+          {
+            message: 'Value cannot be empty',
+            rule: true,
+            type: 'required',
+          },
+        ],
+      },
+      output: {
+        key: mockField.key,
+        type: mockField.type,
+        config: {
+          publicKeyCredentialCreationOptions: mockField.publicKeyCredentialCreationOptions,
+          action: mockField.action,
+          trigger: mockField.trigger,
+        },
+      },
+    });
+  });
+
+  it('should create a valid FidoAuthenticationCollector', () => {
+    const mockField: FidoAuthenticationField = {
+      type: 'FIDO2',
+      key: 'fido2',
+      label: 'Authenticate with your security key',
+      action: 'AUTHENTICATE',
+      trigger: 'BUTTON',
+      required: false,
+      publicKeyCredentialRequestOptions: {
+        challenge: [1, 2, 3, 4],
+        timeout: 60000,
+        rpId: 'example.com',
+        allowCredentials: [
+          {
+            type: 'public-key',
+            id: [1, 2, 3, 4],
+          },
+        ],
+        userVerification: 'preferred',
+      },
+    };
+    const result = returnObjectValueAutoCollector(mockField, 1, 'FidoAuthenticationCollector');
+    expect(result).toEqual({
+      category: 'ObjectValueAutoCollector',
+      error: null,
+      type: 'FidoAuthenticationCollector',
+      id: 'fido2-1',
+      name: 'fido2',
+      input: {
+        key: mockField.key,
+        value: {},
+        type: mockField.type,
+        validation: null,
+      },
+      output: {
+        key: mockField.key,
+        type: mockField.type,
+        config: {
+          publicKeyCredentialRequestOptions: mockField.publicKeyCredentialRequestOptions,
+          action: mockField.action,
+          trigger: mockField.trigger,
+        },
+      },
+    });
+  });
+});
+
 describe('Return collector validator', () => {
   const validatedTextCollector = {
     input: {
@@ -835,7 +994,7 @@ describe('Return collector validator', () => {
     const objResult = objValidator({});
     expect(objResult).toContain('This field is required');
 
-    const multiValueResult = multiValueValidator({});
+    const multiValueResult = multiValueValidator([]);
     expect(multiValueResult).toContain('This field is required');
   });
 

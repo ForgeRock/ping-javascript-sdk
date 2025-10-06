@@ -34,6 +34,8 @@ import type {
   PhoneNumberInputValue,
   AutoCollectors,
   MultiValueCollectors,
+  FidoRegistrationInputValue,
+  FidoAuthenticationInputValue,
 } from './collector.types.js';
 import type {
   InitFlow,
@@ -266,16 +268,25 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         collectorToUpdate.category !== 'SingleValueCollector' &&
         collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
         collectorToUpdate.category !== 'ObjectValueCollector' &&
-        collectorToUpdate.category !== 'SingleValueAutoCollector'
+        collectorToUpdate.category !== 'SingleValueAutoCollector' &&
+        collectorToUpdate.category !== 'ObjectValueAutoCollector'
       ) {
         return handleUpdateValidateError(
-          'Collector is not a MultiValueCollector, SingleValueCollector, ValidatedSingleValueCollector, ObjectValueCollector, or SingleValueAutoCollector and cannot be updated',
+          'Collector does not fall into a category that can be updated',
           'state_error',
           log.error,
         );
       }
 
-      return function (value: string | string[] | PhoneNumberInputValue, index?: number) {
+      return function (
+        value:
+          | string
+          | string[]
+          | PhoneNumberInputValue
+          | FidoRegistrationInputValue
+          | FidoAuthenticationInputValue,
+        index?: number,
+      ) {
         try {
           store.dispatch(nodeSlice.actions.update({ id, value, index }));
           return null;
@@ -291,12 +302,16 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
     /**
      * @method validate - Method for validating the value against validation rules
-     * @param {SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors} collector - the collector to validate
+     * @param {SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors} collector - the collector to validate
      * @returns {function} - a function to call for validating collector value
      * @throws {Error} - if the collector cannot be validated
      */
     validate: (
-      collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors,
+      collector:
+        | SingleValueCollectors
+        | ObjectValueCollectors
+        | MultiValueCollectors
+        | AutoCollectors,
     ): Validator => {
       if (!collector.id) {
         return handleUpdateValidateError(
@@ -323,10 +338,11 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       if (
         collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
         collectorToUpdate.category !== 'ObjectValueCollector' &&
-        collectorToUpdate.category !== 'MultiValueCollector'
+        collectorToUpdate.category !== 'MultiValueCollector' &&
+        collectorToUpdate.category !== 'ObjectValueAutoCollector'
       ) {
         return handleUpdateValidateError(
-          'Collector is not a SingleValueCollector, ObjectValueCollector, or MultiValueCollector and cannot be validated',
+          'Collector does not fall into a category that can be validated',
           'state_error',
           log.error,
         );
