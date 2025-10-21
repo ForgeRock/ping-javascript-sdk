@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * index.ts
  *
@@ -9,9 +9,11 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import type TextOutputCallback from '../callbacks/text-output-callback.js';
-import type { JourneyStep } from '../journey-step.utils.js';
+
 import { parseDeviceNameText, parseDisplayRecoveryCodesText } from './script-parser.js';
+
+import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
+import type { JourneyStep } from '../journey-step.utils.js';
 
 /**
  * Utility for handling recovery code nodes.
@@ -27,7 +29,7 @@ import { parseDeviceNameText, parseDisplayRecoveryCodesText } from './script-par
  * }
  * ```
  */
-abstract class JourneyRecoveryCodes {
+export abstract class JourneyRecoveryCodes {
   public static getDeviceName(step: JourneyStep): string {
     const text = this.getDisplayCallback(step)?.getOutputByName('message', '') ?? '';
     return parseDeviceNameText(text);
@@ -68,5 +70,3 @@ abstract class JourneyRecoveryCodes {
       });
   }
 }
-
-export default JourneyRecoveryCodes;

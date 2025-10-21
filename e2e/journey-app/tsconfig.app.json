@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "moduleResolution": "Bundler"
+  },
+  "exclude": ["**/*.spec.ts", "**/*.test.ts"],
+  "include": [
+    "./main.ts",
+    "./helper.ts",
+    "./server-configs.ts",
+    "components/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/oidc-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/journey-client/tsconfig.lib.json"
+    }
+  ]
+}

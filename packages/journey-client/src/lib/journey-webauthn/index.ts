@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * index.ts
  *
@@ -10,9 +10,7 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import type HiddenValueCallback from '../callbacks/hidden-value-callback.js';
-import type MetadataCallback from '../callbacks/metadata-callback.js';
-import type { JourneyStep } from '../journey-step.utils.js';
+
 import { WebAuthnOutcome, WebAuthnOutcomeType, WebAuthnStepType } from './enums.js';
 import {
   arrayBufferToString,
@@ -20,6 +18,9 @@ import {
   parsePubKeyArray,
   parseRelyingPartyId,
 } from './helpers.js';
+
+import type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+import type { JourneyStep } from '../journey-step.utils.js';
 import type {
   AttestationType,
   RelyingParty,
@@ -28,8 +29,8 @@ import type {
   WebAuthnRegistrationMetadata,
   WebAuthnTextOutputRegistration,
 } from './interfaces.js';
-import type TextOutputCallback from '../callbacks/text-output-callback.js';
-import { parseWebAuthnAuthenticateText, parseWebAuthnRegisterText } from './script-parser.js';
+import type { MetadataCallback } from '../callbacks/metadata-callback.js';
+import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 
 // <clientdata>::<attestation>::<publickeyCredential>::<DeviceName>
 type OutcomeWithName<
@@ -60,7 +61,7 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  * }
  * ```
  */
-abstract class JourneyWebAuthn {
+export abstract class JourneyWebAuthn {
   /**
    * Determines if the given step is a WebAuthn step.
    *
@@ -118,15 +119,10 @@ abstract class JourneyWebAuthn {
             publicKey as PublicKeyCredentialRequestOptions,
           );
           outcome = this.getAuthenticationOutcome(credential);
-        } else if (textOutputCallback) {
-          publicKey = parseWebAuthnAuthenticateText(textOutputCallback.getMessage());
-
-          credential = await this.getAuthenticationCredential(
-            publicKey as PublicKeyCredentialRequestOptions,
-          );
-          outcome = this.getAuthenticationOutcome(credential);
         } else {
-          throw new Error('No Credential found from Public Key');
+          throw new Error(
+            'No metadata callback found for WebAuthn authentication. Please disable JavaScript in server node.',
+          );
         }
       } catch (error) {
         if (!(error instanceof Error)) throw error;
@@ -187,14 +183,10 @@ abstract class JourneyWebAuthn {
             publicKey as PublicKeyCredentialCreationOptions,
           );
           outcome = this.getRegistrationOutcome(credential);
-        } else if (textOutputCallback) {
-          publicKey = parseWebAuthnRegisterText(textOutputCallback.getMessage());
-          credential = await this.getRegistrationCredential(
-            publicKey as PublicKeyCredentialCreationOptions,
-          );
-          outcome = this.getRegistrationOutcome(credential);
         } else {
-          throw new Error('No Credential found from Public Key');
+          throw new Error(
+            'No metadata callback found for WebAuthn registration. Please disable JavaScript in server node.',
+          );
         }
       } catch (error) {
         if (!(error instanceof Error)) throw error;
@@ -507,11 +499,10 @@ abstract class JourneyWebAuthn {
   }
 }
 
-export default JourneyWebAuthn;
+export { WebAuthnOutcome, WebAuthnStepType };
 export type {
   RelyingParty,
   WebAuthnAuthenticationMetadata,
   WebAuthnCallbacks,
   WebAuthnRegistrationMetadata,
 };
-export { WebAuthnOutcome, WebAuthnStepType };

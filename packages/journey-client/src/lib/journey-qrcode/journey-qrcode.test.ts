@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * index.test.ts
  *
@@ -8,9 +8,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { createJourneyStep } from '../journey-step.utils.js';
-import JourneyQRCode from './journey-qrcode.js';
+import { JourneyQRCode } from './journey-qrcode.js';
 import { otpQRCodeStep, pushQRCodeStep } from '../journey-qrcode/journey-qr-code.mock.data.js';
+import { createJourneyStep } from '../journey-step.utils.js';
 // import WebAuthn step as it's similar in structure for testing non-QR Code steps
 import { webAuthnRegJSCallback70 } from '../journey-webauthn/journey-webauthn.mock.data.js';
 

@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * device-profile.test.ts
  *
@@ -8,6 +8,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { vi, expect, describe, it, afterEach, beforeEach, SpyInstance } from 'vitest';
+
 import { JourneyDevice } from './index.js';
 
 // Patch window.crypto.getRandomValues to return Uint32Array for compatibility

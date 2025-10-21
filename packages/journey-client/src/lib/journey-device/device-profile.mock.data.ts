@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * device-profile.mock.data.ts
  *
@@ -8,7 +8,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-const expectedJsdom = {
+export const expectedJsdom = {
   identifier: '',
   metadata: {
     hardware: {
@@ -50,7 +50,7 @@ const expectedJsdom = {
   },
 };
 
-const expectedJsdomWithoutDisplay = {
+export const expectedJsdomWithoutDisplay = {
   identifier: '',
   metadata: {
     hardware: {
@@ -87,7 +87,7 @@ const expectedJsdomWithoutDisplay = {
   },
 };
 
-const expectedJsdomWithNarrowedBrowserProps = {
+export const expectedJsdomWithNarrowedBrowserProps = {
   identifier: '',
   metadata: {
     hardware: {
@@ -118,5 +118,3 @@ const expectedJsdomWithNarrowedBrowserProps = {
     },
   },
 };
-
-export { expectedJsdom, expectedJsdomWithoutDisplay, expectedJsdomWithNarrowedBrowserProps };

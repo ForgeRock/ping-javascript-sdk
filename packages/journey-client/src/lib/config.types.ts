@@ -5,11 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { LegacyConfigOptions, StepOptions } from '@forgerock/sdk-types';
+import type { BaseConfig } from '@forgerock/sdk-types';
+import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
-export interface JourneyClientConfig extends LegacyConfigOptions {
-  query?: Record<string, string>;
+export interface JourneyClientConfig extends BaseConfig {
+  middleware?: Array<RequestMiddleware>;
+  realmPath?: string;
   // Add any journey-specific config options here
 }
 
-export type { StepOptions };
+export type { RequestMiddleware };

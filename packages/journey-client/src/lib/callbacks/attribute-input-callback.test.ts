@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * attribute-input-callback.test.ts
  *
@@ -9,8 +9,10 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
+
 import type { Callback } from '@forgerock/sdk-types';
-import AttributeInputCallback from './attribute-input-callback.js';
+
+import { AttributeInputCallback } from './attribute-input-callback.js';
 
 describe('AttributeInputCallback', () => {
   const payload: Callback = {

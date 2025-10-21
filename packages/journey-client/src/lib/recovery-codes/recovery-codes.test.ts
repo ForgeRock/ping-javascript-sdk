@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * recovery-codes.test.ts
  *
@@ -8,8 +8,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { JourneyRecoveryCodes } from './index.js';
 import { createJourneyStep } from '../journey-step.utils.js';
-import JourneyRecoveryCodes from './index.js';
 import {
   displayRecoveryCodesResponse,
   expectedDeviceName,

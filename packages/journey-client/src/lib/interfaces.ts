@@ -5,9 +5,21 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { StepOptions, Step } from '@forgerock/sdk-types';
+import { JourneyClientConfig } from './config.types.js';
+import { JourneyStep } from './journey-step.types.js';
 
-export interface NextOptions {
-  step: Step;
-  options?: StepOptions;
+export interface StartParam extends JourneyClientConfig {
+  journey: string;
+  query?: Record<string, string>;
 }
+
+export interface ResumeOptions extends JourneyClientConfig {
+  journey?: string;
+  query?: Record<string, string>;
+}
+
+export interface NextOptions extends JourneyClientConfig {
+  query?: Record<string, string>;
+}
+
+export type { JourneyStep };

@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * script-text.mock.data.ts
  *
@@ -428,7 +428,7 @@ if (!window.PublicKeyCredential) {
 }
 
 var options = {
-    
+
     challenge: new Int8Array([-17, -117, -10, 120, -90, 127, 70, -73, 114, -37, -94, 126, -96, -111, -65, 78, -84, 53, 74, -18, 93, 102, 24, -77, -97, -6, -106, -10, -101, -29, 36, -33]).buffer,
     timeout: 60000,
     userVerification: "preferred",

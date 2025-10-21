@@ -5,10 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { callbackType } from '@forgerock/sdk-types';
 import { describe, it, expect } from 'vitest';
-import { callbackType, type Step } from '@forgerock/sdk-types';
+
+import type { Step } from '@forgerock/sdk-types';
+
 import { createJourneyStep } from './journey-step.utils.js';
-import NameCallback from './callbacks/name-callback.js';
+import { NameCallback } from './callbacks/name-callback.js';
 
 describe('fr-step.ts', () => {
   const stepPayload: Step = {

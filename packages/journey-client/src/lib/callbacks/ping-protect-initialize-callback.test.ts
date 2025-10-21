@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * ping-protect-intitialize-callback.test.ts
  *
@@ -8,9 +8,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { vi, describe, expect, it } from 'vitest';
 import { callbackType } from '@forgerock/sdk-types';
-import PingOneProtectInitializeCallback from './ping-protect-initialize-callback.js';
+import { vi, describe, expect, it } from 'vitest';
+
+import { PingOneProtectInitializeCallback } from './ping-protect-initialize-callback.js';
 
 describe('PingOneProtectInitializeCallback', () => {
   it('should exist', () => {

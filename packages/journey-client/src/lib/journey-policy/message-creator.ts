@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * message-creator.ts
  *
@@ -8,11 +8,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { getProp, plural } from '@forgerock/sdk-utilities';
 import { PolicyKey } from '@forgerock/sdk-types';
+import { getProp, plural } from '@forgerock/sdk-utilities';
+
 import type { MessageCreator } from './interfaces.js';
 
-const defaultMessageCreator: MessageCreator = {
+export const defaultMessageCreator: MessageCreator = {
   [PolicyKey.CannotContainCharacters]: (property: string, params?: { forbiddenChars?: string }) => {
     const forbiddenChars = getProp<string>(params, 'forbiddenChars', '');
     return `${property} must not contain following characters: "${forbiddenChars}"`;
@@ -63,5 +64,3 @@ const defaultMessageCreator: MessageCreator = {
     `${property} has failed the "VALID_QUERY_FILTER" policy`,
   [PolicyKey.ValidType]: (property: string) => `${property} has failed the "VALID_TYPE" policy`,
 };
-
-export default defaultMessageCreator;

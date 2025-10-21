@@ -4,10 +4,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { FailedPolicyRequirement, PolicyRequirement, Step } from '@forgerock/sdk-types';
 import { PolicyKey } from '@forgerock/sdk-types';
+
+import type { FailedPolicyRequirement, PolicyRequirement, Step } from '@forgerock/sdk-types';
+
+import { defaultMessageCreator } from './message-creator.js';
+
 import type { MessageCreator, ProcessedPropertyError } from './interfaces.js';
-import defaultMessageCreator from './message-creator.js';
 
 /**
  * Utility for processing policy failures into human readable messages.
@@ -32,7 +35,7 @@ import defaultMessageCreator from './message-creator.js';
  *   const messagesClassMethod = FRPolicy.parseErrors(thisStep, messageCreator)
  * }
  */
-abstract class JourneyPolicy {
+export abstract class JourneyPolicy {
   /**
    * Parses policy errors and generates human readable error messages.
    *
@@ -115,5 +118,4 @@ abstract class JourneyPolicy {
   }
 }
 
-export default JourneyPolicy;
 export type { MessageCreator, ProcessedPropertyError };

@@ -6,7 +6,8 @@
  */
 
 import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
-import JourneyCallback from './index.js';
+
+import { JourneyCallback } from './index.js';
 
 /**
  * Represents a callback used to collect attributes.
@@ -14,7 +15,7 @@ import JourneyCallback from './index.js';
  * @typeparam T Maps to StringAttributeInputCallback, NumberAttributeInputCallback and
  *     BooleanAttributeInputCallback, respectively
  */
-class AttributeInputCallback<T extends string | number | boolean> extends JourneyCallback {
+export class AttributeInputCallback<T extends string | number | boolean> extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -78,5 +79,3 @@ class AttributeInputCallback<T extends string | number | boolean> extends Journe
     this.setInputValue(value);
   }
 }
-
-export default AttributeInputCallback;

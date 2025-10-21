@@ -5,11 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { callbackType } from '@forgerock/sdk-types';
 import { afterEach, describe, expect, test, vi } from 'vitest';
+
+import { Step } from '@forgerock/sdk-types';
+
 import { journey } from './journey-client.js';
 import { createJourneyStep } from './journey-step.utils.js';
 import { JourneyClientConfig } from './config.types.js';
-import { callbackType, Step } from '@forgerock/sdk-types';
 
 // Create a singleton mock instance for storage
 const mockStorageInstance = {
@@ -52,6 +55,7 @@ describe('journey-client', () => {
     expect(client.next).toBeInstanceOf(Function);
     expect(client.redirect).toBeInstanceOf(Function);
     expect(client.resume).toBeInstanceOf(Function);
+    expect(client.terminate).toBeInstanceOf(Function);
   });
 
   test('start() should fetch and return the first step', async () => {
@@ -71,7 +75,7 @@ describe('journey-client', () => {
   });
 
   test('next() should send the current step and return the next step', async () => {
-    const initialStepPayload: Step = {
+    const initialStepPayload = createJourneyStep({
       authId: 'test-auth-id',
       callbacks: [
         {
@@ -80,8 +84,8 @@ describe('journey-client', () => {
           output: [],
         },
       ],
-    };
-    const nextStepPayload: Step = {
+    });
+    const nextStepPayload = createJourneyStep({
       authId: 'test-auth-id',
       callbacks: [
         {
@@ -90,7 +94,7 @@ describe('journey-client', () => {
           output: [],
         },
       ],
-    };
+    });
     const initialStep = initialStepPayload;
 
     mockFetch.mockResolvedValue(new Response(JSON.stringify(nextStepPayload)));
@@ -234,4 +238,29 @@ describe('journey-client', () => {
       expect(step && step.payload).toEqual(mockStepResponse);
     });
   });
+
+  // TODO: Add tests for endSession when the test environment AbortSignal issue is resolved
+  // test('endSession() should call the sessions endpoint with DELETE method', async () => {
+  //   mockFetch.mockResolvedValue(new Response('', { status: 200 }));
+
+  //   const client = await journey({ config: mockConfig });
+  //   await client.endSession();
+
+  //   expect(mockFetch).toHaveBeenCalledTimes(1);
+  //   const request = mockFetch.mock.calls[0][0] as Request;
+  //   expect(request.url).toBe('https://test.com/json/realms/root/sessions/');
+  //   expect(request.method).toBe('DELETE');
+  // });
+
+  // test('endSession() should handle query parameters', async () => {
+  //   mockFetch.mockResolvedValue(new Response('', { status: 200 }));
+
+  //   const client = await journey({ config: mockConfig });
+  //   await client.endSession({ query: { foo: 'bar' } });
+
+  //   expect(mockFetch).toHaveBeenCalledTimes(1);
+  //   const request = mockFetch.mock.calls[0][0] as Request;
+  //   expect(request.url).toBe('https://test.com/json/realms/root/sessions/?foo=bar');
+  //   expect(request.method).toBe('DELETE');
+  // });
 });

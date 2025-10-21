@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * interfaces.ts
  *
@@ -8,14 +8,19 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-type Category = 'fontNames' | 'displayProps' | 'browserProps' | 'hardwareProps' | 'platformProps';
+export type Category =
+  | 'fontNames'
+  | 'displayProps'
+  | 'browserProps'
+  | 'hardwareProps'
+  | 'platformProps';
 
-interface CollectParameters {
+export interface CollectParameters {
   location: boolean;
   metadata: boolean;
 }
 
-interface DeviceProfileData {
+export interface DeviceProfileData {
   identifier: string;
   metadata?: {
     hardware: {
@@ -35,12 +40,12 @@ interface DeviceProfileData {
   location?: Geolocation | Record<string, unknown>;
 }
 
-interface Geolocation {
+export interface Geolocation {
   latitude: number;
   longitude: number;
 }
 
-interface BaseProfileConfig {
+export interface BaseProfileConfig {
   fontNames: string[];
   devicePlatforms: {
     mac: string[];
@@ -53,15 +58,6 @@ interface BaseProfileConfig {
   platformProps: string[];
 }
 
-interface ProfileConfigOptions {
+export interface ProfileConfigOptions {
   [key: string]: string[];
 }
-
-export type {
-  BaseProfileConfig,
-  Category,
-  CollectParameters,
-  DeviceProfileData,
-  Geolocation,
-  ProfileConfigOptions,
-};

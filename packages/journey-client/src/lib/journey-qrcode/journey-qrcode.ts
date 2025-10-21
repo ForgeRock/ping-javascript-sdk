@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * index.ts
  *
@@ -9,9 +9,10 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
+
 import { JourneyStep } from '../journey-step.utils.js';
-import TextOutputCallback from '../callbacks/text-output-callback.js';
-import HiddenValueCallback from '../callbacks/hidden-value-callback.js';
+import { TextOutputCallback } from '../callbacks/text-output-callback.js';
+import { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
 
 export type QRCodeData = {
   message: string;
@@ -32,7 +33,7 @@ export type QRCodeData = {
  * }
  * ```
  */
-abstract class JourneyQRCode {
+export abstract class JourneyQRCode {
   /**
    * @method isQRCodeStep - determines if step contains QR Code callbacks
    * @param {JourneyStep} step - step object from AM response
@@ -92,5 +93,3 @@ abstract class JourneyQRCode {
     });
   }
 }
-
-export default JourneyQRCode;

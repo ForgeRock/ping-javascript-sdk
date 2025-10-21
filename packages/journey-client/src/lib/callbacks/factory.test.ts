@@ -5,34 +5,37 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { callbackType } from '@forgerock/sdk-types';
 import { describe, it, expect } from 'vitest';
-import { callbackType, type Callback } from '@forgerock/sdk-types';
-import createCallback from './factory.js';
+
+import type { Callback } from '@forgerock/sdk-types';
+
+import { createCallback } from './factory.js';
+import { JourneyCallback } from './index.js';
 
 // Import all callback classes to check against
-import AttributeInputCallback from './attribute-input-callback.js';
-import ChoiceCallback from './choice-callback.js';
-import ConfirmationCallback from './confirmation-callback.js';
-import DeviceProfileCallback from './device-profile-callback.js';
-import HiddenValueCallback from './hidden-value-callback.js';
-import KbaCreateCallback from './kba-create-callback.js';
-import MetadataCallback from './metadata-callback.js';
-import NameCallback from './name-callback.js';
-import PasswordCallback from './password-callback.js';
-import PingOneProtectEvaluationCallback from './ping-protect-evaluation-callback.js';
-import PingOneProtectInitializeCallback from './ping-protect-initialize-callback.js';
-import PollingWaitCallback from './polling-wait-callback.js';
-import ReCaptchaCallback from './recaptcha-callback.js';
-import ReCaptchaEnterpriseCallback from './recaptcha-enterprise-callback.js';
-import RedirectCallback from './redirect-callback.js';
-import SelectIdPCallback from './select-idp-callback.js';
-import SuspendedTextOutputCallback from './suspended-text-output-callback.js';
-import TermsAndConditionsCallback from './terms-and-conditions-callback.js';
-import TextInputCallback from './text-input-callback.js';
-import TextOutputCallback from './text-output-callback.js';
-import ValidatedCreatePasswordCallback from './validated-create-password-callback.js';
-import ValidatedCreateUsernameCallback from './validated-create-username-callback.js';
-import JourneyCallback from './index.js';
+import { AttributeInputCallback } from './attribute-input-callback.js';
+import { ChoiceCallback } from './choice-callback.js';
+import { ConfirmationCallback } from './confirmation-callback.js';
+import { DeviceProfileCallback } from './device-profile-callback.js';
+import { HiddenValueCallback } from './hidden-value-callback.js';
+import { KbaCreateCallback } from './kba-create-callback.js';
+import { MetadataCallback } from './metadata-callback.js';
+import { NameCallback } from './name-callback.js';
+import { PasswordCallback } from './password-callback.js';
+import { PingOneProtectEvaluationCallback } from './ping-protect-evaluation-callback.js';
+import { PingOneProtectInitializeCallback } from './ping-protect-initialize-callback.js';
+import { PollingWaitCallback } from './polling-wait-callback.js';
+import { ReCaptchaCallback } from './recaptcha-callback.js';
+import { ReCaptchaEnterpriseCallback } from './recaptcha-enterprise-callback.js';
+import { RedirectCallback } from './redirect-callback.js';
+import { SelectIdPCallback } from './select-idp-callback.js';
+import { SuspendedTextOutputCallback } from './suspended-text-output-callback.js';
+import { TermsAndConditionsCallback } from './terms-and-conditions-callback.js';
+import { TextInputCallback } from './text-input-callback.js';
+import { TextOutputCallback } from './text-output-callback.js';
+import { ValidatedCreatePasswordCallback } from './validated-create-password-callback.js';
+import { ValidatedCreateUsernameCallback } from './validated-create-username-callback.js';
 
 describe('Callback Factory', () => {
   const testCases = [

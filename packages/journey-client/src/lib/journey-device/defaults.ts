@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * defaults.ts
  *
@@ -8,7 +8,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-const browserProps = [
+export const browserProps = [
   'userAgent',
   'appName',
   'appCodeName',
@@ -21,21 +21,21 @@ const browserProps = [
   'vendorSub',
   'browserLanguage',
 ];
-const configurableCategories = [
+export const configurableCategories = [
   'fontNames',
   'displayProps',
   'browserProps',
   'hardwareProps',
   'platformProps',
 ];
-const delay = 30 * 1000;
-const devicePlatforms = {
+export const delay = 30 * 1000;
+export const devicePlatforms = {
   mac: ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
   windows: ['Win32', 'Win64', 'Windows', 'WinCE'],
   ios: ['iPhone', 'iPad', 'iPod'],
 };
-const displayProps = ['width', 'height', 'pixelDepth', 'orientation.angle'];
-const fontNames = [
+export const displayProps = ['width', 'height', 'pixelDepth', 'orientation.angle'];
+export const fontNames = [
   'cursive',
   'monospace',
   'serif',
@@ -69,22 +69,11 @@ const fontNames = [
   'Verdana',
   'Verona',
 ];
-const hardwareProps = [
+export const hardwareProps = [
   'cpuClass',
   'deviceMemory',
   'hardwareConcurrency',
   'maxTouchPoints',
   'oscpu',
 ];
-const platformProps = ['language', 'platform', 'userLanguage', 'systemLanguage'];
-
-export {
-  browserProps,
-  configurableCategories,
-  delay,
-  devicePlatforms,
-  displayProps,
-  fontNames,
-  hardwareProps,
-  platformProps,
-};
+export const platformProps = ['language', 'platform', 'userLanguage', 'systemLanguage'];
