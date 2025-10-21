@@ -4,13 +4,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
+
+import { JourneyCallback } from './index.js';
 
 /**
  * Represents a callback used to collect acceptance of terms and conditions.
  */
-class TermsAndConditionsCallback extends JourneyCallback {
+export class TermsAndConditionsCallback extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -47,5 +48,3 @@ class TermsAndConditionsCallback extends JourneyCallback {
     this.setInputValue(accepted);
   }
 }
-
-export default TermsAndConditionsCallback;

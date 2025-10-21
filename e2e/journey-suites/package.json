@@ -1,0 +1,21 @@
+{
+  "name": "@forgerock/journey-suites",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Journey Client E2E Suites",
+  "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "src/index.js",
+  "nx": {
+    "implicitDependencies": ["@forgerock/journey-app", "@forgerock/mock-api-v2"]
+  }
+}

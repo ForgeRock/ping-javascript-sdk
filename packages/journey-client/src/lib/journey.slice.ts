@@ -6,7 +6,9 @@
  */
 
 import { createSlice, PayloadAction, Slice } from '@reduxjs/toolkit';
+
 import type { Step } from '@forgerock/sdk-types';
+
 import type { JourneyClientConfig } from './config.types.js';
 
 export interface JourneyState {

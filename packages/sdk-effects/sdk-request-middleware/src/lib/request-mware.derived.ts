@@ -6,6 +6,11 @@
  */
 
 export const actionTypes = {
+  // Journey
+  begin: 'JOURNEY_START',
+  continue: 'JOURNEY_NEXT',
+  terminate: 'JOURNEY_TERMINATE',
+
   // DaVinci
   start: 'DAVINCI_START',
   next: 'DAVINCI_NEXT',

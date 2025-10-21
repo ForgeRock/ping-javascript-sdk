@@ -4,9 +4,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { describe, expect, it } from 'vitest';
-import { createJourneyLoginSuccess } from './journey-login-success.utils.js';
 import { StepType } from '@forgerock/sdk-types';
+import { describe, expect, it } from 'vitest';
+
+import { createJourneyLoginSuccess } from './journey-login-success.utils.js';
 
 describe('createJourneyLoginSuccess', () => {
   it('should create a JourneyLoginSuccess object', () => {

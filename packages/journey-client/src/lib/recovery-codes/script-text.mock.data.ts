@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * script-text.mock.data.ts
  *

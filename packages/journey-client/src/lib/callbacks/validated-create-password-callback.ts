@@ -4,13 +4,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
+
+import { JourneyCallback } from './index.js';
 
 /**
  * Represents a callback used to collect a valid platform password.
  */
-class ValidatedCreatePasswordCallback extends JourneyCallback {
+export class ValidatedCreatePasswordCallback extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -72,5 +73,3 @@ class ValidatedCreatePasswordCallback extends JourneyCallback {
     this.setInputValue(value, /validateOnly/);
   }
 }
-
-export default ValidatedCreatePasswordCallback;

@@ -3,12 +3,16 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { Step, AuthResponse, FailureDetail } from '@forgerock/sdk-types';
 import { StepType } from '@forgerock/sdk-types';
-import JourneyPolicy from './journey-policy/index.js';
+
+import type { Step, AuthResponse, FailureDetail } from '@forgerock/sdk-types';
+
+import { JourneyPolicy } from './journey-policy/index.js';
+
 import type { MessageCreator, ProcessedPropertyError } from './journey-policy/interfaces.js';
 
 type JourneyLoginFailure = AuthResponse & {
+  type: StepType.LoginFailure;
   payload: Step;
   getCode: () => number;
   getDetail: () => FailureDetail | undefined;

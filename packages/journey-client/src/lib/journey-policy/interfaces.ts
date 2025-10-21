@@ -6,13 +6,11 @@
 
 import type { FailedPolicyRequirement } from '@forgerock/sdk-types';
 
-interface MessageCreator {
+export interface MessageCreator {
   [key: string]: (propertyName: string, params?: { [key: string]: unknown }) => string;
 }
 
-interface ProcessedPropertyError {
+export interface ProcessedPropertyError {
   detail: FailedPolicyRequirement;
   messages: string[];
 }
-
-export type { MessageCreator, ProcessedPropertyError };
