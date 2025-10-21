@@ -22,6 +22,26 @@ import type { JourneyClientConfig } from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
 
+/**
+ * Normalizes the serverConfig to ensure baseUrl has a trailing slash.
+ * This is required for the resolve() function to work correctly with context paths like /am.
+ */
+function normalizeConfig(config: JourneyClientConfig): JourneyClientConfig {
+  if (config.serverConfig?.baseUrl) {
+    const url = config.serverConfig.baseUrl;
+    if (url.charAt(url.length - 1) !== '/') {
+      return {
+        ...config,
+        serverConfig: {
+          ...config.serverConfig,
+          baseUrl: url + '/',
+        },
+      };
+    }
+  }
+  return config;
+}
+
 export async function journey({
   config,
   requestMiddleware,
@@ -36,8 +56,11 @@ export async function journey({
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
 
-  const store = createJourneyStore({ requestMiddleware, logger: log, config });
-  store.dispatch(setConfig(config));
+  // Normalize config to ensure baseUrl has trailing slash
+  const normalizedConfig = normalizeConfig(config);
+
+  const store = createJourneyStore({ requestMiddleware, logger: log, config: normalizedConfig });
+  store.dispatch(setConfig(normalizedConfig));
 
   const stepStorage = createStorage<{ step: Step }>({
     type: 'sessionStorage',

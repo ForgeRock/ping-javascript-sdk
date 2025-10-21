@@ -18,6 +18,7 @@ const searchParams = new URLSearchParams(qs);
 
 const config = serverConfigs[searchParams.get('clientId') || 'basic'];
 
+const tree = searchParams.get('tree') ?? 'UsernamePassword';
 let requestMiddleware: RequestMiddleware[] = [];
 
 if (searchParams.get('middleware') === 'true') {
@@ -48,16 +49,13 @@ if (searchParams.get('middleware') === 'true') {
 }
 
 (async () => {
-  const journeyClient = await journey({ config, requestMiddleware });
+  const journeyClient = await journey({ config: config, requestMiddleware });
 
   const errorEl = document.getElementById('error') as HTMLDivElement;
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
-  let step = await journeyClient.start({
-    journey: searchParams.get('journey') || '',
-    query: { noSession: searchParams.get('no-session') || 'false' },
-  });
+  let step = await journeyClient.start({ journey: tree });
 
   function renderComplete() {
     if (step?.type !== 'LoginSuccess') {
@@ -81,7 +79,7 @@ if (searchParams.get('middleware') === 'true') {
 
       console.log('Logout successful');
 
-      step = await journeyClient.start();
+      step = await journeyClient.start({ journey: tree });
 
       renderForm();
     });

@@ -9,8 +9,14 @@ import type { JourneyClientConfig } from '@forgerock/journey-client/types';
 export const serverConfigs: Record<string, JourneyClientConfig> = {
   basic: {
     serverConfig: {
-      baseUrl: 'https://openam-sdks.forgeblocks.com/am/',
+      baseUrl: 'http://localhost:9443/am',
     },
-    realmPath: '/alpha',
+    realmPath: 'root',
+  },
+  tenant: {
+    serverConfig: {
+      baseUrl: 'https://openam-sdks.forgeblocks.com/am',
+    },
+    realmPath: 'alpha',
   },
 };

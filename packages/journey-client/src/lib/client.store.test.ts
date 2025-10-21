@@ -238,6 +238,65 @@ describe('journey-client', () => {
     });
   });
 
+  describe('baseUrl normalization', () => {
+    test('should add trailing slash to baseUrl without one', async () => {
+      const configWithoutSlash: JourneyClientConfig = {
+        serverConfig: {
+          baseUrl: 'http://localhost:9443/am',
+        },
+        realmPath: 'root',
+      };
+
+      const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
+      mockFetch.mockResolvedValue(new Response(JSON.stringify(mockStepResponse)));
+
+      const client = await journey({ config: configWithoutSlash });
+      await client.start();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe('http://localhost:9443/am/json/realms/root/authenticate');
+    });
+
+    test('should preserve trailing slash if already present', async () => {
+      const configWithSlash: JourneyClientConfig = {
+        serverConfig: {
+          baseUrl: 'http://localhost:9443/am/',
+        },
+        realmPath: 'root',
+      };
+
+      const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
+      mockFetch.mockResolvedValue(new Response(JSON.stringify(mockStepResponse)));
+
+      const client = await journey({ config: configWithSlash });
+      await client.start();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe('http://localhost:9443/am/json/realms/root/authenticate');
+    });
+
+    test('should work with baseUrl without context path', async () => {
+      const configNoContext: JourneyClientConfig = {
+        serverConfig: {
+          baseUrl: 'http://localhost:9443',
+        },
+        realmPath: 'root',
+      };
+
+      const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
+      mockFetch.mockResolvedValue(new Response(JSON.stringify(mockStepResponse)));
+
+      const client = await journey({ config: configNoContext });
+      await client.start();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe('http://localhost:9443/json/realms/root/authenticate');
+    });
+  });
+
   // TODO: Add tests for endSession when the test environment AbortSignal issue is resolved
   // test('endSession() should call the sessions endpoint with DELETE method', async () => {
   //   mockFetch.mockResolvedValue(new Response('', { status: 200 }));

@@ -34,7 +34,7 @@
     "test": "CI=true nx affected:test",
     "test:e2e": "CI=true nx affected:e2e",
     "verdaccio": "nx local-registry",
-    "watch": "nx watch-deps"
+    "watch": "nx vite:watch-deps"
   },
   "lint-staged": {
     "*": [
@@ -61,6 +61,7 @@
     "@nx/devkit": "21.2.3",
     "@nx/eslint": "21.2.3",
     "@nx/eslint-plugin": "21.2.3",
+    "@nx/express": "21.2.3",
     "@nx/jest": "21.2.3",
     "@nx/js": "21.2.3",
     "@nx/playwright": "21.2.3",

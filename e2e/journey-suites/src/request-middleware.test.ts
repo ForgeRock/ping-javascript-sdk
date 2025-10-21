@@ -11,7 +11,7 @@ import { username, password } from './utils/demo-user.js';
 
 test.skip('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?middleware=true&journey=Login');
+  await navigate('/?middleware=true&tree=Login');
 
   const headerArray: Headers[] = [];
   const messageArray: string[] = [];
@@ -33,7 +33,7 @@ test.skip('Test happy paths on test page', async ({ page }) => {
     headerArray.push(new Headers(headers));
   });
 
-  expect(page.url()).toBe('http://localhost:5829/?middleware=true&journey=Login');
+  expect(page.url()).toBe('http://localhost:5829/?middleware=true&tree=Login');
 
   // Perform basic login
   await page.getByLabel('User Name').fill(username);

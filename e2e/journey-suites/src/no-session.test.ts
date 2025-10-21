@@ -11,7 +11,7 @@ import { username, password } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?journey=Login&no-session=true');
+  await navigate('/?tree=Login&no-session=true');
 
   const messageArray: string[] = [];
 
@@ -21,7 +21,7 @@ test('Test happy paths on test page', async ({ page }) => {
     return Promise.resolve(true);
   });
 
-  expect(page.url()).toBe('http://localhost:5829/?journey=Login&no-session=true');
+  expect(page.url()).toBe('http://localhost:5829/?tree=Login&no-session=true');
 
   // Perform basic login
   await page.getByLabel('User Name').fill(username);
