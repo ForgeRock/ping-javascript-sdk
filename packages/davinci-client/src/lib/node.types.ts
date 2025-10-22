@@ -23,6 +23,8 @@ import type {
   PhoneNumberCollector,
   ProtectCollector,
   UnknownCollector,
+  FidoRegistrationCollector,
+  FidoAuthenticationCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
 
@@ -42,6 +44,8 @@ export type Collectors =
   | ReadOnlyCollector
   | ValidatedTextCollector
   | ProtectCollector
+  | FidoRegistrationCollector
+  | FidoAuthenticationCollector
   | UnknownCollector;
 
 export interface CollectorErrors {

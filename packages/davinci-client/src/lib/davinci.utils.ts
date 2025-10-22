@@ -22,7 +22,12 @@ import type {
   DaVinciSuccessResponse,
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
-import { DeviceValue, PhoneNumberInputValue } from './collector.types.js';
+import {
+  DeviceValue,
+  FidoAuthenticationInputValue,
+  FidoRegistrationInputValue,
+  PhoneNumberInputValue,
+} from './collector.types.js';
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions
  * @param {ContinueNode} node - The node to transform into a DaVinciRequest
@@ -49,7 +54,9 @@ export function transformSubmitRequest(
       | boolean
       | (string | number | boolean)[]
       | DeviceValue
-      | PhoneNumberInputValue;
+      | PhoneNumberInputValue
+      | FidoRegistrationInputValue
+      | FidoAuthenticationInputValue;
   }>((acc, collector) => {
     acc[collector.input.key] = collector.input.value;
     return acc;

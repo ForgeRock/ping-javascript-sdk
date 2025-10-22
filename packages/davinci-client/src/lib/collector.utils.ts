@@ -21,16 +21,20 @@ import type {
   ValidatedTextCollector,
   InferValueObjectCollectorType,
   ObjectValueCollectorTypes,
-  AutoCollectorTypes,
   UnknownCollector,
   InferAutoCollectorType,
   PhoneNumberOutputValue,
   MultiValueCollectors,
   ObjectValueCollectors,
+  AutoCollectors,
+  SingleValueAutoCollectorTypes,
+  ObjectValueAutoCollectorTypes,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
   DeviceRegistrationField,
+  FidoAuthenticationField,
+  FidoRegistrationField,
   MultiSelectField,
   PhoneNumberField,
   ProtectField,
@@ -260,16 +264,16 @@ export function returnSingleValueCollector<
 }
 
 /**
- * @function returnAutoCollector - Creates an AutoCollector object based on the provided field, index, and optional collector type.
+ * @function returnSingleValueAutoCollector - Creates a SingleValueAutoCollector object based on the provided field, index, and optional collector type.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the AutoCollector.
- * @param {AutoCollectorTypes} [collectorType] - Optional type of the AutoCollector.
+ * @param {SingleValueAutoCollectorTypes} [collectorType] - Optional type of the AutoCollector.
  * @returns {AutoCollector} The constructed AutoCollector object.
  */
-export function returnAutoCollector<
+export function returnSingleValueAutoCollector<
   Field extends ProtectField,
-  CollectorType extends AutoCollectorTypes = 'SingleValueAutoCollector',
->(field: Field, idx: number, collectorType: CollectorType, data?: string) {
+  CollectorType extends SingleValueAutoCollectorTypes = 'SingleValueAutoCollector',
+>(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
   if (!('key' in field)) {
     error = `${error}Key is not found in the field object. `;
@@ -287,7 +291,7 @@ export function returnAutoCollector<
       name: field.key,
       input: {
         key: field.key,
-        value: data || '',
+        value: '',
         type: field.type,
       },
       output: {
@@ -308,7 +312,7 @@ export function returnAutoCollector<
       name: field.key,
       input: {
         key: field.key,
-        value: data || '',
+        value: '',
         type: field.type,
       },
       output: {
@@ -316,6 +320,83 @@ export function returnAutoCollector<
         type: field.type,
       },
     } as InferAutoCollectorType<CollectorType>;
+  }
+}
+
+/**
+ * @function returnObjectValueAutoCollector - Creates an ObjectValueAutoCollector object based on the provided field, index, and optional collector type.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the AutoCollector.
+ * @param {ObjectValueAutoCollectorTypes} [collectorType] - Optional type of the AutoCollector.
+ * @returns {AutoCollector} The constructed AutoCollector object.
+ */
+export function returnObjectValueAutoCollector<
+  Field extends FidoRegistrationField | FidoAuthenticationField,
+  CollectorType extends ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector',
+>(field: Field, idx: number, collectorType: CollectorType) {
+  let error = '';
+  if (!('key' in field)) {
+    error = `${error}Key is not found in the field object. `;
+  }
+  if (!('type' in field)) {
+    error = `${error}Type is not found in the field object. `;
+  }
+
+  const validationArray = [];
+  if ('required' in field && field.required === true) {
+    validationArray.push({
+      type: 'required',
+      message: 'Value cannot be empty',
+      rule: true,
+    });
+  }
+
+  if (field.action === 'REGISTER') {
+    return {
+      category: 'ObjectValueAutoCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field?.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: {},
+        type: field.type,
+        validation: validationArray.length ? validationArray : null,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+        config: {
+          publicKeyCredentialCreationOptions: field.publicKeyCredentialCreationOptions,
+          action: field.action,
+          trigger: field.trigger,
+        },
+      },
+    } as InferAutoCollectorType<'FidoRegistrationCollector'>;
+  } else {
+    return {
+      category: 'ObjectValueAutoCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field?.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: {},
+        type: field.type,
+        validation: validationArray.length ? validationArray : null,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+        config: {
+          publicKeyCredentialRequestOptions: field.publicKeyCredentialRequestOptions,
+          action: field.action,
+          trigger: field.trigger,
+        },
+      },
+    } as InferAutoCollectorType<'FidoAuthenticationCollector'>;
   }
 }
 
@@ -355,8 +436,28 @@ export function returnSingleSelectCollector(field: SingleSelectField, idx: numbe
  * @param {number} idx - The index to be used in the id of the ProtectCollector.
  * @returns {ProtectCollector} The constructed ProtectCollector object.
  */
-export function returnProtectCollector(field: ProtectField, idx: number, data: string) {
-  return returnAutoCollector(field, idx, 'ProtectCollector', data);
+export function returnProtectCollector(field: ProtectField, idx: number) {
+  return returnSingleValueAutoCollector(field, idx, 'ProtectCollector');
+}
+
+/**
+ * @function returnFidoRegistrationCollector - Creates a FidoRegistrationCollector object based on the provided field and index.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the FidoRegistrationCollector.
+ * @returns {FidoRegistrationCollector} The constructed FidoRegistrationCollector object.
+ */
+export function returnFidoRegistrationCollector(field: FidoRegistrationField, idx: number) {
+  return returnObjectValueAutoCollector(field, idx, 'FidoRegistrationCollector');
+}
+
+/**
+ * @function returnFidoAuthenticationCollector - Creates a FidoAuthenticationCollector object based on the provided field and index.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the FidoAuthenticationCollector.
+ * @returns {FidoAuthenticationCollector} The constructed FidoAuthenticationCollector object.
+ */
+export function returnFidoAuthenticationCollector(field: FidoAuthenticationField, idx: number) {
+  return returnObjectValueAutoCollector(field, idx, 'FidoAuthenticationCollector');
 }
 
 /**
@@ -403,7 +504,7 @@ export function returnMultiValueCollector<
       key: field.key,
       value: data || [],
       type: field.type,
-      validation: validationArray.length ? validationArray : undefined,
+      validation: validationArray.length ? validationArray : null,
     },
     output: {
       key: field.key,
@@ -467,7 +568,7 @@ export function returnObjectCollector<
       error = `${error}Device options are not an array or is empty. `;
     }
 
-    const unmappedDefault = field.options.find((device) => device.default);
+    const unmappedDefault = field.options?.find((device) => device.default);
     defaultValue = {
       type: unmappedDefault ? unmappedDefault.type : '',
       value: unmappedDefault ? unmappedDefault.description : '',
@@ -475,19 +576,19 @@ export function returnObjectCollector<
     };
 
     // Map DaVinci spec to normalized SDK API
-    options = field.options.map((device) => ({
-      type: device.type,
-      label: device.title,
-      content: device.description,
-      value: device.id,
-      key: device.id,
-      default: device.default,
-    }));
+    options =
+      field.options?.map((device) => ({
+        type: device.type,
+        label: device.title,
+        content: device.description,
+        value: device.id,
+        key: device.id,
+        default: device.default,
+      })) ?? [];
   } else if (field.type === 'DEVICE_REGISTRATION') {
     if (!('options' in field)) {
       error = `${error}Device options are not found in the field object. `;
     }
-
     if (Array.isArray(field.options) && field.options.length === 0) {
       error = `${error}Device options are not an array or is empty. `;
     }
@@ -495,13 +596,14 @@ export function returnObjectCollector<
     defaultValue = '';
 
     // Map DaVinci spec to normalized SDK API
-    options = field.options.map((device, idx) => ({
-      type: device.type,
-      label: device.title,
-      content: device.description,
-      value: device.type,
-      key: `${device.type}-${idx}`,
-    }));
+    options =
+      field.options?.map((device, idx) => ({
+        type: device.type,
+        label: device.title,
+        content: device.description,
+        value: device.type,
+        key: `${device.type}-${idx}`,
+      })) ?? [];
   } else if (field.type === 'PHONE_NUMBER') {
     if ('validatePhoneNumber' in field && field.validatePhoneNumber === true) {
       validationArray.push({
@@ -529,7 +631,7 @@ export function returnObjectCollector<
       key: field.key,
       value: defaultValue,
       type: field.type,
-      validation: validationArray.length ? validationArray : undefined,
+      validation: validationArray.length ? validationArray : null,
     },
     output: {
       key: field.key,
@@ -613,14 +715,14 @@ export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
 
 /**
  * @function returnValidator - Creates a validator function based on the provided collector
- * @param {ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors} collector - The collector to which the value will be validated
+ * @param {ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors} collector - The collector to which the value will be validated
  * @returns {function} - A "validator" function that validates the input value
  */
 export function returnValidator(
-  collector: ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors,
+  collector: ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors,
 ) {
   const rules = collector.input.validation;
-  return (value: string | string[] | Record<string, string>) => {
+  return (value: string | string[] | Record<string, unknown>) => {
     return (
       rules?.reduce((acc, next) => {
         if (next.type === 'required') {

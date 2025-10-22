@@ -26,9 +26,11 @@ import {
   returnObjectValueCollector,
   returnProtectCollector,
   returnUnknownCollector,
+  returnFidoRegistrationCollector,
+  returnFidoAuthenticationCollector,
 } from './collector.utils.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
-import {
+import type {
   ActionCollector,
   MultiSelectCollector,
   SingleSelectCollector,
@@ -47,6 +49,10 @@ import {
   PhoneNumberOutputValue,
   UnknownCollector,
   ProtectCollector,
+  FidoRegistrationCollector,
+  FidoAuthenticationCollector,
+  FidoAuthenticationInputValue,
+  FidoRegistrationInputValue,
 } from './collector.types.js';
 
 /**
@@ -61,7 +67,12 @@ export const nextCollectorValues = createAction<{
 }>('node/next');
 export const updateCollectorValues = createAction<{
   id: string;
-  value: string | string[] | PhoneNumberInputValue;
+  value:
+    | string
+    | string[]
+    | PhoneNumberInputValue
+    | FidoRegistrationInputValue
+    | FidoAuthenticationInputValue;
   index?: number;
 }>('node/update');
 
@@ -85,6 +96,8 @@ const initialCollectorValues: (
   | ValidatedTextCollector
   | UnknownCollector
   | ProtectCollector
+  | FidoRegistrationCollector
+  | FidoAuthenticationCollector
 )[] = [];
 
 /**
@@ -164,8 +177,15 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 return returnSubmitCollector(field, idx);
               }
               case 'PROTECT': {
-                const str = data as string;
-                return returnProtectCollector(field, idx, str);
+                return returnProtectCollector(field, idx);
+              }
+              case 'FIDO2': {
+                if (field.action === 'REGISTER') {
+                  return returnFidoRegistrationCollector(field, idx);
+                } else if (field.action === 'AUTHENTICATE') {
+                  return returnFidoAuthenticationCollector(field, idx);
+                }
+                break;
               }
               default:
               // Default is handled below
@@ -184,8 +204,8 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
     })
     /**
      * Using the `updateCollectorValues` const (e.g. `'node/update'`) to add the case
-     * 'node/next' is essentially derived `createSlice` below. `node.next()` is
-     * transformed to `'node/next'` for the action type.
+     * 'node/update' is essentially derived `createSlice` below. `node.update()` is
+     * transformed to `'node/update'` for the action type.
      */
     .addCase(updateCollectorValues, (state, action) => {
       const collector = state.find((collector) => collector.id === action.payload.id);
@@ -205,7 +225,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       if (
         collector.category === 'SingleValueCollector' ||
         collector.category === 'ValidatedSingleValueCollector' ||
-        collector.category === 'SingleValueAutoCollector'
+        collector.type === 'ProtectCollector'
       ) {
         if (typeof action.payload.value !== 'string') {
           throw new Error('Value argument must be a string');
@@ -273,6 +293,32 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         }
         if (!('phoneNumber' in action.payload.value) || !('countryCode' in action.payload.value)) {
           throw new Error('Value argument must contain a phoneNumber and countryCode property');
+        }
+        collector.input.value = action.payload.value;
+      }
+
+      if (collector.type === 'FidoRegistrationCollector') {
+        if (typeof action.payload.id !== 'string') {
+          throw new Error('Index argument must be a string');
+        }
+        if (typeof action.payload.value !== 'object') {
+          throw new Error('Value argument must be an object');
+        }
+        if (!('attestationValue' in action.payload.value)) {
+          throw new Error('Value argument must contain an attestationValue property');
+        }
+        collector.input.value = action.payload.value;
+      }
+
+      if (collector.type === 'FidoAuthenticationCollector') {
+        if (typeof action.payload.id !== 'string') {
+          throw new Error('Index argument must be a string');
+        }
+        if (typeof action.payload.value !== 'object') {
+          throw new Error('Value argument must be an object');
+        }
+        if (!('assertionValue' in action.payload.value)) {
+          throw new Error('Value argument must contain an assertionValue property');
         }
         collector.input.value = action.payload.value;
       }

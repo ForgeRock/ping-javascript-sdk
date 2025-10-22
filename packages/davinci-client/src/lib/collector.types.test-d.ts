@@ -302,6 +302,7 @@ describe('Collector Types', () => {
           key: '',
           value: [''],
           type: '',
+          validation: null,
         },
         output: {
           key: '',

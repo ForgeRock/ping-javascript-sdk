@@ -202,7 +202,7 @@ export interface MultiValueCollectorWithValue<T extends MultiValueCollectorTypes
     key: string;
     value: string[];
     type: string;
-    validation?: ValidationRequired[];
+    validation: ValidationRequired[] | null;
   };
   output: {
     key: string;
@@ -223,7 +223,7 @@ export interface MultiValueCollectorNoValue<T extends MultiValueCollectorTypes> 
     key: string;
     value: string[];
     type: string;
-    validation?: ValidationRequired[];
+    validation: ValidationRequired[] | null;
   };
   output: {
     key: string;
@@ -302,6 +302,14 @@ export interface PhoneNumberOutputValue {
   phoneNumber?: string;
 }
 
+export interface FidoRegistrationInputValue {
+  attestationValue?: PublicKeyCredential;
+}
+
+export interface FidoAuthenticationInputValue {
+  assertionValue?: PublicKeyCredential;
+}
+
 export interface ObjectOptionsCollectorWithStringValue<
   T extends ObjectValueCollectorTypes,
   V = string,
@@ -315,7 +323,7 @@ export interface ObjectOptionsCollectorWithStringValue<
     key: string;
     value: V;
     type: string;
-    validation?: ValidationRequired[];
+    validation: ValidationRequired[] | null;
   };
   output: {
     key: string;
@@ -339,7 +347,7 @@ export interface ObjectOptionsCollectorWithObjectValue<
     key: string;
     value: V;
     type: string;
-    validation?: ValidationRequired[];
+    validation: ValidationRequired[] | null;
   };
   output: {
     key: string;
@@ -364,7 +372,7 @@ export interface ObjectValueCollectorWithObjectValue<
     key: string;
     value: IV;
     type: string;
-    validation?: (ValidationRequired | ValidationPhoneNumber)[];
+    validation: (ValidationRequired | ValidationPhoneNumber)[] | null;
   };
   output: {
     key: string;
@@ -536,13 +544,18 @@ export type UnknownCollector = {
  * @interface AutoCollector - Represents a collector that collects a value programmatically without user intervention.
  */
 
-export type AutoCollectorCategories = 'SingleValueAutoCollector';
-export type AutoCollectorTypes = AutoCollectorCategories | 'ProtectCollector';
+export type AutoCollectorCategories = 'SingleValueAutoCollector' | 'ObjectValueAutoCollector';
+export type SingleValueAutoCollectorTypes = 'SingleValueAutoCollector' | 'ProtectCollector';
+export type ObjectValueAutoCollectorTypes =
+  | 'ObjectValueAutoCollector'
+  | 'FidoRegistrationCollector'
+  | 'FidoAuthenticationCollector';
+export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
 
 export interface AutoCollector<
   C extends AutoCollectorCategories,
   T extends AutoCollectorTypes,
-  V = string,
+  IV = string,
 > {
   category: C;
   error: string | null;
@@ -551,8 +564,9 @@ export interface AutoCollector<
   name: string;
   input: {
     key: string;
-    value: V;
+    value: IV;
     type: string;
+    validation?: ValidationRequired[] | null;
   };
   output: {
     key: string;
@@ -566,13 +580,33 @@ export type ProtectCollector = AutoCollector<
   'ProtectCollector',
   string
 >;
+export type FidoRegistrationCollector = AutoCollector<
+  'ObjectValueAutoCollector',
+  'FidoRegistrationCollector',
+  FidoRegistrationInputValue
+>;
+export type FidoAuthenticationCollector = AutoCollector<
+  'ObjectValueAutoCollector',
+  'FidoAuthenticationCollector',
+  FidoAuthenticationInputValue
+>;
 export type SingleValueAutoCollector = AutoCollector<
   'SingleValueAutoCollector',
   'SingleValueAutoCollector',
   string
 >;
+export type ObjectValueAutoCollector = AutoCollector<
+  'ObjectValueAutoCollector',
+  'ObjectValueAutoCollector',
+  Record<string, unknown>
+>;
 
-export type AutoCollectors = ProtectCollector | SingleValueAutoCollector;
+export type AutoCollectors =
+  | ProtectCollector
+  | FidoRegistrationCollector
+  | FidoAuthenticationCollector
+  | SingleValueAutoCollector
+  | ObjectValueAutoCollector;
 
 /**
  * Type to help infer the collector based on the collector type
@@ -583,8 +617,14 @@ export type AutoCollectors = ProtectCollector | SingleValueAutoCollector;
  */
 export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'ProtectCollector'
   ? ProtectCollector
-  : /**
-     * At this point, we have not passed in a collector type
-     * so we can return a SingleValueAutoCollector
-     **/
-    SingleValueAutoCollector;
+  : T extends 'FidoRegistrationCollector'
+    ? FidoRegistrationCollector
+    : T extends 'FidoAuthenticationCollector'
+      ? FidoAuthenticationCollector
+      : T extends 'ObjectValueAutoCollector'
+        ? ObjectValueAutoCollector
+        : /**
+           * At this point, we have not passed in a collector type
+           * so we can return a SingleValueAutoCollector
+           **/
+          SingleValueAutoCollector;
