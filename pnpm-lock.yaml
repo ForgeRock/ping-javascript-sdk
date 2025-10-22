@@ -499,8 +499,8 @@ importers:
         version: link:../packages/journey-client
     devDependencies:
       dotenv:
-        specifier: 17.2.0
-        version: 17.2.0
+        specifier: 17.2.3
+        version: 17.2.3
       tsx:
         specifier: 4.17.0
         version: 4.17.0
@@ -4555,8 +4555,8 @@ packages:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
-  dotenv@17.2.0:
-    resolution: {integrity: sha512-Q4sgBT60gzd0BB0lSyYD3xM4YxrXA9y4uBDof1JNYGzOXrQdQ6yX+7XIAqoFOGQFOTK1D3Hts5OllpxMDZFONQ==}
+  dotenv@17.2.3:
+    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
     engines: {node: '>=12'}
 
   dotenv@8.6.0:
@@ -12891,7 +12891,7 @@ snapshots:
 
   dotenv@16.4.7: {}
 
-  dotenv@17.2.0: {}
+  dotenv@17.2.3: {}
 
   dotenv@8.6.0: {}
 
