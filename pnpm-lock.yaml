@@ -168,7 +168,7 @@ importers:
         version: 2.31.0(@typescript-eslint/parser@8.45.0(eslint@9.33.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.33.0(jiti@2.4.2))
       eslint-plugin-package-json:
         specifier: 0.30.0
-        version: 0.30.0(@types/estree@1.0.8)(eslint@9.33.0(jiti@2.4.2))(jsonc-eslint-parser@2.4.0)
+        version: 0.30.0(@types/estree@1.0.8)(eslint@9.33.0(jiti@2.4.2))(jsonc-eslint-parser@2.4.1)
       eslint-plugin-playwright:
         specifier: ^2.0.0
         version: 2.2.2(eslint@9.33.0(jiti@2.4.2))
@@ -189,7 +189,7 @@ importers:
         version: 26.1.0(canvas@3.2.0)
       jsonc-eslint-parser:
         specifier: ^2.1.0
-        version: 2.4.0
+        version: 2.4.1
       lint-staged:
         specifier: ^15.0.0
         version: 15.5.2
@@ -5949,8 +5949,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  jsonc-eslint-parser@2.4.0:
-    resolution: {integrity: sha512-WYDyuc/uFcGp6YtM2H0uKmUwieOuzeE/5YocFJLnLfclZ4inf3mRn8ZVy1s7Hxji7Jxm6Ss8gqpexD/GlKoGgg==}
+  jsonc-eslint-parser@2.4.1:
+    resolution: {integrity: sha512-uuPNLJkKN8NXAlZlQ6kmUF9qO+T6Kyd7oV4+/7yy8Jz6+MZNyhPq8EdLpdfnPVzUC8qSf1b4j1azKaGnFsjmsw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
   jsonc-parser@3.2.0:
@@ -9336,7 +9336,7 @@ snapshots:
   '@commitlint/is-ignored@19.8.1':
     dependencies:
       '@commitlint/types': 19.8.1
-      semver: 7.7.2
+      semver: 7.7.3
 
   '@commitlint/lint@19.8.1':
     dependencies:
@@ -10284,7 +10284,7 @@ snapshots:
       chalk: 4.1.2
       confusing-browser-globals: 1.0.11
       globals: 15.15.0
-      jsonc-eslint-parser: 2.4.0
+      jsonc-eslint-parser: 2.4.1
       semver: 7.7.2
       tslib: 2.8.1
     optionalDependencies:
@@ -11338,7 +11338,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.2
+      semver: 7.7.3
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -11354,7 +11354,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.2
+      semver: 7.7.3
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -11370,7 +11370,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.2
+      semver: 7.7.3
       ts-api-utils: 2.1.0(typescript@5.8.3)
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -13217,14 +13217,14 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-package-json@0.30.0(@types/estree@1.0.8)(eslint@9.33.0(jiti@2.4.2))(jsonc-eslint-parser@2.4.0):
+  eslint-plugin-package-json@0.30.0(@types/estree@1.0.8)(eslint@9.33.0(jiti@2.4.2))(jsonc-eslint-parser@2.4.1):
     dependencies:
       '@altano/repository-tools': 0.1.1
       detect-indent: 6.1.0
       detect-newline: 3.1.0
       eslint: 9.33.0(jiti@2.4.2)
       eslint-fix-utils: 0.2.1(@types/estree@1.0.8)(eslint@9.33.0(jiti@2.4.2))
-      jsonc-eslint-parser: 2.4.0
+      jsonc-eslint-parser: 2.4.1
       package-json-validator: 0.10.2
       semver: 7.7.2
       sort-object-keys: 1.1.3
@@ -14679,12 +14679,12 @@ snapshots:
 
   json5@2.2.3: {}
 
-  jsonc-eslint-parser@2.4.0:
+  jsonc-eslint-parser@2.4.1:
     dependencies:
       acorn: 8.15.0
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
-      semver: 7.7.2
+      semver: 7.7.3
 
   jsonc-parser@3.2.0: {}
 
@@ -14711,7 +14711,7 @@ snapshots:
       lodash.isstring: 4.0.1
       lodash.once: 4.1.1
       ms: 2.1.3
-      semver: 7.7.2
+      semver: 7.6.3
 
   jsprim@2.0.2:
     dependencies:
@@ -14909,7 +14909,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.2
+      semver: 7.7.3
 
   make-error@1.3.6: {}
 
@@ -15954,8 +15954,7 @@ snapshots:
 
   semver@7.7.2: {}
 
-  semver@7.7.3:
-    optional: true
+  semver@7.7.3: {}
 
   send@0.19.0:
     dependencies:
