@@ -75,7 +75,7 @@ describe('journey-client', () => {
   });
 
   test('next() should send the current step and return the next step', async () => {
-    const initialStepPayload = createJourneyStep({
+    const initialStepPayload: Step = {
       authId: 'test-auth-id',
       callbacks: [
         {
@@ -84,9 +84,9 @@ describe('journey-client', () => {
           output: [],
         },
       ],
-    });
-    const nextStepPayload = createJourneyStep({
-      authId: 'test-auth-id',
+    };
+    const nextStepPayload: Step = {
+      authId: 'next-auth-id',
       callbacks: [
         {
           type: callbackType.PasswordCallback,
@@ -94,8 +94,8 @@ describe('journey-client', () => {
           output: [],
         },
       ],
-    });
-    const initialStep = initialStepPayload;
+    };
+    const initialStep = createJourneyStep(initialStepPayload);
 
     mockFetch.mockResolvedValue(new Response(JSON.stringify(nextStepPayload)));
 
@@ -108,7 +108,7 @@ describe('journey-client', () => {
     // TODO: This should be /journeys?_action=next, but the current implementation calls /authenticate
     expect(request.url).toBe('https://test.com/json/realms/root/authenticate');
     expect(request.method).toBe('POST');
-    expect(await request.json()).toEqual(initialStep);
+    expect(await request.json()).toEqual(initialStep.payload);
     expect(nextStep).toHaveProperty('type', 'Step');
     expect(nextStep && nextStep.payload).toEqual(nextStepPayload);
   });
