@@ -75,11 +75,12 @@ test.describe('PingAM tokens', () => {
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
     await page.getByRole('button', { name: 'Next' }).click();
 
-    await page.waitForURL('http://localhost:8443/ping-am/**', { waitUntil: 'networkidle' });
-    expect(page.url()).toContain('code');
-    expect(page.url()).toContain('state');
+    await page.waitForURL('http://localhost:8443/ping-am/**');
 
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
+
+    expect(page.url()).toContain('code');
+    expect(page.url()).toContain('state');
 
     await page.getByRole('button', { name: 'Revoke Token' }).click();
     await expect(page.getByText('Token successfully revoked')).toBeVisible();
