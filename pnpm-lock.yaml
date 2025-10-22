@@ -8,7 +8,10 @@ catalogs:
   default:
     '@reduxjs/toolkit':
       specifier: ^2.8.2
-      version: 2.8.2
+      version: 2.9.1
+    immer:
+      specifier: ^10.1.1
+      version: 10.1.3
     msw:
       specifier: ^2.5.1
       version: 2.10.4
@@ -365,7 +368,7 @@ importers:
         version: link:../sdk-effects/storage
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.8.2
+        version: 2.9.1
       immer:
         specifier: 'catalog:'
         version: 10.1.3
@@ -381,7 +384,7 @@ importers:
         version: 4.7.0
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.8.2
+        version: 2.9.1
     devDependencies:
       msw:
         specifier: 'catalog:'
@@ -406,7 +409,7 @@ importers:
         version: link:../sdk-effects/storage
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.8.2
+        version: 2.9.1
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -446,7 +449,7 @@ importers:
         version: link:../sdk-effects/storage
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.8.2
+        version: 2.9.1
       effect:
         specifier: catalog:effect
         version: 3.17.7
@@ -477,7 +480,7 @@ importers:
     dependencies:
       '@reduxjs/toolkit':
         specifier: 'catalog:'
-        version: 2.8.2
+        version: 2.9.1
 
   packages/sdk-effects/storage:
     dependencies:
@@ -2738,6 +2741,17 @@ packages:
 
   '@reduxjs/toolkit@2.8.2':
     resolution: {integrity: sha512-MYlOhQ0sLdw4ud48FoC5w0dH9VfWQjtCjreKwYTT3l+r427qYC5Y8PihNutepr8XrNaBUDQo9khWUwQxZaqt5A==}
+    peerDependencies:
+      react: ^16.9.0 || ^17.0.0 || ^18 || ^19
+      react-redux: ^7.2.1 || ^8.1.3 || ^9.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-redux:
+        optional: true
+
+  '@reduxjs/toolkit@2.9.1':
+    resolution: {integrity: sha512-sETJ3qO72y7L7WiR5K54UFLT3jRzAtqeBPVO15xC3bGA6kDqCH8m/v7BKCPH4czydXzz/1lPEGLvew7GjOO3Qw==}
     peerDependencies:
       react: ^16.9.0 || ^17.0.0 || ^18 || ^19
       react-redux: ^7.2.1 || ^8.1.3 || ^9.0.0
@@ -10802,6 +10816,15 @@ snapshots:
   '@polka/url@1.0.0-next.29': {}
 
   '@reduxjs/toolkit@2.8.2':
+    dependencies:
+      '@standard-schema/spec': 1.0.0
+      '@standard-schema/utils': 0.3.0
+      immer: 10.1.3
+      redux: 5.0.1
+      redux-thunk: 3.1.0(redux@5.0.1)
+      reselect: 5.1.1
+
+  '@reduxjs/toolkit@2.9.1':
     dependencies:
       '@standard-schema/spec': 1.0.0
       '@standard-schema/utils': 0.3.0
