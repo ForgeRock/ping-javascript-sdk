@@ -185,8 +185,8 @@ importers:
         specifier: 2.4.2
         version: 2.4.2
       jsdom:
-        specifier: 26.1.0
-        version: 26.1.0
+        specifier: 27.0.0
+        version: 27.0.0(postcss@8.5.6)
       jsonc-eslint-parser:
         specifier: ^2.1.0
         version: 2.4.1
@@ -246,7 +246,7 @@ importers:
         version: 6.4.1(@types/node@22.14.1)(jiti@2.4.2)(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
       vitest-canvas-mock:
         specifier: ^0.3.3
         version: 0.3.3(vitest@3.2.4)
@@ -322,7 +322,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
+        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
 
   e2e/oidc-app:
     dependencies:
@@ -375,7 +375,7 @@ importers:
     devDependencies:
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
   packages/device-client:
     dependencies:
@@ -418,14 +418,14 @@ importers:
         version: 6.4.1(@types/node@22.14.1)(jiti@2.6.1)(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
       vitest-canvas-mock:
         specifier: ^0.3.3
-        version: 0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0))
+        version: 0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0))
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^1.2.0
-        version: 1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0))
+        version: 1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0))
       vitest:
         specifier: ^1.2.0
-        version: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0)
+        version: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)
 
   packages/oidc-client:
     dependencies:
@@ -456,7 +456,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
+        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
       msw:
         specifier: 'catalog:'
         version: 2.11.6(@types/node@22.14.1)(typescript@5.8.3)
@@ -530,14 +530,14 @@ importers:
         version: 3.18.4
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
     devDependencies:
       '@effect/language-service':
         specifier: catalog:effect
         version: 0.35.2
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
+        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
 
 packages:
 
@@ -563,8 +563,14 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@asamuzakjp/css-color@3.2.0':
-    resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
+  '@asamuzakjp/css-color@4.0.5':
+    resolution: {integrity: sha512-lMrXidNhPGsDjytDy11Vwlb6OIGrT3CmLg3VWNFyWkLWtijKl7xjvForlh8vuj0SHGjgl4qZEQzUmYTeQA2JFQ==}
+
+  '@asamuzakjp/dom-selector@6.7.2':
+    resolution: {integrity: sha512-ccKogJI+0aiDhOahdjANIc9SDixSud1gbwdVrhn7kMopAtLXqsz9MKmQQtIl6Y5aC2IYq+j4dz/oedL2AVMmVQ==}
+
+  '@asamuzakjp/nwsapi@2.3.9':
+    resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -1357,6 +1363,12 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@csstools/css-tokenizer': ^3.0.4
+
+  '@csstools/css-syntax-patches-for-csstree@1.0.14':
+    resolution: {integrity: sha512-zSlIxa20WvMojjpCSy8WrNpcZ61RqfTfX3XTaOeVlGJrt/8HF3YbzgFZa01yTbT4GWQLwfTcC3EB8i3XnB647Q==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      postcss: ^8.4
 
   '@csstools/css-tokenizer@3.0.4':
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
@@ -3797,6 +3809,9 @@ packages:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
 
+  bidi-js@1.0.3:
+    resolution: {integrity: sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==}
+
   bin-version-check@5.1.0:
     resolution: {integrity: sha512-bYsvMqJ8yNGILLz1KP9zKLzQ6YpljV3ln1gqhuLkUtyfGi3qXKGuK2p+U4NAvjVFzDFiBBtOpCOSFNuYYEGZ5g==}
     engines: {node: '>=12'}
@@ -4178,12 +4193,16 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
+  css-tree@3.1.0:
+    resolution: {integrity: sha512-0eW44TGN5SQXU1mWSkKwFstI/22X2bG1nYzZTYMAWjylYURhse752YgbE4Cx46AC+bAvI+/dYTPRk1LqSUnu6w==}
+    engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0}
+
   cssfontparser@1.2.1:
     resolution: {integrity: sha512-6tun4LoZnj7VN6YeegOVb67KBX/7JJsqvj+pv3ZA7F878/eN33AbGa5b/S/wXxS/tcp8nc40xRUrsPlxIyNUPg==}
 
-  cssstyle@4.6.0:
-    resolution: {integrity: sha512-2z+rWdzbbSZv6/rhtvzvqeZQHrBaqgogqt85sqFNbabZOuFbCVFb8kPeEtZjiKkbrm395irpNKiYeFeLiQnFPg==}
-    engines: {node: '>=18'}
+  cssstyle@5.3.1:
+    resolution: {integrity: sha512-g5PC9Aiph9eiczFpcgUhd9S4UUO3F+LHGRIi5NUMZ+4xtoIYbHNZwZnWA2JsFGe8OU8nl4WyaEFiZuGuxlutJQ==}
+    engines: {node: '>=20'}
 
   cz-conventional-changelog@3.3.0:
     resolution: {integrity: sha512-U466fIzU5U22eES5lTNiNbZ+d8dfcHcssH4o7QsdWaCcRs/feIPCxKYSWkYBNs5mny7MvEfwpTLWjvbm94hecw==}
@@ -4201,9 +4220,9 @@ packages:
     resolution: {integrity: sha512-jRFi8UDGo6j+odZiEpjazZaWqEal3w/basFjQHQEwVtZJGDpxbH1MeYluwCS8Xq5wmLJooDlMgvVarmWfGM44g==}
     engines: {node: '>=0.10'}
 
-  data-urls@5.0.0:
-    resolution: {integrity: sha512-ZYP5VBHshaDAiVZxjbRVcFJpc+4xGgT0bK3vzy1HLN8jTO975HEbuYzZJcHoQEY5K1a0z8YayJkyVETa08eNTg==}
-    engines: {node: '>=18'}
+  data-urls@6.0.0:
+    resolution: {integrity: sha512-BnBS08aLUM+DKamupXs3w2tJJoqU+AkaE/+6vQxi/G/DPmIZFJJp9Dkb1kM03AZx8ADehDUZgsNxju3mPXZYIA==}
+    engines: {node: '>=20'}
 
   data-view-buffer@1.0.2:
     resolution: {integrity: sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==}
@@ -5805,9 +5824,9 @@ packages:
   jsbn@0.1.1:
     resolution: {integrity: sha512-UVU9dibq2JcFWxQPA6KCqj5O42VOmAY3zQUfEKxU0KpTGXwNoCjkX1e13eHNvw/xPynt6pU0rZ1htjWTNTSXsg==}
 
-  jsdom@26.1.0:
-    resolution: {integrity: sha512-Cvc9WUhxSMEo4McES3P7oK3QaXldCfNWp7pl2NNeiIFlCoLr3kfq9kb1fxftiwk1FLV7CvpvDfonxtzUDeSOPg==}
-    engines: {node: '>=18'}
+  jsdom@27.0.0:
+    resolution: {integrity: sha512-lIHeR1qlIRrIN5VMccd8tI2Sgw6ieYXSVktcSHaNe3Z5nE/tcPQYQWOq00wxMvYOsz+73eAkNenVvmPC6bba9A==}
+    engines: {node: '>=20'}
     peerDependencies:
       canvas: ^3.0.0
     peerDependenciesMeta:
@@ -6028,6 +6047,10 @@ packages:
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
+  lru-cache@11.2.2:
+    resolution: {integrity: sha512-F9ODfyqML2coTIsQpSkRHnLSZMtkU8Q+mSfcaIyKwy58u+8k5nvAYeiNhsyMARvzNcXJ9QfWVrcPsC9e9rAxtg==}
+    engines: {node: 20 || >=22}
+
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
@@ -6071,6 +6094,9 @@ packages:
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
+
+  mdn-data@2.12.2:
+    resolution: {integrity: sha512-IEn+pegP1aManZuckezWCO+XZQDplx1366JoVhTpMpBB1sPey/SbveZQUosKiKiGYjg1wH4pMlNgXbCiYgihQA==}
 
   mdurl@2.0.0:
     resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
@@ -6342,9 +6368,6 @@ packages:
   npm-run-path@5.3.0:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  nwsapi@2.2.22:
-    resolution: {integrity: sha512-ujSMe1OWVn55euT1ihwCI1ZcAaAU3nxUiDwfDQldc51ZXaB9m2AyOn6/jh1BLe2t/G8xd6uKG1UBF2aZJeg2SQ==}
 
   nx@21.2.3:
     resolution: {integrity: sha512-2wL/2fSmIbRWn6zXaQ/g3kj5DfEaTw/aJkPr6ozJh8BUq5iYKE+tS9oh0PjsVVwN6Pybe80Lu+mn9RgWyeV3xw==}
@@ -7516,9 +7539,9 @@ packages:
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  tr46@5.1.1:
-    resolution: {integrity: sha512-hdF5ZgjTqgAntKkklYw0R03MG2x/bSzTtkxmIRw/sTNV8YXsCJ1tfLAX23lhxhHJlEf3CRCOCGGWw3vI3GaSPw==}
-    engines: {node: '>=18'}
+  tr46@6.0.0:
+    resolution: {integrity: sha512-bLVMLPtstlZ4iMQHpFHTR7GAGj2jxi8Dg0s2h2MafAE4uSWF98FC/3MomU51iQAMf8/qDUbKWf5GxuvvVcXEhw==}
+    engines: {node: '>=20'}
 
   tree-kill@1.2.2:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
@@ -7971,9 +7994,9 @@ packages:
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
-  webidl-conversions@7.0.0:
-    resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
-    engines: {node: '>=12'}
+  webidl-conversions@8.0.0:
+    resolution: {integrity: sha512-n4W4YFyz5JzOfQeA8oN7dUYpR+MBP3PIUsn2jLjWXwK5ASUzt0Jc/A5sAUZoCYFJRGF0FBKJ+1JjN43rNdsQzA==}
+    engines: {node: '>=20'}
 
   webpack-sources@3.3.3:
     resolution: {integrity: sha512-yd1RBzSGanHkitROoPFd6qsrxt+oFhg/129YzheDGqeustzX0vTZJZsSsQjVQC4yzBQ56K55XU8gaNCtIzOnTg==}
@@ -8004,9 +8027,9 @@ packages:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
     engines: {node: '>=18'}
 
-  whatwg-url@14.2.0:
-    resolution: {integrity: sha512-De72GdQZzNTUBBChsXueQUnPKDkg/5A5zp7pFDuQAj5UFoENpiACU0wlCvzpAGnTkj++ihpKwKyYewn/XNUbKw==}
-    engines: {node: '>=18'}
+  whatwg-url@15.1.0:
+    resolution: {integrity: sha512-2ytDk0kiEj/yu90JOAp44PVPUkO9+jVhyf+SybKlRHSDlvOOZhdPIrr7xTH64l4WixO2cP+wQIcgujkGBPPz6g==}
+    engines: {node: '>=20'}
 
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
@@ -8185,13 +8208,23 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
 
-  '@asamuzakjp/css-color@3.2.0':
+  '@asamuzakjp/css-color@4.0.5':
     dependencies:
       '@csstools/css-calc': 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-color-parser': 3.1.0(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
-      lru-cache: 10.4.3
+      lru-cache: 11.2.2
+
+  '@asamuzakjp/dom-selector@6.7.2':
+    dependencies:
+      '@asamuzakjp/nwsapi': 2.3.9
+      bidi-js: 1.0.3
+      css-tree: 3.1.0
+      is-potential-custom-element-name: 1.0.1
+      lru-cache: 11.2.2
+
+  '@asamuzakjp/nwsapi@2.3.9': {}
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -9298,6 +9331,10 @@ snapshots:
     dependencies:
       '@csstools/css-tokenizer': 3.0.4
 
+  '@csstools/css-syntax-patches-for-csstree@1.0.14(postcss@8.5.6)':
+    dependencies:
+      postcss: 8.5.6
+
   '@csstools/css-tokenizer@3.0.4': {}
 
   '@cypress/request@3.0.9':
@@ -9431,10 +9468,10 @@ snapshots:
     dependencies:
       effect: 3.18.4
 
-  '@effect/vitest@0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))':
+  '@effect/vitest@0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))':
     dependencies:
       effect: 3.18.4
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
   '@effect/workflow@0.8.3(@effect/platform@0.90.10(effect@3.18.4))(@effect/rpc@0.68.4(@effect/platform@0.90.10(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)':
     dependencies:
@@ -10331,7 +10368,7 @@ snapshots:
       semver: 7.7.3
       tsconfig-paths: 4.2.0
       vite: 6.4.1(@types/node@22.14.1)(jiti@2.4.2)(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -11295,7 +11332,7 @@ snapshots:
       lodash: 4.17.21
       minimatch: 7.4.6
 
-  '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0))':
+  '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -11310,7 +11347,7 @@ snapshots:
       std-env: 3.10.0
       strip-literal: 2.1.1
       test-exclude: 6.0.0
-      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0)
+      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -11329,7 +11366,7 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11405,7 +11442,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
   '@vitest/utils@1.6.1':
     dependencies:
@@ -11979,6 +12016,10 @@ snapshots:
     dependencies:
       is-windows: 1.0.2
 
+  bidi-js@1.0.3:
+    dependencies:
+      require-from-string: 2.0.2
+
   bin-version-check@5.1.0:
     dependencies:
       bin-version: 6.0.0
@@ -12383,12 +12424,20 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  css-tree@3.1.0:
+    dependencies:
+      mdn-data: 2.12.2
+      source-map-js: 1.2.1
+
   cssfontparser@1.2.1: {}
 
-  cssstyle@4.6.0:
+  cssstyle@5.3.1(postcss@8.5.6):
     dependencies:
-      '@asamuzakjp/css-color': 3.2.0
-      rrweb-cssom: 0.8.0
+      '@asamuzakjp/css-color': 4.0.5
+      '@csstools/css-syntax-patches-for-csstree': 1.0.14(postcss@8.5.6)
+      css-tree: 3.1.0
+    transitivePeerDependencies:
+      - postcss
 
   cz-conventional-changelog@3.3.0(@types/node@22.14.1)(typescript@5.8.3):
     dependencies:
@@ -12412,10 +12461,10 @@ snapshots:
     dependencies:
       assert-plus: 1.0.0
 
-  data-urls@5.0.0:
+  data-urls@6.0.0:
     dependencies:
       whatwg-mimetype: 4.0.0
-      whatwg-url: 14.2.0
+      whatwg-url: 15.1.0
 
   data-view-buffer@1.0.2:
     dependencies:
@@ -14382,30 +14431,31 @@ snapshots:
 
   jsbn@0.1.1: {}
 
-  jsdom@26.1.0:
+  jsdom@27.0.0(postcss@8.5.6):
     dependencies:
-      cssstyle: 4.6.0
-      data-urls: 5.0.0
+      '@asamuzakjp/dom-selector': 6.7.2
+      cssstyle: 5.3.1(postcss@8.5.6)
+      data-urls: 6.0.0
       decimal.js: 10.6.0
       html-encoding-sniffer: 4.0.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       is-potential-custom-element-name: 1.0.1
-      nwsapi: 2.2.22
       parse5: 7.3.0
       rrweb-cssom: 0.8.0
       saxes: 6.0.0
       symbol-tree: 3.2.4
-      tough-cookie: 5.1.2
+      tough-cookie: 6.0.0
       w3c-xmlserializer: 5.0.0
-      webidl-conversions: 7.0.0
+      webidl-conversions: 8.0.0
       whatwg-encoding: 3.1.1
       whatwg-mimetype: 4.0.0
-      whatwg-url: 14.2.0
+      whatwg-url: 15.1.0
       ws: 8.18.3
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - bufferutil
+      - postcss
       - supports-color
       - utf-8-validate
 
@@ -14624,6 +14674,8 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
+  lru-cache@11.2.2: {}
+
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
@@ -14681,6 +14733,8 @@ snapshots:
       uc.micro: 2.1.0
 
   math-intrinsics@1.1.0: {}
+
+  mdn-data@2.12.2: {}
 
   mdurl@2.0.0: {}
 
@@ -14900,8 +14954,6 @@ snapshots:
   npm-run-path@5.3.0:
     dependencies:
       path-key: 4.0.0
-
-  nwsapi@2.2.22: {}
 
   nx@21.2.3(@swc-node/register@1.10.10(@swc/core@1.11.21(@swc/helpers@0.5.17))(@swc/types@0.1.25)(typescript@5.8.3))(@swc/core@1.11.21(@swc/helpers@0.5.17)):
     dependencies:
@@ -16193,7 +16245,7 @@ snapshots:
 
   tr46@0.0.3: {}
 
-  tr46@5.1.1:
+  tr46@6.0.0:
     dependencies:
       punycode: 2.3.1
 
@@ -16627,17 +16679,17 @@ snapshots:
       tsx: 4.17.0
       yaml: 2.8.1
 
-  vitest-canvas-mock@0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0)):
+  vitest-canvas-mock@0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0)
+      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)
 
   vitest-canvas-mock@0.3.3(vitest@3.2.4):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
-  vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@26.1.0)(terser@5.44.0):
+  vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0):
     dependencies:
       '@vitest/expect': 1.6.1
       '@vitest/runner': 1.6.1
@@ -16662,7 +16714,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.14.1
       '@vitest/ui': 3.0.4(vitest@3.2.4)
-      jsdom: 26.1.0
+      jsdom: 27.0.0(postcss@8.5.6)
     transitivePeerDependencies:
       - less
       - lightningcss
@@ -16673,7 +16725,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1):
+  vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -16701,7 +16753,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.14.1
       '@vitest/ui': 3.0.4(vitest@3.2.4)
-      jsdom: 26.1.0
+      jsdom: 27.0.0(postcss@8.5.6)
     transitivePeerDependencies:
       - jiti
       - less
@@ -16716,7 +16768,7 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@26.1.0)(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1):
+  vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4)(jiti@2.4.2)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -16744,7 +16796,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.14.1
       '@vitest/ui': 3.0.4(vitest@3.2.4)
-      jsdom: 26.1.0
+      jsdom: 27.0.0(postcss@8.5.6)
     transitivePeerDependencies:
       - jiti
       - less
@@ -16780,7 +16832,7 @@ snapshots:
 
   webidl-conversions@3.0.1: {}
 
-  webidl-conversions@7.0.0: {}
+  webidl-conversions@8.0.0: {}
 
   webpack-sources@3.3.3: {}
 
@@ -16828,10 +16880,10 @@ snapshots:
 
   whatwg-mimetype@4.0.0: {}
 
-  whatwg-url@14.2.0:
+  whatwg-url@15.1.0:
     dependencies:
-      tr46: 5.1.1
-      webidl-conversions: 7.0.0
+      tr46: 6.0.0
+      webidl-conversions: 8.0.0
 
   whatwg-url@5.0.0:
     dependencies:
