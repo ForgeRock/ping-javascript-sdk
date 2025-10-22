@@ -38,10 +38,14 @@ test.describe('Logout tests', () => {
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    await Promise.all([
-      page.waitForURL('http://localhost:8443/ping-am/**'),
-      page.getByRole('button', { name: 'Next' }).click(),
-    ]);
+    const promise = page.waitForURL('http://localhost:8443/ping-am/**');
+    await page.getByRole('button', { name: 'Next' }).click();
+
+    /**
+     * This block is flakey, changing to this pattern
+     * https://playwright.dev/docs/network#network-events
+     **/
+    await promise;
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
     await expect(page.getByRole('button', { name: 'Login (Background)' })).toBeHidden();
