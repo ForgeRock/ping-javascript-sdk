@@ -1,0 +1,30 @@
+{
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "ignorePatterns": [
+        "node_modules",
+        "*.md",
+        "LICENSE",
+        ".babelrc",
+        ".env*",
+        ".bin",
+        "dist",
+        ".eslintignore"
+      ]
+    },
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {}
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {}
+    }
+  ]
+}
