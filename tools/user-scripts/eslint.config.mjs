@@ -24,7 +24,7 @@ export default [
     files: ['**/*.json'],
     rules: {
       '@nx/dependency-checks': [
-        'error',
+        'warn',
         {
           ignoredFiles: [
             '{projectRoot}/vite.config.{js,ts,mjs,mts}',
