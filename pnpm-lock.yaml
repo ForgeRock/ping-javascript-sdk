@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@reduxjs/toolkit':
+      specifier: ^2.8.2
+      version: 2.9.1
     immer:
       specifier: ^10.1.1
       version: 10.1.3
