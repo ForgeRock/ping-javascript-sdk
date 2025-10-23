@@ -4,7 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-export function asyncEvents(page) {
+import type { Page } from '@playwright/test';
+
+export function asyncEvents(page: Page) {
   return {
     async clickButton(text, endpoint) {
       if (!endpoint)
@@ -74,6 +76,6 @@ export async function verifyUserInfo(page, expect, type) {
   // Just wait for one of them to be visible
   await name.waitFor();
 
-  expect(await name.textContent()).toBe(nameString);
-  expect(await email.textContent()).toBe(emailString);
+  await expect(name).toHaveText(nameString);
+  await expect(email).toHaveText(emailString);
 }

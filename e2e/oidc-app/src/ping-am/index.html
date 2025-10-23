@@ -7,12 +7,16 @@
       #logout {
         display: none;
       }
+      #app {
+        display: none;
+      }
     </style>
   </head>
   <body>
+    <a href="/">Home</a>
+    <h1>OIDC App | PingAM Login</h1>
+    <p id="loading">Loading...</p>
     <div id="app">
-      <a href="/">Home</a>
-      <h1>OIDC App | PingAM Login</h1>
       <button id="login-background">Login (Background)</button>
       <button id="login-redirect">Login (Redirect)</button>
       <button id="get-tokens">Get Tokens</button>

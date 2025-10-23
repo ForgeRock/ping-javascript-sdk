@@ -22,5 +22,9 @@ const config = {
       'https://openam-sdks.forgeblocks.com/am/oauth2/alpha/.well-known/openid-configuration',
   },
 };
-
-oidcApp({ config, urlParams });
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('loaded outside');
+  // (async () => {
+  await oidcApp({ config, urlParams });
+  // })();
+});
