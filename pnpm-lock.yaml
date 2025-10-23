@@ -185,8 +185,8 @@ importers:
         specifier: 2.6.1
         version: 2.6.1
       jsdom:
-        specifier: 27.0.0
-        version: 27.0.0(postcss@8.5.6)
+        specifier: 27.0.1
+        version: 27.0.1(postcss@8.5.6)
       jsonc-eslint-parser:
         specifier: ^2.1.0
         version: 2.4.1
@@ -246,7 +246,7 @@ importers:
         version: 6.4.1(@types/node@22.14.1)(jiti@2.6.1)(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
       vitest-canvas-mock:
         specifier: ^0.3.3
         version: 0.3.3(vitest@3.2.4)
@@ -322,7 +322,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
+        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
 
   e2e/oidc-app:
     dependencies:
@@ -375,7 +375,7 @@ importers:
     devDependencies:
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
   packages/device-client:
     dependencies:
@@ -418,14 +418,14 @@ importers:
         version: 6.4.1(@types/node@22.14.1)(jiti@2.6.1)(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
       vitest-canvas-mock:
         specifier: ^0.3.3
-        version: 0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0))
+        version: 0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0))
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^1.2.0
-        version: 1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0))
+        version: 1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0))
       vitest:
         specifier: ^1.2.0
-        version: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)
+        version: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0)
 
   packages/oidc-client:
     dependencies:
@@ -456,7 +456,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
+        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
       msw:
         specifier: 'catalog:'
         version: 2.11.6(@types/node@22.14.1)(typescript@5.8.3)
@@ -530,14 +530,14 @@ importers:
         version: 3.18.4
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+        version: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
     devDependencies:
       '@effect/language-service':
         specifier: catalog:effect
         version: 0.35.2
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
+        version: 0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))
 
 packages:
 
@@ -5820,8 +5820,8 @@ packages:
   jsbn@0.1.1:
     resolution: {integrity: sha512-UVU9dibq2JcFWxQPA6KCqj5O42VOmAY3zQUfEKxU0KpTGXwNoCjkX1e13eHNvw/xPynt6pU0rZ1htjWTNTSXsg==}
 
-  jsdom@27.0.0:
-    resolution: {integrity: sha512-lIHeR1qlIRrIN5VMccd8tI2Sgw6ieYXSVktcSHaNe3Z5nE/tcPQYQWOq00wxMvYOsz+73eAkNenVvmPC6bba9A==}
+  jsdom@27.0.1:
+    resolution: {integrity: sha512-SNSQteBL1IlV2zqhwwolaG9CwhIhTvVHWg3kTss/cLE7H/X4644mtPQqYvCfsSrGQWt9hSZcgOXX8bOZaMN+kA==}
     engines: {node: '>=20'}
     peerDependencies:
       canvas: ^3.0.0
@@ -6551,8 +6551,8 @@ packages:
     resolution: {integrity: sha512-1Y1A//QUXEZK7YKz+rD9WydcE1+EuPr6ZBgKecAB8tmoW6UFv0NREVJe1p+jRxtThkcbbKkfwIbWJe/IeE6m2Q==}
     engines: {node: '>=0.10.0'}
 
-  parse5@7.3.0:
-    resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
+  parse5@8.0.0:
+    resolution: {integrity: sha512-9m4m5GSgXjL4AjumKzq1Fgfp3Z8rsvjRNbnkVwfu2ImRqE5D0LnY2QfDen18FSY9C573YU5XxSapdHZTZ2WolA==}
 
   parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
@@ -9464,10 +9464,10 @@ snapshots:
     dependencies:
       effect: 3.18.4
 
-  '@effect/vitest@0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))':
+  '@effect/vitest@0.23.13(effect@3.18.4)(vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1))':
     dependencies:
       effect: 3.18.4
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
   '@effect/workflow@0.8.3(@effect/platform@0.90.10(effect@3.18.4))(@effect/rpc@0.68.4(@effect/platform@0.90.10(effect@3.18.4))(effect@3.18.4))(effect@3.18.4)':
     dependencies:
@@ -10364,7 +10364,7 @@ snapshots:
       semver: 7.7.3
       tsconfig-paths: 4.2.0
       vite: 6.4.1(@types/node@22.14.1)(jiti@2.6.1)(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -11328,7 +11328,7 @@ snapshots:
       lodash: 4.17.21
       minimatch: 7.4.6
 
-  '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0))':
+  '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -11343,7 +11343,7 @@ snapshots:
       std-env: 3.10.0
       strip-literal: 2.1.1
       test-exclude: 6.0.0
-      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)
+      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -11362,7 +11362,7 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11438,7 +11438,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
   '@vitest/utils@1.6.1':
     dependencies:
@@ -14425,7 +14425,7 @@ snapshots:
 
   jsbn@0.1.1: {}
 
-  jsdom@27.0.0(postcss@8.5.6):
+  jsdom@27.0.1(postcss@8.5.6):
     dependencies:
       '@asamuzakjp/dom-selector': 6.7.2
       cssstyle: 5.3.1(postcss@8.5.6)
@@ -14435,7 +14435,7 @@ snapshots:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       is-potential-custom-element-name: 1.0.1
-      parse5: 7.3.0
+      parse5: 8.0.0
       rrweb-cssom: 0.8.0
       saxes: 6.0.0
       symbol-tree: 3.2.4
@@ -15198,7 +15198,7 @@ snapshots:
 
   parse-passwd@1.0.0: {}
 
-  parse5@7.3.0:
+  parse5@8.0.0:
     dependencies:
       entities: 6.0.1
 
@@ -16636,17 +16636,17 @@ snapshots:
       tsx: 4.17.0
       yaml: 2.8.1
 
-  vitest-canvas-mock@0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)):
+  vitest-canvas-mock@0.3.3(vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0)):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0)
+      vitest: 1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0)
 
   vitest-canvas-mock@0.3.3(vitest@3.2.4):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1)
 
-  vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.0(postcss@8.5.6))(terser@5.44.0):
+  vitest@1.6.1(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.0.1(postcss@8.5.6))(terser@5.44.0):
     dependencies:
       '@vitest/expect': 1.6.1
       '@vitest/runner': 1.6.1
@@ -16671,7 +16671,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.14.1
       '@vitest/ui': 3.0.4(vitest@3.2.4)
-      jsdom: 27.0.0(postcss@8.5.6)
+      jsdom: 27.0.1(postcss@8.5.6)
     transitivePeerDependencies:
       - less
       - lightningcss
@@ -16682,7 +16682,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1):
+  vitest@3.2.4(@types/node@22.14.1)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(msw@2.11.6(@types/node@22.14.1)(typescript@5.8.3))(terser@5.44.0)(tsx@4.17.0)(yaml@2.8.1):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -16710,7 +16710,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.14.1
       '@vitest/ui': 3.0.4(vitest@3.2.4)
-      jsdom: 27.0.0(postcss@8.5.6)
+      jsdom: 27.0.1(postcss@8.5.6)
     transitivePeerDependencies:
       - jiti
       - less
