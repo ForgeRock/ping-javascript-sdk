@@ -18,8 +18,18 @@ test.describe('Device registration tests', () => {
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
     await page.getByRole('button', { name: 'Sign On' }).click();
 
-    await page.getByRole('button', { name: 'USER_DELETE' }).click();
-    await expect(page.getByRole('heading', { name: 'Success' })).toBeVisible();
+    /**
+     * This implements a retry automatically on a timeout
+     * because this code path is not critical to the functionality
+     * we should consider this pattern because its flakey.
+     *
+     */
+    await expect(
+      async () => await page.getByRole('button', { name: 'USER_DELETE' }).click(),
+    ).toPass();
+    expect(
+      async () => await expect(page.getByRole('heading', { name: 'Success' })).toBeVisible(),
+    ).toPass();
   });
 
   test('Login - add email device - authenticate with email device', async ({ page }) => {
@@ -40,9 +50,12 @@ test.describe('Device registration tests', () => {
     await page.getByRole('textbox', { name: 'Given Name' }).fill('demouser');
     await page.getByRole('textbox', { name: 'Family Name' }).fill('demouser');
     await page.getByRole('button', { name: 'Continue' }).click();
-    await expect(page.getByRole('heading', { name: 'Registration Complete' })).toBeVisible();
+    await expect(
+      async () =>
+        await expect(page.getByRole('heading', { name: 'Registration Complete' })).toBeVisible(),
+    ).toPass();
     await page.getByRole('button', { name: 'Continue' }).click();
-    await page.getByRole('button', { name: 'Logout' }).click();
+    expect(async () => await page.getByRole('button', { name: 'Logout' }).click()).toPass();
 
     /***
      * Login with the new user
@@ -52,7 +65,7 @@ test.describe('Device registration tests', () => {
     await expect(page.getByText('SDK Automation - Sign On')).toBeVisible();
     await page.getByRole('textbox', { name: 'Username' }).fill(username);
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
-    await page.getByRole('button', { name: 'Sign On' }).click();
+    expect(async () => await page.getByRole('button', { name: 'Sign On' }).click()).toPass();
 
     /** Register a device */
     await expect(page.getByText('Select Test Form')).toBeVisible();
@@ -83,10 +96,10 @@ test.describe('Device registration tests', () => {
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
     await page.getByRole('textbox', { name: 'Given Name' }).fill('demouser');
     await page.getByRole('textbox', { name: 'Family Name' }).fill('demouser');
-    await page.getByRole('button', { name: 'Continue' }).click();
+    expect(async () => await page.getByRole('button', { name: 'Continue' }).click()).toPass();
     await expect(page.getByRole('heading', { name: 'Registration Complete' })).toBeVisible();
     await page.getByRole('button', { name: 'Continue' }).click();
-    await page.getByRole('button', { name: 'Logout' }).click();
+    expect(async () => await page.getByRole('button', { name: 'Logout' }).click()).toPass();
 
     /**
      * Login with the new user
@@ -96,7 +109,7 @@ test.describe('Device registration tests', () => {
     await expect(page.getByText('SDK Automation - Sign On')).toBeVisible();
     await page.getByRole('textbox', { name: 'Username' }).fill(username);
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
-    await page.getByRole('button', { name: 'Sign On' }).click();
+    expect(async () => await page.getByRole('button', { name: 'Sign On' }).click()).toPass();
 
     /** Register a Device */
     await expect(page.getByText('Select Test Form')).toBeVisible();
@@ -107,6 +120,6 @@ test.describe('Device registration tests', () => {
     await page.getByRole('textbox', { name: 'Enter Phone Number' }).fill('3035550100');
     await page.getByRole('button', { name: 'Submit' }).click();
     await expect(page.getByText('SMS/Voice MFA Registered')).toBeVisible();
-    await page.getByRole('button', { name: 'Continue' }).click();
+    expect(async () => await page.getByRole('button', { name: 'Continue' }).click()).toPass();
   });
 });

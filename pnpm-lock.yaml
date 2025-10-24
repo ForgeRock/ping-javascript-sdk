@@ -170,7 +170,7 @@ importers:
         specifier: 0.30.0
         version: 0.30.0(@types/estree@1.0.8)(eslint@9.38.0(jiti@2.6.1))(jsonc-eslint-parser@2.4.1)
       eslint-plugin-playwright:
-        specifier: ^2.0.0
+        specifier: ^2.2.2
         version: 2.2.2(eslint@9.38.0(jiti@2.6.1))
       eslint-plugin-prettier:
         specifier: ^5.2.3
