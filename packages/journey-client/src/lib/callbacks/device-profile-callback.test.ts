@@ -5,9 +5,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { callbackType } from '@forgerock/sdk-types';
 import { describe, it, expect } from 'vitest';
-import { callbackType, type Callback } from '@forgerock/sdk-types';
-import DeviceProfileCallback from './device-profile-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
+
+import { DeviceProfileCallback } from './device-profile-callback.js';
 
 describe('DeviceProfileCallback', () => {
   const payload: Callback = {

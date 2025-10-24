@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * fr-auth-callback.test.ts
  *
@@ -8,9 +8,11 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import { callbackType } from '@forgerock/sdk-types';
+
 import type { Callback } from '@forgerock/sdk-types';
+
+import { JourneyCallback } from './index.js';
 
 describe('JourneyCallback', () => {
   it('reads/writes basic properties', () => {

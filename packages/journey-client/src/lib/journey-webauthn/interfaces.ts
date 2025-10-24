@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * interfaces.ts
  *
@@ -8,47 +8,47 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type HiddenValueCallback from '../callbacks/hidden-value-callback.js';
-import type MetadataCallback from '../callbacks/metadata-callback.js';
-import type TextOutputCallback from '../callbacks/text-output-callback.js';
+import type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+import type { MetadataCallback } from '../callbacks/metadata-callback.js';
+import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 
-enum AttestationType {
+export enum AttestationType {
   Direct = 'direct',
   Indirect = 'indirect',
   None = 'none',
 }
 
-interface DeviceStepState extends StepState {
+export interface DeviceStepState extends StepState {
   value1: number;
   value2: number;
 }
 
-enum UserVerificationType {
+export enum UserVerificationType {
   Discouraged = 'discouraged',
   Preferred = 'preferred',
   Required = 'required',
 }
 
-interface RelyingParty {
+export interface RelyingParty {
   name: string;
   id?: string;
 }
 
-interface ResponseCredential {
+export interface ResponseCredential {
   response: { clientDataJSON: ArrayBuffer };
 }
 
-interface Step<TData, TState> {
+export interface Step<TData, TState> {
   data?: TData;
   state: TState;
   type: StepType;
 }
 
-interface StepState {
+export interface StepState {
   authId: string;
 }
 
-enum StepType {
+export enum StepType {
   DeviceAuthentication = 'DeviceAuthentication',
   DeviceRegistration = 'DeviceRegistration',
   DeviceRegistrationChoice = 'DeviceRegistrationChoice',
@@ -61,7 +61,7 @@ enum StepType {
   UserPassword = 'UserPassword',
 }
 
-interface WebAuthnRegistrationMetadata {
+export interface WebAuthnRegistrationMetadata {
   attestationPreference: 'none' | 'indirect' | 'direct';
   authenticatorSelection: string;
   challenge: string;
@@ -76,7 +76,7 @@ interface WebAuthnRegistrationMetadata {
   supportsJsonResponse?: boolean;
 }
 
-interface WebAuthnAuthenticationMetadata {
+export interface WebAuthnAuthenticationMetadata {
   acceptableCredentials?: string;
   allowCredentials?: string;
   challenge: string;
@@ -86,15 +86,15 @@ interface WebAuthnAuthenticationMetadata {
   supportsJsonResponse?: boolean;
 }
 
-interface WebAuthnCallbacks {
+export interface WebAuthnCallbacks {
   hiddenCallback?: HiddenValueCallback;
   metadataCallback?: MetadataCallback;
   textOutputCallback?: TextOutputCallback;
 }
 
-type WebAuthnTextOutputRegistration = string;
+export type WebAuthnTextOutputRegistration = string;
 
-interface ParsedCredential {
+export interface ParsedCredential {
   /**
    * The WebAuthn API (specifically `PublicKeyCredentialDescriptor['id']`) expects a `BufferSource` type.
    * In current TypeScript environments, `SharedArrayBuffer` is not directly assignable to `BufferSource`
@@ -110,16 +110,3 @@ interface ParsedCredential {
   id: ArrayBuffer;
   type: 'public-key';
 }
-
-export type {
-  DeviceStepState,
-  ParsedCredential,
-  RelyingParty,
-  ResponseCredential,
-  Step,
-  WebAuthnCallbacks,
-  WebAuthnAuthenticationMetadata,
-  WebAuthnRegistrationMetadata,
-  WebAuthnTextOutputRegistration,
-};
-export { AttestationType, StepType, UserVerificationType };

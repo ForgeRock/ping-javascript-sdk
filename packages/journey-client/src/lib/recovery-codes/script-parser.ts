@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * script-parser.ts
  *
@@ -8,7 +8,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-function parseDisplayRecoveryCodesText(text: string): string[] {
+export function parseDisplayRecoveryCodesText(text: string): string[] {
   /**
    * e.g. ` ...
    *    "<div class=\"text-center\">\n" +
@@ -33,7 +33,7 @@ function parseDisplayRecoveryCodesText(text: string): string[] {
  * @param text
  * @returns string
  */
-function parseDeviceNameText(text: string): string {
+export function parseDeviceNameText(text: string): string {
   /**
    * We default the device name to 'New Security Key'
    * If the user has a device name, it will be wrapped in <em> tags
@@ -48,4 +48,3 @@ function parseDeviceNameText(text: string): string {
       ?.replace('</em>', '') ?? 'New Security Key';
   return displayName;
 }
-export { parseDeviceNameText, parseDisplayRecoveryCodesText };

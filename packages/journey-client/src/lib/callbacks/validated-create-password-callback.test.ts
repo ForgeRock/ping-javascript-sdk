@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * validated-create-password-callback.test.ts
  *
@@ -9,8 +9,10 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
+
 import type { Callback } from '@forgerock/sdk-types';
-import ValidatedCreatePasswordCallback from './validated-create-password-callback.js';
+
+import { ValidatedCreatePasswordCallback } from './validated-create-password-callback.js';
 
 describe('ValidatedCreatePasswordCallback', () => {
   const payload: Callback = {

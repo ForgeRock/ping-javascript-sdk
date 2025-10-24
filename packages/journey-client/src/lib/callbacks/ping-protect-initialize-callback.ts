@@ -4,13 +4,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
+
+import { JourneyCallback } from './index.js';
 
 /**
  * @class - Represents a callback used to initialize and start device and behavioral data collection.
  */
-class PingOneProtectInitializeCallback extends JourneyCallback {
+export class PingOneProtectInitializeCallback extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -41,5 +42,3 @@ class PingOneProtectInitializeCallback extends JourneyCallback {
     this.setInputValue(errorMessage, /clientError/);
   }
 }
-
-export default PingOneProtectInitializeCallback;

@@ -284,6 +284,20 @@ importers:
         specifier: ^0.20.0
         version: 0.20.1
 
+  e2e/journey-app:
+    dependencies:
+      '@forgerock/journey-client':
+        specifier: workspace:*
+        version: link:../../packages/journey-client
+      '@forgerock/oidc-client':
+        specifier: workspace:*
+        version: link:../../packages/oidc-client
+      '@forgerock/sdk-logger':
+        specifier: workspace:*
+        version: link:../../packages/sdk-effects/logger
+
+  e2e/journey-suites: {}
+
   e2e/mock-api-v2:
     dependencies:
       '@effect/language-service':

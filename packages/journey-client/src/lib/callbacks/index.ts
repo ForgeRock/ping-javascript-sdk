@@ -5,12 +5,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { type CallbackType, type Callback, type NameValue } from '@forgerock/sdk-types';
+import type { CallbackType, Callback, NameValue } from '@forgerock/sdk-types';
 
 /**
  * Base class for authentication tree callback wrappers.
  */
-class JourneyCallback {
+export class JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -99,5 +99,3 @@ class JourneyCallback {
     throw new Error('Invalid selector value type');
   }
 }
-
-export default JourneyCallback;

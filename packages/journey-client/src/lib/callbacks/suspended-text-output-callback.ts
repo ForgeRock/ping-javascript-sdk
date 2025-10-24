@@ -4,13 +4,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import TextOutputCallback from './text-output-callback.js';
 import type { Callback } from '@forgerock/sdk-types';
+
+import { TextOutputCallback } from './text-output-callback.js';
 
 /**
  * Represents a callback used to display a message.
  */
-class SuspendedTextOutputCallback extends TextOutputCallback {
+export class SuspendedTextOutputCallback extends TextOutputCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -18,5 +19,3 @@ class SuspendedTextOutputCallback extends TextOutputCallback {
     super(payload);
   }
 }
-
-export default SuspendedTextOutputCallback;

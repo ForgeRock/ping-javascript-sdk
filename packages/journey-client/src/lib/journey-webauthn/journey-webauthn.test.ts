@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * fr-webauthn.test.ts
  *
@@ -9,7 +9,7 @@
  */
 
 import { WebAuthnStepType } from './enums.js';
-import JourneyWebAuthn from './index.js';
+import { JourneyWebAuthn } from './index.js';
 import {
   webAuthnRegJSCallback653,
   webAuthnAuthJSCallback653,

@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * fr-policy.test.ts
  *
@@ -8,8 +8,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyPolicy, { MessageCreator } from './index.js';
 import { PolicyKey } from '@forgerock/sdk-types';
+
+import { JourneyPolicy, MessageCreator } from './index.js';
 
 describe('The IDM error handling', () => {
   const property = 'userName';

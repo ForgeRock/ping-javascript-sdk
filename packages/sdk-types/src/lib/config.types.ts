@@ -20,7 +20,7 @@ export interface DavinciOAuthConfig extends BaseConfig {
 }
 
 export interface BaseConfig {
-  serverConfig: PathsConfig;
+  serverConfig?: PathsConfig;
 }
 
 interface CustomPathConfig {
@@ -36,6 +36,7 @@ interface CustomPathConfig {
  * Configuration settings for connecting to a server.
  */
 export interface PathsConfig {
-  paths: CustomPathConfig;
+  baseUrl: string;
+  paths?: CustomPathConfig;
   timeout?: number;
 }

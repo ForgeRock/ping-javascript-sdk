@@ -4,14 +4,16 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
+
+import { JourneyCallback } from './index.js';
+
 import type { DeviceProfileData } from '../journey-device/interfaces.js';
 
 /**
  * Represents a callback used to collect device profile data.
  */
-class DeviceProfileCallback extends JourneyCallback {
+export class DeviceProfileCallback extends JourneyCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -47,5 +49,3 @@ class DeviceProfileCallback extends JourneyCallback {
     this.setInputValue(JSON.stringify(profile));
   }
 }
-
-export default DeviceProfileCallback;
