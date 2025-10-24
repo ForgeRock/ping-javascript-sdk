@@ -60,6 +60,7 @@ outputs/*
 
 e2e/mock-api-v2/html/*
 e2e/**/.playwright/*
+e2e/certs/
 
 
 # bundle analysis
