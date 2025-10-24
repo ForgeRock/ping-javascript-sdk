@@ -36,6 +36,10 @@
     - [Private vs. Public Packages](./releases.md#adding-a-package-to-the-repository)
     - [Ignoring Packages from Releases](./releases.md#adding-a-package-to-the-repository)
 
+### Local HTTPS
+
+- [E2E HTTPS Bootstrap](./local-https.md#local-https-for-e2e-apps)
+
 ## 🚀 Quick Links
 
 - [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/#summary)

@@ -10,12 +10,12 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/e2e/oidc-app',
   publicDir: __dirname + '/public',
   server: {
-    port: 8443,
-    host: 'localhost',
+    port: 5173,
+    host: '0.0.0.0',
   },
   preview: {
-    port: 8443,
-    host: 'localhost',
+    port: 5173,
+    host: '0.0.0.0',
   },
   plugins: [],
   // Uncomment this if you are using workers.
