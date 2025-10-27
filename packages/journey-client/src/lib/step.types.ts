@@ -7,14 +7,14 @@
 
 import type { AuthResponse, CallbackType, Step, StepType } from '@forgerock/sdk-types';
 
-import type { JourneyCallback } from './callbacks/index.js';
+import type { BaseCallback } from './callbacks/base-callback.js';
 
 export type JourneyStep = AuthResponse & {
   type: StepType.Step;
   payload: Step;
-  callbacks: JourneyCallback[];
-  getCallbackOfType: <T extends JourneyCallback>(type: CallbackType) => T;
-  getCallbacksOfType: <T extends JourneyCallback>(type: CallbackType) => T[];
+  callbacks: BaseCallback[];
+  getCallbackOfType: <T extends BaseCallback>(type: CallbackType) => T;
+  getCallbacksOfType: <T extends BaseCallback>(type: CallbackType) => T[];
   setCallbackValue: (type: CallbackType, value: unknown) => void;
   getDescription: () => string | undefined;
   getHeader: () => string | undefined;

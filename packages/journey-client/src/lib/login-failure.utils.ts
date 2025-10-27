@@ -7,9 +7,9 @@ import { StepType } from '@forgerock/sdk-types';
 
 import type { Step, AuthResponse, FailureDetail } from '@forgerock/sdk-types';
 
-import { JourneyPolicy } from './journey-policy/index.js';
+import { Policy } from './policy/policy.js';
 
-import type { MessageCreator, ProcessedPropertyError } from './journey-policy/interfaces.js';
+import type { MessageCreator, ProcessedPropertyError } from './policy/interfaces.js';
 
 type JourneyLoginFailure = AuthResponse & {
   type: StepType.LoginFailure;
@@ -37,7 +37,7 @@ function getProcessedMessage(
   payload: Step,
   messageCreator?: MessageCreator,
 ): ProcessedPropertyError[] {
-  return JourneyPolicy.parseErrors(payload, messageCreator);
+  return Policy.parseErrors(payload, messageCreator);
 }
 
 function getReason(payload: Step): string | undefined {
@@ -57,4 +57,6 @@ function createJourneyLoginFailure(payload: Step): JourneyLoginFailure {
   };
 }
 
-export { createJourneyLoginFailure, JourneyLoginFailure };
+export { createJourneyLoginFailure };
+
+export type { JourneyLoginFailure };

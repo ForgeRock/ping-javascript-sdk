@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect an answer to a choice.
  */
-export class RedirectCallback extends JourneyCallback {
+export class RedirectCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

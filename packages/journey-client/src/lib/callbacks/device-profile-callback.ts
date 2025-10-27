@@ -6,14 +6,14 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
-import type { DeviceProfileData } from '../journey-device/interfaces.js';
+import type { DeviceProfileData } from '../device/interfaces.js';
 
 /**
  * Represents a callback used to collect device profile data.
  */
-export class DeviceProfileCallback extends JourneyCallback {
+export class DeviceProfileCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

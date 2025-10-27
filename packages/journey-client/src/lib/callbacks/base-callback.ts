@@ -10,7 +10,7 @@ import type { CallbackType, Callback, NameValue } from '@forgerock/sdk-types';
 /**
  * Base class for authentication tree callback wrappers.
  */
-export class JourneyCallback {
+export class BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

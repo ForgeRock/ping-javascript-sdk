@@ -7,7 +7,7 @@
 import { StepType } from '@forgerock/sdk-types';
 import { describe, expect, it } from 'vitest';
 
-import { createJourneyLoginFailure } from './journey-login-failure.utils.js';
+import { createJourneyLoginFailure } from './login-failure.utils.js';
 
 describe('createJourneyLoginFailure', () => {
   it('should create a JourneyLoginFailure object', () => {

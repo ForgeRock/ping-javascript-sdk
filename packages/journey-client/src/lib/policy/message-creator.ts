@@ -20,7 +20,7 @@ export const defaultMessageCreator: MessageCreator = {
   },
   [PolicyKey.CannotContainDuplicates]: (property: string, params?: { duplicateValue?: string }) => {
     const duplicateValue = getProp<string>(params, 'duplicateValue', '');
-    return `${property}  must not contain duplicates: "${duplicateValue}"`;
+    return `${property} must not contain duplicates: "${duplicateValue}"`;
   },
   [PolicyKey.CannotContainOthers]: (property: string, params?: { disallowedFields?: string }) => {
     const disallowedFields = getProp<string>(params, 'disallowedFields', '');

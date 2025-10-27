@@ -8,7 +8,7 @@
 import { callbackType } from '@forgerock/sdk-types';
 import { describe, it, expect } from 'vitest';
 
-import { Callback } from '@forgerock/sdk-types';
+import type { Callback } from '@forgerock/sdk-types';
 
 import { RedirectCallback } from './redirect-callback.js';
 

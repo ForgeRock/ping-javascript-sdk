@@ -12,9 +12,9 @@ import { callbackType } from '@forgerock/sdk-types';
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
-describe('JourneyCallback', () => {
+describe('BaseCallback', () => {
   it('reads/writes basic properties', () => {
     const payload: Callback = {
       _id: 0,
@@ -32,7 +32,7 @@ describe('JourneyCallback', () => {
       ],
       type: callbackType.NameCallback,
     };
-    const cb = new JourneyCallback(payload);
+    const cb = new BaseCallback(payload);
     cb.setInputValue('superman');
 
     expect(cb.getType()).toBe('NameCallback');

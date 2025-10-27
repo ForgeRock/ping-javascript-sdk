@@ -13,7 +13,7 @@ import { callbackType } from '@forgerock/sdk-types';
 import { parseDeviceNameText, parseDisplayRecoveryCodesText } from './script-parser.js';
 
 import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
-import type { JourneyStep } from '../journey-step.utils.js';
+import type { JourneyStep } from '../step.utils.js';
 
 /**
  * Utility for handling recovery code nodes.
@@ -22,14 +22,14 @@ import type { JourneyStep } from '../journey-step.utils.js';
  *
  * ```js
  * // Determine if step is Display Recovery Codes step
- * const isDisplayRecoveryCodesStep = JourneyRecoveryCodes.isDisplayStep(step);
+ * const isDisplayRecoveryCodesStep = RecoveryCodes.isDisplayStep(step);
  * if (isDisplayRecoveryCodesStep) {
- *   const recoveryCodes = JourneyRecoveryCodes.getCodes(step);
+ *   const recoveryCodes = RecoveryCodes.getCodes(step);
  *   // Do the UI needful
  * }
  * ```
  */
-export abstract class JourneyRecoveryCodes {
+export abstract class RecoveryCodes {
   public static getDeviceName(step: JourneyStep): string {
     const text = this.getDisplayCallback(step)?.getOutputByName('message', '') ?? '';
     return parseDeviceNameText(text);

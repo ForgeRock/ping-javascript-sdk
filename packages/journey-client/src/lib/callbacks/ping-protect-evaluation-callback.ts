@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * @class - Represents a callback used to complete and package up device and behavioral data.
  */
-export class PingOneProtectEvaluationCallback extends JourneyCallback {
+export class PingOneProtectEvaluationCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

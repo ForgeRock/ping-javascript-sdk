@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect information indirectly from the user.
  */
-export class HiddenValueCallback extends JourneyCallback {
+export class HiddenValueCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

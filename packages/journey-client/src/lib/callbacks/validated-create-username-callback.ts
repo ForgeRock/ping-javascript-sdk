@@ -7,12 +7,12 @@
 
 import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect a valid platform username.
  */
-export class ValidatedCreateUsernameCallback extends JourneyCallback {
+export class ValidatedCreateUsernameCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

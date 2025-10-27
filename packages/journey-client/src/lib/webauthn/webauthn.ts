@@ -20,7 +20,7 @@ import {
 } from './helpers.js';
 
 import type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
-import type { JourneyStep } from '../journey-step.utils.js';
+import type { JourneyStep } from '../step.utils.js';
 import type {
   AttestationType,
   RelyingParty,
@@ -51,17 +51,17 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  *
  * ```js
  * // Determine if a step is a WebAuthn step
- * const stepType = JourneyWebAuthn.getWebAuthnStepType(step);
+ * const stepType = WebAuthn.getWebAuthnStepType(step);
  * if (stepType === WebAuthnStepType.Registration) {
  *   // Register a new device
- *   await JourneyWebAuthn.register(step);
+ *   await WebAuthn.register(step);
  * } else if (stepType === WebAuthnStepType.Authentication) {
  *   // Authenticate with a registered device
- *   await JourneyWebAuthn.authenticate(step);
+ *   await WebAuthn.authenticate(step);
  * }
  * ```
  */
-export abstract class JourneyWebAuthn {
+export abstract class WebAuthn {
   /**
    * Determines if the given step is a WebAuthn step.
    *

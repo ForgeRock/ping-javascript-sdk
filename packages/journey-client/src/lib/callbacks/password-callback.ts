@@ -6,12 +6,12 @@
 
 import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect a password.
  */
-export class PasswordCallback extends JourneyCallback {
+export class PasswordCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

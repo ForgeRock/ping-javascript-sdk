@@ -8,10 +8,10 @@
 import { callbackType } from '@forgerock/sdk-types';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
-import { Step } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
 
-import { journey } from './journey-client.js';
-import { createJourneyStep } from './journey-step.utils.js';
+import { journey } from './journey.store.js';
+import { createJourneyStep } from './step.utils.js';
 import { JourneyClientConfig } from './config.types.js';
 
 // Create a singleton mock instance for storage
@@ -26,7 +26,7 @@ vi.mock('@forgerock/storage', () => ({
   createStorage: vi.fn(() => mockStorageInstance),
 }));
 
-vi.mock('./journey-device/index.js', () => ({
+vi.mock('./device/device-profile.js', () => ({
   default: vi.fn(() => ({
     getProfile: vi.fn().mockResolvedValue({}),
   })),

@@ -6,7 +6,7 @@
  */
 
 import { JourneyClientConfig } from './config.types.js';
-import { JourneyStep } from './journey-step.types.js';
+import { JourneyStep } from './step.types.js';
 
 export interface StartParam extends JourneyClientConfig {
   journey: string;

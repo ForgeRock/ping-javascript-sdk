@@ -42,7 +42,7 @@ type Logger = ReturnType<typeof loggerFn>;
  *
  * ```js
  * // Instantiate new device object (w/optional config, if needed)
- * const device = new forgerock.JourneyDevice({
+ * const device = new Device({
  *   // optional configuration
  * });
  *
@@ -54,7 +54,7 @@ type Logger = ReturnType<typeof loggerFn>;
  * });
  * ```
  */
-export class JourneyDevice {
+export class Device {
   private config: BaseProfileConfig;
   private logger: Logger;
   private prefix: string;

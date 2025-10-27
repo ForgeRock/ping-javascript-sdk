@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to instruct the system to poll while a backend process completes.
  */
-export class PollingWaitCallback extends JourneyCallback {
+export class PollingWaitCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

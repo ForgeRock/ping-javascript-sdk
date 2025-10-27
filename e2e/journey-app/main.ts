@@ -43,7 +43,10 @@ const requestMiddleware: RequestMiddleware[] = [
 
 (async () => {
   const journeyClient = await journey({ config, requestMiddleware });
+
+  const errorEl = document.getElementById('error') as HTMLDivElement;
   const formEl = document.getElementById('form') as HTMLFormElement;
+  const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
   let step = await journeyClient.start();
 
@@ -54,7 +57,7 @@ const requestMiddleware: RequestMiddleware[] = [
 
     const session = step.getSessionToken();
 
-    formEl.innerHTML = `
+    journeyEl.innerHTML = `
       <h2>Complete</h2>
       <span>Session:</span>
       <pre data-testid="sessionToken" id="sessionToken">${session}</pre>
@@ -79,9 +82,8 @@ const requestMiddleware: RequestMiddleware[] = [
     }
 
     const error = step.payload.message;
-    const errorDiv = formEl.querySelector('#error-div');
-    if (errorDiv) {
-      errorDiv.innerHTML = `
+    if (errorEl) {
+      errorEl.innerHTML = `
         <pre>${error}</pre>
         `;
     }
@@ -89,7 +91,7 @@ const requestMiddleware: RequestMiddleware[] = [
 
   // Represents the main render function for app
   async function renderForm() {
-    formEl.innerHTML = '';
+    journeyEl.innerHTML = '';
 
     if (step?.type !== 'Step') {
       throw new Error('Expected step to be defined and of type Step');
@@ -99,7 +101,7 @@ const requestMiddleware: RequestMiddleware[] = [
 
     const header = document.createElement('h2');
     header.innerText = formName || '';
-    formEl.appendChild(header);
+    journeyEl.appendChild(header);
 
     const callbacks = step.callbacks;
 
@@ -107,14 +109,14 @@ const requestMiddleware: RequestMiddleware[] = [
       if (callback.getType() === 'NameCallback') {
         const cb = callback as NameCallback;
         textComponent(
-          formEl, // You can ignore this; it's just for rendering
+          journeyEl, // You can ignore this; it's just for rendering
           cb, // This callback class
           idx,
         );
       } else if (callback.getType() === 'PasswordCallback') {
         const cb = callback as PasswordCallback;
         passwordComponent(
-          formEl, // You can ignore this; it's just for rendering
+          journeyEl, // You can ignore this; it's just for rendering
           cb, // This callback class
           idx,
         );
@@ -125,7 +127,7 @@ const requestMiddleware: RequestMiddleware[] = [
     submitBtn.type = 'submit';
     submitBtn.id = 'submitButton';
     submitBtn.innerText = 'Submit';
-    formEl.appendChild(submitBtn);
+    journeyEl.appendChild(submitBtn);
   }
 
   formEl.addEventListener('submit', async (event) => {

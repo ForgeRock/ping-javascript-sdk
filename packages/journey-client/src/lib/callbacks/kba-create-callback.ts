@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect KBA-style security questions and answers.
  */
-export class KbaCreateCallback extends JourneyCallback {
+export class KbaCreateCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

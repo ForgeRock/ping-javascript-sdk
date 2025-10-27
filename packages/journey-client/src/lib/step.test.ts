@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest';
 
 import type { Step } from '@forgerock/sdk-types';
 
-import { createJourneyStep } from './journey-step.utils.js';
+import { createJourneyStep } from './step.utils.js';
 import { NameCallback } from './callbacks/name-callback.js';
 
 describe('fr-step.ts', () => {

@@ -10,9 +10,10 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import { JourneyStep } from '../journey-step.utils.js';
 import { TextOutputCallback } from '../callbacks/text-output-callback.js';
 import { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+
+import type { JourneyStep } from '../step.utils.js';
 
 export type QRCodeData = {
   message: string;
@@ -21,19 +22,19 @@ export type QRCodeData = {
 };
 
 /**
- * @class JourneyQRCode - A utility class for handling QR Code steps
+ * @class QRCode - A utility class for handling QR Code steps
  *
  * Example:
  *
  * ```js
- * const isQRCodeStep = JourneyQRCode.isQRCodeStep(step);
+ * const isQRCodeStep = QRCode.isQRCodeStep(step);
  * let qrCodeData;
  * if (isQRCodeStep) {
- *   qrCodeData = JourneyQRCode.getQRCodeData(step);
+ *   qrCodeData = QRCode.getQRCodeData(step);
  * }
  * ```
  */
-export abstract class JourneyQRCode {
+export abstract class QRCode {
   /**
    * @method isQRCodeStep - determines if step contains QR Code callbacks
    * @param {JourneyStep} step - step object from AM response
@@ -60,7 +61,7 @@ export abstract class JourneyQRCode {
     // QR Codes step should have at least one HiddenValueCallback
     if (hiddenValueCb.length === 0) {
       throw new Error(
-        'QR Code step must contain a HiddenValueCallback. Use `FRQRCode.isQRCodeStep` to guard.',
+        'QR Code step must contain a HiddenValueCallback. Use `QRCode.isQRCodeStep` to guard.',
       );
     }
     const qrCodeURICb = this.getQRCodeURICb(hiddenValueCb) as HiddenValueCallback;

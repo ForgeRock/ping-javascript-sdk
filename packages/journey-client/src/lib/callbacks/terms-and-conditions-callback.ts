@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect acceptance of terms and conditions.
  */
-export class TermsAndConditionsCallback extends JourneyCallback {
+export class TermsAndConditionsCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -36,9 +36,10 @@ export class TermsAndConditionsCallback extends JourneyCallback {
   /**
    * Gets the date of the terms and conditions.
    */
-  public getCreateDate(): Date {
-    const date = this.getOutputByName<string>('createDate', '');
-    return new Date(date);
+  public getCreateDate(): Date | null {
+    const data = this.getOutputByName<string>('createDate', '');
+    const date = new Date(data);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 
   /**

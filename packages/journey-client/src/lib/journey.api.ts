@@ -20,7 +20,7 @@ import type {
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
 
-import { JourneyStep } from './journey-step.types.js';
+import { JourneyStep } from './step.types.js';
 
 import type { JourneyClientConfig } from './config.types.js';
 import { NextOptions, StartParam } from './interfaces.js';
@@ -101,9 +101,9 @@ export const journeyApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    start: builder.mutation<Step, StartParam | void>({
+    start: builder.mutation<Step, StartParam | undefined>({
       queryFn: async (
-        options: StartParam | void,
+        options: StartParam | undefined,
         api: BaseQueryApi,
         _: unknown,
         baseQuery: BaseQueryFn,
@@ -164,9 +164,9 @@ export const journeyApi = createApi({
         return response as QueryReturnValue<Step, FetchBaseQueryError, FetchBaseQueryMeta>;
       },
     }),
-    terminate: builder.mutation<void, { query?: Record<string, string> } | void>({
+    terminate: builder.mutation<void, { query?: Record<string, string> } | undefined>({
       queryFn: async (
-        options: { query?: Record<string, string> } | void,
+        options: { query?: Record<string, string> } | undefined,
         api: BaseQueryApi,
         _: unknown,
         baseQuery: BaseQueryFn,

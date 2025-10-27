@@ -9,7 +9,7 @@
  */
 import { vi, expect, describe, it, afterEach, beforeEach, SpyInstance } from 'vitest';
 
-import { JourneyDevice } from './index.js';
+import { Device } from './device-profile.js';
 
 // Patch window.crypto.getRandomValues to return Uint32Array for compatibility
 Object.defineProperty(window, 'crypto', {
@@ -26,7 +26,7 @@ Object.defineProperty(window, 'crypto', {
 
 describe('Test DeviceProfile', () => {
   it('should return basic metadata', async () => {
-    const device = new JourneyDevice();
+    const device = new Device();
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -48,7 +48,7 @@ describe('Test DeviceProfile', () => {
   });
 
   it('should return metadata without any display props', async () => {
-    const device = new JourneyDevice({ displayProps: [] });
+    const device = new Device({ displayProps: [] });
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -64,7 +64,7 @@ describe('Test DeviceProfile', () => {
   });
 
   it('should return metadata according to narrowed browser props', async () => {
-    const device = new JourneyDevice({ browserProps: ['userAgent'] });
+    const device = new Device({ browserProps: ['userAgent'] });
     const profile = await device.getProfile({
       location: false,
       metadata: true,
@@ -102,13 +102,13 @@ describe('Test DeviceProfile', () => {
     });
 
     it('should not log warnings if logLevel is "error"', () => {
-      const device = new JourneyDevice(undefined, 'error');
+      const device = new Device(undefined, 'error');
       device.getBrowserMeta();
       expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('should log warnings if logLevel is "warn"', () => {
-      const device = new JourneyDevice(undefined, 'warn');
+      const device = new Device(undefined, 'warn');
       device.getBrowserMeta();
       expect(warnSpy).toHaveBeenCalledWith(
         'Cannot collect browser metadata. navigator is not defined.',
@@ -118,7 +118,7 @@ describe('Test DeviceProfile', () => {
 
   it('should use custom prefix for device identifier', () => {
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
-    const device = new JourneyDevice(undefined, 'info', 'my-custom-prefix');
+    const device = new Device(undefined, 'info', 'my-custom-prefix');
     device.getIdentifier();
 
     expect(setItemSpy).toHaveBeenCalledWith('my-custom-prefix-DeviceID', expect.any(String));

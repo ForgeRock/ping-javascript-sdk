@@ -38,10 +38,6 @@ function createJourneyLoginSuccess(payload: Step): JourneyLoginSuccess {
   };
 }
 
-export {
-  createJourneyLoginSuccess,
-  getRealm,
-  getSessionToken,
-  getSuccessUrl,
-  type JourneyLoginSuccess,
-};
+export { createJourneyLoginSuccess, getRealm, getSessionToken, getSuccessUrl };
+
+export type { JourneyLoginSuccess };

@@ -32,7 +32,7 @@ export function asyncEvents(page) {
       }
       const clientIdStorage = originStorage?.localStorage.find((item) => item.name === clientId);
 
-      if (clientIdStorage && typeof clientIdStorage.value !== 'string' && !clientIdStorage.value) {
+      if (!clientIdStorage || typeof clientIdStorage.value !== 'string' || !clientIdStorage.value) {
         return null;
       }
       try {

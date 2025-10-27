@@ -10,7 +10,7 @@
 
 import { PolicyKey } from '@forgerock/sdk-types';
 
-import { JourneyPolicy, MessageCreator } from './index.js';
+import { Policy, MessageCreator } from './policy.js';
 
 describe('The IDM error handling', () => {
   const property = 'userName';
@@ -22,7 +22,7 @@ describe('The IDM error handling', () => {
         policyRequirement: 'UNIQUE',
       },
     };
-    const message = JourneyPolicy.parsePolicyRequirement(property, test.policy);
+    const message = Policy.parsePolicyRequirement(property, test.policy);
     expect(message).toBe(test.expectedString);
   });
 
@@ -36,7 +36,7 @@ describe('The IDM error handling', () => {
         policyRequirement: 'MIN_LENGTH',
       },
     };
-    const message = JourneyPolicy.parsePolicyRequirement(property, test.policy);
+    const message = Policy.parsePolicyRequirement(property, test.policy);
     expect(message).toBe(test.expectedString);
   });
 
@@ -50,7 +50,7 @@ describe('The IDM error handling', () => {
         policyRequirement: 'SOME_UNKNOWN_POLICY',
       },
     };
-    const message = JourneyPolicy.parsePolicyRequirement(property, test.policy);
+    const message = Policy.parsePolicyRequirement(property, test.policy);
     expect(message).toBe(test.expectedString);
   });
 
@@ -65,7 +65,7 @@ describe('The IDM error handling', () => {
         policyRequirement: 'CUSTOM_POLICY',
       },
     };
-    const message = JourneyPolicy.parsePolicyRequirement(
+    const message = Policy.parsePolicyRequirement(
       property,
       test.policy,
       test.customMessage as MessageCreator,
@@ -84,7 +84,7 @@ describe('The IDM error handling', () => {
         policyRequirement: 'UNIQUE',
       },
     };
-    const message = JourneyPolicy.parsePolicyRequirement(property, test.policy, test.customMessage);
+    const message = Policy.parsePolicyRequirement(property, test.policy, test.customMessage);
     expect(message).toBe(test.expectedString);
   });
 
@@ -104,7 +104,7 @@ describe('The IDM error handling', () => {
       property: 'userName',
     };
 
-    const messageArray = JourneyPolicy.parseFailedPolicyRequirement(policy);
+    const messageArray = Policy.parseFailedPolicyRequirement(policy);
     expect(messageArray).toEqual([
       'userName must be unique',
       'userName must be at least 6 characters',
@@ -196,7 +196,7 @@ describe('The IDM error handling', () => {
       },
     ];
 
-    const errorObjArr = JourneyPolicy.parseErrors(errorResponse, customMessage);
+    const errorObjArr = Policy.parseErrors(errorResponse, customMessage);
     expect(errorObjArr).toEqual(expected);
   });
 });

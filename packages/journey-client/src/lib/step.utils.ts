@@ -11,19 +11,19 @@ import { StepType } from '@forgerock/sdk-types';
 
 import { createCallback } from './callbacks/factory.js';
 
-import type { JourneyCallback } from './callbacks/index.js';
-import type { JourneyStep } from './journey-step.types.js';
-import type { JourneyCallbackFactory } from './callbacks/factory.js';
+import type { BaseCallback } from './callbacks/base-callback.js';
+import type { JourneyStep } from './step.types.js';
+import type { CallbackFactory } from './callbacks/factory.js';
 
-function getCallbacksOfType<T extends JourneyCallback>(
-  callbacks: JourneyCallback[],
+function getCallbacksOfType<T extends BaseCallback>(
+  callbacks: BaseCallback[],
   type: CallbackType,
 ): T[] {
   return callbacks.filter((x) => x.getType() === type) as T[];
 }
 
-function getCallbackOfType<T extends JourneyCallback>(
-  callbacks: JourneyCallback[],
+function getCallbackOfType<T extends BaseCallback>(
+  callbacks: BaseCallback[],
   type: CallbackType,
 ): T {
   const callbacksOfType = getCallbacksOfType<T>(callbacks, type);
@@ -33,7 +33,7 @@ function getCallbackOfType<T extends JourneyCallback>(
   return callbacksOfType[0];
 }
 
-function setCallbackValue(callbacks: JourneyCallback[], type: CallbackType, value: unknown): void {
+function setCallbackValue(callbacks: BaseCallback[], type: CallbackType, value: unknown): void {
   const callbacksToUpdate = getCallbacksOfType(callbacks, type);
   if (callbacksToUpdate.length !== 1) {
     throw new Error(`Expected 1 callback of type "${type}", but found ${callbacksToUpdate.length}`);
@@ -55,8 +55,8 @@ function getStage(payload: Step): string | undefined {
 
 function convertCallbacks(
   callbacks: Callback[],
-  callbackFactory?: JourneyCallbackFactory,
-): JourneyCallback[] {
+  callbackFactory?: CallbackFactory,
+): BaseCallback[] {
   const converted = callbacks.map((x: Callback) => {
     // This gives preference to the provided factory and falls back to our default implementation
     return (callbackFactory || createCallback)(x) || createCallback(x);
@@ -64,9 +64,13 @@ function convertCallbacks(
   return converted;
 }
 
-function createJourneyStep(payload: Step, callbackFactory?: JourneyCallbackFactory): JourneyStep {
+function createJourneyStep(payload: Step, callbackFactory?: CallbackFactory): JourneyStep {
   // Redux Toolkit freezes data, so we need to clone it before making any changes
-  const unfrozenPayload = structuredClone(payload);
+  const unfrozenPayload =
+    typeof structuredClone === 'function'
+      ? structuredClone(payload)
+      : (JSON.parse(JSON.stringify(payload)) as Step);
+
   const convertedCallbacks = unfrozenPayload.callbacks
     ? convertCallbacks(unfrozenPayload.callbacks, callbackFactory)
     : [];
@@ -74,9 +78,9 @@ function createJourneyStep(payload: Step, callbackFactory?: JourneyCallbackFacto
     payload: unfrozenPayload,
     callbacks: convertedCallbacks,
     type: StepType.Step,
-    getCallbackOfType: <T extends JourneyCallback>(type: CallbackType) =>
+    getCallbackOfType: <T extends BaseCallback>(type: CallbackType) =>
       getCallbackOfType<T>(convertedCallbacks, type),
-    getCallbacksOfType: <T extends JourneyCallback>(type: CallbackType) =>
+    getCallbacksOfType: <T extends BaseCallback>(type: CallbackType) =>
       getCallbacksOfType<T>(convertedCallbacks, type),
     setCallbackValue: (type: CallbackType, value: unknown) =>
       setCallbackValue(convertedCallbacks, type, value),

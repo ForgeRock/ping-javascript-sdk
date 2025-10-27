@@ -7,7 +7,7 @@
 import type { NameCallback } from '@forgerock/journey-client/types';
 
 export default function textComponent(
-  formEl: HTMLFormElement,
+  journeyEl: HTMLDivElement,
   callback: NameCallback,
   idx: number,
 ) {
@@ -21,10 +21,10 @@ export default function textComponent(
   input.id = collectorKey;
   input.name = collectorKey;
 
-  formEl?.appendChild(label);
-  formEl?.appendChild(input);
+  journeyEl?.appendChild(label);
+  journeyEl?.appendChild(input);
 
-  formEl?.querySelector(`#${collectorKey}`)?.addEventListener('input', (event) => {
+  journeyEl?.querySelector(`#${collectorKey}`)?.addEventListener('input', (event) => {
     callback.setName((event.target as HTMLInputElement).value);
   });
 }

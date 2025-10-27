@@ -7,7 +7,7 @@
 import type { PasswordCallback } from '@forgerock/journey-client/types';
 
 export default function passwordComponent(
-  formEl: HTMLFormElement,
+  journeyEl: HTMLDivElement,
   callback: PasswordCallback,
   idx: number,
 ) {
@@ -21,10 +21,10 @@ export default function passwordComponent(
   input.id = collectorKey;
   input.name = collectorKey;
 
-  formEl?.appendChild(label);
-  formEl?.appendChild(input);
+  journeyEl?.appendChild(label);
+  journeyEl?.appendChild(input);
 
-  formEl?.querySelector(`#${collectorKey}`)?.addEventListener('input', (event) => {
+  journeyEl?.querySelector(`#${collectorKey}`)?.addEventListener('input', (event) => {
     callback.setPassword((event.target as HTMLInputElement).value);
   });
 }

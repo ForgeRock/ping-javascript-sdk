@@ -28,14 +28,14 @@ import type { MessageCreator, ProcessedPropertyError } from './interfaces.js';
  *   ),
  * };
  *
- * const thisStep = await FRAuth.next(previousStep);
+ * const thisStep = await journeyClient.next(previousStep);
  *
  * if (thisStep.type === StepType.LoginFailure) {
  *   const messagesStepMethod = thisStep.getProcessedMessage(messageCreator);
- *   const messagesClassMethod = FRPolicy.parseErrors(thisStep, messageCreator)
+ *   const messagesClassMethod = Policy.parseErrors(thisStep, messageCreator)
  * }
  */
-export abstract class JourneyPolicy {
+export abstract class Policy {
   /**
    * Parses policy errors and generates human readable error messages.
    *
@@ -98,7 +98,20 @@ export abstract class JourneyPolicy {
     messageCreator: MessageCreator = {},
   ): string {
     // AM is returning policy requirement failures as JSON strings
-    const policyObject = typeof policy === 'string' ? JSON.parse(policy) : { ...policy };
+    let policyObject: { policyRequirement: string; params?: Record<string, unknown> };
+    if (typeof policy === 'string') {
+      try {
+        const parsed = JSON.parse(policy);
+        policyObject =
+          typeof parsed === 'string'
+            ? { policyRequirement: parsed }
+            : (parsed as { policyRequirement: string; params?: Record<string, unknown> });
+      } catch {
+        policyObject = { policyRequirement: policy };
+      }
+    } else {
+      policyObject = { ...policy };
+    }
 
     const policyRequirement = policyObject.policyRequirement;
 

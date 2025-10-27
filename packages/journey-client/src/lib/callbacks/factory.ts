@@ -9,7 +9,7 @@ import { callbackType } from '@forgerock/sdk-types';
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 import { AttributeInputCallback } from './attribute-input-callback.js';
 import { ChoiceCallback } from './choice-callback.js';
@@ -34,12 +34,12 @@ import { TextOutputCallback } from './text-output-callback.js';
 import { ValidatedCreatePasswordCallback } from './validated-create-password-callback.js';
 import { ValidatedCreateUsernameCallback } from './validated-create-username-callback.js';
 
-export type JourneyCallbackFactory = (callback: Callback) => JourneyCallback;
+export type CallbackFactory = (callback: Callback) => BaseCallback;
 
 /**
  * @hidden
  */
-export function createCallback(callback: Callback): JourneyCallback {
+export function createCallback(callback: Callback): BaseCallback {
   switch (callback.type) {
     case callbackType.BooleanAttributeInputCallback:
       return new AttributeInputCallback<boolean>(callback);
@@ -90,6 +90,6 @@ export function createCallback(callback: Callback): JourneyCallback {
     case callbackType.ValidatedCreateUsernameCallback:
       return new ValidatedCreateUsernameCallback(callback);
     default:
-      return new JourneyCallback(callback);
+      return new BaseCallback(callback);
   }
 }

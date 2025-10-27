@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect a username.
  */
-export class NameCallback extends JourneyCallback {
+export class NameCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */

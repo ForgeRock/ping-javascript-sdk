@@ -6,12 +6,12 @@
 
 import type { Callback } from '@forgerock/sdk-types';
 
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to display a message.
  */
-export class TextOutputCallback extends JourneyCallback {
+export class TextOutputCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -28,6 +28,7 @@ export class TextOutputCallback extends JourneyCallback {
 
   /**
    * Gets the message type.
+   * Official docs state this is a number, but in practice it's a string.
    */
   public getMessageType(): string {
     return this.getOutputByName<string>('messageType', '');

@@ -7,6 +7,7 @@
 
 import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
+import { username, password } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { navigate } = asyncEvents(page);
@@ -23,8 +24,8 @@ test('Test happy paths on test page', async ({ page }) => {
   expect(page.url()).toBe('http://localhost:5829/');
 
   // Perform basic login
-  await page.getByLabel('User Name').fill('demouser');
-  await page.getByLabel('Password').fill('U.QPDWEN47ZMyJhCDmhGLK*nr');
+  await page.getByLabel('User Name').fill(username);
+  await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Submit' }).click();
   await expect(page.getByText('Complete')).toBeVisible();
 

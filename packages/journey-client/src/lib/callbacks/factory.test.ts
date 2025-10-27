@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest';
 import type { Callback } from '@forgerock/sdk-types';
 
 import { createCallback } from './factory.js';
-import { JourneyCallback } from './index.js';
+import { BaseCallback } from './base-callback.js';
 
 // Import all callback classes to check against
 import { AttributeInputCallback } from './attribute-input-callback.js';
@@ -79,10 +79,10 @@ describe('Callback Factory', () => {
     });
   });
 
-  it('should create a base JourneyCallback for an unknown type', () => {
+  it('should create a base BaseCallback for an unknown type', () => {
     const payload: Callback = { type: 'UnknownCallback' as any, input: [], output: [] };
     const callback = createCallback(payload);
-    expect(callback).toBeInstanceOf(JourneyCallback);
+    expect(callback).toBeInstanceOf(BaseCallback);
     // Ensure it's not an instance of a more specific class
     expect(callback).not.toBeInstanceOf(NameCallback);
   });

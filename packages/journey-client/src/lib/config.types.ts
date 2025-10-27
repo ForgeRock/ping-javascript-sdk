@@ -6,7 +6,7 @@
  */
 
 import type { BaseConfig } from '@forgerock/sdk-types';
-import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
 export interface JourneyClientConfig extends BaseConfig {
   middleware?: Array<RequestMiddleware>;
