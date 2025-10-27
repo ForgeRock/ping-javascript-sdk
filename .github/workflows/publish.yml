@@ -43,18 +43,16 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
       - name: Setup Project
         uses: ./.github/actions/setup
         with:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
-
-      - uses: actions/setup-node@v5
-        id: cache
-        with:
-          node-version-file: '.node-version'
-          pnpm-cache-folder: .pnpm-store
-        env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: publish
@@ -81,14 +79,6 @@ jobs:
       - name: Publish Beta Steps
         if: steps.changesets.outputs.published == 'false'
         uses: ./.github/actions/publish-beta
-        with:
-          branch: main
-
-      - uses: JamesIves/github-pages-deploy-action@v4.7.3
-        with:
-          folder: docs
-          commit-message: 'chore: release-api-docs-beta'
-          target-folder: 'beta'
 
       - name: Calculate baseline bundle sizes
         run: |
@@ -118,6 +108,12 @@ jobs:
     env:
       HUSKY: 0
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+          ref: ${{ inputs.branch }}
+
       - name: Setup Project
         uses: ./.github/actions/setup
         with:

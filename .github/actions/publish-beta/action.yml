@@ -1,6 +1,5 @@
 name: 'Publish Beta Steps'
 description: 'Steps to run when packages are not published (beta branch)'
-inputs:
 
 runs:
   using: 'composite'

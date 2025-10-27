@@ -1,13 +1,6 @@
 name: 'Setup Project'
 description: 'Centralized setup for CI jobs'
 inputs:
-  fetch-depth:
-    description: 'Git fetch depth'
-    required: false
-    default: '0'
-  token:
-    description: 'GitHub token'
-    required: true
   node-version-file:
     description: 'Node version file'
     required: false
@@ -16,14 +9,13 @@ inputs:
     description: 'pnpm cache folder'
     required: false
     default: '.pnpm-store'
+  CODECOV_TOKEN:
+    description: 'CODECOV_TOKEN'
+    required: true
+
 runs:
   using: 'composite'
   steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: ${{ inputs.fetch-depth }}
-        token: ${{ inputs.token }}
-
     - uses: pnpm/action-setup@v4
       with:
         run_install: false
@@ -50,7 +42,7 @@ runs:
       run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
       shell: bash
       env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        CODECOV_TOKEN: ${{ inputs.CODECOV_TOKEN }}
 
     - name: Cache Playwright browsers
       uses: actions/cache@v4

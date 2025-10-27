@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   pr:
+    if: ${{github.event.pull_request.head.repo.full_name == github.repository}}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -37,8 +38,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # This line enables distribution
-      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
       - run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
       - run: pnpm nx sync:check
 
