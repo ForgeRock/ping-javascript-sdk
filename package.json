@@ -52,7 +52,6 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.9",
-    "@codecov/vite-plugin": "1.9.0",
     "@commitlint/cli": "^20.0.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@commitlint/prompt": "^20.0.0",
@@ -77,7 +76,7 @@
     "@types/eslint": "9.6.1",
     "@types/estree": "^1.0.1",
     "@types/express": "5.0.1",
-    "@types/node": "22.18.12",
+    "@types/node": "24.7.2",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "@typescript-eslint/typescript-estree": "8.23.0",
@@ -121,7 +120,7 @@
   },
   "packageManager": "pnpm@10.19.0+sha512.c9fc7236e92adf5c8af42fd5bf1612df99c2ceb62f27047032f4720b33f8eacdde311865e91c411f2774f618d82f320808ecb51718bfa82c060c4ba7c76a32b8",
   "engines": {
-    "node": "^20 || ^22",
+    "node": "^20 || ^22 || ^24",
     "pnpm": ">=10.17.1"
   },
   "nx": {

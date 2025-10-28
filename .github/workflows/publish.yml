@@ -52,7 +52,6 @@ jobs:
         uses: ./.github/actions/setup
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: publish
@@ -117,12 +116,8 @@ jobs:
       - name: Setup Project
         uses: ./.github/actions/setup
         with:
-          fetch-depth: 0
-          ref: ${{ inputs.branch }}
-          token: ${{ secrets.GH_TOKEN }}
           node-version-file: '.node-version'
           pnpm-cache-folder: .pnpm-store
-        env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Version Packages as prerelease

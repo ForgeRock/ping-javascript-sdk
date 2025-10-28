@@ -24,7 +24,7 @@ runs:
       run: pnpm config set store-dir ${{ inputs.pnpm-cache-folder }} --global
       shell: bash
 
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version-file: ${{ inputs.node-version-file }}
         cache: 'pnpm'
@@ -58,6 +58,10 @@ runs:
 
     - uses: nrwl/nx-set-shas@v4
 
+    - name: Check TS References are Synced
+      shell: bash
+      run: pnpm nx sync:check
+
     - name: Run Nx build/lint/test/e2e
       run: pnpm exec nx affected -t build lint test e2e-ci
       shell: bash
@@ -68,5 +72,6 @@ runs:
       with:
         name: playwright-report
         path: |
-          ./**/.playwright/**
+          ./e2e/*/.playwright/**
+          ./e2e/**/.playwright/**
         retention-days: 30
