@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * validated-create-username-callback.test.ts
  *
@@ -9,8 +9,10 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
+
 import type { Callback } from '@forgerock/sdk-types';
-import ValidatedCreateUsernameCallback from './validated-create-username-callback.js';
+
+import { ValidatedCreateUsernameCallback } from './validated-create-username-callback.js';
 
 describe('ValidatedCreateUsernameCallback', () => {
   const payload: Callback = {

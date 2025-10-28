@@ -6,37 +6,40 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import JourneyCallback from './index.js';
-import type { Callback } from '@forgerock/sdk-types';
-import AttributeInputCallback from './attribute-input-callback.js';
-import ChoiceCallback from './choice-callback.js';
-import ConfirmationCallback from './confirmation-callback.js';
-import DeviceProfileCallback from './device-profile-callback.js';
-import HiddenValueCallback from './hidden-value-callback.js';
-import KbaCreateCallback from './kba-create-callback.js';
-import MetadataCallback from './metadata-callback.js';
-import NameCallback from './name-callback.js';
-import PasswordCallback from './password-callback.js';
-import PingOneProtectEvaluationCallback from './ping-protect-evaluation-callback.js';
-import PingOneProtectInitializeCallback from './ping-protect-initialize-callback.js';
-import PollingWaitCallback from './polling-wait-callback.js';
-import ReCaptchaCallback from './recaptcha-callback.js';
-import ReCaptchaEnterpriseCallback from './recaptcha-enterprise-callback.js';
-import RedirectCallback from './redirect-callback.js';
-import SelectIdPCallback from './select-idp-callback.js';
-import SuspendedTextOutputCallback from './suspended-text-output-callback.js';
-import TermsAndConditionsCallback from './terms-and-conditions-callback.js';
-import TextInputCallback from './text-input-callback.js';
-import TextOutputCallback from './text-output-callback.js';
-import ValidatedCreatePasswordCallback from './validated-create-password-callback.js';
-import ValidatedCreateUsernameCallback from './validated-create-username-callback.js';
 
-type JourneyCallbackFactory = (callback: Callback) => JourneyCallback;
+import type { Callback } from '@forgerock/sdk-types';
+
+import { BaseCallback } from './base-callback.js';
+
+import { AttributeInputCallback } from './attribute-input-callback.js';
+import { ChoiceCallback } from './choice-callback.js';
+import { ConfirmationCallback } from './confirmation-callback.js';
+import { DeviceProfileCallback } from './device-profile-callback.js';
+import { HiddenValueCallback } from './hidden-value-callback.js';
+import { KbaCreateCallback } from './kba-create-callback.js';
+import { MetadataCallback } from './metadata-callback.js';
+import { NameCallback } from './name-callback.js';
+import { PasswordCallback } from './password-callback.js';
+import { PingOneProtectEvaluationCallback } from './ping-protect-evaluation-callback.js';
+import { PingOneProtectInitializeCallback } from './ping-protect-initialize-callback.js';
+import { PollingWaitCallback } from './polling-wait-callback.js';
+import { ReCaptchaCallback } from './recaptcha-callback.js';
+import { ReCaptchaEnterpriseCallback } from './recaptcha-enterprise-callback.js';
+import { RedirectCallback } from './redirect-callback.js';
+import { SelectIdPCallback } from './select-idp-callback.js';
+import { SuspendedTextOutputCallback } from './suspended-text-output-callback.js';
+import { TermsAndConditionsCallback } from './terms-and-conditions-callback.js';
+import { TextInputCallback } from './text-input-callback.js';
+import { TextOutputCallback } from './text-output-callback.js';
+import { ValidatedCreatePasswordCallback } from './validated-create-password-callback.js';
+import { ValidatedCreateUsernameCallback } from './validated-create-username-callback.js';
+
+export type CallbackFactory = (callback: Callback) => BaseCallback;
 
 /**
  * @hidden
  */
-function createCallback(callback: Callback): JourneyCallback {
+export function createCallback(callback: Callback): BaseCallback {
   switch (callback.type) {
     case callbackType.BooleanAttributeInputCallback:
       return new AttributeInputCallback<boolean>(callback);
@@ -87,9 +90,6 @@ function createCallback(callback: Callback): JourneyCallback {
     case callbackType.ValidatedCreateUsernameCallback:
       return new ValidatedCreateUsernameCallback(callback);
     default:
-      return new JourneyCallback(callback);
+      return new BaseCallback(callback);
   }
 }
-
-export default createCallback;
-export type { JourneyCallbackFactory };

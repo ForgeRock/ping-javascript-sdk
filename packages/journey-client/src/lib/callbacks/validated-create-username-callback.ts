@@ -5,13 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
+
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect a valid platform username.
  */
-class ValidatedCreateUsernameCallback extends JourneyCallback {
+export class ValidatedCreateUsernameCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -73,5 +74,3 @@ class ValidatedCreateUsernameCallback extends JourneyCallback {
     this.setInputValue(value, /validateOnly/);
   }
 }
-
-export default ValidatedCreateUsernameCallback;

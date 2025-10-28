@@ -4,17 +4,14 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/src/index.d.ts",
-      "import": "./dist/src/index.js",
-      "default": "./dist/src/index.js"
-    },
-    "./journey-device": "./dist/src/lib/journey-device/index.js",
-    "./journey-policy": "./dist/src/lib/journey-policy/index.js",
-    "./journey-qrcode": "./dist/src/lib/journey-qrcode/journey-qrcode.js",
-    "./journey-recoverycodes": "./dist/src/lib/recovery-codes/index.js",
-    "./journey-webauthn": "./dist/src/lib/journey-webauthn/index.js",
-    "./package.json": "./package.json"
+    ".": "./dist/src/index.js",
+    "./device": "./dist/src/lib/device/device-profile.js",
+    "./package.json": "./package.json",
+    "./policy": "./dist/src/lib/policy/policy.js",
+    "./qr-code": "./dist/src/lib/qr-code/qr-code.js",
+    "./recovery-codes": "./dist/src/lib/recovery-codes/recovery-codes.js",
+    "./types": "./dist/src/types.d.ts",
+    "./webauthn": "./dist/src/lib/webauthn/webauthn.js"
   },
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",

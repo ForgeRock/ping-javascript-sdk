@@ -19,6 +19,7 @@ packages/**/coverage/
 node_modules/
 tests/**/app/index.js*
 tests/**/ie11/ie-bundle.js*
+
 # Out-TSC directories (TypeScript output)
 **/out-tsc/*
 out-tsc/
@@ -32,6 +33,7 @@ out-tsc/
 
 # Test code
 tests/**/app/index.js*
+e2e/**/.env.e2e
 test-results
 
 # Environment files
@@ -53,7 +55,7 @@ vite.config.*.timestamp*
 .netrc
 
 # ignore this in CI please.
-# Nx stuff we get in CI that we dont want to commit
+# Nx stuff we get in CI that we don't want to commit
 code
 terminalOutput
 outputs/*

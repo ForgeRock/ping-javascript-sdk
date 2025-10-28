@@ -47,14 +47,6 @@ export interface ValidLegacyConfigOptions extends LegacyConfigOptions {
   // needs logger?
 }
 
-/**
- * Represents configuration overrides used when requesting the next
- * step in an authentication tree.
- */
-export interface StepOptions extends LegacyConfigOptions {
-  query?: Record<string, string>;
-}
-
 export interface WellKnownResponse {
   issuer: string;
   authorization_endpoint: string;

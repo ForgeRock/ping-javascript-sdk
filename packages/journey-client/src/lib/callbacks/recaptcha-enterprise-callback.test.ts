@@ -1,5 +1,5 @@
 /*
- * @forgerock/javascript-sdk
+ * @forgerock/ping-javascript-sdk
  *
  * recaptcha-enterprise-callback.test.ts
  *
@@ -8,10 +8,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { describe, expect, it, beforeAll } from 'vitest';
-import ReCaptchaEnterpriseCallback from './recaptcha-enterprise-callback.js';
 import { callbackType } from '@forgerock/sdk-types';
-import { Callback } from '@forgerock/sdk-types';
+import { describe, expect, it, beforeAll } from 'vitest';
+
+import type { Callback } from '@forgerock/sdk-types';
+
+import { ReCaptchaEnterpriseCallback } from './recaptcha-enterprise-callback.js';
 
 const recaptchaCallback: Callback = {
   type: callbackType.ReCaptchaEnterpriseCallback,

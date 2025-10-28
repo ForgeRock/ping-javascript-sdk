@@ -5,10 +5,17 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { type Step, StepType } from '@forgerock/sdk-types';
-import { createJourneyStep, JourneyStep } from './journey-step.utils.js';
-import { createJourneyLoginSuccess, JourneyLoginSuccess } from './journey-login-success.utils.js';
-import { createJourneyLoginFailure, JourneyLoginFailure } from './journey-login-failure.utils.js';
+import { StepType } from '@forgerock/sdk-types';
+
+import type { Step } from '@forgerock/sdk-types';
+
+import { createJourneyLoginSuccess } from './login-success.utils.js';
+import { createJourneyLoginFailure } from './login-failure.utils.js';
+import { createJourneyStep } from './step.utils.js';
+
+import type { JourneyStep } from './step.utils.js';
+import type { JourneyLoginFailure } from './login-failure.utils.js';
+import type { JourneyLoginSuccess } from './login-success.utils.js';
 
 function createJourneyObject(
   step: Step,

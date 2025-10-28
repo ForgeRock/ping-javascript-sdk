@@ -1,0 +1,508 @@
+/*
+ * @forgerock/ping-javascript-sdk
+ *
+ * index.ts
+ *
+ * Copyright (c) 2024 - 2025 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+
+import { callbackType } from '@forgerock/sdk-types';
+
+import { WebAuthnOutcome, WebAuthnOutcomeType, WebAuthnStepType } from './enums.js';
+import {
+  arrayBufferToString,
+  parseCredentials,
+  parsePubKeyArray,
+  parseRelyingPartyId,
+} from './helpers.js';
+
+import type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+import type { JourneyStep } from '../step.utils.js';
+import type {
+  AttestationType,
+  RelyingParty,
+  WebAuthnAuthenticationMetadata,
+  WebAuthnCallbacks,
+  WebAuthnRegistrationMetadata,
+  WebAuthnTextOutputRegistration,
+} from './interfaces.js';
+import type { MetadataCallback } from '../callbacks/metadata-callback.js';
+import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
+
+// <clientdata>::<attestation>::<publickeyCredential>::<DeviceName>
+type OutcomeWithName<
+  ClientId extends string,
+  Attestation extends AttestationType,
+  PubKeyCred extends PublicKeyCredential,
+  Name = '',
+> = Name extends infer P extends string
+  ? `${ClientId}::${Attestation}::${PubKeyCred['id']}${P extends '' ? '' : `::${P}`}`
+  : never;
+// JSON-based WebAuthn
+type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMetadata;
+
+/**
+ * Utility for integrating a web browser's WebAuthn API.
+ *
+ * Example:
+ *
+ * ```js
+ * // Determine if a step is a WebAuthn step
+ * const stepType = WebAuthn.getWebAuthnStepType(step);
+ * if (stepType === WebAuthnStepType.Registration) {
+ *   // Register a new device
+ *   await WebAuthn.register(step);
+ * } else if (stepType === WebAuthnStepType.Authentication) {
+ *   // Authenticate with a registered device
+ *   await WebAuthn.authenticate(step);
+ * }
+ * ```
+ */
+export abstract class WebAuthn {
+  /**
+   * Determines if the given step is a WebAuthn step.
+   *
+   * @param step The step to evaluate
+   * @return A WebAuthnStepType value
+   */
+  public static getWebAuthnStepType(step: JourneyStep): WebAuthnStepType {
+    const outcomeCallback = this.getOutcomeCallback(step);
+    const metadataCallback = this.getMetadataCallback(step);
+    const textOutputCallback = this.getTextOutputCallback(step);
+
+    if (outcomeCallback && metadataCallback) {
+      const metadata = metadataCallback.getOutputValue('data') as {
+        pubKeyCredParams?: [];
+      };
+      if (metadata?.pubKeyCredParams) {
+        return WebAuthnStepType.Registration;
+      }
+
+      return WebAuthnStepType.Authentication;
+    }
+
+    if (outcomeCallback && textOutputCallback) {
+      const message = textOutputCallback.getMessage() as string | WebAuthnTextOutputRegistration;
+
+      if (message.includes('pubKeyCredParams')) {
+        return WebAuthnStepType.Registration;
+      }
+
+      return WebAuthnStepType.Authentication;
+    } else {
+      return WebAuthnStepType.None;
+    }
+  }
+
+  /**
+   * Populates the step with the necessary authentication outcome.
+   *
+   * @param step The step that contains WebAuthn authentication data
+   * @return The populated step
+   */
+  public static async authenticate(step: JourneyStep): Promise<JourneyStep> {
+    const { hiddenCallback, metadataCallback, textOutputCallback } = this.getCallbacks(step);
+    if (hiddenCallback && (metadataCallback || textOutputCallback)) {
+      let outcome: ReturnType<typeof this.getAuthenticationOutcome>;
+      let credential: PublicKeyCredential | null = null;
+
+      try {
+        let publicKey: PublicKeyCredentialRequestOptions;
+        if (metadataCallback) {
+          const meta = metadataCallback.getOutputValue('data') as WebAuthnAuthenticationMetadata;
+          publicKey = this.createAuthenticationPublicKey(meta);
+
+          credential = await this.getAuthenticationCredential(
+            publicKey as PublicKeyCredentialRequestOptions,
+          );
+          outcome = this.getAuthenticationOutcome(credential);
+        } else {
+          throw new Error(
+            'No metadata callback found for WebAuthn authentication. Please disable JavaScript in server node.',
+          );
+        }
+      } catch (error) {
+        if (!(error instanceof Error)) throw error;
+        // NotSupportedError is a special case
+        if (error.name === WebAuthnOutcomeType.NotSupportedError) {
+          hiddenCallback.setInputValue(WebAuthnOutcome.Unsupported);
+          throw error;
+        }
+        hiddenCallback.setInputValue(`${WebAuthnOutcome.Error}::${error.name}:${error.message}`);
+        throw error;
+      }
+
+      if (metadataCallback) {
+        const meta = metadataCallback.getOutputValue('data') as WebAuthnAuthenticationMetadata;
+        if (meta?.supportsJsonResponse && credential && 'authenticatorAttachment' in credential) {
+          hiddenCallback.setInputValue(
+            JSON.stringify({
+              authenticatorAttachment: credential.authenticatorAttachment,
+              legacyData: outcome,
+            }),
+          );
+          return step;
+        }
+      }
+      hiddenCallback.setInputValue(outcome);
+      return step;
+    } else {
+      const e = new Error('Incorrect callbacks for WebAuthn authentication');
+      e.name = WebAuthnOutcomeType.DataError;
+      hiddenCallback?.setInputValue(`${WebAuthnOutcome.Error}::${e.name}:${e.message}`);
+      throw e;
+    }
+  }
+  /**
+   * Populates the step with the necessary registration outcome.
+   *
+   * @param step The step that contains WebAuthn registration data
+   * @return The populated step
+   */
+  // Can make this generic const in Typescript 5.0 > and the name itself will
+  // be inferred from the type so `typeof deviceName` will not just return string
+  // but the actual name of the deviceName passed in as a generic.
+  public static async register<T extends string = ''>(
+    step: JourneyStep,
+    deviceName?: T,
+  ): Promise<JourneyStep> {
+    const { hiddenCallback, metadataCallback, textOutputCallback } = this.getCallbacks(step);
+    if (hiddenCallback && (metadataCallback || textOutputCallback)) {
+      let outcome: OutcomeWithName<string, AttestationType, PublicKeyCredential>;
+      let credential: PublicKeyCredential | null = null;
+
+      try {
+        let publicKey: PublicKeyCredentialRequestOptions;
+        if (metadataCallback) {
+          const meta = metadataCallback.getOutputValue('data') as WebAuthnRegistrationMetadata;
+          publicKey = this.createRegistrationPublicKey(meta);
+          credential = await this.getRegistrationCredential(
+            publicKey as PublicKeyCredentialCreationOptions,
+          );
+          outcome = this.getRegistrationOutcome(credential);
+        } else {
+          throw new Error(
+            'No metadata callback found for WebAuthn registration. Please disable JavaScript in server node.',
+          );
+        }
+      } catch (error) {
+        if (!(error instanceof Error)) throw error;
+        // NotSupportedError is a special case
+        if (error.name === WebAuthnOutcomeType.NotSupportedError) {
+          hiddenCallback.setInputValue(WebAuthnOutcome.Unsupported);
+          throw error;
+        }
+        hiddenCallback.setInputValue(`${WebAuthnOutcome.Error}::${error.name}:${error.message}`);
+        throw error;
+      }
+
+      if (metadataCallback) {
+        const meta = metadataCallback.getOutputValue('data') as WebAuthnAuthenticationMetadata;
+        if (meta?.supportsJsonResponse && credential && 'authenticatorAttachment' in credential) {
+          hiddenCallback.setInputValue(
+            JSON.stringify({
+              authenticatorAttachment: credential.authenticatorAttachment,
+              legacyData:
+                deviceName && deviceName.length > 0 ? `${outcome}::${deviceName}` : outcome,
+            }),
+          );
+          return step;
+        }
+      }
+
+      hiddenCallback.setInputValue(
+        deviceName && deviceName.length > 0 ? `${outcome}::${deviceName}` : outcome,
+      );
+      return step;
+    } else {
+      const e = new Error('Incorrect callbacks for WebAuthn registration');
+      e.name = WebAuthnOutcomeType.DataError;
+      hiddenCallback?.setInputValue(`${WebAuthnOutcome.Error}::${e.name}:${e.message}`);
+      throw e;
+    }
+  }
+
+  /**
+   * Returns an object containing the two WebAuthn callbacks.
+   *
+   * @param step The step that contains WebAuthn callbacks
+   * @return The WebAuthn callbacks
+   */
+  public static getCallbacks(step: JourneyStep): WebAuthnCallbacks {
+    const hiddenCallback = this.getOutcomeCallback(step);
+    const metadataCallback = this.getMetadataCallback(step);
+    const textOutputCallback = this.getTextOutputCallback(step);
+
+    const returnObj: WebAuthnCallbacks = {
+      hiddenCallback,
+    };
+
+    if (metadataCallback) {
+      returnObj.metadataCallback = metadataCallback;
+    } else if (textOutputCallback) {
+      returnObj.textOutputCallback = textOutputCallback;
+    }
+    return returnObj;
+  }
+
+  /**
+   * Returns the WebAuthn metadata callback containing data to pass to the browser
+   * Web Authentication API.
+   *
+   * @param step The step that contains WebAuthn callbacks
+   * @return The metadata callback
+   */
+  public static getMetadataCallback(step: JourneyStep): MetadataCallback | undefined {
+    return step.getCallbacksOfType<MetadataCallback>(callbackType.MetadataCallback).find((x) => {
+      const cb = x.getOutputByName<WebAuthnMetadata | undefined>('data', undefined);
+      // eslint-disable-next-line no-prototype-builtins
+      return cb && cb.hasOwnProperty('relyingPartyId');
+    });
+  }
+
+  /**
+   * Returns the WebAuthn hidden value callback where the outcome should be populated.
+   *
+   * @param step The step that contains WebAuthn callbacks
+   * @return The hidden value callback
+   */
+  public static getOutcomeCallback(step: JourneyStep): HiddenValueCallback | undefined {
+    return step
+      .getCallbacksOfType<HiddenValueCallback>(callbackType.HiddenValueCallback)
+      .find((x) => x.getOutputByName<string>('id', '') === 'webAuthnOutcome');
+  }
+
+  /**
+   * Returns the WebAuthn metadata callback containing data to pass to the browser
+   * Web Authentication API.
+   *
+   * @param step The step that contains WebAuthn callbacks
+   * @return The metadata callback
+   */
+  public static getTextOutputCallback(step: JourneyStep): TextOutputCallback | undefined {
+    return step
+      .getCallbacksOfType<TextOutputCallback>(callbackType.TextOutputCallback)
+      .find((x) => {
+        const cb = x.getOutputByName<string | undefined>('message', undefined);
+        return cb && cb.includes('webAuthnOutcome');
+      });
+  }
+
+  /**
+   * Retrieves the credential from the browser Web Authentication API.
+   *
+   * @param options The public key options associated with the request
+   * @return The credential
+   */
+  public static async getAuthenticationCredential(
+    options: PublicKeyCredentialRequestOptions,
+  ): Promise<PublicKeyCredential | null> {
+    // Feature check before we attempt registering a device
+    if (!window.PublicKeyCredential) {
+      const e = new Error('PublicKeyCredential not supported by this browser');
+      e.name = WebAuthnOutcomeType.NotSupportedError;
+      throw e;
+    }
+    const credential = await navigator.credentials.get({ publicKey: options });
+    return credential as PublicKeyCredential;
+  }
+
+  /**
+   * Converts an authentication credential into the outcome expected by OpenAM.
+   *
+   * @param credential The credential to convert
+   * @return The outcome string
+   */
+  public static getAuthenticationOutcome(
+    credential: PublicKeyCredential | null,
+  ):
+    | OutcomeWithName<string, AttestationType, PublicKeyCredential>
+    | OutcomeWithName<string, AttestationType, PublicKeyCredential, string> {
+    if (credential === null) {
+      const e = new Error('No credential generated from authentication');
+      e.name = WebAuthnOutcomeType.UnknownError;
+      throw e;
+    }
+
+    try {
+      const clientDataJSON = arrayBufferToString(credential.response.clientDataJSON);
+      const assertionResponse = credential.response as AuthenticatorAssertionResponse;
+      const authenticatorData = new Int8Array(
+        assertionResponse.authenticatorData,
+      ).toString() as AttestationType;
+      const signature = new Int8Array(assertionResponse.signature).toString();
+
+      // Current native typing for PublicKeyCredential does not include `userHandle`
+      // eslint-disable-next-line
+      // @ts-ignore
+      const userHandle = arrayBufferToString(credential.response.userHandle);
+
+      let stringOutput =
+        `${clientDataJSON}::${authenticatorData}::${signature}::${credential.id}` as OutcomeWithName<
+          string,
+          AttestationType,
+          PublicKeyCredential
+        >;
+      // Check if Username is stored on device
+      if (userHandle) {
+        stringOutput = `${stringOutput}::${userHandle}`;
+        return stringOutput as OutcomeWithName<
+          string,
+          AttestationType,
+          PublicKeyCredential,
+          string
+        >;
+      }
+
+      return stringOutput;
+    } catch {
+      const e = new Error('Transforming credential object to string failed');
+      e.name = WebAuthnOutcomeType.EncodingError;
+      throw e;
+    }
+  }
+
+  /**
+   * Retrieves the credential from the browser Web Authentication API.
+   *
+   * @param options The public key options associated with the request
+   * @return The credential
+   */
+  public static async getRegistrationCredential(
+    options: PublicKeyCredentialCreationOptions,
+  ): Promise<PublicKeyCredential | null> {
+    // Feature check before we attempt registering a device
+    if (!window.PublicKeyCredential) {
+      const e = new Error('PublicKeyCredential not supported by this browser');
+      e.name = WebAuthnOutcomeType.NotSupportedError;
+      throw e;
+    }
+    const credential = await navigator.credentials.create({
+      publicKey: options,
+    });
+    return credential as PublicKeyCredential;
+  }
+
+  /**
+   * Converts a registration credential into the outcome expected by OpenAM.
+   *
+   * @param credential The credential to convert
+   * @return The outcome string
+   */
+  public static getRegistrationOutcome(
+    credential: PublicKeyCredential | null,
+  ): OutcomeWithName<string, AttestationType, PublicKeyCredential> {
+    if (credential === null) {
+      const e = new Error('No credential generated from registration');
+      e.name = WebAuthnOutcomeType.UnknownError;
+      throw e;
+    }
+
+    try {
+      const clientDataJSON = arrayBufferToString(credential.response.clientDataJSON);
+      const attestationResponse = credential.response as AuthenticatorAttestationResponse;
+      const attestationObject = new Int8Array(
+        attestationResponse.attestationObject,
+      ).toString() as AttestationType.Direct;
+      return `${clientDataJSON}::${attestationObject}::${credential.id}`;
+    } catch {
+      const e = new Error('Transforming credential object to string failed');
+      e.name = WebAuthnOutcomeType.EncodingError;
+      throw e;
+    }
+  }
+
+  /**
+   * Converts authentication tree metadata into options required by the browser
+   * Web Authentication API.
+   *
+   * @param metadata The metadata provided in the authentication tree MetadataCallback
+   * @return The Web Authentication API request options
+   */
+  public static createAuthenticationPublicKey(
+    metadata: WebAuthnAuthenticationMetadata,
+  ): PublicKeyCredentialRequestOptions {
+    const {
+      acceptableCredentials,
+      allowCredentials,
+      challenge,
+      relyingPartyId,
+      timeout,
+      userVerification,
+    } = metadata;
+    const rpId = parseRelyingPartyId(relyingPartyId);
+    const allowCredentialsValue = parseCredentials(allowCredentials || acceptableCredentials || '');
+
+    return {
+      challenge: Uint8Array.from(atob(challenge), (c) => c.charCodeAt(0)).buffer,
+      timeout,
+      // only add key-value pair if proper value is provided
+      ...(allowCredentialsValue && { allowCredentials: allowCredentialsValue }),
+      ...(userVerification && { userVerification }),
+      ...(rpId && { rpId }),
+    };
+  }
+
+  /**
+   * Converts authentication tree metadata into options required by the browser
+   * Web Authentication API.
+   *
+   * @param metadata The metadata provided in the authentication tree MetadataCallback
+   * @return The Web Authentication API request options
+   */
+  public static createRegistrationPublicKey(
+    metadata: WebAuthnRegistrationMetadata,
+  ): PublicKeyCredentialCreationOptions {
+    const { pubKeyCredParams: pubKeyCredParamsString } = metadata;
+    const pubKeyCredParams = parsePubKeyArray(pubKeyCredParamsString);
+    if (!pubKeyCredParams) {
+      const e = new Error('Missing pubKeyCredParams property from registration options');
+      e.name = WebAuthnOutcomeType.DataError;
+      throw e;
+    }
+    const excludeCredentials = parseCredentials(metadata.excludeCredentials);
+
+    const {
+      attestationPreference,
+      authenticatorSelection,
+      challenge,
+      relyingPartyId,
+      relyingPartyName,
+      timeout,
+      userId,
+      userName,
+      displayName,
+    } = metadata;
+    const rpId = parseRelyingPartyId(relyingPartyId);
+    const rp: RelyingParty = {
+      name: relyingPartyName,
+      ...(rpId && { id: rpId }),
+    };
+
+    return {
+      attestation: attestationPreference,
+      authenticatorSelection: JSON.parse(authenticatorSelection),
+      challenge: Uint8Array.from(atob(challenge), (c) => c.charCodeAt(0)).buffer,
+      ...(excludeCredentials.length && { excludeCredentials }),
+      pubKeyCredParams,
+      rp,
+      timeout,
+      user: {
+        displayName: displayName || userName,
+        id: Int8Array.from(userId.split('').map((c: string) => c.charCodeAt(0))),
+        name: displayName || userName,
+      },
+    };
+  }
+}
+
+export { WebAuthnOutcome, WebAuthnStepType };
+export type {
+  RelyingParty,
+  WebAuthnAuthenticationMetadata,
+  WebAuthnCallbacks,
+  WebAuthnRegistrationMetadata,
+};

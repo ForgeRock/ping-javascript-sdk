@@ -4,13 +4,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
+
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to retrieve input from the user.
  */
-class TextInputCallback extends JourneyCallback {
+export class TextInputCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -32,5 +33,3 @@ class TextInputCallback extends JourneyCallback {
     this.setInputValue(input);
   }
 }
-
-export default TextInputCallback;

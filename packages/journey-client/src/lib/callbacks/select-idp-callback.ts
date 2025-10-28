@@ -4,8 +4,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
+
+import { BaseCallback } from './base-callback.js';
 
 interface IdPValue {
   provider: string;
@@ -17,7 +18,7 @@ interface IdPValue {
 /**
  * Represents a callback used to collect an answer to a choice.
  */
-class SelectIdPCallback extends JourneyCallback {
+export class SelectIdPCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -43,7 +44,5 @@ class SelectIdPCallback extends JourneyCallback {
     this.setInputValue(item.provider);
   }
 }
-
-export default SelectIdPCallback;
 
 export type { IdPValue };

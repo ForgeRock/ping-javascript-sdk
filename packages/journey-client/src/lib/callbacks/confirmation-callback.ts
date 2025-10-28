@@ -4,13 +4,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import JourneyCallback from './index.js';
 import type { Callback } from '@forgerock/sdk-types';
+
+import { BaseCallback } from './base-callback.js';
 
 /**
  * Represents a callback used to collect a confirmation to a message.
  */
-class ConfirmationCallback extends JourneyCallback {
+export class ConfirmationCallback extends BaseCallback {
   /**
    * @param payload The raw payload returned by OpenAM
    */
@@ -57,8 +58,9 @@ class ConfirmationCallback extends JourneyCallback {
    * Set option index.
    */
   public setOptionIndex(index: number): void {
-    if (index !== 0 && index !== 1) {
-      throw new Error(`"${index}" is not a valid choice`);
+    const opts = this.getOptions();
+    if (!Number.isInteger(index) || index < 0 || index >= opts.length) {
+      throw new Error(`"${index}" is not a valid choice (0-${Math.max(0, opts.length - 1)})`);
     }
     this.setInputValue(index);
   }
@@ -74,5 +76,3 @@ class ConfirmationCallback extends JourneyCallback {
     this.setInputValue(index);
   }
 }
-
-export default ConfirmationCallback;

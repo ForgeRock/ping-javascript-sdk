@@ -58,7 +58,11 @@ export function middlewareWrapper(
  * @param {string} endpoint - The endpoint to be used for the query
  * @returns
  */
-export function initQuery(fetchArgs: FetchArgs, endpoint: EndpointTypes) {
+export function initQuery(
+  fetchArgs: FetchArgs,
+  endpoint: EndpointTypes,
+  payload?: Record<string, unknown>,
+) {
   let modifiedRequest: ModifiedFetchArgs = {
     ...fetchArgs,
     url: new URL(fetchArgs.url),
@@ -70,7 +74,10 @@ export function initQuery(fetchArgs: FetchArgs, endpoint: EndpointTypes) {
     ) {
       // Iterates and executes provided middleware functions
       // Allow middleware to mutate `request` argument
-      const runMiddleware = middlewareWrapper(modifiedRequest, { type: actionTypes[endpoint] });
+      const runMiddleware = middlewareWrapper(modifiedRequest, {
+        type: actionTypes[endpoint],
+        payload: payload || {},
+      });
       modifiedRequest = runMiddleware(middleware);
 
       return queryApi;

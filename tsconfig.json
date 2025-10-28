@@ -69,6 +69,12 @@
     },
     {
       "path": "./packages/journey-client"
+    },
+    {
+      "path": "./e2e/journey-app"
+    },
+    {
+      "path": "./e2e/journey-suites"
     }
   ]
 }
