@@ -75,7 +75,7 @@ describe('journey-client', () => {
   });
 
   test('next() should send the current step and return the next step', async () => {
-    const initialStepPayload = createJourneyStep({
+    const initialStep = createJourneyStep({
       authId: 'test-auth-id',
       callbacks: [
         {
@@ -85,7 +85,7 @@ describe('journey-client', () => {
         },
       ],
     });
-    const nextStepPayload = createJourneyStep({
+    const nextStepPayload: Step = {
       authId: 'test-auth-id',
       callbacks: [
         {
@@ -94,8 +94,7 @@ describe('journey-client', () => {
           output: [],
         },
       ],
-    });
-    const initialStep = initialStepPayload;
+    };
 
     mockFetch.mockResolvedValue(new Response(JSON.stringify(nextStepPayload)));
 
@@ -108,7 +107,7 @@ describe('journey-client', () => {
     // TODO: This should be /journeys?_action=next, but the current implementation calls /authenticate
     expect(request.url).toBe('https://test.com/json/realms/root/authenticate');
     expect(request.method).toBe('POST');
-    expect(await request.json()).toEqual(initialStep);
+    expect(await request.json()).toEqual(initialStep.payload);
     expect(nextStep).toHaveProperty('type', 'Step');
     expect(nextStep && nextStep.payload).toEqual(nextStepPayload);
   });
@@ -242,22 +241,22 @@ describe('journey-client', () => {
   // TODO: Add tests for endSession when the test environment AbortSignal issue is resolved
   // test('endSession() should call the sessions endpoint with DELETE method', async () => {
   //   mockFetch.mockResolvedValue(new Response('', { status: 200 }));
-
+  //
   //   const client = await journey({ config: mockConfig });
   //   await client.endSession();
-
+  //
   //   expect(mockFetch).toHaveBeenCalledTimes(1);
   //   const request = mockFetch.mock.calls[0][0] as Request;
   //   expect(request.url).toBe('https://test.com/json/realms/root/sessions/');
   //   expect(request.method).toBe('DELETE');
   // });
-
+  //
   // test('endSession() should handle query parameters', async () => {
   //   mockFetch.mockResolvedValue(new Response('', { status: 200 }));
-
+  //
   //   const client = await journey({ config: mockConfig });
   //   await client.endSession({ query: { foo: 'bar' } });
-
+  //
   //   expect(mockFetch).toHaveBeenCalledTimes(1);
   //   const request = mockFetch.mock.calls[0][0] as Request;
   //   expect(request.url).toBe('https://test.com/json/realms/root/sessions/?foo=bar');
