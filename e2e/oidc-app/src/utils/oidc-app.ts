@@ -18,6 +18,7 @@ import type {
 let tokenIndex = 0;
 
 function displayError(error) {
+  // const appEl = document.getElementById('app');
   const errorEl = document.createElement('div');
   errorEl.innerHTML = `<p><strong>Error:</strong> <span class="error">${JSON.stringify(error, null, 2)}</span></p>`;
   document.body.appendChild(errorEl);
@@ -52,39 +53,51 @@ export async function oidcApp({ config, urlParams }) {
   const oidcClient = await oidc({ config });
   if ('error' in oidcClient) {
     displayError(oidcClient);
+  } else if (oidcClient) {
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('loading').style.display = 'none';
   }
 
-  document.getElementById('login-background').addEventListener('click', async () => {
-    const authorizeOptions: GetAuthorizationUrlOptions =
-      piflow === 'true'
-        ? {
-            clientId: config.clientId,
-            redirectUri: config.redirectUri,
-            scope: config.scope,
-            responseType: config.responseType ?? 'code',
-            responseMode: 'pi.flow',
-          }
-        : undefined;
-    const response = await oidcClient.authorize.background(authorizeOptions);
+  console.log('oidc app called');
+  // window.addEventListener('load', () => {
+  //   console.log('loaded');
+  const myButton = document.getElementById('login-background');
+  if (myButton) {
+    console.log('button found');
+    myButton.addEventListener('click', async () => {
+      const authorizeOptions: GetAuthorizationUrlOptions =
+        piflow === 'true'
+          ? {
+              clientId: config.clientId,
+              redirectUri: config.redirectUri,
+              scope: config.scope,
+              responseType: config.responseType ?? 'code',
+              responseMode: 'pi.flow',
+            }
+          : undefined;
+      const response = await oidcClient.authorize.background(authorizeOptions);
 
-    if ('error' in response) {
-      console.error('Authorization Error:', response);
-      displayError(response);
+      if ('error' in response) {
+        console.error('Authorization Error:', response);
+        displayError(response);
 
-      if (response.redirectUrl) {
-        window.location.assign(response.redirectUrl);
-      } else {
-        console.log('Authorization failed with no ability to redirect:', response);
+        if (response.redirectUrl) {
+          window.location.assign(response.redirectUrl);
+        } else {
+          console.log('Authorization failed with no ability to redirect:', response);
+        }
+        return;
+
+        // Handle success response from background authorization
+      } else if ('code' in response) {
+        console.log('Authorization Code:', response.code);
+        const tokenResponse = await oidcClient.token.exchange(response.code, response.state);
+        displayTokenResponse(tokenResponse);
       }
-      return;
-
-      // Handle success response from background authorization
-    } else if ('code' in response) {
-      console.log('Authorization Code:', response.code);
-      const tokenResponse = await oidcClient.token.exchange(response.code, response.state);
-      displayTokenResponse(tokenResponse);
-    }
-  });
+    });
+  } else {
+    console.log('not found');
+  }
 
   document.getElementById('login-redirect').addEventListener('click', async () => {
     const authorizeUrl = await oidcClient.authorize.url();
@@ -153,6 +166,7 @@ export async function oidcApp({ config, urlParams }) {
       window.location.assign(window.location.origin + window.location.pathname);
     }
   });
+  // });
 
   if (code && state) {
     const response = await oidcClient.token.exchange(code, state);

@@ -105,17 +105,20 @@ test.describe('PingAM tokens', () => {
 
 test.describe('PingOne tokens', () => {
   test('login and get tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-one/');
+    const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await clickButton('Login (Background)', 'https://apps.pingone.ca/');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
+    const promise = page.waitForURL('http://localhost:8443/ping-one/**');
     await page.getByRole('button', { name: 'Sign On' }).click();
 
-    await page.waitForURL('http://localhost:8443/ping-one/**', { waitUntil: 'networkidle' });
+    await promise;
+    await expect(page.locator('#loading')).toBeHidden();
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
 
@@ -128,17 +131,20 @@ test.describe('PingOne tokens', () => {
   });
 
   test('login and renew tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-one/');
+    const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await clickButton('Login (Background)', 'https://apps.pingone.ca/');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
+    const promise = page.waitForURL('http://localhost:8443/ping-one/**');
     await page.getByRole('button', { name: 'Sign On' }).click();
 
-    await page.waitForURL('http://localhost:8443/ping-one/**', { waitUntil: 'networkidle' });
+    await promise;
+    await expect(page.locator('#loading')).toBeHidden();
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
 
@@ -153,17 +159,20 @@ test.describe('PingOne tokens', () => {
   });
 
   test('login and revoke tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-one/');
+    const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await clickButton('Login (Background)', 'https://apps.pingone.ca/');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
+    const promise = page.waitForURL('http://localhost:8443/ping-one/**');
     await page.getByRole('button', { name: 'Sign On' }).click();
 
-    await page.waitForURL('http://localhost:8443/ping-one/**', { waitUntil: 'networkidle' });
+    await promise;
+    await expect(page.locator('#loading')).toBeHidden();
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
 
@@ -176,9 +185,10 @@ test.describe('PingOne tokens', () => {
   });
 
   test('renew tokens without logging in should error', async ({ page }) => {
-    const { navigate } = asyncEvents(page);
-    await navigate('/ping-one/');
+    // const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await page.getByRole('button', { name: 'Renew Tokens' }).click();
 
