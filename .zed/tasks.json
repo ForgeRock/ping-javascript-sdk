@@ -1,0 +1,84 @@
+// Project tasks configuration. See https://zed.dev/docs/tasks for documentation.
+[
+  {
+    "label": "nx build",
+    "command": "pnpm",
+    "args": ["nx", "affected", "-t build", "--parallel=3"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+    "reveal": "no_focus"
+  },
+  {
+    "label": "nx lint",
+    "command": "pnpm",
+    "args": ["nx", "affected", "-t lint", "--parallel=3"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+    "reveal": "no_focus"
+  },
+  {
+    "label": "nx test",
+    "command": "pnpm",
+    "args": ["nx", "affected", "-t test", "--parallel=3"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+    "reveal": "no_focus"
+  },
+  {
+    "label": "nx watch davinci-watch",
+    "command": "pnpm",
+    "args": ["watch", "@forgerock/davinci-app"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": true,
+    "reveal": "always"
+  },
+  {
+    "label": "nx watch oidc-e2e",
+    "command": "pnpm",
+    "args": ["watch", "@forgerock/oidc-app"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": true,
+    "reveal": "no_focus"
+  },
+  {
+    "label": "nx watch protect-watch",
+    "command": "pnpm",
+    "args": ["watch", "@forgerock/protect-app"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": true,
+    "reveal": "no_focus"
+  },
+  {
+    "label": "nx typecheck repo",
+    "command": "pnpm",
+    "args": ["nx", "affected -t typecheck"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "no_focus"
+  },
+  {
+    "label": "oidc e2e ui",
+    "command": "pnpm",
+    "args": ["nx", "e2e", "@forgerock/oidc-suites", "--ui"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "protect-app e2e ui",
+    "command": "pnpm",
+    "args": ["nx", "e2e", "@forgerock/protect-suites", "--ui"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "no_focus"
+  },
+  {
+    "label": "local release repo",
+    "command": "pnpm",
+    "args": ["release-local"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "reveal": "no_focus"
+  }
+]

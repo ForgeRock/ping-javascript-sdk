@@ -51,7 +51,6 @@ jobs:
       - name: Setup Project
         uses: ./.github/actions/setup
         with:
-          fetch-depth: 0
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: publish
