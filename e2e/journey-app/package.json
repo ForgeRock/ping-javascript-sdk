@@ -16,6 +16,7 @@
   "dependencies": {
     "@forgerock/journey-client": "workspace:*",
     "@forgerock/oidc-client": "workspace:*",
-    "@forgerock/sdk-logger": "workspace:*"
+    "@forgerock/sdk-logger": "workspace:*",
+    "@forgerock/sdk-types": "workspace:*"
   }
 }

@@ -19,6 +19,9 @@
       "path": "../../packages/oidc-client/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/sdk-types/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/journey-client/tsconfig.lib.json"
     }
   ]

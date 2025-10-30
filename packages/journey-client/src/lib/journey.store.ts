@@ -5,22 +5,22 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
+import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
 import { callbackType } from '@forgerock/sdk-types';
 
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, Step } from '@forgerock/sdk-types';
 
-import { createJourneyStore } from './journey.store.utils.js';
+import { createStorage } from '@forgerock/storage';
 import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
-import { createStorage } from '@forgerock/storage';
+import { createJourneyStore } from './journey.store.utils.js';
 import { createJourneyObject } from './journey.utils.js';
 
-import type { JourneyStep } from './step.utils.js';
-import type { JourneyClientConfig } from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
-import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
+import type { JourneyClientConfig } from './config.types.js';
+import { NextOptions, ResumeOptions, StartParam } from './interfaces.js';
+import type { JourneyStep } from './step.utils.js';
 
 export async function journey({
   config,

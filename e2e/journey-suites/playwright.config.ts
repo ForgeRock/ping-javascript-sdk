@@ -26,7 +26,7 @@ const config: PlaywrightTestConfig = {
   webServer: [
     process.env.CI == 'false'
       ? {
-          command: 'pnpm watch @forgerock/journey-app',
+          command: 'pnpm nx vite:watch-deps @forgerock/journey-app',
           port: 5829,
           ignoreHTTPSErrors: true,
           reuseExistingServer: !process.env.CI,
