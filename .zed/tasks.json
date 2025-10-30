@@ -64,13 +64,13 @@
   {
     "label": "oidc e2e ui",
     "command": "pnpm",
-    "args": ["nx", "e2e", "@forgerock/oidc-suites", "--ui"],
+    "args": ["nx", "e2e", "@forgerock/oidc-suites", "--ui", "--skipNxCache"],
     "cwd": "$ZED_WORKTREE_ROOT"
   },
   {
     "label": "protect-app e2e ui",
     "command": "pnpm",
-    "args": ["nx", "e2e", "@forgerock/protect-suites", "--ui"],
+    "args": ["nx", "e2e", "@forgerock/protect-suites", "--ui", "--skipNxCache"],
     "cwd": "$ZED_WORKTREE_ROOT",
     "reveal": "no_focus"
   },
@@ -80,5 +80,11 @@
     "args": ["release-local"],
     "cwd": "$ZED_WORKTREE_ROOT",
     "reveal": "no_focus"
+  },
+  {
+    "label": "journey e2e ui",
+    "command": "pnpm",
+    "args": ["nx", "e2e", "@forgerock/journey-suites", "--ui", "--skipNxCache"],
+    "cwd": "$ZED_WORKTREE_ROOT"
   }
 ]

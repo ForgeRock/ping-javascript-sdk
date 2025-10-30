@@ -295,6 +295,9 @@ importers:
       '@forgerock/sdk-logger':
         specifier: workspace:*
         version: link:../../packages/sdk-effects/logger
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
 
   e2e/journey-suites: {}
 
