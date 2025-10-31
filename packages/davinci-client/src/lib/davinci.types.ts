@@ -161,13 +161,25 @@ export type ProtectField = {
 };
 
 export interface FidoRegistrationOptions
-  extends Omit<PublicKeyCredentialCreationOptions, 'challenge' | 'user'> {
+  extends Omit<
+    PublicKeyCredentialCreationOptions,
+    'challenge' | 'user' | 'pubKeyCredParams' | 'excludeCredentials'
+  > {
   challenge: number[];
   user: {
     id: number[];
     name: string;
     displayName: string;
   };
+  pubKeyCredParams: {
+    alg: string | number;
+    type: PublicKeyCredentialType;
+  }[];
+  excludeCredentials?: {
+    id: number[];
+    transports?: AuthenticatorTransport[];
+    type: PublicKeyCredentialType;
+  }[];
 }
 
 export type FidoRegistrationField = {

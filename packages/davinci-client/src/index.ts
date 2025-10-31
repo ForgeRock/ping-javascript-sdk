@@ -5,5 +5,6 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { davinci } from './lib/client.store.js';
+import { fido } from './lib/fido/fido.js';
 
-export { davinci };
+export { davinci, fido };
