@@ -36,6 +36,10 @@ Install both modules and their latest versions:
 npm install @forgerock/javascript-sdk @forgerock/protect
 ```
 
+```sh
+pnpm install @forgerock/javascript-sdk @forgerock/protect
+```
+
 #### Initialization (Recommended)
 
 The `@forgerock/protect` module has a `protect()` function that accepts configuration options and returns a set of methods for interacting with Protect. The two main responsibilities of the Ping Protect module are the initialization of the profiling and data collection and the completion and preparation of the collected data for the server. You can find these two methods on the API returned by `protect()`.
