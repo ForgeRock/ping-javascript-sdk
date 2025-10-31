@@ -6,7 +6,11 @@
  */
 import type { GenericError } from '@forgerock/sdk-types';
 
-import type { PhoneNumberInputValue } from './collector.types.js';
+import type {
+  FidoRegistrationInputValue,
+  FidoAuthenticationInputValue,
+  PhoneNumberInputValue,
+} from './collector.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
 export type FlowNode = ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
@@ -19,7 +23,12 @@ export interface InternalErrorResponse {
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
 
 export type Updater = (
-  value: string | string[] | PhoneNumberInputValue,
+  value:
+    | string
+    | string[]
+    | PhoneNumberInputValue
+    | FidoRegistrationInputValue
+    | FidoAuthenticationInputValue,
   index?: number,
 ) => InternalErrorResponse | null;
 export type Validator = (value: string) =>
