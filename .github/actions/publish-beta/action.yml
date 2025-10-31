@@ -8,6 +8,14 @@ runs:
       shell: bash
       run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm --comment=off
 
+    - name: Run Builds
+      shell: bash
+      run: pnpm nx run-many -t build --no-agents
+
+    - name: Generate API Docs
+      shell: bash
+      run: pnpm generate-docs
+
     - name: Publish api docs [beta]
       uses: JamesIves/github-pages-deploy-action@v4.7.3
       with:

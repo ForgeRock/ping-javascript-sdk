@@ -56,7 +56,8 @@ runs:
       run: pnpm exec playwright install
       shell: bash
 
-    - uses: nrwl/nx-set-shas@v4
+    - name: Set Nx SHAs
+      uses: nrwl/nx-set-shas@v4
 
     - name: Check TS References are Synced
       shell: bash

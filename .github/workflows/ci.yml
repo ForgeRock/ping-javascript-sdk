@@ -5,7 +5,6 @@ on:
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.PR_NX_CLOUD_ACCESS_TOKEN }} # Read Only
-  NX_CLOUD_DISTRIBUTED_EXECUTION: true
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   CI: true
 
@@ -22,7 +21,6 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
-      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,9 +41,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Ensure builds run
-        run: pnpm nx run-many -t build
-        env:
-          NX_CLOUD_DISTRIBUTED_EXECUTION: false
+        run: pnpm nx run-many -t build --no-agents
 
       - run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm
 
@@ -138,14 +134,3 @@ jobs:
 
             ---
             <sub>🔄 Updated automatically on each push to this PR</sub>
-
-      - name: Upload E2E reports on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-reports
-          path: |
-            e2e/*-suites/playwright-report/**
-            e2e/*-suites/test-results/**
-            e2e/*-suites/.playwright/**
-          retention-days: 7
