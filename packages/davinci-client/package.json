@@ -29,6 +29,7 @@
     "@forgerock/sdk-types": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
+    "effect": "catalog:effect",
     "immer": "catalog:"
   },
   "devDependencies": {

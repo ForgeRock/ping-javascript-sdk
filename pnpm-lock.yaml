@@ -380,6 +380,9 @@ importers:
       '@reduxjs/toolkit':
         specifier: 'catalog:'
         version: 2.10.1
+      effect:
+        specifier: catalog:effect
+        version: 3.19.3
       immer:
         specifier: 'catalog:'
         version: 10.2.0

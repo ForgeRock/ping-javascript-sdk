@@ -45,7 +45,7 @@ import type {
   Validator,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
-import { ContinueNode, StartNode } from './node.types.js';
+import type { ContinueNode, StartNode } from './node.types.js';
 
 /**
  * Create a client function that returns a set of methods
