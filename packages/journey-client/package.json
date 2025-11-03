@@ -30,13 +30,12 @@
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
     "tslib": "^2.3.0",
-    "vite": "6.4.1",
-    "vitest-canvas-mock": "^0.3.3"
+    "vitest-canvas-mock": "catalog:vitest"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^1.2.0",
-    "vite": "6.4.1",
-    "vitest": "^1.2.0"
+    "@vitest/coverage-v8": "catalog:vitest",
+    "vite": "catalog:",
+    "vitest": "catalog:vitest"
   },
   "nx": {
     "tags": ["scope:package"],
