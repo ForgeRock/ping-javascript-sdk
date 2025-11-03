@@ -47,10 +47,12 @@ jobs:
 
       - run: pnpm exec playwright install --with-deps
 
-      - uses: nrwl/nx-set-shas@v4
+      - name: Track base repository main
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/upstream/main
+          git branch --force main upstream/main
 
-      # Needed so nx affected can diff against main
-      - run: git branch --track main origin/main || true
+      - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm nx format:check
       - run: pnpm nx affected -t build typecheck lint test e2e-ci --no-agents
