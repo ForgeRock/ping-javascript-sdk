@@ -12,14 +12,13 @@ import type { WellKnownResponse, GetAuthorizationUrlOptions } from '@forgerock/s
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { OidcConfig } from './config.types.js';
 
-type BuildAuthorizationData = [string, OidcConfig, GetAuthorizationUrlOptions];
+type BuildAuthorizationData = [string, GetAuthorizationUrlOptions];
 export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
 
 /**
  * @function buildAuthorizeOptionsµ
  * @description Builds the authorization options for the OIDC client.
  * @param {WellKnownResponse} wellknown - The well-known configuration for the OIDC server.
- * @param {OidcConfig} config - The OIDC client configuration.
  * @param {OptionalAuthorizeOptions} options - Optional parameters for the authorization request.
  * @returns {Micro.Micro<BuildAuthorizationData, AuthorizeErrorResponse, never>}
  */
@@ -32,7 +31,6 @@ export function buildAuthorizeOptionsµ(
   return Micro.sync(
     (): BuildAuthorizationData => [
       wellknown.authorization_endpoint,
-      config,
       {
         clientId: config.clientId,
         redirectUri: config.redirectUri,
@@ -91,13 +89,11 @@ export function createAuthorizeErrorµ(
  * @function createAuthorizeUrlµ
  * @description Creates an authorization URL and related options/config for the Authorize request.
  * @param {string} path - The path to the authorization endpoint.
- * @param { OidcConfig } config - The OIDC client configuration.
  * @param { GetAuthorizationUrlOptions } options - Optional parameters for the authorization request.
- * @returns { Micro.Micro<[string, OidcConfig, GetAuthorizationUrlOptions], AuthorizationError, never> }
+ * @returns { Micro.Micro<[string, GetAuthorizationUrlOptions], AuthorizationError, never> }
  */
 export function createAuthorizeUrlµ(
   path: string,
-  config: OidcConfig,
   options: GetAuthorizationUrlOptions,
 ): Micro.Micro<[string, GetAuthorizationUrlOptions], AuthorizationError, never> {
   return Micro.tryPromise({
