@@ -40,6 +40,7 @@ export async function createAuthorizeUrl(
   const challenge = await createChallenge(authorizeUrlOptions.verifier);
 
   const requestParams = new URLSearchParams({
+    ...options.query,
     code_challenge: challenge,
     code_challenge_method: 'S256',
     client_id: options.clientId,

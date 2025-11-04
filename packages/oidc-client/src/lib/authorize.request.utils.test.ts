@@ -39,7 +39,6 @@ it.effect('buildAuthorizeOptionsµ succeeds with BuildAuthorizationData', () =>
 
     expect(result).toStrictEqual([
       wellknown.authorization_endpoint,
-      config,
       {
         clientId,
         redirectUri,
@@ -56,7 +55,6 @@ it.effect('buildAuthorizeOptionsµ with pi.flow succeeds with BuildAuthorization
 
     expect(result).toStrictEqual([
       wellknown.authorization_endpoint,
-      config,
       {
         clientId,
         redirectUri,

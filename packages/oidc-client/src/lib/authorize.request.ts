@@ -37,7 +37,7 @@ export function authorizeµ(
   options?: GetAuthorizationUrlOptions,
 ) {
   return buildAuthorizeOptionsµ(wellknown, config, options).pipe(
-    Micro.flatMap(([url, config, options]) => createAuthorizeUrlµ(url, config, options)),
+    Micro.flatMap(([url, options]) => createAuthorizeUrlµ(url, options)),
     Micro.tap((url) => log.debug('Authorize URL created', url)),
     Micro.tapError((url) => Micro.sync(() => log.error('Error creating authorize URL', url))),
     Micro.flatMap(

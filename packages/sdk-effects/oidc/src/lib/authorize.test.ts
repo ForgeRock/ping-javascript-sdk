@@ -83,6 +83,42 @@ describe('createAuthorizeUrl', () => {
     expect(params.get('response_mode')).toBe(responseMode);
   });
 
+  it('should include query parameters when provided', async () => {
+    const queryA = 'valueA';
+    const queryB = 'valueB';
+    const optionsWithOptionals: GenerateAndStoreAuthUrlValues = {
+      ...mockOptions,
+      query: {
+        queryA,
+        queryB,
+      },
+    };
+
+    const url = await createAuthorizeUrl(baseUrl, optionsWithOptionals);
+    const params = new URL(url).searchParams;
+
+    expect(params.get('queryA')).toBe(queryA);
+    expect(params.get('queryB')).toBe(queryB);
+  });
+
+  it('should ensure standard config params override conflicting query params', async () => {
+    const optionsWithConflict: GenerateAndStoreAuthUrlValues = {
+      ...mockOptions,
+      query: {
+        client_id: 'malicious-client',
+        custom_param: 'value',
+      },
+    };
+
+    const url = await createAuthorizeUrl(baseUrl, optionsWithConflict);
+    const params = new URL(url).searchParams;
+
+    // Standard param should override query param
+    expect(params.get('client_id')).toBe(mockOptions.clientId);
+    // Custom param should be preserved
+    expect(params.get('custom_param')).toBe('value');
+  });
+
   it('should store the authorize options in session storage', async () => {
     await createAuthorizeUrl(baseUrl, mockOptions);
     const storageKey = getStorageKey(mockOptions.clientId);
