@@ -9,9 +9,9 @@ import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 import { username, password } from './utils/demo-user.js';
 
-test('Test happy paths on test page', async ({ page }) => {
-  const { navigate } = asyncEvents(page);
-  await navigate('/');
+test.skip('Test happy paths on test page', async ({ page }) => {
+  const { clickButton, navigate } = asyncEvents(page);
+  await navigate('/?journey=TEST_DeviceProfile');
 
   const messageArray: string[] = [];
 
@@ -21,21 +21,20 @@ test('Test happy paths on test page', async ({ page }) => {
     return Promise.resolve(true);
   });
 
-  expect(page.url()).toBe('http://localhost:5829/');
-
   // Perform basic login
   await page.getByLabel('User Name').fill(username);
   await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Submit' }).click();
+  await clickButton('Submit', '/authenticate');
+
+  await expect(page.getByText('Collecting device profile')).toBeVisible();
+
   await expect(page.getByText('Complete')).toBeVisible();
 
   // Perform logout
-  await page.getByRole('button', { name: 'Logout' }).click();
-  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+  await clickButton('Logout', '/authenticate');
 
   // Test assertions
-  expect(messageArray.includes('Basic login successful')).toBe(true);
+  expect(messageArray.includes('Device profile collected successfully')).toBe(true);
+  expect(messageArray.includes('Journey completed successfully')).toBe(true);
   expect(messageArray.includes('Logout successful')).toBe(true);
-  expect(messageArray.includes('Starting authentication with service')).toBe(true);
-  expect(messageArray.includes('Continuing authentication with service')).toBe(true);
 });

@@ -17,11 +17,11 @@ import { asyncEvents } from './utils/async-events.js';
 
 test.describe('Logout tests', () => {
   test('PingAM login then logout', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickButton, clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-am/');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
     let endSessionStatus, revokeStatus;
+
     page.on('response', (response) => {
       const responseUrl = response.url();
       const status = response.ok();
@@ -34,31 +34,27 @@ test.describe('Logout tests', () => {
       }
     });
 
-    await clickButton('Login (Background)', 'https://openam-sdks.forgeblocks.com/');
+    await clickWithRedirect('Login (Background)', '**/am/XUI/**');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    await Promise.all([
-      page.waitForURL('http://localhost:8443/ping-am/**'),
-      page.getByRole('button', { name: 'Next' }).click(),
-    ]);
+    await clickWithRedirect('Next', 'http://localhost:8443/ping-am/**');
+
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
-    await expect(page.getByRole('button', { name: 'Login (Background)' })).toBeHidden();
 
-    await page.getByRole('button', { name: 'Logout' }).click();
-    await expect(page.getByRole('button', { name: 'Login (Background)' })).toBeVisible();
+    await clickButton('Logout', '/revoke');
 
     expect(endSessionStatus).toBeTruthy();
     expect(revokeStatus).toBeTruthy();
   });
 
   test('PingOne login then logout', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickButton, clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-one/');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
     let endSessionStatus, revokeStatus;
+
     page.on('response', (response) => {
       const responseUrl = response.url();
       const status = response.ok();
@@ -71,20 +67,16 @@ test.describe('Logout tests', () => {
       }
     });
 
-    await clickButton('Login (Background)', 'https://apps.pingone.ca/');
+    await clickWithRedirect('Login (Background)', '**/signon/**');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await Promise.all([
-      page.waitForURL('http://localhost:8443/ping-one/**'),
-      page.getByRole('button', { name: 'Sign On' }).click(),
-    ]);
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
+
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
-    await expect(page.getByRole('button', { name: 'Login (Background)' })).toBeHidden();
 
-    await page.getByRole('button', { name: 'Logout' }).click();
-    await expect(page.getByRole('button', { name: 'Login (Background)' })).toBeVisible();
+    await clickButton('Logout', '/revoke');
 
     expect(endSessionStatus).toBeTruthy();
     expect(revokeStatus).toBeTruthy();

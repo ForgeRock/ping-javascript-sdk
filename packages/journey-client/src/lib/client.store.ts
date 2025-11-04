@@ -11,7 +11,7 @@ import { callbackType } from '@forgerock/sdk-types';
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, Step } from '@forgerock/sdk-types';
 
-import { createJourneyStore } from './journey.store.utils.js';
+import { createJourneyStore } from './client.store.utils.js';
 import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';

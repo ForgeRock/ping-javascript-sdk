@@ -103,8 +103,13 @@ export async function oidcApp({ config, urlParams }) {
     displayTokenResponse(response);
   });
 
-  document.getElementById('renew-tokens').addEventListener('click', async () => {
+  document.getElementById('get-tokens-background').addEventListener('click', async () => {
     const response = await oidcClient.token.get({ backgroundRenew: true });
+    displayTokenResponse(response);
+  });
+
+  document.getElementById('renew-tokens').addEventListener('click', async () => {
+    const response = await oidcClient.token.get({ backgroundRenew: true, forceRenew: true });
     displayTokenResponse(response);
   });
 

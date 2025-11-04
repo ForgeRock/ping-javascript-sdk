@@ -8,14 +8,9 @@ import './style.css';
 
 import { journey } from '@forgerock/journey-client';
 
-import type {
-  RequestMiddleware,
-  NameCallback,
-  PasswordCallback,
-} from '@forgerock/journey-client/types';
+import type { RequestMiddleware } from '@forgerock/journey-client/types';
 
-import textComponent from './components/text.js';
-import passwordComponent from './components/password.js';
+import { renderCallbacks } from './callback-map.js';
 import { serverConfigs } from './server-configs.js';
 
 const qs = window.location.search;
@@ -23,23 +18,34 @@ const searchParams = new URLSearchParams(qs);
 
 const config = serverConfigs[searchParams.get('clientId') || 'basic'];
 
-const requestMiddleware: RequestMiddleware[] = [
-  (req, action, next) => {
-    switch (action.type) {
-      case 'JOURNEY_START':
-        if ((action.payload as any).type === 'service') {
-          console.log('Starting authentication with service');
-        }
-        break;
-      case 'JOURNEY_NEXT':
-        if (!('type' in (action.payload as any))) {
-          console.log('Continuing authentication with service');
-        }
-        break;
-    }
-    next();
-  },
-];
+let requestMiddleware: RequestMiddleware[] = [];
+
+if (searchParams.get('middleware') === 'true') {
+  requestMiddleware = [
+    (req, action, next) => {
+      switch (action.type) {
+        case 'JOURNEY_START':
+          req.url.searchParams.set('start-authenticate-middleware', 'start-authentication');
+          req.headers.append('x-start-authenticate-middleware', 'start-authentication');
+          break;
+        case 'JOURNEY_NEXT':
+          req.url.searchParams.set('authenticate-middleware', 'authentication');
+          req.headers.append('x-authenticate-middleware', 'authentication');
+          break;
+      }
+      next();
+    },
+    (req, action, next) => {
+      switch (action.type) {
+        case 'END_SESSION':
+          req.url.searchParams.set('end-session-middleware', 'end-session');
+          req.headers.append('x-end-session-middleware', 'end-session');
+          break;
+      }
+      next();
+    },
+  ];
+}
 
 (async () => {
   const journeyClient = await journey({ config, requestMiddleware });
@@ -48,7 +54,10 @@ const requestMiddleware: RequestMiddleware[] = [
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
-  let step = await journeyClient.start();
+  let step = await journeyClient.start({
+    journey: searchParams.get('journey') || '',
+    query: { noSession: searchParams.get('no-session') || 'false' },
+  });
 
   function renderComplete() {
     if (step?.type !== 'LoginSuccess') {
@@ -57,10 +66,12 @@ const requestMiddleware: RequestMiddleware[] = [
 
     const session = step.getSessionToken();
 
+    console.log(`Session Token: ${session || 'none'}`);
+
     journeyEl.innerHTML = `
-      <h2>Complete</h2>
-      <span>Session:</span>
-      <pre data-testid="sessionToken" id="sessionToken">${session}</pre>
+      <h2 id="completeHeader">Complete</h2>
+      <span id="sessionLabel">Session:</span>
+      <pre id="sessionToken" id="sessionToken">${session}</pre>
       <button type="button" id="logoutButton">Logout</button>
     `;
 
@@ -82,9 +93,12 @@ const requestMiddleware: RequestMiddleware[] = [
     }
 
     const error = step.payload.message;
+
+    console.error(`Error: ${error}`);
+
     if (errorEl) {
       errorEl.innerHTML = `
-        <pre>${error}</pre>
+        <pre id="errorMessage">${error}</pre>
         `;
     }
   }
@@ -105,23 +119,7 @@ const requestMiddleware: RequestMiddleware[] = [
 
     const callbacks = step.callbacks;
 
-    callbacks.forEach((callback, idx) => {
-      if (callback.getType() === 'NameCallback') {
-        const cb = callback as NameCallback;
-        textComponent(
-          journeyEl, // You can ignore this; it's just for rendering
-          cb, // This callback class
-          idx,
-        );
-      } else if (callback.getType() === 'PasswordCallback') {
-        const cb = callback as PasswordCallback;
-        passwordComponent(
-          journeyEl, // You can ignore this; it's just for rendering
-          cb, // This callback class
-          idx,
-        );
-      }
-    });
+    renderCallbacks(journeyEl, callbacks);
 
     const submitBtn = document.createElement('button');
     submitBtn.type = 'submit';
@@ -140,17 +138,21 @@ const requestMiddleware: RequestMiddleware[] = [
     /**
      * We can just call `next` here and not worry about passing any arguments
      */
-    step = await journeyClient.next(step);
+    step = await journeyClient.next(step, {
+      query: { noSession: searchParams.get('no-session') || 'false' },
+    });
 
     /**
      * Recursively render the form with the new state
      */
     if (step?.type === 'Step') {
+      console.log('Continuing journey to next step');
       renderForm();
     } else if (step?.type === 'LoginSuccess') {
-      console.log('Basic login successful');
+      console.log('Journey completed successfully');
       renderComplete();
     } else if (step?.type === 'LoginFailure') {
+      console.error('Journey failed');
       renderForm();
       renderError();
     } else {

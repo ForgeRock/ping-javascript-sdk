@@ -48,7 +48,7 @@ describe('Middleware should be called with an action', () => {
   });
   it('should run all middleware testing action for no match', () => {
     const runMiddleware = middlewareWrapper(
-      { url: new URL('https://www.example.com') },
+      { url: new URL('https://www.example.com'), headers: new Headers() },
       {
         type: 'z' as ActionTypes,
       },
@@ -74,7 +74,7 @@ describe('Middleware should be called with an action', () => {
   it('should not allow middleware to mutate `action`', () => {
     try {
       const runMiddleware = middlewareWrapper(
-        { url: new URL('https://www.example.com') },
+        { url: new URL('https://www.example.com'), headers: new Headers() },
         {
           type: 'MUTATE-ACTION' as ActionTypes,
         },

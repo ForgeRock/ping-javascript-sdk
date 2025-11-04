@@ -4,11 +4,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { NameCallback } from '@forgerock/journey-client/types';
+import type { NameCallback, TextInputCallback } from '@forgerock/journey-client/types';
 
 export default function textComponent(
   journeyEl: HTMLDivElement,
-  callback: NameCallback,
+  callback: NameCallback | TextInputCallback,
   idx: number,
 ) {
   const collectorKey = callback?.payload?.input?.[0].name || `collector-${idx}`;
@@ -25,6 +25,10 @@ export default function textComponent(
   journeyEl?.appendChild(input);
 
   journeyEl?.querySelector(`#${collectorKey}`)?.addEventListener('input', (event) => {
-    callback.setName((event.target as HTMLInputElement).value);
+    if (callback.getType() === 'NameCallback') {
+      (callback as NameCallback).setName((event.target as HTMLInputElement).value);
+    } else {
+      (callback as TextInputCallback).setInputValue((event.target as HTMLInputElement).value);
+    }
   });
 }
