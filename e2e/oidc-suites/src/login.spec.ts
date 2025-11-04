@@ -17,9 +17,11 @@ import { asyncEvents } from './utils/async-events.js';
 
 test.describe('PingAM login and get token tests', () => {
   test('background login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-am/');
+    const { /* navigate, */ clickButton } = asyncEvents(page);
+    // await page.goto('/ping-am/');
+    await page.goto('/ping-am/');
     expect(page.url()).toBe('http://localhost:8443/ping-am/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await clickButton('Login (Background)', '/authorize');
 
@@ -33,9 +35,10 @@ test.describe('PingAM login and get token tests', () => {
   });
 
   test('redirect login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-am/');
+    const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-am/');
     expect(page.url()).toBe('http://localhost:8443/ping-am/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await clickButton('Login (Redirect)', '/authorize');
 
@@ -49,9 +52,10 @@ test.describe('PingAM login and get token tests', () => {
   });
 
   test('background login with invalid client id fails', async ({ page }) => {
-    const { navigate } = asyncEvents(page);
-    await navigate('/ping-am/?clientid=bad-id');
+    // const { navigate } = asyncEvents(page);
+    await page.goto('/ping-am/?clientid=bad-id');
     expect(page.url()).toBe('http://localhost:8443/ping-am/?clientid=bad-id');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await page.getByRole('button', { name: 'Login (Background)' }).click();
 
@@ -65,9 +69,10 @@ test.describe('PingAM login and get token tests', () => {
 
 test.describe('PingOne login and get token tests', () => {
   test('background login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-one/');
+    const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await clickButton('Login (Background)', '/authorize');
 
@@ -82,9 +87,10 @@ test.describe('PingOne login and get token tests', () => {
   });
 
   test('redirect login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-one/');
+    const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-one/');
     expect(page.url()).toBe('http://localhost:8443/ping-one/');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await clickButton('Login (Redirect)', '/authorize');
 
@@ -99,9 +105,10 @@ test.describe('PingOne login and get token tests', () => {
   });
 
   test('login with invalid client id fails', async ({ page }) => {
-    const { navigate } = asyncEvents(page);
-    await navigate('/ping-one/?clientid=bad-id');
+    // const { navigate } = asyncEvents(page);
+    await page.goto('/ping-one/?clientid=bad-id');
     expect(page.url()).toBe('http://localhost:8443/ping-one/?clientid=bad-id');
+    await expect(page.locator('#loading')).toBeHidden();
 
     await page.getByRole('button', { name: 'Login (Background)' }).click();
 
@@ -113,11 +120,12 @@ test.describe('PingOne login and get token tests', () => {
   });
 
   test('login with pi.flow response mode', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
-    await navigate('/ping-one/?piflow=true');
+    const { clickButton } = asyncEvents(page);
+    await page.goto('/ping-one/?piflow=true');
     expect(page.url()).toBe('http://localhost:8443/ping-one/?piflow=true');
+    await expect(page.locator('#loading')).toBeHidden();
 
-    await page.on('request', (request) => {
+    page.on('request', (request) => {
       const method = request.method();
       const requestUrl = request.url();
 
@@ -140,9 +148,10 @@ test.describe('PingOne login and get token tests', () => {
 });
 
 test('login with invalid state fails with error', async ({ page }) => {
-  const { navigate } = asyncEvents(page);
-  await navigate('/ping-am/?code=12345&state=abcxyz');
+  // const { navigate } = asyncEvents(page);
+  await page.goto('/ping-am/?code=12345&state=abcxyz');
   expect(page.url()).toBe('http://localhost:8443/ping-am/?code=12345&state=abcxyz');
+  await expect(page.locator('#loading')).toBeHidden();
 
   await expect(page.locator('.error')).toContainText(`"error": "State mismatch"`);
   await expect(page.locator('.error')).toContainText(`"type": "state_error"`);
@@ -152,9 +161,10 @@ test('login with invalid state fails with error', async ({ page }) => {
 });
 
 test('oidc client fails to initialize with bad wellknown', async ({ page }) => {
-  const { navigate } = asyncEvents(page);
-  await navigate('/ping-am/?wellknown=bad-wellknown');
+  // const { navigate } = asyncEvents(page);
+  await page.goto('/ping-am/?wellknown=bad-wellknown');
   expect(page.url()).toBe('http://localhost:8443/ping-am/?wellknown=bad-wellknown');
+  await expect(page.locator('#loading')).toBeHidden();
 
   await page.getByRole('button', { name: 'Login (Background)' }).click();
 

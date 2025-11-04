@@ -21,7 +21,7 @@ test('Test happy paths on test page', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Sign On' }).click();
 
-  await expect(page.getByText('Complete')).toBeVisible();
+  await expect(async () => await expect(page.getByText('Complete')).toBeVisible()).toPass();
 
   const sessionToken = await page.locator('#sessionToken').innerText();
   const authCode = await page.locator('#authCode').innerText();
