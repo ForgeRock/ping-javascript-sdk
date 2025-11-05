@@ -1,0 +1,24 @@
+name: 'Publish Beta Steps'
+description: 'Steps to run when packages are not published (beta branch)'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create PR for beta publish
+      shell: bash
+      run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm --comment=off
+
+    - name: Run Builds
+      shell: bash
+      run: pnpm nx run-many -t build --no-agents
+
+    - name: Generate API Docs
+      shell: bash
+      run: pnpm generate-docs
+
+    - name: Publish api docs [beta]
+      uses: JamesIves/github-pages-deploy-action@v4.7.3
+      with:
+        folder: docs
+        commit-message: 'chore: release-api-docs-beta'
+        target-folder: 'beta'

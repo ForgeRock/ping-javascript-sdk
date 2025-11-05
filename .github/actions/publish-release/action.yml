@@ -1,0 +1,45 @@
+name: 'Publish Release Steps'
+description: 'Steps to run when packages are published'
+inputs:
+  publishedPackages:
+    description: 'Published packages JSON'
+    required: true
+  slackWebhook:
+    description: 'Slack webhook URL'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Format publishedPackages for Slack
+      id: slackify
+      shell: bash
+      run: |
+        raw='${{ inputs.publishedPackages }}'
+        message=$(echo "$raw" | jq -r '.[] | "- \(.name) v\(.version)"')
+        echo "message<<EOF" >> $GITHUB_OUTPUT
+        echo "$message" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Send to Slack Workflow
+      uses: slackapi/slack-github-action@v2.0.0
+      with:
+        webhook: ${{ inputs.slackWebhook }}
+        webhook-type: webhook-trigger
+        payload: >
+          {
+            "publishedPackages": "${{ steps.slackify.outputs.message }}"
+          }
+
+    - name: Run Builds
+      shell: bash
+      run: pnpm nx run-many -t build --no-agents
+
+    - name: Generate API Docs
+      shell: bash
+      run: pnpm generate-docs
+
+    - name: Publish api docs
+      uses: JamesIves/github-pages-deploy-action@v4.7.3
+      with:
+        folder: docs
+        commit-message: 'chore: release-api-docs'
