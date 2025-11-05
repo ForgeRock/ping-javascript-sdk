@@ -11,6 +11,8 @@ catalog:
   '@reduxjs/toolkit': ^2.8.2
   immer: ^10.1.1
   msw: ^2.5.1
+  vite: ^7.1.12
+  typescript: ^5.9.3
 
 catalogs:
   effect:
@@ -23,7 +25,10 @@ catalogs:
     '@effect/opentelemetry': '^0.56.1'
 
   vitest:
-    'vitest': '^3.0.4'
+    vitest: '^4.0.6'
+    vitest-canvas-mock: '^0.3.3'
+    '@vitest/coverage-v8': '^4.0.6'
+    '@vitest/ui': '^4.0.6'
 
 link-workspace-packages: true
 strict-peer-dependencies: false
