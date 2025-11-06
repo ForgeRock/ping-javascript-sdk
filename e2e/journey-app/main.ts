@@ -9,19 +9,22 @@ import './style.css';
 import { journey } from '@forgerock/journey-client';
 
 import type {
-  RequestMiddleware,
   NameCallback,
   PasswordCallback,
+  RequestMiddleware,
 } from '@forgerock/journey-client/types';
 
-import textComponent from './components/text.js';
 import passwordComponent from './components/password.js';
+import textComponent from './components/text.js';
 import { serverConfigs } from './server-configs.js';
+import { webauthnComponent } from './components/webauthn.js';
+import { WebAuthn, WebAuthnStepType } from '@forgerock/journey-client/webauthn';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
 
-const config = serverConfigs[searchParams.get('clientId') || 'basic'];
+const journeyName = searchParams.get('clientId') || 'UsernamePassword';
+const config = serverConfigs[journeyName];
 
 const requestMiddleware: RequestMiddleware[] = [
   (req, action, next) => {
@@ -48,7 +51,7 @@ const requestMiddleware: RequestMiddleware[] = [
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
-  let step = await journeyClient.start();
+  let step = await journeyClient.start({ ...config, journey: journeyName });
 
   function renderComplete() {
     if (step?.type !== 'LoginSuccess') {
@@ -103,9 +106,30 @@ const requestMiddleware: RequestMiddleware[] = [
     header.innerText = formName || '';
     journeyEl.appendChild(header);
 
-    const callbacks = step.callbacks;
+    const webAuthnStep = WebAuthn.getWebAuthnStepType(step);
 
-    callbacks.forEach((callback, idx) => {
+    if (
+      webAuthnStep === WebAuthnStepType.Authentication ||
+      webAuthnStep === WebAuthnStepType.Registration
+    ) {
+      await webauthnComponent(journeyEl, step, 0);
+      step = await journeyClient.next(step);
+      if (step?.type === 'Step') {
+        await renderForm();
+      } else if (step?.type === 'LoginSuccess') {
+        console.log('Basic login successful');
+        renderComplete();
+      } else if (step?.type === 'LoginFailure') {
+        renderForm();
+        renderError();
+      } else {
+        console.error('Unknown node status', step);
+      }
+      return; // prevent the rest of the function from running
+    }
+
+    const callbacks = step.callbacks;
+    callbacks.forEach(async (callback, idx) => {
       if (callback.getType() === 'NameCallback') {
         const cb = callback as NameCallback;
         textComponent(
@@ -146,7 +170,7 @@ const requestMiddleware: RequestMiddleware[] = [
      * Recursively render the form with the new state
      */
     if (step?.type === 'Step') {
-      renderForm();
+      await renderForm();
     } else if (step?.type === 'LoginSuccess') {
       console.log('Basic login successful');
       renderComplete();

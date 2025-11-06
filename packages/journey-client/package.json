@@ -18,7 +18,6 @@
   "types": "./dist/src/index.d.ts",
   "scripts": {
     "build": "pnpm nx nxBuild",
-    "lint": "pnpm nx nxLint",
     "test": "pnpm nx nxTest",
     "test:watch": "pnpm nx nxTest --watch"
   },
