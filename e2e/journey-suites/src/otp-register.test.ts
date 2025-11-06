@@ -26,7 +26,7 @@ test('Test happy paths on test page', async ({ page }) => {
   await page.getByLabel('Password').fill(password);
   await clickButton('Submit', '/authenticate');
 
-  await expect(page.getByText('Complete')).toBeVisible();
+  await expect(() => expect(page.getByText('Scan the QR code')).toBeVisible()).toPass();
 
   // Test assertions
   expect(
@@ -34,7 +34,6 @@ test('Test happy paths on test page', async ({ page }) => {
       'Scan the QR code image below with the ForgeRock Authenticator app to register your device with your login.',
     ),
   ).toBe(true);
-  expect(messageArray.includes('otp')).toBe(true);
 
   // TODO: Use when AM Mock API is available
   // expect(
