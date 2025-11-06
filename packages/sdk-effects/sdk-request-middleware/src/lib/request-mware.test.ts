@@ -54,7 +54,7 @@ describe('Middleware should be called with an action', () => {
       },
     );
     const newReq = runMiddleware(middleware);
-    expect(newReq.headers).toBeUndefined();
+    expect(newReq.headers).toStrictEqual(new Headers());
     expect(newReq.url.toString()).toBe('https://www.example.com/');
   });
   it('should run all middleware testing add action with payload', () => {
