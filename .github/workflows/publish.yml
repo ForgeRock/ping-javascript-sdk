@@ -87,7 +87,7 @@ jobs:
           cat previous_sizes.json
 
       - name: Upload baseline bundle sizes
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bundle-size-baseline
           path: previous_sizes.json
