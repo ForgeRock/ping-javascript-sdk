@@ -36,7 +36,7 @@ export interface Action<Type extends ActionTypes = ActionTypes, Payload = unknow
 
 export interface ModifiedFetchArgs extends Omit<FetchArgs, 'url'> {
   url: URL;
-  headers?: Headers;
+  headers: Headers;
 }
 
 export interface RequestObj {

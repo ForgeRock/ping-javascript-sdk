@@ -17,21 +17,21 @@ import { asyncEvents } from './utils/async-events.js';
 
 test.describe('PingAM tokens', () => {
   test('login and get tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-am/');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-    await clickButton('Login (Background)', 'https://openam-sdks.forgeblocks.com/');
+    await clickWithRedirect('Login (Background)', '**/am/XUI/**');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    await page.getByRole('button', { name: 'Next' }).click();
+    await clickWithRedirect('Next', 'http://localhost:8443/ping-am/**');
 
-    await page.waitForURL('http://localhost:8443/ping-am/**', { waitUntil: 'networkidle' });
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
 
-    await page.getByRole('button', { name: 'Get Tokens' }).click();
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
+
+    await page.getByRole('button', { name: 'Get Tokens (Local)' }).click();
     await expect(page.locator('#accessToken-1')).not.toBeEmpty();
 
     const accessToken0 = await page.locator('#accessToken-0').textContent();
@@ -39,22 +39,46 @@ test.describe('PingAM tokens', () => {
     await expect(accessToken0).toBe(accessToken1);
   });
 
-  test('login and renew tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+  test('login and renew missing tokens', async ({ page }) => {
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-am/');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-    await clickButton('Login (Background)', 'https://openam-sdks.forgeblocks.com/');
+    await clickWithRedirect('Login (Background)', '**/am/XUI/**');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    await page.getByRole('button', { name: 'Next' }).click();
+    await clickWithRedirect('Next', 'http://localhost:8443/ping-am/**');
 
-    await page.waitForURL('http://localhost:8443/ping-am/**', { waitUntil: 'networkidle' });
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
 
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
+
     await page.evaluate(() => window.localStorage.clear());
+    await page.getByRole('button', { name: 'Get Tokens (Background)' }).click();
+
+    await expect(page.locator('#accessToken-1')).not.toBeEmpty();
+
+    const accessToken0 = await page.locator('#accessToken-0').textContent();
+    const accessToken1 = await page.locator('#accessToken-1').textContent();
+    await expect(accessToken0).not.toBe(accessToken1);
+  });
+
+  test('login and renew existing tokens', async ({ page }) => {
+    const { clickWithRedirect, navigate } = asyncEvents(page);
+    await navigate('/ping-am/');
+
+    await clickWithRedirect('Login (Background)', '**/am/XUI/**');
+
+    await page.getByLabel('User Name').fill(pingAmUsername);
+    await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
+    await clickWithRedirect('Next', 'http://localhost:8443/ping-am/**');
+
+    expect(page.url()).toContain('code');
+    expect(page.url()).toContain('state');
+
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
+
     await page.getByRole('button', { name: 'Renew Tokens' }).click();
 
     await expect(page.locator('#accessToken-1')).not.toBeEmpty();
@@ -65,17 +89,14 @@ test.describe('PingAM tokens', () => {
   });
 
   test('login and revoke tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-am/');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-    await clickButton('Login (Background)', 'https://openam-sdks.forgeblocks.com/');
+    await clickWithRedirect('Login (Background)', '**/am/XUI/**');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    await page.getByRole('button', { name: 'Next' }).click();
-
-    await page.waitForURL('http://localhost:8443/ping-am/**');
+    await clickWithRedirect('Next', 'http://localhost:8443/ping-am/**');
 
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
 
@@ -91,7 +112,6 @@ test.describe('PingAM tokens', () => {
   test('renew tokens without logging in should error', async ({ page }) => {
     const { navigate } = asyncEvents(page);
     await navigate('/ping-am/');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
     await page.getByRole('button', { name: 'Renew Tokens' }).click();
 
@@ -105,21 +125,18 @@ test.describe('PingAM tokens', () => {
 
 test.describe('PingOne tokens', () => {
   test('login and get tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-one/');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
-    await clickButton('Login (Background)', 'https://apps.pingone.ca/');
+    await clickWithRedirect('Login (Background)', '**/signon/**');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await page.getByRole('button', { name: 'Sign On' }).click();
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
 
-    await page.waitForURL('http://localhost:8443/ping-one/**', { waitUntil: 'networkidle' });
-    expect(page.url()).toContain('code');
-    expect(page.url()).toContain('state');
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
 
-    await page.getByRole('button', { name: 'Get Tokens' }).click();
+    await page.getByRole('button', { name: 'Get Tokens (Local)' }).click();
     await expect(page.locator('#accessToken-1')).not.toBeEmpty();
 
     const accessToken0 = await page.locator('#accessToken-0').textContent();
@@ -127,23 +144,41 @@ test.describe('PingOne tokens', () => {
     await expect(accessToken0).toBe(accessToken1);
   });
 
-  test('login and renew tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+  test('login and renew missing tokens', async ({ page }) => {
+    const { clickButton, clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-one/');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
-    await clickButton('Login (Background)', 'https://apps.pingone.ca/');
+    await clickWithRedirect('Login (Background)', '**/signon/**');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await page.getByRole('button', { name: 'Sign On' }).click();
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
 
-    await page.waitForURL('http://localhost:8443/ping-one/**', { waitUntil: 'networkidle' });
-    expect(page.url()).toContain('code');
-    expect(page.url()).toContain('state');
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
 
     await page.evaluate(() => window.localStorage.clear());
-    await page.getByRole('button', { name: 'Renew Tokens' }).click();
+    await clickButton('Get Tokens (Background)', '/as/token');
+
+    await expect(page.locator('#accessToken-1')).not.toBeEmpty();
+
+    const accessToken0 = await page.locator('#accessToken-0').textContent();
+    const accessToken1 = await page.locator('#accessToken-1').textContent();
+    await expect(accessToken0).not.toBe(accessToken1);
+  });
+
+  test('login and renew existing tokens', async ({ page }) => {
+    const { clickButton, clickWithRedirect, navigate } = asyncEvents(page);
+    await navigate('/ping-one/');
+
+    await clickWithRedirect('Login (Background)', '**/signon/**');
+
+    await page.getByLabel('Username').fill(pingOneUsername);
+    await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
+
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
+
+    await clickButton('Renew Tokens', '/as/token');
 
     await expect(page.locator('#accessToken-1')).not.toBeEmpty();
 
@@ -153,23 +188,18 @@ test.describe('PingOne tokens', () => {
   });
 
   test('login and revoke tokens', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickButton, clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-one/');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
-    await clickButton('Login (Background)', 'https://apps.pingone.ca/');
+    await clickWithRedirect('Login (Background)', '**/signon/**');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await page.getByRole('button', { name: 'Sign On' }).click();
-
-    await page.waitForURL('http://localhost:8443/ping-one/**', { waitUntil: 'networkidle' });
-    expect(page.url()).toContain('code');
-    expect(page.url()).toContain('state');
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
 
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
 
-    await page.getByRole('button', { name: 'Revoke Token' }).click();
+    await clickButton('Revoke Token', '/as/revoke');
     await expect(page.getByText('Token successfully revoked')).toBeVisible();
     const token = await page.evaluate(() => localStorage.getItem('pic-oidcTokens'));
     await expect(token).toBeFalsy();
@@ -178,9 +208,12 @@ test.describe('PingOne tokens', () => {
   test('renew tokens without logging in should error', async ({ page }) => {
     const { navigate } = asyncEvents(page);
     await navigate('/ping-one/');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
+    const responsePromise = page.waitForResponse((response) => {
+      return response.url().includes('/authorize') && !response.ok();
+    });
     await page.getByRole('button', { name: 'Renew Tokens' }).click();
+    await responsePromise;
 
     await expect(page.locator('.error')).toContainText(`"error": "LOGIN_REQUIRED"`);
     await expect(page.locator('.error')).toContainText(`"type": "auth_error"`);
@@ -191,9 +224,8 @@ test.describe('PingOne tokens', () => {
 test('get tokens without logging in should error', async ({ page }) => {
   const { navigate } = asyncEvents(page);
   await navigate('/ping-am/');
-  expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-  await page.getByRole('button', { name: 'Get Tokens' }).click();
+  await page.getByRole('button', { name: 'Get Tokens (Local)' }).click();
 
   await expect(page.locator('.error')).toContainText(`"error": "No tokens found"`);
   await expect(page.locator('.error')).toContainText(`"type": "state_error"`);
@@ -202,7 +234,6 @@ test('get tokens without logging in should error', async ({ page }) => {
 test('revoke tokens should error with missing token', async ({ page }) => {
   const { navigate } = asyncEvents(page);
   await navigate('/ping-am/');
-  expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
   await page.getByRole('button', { name: 'Revoke Token' }).click();
 

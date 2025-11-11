@@ -10,15 +10,24 @@ export function asyncEvents(page) {
       if (!endpoint)
         throw new Error('Must provide endpoint argument, type string, e.g. "/authenticate"');
       await Promise.all([
-        page.waitForResponse((response) => response.url().includes(endpoint)),
+        page.waitForResponse((response) => {
+          return response.url().includes(endpoint);
+        }),
         page.getByRole('button', { name: text }).click(),
       ]);
+    },
+    async clickWithRedirect(text, url) {
+      if (!url)
+        throw new Error('Must provide endpoint argument, type string, e.g. "/authenticate"');
+      await Promise.all([page.waitForURL(url), page.getByRole('button', { name: text }).click()]);
     },
     async clickLink(text, endpoint) {
       if (!endpoint)
         throw new Error('Must provide endpoint argument, type string, e.g. "/authenticate"');
       await Promise.all([
-        page.waitForResponse((response) => response.url().includes(endpoint)),
+        page.waitForResponse((response) => {
+          return response.url().includes(endpoint) && response.ok();
+        }),
         page.getByRole('link', { name: text }).click(),
       ]);
     },
@@ -49,7 +58,9 @@ export function asyncEvents(page) {
       if (!endpoint)
         throw new Error('Must provide endpoint argument, type string, e.g. "/authenticate"');
       await Promise.all([
-        page.waitForResponse((response) => response.url().includes(endpoint)),
+        page.waitForResponse((response) => {
+          return response.url().includes(endpoint) && response.ok();
+        }),
         page.keyboard.press('Enter'),
       ]);
     },

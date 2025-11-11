@@ -5,4 +5,4 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-export * from './lib/journey.store.js';
+export * from './lib/client.store.js';

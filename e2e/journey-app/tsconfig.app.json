@@ -9,6 +9,7 @@
     "./main.ts",
     "./helper.ts",
     "./server-configs.ts",
+    "./callback-map.ts",
     "components/**/*.ts"
   ],
   "references": [

@@ -48,13 +48,13 @@ describe('Middleware should be called with an action', () => {
   });
   it('should run all middleware testing action for no match', () => {
     const runMiddleware = middlewareWrapper(
-      { url: new URL('https://www.example.com') },
+      { url: new URL('https://www.example.com'), headers: new Headers() },
       {
         type: 'z' as ActionTypes,
       },
     );
     const newReq = runMiddleware(middleware);
-    expect(newReq.headers).toBeUndefined();
+    expect(newReq.headers).toStrictEqual(new Headers());
     expect(newReq.url.toString()).toBe('https://www.example.com/');
   });
   it('should run all middleware testing add action with payload', () => {
@@ -74,7 +74,7 @@ describe('Middleware should be called with an action', () => {
   it('should not allow middleware to mutate `action`', () => {
     try {
       const runMiddleware = middlewareWrapper(
-        { url: new URL('https://www.example.com') },
+        { url: new URL('https://www.example.com'), headers: new Headers() },
         {
           type: 'MUTATE-ACTION' as ActionTypes,
         },

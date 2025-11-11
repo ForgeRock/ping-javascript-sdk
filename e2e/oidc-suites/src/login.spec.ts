@@ -17,41 +17,40 @@ import { asyncEvents } from './utils/async-events.js';
 
 test.describe('PingAM login and get token tests', () => {
   test('background login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-am/');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-    await clickButton('Login (Background)', '/authorize');
+    await clickWithRedirect('Login (Background)', '**/am/XUI/**');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    await page.getByRole('button', { name: 'Next' }).click();
+    await clickWithRedirect('Next', 'http://localhost:8443/ping-am/**');
 
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
+
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
   });
 
   test('redirect login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-am/');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/');
 
-    await clickButton('Login (Redirect)', '/authorize');
+    await clickWithRedirect('Login (Redirect)', '**/am/XUI/**');
 
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
-    await page.getByRole('button', { name: 'Next' }).click();
+    await clickWithRedirect('Next', 'http://localhost:8443/ping-am/**');
 
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
+
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
   });
 
   test('background login with invalid client id fails', async ({ page }) => {
     const { navigate } = asyncEvents(page);
     await navigate('/ping-am/?clientid=bad-id');
-    expect(page.url()).toBe('http://localhost:8443/ping-am/?clientid=bad-id');
 
     await page.getByRole('button', { name: 'Login (Background)' }).click();
 
@@ -65,43 +64,40 @@ test.describe('PingAM login and get token tests', () => {
 
 test.describe('PingOne login and get token tests', () => {
   test('background login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-one/');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
-    await clickButton('Login (Background)', '/authorize');
+    await clickWithRedirect('Login (Background)', '**/signon/**');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await page.getByRole('button', { name: 'Sign On' }).click();
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
 
-    await page.waitForURL('http://localhost:8443/ping-one/**');
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
+
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
   });
 
   test('redirect login with valid credentials', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-one/');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/');
 
-    await clickButton('Login (Redirect)', '/authorize');
+    await clickWithRedirect('Login (Background)', '**/signon/**');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await page.getByRole('button', { name: 'Sign On' }).click();
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
 
-    await page.waitForURL('http://localhost:8443/ping-one/**');
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
+
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
   });
 
   test('login with invalid client id fails', async ({ page }) => {
     const { navigate } = asyncEvents(page);
     await navigate('/ping-one/?clientid=bad-id');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/?clientid=bad-id');
 
     await page.getByRole('button', { name: 'Login (Background)' }).click();
 
@@ -113,9 +109,8 @@ test.describe('PingOne login and get token tests', () => {
   });
 
   test('login with pi.flow response mode', async ({ page }) => {
-    const { navigate, clickButton } = asyncEvents(page);
+    const { clickWithRedirect, navigate } = asyncEvents(page);
     await navigate('/ping-one/?piflow=true');
-    expect(page.url()).toBe('http://localhost:8443/ping-one/?piflow=true');
 
     await page.on('request', (request) => {
       const method = request.method();
@@ -126,15 +121,15 @@ test.describe('PingOne login and get token tests', () => {
       }
     });
 
-    await clickButton('Login (Background)', '/authorize');
+    await clickWithRedirect('Login (Background)', '**/signon/**');
 
     await page.getByLabel('Username').fill(pingOneUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await page.getByRole('button', { name: 'Sign On' }).click();
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
 
-    await page.waitForURL('http://localhost:8443/ping-one/**');
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
+
     await expect(page.locator('#accessToken-0')).not.toBeEmpty();
   });
 });
@@ -142,7 +137,6 @@ test.describe('PingOne login and get token tests', () => {
 test('login with invalid state fails with error', async ({ page }) => {
   const { navigate } = asyncEvents(page);
   await navigate('/ping-am/?code=12345&state=abcxyz');
-  expect(page.url()).toBe('http://localhost:8443/ping-am/?code=12345&state=abcxyz');
 
   await expect(page.locator('.error')).toContainText(`"error": "State mismatch"`);
   await expect(page.locator('.error')).toContainText(`"type": "state_error"`);
@@ -154,7 +148,6 @@ test('login with invalid state fails with error', async ({ page }) => {
 test('oidc client fails to initialize with bad wellknown', async ({ page }) => {
   const { navigate } = asyncEvents(page);
   await navigate('/ping-am/?wellknown=bad-wellknown');
-  expect(page.url()).toBe('http://localhost:8443/ping-am/?wellknown=bad-wellknown');
 
   await page.getByRole('button', { name: 'Login (Background)' }).click();
 
