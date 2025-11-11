@@ -5,6 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
+
 /** *********************************************************************
  * SINGLE-VALUE COLLECTORS
  */
@@ -302,14 +304,6 @@ export interface PhoneNumberOutputValue {
   phoneNumber?: string;
 }
 
-export interface FidoRegistrationInputValue {
-  attestationValue?: PublicKeyCredential;
-}
-
-export interface FidoAuthenticationInputValue {
-  assertionValue?: PublicKeyCredential;
-}
-
 export interface ObjectOptionsCollectorWithStringValue<
   T extends ObjectValueCollectorTypes,
   V = string,
@@ -544,6 +538,51 @@ export type UnknownCollector = {
  * @interface AutoCollector - Represents a collector that collects a value programmatically without user intervention.
  */
 
+export interface ProtectOutputValue {
+  behavioralDataCollection: boolean;
+  universalDeviceIdentification: boolean;
+}
+
+export interface AttestationValue
+  extends Omit<PublicKeyCredential, 'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'> {
+  rawId: string;
+  response: {
+    // https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorAttestationResponse
+    clientDataJSON: string;
+    attestationObject: string;
+  };
+}
+export interface FidoRegistrationInputValue {
+  attestationValue?: AttestationValue;
+}
+
+export interface FidoRegistrationOutputValue {
+  publicKeyCredentialCreationOptions: FidoRegistrationOptions;
+  action: 'REGISTER';
+  trigger: string;
+}
+
+export interface AssertionValue
+  extends Omit<PublicKeyCredential, 'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'> {
+  rawId: string;
+  response: {
+    // https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorAssertionResponse
+    clientDataJSON: string;
+    authenticatorData: string;
+    signature: string;
+    userHandle: string | null;
+  };
+}
+export interface FidoAuthenticationInputValue {
+  assertionValue?: AssertionValue;
+}
+
+export interface FidoAuthenticationOutputValue {
+  publicKeyCredentialRequestOptions: FidoAuthenticationOptions;
+  action: 'AUTHENTICATE';
+  trigger: string;
+}
+
 export type AutoCollectorCategories = 'SingleValueAutoCollector' | 'ObjectValueAutoCollector';
 export type SingleValueAutoCollectorTypes = 'SingleValueAutoCollector' | 'ProtectCollector';
 export type ObjectValueAutoCollectorTypes =
@@ -556,6 +595,7 @@ export interface AutoCollector<
   C extends AutoCollectorCategories,
   T extends AutoCollectorTypes,
   IV = string,
+  OV = Record<string, unknown>,
 > {
   category: C;
   error: string | null;
@@ -571,24 +611,27 @@ export interface AutoCollector<
   output: {
     key: string;
     type: string;
-    config: Record<string, unknown>;
+    config: OV;
   };
 }
 
 export type ProtectCollector = AutoCollector<
   'SingleValueAutoCollector',
   'ProtectCollector',
-  string
+  string,
+  ProtectOutputValue
 >;
 export type FidoRegistrationCollector = AutoCollector<
   'ObjectValueAutoCollector',
   'FidoRegistrationCollector',
-  FidoRegistrationInputValue
+  FidoRegistrationInputValue,
+  FidoRegistrationOutputValue
 >;
 export type FidoAuthenticationCollector = AutoCollector<
   'ObjectValueAutoCollector',
   'FidoAuthenticationCollector',
-  FidoAuthenticationInputValue
+  FidoAuthenticationInputValue,
+  FidoAuthenticationOutputValue
 >;
 export type SingleValueAutoCollector = AutoCollector<
   'SingleValueAutoCollector',

@@ -11,7 +11,11 @@ import type { GenericError } from '@forgerock/sdk-types';
 
 import type { InitFlow, InternalErrorResponse, Updater } from './client.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
-import type { PhoneNumberInputValue } from './collector.types.js';
+import type {
+  FidoAuthenticationInputValue,
+  FidoRegistrationInputValue,
+  PhoneNumberInputValue,
+} from './collector.types.js';
 
 describe('Client Types', () => {
   it('should allow function returning error', async () => {
@@ -170,7 +174,12 @@ describe('Client Types', () => {
 describe('Updater', () => {
   it('should accept string value and optional index', () => {
     const updater: Updater = (
-      value: string | string[] | boolean | PhoneNumberInputValue,
+      value:
+        | string
+        | string[]
+        | PhoneNumberInputValue
+        | FidoRegistrationInputValue
+        | FidoAuthenticationInputValue,
       index?: number,
     ) => {
       return {
@@ -178,7 +187,15 @@ describe('Updater', () => {
         type: 'internal_error',
       };
     };
-    expectTypeOf(updater).parameter(0).toEqualTypeOf<string | string[] | PhoneNumberInputValue>();
+    expectTypeOf(updater)
+      .parameter(0)
+      .toEqualTypeOf<
+        | string
+        | string[]
+        | PhoneNumberInputValue
+        | FidoRegistrationInputValue
+        | FidoAuthenticationInputValue
+      >();
     expectTypeOf(updater).parameter(1).toBeNullable();
     expectTypeOf(updater).parameter(1).toBeNullable();
   });
