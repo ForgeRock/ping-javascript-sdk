@@ -13,7 +13,7 @@ import type {
 export default function protectComponent(
   formEl: HTMLFormElement,
   collector: TextCollector | ValidatedTextCollector,
-  updater: Updater,
+  updater: Updater<TextCollector | ValidatedTextCollector>,
 ) {
   // create paragraph element with text of "Loading ... "
   const p = document.createElement('p');

@@ -234,13 +234,15 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * @param {SingleValueCollector | MultiSelectCollector | ObjectValueCollectors | AutoCollectors} collector - the collector to update
      * @returns {function} - a function to call for updating collector value
      */
-    update: (
-      collector:
+    update: <
+      T extends
         | SingleValueCollectors
         | MultiSelectCollector
         | ObjectValueCollectors
         | AutoCollectors,
-    ): Updater => {
+    >(
+      collector: T,
+    ): Updater<T> => {
       if (!collector.id) {
         return handleUpdateValidateError(
           'Argument for `collector` has no ID',

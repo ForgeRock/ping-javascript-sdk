@@ -18,7 +18,8 @@ export type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 export type DaVinciConfig = config.DaVinciConfig;
 
 export type DavinciClient = Awaited<ReturnType<typeof davinci>>;
-export type Updater = client.Updater;
+export type Updater<T = unknown> = client.Updater<T>;
+export type CollectorValueType<T> = client.CollectorValueType<T>;
 export type InitFlow = client.InitFlow;
 export type Validator = client.Validator;
 export type GetClient = ReturnType<typeof nodeSlice.selectors.selectClient>;
