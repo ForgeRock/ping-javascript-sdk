@@ -5,6 +5,21 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+// Re-export types from internal packages that consumers need
+export type { LogLevel, CustomLogger } from '@forgerock/sdk-logger';
+export type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+export type {
+  Step,
+  Callback,
+  CallbackType,
+  StepType,
+  callbackType,
+  GenericError,
+  PolicyRequirement,
+  FailedPolicyRequirement,
+} from '@forgerock/sdk-types';
+
+// Re-export local types
 export * from './lib/config.types.js';
 export * from './lib/interfaces.js';
 export * from './lib/step.types.js';

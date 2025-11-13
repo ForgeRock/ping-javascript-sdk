@@ -5,7 +5,6 @@
  */
 import 'immer'; // Side-effect needed only for getting types in workspace
 
-import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { FidoClient } from './lib/fido/fido.js';
 import type * as collectors from './lib/collector.types.js';
 import type * as config from './lib/config.types.js';
@@ -14,7 +13,7 @@ import type * as client from './lib/client.types.js';
 import { davinci } from './lib/client.store.js';
 import { nodeSlice } from './lib/node.slice.js';
 
-export type { CustomLogger } from '@forgerock/sdk-logger/types';
+export type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 
 export type DaVinciConfig = config.DaVinciConfig;
 
@@ -54,5 +53,5 @@ export type FidoRegistrationCollector = collectors.FidoRegistrationCollector;
 export type FidoAuthenticationCollector = collectors.FidoAuthenticationCollector;
 
 export type InternalErrorResponse = client.InternalErrorResponse;
-export type { RequestMiddleware };
+export type { RequestMiddleware, ActionTypes } from '@forgerock/sdk-request-middleware';
 export type { FidoClient };
