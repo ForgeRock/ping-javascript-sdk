@@ -7,7 +7,7 @@
 
 import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
-import { username, password } from './utils/demo-user.js';
+import { password, username } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);

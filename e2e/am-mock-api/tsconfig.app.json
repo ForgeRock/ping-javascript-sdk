@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "target": "ES6",
+    "allowJs": true,
+    "types": ["node", "express"]
+  },
+  "exclude": ["**/*.spec.ts", "**/*.test.ts", "dist"],
+  "include": ["**/*.ts", "**/*.js"]
+}

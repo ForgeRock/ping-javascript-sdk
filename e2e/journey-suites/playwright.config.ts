@@ -27,15 +27,19 @@ const config: PlaywrightTestConfig = {
     process.env.CI == 'false'
       ? {
           command: 'pnpm watch @forgerock/journey-app',
-          port: 5829,
-          ignoreHTTPSErrors: true,
-          reuseExistingServer: !process.env.CI,
           cwd: workspaceRoot,
         }
       : undefined,
     {
       command: 'pnpm nx serve @forgerock/journey-app',
       port: 5829,
+      ignoreHTTPSErrors: true,
+      reuseExistingServer: !process.env.CI,
+      cwd: workspaceRoot,
+    },
+    {
+      command: 'pnpm nx serve am-mock-api',
+      port: 9443,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,
       cwd: workspaceRoot,

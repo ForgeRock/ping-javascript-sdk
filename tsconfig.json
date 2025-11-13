@@ -75,6 +75,9 @@
     },
     {
       "path": "./e2e/journey-suites"
+    },
+    {
+      "path": "./e2e/am-mock-api"
     }
   ]
 }

@@ -12,7 +12,7 @@ import { username, password } from './utils/demo-user.js';
 // Skipping test until AM Mock API is available that supports custom paths
 test.skip('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?paths=true&journey=Login');
+  await navigate('/?paths=true&journey=Login&clientId=tenant');
 
   const messageArray: string[] = [];
 
