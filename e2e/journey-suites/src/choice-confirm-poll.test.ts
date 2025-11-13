@@ -11,7 +11,7 @@ import { username, password } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?tree=TEST_LoginWithMiscCallbacks&clientId=tenant');
+  await navigate('/?journey=TEST_LoginWithMiscCallbacks&clientId=tenant');
 
   const messageArray: string[] = [];
 
@@ -22,7 +22,7 @@ test('Test happy paths on test page', async ({ page }) => {
   });
 
   expect(page.url()).toBe(
-    'http://localhost:5829/?tree=TEST_LoginWithMiscCallbacks&clientId=tenant',
+    'http://localhost:5829/?journey=TEST_LoginWithMiscCallbacks&clientId=tenant',
   );
 
   // Perform basic login

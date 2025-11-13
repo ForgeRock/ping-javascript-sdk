@@ -11,7 +11,7 @@ import { username, password } from './utils/demo-user.js';
 
 test.skip('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?tree=TEST_Protect');
+  await navigate('/?journey=TEST_Protect');
 
   const messageArray: string[] = [];
 

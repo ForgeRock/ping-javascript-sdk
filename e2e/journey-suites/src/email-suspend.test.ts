@@ -11,7 +11,7 @@ import { username, password } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?tree=TEST_LoginSuspendEmail&clientId=tenant');
+  await navigate('/?journey=TEST_LoginSuspendEmail&clientId=tenant');
 
   const messageArray: string[] = [];
 

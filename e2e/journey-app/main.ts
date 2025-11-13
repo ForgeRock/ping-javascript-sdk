@@ -18,7 +18,7 @@ const searchParams = new URLSearchParams(qs);
 
 const config = serverConfigs[searchParams.get('clientId') || 'basic'];
 
-const tree = searchParams.get('tree') ?? 'UsernamePassword';
+const journeyName = searchParams.get('journey') ?? 'UsernamePassword';
 let requestMiddleware: RequestMiddleware[] = [];
 
 if (searchParams.get('middleware') === 'true') {
@@ -55,7 +55,7 @@ if (searchParams.get('middleware') === 'true') {
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
-  let step = await journeyClient.start({ journey: tree });
+  let step = await journeyClient.start({ journey: journeyName });
 
   function renderComplete() {
     if (step?.type !== 'LoginSuccess') {
@@ -79,7 +79,7 @@ if (searchParams.get('middleware') === 'true') {
 
       console.log('Logout successful');
 
-      step = await journeyClient.start({ journey: tree });
+      step = await journeyClient.start({ journey: journeyName });
 
       renderForm();
     });

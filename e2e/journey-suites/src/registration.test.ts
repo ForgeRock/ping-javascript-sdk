@@ -11,7 +11,7 @@ import { password } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?tree=Registration&clientId=tenant');
+  await navigate('/?journey=Registration&clientId=tenant');
 
   // generate ID, 3 sections of random numbers: "714524572-2799534390-3707617532"
   const id = globalThis.crypto.getRandomValues(new Uint32Array(3)).join('-');
@@ -23,7 +23,7 @@ test('Test happy paths on test page', async ({ page }) => {
     return Promise.resolve(true);
   });
 
-  expect(page.url()).toBe('http://localhost:5829/?tree=Registration&clientId=tenant');
+  expect(page.url()).toBe('http://localhost:5829/?journey=Registration&clientId=tenant');
 
   // Perform registration
   await page.getByLabel('Username').fill('testuser+' + id);
