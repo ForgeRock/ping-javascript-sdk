@@ -7,8 +7,8 @@
 import { it, expect } from '@effect/vitest';
 import { Micro } from 'effect';
 import { handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
-import { OidcConfig } from './config.types.js';
-import { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { OidcConfig } from './config.types.js';
+import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 const clientId = '123456789';
 const redirectUri = 'https://example.com/callback.html';

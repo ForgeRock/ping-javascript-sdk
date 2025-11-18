@@ -4,9 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
-import { createStorage, StorageConfig } from '@forgerock/storage';
+import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
@@ -18,6 +18,8 @@ import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
+import type { StorageConfig } from '@forgerock/storage';
 
 import type {
   GetTokensOptions,

@@ -1,18 +1,28 @@
-import { createApi, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { OidcConfig } from './config.types.js';
+/*
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+import {
+  createApi,
+  fetchBaseQuery,
+  type FetchArgs,
+  type FetchBaseQueryError,
+} from '@reduxjs/toolkit/query';
+import type { OidcConfig } from './config.types.js';
 import { transformError } from './oidc.api.utils.js';
-
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import { iFrameManager } from '@forgerock/iframe-manager';
 import {
   initQuery,
   type ActionTypes,
   type RequestMiddleware,
 } from '@forgerock/sdk-request-middleware';
 
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { TokenExchangeResponse } from './exchange.types.js';
-import { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize.request.types.js';
-import { iFrameManager } from '@forgerock/iframe-manager';
-import { UserInfoResponse } from './client.types.js';
+import type { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize.request.types.js';
+import type { UserInfoResponse } from './client.types.js';
 
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
   requestMiddleware: RequestMiddleware<ActionType, Payload>[];

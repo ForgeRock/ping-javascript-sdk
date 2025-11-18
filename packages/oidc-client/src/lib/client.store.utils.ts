@@ -5,14 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 
-import { configureStore, SerializedError } from '@reduxjs/toolkit';
+import { configureStore, type SerializedError } from '@reduxjs/toolkit';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi } from './wellknown.api.js';
 
 import type { GenericError } from '@forgerock/sdk-types';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 /**
  * @function createClientStore
@@ -113,9 +113,3 @@ export function createTokenError(type: 'no_tokens' | 'no_access_token' | 'no_id_
 
   return error;
 }
-
-type ClientStore = typeof createClientStore;
-
-export type RootState = ReturnType<ReturnType<ClientStore>['getState']>;
-
-export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;

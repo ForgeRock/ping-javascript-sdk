@@ -8,19 +8,20 @@ import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
 import type { WellKnownResponse, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
-
-import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
+import type {
+  AuthorizationError,
+  AuthorizationSuccess,
+  BuildAuthorizationData,
+  OptionalAuthorizeOptions,
+} from './authorize.request.types.js';
 import type { OidcConfig } from './config.types.js';
-
-type BuildAuthorizationData = [string, GetAuthorizationUrlOptions];
-export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
 
 /**
  * @function buildAuthorizeOptionsµ
  * @description Builds the authorization options for the OIDC client.
  * @param {WellKnownResponse} wellknown - The well-known configuration for the OIDC server.
  * @param {OptionalAuthorizeOptions} options - Optional parameters for the authorization request.
- * @returns {Micro.Micro<BuildAuthorizationData, AuthorizeErrorResponse, never>}
+ * @returns {Micro.Micro<BuildAuthorizationData, AuthorizationError, never>}
  */
 export function buildAuthorizeOptionsµ(
   wellknown: WellKnownResponse,
@@ -50,7 +51,7 @@ export function buildAuthorizeOptionsµ(
  * @param {WellKnownResponse} wellknown- The well-known configuration for the OIDC server.
  * @param { OidcConfig } config- The OIDC client configuration.
  * @param { GetAuthorizationUrlOptions } options- Optional parameters for the authorization request.
- * @returns { Micro.Micro<never, AuthorizeErrorResponse, never> }
+ * @returns { Micro.Micro<never, AuthorizationError, never> }
  */
 export function createAuthorizeErrorµ(
   res: { error: string; error_description: string },
@@ -121,7 +122,6 @@ export function createAuthorizeUrlµ(
 export function handleResponseµ(
   response: AuthorizationSuccess | AuthorizationError,
   wellknown: WellKnownResponse,
-  config: OidcConfig,
   options: GetAuthorizationUrlOptions,
 ): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> {
   if ('code' in response) {

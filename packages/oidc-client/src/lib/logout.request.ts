@@ -6,11 +6,12 @@
  */
 import { Micro } from 'effect';
 import { oidcApi } from './oidc.api.js';
-import { createClientStore, createLogoutError } from './client.store.utils.js';
+import { createLogoutError } from './client.store.utils.js';
+
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { WellKnownResponse } from '@forgerock/sdk-types';
 import type { StorageClient } from '@forgerock/storage';
-import type { LogoutErrorResult, LogoutSuccessResult } from './client.types.js';
+import type { ClientStore, LogoutErrorResult, LogoutSuccessResult } from './client.types.js';
 
 export function logoutµ({
   tokens,
@@ -22,7 +23,7 @@ export function logoutµ({
   tokens: OauthTokens;
   config: OidcConfig;
   wellknown: WellKnownResponse;
-  store: ReturnType<typeof createClientStore>;
+  store: ClientStore;
   storageClient: StorageClient<OauthTokens>;
 }) {
   return Micro.zip(
