@@ -10,11 +10,11 @@ import { logger } from '@forgerock/sdk-logger';
 
 import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
 import { oidcApi } from './oidc.api.js';
-import { createClientStore } from './client.store.utils.js';
 
+import type { ClientStore } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type { StorageConfig } from 'node_modules/@forgerock/storage/src/lib/storage.effects.js';
-import { TokenExchangeErrorResponse } from './exchange.types.js';
+import type { StorageConfig } from '@forgerock/storage';
+import type { TokenExchangeErrorResponse } from './exchange.types.js';
 
 interface BuildTokenExchangeµParams {
   code: string;
@@ -22,7 +22,7 @@ interface BuildTokenExchangeµParams {
   endpoint: string;
   log: ReturnType<typeof logger>;
   state: string;
-  store: ReturnType<typeof createClientStore>;
+  store: ClientStore;
   options?: Partial<StorageConfig>;
 }
 

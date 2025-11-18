@@ -8,13 +8,12 @@ import { it, expect, describe } from '@effect/vitest';
 import { Micro } from 'effect';
 import { deepStrictEqual } from 'node:assert';
 import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
 import { logoutµ } from './logout.request.js';
-import { OauthTokens, OidcConfig } from './config.types.js';
 import { createStorage } from '@forgerock/storage';
 import { createClientStore } from './client.store.utils.js';
 import { logger as loggerFn } from '@forgerock/sdk-logger';
-
-import { http, HttpResponse } from 'msw';
+import type { OauthTokens, OidcConfig } from './config.types.js';
 
 const server = setupServer(
   // Ping AM End Session

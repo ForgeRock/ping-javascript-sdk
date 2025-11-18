@@ -4,44 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-catalogs:
-  default:
-    '@reduxjs/toolkit':
-      specifier: ^2.8.2
-      version: 2.10.1
-    immer:
-      specifier: ^10.1.1
-      version: 10.2.0
-    msw:
-      specifier: ^2.5.1
-      version: 2.12.1
-  effect:
-    '@effect/cli':
-      specifier: ^0.69.0
-      version: 0.69.2
-    '@effect/language-service':
-      specifier: ^0.35.2
-      version: 0.35.2
-    '@effect/opentelemetry':
-      specifier: ^0.56.1
-      version: 0.56.6
-    '@effect/platform':
-      specifier: ^0.90.0
-      version: 0.90.10
-    '@effect/platform-node':
-      specifier: 0.94.2
-      version: 0.94.2
-    '@effect/vitest':
-      specifier: ^0.23.9
-      version: 0.23.13
-    effect:
-      specifier: ^3.17.2
-      version: 3.19.3
-  vitest:
-    vitest:
-      specifier: ^3.0.4
-      version: 3.2.4
-
 importers:
 
   .:
@@ -364,15 +326,9 @@ importers:
 
   e2e/oidc-app:
     dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: ^4.8.2
-        version: 4.8.2
       '@forgerock/oidc-client':
         specifier: workspace:*
         version: link:../../packages/oidc-client
-      '@forgerock/sdk-types':
-        specifier: workspace:*
-        version: link:../../packages/sdk-types
 
   e2e/oidc-suites: {}
 
@@ -1890,9 +1846,6 @@ packages:
 
   '@forgerock/javascript-sdk@4.7.0':
     resolution: {integrity: sha512-0wpy2/ii9F9yKI3r+huqQtp6bVAeajf2+Llq25dvkfxQX19FKKi9KPPMF7JTVti6heYHyo36lxweB7xerB5UTQ==}
-
-  '@forgerock/javascript-sdk@4.8.2':
-    resolution: {integrity: sha512-vk30flcVa0ypa92YOqEPiIZlXxTF+QVrd/ADtn0G5fIAGNUE2LMKpiGVZGAooqdaT9DpAymvaXrWCV9JLDDlMA==}
 
   '@gerrit0/mini-shiki@1.27.2':
     resolution: {integrity: sha512-GeWyHz8ao2gBiUW4OJnQDxXQnFgZQwwQk05t/CVVgNBN7/rK8XZ7xY6YhLVv9tH3VppWWmr9DCl3MwemB/i+Og==}
@@ -9633,14 +9586,6 @@ snapshots:
   '@fastify/busboy@2.1.1': {}
 
   '@forgerock/javascript-sdk@4.7.0':
-    dependencies:
-      '@reduxjs/toolkit': 2.10.1
-      immer: 10.2.0
-    transitivePeerDependencies:
-      - react
-      - react-redux
-
-  '@forgerock/javascript-sdk@4.8.2':
     dependencies:
       '@reduxjs/toolkit': 2.10.1
       immer: 10.2.0

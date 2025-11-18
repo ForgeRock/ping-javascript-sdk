@@ -9,9 +9,7 @@
     "serve": "pnpm nx nxServe"
   },
   "dependencies": {
-    "@forgerock/javascript-sdk": "^4.8.2",
-    "@forgerock/oidc-client": "workspace:*",
-    "@forgerock/sdk-types": "workspace:*"
+    "@forgerock/oidc-client": "workspace:*"
   },
   "nx": {
     "tags": ["scope:e2e"]

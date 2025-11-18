@@ -12,13 +12,12 @@ import {
   buildAuthorizeOptionsµ,
   createAuthorizeErrorµ,
 } from './authorize.request.utils.js';
-
-import type { GetAuthorizationUrlOptions, WellKnownResponse } from '@forgerock/sdk-types';
-
-import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
-import type { createClientStore } from './client.store.utils.js';
-import type { OidcConfig } from './config.types.js';
 import { oidcApi } from './oidc.api.js';
+
+import type { ClientStore } from './client.types.js';
+import type { GetAuthorizationUrlOptions, WellKnownResponse } from '@forgerock/sdk-types';
+import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
+import type { OidcConfig } from './config.types.js';
 
 /**
  * @function authorizeµ
@@ -26,6 +25,7 @@ import { oidcApi } from './oidc.api.js';
  * @param {WellKnownResponse} wellknown - The well-known configuration for the OIDC server.
  * @param {OidcConfig} config - The OIDC client configuration.
  * @param {CustomLogger} log - The logger instance for logging debug information.
+ * @param {ClientStore} store - The Redux store instance for managing OIDC state.
  * @param {GetAuthorizationUrlOptions} options - Optional parameters for the authorization request.
  * @returns {Micro.Micro<AuthorizationSuccess, AuthorizationError, never>} - A micro effect that resolves to the authorization response.
  */
@@ -33,7 +33,7 @@ export function authorizeµ(
   wellknown: WellKnownResponse,
   config: OidcConfig,
   log: CustomLogger,
-  store: ReturnType<typeof createClientStore>,
+  store: ClientStore,
   options?: GetAuthorizationUrlOptions,
 ) {
   return buildAuthorizeOptionsµ(wellknown, config, options).pipe(

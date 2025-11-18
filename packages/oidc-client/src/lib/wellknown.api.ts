@@ -7,9 +7,8 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
-import { WellKnownResponse } from '@forgerock/sdk-types';
-
-import type { RootState } from './client.store.utils.js';
+import type { WellKnownResponse } from '@forgerock/sdk-types';
+import type { RootState } from './client.types.js';
 
 export const wellknownApi = createApi({
   reducerPath: 'wellknown',
