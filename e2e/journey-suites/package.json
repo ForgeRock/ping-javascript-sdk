@@ -1,6 +1,6 @@
 {
   "name": "@forgerock/journey-suites",
-  "version": "0.0.0",
+  "version": "1.3.0",
   "private": true,
   "description": "Journey Client E2E Suites",
   "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
