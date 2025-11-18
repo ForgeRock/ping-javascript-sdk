@@ -1,5 +1,32 @@
 # @forgerock/davinci-client
 
+## 1.3.0
+
+### Minor Changes
+
+- [#348](https://github.com/ForgeRock/ping-javascript-sdk/pull/348) [`beb349a`](https://github.com/ForgeRock/ping-javascript-sdk/commit/beb349a9a13e7bb8fbad35bf9bda9e340545cffa) Thanks [@cerebrl](https://github.com/cerebrl)! - Implemented token exchange within OIDC Client
+
+- [#340](https://github.com/ForgeRock/ping-javascript-sdk/pull/340) [`0fa522a`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0fa522ab734a9b5adf41883abf25fa8600aaf6a9) Thanks [@ancheetah](https://github.com/ancheetah)! - Implemented Ping Protect collector
+
+- [#396](https://github.com/ForgeRock/ping-javascript-sdk/pull/396) [`036f495`](https://github.com/ForgeRock/ping-javascript-sdk/commit/036f4952f959e3eedb8e0c88a5043dd2448ad6ca) Thanks [@ancheetah](https://github.com/ancheetah)! - Added support for pre-filled phone number and country code
+
+- [#468](https://github.com/ForgeRock/ping-javascript-sdk/pull/468) [`fd14ca9`](https://github.com/ForgeRock/ping-javascript-sdk/commit/fd14ca943d3d08911846a122fc3d7b1ee8716aca) Thanks [@ancheetah](https://github.com/ancheetah)! - Adds FIDO feature module to `@forgerock/davinci-client` package
+
+- [#428](https://github.com/ForgeRock/ping-javascript-sdk/pull/428) [`b327c79`](https://github.com/ForgeRock/ping-javascript-sdk/commit/b327c79c8dfc4bd7d97008ff81a27f8f922bf5cd) Thanks [@ancheetah](https://github.com/ancheetah)! - Added WebAuthn/FIDO2 collectors
+
+### Patch Changes
+
+- [#413](https://github.com/ForgeRock/ping-javascript-sdk/pull/413) [`9213bb9`](https://github.com/ForgeRock/ping-javascript-sdk/commit/9213bb9299ade800e8482f4904a8620c47d27ad2) Thanks [@ancheetah](https://github.com/ancheetah)! - Exposes `required` and `validatePhoneNumber` properties on collectors
+
+- [#363](https://github.com/ForgeRock/ping-javascript-sdk/pull/363) [`6c06e70`](https://github.com/ForgeRock/ping-javascript-sdk/commit/6c06e709a7aa503cda2e4f2b923cace1abcebd3c) Thanks [@cerebrl](https://github.com/cerebrl)! - Implement OIDC logout and user info request; includes type updates and global error type
+
+- Updated dependencies [[`b0f4368`](https://github.com/ForgeRock/ping-javascript-sdk/commit/b0f4368637a788c5472587f5232678312a7eabfe), [`beb349a`](https://github.com/ForgeRock/ping-javascript-sdk/commit/beb349a9a13e7bb8fbad35bf9bda9e340545cffa), [`dc4d4bd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/dc4d4bdb5aa781660de631f45b22620e400d9f4a), [`7ffa428`](https://github.com/ForgeRock/ping-javascript-sdk/commit/7ffa428b0fda63d978e181cd5c9150777d863f40), [`6c06e70`](https://github.com/ForgeRock/ping-javascript-sdk/commit/6c06e709a7aa503cda2e4f2b923cace1abcebd3c), [`93595d2`](https://github.com/ForgeRock/ping-javascript-sdk/commit/93595d265234cd149ff76dbac20e3e1031c3ef5f), [`fd14ca9`](https://github.com/ForgeRock/ping-javascript-sdk/commit/fd14ca943d3d08911846a122fc3d7b1ee8716aca), [`b0f4368`](https://github.com/ForgeRock/ping-javascript-sdk/commit/b0f4368637a788c5472587f5232678312a7eabfe), [`ef4ab6f`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ef4ab6ffb8ba3179d9fc11442986d38448a5d0f2), [`b0f4368`](https://github.com/ForgeRock/ping-javascript-sdk/commit/b0f4368637a788c5472587f5232678312a7eabfe)]:
+  - @forgerock/storage@1.3.0
+  - @forgerock/sdk-oidc@1.3.0
+  - @forgerock/sdk-types@1.3.0
+  - @forgerock/sdk-logger@1.3.0
+  - @forgerock/sdk-request-middleware@1.3.0
+
 ## 1.2.0
 
 ### Minor Changes
