@@ -16,7 +16,7 @@ import type { MultiSelectCollector, Updater } from '@forgerock/davinci-client/ty
 export default function multiValueComponent(
   formEl: HTMLFormElement,
   collector: MultiSelectCollector,
-  updater: Updater,
+  updater: Updater<MultiSelectCollector>,
 ) {
   // Create a container for the checkboxes
   const containerDiv = document.createElement('div');

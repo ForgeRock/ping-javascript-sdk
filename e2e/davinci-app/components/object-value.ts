@@ -20,7 +20,10 @@ import type {
 export default function objectValueComponent(
   formEl: HTMLFormElement,
   collector: DeviceRegistrationCollector | DeviceAuthenticationCollector | PhoneNumberCollector,
-  updater: Updater,
+  updater:
+    | Updater<DeviceRegistrationCollector>
+    | Updater<DeviceAuthenticationCollector>
+    | Updater<PhoneNumberCollector>,
   submitForm: () => void,
 ) {
   if (
@@ -50,7 +53,7 @@ export default function objectValueComponent(
           console.error('No value found for the selected option');
           return;
         }
-        updater(selectedValue);
+        updater(selectedValue as any);
         submitForm();
       });
 
@@ -84,7 +87,7 @@ export default function objectValueComponent(
       updater({
         phoneNumber: selectedValue,
         countryCode: collector.output.value?.countryCode || '',
-      });
+      } as any);
     });
 
     formEl.appendChild(phoneLabel);

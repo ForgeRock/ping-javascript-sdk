@@ -15,7 +15,7 @@ import type { SingleSelectCollector, Updater } from '@forgerock/davinci-client/t
 export default function singleValueComponent(
   formEl: HTMLFormElement,
   collector: SingleSelectCollector,
-  updater: Updater,
+  updater: Updater<SingleSelectCollector>,
 ) {
   // Create the label element
   const labelEl = document.createElement('label');

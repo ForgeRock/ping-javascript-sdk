@@ -10,7 +10,7 @@ import { dotToCamelCase } from '../helper.js';
 export default function passwordComponent(
   formEl: HTMLFormElement,
   collector: PasswordCollector,
-  updater: Updater,
+  updater: Updater<PasswordCollector>,
 ) {
   const label = document.createElement('label');
   const input = document.createElement('input');

@@ -15,7 +15,7 @@ import { dotToCamelCase } from '../helper.js';
 export default function textComponent(
   formEl: HTMLFormElement,
   collector: TextCollector | ValidatedTextCollector,
-  updater: Updater,
+  updater: Updater<TextCollector | ValidatedTextCollector>,
   validator: Validator,
 ) {
   const collectorKey = dotToCamelCase(collector.output.key);
