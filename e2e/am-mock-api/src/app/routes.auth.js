@@ -50,6 +50,11 @@ import {
   newPiWellKnown,
 } from './responses.js';
 import initialRegResponse from './response.registration.js';
+import {
+  webAuthnRegistrationInit,
+  getRecoveryCodesDisplay,
+  authSuccess as webAuthnSuccess,
+} from './response.webauthn.js';
 import wait from './wait.js';
 
 console.log(`Your user password from 'env.config' file: ${USERS[0].pw}`);
@@ -93,6 +98,8 @@ export default function (app) {
         res.json(MetadataMarketPlaceInitialize);
       } else if (req.query.authIndexValue === 'AMSocialLogin') {
         res.json(idpChoiceCallback);
+      } else if (req.query.authIndexValue === 'TEST_WebAuthnWithRecoveryCodes') {
+        res.json(webAuthnRegistrationInit);
       } else if (req.query.authIndexValue === 'RecaptchaEnterprise') {
         res.json(initialBasicLogin);
       } else {
@@ -413,6 +420,28 @@ export default function (app) {
         // Just failing the auth for testing, but in reality,
         // an additional auth callback would be sent, like OTP
         res.json(authFail);
+      }
+    } else if (
+      req.query.authIndexValue === 'TEST_WebAuthnWithRecoveryCodes' ||
+      req.body.authId?.startsWith('webauthn-registration') ||
+      req.body.authId?.startsWith('recovery-codes')
+    ) {
+      // Handle WebAuthn registration with recovery codes journey
+      // Identify by authIndexValue (initial) or authId (subsequent)
+      const metadataCb = req.body.callbacks.find((cb) => cb.type === 'MetadataCallback');
+      const hiddenCb = req.body.callbacks.find((cb) => cb.type === 'HiddenValueCallback');
+      const confirmationCb = req.body.callbacks.find((cb) => cb.type === 'ConfirmationCallback');
+
+      if (metadataCb && hiddenCb && hiddenCb.input[0].value) {
+        // WebAuthn credential has been submitted, show recovery codes
+        res.json(getRecoveryCodesDisplay());
+      } else if (confirmationCb) {
+        // Recovery codes have been acknowledged, complete authentication
+        res.cookie('iPlanetDirectoryPro', 'mock-webauthn-session-' + Date.now(), { domain: 'localhost' });
+        res.json(webAuthnSuccess);
+      } else {
+        // Invalid state
+        res.status(401).json(authFail);
       }
     }
   });

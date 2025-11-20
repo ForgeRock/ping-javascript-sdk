@@ -21,6 +21,9 @@
       "path": "../../packages/oidc-client"
     },
     {
+      "path": "../../packages/protect"
+    },
+    {
       "path": "../../packages/journey-client"
     },
     {
