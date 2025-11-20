@@ -1,145 +1,169 @@
-# SDK Request Middleware
-
-A flexible middleware system for intercepting and modifying HTTP requests in the Ping Identity JavaScript SDK.
+# @forgerock/sdk-effects-request-middleware
 
 ## Overview
 
-This package provides a middleware architecture that allows developers to intercept, inspect, and modify HTTP requests before they are sent to the server. It's designed to work with Redux Toolkit's Query API, providing a familiar middleware pattern for request manipulation.
+The `@forgerock/sdk-effects-request-middleware` package provides a flexible and extensible mechanism for intercepting and modifying HTTP requests and responses within Effect-TS applications. It allows you to define a chain of middleware functions that can perform tasks such as:
 
-## Features
+- Adding authentication headers
+- Logging request/response details
+- Transforming request bodies or response data
+- Handling errors or retries
 
-- **Request Interception**: Intercept outgoing API requests before they reach the server
-- **Request Modification**: Modify URL parameters, headers, and request bodies
-- **Action-Based Middleware**: Process requests based on specific action types
-- **Middleware Chain**: Execute multiple middleware functions in sequence
-- **Immutable Actions**: Prevent accidental mutation of action objects
-- **TypeScript Support**: Built with TypeScript for better developer experience and type safety
+This middleware system is designed to be composable and type-safe, integrating seamlessly with the Effect ecosystem. It helps centralize cross-cutting concerns related to network communication, making your application's request logic cleaner and more maintainable.
 
 ## Installation
 
 ```bash
-npm install @forgerock/sdk-request-middleware
-```
-
-## Usage
-
-### Basic Usage
-
-```typescript
-import { initQuery } from '@forgerock/sdk-request-middleware';
-
-// Define your middleware functions
-const requestMiddleware = [
-  (req, action, next) => {
-    // Add custom headers
-    req.headers.set('x-custom-header', 'custom-value');
-
-    // Continue to the next middleware
-    next();
-  },
-  (req, action, next) => {
-    // Add URL parameters
-    req.url.searchParams.set('timestamp', Date.now().toString());
-
-    // Continue to the next middleware
-    next();
-  },
-];
-
-// Create a request
-const fetchArgs = { url: 'https://api.example.com/resource' };
-
-// Initialize a query and apply middleware
-const response = await initQuery(fetchArgs, 'start')
-  .applyMiddleware(requestMiddleware)
-  .applyQuery(async (args) => {
-    // Your fetch implementation here
-    return fetch(args.url, args);
-  });
-```
-
-### Action-Based Middleware
-
-```typescript
-import { initQuery } from '@forgerock/sdk-request-middleware';
-
-const authMiddleware = [
-  (req, action, next) => {
-    // Apply different logic based on action type
-    switch (action.type) {
-      case 'DAVINCI_START':
-        req.url.searchParams.set(...params);
-        break;
-      case 'DAVINCI_NEXT'
-        req.url.searchParams.set(...params);
-        break;
-    }
-
-    // Add authorization token from action payload if available
-    if (action.payload?.token) {
-      req.headers.set('Authorization', `Bearer ${action.payload.token}`);
-    }
-
-    next();
-  },
-];
-
-// Use the middleware with specific action type
-const response = await initQuery(fetchArgs, 'login')
-  .applyMiddleware(authMiddleware)
-  .applyQuery(queryCallback);
+pnpm add @forgerock/sdk-effects-request-middleware
+# or
+npm install @forgerock/sdk-effects-request-middleware
+# or
+yarn add @forgerock/sdk-effects-request-middleware
 ```
 
 ## API Reference
 
-### `initQuery(fetchArgs, endpoint)`
+### `requestMiddleware(options?: RequestMiddlewareOptions)`
 
-Initializes a query object that can be used to apply middleware and execute HTTP requests.
+This is the main factory function that initializes the request middleware effect.
 
-**Parameters:**
+- **`options`**: `RequestMiddlewareOptions` (optional) - An object to configure the middleware instance.
+  - **`middleware?: RequestMiddleware[]`**: An initial array of middleware functions to register.
 
-- `fetchArgs`: A FetchArgs object containing the URL and any other request options
-- `endpoint`: A string representing the endpoint being called (maps to an action type)
+- **Returns:** `RequestMiddlewareService` - An object containing the API methods for managing and executing middleware.
 
-**Returns:**
-A query API object with the following methods:
+### `requestMiddleware.add(middleware: RequestMiddleware): Effect.Effect<void, never, never>`
 
-### `applyMiddleware(middleware)`
+Adds a new middleware function to the end of the middleware chain.
 
-Applies an array of middleware functions to the request.
+- **`middleware: RequestMiddleware`**: The middleware function to add. A `RequestMiddleware` is a function that takes a `Request` object and returns an `Effect` that resolves to a `Request` object.
 
-**Parameters:**
+- **Returns:** `Effect.Effect<void, never, never>` - An `Effect` that resolves to `void` on success.
 
-- `middleware`: An array of middleware functions that conform to the RequestMiddleware type
+### `requestMiddleware.remove(middleware: RequestMiddleware): Effect.Effect<void, never, never>`
 
-**Returns:**
-The query API object for chaining
+Removes a specific middleware function from the chain.
 
-### `applyQuery(callback)`
+- **`middleware: RequestMiddleware`**: The middleware function to remove.
 
-Executes the request with the provided callback function.
+- **Returns:** `Effect.Effect<void, never, never>` - An `Effect` that resolves to `void` on success.
 
-**Parameters:**
+### `requestMiddleware.get(): Effect.Effect<RequestMiddleware[], never, never>`
 
-- `callback`: A function that takes the modified request and returns a Promise with the API response
+Retrieves the currently registered middleware functions.
 
-**Returns:**
-A Promise with the result of the callback function
+- **Returns:** `Effect.Effect<RequestMiddleware[], never, never>` - An `Effect` that resolves to an array of `RequestMiddleware` functions.
 
-### RequestMiddleware Type
+### `requestMiddleware.clear(): Effect.Effect<void, never, never>`
+
+Removes all registered middleware functions from the chain.
+
+- **Returns:** `Effect.Effect<void, never, never>` - An `Effect` that resolves to `void` on success.
+
+### `requestMiddleware.execute(request: Request): Effect.Effect<Request, never, never>`
+
+Executes the entire middleware chain with the given `Request` object. Each middleware function in the chain will process the request sequentially.
+
+- **`request: Request`**: The initial `Request` object to be processed by the middleware chain.
+
+- **Returns:** `Effect.Effect<Request, never, never>` - An `Effect` that resolves to the final `Request` object after all middleware functions have been applied.
+
+## Usage Example
 
 ```typescript
-type RequestMiddleware<Type, Payload> = (
-  req: ModifiedFetchArgs,
-  action: Action<Type, Payload>,
-  next: () => ModifiedFetchArgs,
-) => void;
+import * as Effect from 'effect/Effect';
+import { requestMiddleware, RequestMiddleware } from '@forgerock/sdk-effects-request-middleware';
+
+// Define some example middleware functions
+const authMiddleware: RequestMiddleware = (request) =>
+  Effect.succeed(
+    new Request(request.url, {
+      ...request,
+      headers: { ...request.headers, Authorization: 'Bearer my-token' },
+    }),
+  );
+
+const loggingMiddleware: RequestMiddleware = (request) =>
+  Effect.sync(() => {
+    console.log(`[Logger] Requesting: ${request.method} ${request.url}`);
+    return request;
+  });
+
+const addHeaderMiddleware: RequestMiddleware = (request) =>
+  Effect.succeed(
+    new Request(request.url, {
+      ...request,
+      headers: { ...request.headers, 'X-Custom-Header': 'SDK-Effect' },
+    }),
+  );
+
+async function runMiddlewareExample() {
+  // Initialize the middleware service
+  const middlewareService = requestMiddleware();
+
+  // Add middleware functions to the chain
+  await Effect.runPromise(middlewareService.add(loggingMiddleware));
+  await Effect.runPromise(middlewareService.add(authMiddleware));
+  await Effect.runPromise(middlewareService.add(addHeaderMiddleware));
+
+  // Create an initial request
+  const initialRequest = new Request('https://api.example.com/data', {
+    method: 'GET',
+  });
+
+  console.log('Initial Request:', initialRequest.headers);
+
+  // Execute the middleware chain
+  const finalRequest = await Effect.runPromise(middlewareService.execute(initialRequest));
+
+  console.log('Final Request after middleware:', finalRequest.headers);
+  // Expected output for finalRequest.headers:
+  // {
+  //   "Authorization": "Bearer my-token",
+  //   "X-Custom-Header": "SDK-Effect"
+  // }
+
+  // Remove a middleware
+  await Effect.runPromise(middlewareService.remove(authMiddleware));
+  console.log('Auth middleware removed.');
+
+  // Execute again to see the change
+  const requestAfterRemoval = await Effect.runPromise(middlewareService.execute(initialRequest));
+  console.log('Request after auth middleware removal:', requestAfterRemoval.headers);
+  // Expected output for requestAfterRemoval.headers:
+  // {
+  //   "X-Custom-Header": "SDK-Effect"
+  // }
+
+  // Clear all middleware
+  await Effect.runPromise(middlewareService.clear());
+  console.log('All middleware cleared.');
+
+  // Execute again, should be back to initial request headers
+  const requestAfterClear = await Effect.runPromise(middlewareService.execute(initialRequest));
+  console.log('Request after clear:', requestAfterClear.headers);
+  // Expected output for requestAfterClear.headers:
+  // {}
+}
+
+// Run the example
+Effect.runPromise(runMiddlewareExample()).catch((error) => {
+  console.error('An error occurred during middleware operations:', error);
+});
 ```
 
 ## Building
 
-Run `nx build sdk-request-middleware` to build the library.
+This library is part of an Nx monorepo. To build it, run:
 
-## Running unit tests
+```bash
+pnpm nx build @forgerock/sdk-effects-request-middleware
+```
 
-Run `nx test sdk-request-middleware` to execute the unit tests via [Vitest](https://vitest.dev/).
+## Testing
+
+To run the unit tests for this package, run:
+
+```bash
+pnpm nx test @forgerock/sdk-effects-request-middleware
+```

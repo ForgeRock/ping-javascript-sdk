@@ -1,8 +1,8 @@
-# IFrame Manager (`@pingidentity/sdk-effects/iframe-manager`)
+# @forgerock/iframe-manager
 
 ## Overview
 
-The IFrame Manager Effect provides a mechanism to perform operations within a hidden `<iframe>` that involve navigating to an external URL and waiting for a redirect back to the application's origin. It's commonly used for flows like silent authentication or fetching tokens where user interaction is not required, and the result is communicated via query parameters in the final redirect URL.
+The IFrame Manager provides a mechanism to perform operations within a hidden `<iframe>` that involve navigating to an external URL and waiting for a redirect back to the application's origin. It's commonly used for flows like silent authentication or fetching tokens where user interaction is not required, and the result is communicated via query parameters in the final redirect URL.
 
 The core functionality involves:
 
@@ -19,12 +19,12 @@ This utility fundamentally relies on the browser's **Same-Origin Policy**. The f
 
 ## Installation
 
-This effect is typically part of a larger SDK. Assume it's imported or available within your project structure like so (adjust path as necessary):
-
-```typescript
-import iFrameManager from './path/to/iframe-manager.effects'; // Adjust path as needed
-
-const iframeMgr = iFrameManager();
+```bash
+pnpm add @forgerock/iframe-manager
+# or
+npm install @forgerock/iframe-manager
+# or
+yarn add @forgerock/iframe-manager
 ```
 
 ## API Reference
@@ -40,16 +40,13 @@ This is the main factory function that initializes the effect.
 This method creates a hidden iframe, initiates navigation, and waits for a redirect back to the application's origin containing specific query parameters.
 
 - **`options`**: `GetParamsFromIFrameOptions` - An object containing configuration for the iframe request.
-
   - **`url: string`**: The initial URL to load within the hidden iframe. This URL is expected to eventually redirect back to the application's origin.
   - **`timeout: number`**: The maximum time in milliseconds to wait for the entire operation to complete successfully (i.e., for a redirect containing success or error parameters). If the timeout is reached before completion, the promise rejects.
-
   * **`successParams: string[]`**: An array of query parameter _keys_. If the final redirect URL (on the same origin) contains **at least one** of these keys in its query string, the promise will **resolve**.
   * **`errorParams: string[]`**: An array of query parameter _keys_. If the final redirect URL (on the same origin) contains **any** of these keys in its query string, the promise will **reject**. Error parameters are checked _before_ success parameters.
     - _Note:_ Both `successParams` and `errorParams` must be provided and contain at least one key.
 
 - **Returns**: `Promise<ResolvedParams>`
-
   - **On Success**: Resolves with `ResolvedParams`, an object containing _all_ query parameters parsed from the final redirect URL's query string. This occurs when the iframe redirects back to the same origin and its URL contains at least one key listed in `successParams` (and no keys listed in `errorParams`).
   - **On Failure**: Rejects with:
     - `ResolvedParams`: An object containing _all_ parsed query parameters if the final redirect URL contains any key listed in `errorParams`.
@@ -63,7 +60,7 @@ This method creates a hidden iframe, initiates navigation, and waits for a redir
 ## Usage Example
 
 ```typescript
-import iFrameManager from './path/to/iframe-manager.effects'; // Adjust path
+import { iFrameManager } from '@forgerock/iframe-manager';
 
 const iframeMgr = iFrameManager();
 
@@ -86,7 +83,7 @@ async function performSilentLogin(authUrl: string) {
     // Process the received parameters (e.g., exchange code for token)
     // const code = resultParams.code;
     // const state = resultParams.state; // Other params are included too
-  } catch (errorResult) {
+  } catch (errorResult: any) {
     // Failure case: Check if it's a known error from the server or an internal error
     if (errorResult && errorResult.type === 'internal_error') {
       // Timeout or iframe access error
@@ -113,8 +110,24 @@ performSilentLogin(authorizationUrl);
 
 ## Important Considerations
 
-1. **Same-Origin Redirect:** This cannot be stressed enough. The URL specified in `options.url` _must_ eventually redirect back to a URL on the **same origin** as your main application for this mechanism to work. Cross-origin restrictions will prevent the script from reading the final URL's parameters otherwise.
-1. **Timeout:** Choose a reasonable `timeout` value. If the external service is slow or the redirect chain is long, the operation might time out prematurely. Conversely, too long a timeout might delay feedback to the user if something goes wrong.
-1. **Intermediate Redirects:** The code handles intermediate redirects (pages loaded within the iframe that don't contain success or error parameters) by simply waiting for the next `load` event. The process only completes upon detecting success/error parameters or timing out.
-1. **Cleanup:** The utility ensures the iframe element is removed from the DOM and the timeout timer is cleared upon completion (resolve, reject, or timeout) to prevent memory leaks.
-1. **Error Parameter Precedence:** Error parameters (`errorParams`) are checked before success parameters (`successParams`). If a redirect URL contains both an error parameter and a success parameter, the promise will be **rejected**.
+1.  **Same-Origin Redirect:** This cannot be stressed enough. The URL specified in `options.url` _must_ eventually redirect back to a URL on the **same origin** as your main application for this mechanism to work. Cross-origin restrictions will prevent the script from reading the final URL's parameters otherwise.
+1.  **Timeout:** Choose a reasonable `timeout` value. If the external service is slow or the redirect chain is long, the operation might time out prematurely. Conversely, too long a timeout might delay feedback to the user if something goes wrong.
+1.  **Intermediate Redirects:** The code handles intermediate redirects (pages loaded within the iframe that don't contain success or error parameters) by simply waiting for the next `load` event. The process only completes upon detecting success/error parameters or timing out.
+1.  **Cleanup:** The utility ensures the iframe element is removed from the DOM and the timeout timer is cleared upon completion (resolve, reject, or timeout) to prevent memory leaks.
+1.  **Error Parameter Precedence:** Error parameters (`errorParams`) are checked before success parameters (`successParams`). If a redirect URL contains both an error parameter and a success parameter, the promise will be **rejected**.
+
+## Building
+
+This library is part of an Nx monorepo. To build it, run:
+
+```bash
+pnpm nx build @forgerock/iframe-manager
+```
+
+## Testing
+
+To run the unit tests for this package, run:
+
+```bash
+pnpm nx test @forgerock/iframe-manager
+```

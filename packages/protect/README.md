@@ -1,237 +1,169 @@
-# Ping Protect
+# @forgerock/protect
 
-The Ping Protect module provides an API for interacting with the PingOne Signals (Protect) SDK to perform risk evaluations. It can be used with either a PingOne AIC/PingAM authentication journey with Protect callbacks or with a PingOne DaVinci flow with Protect collectors.
+The `@forgerock/protect` package provides a high-level API for interacting with the PingOne Signals (Protect) SDK to perform device profiling and risk evaluation. It is designed to be used within client applications that integrate with PingOne Advanced Identity Cloud (AIC), PingAM, or PingOne DaVinci flows.
 
-**IMPORTANT NOTE**: This module is not yet published. For the current published Ping Protect package please visit https://github.com/ForgeRock/forgerock-javascript-sdk/tree/develop/packages/ping-protect
+> [!WARNING]
+> This package is under active development and is not yet published to the public NPM registry. It is intended for use within the Ping Identity JavaScript SDK monorepo.
 
-## Full API
+## Features
 
-```js
-// Protect methods
-start();
-getData();
-pauseBehavioralData();
-resumeBehavioralData();
+- **Simple API**: A straightforward interface (`start`, `getData`) for managing the device profiling lifecycle.
+- **Flexible Integration**: Can be used with journey-based authentication flows (PingOne AIC/PingAM) or with PingOne DaVinci flows.
+- **Bundled SDK**: Includes the PingOne Signals SDK, simplifying dependency management.
+- **Configurable**: Allows for detailed configuration of the Signals SDK, including what data to collect and how.
+
+## Installation
+
+This package is part of a `pnpm` workspace. To install dependencies, run the following command from the root of the monorepo:
+
+```bash
+pnpm install
 ```
 
-## Quickstart with a PingOne AIC or PingAM Authentication Journey
+## Usage with a PingOne AIC or PingAM Journey
 
-The Ping Protect module is intended to be used along with the ForgeRock JavaScript SDK to provide the Protect feature.
+Integrate Ping Protect into an authentication journey that uses callbacks.
 
-### Requirements
+### 1. Initialization
 
-1. PingOne Advanced Identity Cloud (aka PingOne AIC) platform or an up-to-date Ping Identity Access Management (aka PingAM)
-2. PingOne tenant with Protect enabled
-3. A Ping Protect Service configured in AIC or AM
-4. A journey/tree with the appropriate Protect Nodes
-5. A client application with the `@forgerock/javascript-sdk` and `@forgerock/protect` modules installed
+The `protect()` function accepts configuration options and returns an API for interacting with the Signals SDK. It's recommended to initialize it early in your application's lifecycle to maximize data collection.
 
-### Integrate into a Client Application
-
-#### Installation
-
-Install both modules and their latest versions:
-
-```sh
-npm install @forgerock/javascript-sdk @forgerock/protect
-```
-
-```sh
-pnpm install @forgerock/javascript-sdk @forgerock/protect
-```
-
-#### Initialization (Recommended)
-
-The `@forgerock/protect` module has a `protect()` function that accepts configuration options and returns a set of methods for interacting with Protect. The two main responsibilities of the Ping Protect module are the initialization of the profiling and data collection and the completion and preparation of the collected data for the server. You can find these two methods on the API returned by `protect()`.
-
-- `start()`
-- `getData()`
-
-When calling `protect()`, you have many different options to configure what and how the data is collected. The most important and required of these settings is the `envId`. All other settings are optional.
-
-The `start` method can be called at application startup, or when you receive the `PingOneProtectInitializeCallback` callback from the server. We recommend you call `start` as soon as you can to collect as much data as possible for higher accuracy.
-
-```js
+```typescript
 import { protect } from '@forgerock/protect';
+import type { ProtectConfig } from '@forgerock/protect/types';
 
-// Call early in your application startup
-const protectApi = protect({ envId: '12345' });
-await protectApi.start();
-```
+// Define the Protect configuration
+const protectConfig: ProtectConfig = {
+  envId: 'YOUR_PINGONE_ENVIRONMENT_ID',
+  // Optional settings:
+  behavioralDataCollection: true,
+  deviceAttributesToIgnore: ['userAgent'],
+};
 
-#### Initialization (alternate)
+// Initialize the Protect API
+const protectApi = protect(protectConfig);
 
-Alternatively, you can delay the initialization until you receive the instruction from the server by way of the special callback: `PingOneProtectInitializeCallback`. To do this, you would call the `start` method when the callback is present in the journey.
-
-```js
-if (step.getCallbacksOfType('PingOneProtectInitializeCallback')) {
-  // Asynchronous call
-  await protectApi.start();
-}
-```
-
-#### Data collection
-
-You then call the `FRAuth.next` method after initialization to move the user forward in the journey.
-
-```js
-FRAuth.next(step);
-```
-
-At some point in the journey, and as late as possible in order to collect as much data as you can, you will come across the `PingOneProtectEvaluationCallback`. This is when you call the `getData` method to package what's been collected for the server to evaluate.
-
-```js
-let data;
-
-if (step.getCallbacksOfType('PingOneProtectEvaluationCallback')) {
-  // Asynchronous call
-  data = await protectApi.getData();
-}
-```
-
-Now that we have the data, set it on the callback in order to send it to the server when we call `next`.
-
-```js
-callback.setData(data);
-
-FRAuth.next(step);
-```
-
-### Error Handling
-
-The Protect API methods will return an error object if they fail. When you encounter an error during initialization or evaluation, set the error message on the callback using the `setClientError` method. Setting the message on the callback is how it gets sent to the server on the `FRAuth.next` method call.
-
-```js
-if (step.getCallbacksOfType('PingOneProtectInitializeCallback')) {
-  const callback = step.getCallbackOfType('PingOneProtectInitializeCallback');
-
-  // Asynchronous call
+// Start data collection at application startup
+async function startProtect() {
   const result = await protectApi.start();
-
   if (result?.error) {
-    callback.setClientError(result.error);
+    console.error(`Error initializing Protect: ${result.error}`);
   }
 }
+
+startProtect();
 ```
 
-A similar process is used for the evaluation step.
+### 2. Handling Callbacks in a Journey
 
-```js
-if (step.getCallbacksOfType('PingOneProtectEvaluationCallback')) {
-  const callback = step.getCallbackOfType('PingOneProtectEvaluationCallback');
+Within your authentication journey, you will encounter two specific callbacks for Ping Protect.
 
-  // Asynchronous call
-  const result = await protectApi.getData();
+- **`PingOneProtectInitializeCallback`**: An optional callback that can also be used to trigger the `start()` method if you prefer just-in-time initialization.
+- **`PingOneProtectEvaluationCallback`**: A required callback that signals when to collect the profiled data and send it to the server.
 
-  if (typeof result !== 'string' && 'error' in result) {
-    callback.setClientError(data.error);
+```typescript
+import { FRAuth } from '@forgerock/javascript-sdk';
+import { callbackType } from '@forgerock/sdk-types';
+import type { JourneyStep, PingOneProtectEvaluationCallback } from '@forgerock/javascript-sdk';
+
+// Assuming `step` is the current step from FRAuth.next()
+
+// Handle the evaluation callback
+if (step.getCallbacksOfType(callbackType.PingOneProtectEvaluationCallback).length > 0) {
+  const callback = step.getCallbackOfType<PingOneProtectEvaluationCallback>(
+    callbackType.PingOneProtectEvaluationCallback,
+  );
+
+  const signals = await protectApi.getData();
+
+  if (typeof signals === 'string') {
+    callback.setData(signals);
+  } else {
+    // Handle error from getData()
+    callback.setClientError(signals.error);
   }
 }
+
+// Submit the step to continue the journey
+const nextStep = await FRAuth.next(step);
 ```
 
-## Quickstart with a PingOne DaVinci Flow
+## Usage with a PingOne DaVinci Flow
 
-The Ping Protect module is intended to be used along with the DaVinci client to provide the Ping Protect feature.
+Integrate Ping Protect into a DaVinci flow that uses the `ProtectCollector`.
 
-### Requirements
+### 1. Initialization
 
-1. A PingOne environment with PingOne Protect added
-2. A worker application configured in your PingOne environment
-3. A DaVinci flow with the appropriate Protect connectors
-4. A client application with the `@forgerock/davinci-client` and `@forgerock/protect` modules installed
+Initialization is the same as the journey-based approach. Call `protect()` with your configuration and invoke `start()` early.
 
-### Integrate into a Client Application
-
-#### Initialization (Recommended)
-
-Install both modules and their latest versions:
-
-```sh
-npm install @forgerock/davinci-client @forgerock/protect
-```
-
-The `@forgerock/protect` module has a `protect()` function that accepts configuration options and returns a set of methods for interacting with Protect. The two main responsibilities of the Ping Protect module are the initialization of the profiling and data collection and the completion and preparation of the collected data for the server. You can find these two methods on the API returned by `protect()`.
-
-- `start()`
-- `getData()`
-
-When calling `protect()`, you have many different options to configure what and how the data is collected. The most important and required of these settings is the `envId`. All other settings are optional.
-
-The `start` method can be called at application startup, or when you receive the `ProtectCollector` from the server. We recommend you call `start` as soon as you can to collect as much data as possible for higher accuracy.
-
-```js
+```typescript
 import { protect } from '@forgerock/protect';
 
-// Call early in your application startup
-const protectApi = protect({ envId: '12345' });
+const protectApi = protect({ envId: 'YOUR_PINGONE_ENVIRONMENT_ID' });
 await protectApi.start();
 ```
 
-#### Initialization (alternate)
+### 2. Handling the ProtectCollector
 
-Alternatively, you can delay the initialization until you receive the instruction from the server by way of the `ProtectCollector`. To do this, you would call the `start` method when the collector is present in the flow. The Protect collector is returned from the server when it is configured with either a PingOne Forms connector or HTTP connector with Custom HTML Template.
+When your DaVinci flow returns a `ProtectCollector`, use it to send the collected signals back to the flow.
 
-```js
-const collectors = davinciClient.getCollectors();
-collectors.forEach((collector) => {
-  if (collector.type === 'ProtectCollector') {
-    // Optionally use configuration options from the flow to initialize the protect module
-    const config = collector.output.config;
+```typescript
+import { davinci } from '@forgerock/davinci-client';
 
-    // Initialize the Protect module and begin collecting data
-    const protectApi = protect({
-      envId: '12345',
-      behavioralDataCollection: config.behavioralDataCollection,
-      universalDeviceIdentification: config.universalDeviceIdentification,
-    });
-    await protectApi.start();
-  }
-  ...
+const davinciClient = await davinci({
+  /* ... config ... */
 });
-```
+const { response } = await davinciClient.start();
 
-#### Data collection
+// Check for the ProtectCollector
+const protectCollector = response.collectors?.find((c) => c.type === 'ProtectCollector');
 
-When the user has finished filling out the form and is ready to submit, you can call the `getData` method to package what's been collected. The Protector collector should then be updated with this data to send back to the server to evaluate.
+if (protectCollector) {
+  // Get the signals data
+  const signals = await protectApi.getData();
 
-```js
-async function onSubmitHandler() {
-  try {
-    const protectCollector = collectors.find((collector) => collector.type === 'ProtectCollector');
-
-    // Update the Protect collector with the data collected
-    if (protectCollector) {
-      const updater = davinciClient.update(protectCollector);
-      const data = await protectApi.getData();
-      updater(data);
-    }
-
-    // Submit all collectors and get the next node in the flow
-    await davinciClient.next();
-  } catch (err) {
-    // handle error
+  if (typeof signals === 'string') {
+    // Update the collector with the signals data
+    const updater = davinciClient.update(protectCollector);
+    updater(signals);
+  } else {
+    console.error('Failed to get Protect signals:', signals.error);
+    // Handle the error appropriately in your UI
   }
 }
+
+// Submit the updated collectors to continue the flow
+await davinciClient.next();
 ```
 
-### Error Handling
+## API Reference
 
-The Protect API methods will return an error object if they fail. You may use this to return a message to the user or implement your own error handling.
+The `protect(options: ProtectConfig)` function returns an object with the following methods:
 
-**Example**: Handling error messages on `start`
+- `start(): Promise<void | { error: string }>`
+  Initializes the PingOne Signals SDK and begins data collection. It's safe to call multiple times.
 
-```js
-const result = await protectApi.start();
-if (result?.error) {
-  console.error(`Error initializing Protect: ${result.error}`);
-}
+- `getData(): Promise<string | { error: string }>`
+  Stops data collection, gathers the device profile and behavioral data, and returns it as an encrypted string. Returns an error object if the SDK is not initialized.
+
+- `pauseBehavioralData(): void | { error: string }`
+  Pauses the collection of behavioral (mouse, keyboard, touch) data. Device profile data collection continues.
+
+- `resumeBehavioralData(): void | { error: string }`
+  Resumes the collection of behavioral data.
+
+## Building
+
+This library is part of an Nx monorepo. To build it, run:
+
+```bash
+pnpm nx build @forgerock/protect
 ```
 
-**Example**: Handling error messages on `getData`
+## Testing
 
-```js
-const result = await protectApi.getData();
-if (typeof result !== 'string' && 'error' in result) {
-  console.error(`Failed to retrieve data from Protect: ${result.error}`);
-}
+To run the unit tests for this package, run:
+
+```bash
+pnpm nx test @forgerock/protect
 ```

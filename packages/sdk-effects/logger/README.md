@@ -1,77 +1,112 @@
-# Logger
+# @forgerock/sdk-effects-logger
 
-A flexible and configurable logging utility for the Ping Identity JavaScript SDK.
+## Overview
 
-## Features
-
-- Multiple log levels (`error`, `warn`, `info`, `debug`, `none`)
-- Ability to change log level at runtime
-- Support for multiple arguments in log messages
-- TypeScript support with proper type definitions
+The `@forgerock/sdk-effects-logger` package provides a simple, configurable logging utility designed for use within Effect-TS applications. It offers standard logging levels (debug, info, warn, error, trace) and allows for dynamic adjustment of the log level at runtime. This utility is particularly useful for debugging and monitoring the flow of effects within your application.
 
 ## Installation
 
 ```bash
-npm install @ping-identity/effects-logger
+pnpm add @forgerock/sdk-effects-logger
+# or
+npm install @forgerock/sdk-effects-logger
+# or
+yarn add @forgerock/sdk-effects-logger
 ```
-
-## Usage
-
-```typescript
-import { logger } from '@ping-identity/effects-logger';
-
-// Initialize the logger with a specific log level
-const log = logger({ level: 'info' });
-
-// Basic usage
-log.info('Application started');
-log.error('An error occurred:', new Error('Something went wrong'));
-
-// Multiple arguments
-log.debug('User data:', { id: '123', name: 'John Doe' });
-
-// Change log level at runtime
-log.changeLevel('debug'); // Enable debug logs
-log.debug('Debug information is now visible');
-
-log.changeLevel('none'); // Disable all logs
-log.error('This error will not be logged');
-```
-
-## Log Levels
-
-The logger supports the following log levels (in order of severity):
-
-1. `error` - Critical errors that may cause the application to fail
-2. `warn` - Warnings that don't interrupt application flow but require attention
-3. `info` - General information about application flow
-4. `debug` - Detailed information for debugging purposes
-5. `none` - No logs will be output
-
-When a log level is set, only messages of that level or higher severity will be displayed.
 
 ## API Reference
 
-### `logger({ level })`
+### `logger(options?: LoggerOptions)`
 
-Initializes a new logger instance.
+This is the main factory function that initializes the logger effect.
 
-**Parameters:**
+- **`options`**: `LoggerOptions` (optional) - An object to configure the logger.
+  - **`level?: LogLevel`**: The initial log level. Defaults to `LogLevel.ERROR`.
+  - **`prefix?: string`**: A string prefix to prepend to all log messages. Defaults to `''`.
 
-- `level`: The initial log level (`'error'`, `'warn'`, `'info'`, `'debug'`, or `'none'`)
+- **Returns:** `LoggerService` - An object containing the logging methods.
 
-**Returns:** A logger instance with the following methods:
+### `logger.message(level: LogLevel, message: string, ...args: any[])`
 
-- `error(...args)`: Log an error message
-- `warn(...args)`: Log a warning message
-- `info(...args)`: Log an informational message
-- `debug(...args)`: Log a debug message
-- `changeLevel(level)`: Change the current log level
+Logs a message at a specified level. This is the generic logging method that other level-specific methods (e.g., `logger.debug`, `logger.info`) call internally.
+
+- **`level: LogLevel`**: The log level for this message.
+- **`message: string`**: The primary log message.
+- **`...args: any[]`**: Additional arguments to be logged (e.g., objects, arrays).
+
+### `logger.error(message: string, ...args: any[])`
+
+Logs a message at the `ERROR` level.
+
+### `logger.warn(message: string, ...args: any[])`
+
+Logs a message at the `WARN` level.
+
+### `logger.info(message: string, ...args: any[])`
+
+Logs a message at the `INFO` level.
+
+### `logger.debug(message: string, ...args: any[])`
+
+Logs a message at the `DEBUG` level.
+
+### `logger.trace(message: string, ...args: any[])`
+
+Logs a message at the `TRACE` level.
+
+### `logger.setLogLevel(level: LogLevel)`
+
+Sets the current log level for the logger instance. Messages with a level lower than the set level will be ignored.
+
+- **`level: LogLevel`**: The new log level to set.
+
+### `logger.getLogLevel(): LogLevel`
+
+Retrieves the current log level of the logger instance.
+
+- **Returns:** `LogLevel` - The current log level.
+
+## Usage Example
+
+```typescript
+import { logger, LogLevel } from '@forgerock/sdk-effects-logger';
+
+// Initialize the logger with a debug level and a prefix
+const myLogger = logger({ level: LogLevel.DEBUG, prefix: '[MyApp]' });
+
+// Log messages at different levels
+myLogger.error('This is an error message.', { code: 500 });
+myLogger.warn('A warning occurred here.');
+myLogger.info('User logged in successfully.', { userId: 'user123' });
+myLogger.debug('Debugging a variable:', { data: [1, 2, 3] });
+myLogger.trace('Entering function X with args:', 'arg1', 123);
+
+// Dynamically change the log level
+myLogger.setLogLevel(LogLevel.INFO);
+
+// This debug message will not be logged now
+myLogger.debug('This message will not appear because the level is INFO.');
+
+// This info message will still be logged
+myLogger.info('Application started.');
+
+// Get the current log level
+const currentLevel = myLogger.getLogLevel();
+console.log(`Current log level: ${LogLevel[currentLevel]}`); // Output: Current log level: INFO
+```
 
 ## Building
 
-Run `nx build logger` to build the library.
+This library is part of an Nx monorepo. To build it, run:
 
-## Running unit tests
+```bash
+pnpm nx build @forgerock/sdk-effects-logger
+```
 
-Run `nx test @forgerock/sdk-logger` to execute the unit tests via [Vitest](https://vitest.dev/).
+## Testing
+
+To run the unit tests for this package, run:
+
+```bash
+pnpm nx test @forgerock/sdk-effects-logger
+```

@@ -2,49 +2,94 @@
 
 `@forgerock/journey-client` is a modern JavaScript client for interacting with Ping Identity's authentication journeys (formerly ForgeRock authentication trees). It provides a stateful, developer-friendly API that abstracts the complexities of the underlying authentication flow, making it easier to integrate with your applications.
 
+> [!NOTE]
+> This package is currently private and not available on the public NPM registry. It is intended for internal use within the Ping Identity JavaScript SDK monorepo.
+
 ## Features
 
 - **Stateful Client**: Manages the authentication journey state internally, simplifying interaction compared to stateless approaches.
 - **Redux Toolkit & RTK Query**: Built on robust and modern state management and data fetching libraries for predictable state and efficient API interactions.
-- **Callback Handling**: Provides a structured way to interact with various authentication callbacks (e.g., username, password, MFA, device profiling).
-- **Serializable Redux State**: Ensures the Redux store remains serializable by storing raw API payloads, with class instances created on demand.
+- **Extensible Middleware**: Allows for custom request modifications and processing through a flexible middleware pipeline.
+- **Comprehensive Callback Handling**: Provides a structured way to interact with various authentication callbacks (e.g., username, password, MFA, device profiling).
+- **TypeScript Support**: Written in TypeScript for a better developer experience and type safety.
 
 ## Installation
 
+This package is part of a `pnpm` workspace. To install dependencies, run the following command from the root of the monorepo:
+
 ```bash
-pnpm add @forgerock/journey-client
-# or
-npm install @forgerock/journey-client
-# or
-yarn add @forgerock/journey-client
+pnpm install
 ```
 
 ## Usage
 
 The `journey-client` is initialized via an asynchronous factory function, `journey()`, which returns a client instance with methods to control the authentication flow.
 
+### Client Initialization
+
+```typescript
+import { journey } from '@forgerock/journey-client';
+import type {
+  JourneyClientConfig,
+  RequestMiddleware,
+  CustomLogger,
+} from '@forgerock/journey-client/types';
+
+// Define optional middleware for request modification
+const myMiddleware: RequestMiddleware[] = [
+  (req, action, next) => {
+    console.log(`Intercepting action: ${action.type}`);
+    req.headers.set('X-Custom-Header', 'my-custom-value');
+    next();
+  },
+];
+
+// Define optional custom logger
+const myLogger: CustomLogger = {
+  log: (message) => console.log(`CUSTOM LOG: ${message}`),
+  error: (message) => console.error(`CUSTOM ERROR: ${message}`),
+  warn: (message) => console.warn(`CUSTOM WARN: ${message}`),
+  debug: (message) => console.debug(`CUSTOM DEBUG: ${message}`),
+};
+
+// Define the client configuration
+const config: JourneyClientConfig = {
+  serverConfig: { baseUrl: 'https://your-am-instance.com' },
+  realmPath: 'root', // e.g., 'root', 'alpha'
+};
+
+// Initialize the client
+const client = await journey({
+  config,
+  requestMiddleware: myMiddleware,
+  logger: {
+    level: 'debug',
+    custom: myLogger,
+  },
+});
+```
+
 ### Basic Authentication Flow
 
 ```typescript
 import { journey } from '@forgerock/journey-client';
 import { callbackType } from '@forgerock/sdk-types';
-import type { NameCallback, PasswordCallback } from '@forgerock/journey-client/src/lib/callbacks';
+import type { JourneyStep, NameCallback, PasswordCallback } from '@forgerock/journey-client/types';
 
 async function authenticateUser() {
   const client = await journey({
     config: {
       serverConfig: { baseUrl: 'https://your-am-instance.com' },
-      realmPath: 'root', // e.g., 'root', 'alpha'
-      tree: 'Login', // The name of your authentication tree/journey
+      realmPath: 'root',
     },
   });
 
   try {
     // 1. Start the authentication journey
-    let step = await client.start();
+    let step = await client.start({ journey: 'Login' });
 
     // 2. Handle callbacks in a loop until success or failure
-    while (step.type === 'Step') {
+    while (step && step.type === 'Step') {
       console.log('Current step:', step.payload);
 
       // Example: Handle NameCallback
@@ -63,21 +108,21 @@ async function authenticateUser() {
         passwordCallback.setPassword('password'); // Set the password
       }
 
-      // ... handle other callback types as needed (e.g., ChoiceCallback, DeviceProfileCallback)
+      // ... handle other callback types as needed
 
       // Submit the current step and get the next one
-      step = await client.next({ step: step.payload });
+      step = await client.next(step);
     }
 
     // 3. Check the final result
-    if (step.type === 'LoginSuccess') {
+    if (step && step.type === 'LoginSuccess') {
       console.log('Login successful!', step.getSessionToken());
       // You can now use the session token for subsequent authenticated requests
-    } else if (step.type === 'LoginFailure') {
+    } else if (step && step.type === 'LoginFailure') {
       console.error('Login failed:', step.getMessage());
       // Display error message to the user
     } else {
-      console.warn('Unexpected step type:', step.type, step.payload);
+      console.warn('Unexpected step type or end of journey.');
     }
   } catch (error) {
     console.error('An error occurred during the authentication journey:', error);
@@ -88,43 +133,35 @@ async function authenticateUser() {
 authenticateUser();
 ```
 
-### Client Methods
+### API Reference
 
-The `journey()` factory function returns a client instance with the following methods:
+The `journey()` factory returns a client instance with the following methods:
 
-- `client.start(options?: StepOptions): Promise<JourneyStep | undefined>`
+- `client.start(options: StartParam): Promise<JourneyStep | undefined>`
   Initiates a new authentication journey. Returns the first `JourneyStep` in the journey.
 
-- `client.next(options: { step: Step; options?: StepOptions }): Promise<JourneyStep | undefined>`
-  Submits the current `Step` payload (obtained from `JourneyStep.payload`) to the authentication API and retrieves the next `JourneyStep` in the journey.
+- `client.next(step: JourneyStep, options?: NextOptions): Promise<JourneyStep | undefined>`
+  Submits the current `JourneyStep` to the authentication API and retrieves the next step.
 
 - `client.redirect(step: JourneyStep): Promise<void>`
   Handles `RedirectCallback`s by storing the current step and redirecting the browser to the specified URL. This is typically used for external authentication providers.
 
-- `client.resume(url: string, options?: StepOptions): Promise<JourneyStep | undefined>`
+- `client.resume(url: string, options?: ResumeOptions): Promise<JourneyStep | undefined>`
   Resumes an authentication journey after an external redirect (e.g., from an OAuth provider). It retrieves the previously stored step and combines it with URL parameters to continue the flow.
 
-### Handling Callbacks
+- `client.terminate(options?: { query?: Record<string, string> }): Promise<void>`
+  Ends the current authentication session by calling the `/sessions` endpoint with `_action=logout`.
 
-The `JourneyStep` object provides methods to easily access and manipulate callbacks:
+### Sub-path Exports
 
-- `step.getCallbackOfType<T extends JourneyCallback>(type: CallbackType): T`
-  Retrieves a single callback of a specific type. Throws an error if zero or more than one callback of that type is found.
+This package exposes additional functionality through sub-paths:
 
-- `step.getCallbacksOfType<T extends JourneyCallback>(type: CallbackType): T[]`
-  Retrieves all callbacks of a specific type as an array.
-
-- `callback.getPrompt(): string` (example for `NameCallback`, `PasswordCallback`)
-  Gets the prompt message for the callback.
-
-- `callback.setName(value: string): void` (example for `NameCallback`)
-  Sets the input value for the callback.
-
-- `callback.setPassword(value: string): void` (example for `PasswordCallback`)
-  Sets the input value for the callback.
-
-- `callback.setProfile(profile: DeviceProfileData): void` (example for `DeviceProfileCallback`)
-  Sets the device profile data for the callback.
+- **`@forgerock/journey-client/device`**: Utilities for device profiling.
+- **`@forgerock/journey-client/policy`**: Helpers for parsing and handling policy failures from AM.
+- **`@forgerock/journey-client/qr-code`**: Functions to handle QR code display and interaction within a journey.
+- **`@forgerock/journey-client/recovery-codes`**: Utilities for managing recovery codes.
+- **`@forgerock/journey-client/webauthn`**: Helpers for WebAuthn (FIDO2) registration and authentication within a journey.
+- **`@forgerock/journey-client/types`**: TypeScript type definitions for the package.
 
 ## Building
 

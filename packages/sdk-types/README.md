@@ -1,127 +1,118 @@
 # @forgerock/sdk-types
 
-A TypeScript type definitions package for the ForgeRock/Ping Identity JavaScript SDK ecosystem.
-
 ## Overview
 
-This package contains shared TypeScript interfaces, types, and other type definitions that are used across the ForgeRock/Ping Identity JavaScript SDK packages. It provides a centralized repository for type definitions to ensure consistency across the SDK ecosystem.
+The `@forgerock/sdk-types` package provides a centralized collection of TypeScript type definitions and interfaces used across various Forgerock JavaScript SDKs. This package is designed to ensure type consistency, improve developer experience through better autocompletion and compile-time checks, and facilitate easier integration between different SDK modules.
+
+By consolidating common types, this package helps:
+
+- **Reduce Duplication**: Avoids redefining the same types in multiple packages.
+- **Enhance Type Safety**: Provides robust type checking for data structures and function signatures.
+- **Improve Readability**: Makes code easier to understand by clearly defining expected data shapes.
+- **Streamline Development**: Offers a single source of truth for shared data models.
+
+This package primarily exports interfaces and type aliases, and it does not contain any runtime logic. It is a development dependency for other SDK packages and applications that consume them.
 
 ## Installation
 
-This package is intended to be used as a dependency within the ForgeRock/Ping Identity JavaScript SDK ecosystem and is not typically installed directly by end users.
-
-If needed, you can install it via:
-
 ```bash
-npm install @forgerock/sdk-types
-# or
 pnpm add @forgerock/sdk-types
+# or
+npm install @forgerock/sdk-types
 # or
 yarn add @forgerock/sdk-types
 ```
 
-## Contents
+## API Reference
 
-The package includes the following type categories:
+This package exports a variety of types and interfaces. Some of the key exports include:
 
-### Authentication Callback Types
+- **`Config`**: Interface for general SDK configuration.
+- **`Token`**: Interface for OAuth2 tokens (access, refresh, ID tokens).
+- **`User`**: Interface for user profile information.
+- **`Journey`**: Types related to authentication journeys.
+- **`OIDC`**: Types specific to OpenID Connect flows.
+- **`Protect`**: Types for the Protect SDK.
+- **`FRAuth`**: Types for authentication-related data.
+- **`FRUser`**: Types for user management.
+- **`FRStep`**: Types for authentication steps.
+- **`Callback`**: Types for authentication callbacks.
+- **`Policy`**: Types for policy evaluation.
+- **`WebAuthn`**: Types for WebAuthn authentication.
+- **`PKCE`**: Types for PKCE (Proof Key for Code Exchange).
+- **`OAuth2`**: General OAuth2 related types.
+- **`Storage`**: Types for storage mechanisms.
+- **`Logger`**: Types for logging utilities.
+- **`RequestMiddleware`**: Types for HTTP request middleware.
+- **`IFrameManager`**: Types for iframe management.
 
-Definitions for AM/Ping authentication tree callback schema:
+For a comprehensive list of all exported types and their definitions, please refer to the [TypeDoc documentation](https://forgerock.github.io/forgerock-javascript-sdk/modules/_forgerock_sdk_types.html) or inspect the `src` directory of this package.
 
-```typescript
-export interface Callback {
-  _id?: number;
-  input?: NameValue[];
-  output: NameValue[];
-  type: CallbackType;
-}
-```
-
-Provides type definitions for various callback types, including:
-
-- BooleanAttributeInputCallback
-- ChoiceCallback
-- ConfirmationCallback
-- DeviceProfileCallback
-- NameCallback
-- PasswordCallback
-- PingOneProtect callbacks
-- And many more
-
-### Configuration Types
-
-Types for configuring the SDK:
+## Usage Example
 
 ```typescript
-export interface ServerConfig {
-  baseUrl: string;
-  paths?: CustomPathConfig;
-  timeout?: number;
-}
-```
+import { Config, Token, User, FRStep } from '@forgerock/sdk-types';
 
-Includes interfaces for:
-
-- Server configuration
-- Custom path configuration
-- Token storage
-- Well-known endpoint response types
-- Authentication step options
-
-### Token Types
-
-Definitions for OAuth2/OIDC tokens:
-
-```typescript
-export interface Tokens {
-  accessToken: string;
-  idToken?: string;
-  refreshToken?: string;
-  tokenExpiry?: number;
-}
-```
-
-### Middleware Types
-
-Types for request middleware implementations.
-
-## Usage
-
-Import types directly from the package:
-
-```typescript
-import { ServerConfig, Tokens, Callback } from '@forgerock/sdk-types';
-
-const config: ServerConfig = {
-  baseUrl: 'https://example.forgerock.com/am',
-  timeout: 30000,
+// Example: Defining a configuration object
+const myConfig: Config = {
+  clientId: 'my-client-id',
+  redirectUri: 'http://localhost:8080/callback',
+  scope: 'openid profile email',
+  serverConfig: {
+    baseUrl: 'https://auth.example.com/am',
+    timeout: 30000,
+  },
 };
 
-const processTokens = (tokens: Tokens) => {
-  // Use token information
+// Example: Handling a token response
+const receivedToken: Token = {
+  access_token: 'eyJhbGciOiJIUzI1Ni...',
+  expires_in: 3600,
+  token_type: 'Bearer',
+  scope: 'openid profile',
+  id_token: 'eyJhbGciOiJIUzI1Ni...',
 };
 
-const handleCallback = (callback: Callback) => {
-  // Process callback
+// Example: Working with user data
+const currentUser: User = {
+  sub: 'testuser',
+  given_name: 'Test',
+  family_name: 'User',
+  email: 'test@example.com',
 };
+
+// Example: Processing an authentication step
+const authStep: FRStep = {
+  type: 'LoginSuccess',
+  payload: {
+    tokenId: 'some-token-id',
+    successUrl: 'http://localhost:8080/dashboard',
+  },
+  callbacks: [], // No callbacks for a success step
+};
+
+function processAuthStep(step: FRStep) {
+  if (step.type === 'LoginSuccess') {
+    console.log(`Login successful! Redirecting to: ${step.payload.successUrl}`);
+  } else if (step.type === 'LoginFailure') {
+    console.error(`Login failed: ${step.payload.message}`);
+  } else {
+    console.log(`Received step with type: ${step.type}`);
+    // Handle other step types and their callbacks
+  }
+}
+
+processAuthStep(authStep);
 ```
 
-## Development
+## Building
 
-This package follows the development practices of the overall ForgeRock/Ping Identity JavaScript SDK monorepo.
-
-### Testing
+This library is part of an Nx monorepo. To build it, run:
 
 ```bash
-pnpm test
+pnpm nx build @forgerock/sdk-types
 ```
 
-### Building
+## Testing
 
-```bash
-pnpm build
-```
-
-## License
-
-This project is licensed under the terms of the MIT license. See the [LICENSE](../../LICENSE) file for details.
+This package primarily contains type definitions and does not have runtime logic, so it typically does not have dedicated unit tests. Type checking is performed during the build process.
