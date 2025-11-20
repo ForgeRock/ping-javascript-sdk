@@ -1,0 +1,197 @@
+<!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@forgerock/davinci-client | Documentation</title><meta name="description" content="Documentation for Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script><link rel="stylesheet" href="../assets/typedoc-github-style.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"><a href="https://github.com/ForgeRock/ping-javascript-sdk">GitHub</a></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">Documentation</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../index.html">Documentation</a></li><li><a href="_forgerock_davinci-client.html">@forgerock/davinci-client</a></li></ul><h1>Module @forgerock/davinci-client</h1></div><section class="tsd-panel tsd-typography"><a id="forgerockdavinci-client" class="tsd-anchor"></a><h1 class="tsd-anchor-link">@forgerock/davinci-client<a href="#forgerockdavinci-client" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><a id="overview" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Overview<a href="#overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The <code>@forgerock/davinci-client</code> package provides a robust and type-safe client for interacting with the Forgerock DaVinci platform, built on the Effect-TS ecosystem. DaVinci is a no-code identity orchestration platform that allows you to build complex identity journeys. This client simplifies the process of initiating and managing these journeys from your JavaScript applications.</p>
+<p>This package offers:</p>
+<ul>
+<li><strong>Flow Initiation</strong>: Start various DaVinci flows (authentication, registration, passwordless, social login).</li>
+<li><strong>Flow Resumption</strong>: Continue existing flows by submitting user input.</li>
+<li><strong>Flow Discovery</strong>: Retrieve information about available DaVinci flows, filtered by tags or categories.</li>
+<li><strong>Session Management</strong>: Handle user logout from DaVinci.</li>
+</ul>
+<p>By leveraging Effect-TS, all operations are lazy, composable, and provide robust error handling, making your identity orchestration flows more predictable and resilient.</p>
+<a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-2">@forgerock/davinci-client</span><br/><span class="hl-3"># or</span><br/><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@forgerock/davinci-client</span><br/><span class="hl-3"># or</span><br/><span class="hl-0">yarn</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-2">@forgerock/davinci-client</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="api-reference" class="tsd-anchor"></a><h2 class="tsd-anchor-link">API Reference<a href="#api-reference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="davinciconfig-davinciconfig" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci(config: DaVinciConfig)</code><a href="#davinciconfig-davinciconfig" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>This is the main factory function that initializes the DaVinci client effect.</p>
+<ul>
+<li>
+<p><strong><code>config: DaVinciConfig</code></strong>: An object containing the DaVinci client configuration.</p>
+<ul>
+<li><strong><code>baseUrl: string</code></strong>: The base URL of your DaVinci tenant (e.g., <code>https://your-tenant.davinci.forgerock.com</code>).</li>
+<li><strong><code>companyId: string</code></strong>: Your DaVinci company ID.</li>
+<li><strong><code>requestMiddleware?: RequestMiddleware[]</code></strong>: (Optional) An array of request middleware functions to apply to HTTP requests.</li>
+</ul>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>DaVinciService</code> - An object containing the DaVinci client methods.</p>
+</li>
+</ul>
+<a id="davincistartflowid-string-payload-record-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.start(flowId: string, payload?: Record&lt;string, unknown&gt;): Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code><a href="#davincistartflowid-string-payload-record-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Initiates a new DaVinci flow.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the DaVinci flow to start.</p>
+</li>
+<li>
+<p><strong><code>payload?: Record&lt;string, unknown&gt;</code></strong>: (Optional) Initial data to send to the flow.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code></p>
+<ul>
+<li>An <code>Effect</code> that resolves with <code>FlowResponse</code> on success.</li>
+<li>Fails with <code>DaVinciError</code> on flow initiation failure.</li>
+</ul>
+</li>
+</ul>
+<a id="davinciresumeflowid-string-transactionid-string-payload-record-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.resume(flowId: string, transactionId: string, payload: Record&lt;string, unknown&gt;): Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code><a href="#davinciresumeflowid-string-transactionid-string-payload-record-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Resumes an existing DaVinci flow by submitting user input.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the DaVinci flow.</p>
+</li>
+<li>
+<p><strong><code>transactionId: string</code></strong>: The transaction ID of the active flow.</p>
+</li>
+<li>
+<p><strong><code>payload: Record&lt;string, unknown&gt;</code></strong>: The data to submit to the flow.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code></p>
+<ul>
+<li>An <code>Effect</code> that resolves with <code>FlowResponse</code> on success.</li>
+<li>Fails with <code>DaVinciError</code> on flow resumption failure.</li>
+</ul>
+</li>
+</ul>
+<a id="davinciauthenticateflowid-string-payload-record-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.authenticate(flowId: string, payload?: Record&lt;string, unknown&gt;): Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code><a href="#davinciauthenticateflowid-string-payload-record-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>A convenience method to start an authentication flow. Internally calls <code>davinci.start()</code>.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the authentication flow.</p>
+</li>
+<li>
+<p><strong><code>payload?: Record&lt;string, unknown&gt;</code></strong>: (Optional) Initial data for the flow.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davinciregisterflowid-string-payload-record-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.register(flowId: string, payload?: Record&lt;string, unknown&gt;): Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code><a href="#davinciregisterflowid-string-payload-record-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>A convenience method to start a registration flow. Internally calls <code>davinci.start()</code>.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the registration flow.</p>
+</li>
+<li>
+<p><strong><code>payload?: Record&lt;string, unknown&gt;</code></strong>: (Optional) Initial data for the flow.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davincipasswordlessflowid-string-payload-record-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.passwordless(flowId: string, payload?: Record&lt;string, unknown&gt;): Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code><a href="#davincipasswordlessflowid-string-payload-record-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>A convenience method to start a passwordless flow. Internally calls <code>davinci.start()</code>.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the passwordless flow.</p>
+</li>
+<li>
+<p><strong><code>payload?: Record&lt;string, unknown&gt;</code></strong>: (Optional) Initial data for the flow.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davincisocialflowid-string-payload-record-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.social(flowId: string, payload?: Record&lt;string, unknown&gt;): Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code><a href="#davincisocialflowid-string-payload-record-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>A convenience method to start a social login flow. Internally calls <code>davinci.start()</code>.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the social login flow.</p>
+</li>
+<li>
+<p><strong><code>payload?: Record&lt;string, unknown&gt;</code></strong>: (Optional) Initial data for the flow.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davincilogoutflowid-string-payload-record-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.logout(flowId: string, payload?: Record&lt;string, unknown&gt;): Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code><a href="#davincilogoutflowid-string-payload-record-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>A convenience method to start a logout flow. Internally calls <code>davinci.start()</code>.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the logout flow.</p>
+</li>
+<li>
+<p><strong><code>payload?: Record&lt;string, unknown&gt;</code></strong>: (Optional) Initial data for the flow.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;FlowResponse, DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davincigetflowflowid-string-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.getFlow(flowId: string): Effect.Effect&lt;Flow, DaVinciError, never&gt;</code><a href="#davincigetflowflowid-string-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Retrieves details for a specific DaVinci flow.</p>
+<ul>
+<li>
+<p><strong><code>flowId: string</code></strong>: The ID of the flow to retrieve.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;Flow, DaVinciError, never&gt;</code></p>
+<ul>
+<li>An <code>Effect</code> that resolves with <code>Flow</code> object on success.</li>
+<li>Fails with <code>DaVinciError</code> if the flow is not found or an error occurs.</li>
+</ul>
+</li>
+</ul>
+<a id="davincigetflows-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.getFlows(): Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code><a href="#davincigetflows-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Retrieves a list of all available DaVinci flows.</p>
+<ul>
+<li><strong>Returns:</strong> <code>Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code>
+<ul>
+<li>An <code>Effect</code> that resolves with an array of <code>Flow</code> objects.</li>
+<li>Fails with <code>DaVinciError</code> on API error.</li>
+</ul>
+</li>
+</ul>
+<a id="davincigetflowsbytagtag-string-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.getFlowsByTag(tag: string): Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code><a href="#davincigetflowsbytagtag-string-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Retrieves a list of DaVinci flows filtered by a specific tag.</p>
+<ul>
+<li>
+<p><strong><code>tag: string</code></strong>: The tag to filter flows by.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davincigetflowsbycategorycategory-string-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.getFlowsByCategory(category: string): Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code><a href="#davincigetflowsbycategorycategory-string-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Retrieves a list of DaVinci flows filtered by a specific category.</p>
+<ul>
+<li>
+<p><strong><code>category: string</code></strong>: The category to filter flows by.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davincigetflowsbytagandcategorytag-string-category-string-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.getFlowsByTagAndCategory(tag: string, category: string): Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code><a href="#davincigetflowsbytagandcategorytag-string-category-string-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Retrieves a list of DaVinci flows filtered by both a tag and a category.</p>
+<ul>
+<li>
+<p><strong><code>tag: string</code></strong>: The tag to filter flows by.</p>
+</li>
+<li>
+<p><strong><code>category: string</code></strong>: The category to filter flows by.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="davincigetflowsbytagorcategorytag-string-category-string-effecteffect" class="tsd-anchor"></a><h3 class="tsd-anchor-link"><code>davinci.getFlowsByTagOrCategory(tag: string, category: string): Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code><a href="#davincigetflowsbytagorcategorytag-string-category-string-effecteffect" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Retrieves a list of DaVinci flows filtered by either a tag or a category.</p>
+<ul>
+<li>
+<p><strong><code>tag: string</code></strong>: The tag to filter flows by.</p>
+</li>
+<li>
+<p><strong><code>category: string</code></strong>: The category to filter flows by.</p>
+</li>
+<li>
+<p><strong>Returns:</strong> <code>Effect.Effect&lt;Flow[], DaVinciError, never&gt;</code></p>
+</li>
+</ul>
+<a id="usage-example" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Usage Example<a href="#usage-example" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><pre><code class="typescript"><span class="hl-4">import</span><span class="hl-1"> </span><span class="hl-5">*</span><span class="hl-1"> </span><span class="hl-4">as</span><span class="hl-1"> </span><span class="hl-6">Effect</span><span class="hl-1"> </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;effect/Effect&#39;</span><span class="hl-1">;</span><br/><span class="hl-4">import</span><span class="hl-1"> { </span><span class="hl-6">davinci</span><span class="hl-1"> } </span><span class="hl-4">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@forgerock/davinci-client&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-3">// DaVinci configuration</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">davinciConfig</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-6">baseUrl:</span><span class="hl-1"> </span><span class="hl-2">&#39;https://your-tenant.davinci.forgerock.com&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-6">companyId:</span><span class="hl-1"> </span><span class="hl-2">&#39;your-company-id&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">};</span><br/><br/><span class="hl-3">// Initialize the DaVinci client</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">davinciClient</span><span class="hl-1"> = </span><span class="hl-0">davinci</span><span class="hl-1">(</span><span class="hl-6">davinciConfig</span><span class="hl-1">);</span><br/><br/><span class="hl-5">async</span><span class="hl-1"> </span><span class="hl-5">function</span><span class="hl-1"> </span><span class="hl-0">runDaVinciFlow</span><span class="hl-1">() {</span><br/><span class="hl-1">  </span><span class="hl-4">try</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-3">// Get all available flows</span><br/><span class="hl-1">    </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">allFlows</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-6">Effect</span><span class="hl-1">.</span><span class="hl-0">runPromise</span><span class="hl-1">(</span><span class="hl-6">davinciClient</span><span class="hl-1">.</span><span class="hl-0">getFlows</span><span class="hl-1">());</span><br/><span class="hl-1">    </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">&#39;All DaVinci Flows:&#39;</span><span class="hl-1">, </span><span class="hl-6">allFlows</span><span class="hl-1">);</span><br/><br/><span class="hl-1">    </span><span class="hl-3">// Assuming you have a flowId for an authentication flow</span><br/><span class="hl-1">    </span><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">authFlowId</span><span class="hl-1"> = </span><span class="hl-2">&#39;auth-flow-example&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-1">    </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">`Starting authentication flow: </span><span class="hl-5">${</span><span class="hl-6">authFlowId</span><span class="hl-5">}</span><span class="hl-2">`</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-5">let</span><span class="hl-1"> </span><span class="hl-6">flowResponse</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-6">Effect</span><span class="hl-1">.</span><span class="hl-0">runPromise</span><span class="hl-1">(</span><span class="hl-6">davinciClient</span><span class="hl-1">.</span><span class="hl-0">start</span><span class="hl-1">(</span><span class="hl-6">authFlowId</span><span class="hl-1">));</span><br/><span class="hl-1">    </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">&#39;Initial Flow Response:&#39;</span><span class="hl-1">, </span><span class="hl-6">flowResponse</span><span class="hl-1">);</span><br/><br/><span class="hl-1">    </span><span class="hl-3">// Simulate user input for a resume step</span><br/><span class="hl-1">    </span><span class="hl-4">if</span><span class="hl-1"> (</span><span class="hl-6">flowResponse</span><span class="hl-1">.</span><span class="hl-6">stage</span><span class="hl-1"> === </span><span class="hl-2">&#39;USERNAME_PASSWORD&#39;</span><span class="hl-1">) {</span><br/><span class="hl-1">      </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">&#39;Resuming flow with username and password...&#39;</span><span class="hl-1">);</span><br/><span class="hl-1">      </span><span class="hl-6">flowResponse</span><span class="hl-1"> = </span><span class="hl-4">await</span><span class="hl-1"> </span><span class="hl-6">Effect</span><span class="hl-1">.</span><span class="hl-0">runPromise</span><span class="hl-1">(</span><br/><span class="hl-1">        </span><span class="hl-6">davinciClient</span><span class="hl-1">.</span><span class="hl-0">resume</span><span class="hl-1">(</span><span class="hl-6">authFlowId</span><span class="hl-1">, </span><span class="hl-6">flowResponse</span><span class="hl-1">.</span><span class="hl-6">transactionId</span><span class="hl-1">, {</span><br/><span class="hl-1">          </span><span class="hl-6">username:</span><span class="hl-1"> </span><span class="hl-2">&#39;testuser&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">          </span><span class="hl-6">password:</span><span class="hl-1"> </span><span class="hl-2">&#39;password&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">        }),</span><br/><span class="hl-1">      );</span><br/><span class="hl-1">      </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">&#39;Resumed Flow Response:&#39;</span><span class="hl-1">, </span><span class="hl-6">flowResponse</span><span class="hl-1">);</span><br/><span class="hl-1">    }</span><br/><br/><span class="hl-1">    </span><span class="hl-4">if</span><span class="hl-1"> (</span><span class="hl-6">flowResponse</span><span class="hl-1">.</span><span class="hl-6">status</span><span class="hl-1"> === </span><span class="hl-2">&#39;SUCCESS&#39;</span><span class="hl-1">) {</span><br/><span class="hl-1">      </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">log</span><span class="hl-1">(</span><span class="hl-2">&#39;Flow completed successfully!&#39;</span><span class="hl-1">, </span><span class="hl-6">flowResponse</span><span class="hl-1">.</span><span class="hl-6">response</span><span class="hl-1">);</span><br/><span class="hl-1">    } </span><span class="hl-4">else</span><span class="hl-1"> </span><span class="hl-4">if</span><span class="hl-1"> (</span><span class="hl-6">flowResponse</span><span class="hl-1">.</span><span class="hl-6">status</span><span class="hl-1"> === </span><span class="hl-2">&#39;FAILED&#39;</span><span class="hl-1">) {</span><br/><span class="hl-1">      </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">error</span><span class="hl-1">(</span><span class="hl-2">&#39;Flow failed:&#39;</span><span class="hl-1">, </span><span class="hl-6">flowResponse</span><span class="hl-1">.</span><span class="hl-6">response</span><span class="hl-1">);</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">  } </span><span class="hl-4">catch</span><span class="hl-1"> (</span><span class="hl-6">error</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">error</span><span class="hl-1">(</span><span class="hl-2">&#39;DaVinci operation failed:&#39;</span><span class="hl-1">, </span><span class="hl-6">error</span><span class="hl-1">);</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-3">// Run the DaVinci flow example</span><br/><span class="hl-6">Effect</span><span class="hl-1">.</span><span class="hl-0">runPromise</span><span class="hl-1">(</span><span class="hl-0">runDaVinciFlow</span><span class="hl-1">()).</span><span class="hl-0">catch</span><span class="hl-1">((</span><span class="hl-6">error</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-6">console</span><span class="hl-1">.</span><span class="hl-0">error</span><span class="hl-1">(</span><span class="hl-2">&#39;An unexpected error occurred:&#39;</span><span class="hl-1">, </span><span class="hl-6">error</span><span class="hl-1">);</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="building" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Building<a href="#building" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>This library is part of an Nx monorepo. To build it, run:</p>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">nx</span><span class="hl-1"> </span><span class="hl-2">build</span><span class="hl-1"> </span><span class="hl-2">@forgerock/davinci-client</span>
+</code><button type="button">Copy</button></pre>
+
+<a id="testing" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Testing<a href="#testing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>To run the unit tests for this package, run:</p>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">nx</span><span class="hl-1"> </span><span class="hl-2">test</span><span class="hl-1"> </span><span class="hl-2">@forgerock/davinci-client</span>
+</code><button type="button">Copy</button></pre>
+
+</section><details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Modules"><h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg> Modules</h2></summary><dl class="tsd-member-summaries"><dt class="tsd-member-summary"><a id="index" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Module"><use href="../assets/icons.svg#icon-2"></use></svg><a href="_forgerock_davinci-client.index.html">index</a><a href="#index" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd><dt class="tsd-member-summary"><a id="types" class="tsd-anchor"></a><span class="tsd-member-summary-name"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Module"><use href="../assets/icons.svg#icon-2"></use></svg><a href="_forgerock_davinci-client.types.html">types</a><a href="#types" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></span></dt><dd class="tsd-member-summary"></dd></dl></details></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#forgerockdavinci-client"><span>@forgerock/davinci-<wbr/>client</span></a><ul><li><a href="#overview"><span>Overview</span></a></li><li><a href="#installation"><span>Installation</span></a></li><li><a href="#api-reference"><span>API <wbr/>Reference</span></a></li><li><ul><li><a href="#davinciconfig-davinciconfig"><span>davinci(config: <wbr/>Da<wbr/>Vinci<wbr/>Config)</span></a></li><li><a href="#davincistartflowid-string-payload-record-effecteffect"><span>davinci.start(flow<wbr/>Id: string, payload?: <wbr/>Record&lt;string, unknown&gt;): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow<wbr/>Response, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davinciresumeflowid-string-transactionid-string-payload-record-effecteffect"><span>davinci.resume(flow<wbr/>Id: string, transaction<wbr/>Id: string, payload: <wbr/>Record&lt;string, unknown&gt;): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow<wbr/>Response, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davinciauthenticateflowid-string-payload-record-effecteffect"><span>davinci.authenticate(flow<wbr/>Id: string, payload?: <wbr/>Record&lt;string, unknown&gt;): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow<wbr/>Response, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davinciregisterflowid-string-payload-record-effecteffect"><span>davinci.register(flow<wbr/>Id: string, payload?: <wbr/>Record&lt;string, unknown&gt;): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow<wbr/>Response, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincipasswordlessflowid-string-payload-record-effecteffect"><span>davinci.passwordless(flow<wbr/>Id: string, payload?: <wbr/>Record&lt;string, unknown&gt;): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow<wbr/>Response, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincisocialflowid-string-payload-record-effecteffect"><span>davinci.social(flow<wbr/>Id: string, payload?: <wbr/>Record&lt;string, unknown&gt;): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow<wbr/>Response, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincilogoutflowid-string-payload-record-effecteffect"><span>davinci.logout(flow<wbr/>Id: string, payload?: <wbr/>Record&lt;string, unknown&gt;): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow<wbr/>Response, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincigetflowflowid-string-effecteffect"><span>davinci.get<wbr/>Flow(flow<wbr/>Id: string): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow, <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincigetflows-effecteffect"><span>davinci.get<wbr/>Flows(): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow[], <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincigetflowsbytagtag-string-effecteffect"><span>davinci.get<wbr/>Flows<wbr/>By<wbr/>Tag(tag: string): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow[], <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincigetflowsbycategorycategory-string-effecteffect"><span>davinci.get<wbr/>Flows<wbr/>By<wbr/>Category(category: string): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow[], <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincigetflowsbytagandcategorytag-string-category-string-effecteffect"><span>davinci.get<wbr/>Flows<wbr/>By<wbr/>Tag<wbr/>And<wbr/>Category(tag: string, category: string): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow[], <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li><li><a href="#davincigetflowsbytagorcategorytag-string-category-string-effecteffect"><span>davinci.get<wbr/>Flows<wbr/>By<wbr/>Tag<wbr/>Or<wbr/>Category(tag: string, category: string): <wbr/>Effect.<wbr/>Effect&lt;<wbr/>Flow[], <wbr/>Da<wbr/>Vinci<wbr/>Error, never&gt;</span></a></li></ul></li><li><a href="#usage-example"><span>Usage <wbr/>Example</span></a></li><li><a href="#building"><span>Building</span></a></li><li><a href="#testing"><span>Testing</span></a></li></ul><details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Modules"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Modules</summary><div><a href="#index" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Module"><use href="../assets/icons.svg#icon-2"></use></svg><span>index</span></a><a href="#types" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Module"><use href="../assets/icons.svg#icon-2"></use></svg><span>types</span></a></div></details></div></details></div><div class="site-menu"><nav id="tsd-sidebar-links" class="tsd-navigation"><a href="https://github.com/ForgeRock/ping-javascript-sdk" class="tsd-nav-link">GitHub</a></nav><nav class="tsd-navigation"><a href="../index.html">Documentation</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>
