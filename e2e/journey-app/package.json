@@ -1,6 +1,6 @@
 {
   "name": "@forgerock/journey-app",
-  "version": "0.0.0",
+  "version": "1.3.0",
   "description": "Ping Journey Client Test App",
   "type": "module",
   "private": true,
