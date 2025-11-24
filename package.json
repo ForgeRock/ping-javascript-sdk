@@ -15,7 +15,7 @@
   "scripts": {
     "build": "nx affected --target=build",
     "changeset": "changeset",
-    "ci:release": "pnpm publish -r --no-git-checks && changeset tag",
+    "ci:release": "pnpm nx run-many -t build --no-agents && pnpm publish -r --no-git-checks && changeset tag",
     "ci:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm nx format:write --uncommitted",
     "circular-dep-check": "madge --circular .",
     "clean": "shx rm -rf ./{coverage,dist,docs,node_modules,tmp}/ ./{packages,e2e}/*/{dist,node_modules}/ ./e2e/node_modules/ && git clean -fX -e \"!.env*,nx-cloud.env\" -e \"!**/GEMINI.md\"",
