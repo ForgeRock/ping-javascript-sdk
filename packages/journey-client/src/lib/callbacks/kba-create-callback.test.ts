@@ -24,6 +24,10 @@ describe('KbaCreateCallback', () => {
         name: 'predefinedQuestions',
         value: ['Question 1', 'Question 2'],
       },
+      {
+        name: 'allowUserDefinedQuestions',
+        value: true,
+      },
     ],
     input: [
       {
@@ -49,5 +53,10 @@ describe('KbaCreateCallback', () => {
     cb.setAnswer('Blue');
     expect(cb.getInputValue('IDToken1question')).toBe('My custom question');
     expect(cb.getInputValue('IDToken1answer')).toBe('Blue');
+  });
+
+  it('should indicate if user-defined questions are allowed', () => {
+    const cb = new KbaCreateCallback(payload);
+    expect(cb.isAllowedUserDefinedQuestions()).toBe(true);
   });
 });
