@@ -34,6 +34,14 @@ export default function kbaCreateComponent(
     questionInput.appendChild(option);
   });
 
+  // Add option to create a question if allowed
+  if (callback.isAllowedUserDefinedQuestions()) {
+    const userDefinedOption = document.createElement('option');
+    userDefinedOption.value = 'user-defined';
+    userDefinedOption.text = 'Enter your own question';
+    questionInput.appendChild(userDefinedOption);
+  }
+
   // Answer field
   const answerLabel = document.createElement('label');
   answerLabel.htmlFor = `${collectorKey}-answer`;
@@ -53,10 +61,32 @@ export default function kbaCreateComponent(
 
   // Event listeners
   questionInput.addEventListener('input', (event) => {
-    callback.setQuestion((event.target as HTMLInputElement).value);
+    const selectedQuestion = (event.target as HTMLInputElement).value;
+    if (selectedQuestion === 'user-defined') {
+      // If user-defined option is selected, prompt for custom question
+      const customQuestionLabel = document.createElement('label');
+      customQuestionLabel.htmlFor = `${collectorKey}-question-user-defined`;
+      customQuestionLabel.innerText = 'Type your question ' + idx + ':';
+
+      const customQuestionInput = document.createElement('input');
+      customQuestionInput.type = 'text';
+      customQuestionInput.id = `${collectorKey}-question-user-defined`;
+      customQuestionInput.placeholder = 'Type your question';
+
+      container.lastElementChild?.before(customQuestionLabel);
+      container.lastElementChild?.before(customQuestionInput);
+      customQuestionInput.addEventListener('input', (e) => {
+        callback.setQuestion((e.target as HTMLInputElement).value);
+        console.log('Custom question ' + idx + ':', callback.getInputValue(0));
+      });
+    } else {
+      callback.setQuestion((event.target as HTMLInputElement).value);
+      console.log('Selected question ' + idx + ':', callback.getInputValue(0));
+    }
   });
 
   answerInput.addEventListener('input', (event) => {
     callback.setAnswer((event.target as HTMLInputElement).value);
+    console.log('Answer ' + idx + ':', callback.getInputValue(1));
   });
 }

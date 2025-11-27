@@ -24,6 +24,8 @@
     "@forgerock/oidc-suites",
     "@forgerock/local-release-tool",
     "@forgerock/protect-app",
-    "@forgerock/protect-suites"
+    "@forgerock/protect-suites",
+    "@forgerock/journey-app",
+    "@forgerock/journey-suites"
   ]
 }
