@@ -34,6 +34,13 @@ export class KbaCreateCallback extends BaseCallback {
   }
 
   /**
+   * Gets whether the user can define questions.
+   */
+  public isAllowedUserDefinedQuestions(): boolean {
+    return this.getOutputByName<boolean>('allowUserDefinedQuestions', false);
+  }
+
+  /**
    * Sets the callback's security question.
    */
   public setQuestion(question: string): void {

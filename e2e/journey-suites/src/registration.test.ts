@@ -40,10 +40,13 @@ test('Test happy paths on test page', async ({ page }) => {
   await page.getByLabel('Send me news and updates').check();
   // Fill password
   await page.getByLabel('Password').fill(password);
-  // Select "Select a security question 7" dropdown and choose "What's your favorite color?"
-  await page.getByLabel('Select a security question 7').selectOption("What's your favorite color?");
-  // Fill answer with "Red"
-  await page.getByLabel('Answer 7').fill('Red');
+
+  // Select "Select a security question 7" dropdown and choose custom question
+  await page.getByLabel('Select a security question 7').selectOption('user-defined');
+  await page.getByLabel('Type your question 7:').fill(`What is your pet's name?`);
+  // Fill answer with "Rover"
+  await page.getByLabel('Answer 7').fill('Rover');
+
   // Select "Select a security question 8" dropdown and choose "Who was your first employer?"
   await page
     .getByLabel('Select a security question 8')
@@ -61,6 +64,10 @@ test('Test happy paths on test page', async ({ page }) => {
   await clickButton('Logout', '/authenticate');
 
   // Test assertions
+  expect(messageArray.includes(`Custom question 7: What is your pet's name?`)).toBe(true);
+  expect(messageArray.includes('Answer 7: Rover')).toBe(true);
+  expect(messageArray.includes(`Selected question 8: Who was your first employer?`)).toBe(true);
+  expect(messageArray.includes('Answer 8: AAA Engineering')).toBe(true);
   expect(messageArray.includes('Journey completed successfully')).toBe(true);
   expect(messageArray.includes('Logout successful')).toBe(true);
 });
