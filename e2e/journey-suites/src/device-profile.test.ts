@@ -9,32 +9,39 @@ import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 import { username, password } from './utils/demo-user.js';
 
-test.skip('Test happy paths on test page', async ({ page }) => {
+test('Test device profile collection journey flow', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?journey=TEST_DeviceProfile');
 
   const messageArray: string[] = [];
 
-  // Listen for events on page
   page.on('console', async (msg) => {
     messageArray.push(msg.text());
     return Promise.resolve(true);
   });
 
-  // Perform basic login
+  await navigate('/?journey=DeviceProfileCallbackTest&clientId=basic');
+
+  await expect(page.getByLabel('User Name')).toBeVisible({ timeout: 10000 });
   await page.getByLabel('User Name').fill(username);
   await page.getByLabel('Password').fill(password);
   await clickButton('Submit', '/authenticate');
 
-  await expect(page.getByText('Collecting device profile')).toBeVisible();
+  await expect(page.getByText('Collecting device profile information...')).toBeVisible({
+    timeout: 10000,
+  });
+  await expect(page.getByText('Device profile collected successfully!')).toBeVisible({
+    timeout: 15000,
+  });
 
-  await expect(page.getByText('Complete')).toBeVisible();
+  await expect(page.getByText('Complete')).toBeVisible({ timeout: 15000 });
 
-  // Perform logout
   await clickButton('Logout', '/authenticate');
 
-  // Test assertions
-  expect(messageArray.includes('Device profile collected successfully')).toBe(true);
-  expect(messageArray.includes('Journey completed successfully')).toBe(true);
-  expect(messageArray.includes('Logout successful')).toBe(true);
+  await expect(page.getByLabel('User Name')).toBeVisible({ timeout: 10000 });
+
+  expect(messageArray.some((msg) => msg.includes('Device profile collected successfully'))).toBe(
+    true,
+  );
+  expect(messageArray.some((msg) => msg.includes('Journey completed successfully'))).toBe(true);
+  expect(messageArray.some((msg) => msg.includes('Logout successful'))).toBe(true);
 });

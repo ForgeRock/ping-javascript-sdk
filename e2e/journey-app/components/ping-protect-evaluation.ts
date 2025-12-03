@@ -31,7 +31,9 @@ export default function pingProtectEvaluationComponent(
       const protectInstance = getProtectInstance();
 
       if (!protectInstance) {
-        throw new Error('Protect instance not initialized. Initialize callback must be called first.');
+        throw new Error(
+          'Protect instance not initialized. Initialize callback must be called first.',
+        );
       }
 
       console.log('Collecting Protect signals...');
