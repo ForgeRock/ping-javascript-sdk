@@ -15,7 +15,6 @@
   "ignore": [
     "scratchpad",
     "@forgerock/pingone-scripts",
-    "@forgerock/device-client",
     "@forgerock/device-client-app",
     "@forgerock/davinci-app",
     "@forgerock/davinci-suites",
