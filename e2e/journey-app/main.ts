@@ -11,6 +11,8 @@ import { journey } from '@forgerock/journey-client';
 import type { RequestMiddleware } from '@forgerock/journey-client/types';
 
 import { renderCallbacks } from './callback-map.js';
+import { renderQRCodeStep } from './components/qr-code.js';
+import { renderRecoveryCodesStep } from './components/recovery-codes.js';
 import { serverConfigs } from './server-configs.js';
 
 const qs = window.location.search;
@@ -115,9 +117,13 @@ if (searchParams.get('middleware') === 'true') {
     header.innerText = formName || '';
     journeyEl.appendChild(header);
 
-    const callbacks = step.callbacks;
+    const stepRendered =
+      renderQRCodeStep(journeyEl, step) || renderRecoveryCodesStep(journeyEl, step);
 
-    renderCallbacks(journeyEl, callbacks);
+    if (!stepRendered) {
+      const callbacks = step.callbacks;
+      renderCallbacks(journeyEl, callbacks);
+    }
 
     const submitBtn = document.createElement('button');
     submitBtn.type = 'submit';

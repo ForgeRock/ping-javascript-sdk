@@ -9,53 +9,57 @@ import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 
 test.describe('Recovery Codes Journey', () => {
-  test('should display recovery codes after WebAuthn registration and complete journey', async ({
+  test('should display recovery codes using RecoveryCodes module and complete journey', async ({
     page,
   }) => {
     const { clickButton, navigate } = asyncEvents(page);
-
     const messageArray: string[] = [];
 
-    // Listen for console messages
     page.on('console', async (msg) => {
       messageArray.push(msg.text());
       return Promise.resolve(true);
     });
 
-    // Navigate to WebAuthn with Recovery Codes test journey
     await navigate('/?journey=TEST_WebAuthnWithRecoveryCodes');
 
-    // Step 1: WebAuthn registration step
-    // The UI renders MetadataCallback (invisible) and HiddenValueCallback (hidden input)
-    // Wait for the Submit button to be visible (indicates callbacks have rendered)
     await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible({ timeout: 10000 });
-
-    // Submit the WebAuthn registration step
-    // In e2e testing, the mock API accepts this without actual WebAuthn validation
     await clickButton('Submit', '/authenticate');
 
-    // Step 2: Recovery Codes display step
-    // Should show the TextOutputCallback with recovery codes
-    // and a ConfirmationCallback with radio button option
-    await expect(page.getByText('I have saved my recovery codes')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#recovery-codes-container')).toBeVisible({ timeout: 10000 });
 
-    // Click Submit to acknowledge recovery codes (radio option is selected by default)
+    await expect(page.locator('#recovery-codes-header')).toBeVisible();
+    const headerText = await page.locator('#recovery-codes-header').textContent();
+    expect(headerText).toContain('Recovery Codes');
+
+    await expect(page.locator('#recovery-codes-list')).toBeVisible();
+
+    const codeElements = page.locator('.recovery-code');
+    const codeCount = await codeElements.count();
+    expect(codeCount).toBeGreaterThan(0);
+
+    const firstCode = await codeElements.first().textContent();
+    expect(firstCode).toBeTruthy();
+    expect(firstCode?.length).toBeGreaterThan(0);
+
+    await expect(page.getByText('I have saved my recovery codes')).toBeVisible();
+
     await clickButton('Submit', '/authenticate');
 
-    // Step 3: Verify journey completion
     await expect(page.getByText('Complete')).toBeVisible({ timeout: 10000 });
 
-    // Verify session token is present
     const sessionToken = await page.locator('#sessionToken').textContent();
     expect(sessionToken).toBeTruthy();
 
-    // Step 4: Perform logout
-    await clickButton('Logout', '/authenticate');
+    await clickButton('Logout', '/sessions');
 
-    // Verify we're back at the beginning
-    await page.waitForTimeout(1000);
+    await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible({ timeout: 10000 });
 
-    // Test console log assertions
+    expect(
+      messageArray.some((msg) =>
+        msg.includes('Recovery Codes step detected via RecoveryCodes module'),
+      ),
+    ).toBe(true);
+    expect(messageArray.some((msg) => msg.includes('Recovery codes:'))).toBe(true);
     expect(messageArray.some((msg) => msg.includes('Journey completed successfully'))).toBe(true);
     expect(messageArray.some((msg) => msg.includes('Logout successful'))).toBe(true);
   });

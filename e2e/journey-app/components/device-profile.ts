@@ -48,9 +48,9 @@ export default function deviceProfileComponent(
 
       // Auto-submit the form after successful collection
       setTimeout(() => {
-        const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
-        if (submitButton) {
-          submitButton.click();
+        const form = document.getElementById('form') as HTMLFormElement;
+        if (form) {
+          form.requestSubmit();
         }
       }, 500);
     } catch (error) {

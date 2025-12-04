@@ -11,12 +11,36 @@ import { username, password } from './utils/demo-user.js';
 
 test('Test PingOne Protect journey flow', async ({ page }) => {
   const { clickButton } = asyncEvents(page);
-
   const messageArray: string[] = [];
+  let protectSignalsData: string | null = null;
 
   page.on('console', async (msg) => {
     messageArray.push(msg.text());
     return Promise.resolve(true);
+  });
+
+  page.on('request', (request) => {
+    if (request.url().includes('/authenticate') && request.method() === 'POST') {
+      try {
+        const postData = request.postData();
+        if (postData) {
+          const body = JSON.parse(postData);
+          const callbacks = body.callbacks || [];
+          for (const callback of callbacks) {
+            if (callback.type === 'PingOneProtectEvaluationCallback') {
+              const inputs = callback.input || [];
+              for (const input of inputs) {
+                if (input.name === 'IDToken1signals' && input.value) {
+                  protectSignalsData = input.value;
+                }
+              }
+            }
+          }
+        }
+      } catch {
+        // Ignore parsing errors
+      }
+    }
   });
 
   await page.goto('/?journey=TEST_LoginPingProtect&clientId=basic', { waitUntil: 'load' });
@@ -36,12 +60,21 @@ test('Test PingOne Protect journey flow', async ({ page }) => {
     timeout: 15000,
   });
 
+  // Wait for the evaluation callback to auto-submit and complete
+  await page.waitForResponse((response) => response.url().includes('/authenticate'));
+
   await expect(page.getByText('Complete')).toBeVisible({ timeout: 15000 });
 
-  await clickButton('Logout', '/authenticate');
+  // Verify signals were captured from the request
+  expect(protectSignalsData).not.toBeNull();
+  expect(typeof protectSignalsData).toBe('string');
+  expect(protectSignalsData?.length).toBeGreaterThan(0);
+
+  await clickButton('Logout', '/sessions');
 
   await expect(page.getByText('Initializing PingOne Protect...')).toBeVisible({ timeout: 10000 });
 
+  // Verify the protect SDK flow through console logs
   expect(messageArray.some((msg) => msg.includes('Protect initialized successfully'))).toBe(true);
   expect(messageArray.some((msg) => msg.includes('Protect data collected successfully'))).toBe(
     true,

@@ -58,9 +58,9 @@ export default function pingProtectEvaluationComponent(
 
       // Auto-submit the form after successful data collection
       setTimeout(() => {
-        const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
-        if (submitButton) {
-          submitButton.click();
+        const form = document.getElementById('form') as HTMLFormElement;
+        if (form) {
+          form.requestSubmit();
         }
       }, 500);
     } catch (error) {

@@ -9,41 +9,48 @@ import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 import { username, password } from './utils/demo-user.js';
 
-test('Test QR Code journey flow', async ({ page }) => {
+test('Test QR Code journey flow using QRCode module', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-
   const messageArray: string[] = [];
 
-  // Listen for console messages
   page.on('console', async (msg) => {
     messageArray.push(msg.text());
     return Promise.resolve(true);
   });
 
-  // Navigate to QR Code test journey
   await navigate('/?journey=QRCodeTest');
 
-  // Step 1: Perform basic login
   await page.getByLabel('User Name').fill(username);
   await page.getByLabel('Password').fill(password);
   await clickButton('Submit', '/authenticate');
 
-  // Step 2: QR Code step should be displayed with instruction message
-  await expect(page.getByText('Scan the QR code image below', { exact: false })).toBeVisible({
-    timeout: 10000,
-  });
+  await expect(page.locator('#qr-code-container')).toBeVisible({ timeout: 10000 });
 
-  // Step 3: The "Next" radio button is already selected by default
-  // Click Submit to proceed with the confirmation
+  await expect(page.locator('#qr-code-message')).toBeVisible();
+  const messageText = await page.locator('#qr-code-message').textContent();
+  expect(messageText).toContain('Scan the QR code');
+
+  await expect(page.locator('#qr-code-uri')).toBeVisible();
+  const uriText = await page.locator('#qr-code-uri').textContent();
+  expect(uriText).toContain('otpauth://');
+  expect(uriText).toContain('secret=');
+
+  await expect(page.locator('#qr-code-use-type')).toBeVisible();
+  const useTypeText = await page.locator('#qr-code-use-type').textContent();
+  expect(useTypeText).toContain('Type: otp');
+
   await clickButton('Submit', '/authenticate');
 
-  // Step 4: Verify journey completion
   await expect(page.getByText('Complete')).toBeVisible();
 
-  // Step 5: Perform logout
-  await clickButton('Logout', '/authenticate');
+  await clickButton('Logout', '/sessions');
 
-  // Test assertions
-  expect(messageArray.includes('Journey completed successfully')).toBe(true);
-  expect(messageArray.includes('Logout successful')).toBe(true);
+  await expect(page.getByLabel('User Name')).toBeVisible({ timeout: 10000 });
+
+  expect(messageArray.some((msg) => msg.includes('QR Code step detected via QRCode module'))).toBe(
+    true,
+  );
+  expect(messageArray.some((msg) => msg.includes('QR Code data:'))).toBe(true);
+  expect(messageArray.some((msg) => msg.includes('Journey completed successfully'))).toBe(true);
+  expect(messageArray.some((msg) => msg.includes('Logout successful'))).toBe(true);
 });
