@@ -5,6 +5,6 @@
  * of the MIT license. See the LICENSE file for details.
  */
 export const username = 'demouser';
-export const password = 'U.QPDWEN47ZMyJhCDmhGLK*nr';
+export const password = 'yvk4uwq2edr@gxb7UWD';
 export const phoneNumber1 = '888123456';
 export const phoneNumber2 = '888123457';

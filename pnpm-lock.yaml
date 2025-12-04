@@ -4,6 +4,44 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@reduxjs/toolkit':
+      specifier: ^2.8.2
+      version: 2.10.1
+    immer:
+      specifier: ^10.1.1
+      version: 10.2.0
+    msw:
+      specifier: ^2.5.1
+      version: 2.12.1
+  effect:
+    '@effect/cli':
+      specifier: ^0.69.0
+      version: 0.69.2
+    '@effect/language-service':
+      specifier: ^0.35.2
+      version: 0.35.2
+    '@effect/opentelemetry':
+      specifier: ^0.56.1
+      version: 0.56.6
+    '@effect/platform':
+      specifier: ^0.90.0
+      version: 0.90.10
+    '@effect/platform-node':
+      specifier: 0.94.2
+      version: 0.94.2
+    '@effect/vitest':
+      specifier: ^0.23.9
+      version: 0.23.13
+    effect:
+      specifier: ^3.17.2
+      version: 3.19.3
+  vitest:
+    vitest:
+      specifier: ^3.0.4
+      version: 3.2.4
+
 importers:
 
   .:
@@ -278,6 +316,9 @@ importers:
       '@forgerock/oidc-client':
         specifier: workspace:*
         version: link:../../packages/oidc-client
+      '@forgerock/protect':
+        specifier: workspace:*
+        version: link:../../packages/protect
       '@forgerock/sdk-logger':
         specifier: workspace:*
         version: link:../../packages/sdk-effects/logger

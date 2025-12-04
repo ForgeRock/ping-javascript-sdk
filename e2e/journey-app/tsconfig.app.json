@@ -20,6 +20,9 @@
       "path": "../../packages/oidc-client/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/protect/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/journey-client/tsconfig.lib.json"
     }
   ]
