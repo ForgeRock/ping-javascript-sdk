@@ -14,7 +14,7 @@ const wellknown = urlParams.get('wellknown');
 
 const config = {
   clientId: clientId || 'WebOAuthClient',
-  redirectUri: 'http://localhost:8443/ping-am/',
+  redirectUri: 'https://localhost:8443/ping-am',
   scope: 'openid profile email',
   serverConfig: {
     wellknown:
