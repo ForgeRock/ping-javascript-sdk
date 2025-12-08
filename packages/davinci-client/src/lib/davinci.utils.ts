@@ -98,6 +98,7 @@ export function transformActionRequest(
       eventType: 'action',
       data: {
         actionKey: action,
+        formData: {},
       },
     },
   };
