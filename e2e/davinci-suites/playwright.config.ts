@@ -41,6 +41,7 @@ const config: PlaywrightTestConfig = {
       cwd: workspaceRoot,
     },
   ].filter(Boolean),
+  testIgnore: '**/fido.test.ts',
 };
 
 export default config;

@@ -7,7 +7,7 @@
 import './style.css';
 
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
-import { davinci } from '@forgerock/davinci-client';
+import { davinci, fido } from '@forgerock/davinci-client';
 import type {
   CustomLogger,
   DaVinciConfig,
@@ -31,6 +31,7 @@ import singleValueComponent from './components/single-value.js';
 import multiValueComponent from './components/multi-value.js';
 import labelComponent from './components/label.js';
 import objectValueComponent from './components/object-value.js';
+import fidoComponent from './components/fido.js';
 
 const loggerFn = {
   error: () => {
@@ -81,13 +82,14 @@ const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
   const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
-  const protectAPI = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
+  const protectApi = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
+  const fidoApi = fido();
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: InternalErrorResponse | NodeStates | undefined;
 
   // Initialize Protect
-  const error = await protectAPI.start();
+  const error = await protectApi.start();
   if (error?.error) {
     console.error('Error starting Protect:', error.error);
   }
@@ -251,6 +253,17 @@ const urlParams = new URLSearchParams(window.location.search);
         );
       } else if (collector.type === 'IdpCollector') {
         socialLoginButtonComponent(formEl, collector, davinciClient.externalIdp());
+      } else if (
+        collector.type === 'FidoRegistrationCollector' ||
+        collector.type === 'FidoAuthenticationCollector'
+      ) {
+        fidoComponent(
+          formEl, // You can ignore this; it's just for rendering
+          collector, // This is the plain object of the collector
+          davinciClient.update(collector), // Returns an update function for this collector
+          fidoApi, // FIDO module for interacting with WebAuthn API
+          submitForm,
+        );
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -278,7 +291,7 @@ const urlParams = new URLSearchParams(window.location.search);
   }
 
   async function updateProtectCollector(protectCollector: ProtectCollector) {
-    const data = await protectAPI.getData();
+    const data = await protectApi.getData();
     if (typeof data !== 'string' && 'error' in data) {
       console.error(`Failed to retrieve data from PingOne Protect: ${data.error}`);
       return;
