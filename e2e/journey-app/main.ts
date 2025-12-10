@@ -117,12 +117,14 @@ if (searchParams.get('middleware') === 'true') {
     header.innerText = formName || '';
     journeyEl.appendChild(header);
 
+    const submitForm = () => formEl.requestSubmit();
+
     const stepRendered =
       renderQRCodeStep(journeyEl, step) || renderRecoveryCodesStep(journeyEl, step);
 
     if (!stepRendered) {
       const callbacks = step.callbacks;
-      renderCallbacks(journeyEl, callbacks);
+      renderCallbacks(journeyEl, callbacks, submitForm);
     }
 
     const submitBtn = document.createElement('button');

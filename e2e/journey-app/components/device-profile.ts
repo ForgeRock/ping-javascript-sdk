@@ -15,6 +15,7 @@ export default function deviceProfileComponent(
   journeyEl: HTMLDivElement,
   callback: DeviceProfileCallback,
   idx: number,
+  onSubmit?: () => void,
 ) {
   const collectorKey = callback?.payload?.input?.[0].name || `collector-${idx}`;
   const message = document.createElement('p');
@@ -46,13 +47,9 @@ export default function deviceProfileComponent(
       message.innerText = 'Device profile collected successfully!';
       message.style.color = 'green';
 
-      // Auto-submit the form after successful collection
-      setTimeout(() => {
-        const form = document.getElementById('form') as HTMLFormElement;
-        if (form) {
-          form.requestSubmit();
-        }
-      }, 500);
+      if (onSubmit) {
+        setTimeout(() => onSubmit(), 500);
+      }
     } catch (error) {
       console.error('Device profile collection failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

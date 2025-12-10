@@ -26,6 +26,7 @@ export default function pingProtectInitializeComponent(
   journeyEl: HTMLDivElement,
   callback: PingOneProtectInitializeCallback,
   idx: number,
+  onSubmit?: () => void,
 ) {
   const collectorKey = callback?.payload?.input?.[0].name || `collector-${idx}`;
   const message = document.createElement('p');
@@ -74,13 +75,9 @@ export default function pingProtectInitializeComponent(
       message.innerText = 'PingOne Protect initialized successfully!';
       message.style.color = 'green';
 
-      // Auto-submit the form after successful initialization
-      setTimeout(() => {
-        const form = document.getElementById('form') as HTMLFormElement;
-        if (form) {
-          form.requestSubmit();
-        }
-      }, 500);
+      if (onSubmit) {
+        setTimeout(() => onSubmit(), 500);
+      }
     } catch (error) {
       console.error('Protect initialization failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
