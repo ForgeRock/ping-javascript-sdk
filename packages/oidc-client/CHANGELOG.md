@@ -1,5 +1,21 @@
 # @forgerock/oidc-client
 
+## 2.0.0
+
+### Major Changes
+
+- [#502](https://github.com/ForgeRock/ping-javascript-sdk/pull/502) [`9ad4062`](https://github.com/ForgeRock/ping-javascript-sdk/commit/9ad406268dd568d8d6f6447a07b656e317a9da8d) Thanks [@ryanbas21](https://github.com/ryanbas21)! - releasing version 2 of the ping javascript sdk
+
+### Patch Changes
+
+- Updated dependencies [[`9ad4062`](https://github.com/ForgeRock/ping-javascript-sdk/commit/9ad406268dd568d8d6f6447a07b656e317a9da8d)]:
+  - @forgerock/iframe-manager@2.0.0
+  - @forgerock/sdk-logger@2.0.0
+  - @forgerock/sdk-oidc@2.0.0
+  - @forgerock/sdk-request-middleware@2.0.0
+  - @forgerock/storage@2.0.0
+  - @forgerock/sdk-types@2.0.0
+
 ## 1.3.0
 
 ### Minor Changes
