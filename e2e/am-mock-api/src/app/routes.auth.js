@@ -48,8 +48,14 @@ import {
   MetadataMarketPlaceInitialize,
   MetadataMarketPlacePingOneEvaluation,
   newPiWellKnown,
+  qrCodeCallbacksResponse,
 } from './responses.js';
 import initialRegResponse from './response.registration.js';
+import {
+  webAuthnRegistrationInit,
+  getRecoveryCodesDisplay,
+  authSuccess as webAuthnSuccess,
+} from './response.webauthn.js';
 import wait from './wait.js';
 
 console.log(`Your user password from 'env.config' file: ${USERS[0].pw}`);
@@ -86,13 +92,19 @@ export default function (app) {
       ) {
         res.json(nameCallback);
       } else if (req.query.authIndexValue === 'TEST_LoginPingProtect') {
-        res.json(pingProtectInitialize);
+        res.json({ ...pingProtectInitialize, authId: 'protect-journey-init' });
       } else if (req.query.authIndexValue === 'IDMSocialLogin') {
         res.json(selectIdPCallback);
       } else if (req.query.authIndexValue === 'TEST_MetadataMarketPlace') {
         res.json(MetadataMarketPlaceInitialize);
       } else if (req.query.authIndexValue === 'AMSocialLogin') {
         res.json(idpChoiceCallback);
+      } else if (req.query.authIndexValue === 'TEST_WebAuthnWithRecoveryCodes') {
+        res.json(webAuthnRegistrationInit);
+      } else if (req.query.authIndexValue === 'QRCodeTest') {
+        res.json({ ...initialBasicLogin, authId: 'qrcode-journey-login' });
+      } else if (req.query.authIndexValue === 'DeviceProfileCallbackTest') {
+        res.json({ ...initialBasicLogin, authId: 'device-profile-journey-login' });
       } else if (req.query.authIndexValue === 'RecaptchaEnterprise') {
         res.json(initialBasicLogin);
       } else {
@@ -166,13 +178,6 @@ export default function (app) {
         }
       }
       return res.json(MetadataMarketPlacePingOneEvaluation);
-    } else if (req.query.authIndexValue === 'QRCodeTest') {
-      // If QR Code callbacks are being returned, return success
-      if (req.body.callbacks.find((cb) => cb.type === 'HiddenValueCallback')) {
-        return res.json(authSuccess);
-      }
-      // Client is returning callbacks from username password, so return QR Code callbacks
-      res.json(otpQRCodeCallbacks);
     } else if (req.query.authIndexValue === 'SAMLTestFailure') {
       if (req.body.callbacks.find((cb) => cb.type === 'RedirectCallback')) {
         if (
@@ -332,19 +337,24 @@ export default function (app) {
           res.status(401).json(authFail);
         }
       }
-    } else if (req.query.authIndexValue === 'TEST_LoginPingProtect') {
+    } else if (
+      req.query.authIndexValue === 'TEST_LoginPingProtect' ||
+      req.body.authId?.startsWith('protect-journey')
+    ) {
       const protectInitCb = req.body.callbacks.find(
         (cb) => cb.type === 'PingOneProtectInitializeCallback',
       );
-      const usernameCb = req.body.callbacks.find((cb) => cb.type === 'NameCallback');
+      const passwordCb = req.body.callbacks.find((cb) => cb.type === 'PasswordCallback');
       const protectEvalCb = req.body.callbacks.find(
         (cb) => cb.type === 'PingOneProtectEvaluationCallback',
       );
+
       if (protectInitCb) {
-        res.json(initialBasicLogin);
-      } else if (usernameCb && usernameCb.input[0].value) {
-        res.json(pingProtectEvaluate);
-      } else if (protectEvalCb && protectEvalCb.input[0].value) {
+        res.json({ ...initialBasicLogin, authId: 'protect-journey-login' });
+      } else if (passwordCb && passwordCb.input[0].value === USERS[0].pw) {
+        res.json({ ...pingProtectEvaluate, authId: 'protect-journey-eval' });
+      } else if (protectEvalCb) {
+        res.cookie('iPlanetDirectoryPro', 'protect-session-' + Date.now(), { domain: 'localhost' });
         res.json(authSuccess);
       } else {
         res.status(401).json(authFail);
@@ -354,8 +364,14 @@ export default function (app) {
       if (pwCb.input[0].value !== USERS[0].pw) {
         res.status(401).json(authFail);
       } else {
-        if (req.query.authIndexValue === 'DeviceProfileCallbackTest') {
-          res.json(requestDeviceProfile);
+        const authId = req.body.authId;
+        if (
+          req.query.authIndexValue === 'DeviceProfileCallbackTest' ||
+          authId === 'device-profile-journey-login'
+        ) {
+          res.json({ ...requestDeviceProfile, authId: 'device-profile-journey-collection' });
+        } else if (req.query.authIndexValue === 'QRCodeTest' || authId === 'qrcode-journey-login') {
+          res.json(qrCodeCallbacksResponse);
         } else {
           if (
             req.body.stage === 'TransactionAuthorization' ||
@@ -385,34 +401,48 @@ export default function (app) {
       const deviceCb = req.body.callbacks.find((cb) => cb.type === 'DeviceProfileCallback') || {};
       const inputArr = deviceCb.input || [];
       const input = inputArr[0] || {};
-      const value = JSON.parse(input.value);
-      const location = value.location || {};
+      const value = JSON.parse(input.value || '{}');
       const metadata = value.metadata || {};
-      // location is not allowed in some browser automation
-      // const location = value.location || {};
 
-      // We just need property existence to ensure profile is generated
-      // We don't care about values since they are unique per browser
-      if (
-        location &&
-        location.latitude &&
-        location.longitude &&
+      const hasMetadata =
         metadata.browser &&
         metadata.browser.userAgent &&
         metadata.platform &&
-        metadata.platform.deviceName &&
-        metadata.platform.fonts &&
-        metadata.platform.fonts.length > 0 &&
-        metadata.platform.timezone &&
-        value.identifier &&
-        value.identifier.length > 0
-      ) {
+        metadata.platform.deviceName;
+
+      const hasIdentifier = value.identifier && value.identifier.length > 0;
+
+      if (hasMetadata && hasIdentifier) {
         res.cookie('iPlanetDirectoryPro', 'abcd1234', { domain: 'localhost' });
         res.json(authSuccess);
       } else {
-        // Just failing the auth for testing, but in reality,
-        // an additional auth callback would be sent, like OTP
         res.json(authFail);
+      }
+    } else if (
+      (req.query.authIndexValue === 'QRCodeTest' ||
+        req.body.authId === 'qrcode-journey-confirmation') &&
+      req.body.callbacks.find((cb) => cb.type === 'ConfirmationCallback')
+    ) {
+      res.cookie('iPlanetDirectoryPro', 'abcd1234', { domain: 'localhost' });
+      res.json(authSuccess);
+    } else if (
+      req.query.authIndexValue === 'TEST_WebAuthnWithRecoveryCodes' ||
+      req.body.authId?.startsWith('webauthn-registration') ||
+      req.body.authId?.startsWith('recovery-codes')
+    ) {
+      const metadataCb = req.body.callbacks.find((cb) => cb.type === 'MetadataCallback');
+      const hiddenCb = req.body.callbacks.find((cb) => cb.type === 'HiddenValueCallback');
+      const confirmationCb = req.body.callbacks.find((cb) => cb.type === 'ConfirmationCallback');
+
+      if (metadataCb && hiddenCb) {
+        res.json(getRecoveryCodesDisplay());
+      } else if (confirmationCb) {
+        res.cookie('iPlanetDirectoryPro', 'mock-webauthn-session-' + Date.now(), {
+          domain: 'localhost',
+        });
+        res.json(webAuthnSuccess);
+      } else {
+        res.status(401).json(authFail);
       }
     }
   });

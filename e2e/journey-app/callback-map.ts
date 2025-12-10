@@ -60,11 +60,13 @@ import {
  * @param journeyEl - The container element to append the component to
  * @param callback - The callback instance
  * @param idx - Index for generating unique IDs
+ * @param onSubmit - Optional callback to trigger form submission
  */
 export function renderCallback(
   journeyEl: HTMLDivElement,
   callback: BaseCallback,
   idx: number,
+  onSubmit?: () => void,
 ): void {
   switch (callback.getType()) {
     case 'BooleanAttributeInputCallback':
@@ -83,7 +85,7 @@ export function renderCallback(
       confirmationComponent(journeyEl, callback as ConfirmationCallback, idx);
       break;
     case 'DeviceProfileCallback':
-      deviceProfileComponent(journeyEl, callback as DeviceProfileCallback, idx);
+      deviceProfileComponent(journeyEl, callback as DeviceProfileCallback, idx, onSubmit);
       break;
     case 'HiddenValueCallback':
       hiddenValueComponent(journeyEl, callback as HiddenValueCallback, idx);
@@ -101,10 +103,20 @@ export function renderCallback(
       passwordComponent(journeyEl, callback as PasswordCallback, idx);
       break;
     case 'PingOneProtectEvaluationCallback':
-      pingProtectEvaluationComponent(journeyEl, callback as PingOneProtectEvaluationCallback, idx);
+      pingProtectEvaluationComponent(
+        journeyEl,
+        callback as PingOneProtectEvaluationCallback,
+        idx,
+        onSubmit,
+      );
       break;
     case 'PingOneProtectInitializeCallback':
-      pingProtectInitializeComponent(journeyEl, callback as PingOneProtectInitializeCallback, idx);
+      pingProtectInitializeComponent(
+        journeyEl,
+        callback as PingOneProtectInitializeCallback,
+        idx,
+        onSubmit,
+      );
       break;
     case 'PollingWaitCallback':
       pollingWaitComponent(journeyEl, callback as PollingWaitCallback, idx);
@@ -149,9 +161,14 @@ export function renderCallback(
  * Renders all callbacks in a step
  * @param journeyEl - The container element to append components to
  * @param callbacks - Array of callback instances
+ * @param onSubmit - Optional callback to trigger form submission
  */
-export function renderCallbacks(journeyEl: HTMLDivElement, callbacks: BaseCallback[]): void {
+export function renderCallbacks(
+  journeyEl: HTMLDivElement,
+  callbacks: BaseCallback[],
+  onSubmit?: () => void,
+): void {
   callbacks.forEach((callback, idx) => {
-    renderCallback(journeyEl, callback, idx);
+    renderCallback(journeyEl, callback, idx, onSubmit);
   });
 }
