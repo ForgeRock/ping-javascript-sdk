@@ -147,12 +147,39 @@ describe('transformActionRequest', () => {
         eventType: 'action',
         data: {
           actionKey: 'TEST_ACTION',
+          formData: {},
         },
       },
     };
 
     const result = transformActionRequest(node, action, logger({ level: 'none' }));
     expect(result).toEqual(expectedRequest);
+  });
+
+  it('should include empty formData for FIDO error codes', () => {
+    const node: ContinueNode = {
+      cache: { key: '123' },
+      client: {
+        action: 'SIGNON',
+        collectors: [],
+        status: 'continue' as const,
+      },
+      error: null,
+      httpStatus: 200,
+      server: {
+        id: '123',
+        eventName: 'click',
+        interactionId: '456',
+        status: 'continue' as const,
+      },
+      status: 'continue' as const,
+    };
+
+    const result = transformActionRequest(node, 'NotAllowedError', logger({ level: 'none' }));
+
+    expect(result.parameters.eventType).toBe('action');
+    expect(result.parameters.data.actionKey).toBe('NotAllowedError');
+    expect(result.parameters.data.formData).toEqual({});
   });
 });
 
