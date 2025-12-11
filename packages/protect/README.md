@@ -2,8 +2,6 @@
 
 The Ping Protect module provides an API for interacting with the PingOne Signals (Protect) SDK to perform risk evaluations. It can be used with either a PingOne AIC/PingAM authentication journey with Protect callbacks or with a PingOne DaVinci flow with Protect collectors.
 
-**IMPORTANT NOTE**: This module is not yet published. For the current published Ping Protect package please visit https://github.com/ForgeRock/forgerock-javascript-sdk/tree/develop/packages/ping-protect
-
 ## Full API
 
 ```js
