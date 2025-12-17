@@ -7,7 +7,7 @@
 import './style.css';
 
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
-import { davinci, fido } from '@forgerock/davinci-client';
+import { davinci } from '@forgerock/davinci-client';
 import type {
   CustomLogger,
   DaVinciConfig,
@@ -83,7 +83,6 @@ const urlParams = new URLSearchParams(window.location.search);
 (async () => {
   const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
   const protectApi = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
-  const fidoApi = fido();
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: InternalErrorResponse | NodeStates | undefined;
@@ -261,7 +260,6 @@ const urlParams = new URLSearchParams(window.location.search);
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
           davinciClient.update(collector), // Returns an update function for this collector
-          fidoApi, // FIDO module for interacting with WebAuthn API
           submitForm,
         );
       } else if (collector.type === 'FlowCollector') {

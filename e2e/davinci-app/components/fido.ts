@@ -4,20 +4,20 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { fido } from '@forgerock/davinci-client';
 import type {
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   Updater,
-  FidoClient,
 } from '@forgerock/davinci-client/types';
 
 export default function fidoComponent(
   formEl: HTMLFormElement,
   collector: FidoRegistrationCollector | FidoAuthenticationCollector,
   updater: Updater<FidoRegistrationCollector | FidoAuthenticationCollector>,
-  fidoApi: FidoClient,
   submitForm: () => Promise<void>,
 ) {
+  const fidoApi = fido();
   if (collector.type === 'FidoRegistrationCollector') {
     const button = document.createElement('button');
     button.type = 'button';

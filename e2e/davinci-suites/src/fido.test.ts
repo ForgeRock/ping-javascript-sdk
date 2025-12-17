@@ -49,10 +49,10 @@ test.describe('FIDO/WebAuthn Tests', () => {
     await page.getByRole('button', { name: 'Sign On' }).click();
 
     // Register WebAuthn credential
-    const { credentials: intialCredentials } = await cdp.send('WebAuthn.getCredentials', {
+    const { credentials: initialCredentials } = await cdp.send('WebAuthn.getCredentials', {
       authenticatorId,
     });
-    await expect(intialCredentials).toHaveLength(0);
+    await expect(initialCredentials).toHaveLength(0);
 
     await page.getByRole('button', { name: 'DEVICE_REGISTRATION' }).click();
     await page.getByRole('button', { name: 'Biometrics/Security Key' }).click();
@@ -87,7 +87,9 @@ test.describe('FIDO/WebAuthn Tests', () => {
     await expect(page.getByText('FIDO2 Test Form')).toBeVisible();
   });
 
-  test('Register and authenticate with usernameless', async ({ page }) => {
+  // Note: This test is currently not working due to a DaVinci issue where the authentication options
+  // are not included in the response.
+  test.skip('Register and authenticate with usernameless', async ({ page }) => {
     const { navigate } = asyncEvents(page);
 
     await navigate(
@@ -104,10 +106,10 @@ test.describe('FIDO/WebAuthn Tests', () => {
     await page.getByRole('button', { name: 'Sign On' }).click();
 
     // Register WebAuthn credential
-    const { credentials: intialCredentials } = await cdp.send('WebAuthn.getCredentials', {
+    const { credentials: initialCredentials } = await cdp.send('WebAuthn.getCredentials', {
       authenticatorId,
     });
-    await expect(intialCredentials).toHaveLength(0);
+    await expect(initialCredentials).toHaveLength(0);
 
     await page.getByRole('button', { name: 'DEVICE_REGISTRATION' }).click();
     await page.getByRole('button', { name: 'Biometrics/Security Key' }).click();
