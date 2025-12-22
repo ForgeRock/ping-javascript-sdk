@@ -32,8 +32,9 @@ jobs:
         with:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - run: npx nx-cloud fix-ci
-        if: always()
+      # Temporarily disable Nx Cloud until security concern is resolved
+      # - run: npx nx-cloud fix-ci
+      #   if: always()
 
       - uses: codecov/codecov-action@v5
         with:

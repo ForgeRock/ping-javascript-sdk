@@ -55,4 +55,6 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm nx format:check
-      - run: pnpm nx affected -t build typecheck lint test e2e-ci --no-agents
+
+      # Temporarily disable e2e-ci until we get Nx Cloud back
+      - run: pnpm nx affected -t build typecheck lint test e2e --no-agents

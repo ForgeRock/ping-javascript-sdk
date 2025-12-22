@@ -38,11 +38,12 @@ runs:
       run: pnpm install --frozen-lockfile
       shell: bash
 
-    - name: Nx Cloud start
-      run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
-      shell: bash
-      env:
-        CODECOV_TOKEN: ${{ inputs.CODECOV_TOKEN }}
+    # Temporarily disable Nx Cloud until security concern is resolved
+    # - name: Nx Cloud start
+    #   run: pnpm dlx nx-cloud start-ci-run --distribute-on=".nx/workflows/dynamic-changesets.yml" --stop-agents-after="e2e-ci" --with-env-vars="CODECOV_TOKEN"
+    #   shell: bash
+    #   env:
+    #     CODECOV_TOKEN: ${{ inputs.CODECOV_TOKEN }}
 
     - name: Cache Playwright browsers
       uses: actions/cache@v4
@@ -64,7 +65,8 @@ runs:
       run: pnpm nx sync:check
 
     - name: Run Nx build/lint/test/e2e
-      run: pnpm exec nx affected -t build lint test e2e-ci
+      # Temporarily disable e2e-ci until we get Nx Cloud back
+      run: pnpm exec nx affected -t build lint test e2e
       shell: bash
 
     - name: Upload Playwright report
