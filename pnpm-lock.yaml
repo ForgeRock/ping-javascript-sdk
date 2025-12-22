@@ -454,19 +454,19 @@ importers:
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
-      vite:
-        specifier: 6.4.1
-        version: 6.4.1(@types/node@24.9.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
-      vitest-canvas-mock:
-        specifier: ^0.3.3
-        version: 0.3.3(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1))
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^1.2.0
         version: 1.6.1(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1))
+      vite:
+        specifier: 6.4.1
+        version: 6.4.1(@types/node@24.9.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
       vitest:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1)
+      vitest-canvas-mock:
+        specifier: ^0.3.3
+        version: 0.3.3(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1))
 
   packages/oidc-client:
     dependencies:

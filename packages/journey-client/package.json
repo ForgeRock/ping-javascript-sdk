@@ -15,6 +15,7 @@
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
+  "files": ["./dist/*"],
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
@@ -28,14 +29,13 @@
     "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
-    "tslib": "^2.3.0",
-    "vite": "6.4.1",
-    "vitest-canvas-mock": "^0.3.3"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^1.2.0",
     "vite": "6.4.1",
-    "vitest": "^1.2.0"
+    "vitest": "^1.2.0",
+    "vitest-canvas-mock": "^0.3.3"
   },
   "nx": {
     "tags": ["scope:package"],
