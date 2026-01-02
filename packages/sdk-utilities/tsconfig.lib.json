@@ -19,5 +19,9 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/lib/mock-data/*"],
-  "references": []
+  "references": [
+    {
+      "path": "../sdk-types/tsconfig.lib.json"
+    }
+  ]
 }

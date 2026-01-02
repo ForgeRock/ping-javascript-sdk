@@ -9,6 +9,7 @@
  */
 import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
+import { isGenericError } from '@forgerock/sdk-utilities';
 
 import { createClientStore, handleUpdateValidateError, RootState } from './client.store.utils.js';
 import { nodeSlice } from './node.slice.js';
@@ -126,7 +127,17 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
       if (serverSlice && serverSlice.status === 'continue') {
         return async () => {
-          await serverInfo.set(serverSlice);
+          const setResult = await serverInfo.set(serverSlice);
+          if (isGenericError(setResult)) {
+            log.error(setResult.message ?? setResult.error);
+            return {
+              error: {
+                message: setResult.message ?? 'Failed to store server info for external IDP flow',
+                type: 'internal_error',
+              },
+            } as InternalErrorResponse;
+          }
+          return;
         };
       }
       return async () => {
@@ -195,27 +206,45 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     }: {
       continueToken: string;
     }): Promise<InternalErrorResponse | NodeStates> => {
-      try {
-        const storedServerInfo = (await serverInfo.get()) as ContinueNode['server'];
-        await store.dispatch(
-          davinciApi.endpoints.resume.initiate({ continueToken, serverInfo: storedServerInfo }),
-        );
-        await serverInfo.remove();
+      const storedServerInfo = await serverInfo.get();
 
-        const node = nodeSlice.selectSlice(store.getState());
-
-        return node;
-      } catch {
-        // logger.error('No url found in collector, social login needs a url in the collector');
+      if (storedServerInfo === null) {
+        log.error('No server info found in storage for resume operation');
         return {
           error: {
             message:
-              'No url found in storage, social login needs a continue url which is saved in local storage. You may have cleared your browser data',
+              'No server info found in storage. Social login needs server info which is saved in local storage. You may have cleared your browser data.',
+            type: 'state_error',
+          },
+          type: 'internal_error',
+        };
+      }
+
+      if (isGenericError(storedServerInfo)) {
+        log.error(storedServerInfo.message ?? storedServerInfo.error);
+        return {
+          error: {
+            message:
+              storedServerInfo.message ??
+              'Failed to retrieve server info from storage for resume operation',
             type: 'internal_error',
           },
           type: 'internal_error',
         };
       }
+
+      await store.dispatch(
+        davinciApi.endpoints.resume.initiate({ continueToken, serverInfo: storedServerInfo }),
+      );
+
+      const removeResult = await serverInfo.remove();
+      if (isGenericError(removeResult)) {
+        log.warn(removeResult.message ?? 'Failed to remove server info from storage after resume');
+      }
+
+      const node = nodeSlice.selectSlice(store.getState());
+
+      return node;
     },
 
     /**
