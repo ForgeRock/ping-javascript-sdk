@@ -6,3 +6,6 @@
  */
 
 export * from './lib/client.store.js';
+
+// Re-export types from internal packages that consumers need
+export { callbackType } from '@forgerock/sdk-types';
