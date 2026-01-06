@@ -289,16 +289,18 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
               options: storageOptions,
             });
           }),
-          Micro.tap(async (tokens) => {
-            await store.dispatch(
-              oidcApi.endpoints.revoke.initiate({
-                accessToken: tokens.accessToken,
-                clientId: config.clientId,
-                endpoint: wellknown.revocation_endpoint,
-              }),
-            );
-            await storageClient.remove();
-            await storageClient.set(tokens);
+          Micro.tap(async (newTokens) => {
+            if (tokens && 'accessToken' in tokens) {
+              await store.dispatch(
+                oidcApi.endpoints.revoke.initiate({
+                  accessToken: tokens.accessToken,
+                  clientId: config.clientId,
+                  endpoint: wellknown.revocation_endpoint,
+                }),
+              );
+              await storageClient.remove();
+            }
+            await storageClient.set(newTokens);
           }),
         );
 
