@@ -19,6 +19,7 @@ export function isGenericError(value: unknown): value is GenericError {
     value !== null &&
     'error' in value &&
     typeof (value as GenericError).error === 'string' &&
-    'type' in value
+    'type' in value &&
+    typeof (value as GenericError).type === 'string'
   );
 }

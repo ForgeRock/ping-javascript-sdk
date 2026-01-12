@@ -156,6 +156,20 @@ describe('isGenericError', () => {
       expect(result).toBe(false);
     });
 
+    it('isGenericError_ObjectWithNonStringType_ReturnsFalse', () => {
+      // Arrange
+      const value = {
+        error: 'storage_error',
+        type: 123,
+      };
+
+      // Act
+      const result = isGenericError(value);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
     it('isGenericError_ArrayValue_ReturnsFalse', () => {
       // Arrange
       const value = ['error', 'type'];

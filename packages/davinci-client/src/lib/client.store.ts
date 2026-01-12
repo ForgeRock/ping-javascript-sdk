@@ -206,45 +206,59 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     }: {
       continueToken: string;
     }): Promise<InternalErrorResponse | NodeStates> => {
-      const storedServerInfo = await serverInfo.get();
+      try {
+        const storedServerInfo = await serverInfo.get();
 
-      if (storedServerInfo === null) {
-        log.error('No server info found in storage for resume operation');
+        if (storedServerInfo === null) {
+          log.error('No server info found in storage for resume operation');
+          return {
+            error: {
+              message:
+                'No server info found in storage. Social login needs server info which is saved in local storage. You may have cleared your browser data.',
+              type: 'state_error',
+            },
+            type: 'internal_error',
+          };
+        }
+
+        if (isGenericError(storedServerInfo)) {
+          log.error(storedServerInfo.message ?? storedServerInfo.error);
+          return {
+            error: {
+              message:
+                storedServerInfo.message ??
+                'Failed to retrieve server info from storage for resume operation',
+              type: 'internal_error',
+            },
+            type: 'internal_error',
+          };
+        }
+
+        await store.dispatch(
+          davinciApi.endpoints.resume.initiate({ continueToken, serverInfo: storedServerInfo }),
+        );
+
+        const removeResult = await serverInfo.remove();
+        if (isGenericError(removeResult)) {
+          log.warn(
+            removeResult.message ?? 'Failed to remove server info from storage after resume',
+          );
+        }
+
+        const node = nodeSlice.selectSlice(store.getState());
+
+        return node;
+      } catch (err) {
+        const error = err as Error;
+        log.error(error.message);
         return {
           error: {
-            message:
-              'No server info found in storage. Social login needs server info which is saved in local storage. You may have cleared your browser data.',
-            type: 'state_error',
-          },
-          type: 'internal_error',
-        };
-      }
-
-      if (isGenericError(storedServerInfo)) {
-        log.error(storedServerInfo.message ?? storedServerInfo.error);
-        return {
-          error: {
-            message:
-              storedServerInfo.message ??
-              'Failed to retrieve server info from storage for resume operation',
+            message: error.message ?? 'An unexpected error occurred during resume operation',
             type: 'internal_error',
           },
           type: 'internal_error',
         };
       }
-
-      await store.dispatch(
-        davinciApi.endpoints.resume.initiate({ continueToken, serverInfo: storedServerInfo }),
-      );
-
-      const removeResult = await serverInfo.remove();
-      if (isGenericError(removeResult)) {
-        log.warn(removeResult.message ?? 'Failed to remove server info from storage after resume');
-      }
-
-      const node = nodeSlice.selectSlice(store.getState());
-
-      return node;
     },
 
     /**
