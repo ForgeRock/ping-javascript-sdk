@@ -55,6 +55,14 @@ export function fido(): FidoClient {
     register: async function register(
       options: FidoRegistrationOptions,
     ): Promise<FidoRegistrationInputValue | GenericError> {
+      if (!options) {
+        return {
+          error: 'registration_error',
+          message: 'FIDO registration failed: No options available',
+          type: 'fido_error',
+        } as GenericError;
+      }
+
       const createCredentialµ = Micro.sync(() => transformRegistrationOptions(options)).pipe(
         Micro.flatMap((publicKeyCredentialCreationOptions) =>
           Micro.tryPromise({
@@ -108,6 +116,14 @@ export function fido(): FidoClient {
     authenticate: async function authenticate(
       options: FidoAuthenticationOptions,
     ): Promise<FidoAuthenticationInputValue | GenericError> {
+      if (!options) {
+        return {
+          error: 'authentication_error',
+          message: 'FIDO authentication failed: No options available',
+          type: 'fido_error',
+        } as GenericError;
+      }
+
       const getAssertionµ = Micro.sync(() => transformAuthenticationOptions(options)).pipe(
         Micro.flatMap((publicKeyCredentialRequestOptions) =>
           Micro.tryPromise({
