@@ -7,7 +7,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { vi, expect, describe, it, afterEach, beforeEach, SpyInstance } from 'vitest';
+import { vi, expect, describe, it, afterEach, beforeEach, Mock } from 'vitest';
 
 import { Device } from './device-profile.js';
 
@@ -86,7 +86,10 @@ describe('Test DeviceProfile', () => {
   });
 
   describe('logLevel tests', () => {
-    let warnSpy: SpyInstance;
+    let warnSpy: Mock<{
+      (...data: unknown[]): void;
+      (message?: string, ...optionalParams: unknown[]): void;
+    }>;
     const originalNavigator = global.navigator;
 
     beforeEach(() => {
