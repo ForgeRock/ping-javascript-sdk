@@ -17,9 +17,6 @@
   },
   "references": [
     {
-      "path": "../../packages/protect"
-    },
-    {
       "path": "./tsconfig.app.json"
     },
     {
