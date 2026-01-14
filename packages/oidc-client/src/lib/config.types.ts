@@ -6,7 +6,7 @@
  */
 import type {
   AsyncLegacyConfigOptions,
-  WellKnownResponse,
+  WellknownResponse,
   ResponseType,
 } from '@forgerock/sdk-types';
 
@@ -23,7 +23,7 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
 }
 
 export interface InternalDaVinciConfig extends OidcConfig {
-  wellknownResponse: WellKnownResponse;
+  WellknownResponse: WellknownResponse;
 }
 
 export interface OauthTokens {

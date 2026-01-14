@@ -11,5 +11,6 @@ export * from './lib/error/index.js';
 export * from './lib/oidc/index.js';
 export * from './lib/strings/index.js';
 export * from './lib/url/index.js';
+export * from './lib/wellknown/index.js';
 export * from './lib/object.utils.js';
 export * from './lib/constants/index.js';

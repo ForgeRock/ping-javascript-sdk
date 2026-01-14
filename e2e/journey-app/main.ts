@@ -6,7 +6,7 @@
  */
 import './style.css';
 
-import { journey } from '@forgerock/journey-client';
+import { journey, isJourneyClient } from '@forgerock/journey-client';
 
 import type { RequestMiddleware } from '@forgerock/journey-client/types';
 
@@ -51,12 +51,23 @@ if (searchParams.get('middleware') === 'true') {
 }
 
 (async () => {
-  const journeyClient = await journey({ config: config, requestMiddleware });
-
   const errorEl = document.getElementById('error') as HTMLDivElement;
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
+  const journeyClientResult = await journey({ config: config, requestMiddleware });
+  if (!isJourneyClient(journeyClientResult)) {
+    console.error('Failed to initialize journey client:', journeyClientResult.message);
+    errorEl.textContent = journeyClientResult.message ?? 'Unknown error';
+    return;
+  }
+  /**
+   * Re-assign to a new const after type narrowing.
+   * TypeScript's type narrowing doesn't persist into closures (event handlers, callbacks)
+   * because it can't prove the variable wasn't reassigned between the guard and closure execution.
+   * Creating a new const binding after the guard preserves the narrowed type for nested functions.
+   */
+  const journeyClient = journeyClientResult;
   let step = await journeyClient.start({ journey: journeyName });
 
   function renderComplete() {

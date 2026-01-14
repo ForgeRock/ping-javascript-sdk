@@ -9,7 +9,7 @@ import { oidcApi } from './oidc.api.js';
 import { createLogoutError } from './client.store.utils.js';
 
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type { WellKnownResponse } from '@forgerock/sdk-types';
+import type { WellknownResponse } from '@forgerock/sdk-types';
 import type { StorageClient } from '@forgerock/storage';
 import type { ClientStore, LogoutErrorResult, LogoutSuccessResult } from './client.types.js';
 
@@ -22,7 +22,7 @@ export function logoutµ({
 }: {
   tokens: OauthTokens;
   config: OidcConfig;
-  wellknown: WellKnownResponse;
+  wellknown: WellknownResponse;
   store: ClientStore;
   storageClient: StorageClient<OauthTokens>;
 }) {

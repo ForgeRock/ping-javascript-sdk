@@ -5,6 +5,4 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-export * from './lib/authorize.effects.js';
-export * from './lib/state-pkce.effects.js';
-export * from './lib/wellknown.effects.js';
+export * from './wellknown.utils.js';

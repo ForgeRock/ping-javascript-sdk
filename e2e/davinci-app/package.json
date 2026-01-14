@@ -1,12 +1,9 @@
 {
   "name": "@forgerock/davinci-app",
   "version": "0.0.0",
+  "private": true,
   "description": "Ping DaVinci Client Test App",
   "type": "module",
-  "private": true,
-  "nx": {
-    "tags": ["scope:e2e"]
-  },
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
@@ -16,8 +13,11 @@
   "dependencies": {
     "@forgerock/davinci-client": "workspace:*",
     "@forgerock/javascript-sdk": "4.7.0",
-    "@forgerock/sdk-logger": "workspace:*",
-    "@forgerock/protect": "workspace:*"
+    "@forgerock/protect": "workspace:*",
+    "@forgerock/sdk-logger": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "nx": {
+    "tags": ["scope:e2e"]
+  }
 }
