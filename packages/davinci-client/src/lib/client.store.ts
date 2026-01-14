@@ -16,6 +16,7 @@ import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
 import { wellknownApi } from './wellknown.api.js';
+import { createWellknownError } from './wellknown.utils.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 /**
@@ -88,14 +89,14 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     throw error;
   }
 
-  const { data: openIdResponse } = await store.dispatch(
-    wellknownApi.endpoints.wellknown.initiate(config.serverConfig.wellknown),
+  const { data: openIdResponse, error: fetchError } = await store.dispatch(
+    wellknownApi.endpoints.configuration.initiate(config.serverConfig.wellknown),
   );
 
-  if (!openIdResponse) {
-    const error = new Error('error fetching `wellknown` response for OpenId Configuration');
-    log.error(error.message);
-    throw error;
+  if (fetchError || !openIdResponse) {
+    const genericError = createWellknownError(fetchError);
+    log.error(`${genericError.error}: ${genericError.message}`);
+    throw new Error(genericError.message);
   }
 
   store.dispatch(configSlice.actions.set({ ...config, wellknownResponse: openIdResponse }));
@@ -249,11 +250,11 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
         return node;
       } catch (err) {
-        const error = err as Error;
-        log.error(error.message);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        log.error(errorMessage);
         return {
           error: {
-            message: error.message ?? 'An unexpected error occurred during resume operation',
+            message: errorMessage || 'An unexpected error occurred during resume operation',
             type: 'internal_error',
           },
           type: 'internal_error',
@@ -336,10 +337,10 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           store.dispatch(nodeSlice.actions.update({ id, value, index }));
           return null;
         } catch (err) {
-          const error = err as Error;
+          const errorMessage = err instanceof Error ? err.message : String(err);
           return {
             type: 'internal_error',
-            error: { message: error.message, type: 'internal_error' },
+            error: { message: errorMessage, type: 'internal_error' },
           };
         }
       };

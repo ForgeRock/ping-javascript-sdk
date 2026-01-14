@@ -23,19 +23,21 @@
   },
   "dependencies": {
     "@forgerock/sdk-logger": "workspace:*",
+    "@forgerock/sdk-oidc": "workspace:*",
     "@forgerock/sdk-request-middleware": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",
     "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
     "tslib": "^2.3.0",
-    "vite": "6.4.1",
-    "vitest-canvas-mock": "^0.3.3"
+    "vite": "catalog:vite",
+    "vitest-canvas-mock": "catalog:vitest"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^1.2.0",
-    "vite": "6.4.1",
-    "vitest": "^1.2.0"
+    "@vitest/coverage-v8": "catalog:vitest",
+    "vite": "catalog:vite",
+    "vitest": "catalog:vitest",
+    "vitest-canvas-mock": "catalog:vitest"
   },
   "nx": {
     "tags": ["scope:package"],

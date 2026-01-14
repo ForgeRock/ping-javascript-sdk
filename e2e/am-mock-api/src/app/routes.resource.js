@@ -63,7 +63,7 @@ async function authorization(req, res, next) {
 
 export default function (app) {
   // Passthrough route that enforces authentication
-  app.all('/resource/*', async (req, res, next) => {
+  app.all('/resource/{*splat}', async (req, res, next) => {
     if (env.NODE_ENV === 'LIVE' && req.hostname === FORGEOPS) {
       // Only enforce authentication if IG is not used
       // In other words, the call comes directly from app
@@ -156,7 +156,7 @@ export default function (app) {
     }
   });
 
-  app.get('/resource/rest/*', wait, authorization, async (req, res) => {
+  app.get('/resource/rest/{*splat}', wait, authorization, async (req, res) => {
     if (env.NODE_ENV === 'live') {
       if (req.access.actions && req.access.actions.GET) {
         res.json({ message: 'Successfully retrieved resource!' });

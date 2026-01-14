@@ -157,16 +157,13 @@ describe('isGenericError', () => {
     });
 
     it('isGenericError_ObjectWithNonStringType_ReturnsFalse', () => {
-      // Arrange
       const value = {
         error: 'storage_error',
         type: 123,
       };
 
-      // Act
       const result = isGenericError(value);
 
-      // Assert
       expect(result).toBe(false);
     });
 
