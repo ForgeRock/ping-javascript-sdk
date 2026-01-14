@@ -51,7 +51,7 @@ importers:
         version: 0.5.1
       '@changesets/cli':
         specifier: ^2.27.9
-        version: 2.29.7(@types/node@24.9.2)
+        version: 2.29.8(@types/node@24.9.2)
       '@commitlint/cli':
         specifier: ^20.0.0
         version: 20.1.0(@types/node@24.9.2)(typescript@5.8.3)
@@ -246,7 +246,7 @@ importers:
         version: 6.4.1(@types/node@24.9.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
       vitest-canvas-mock:
         specifier: ^0.3.3
         version: 0.3.3(vitest@3.2.4)
@@ -363,7 +363,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
 
   e2e/oidc-app:
     dependencies:
@@ -413,7 +413,7 @@ importers:
     devDependencies:
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
 
   packages/device-client:
     dependencies:
@@ -456,14 +456,14 @@ importers:
         version: 6.4.1(@types/node@24.9.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
       vitest-canvas-mock:
         specifier: ^0.3.3
-        version: 0.3.3(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1))
+        version: 0.3.3(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1))
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^1.2.0
-        version: 1.6.1(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1))
+        version: 1.6.1(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1))
       vitest:
         specifier: ^1.2.0
-        version: 1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1)
+        version: 1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1)
 
   packages/oidc-client:
     dependencies:
@@ -494,7 +494,7 @@ importers:
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
       msw:
         specifier: 'catalog:'
         version: 2.12.1(@types/node@24.9.2)(typescript@5.8.3)
@@ -568,14 +568,14 @@ importers:
         version: 3.19.3
       vitest:
         specifier: catalog:vitest
-        version: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+        version: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
     devDependencies:
       '@effect/language-service':
         specifier: catalog:effect
         version: 0.35.2
       '@effect/vitest':
         specifier: catalog:effect
-        version: 0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
 
 packages:
 
@@ -1208,6 +1208,10 @@ packages:
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/runtime@7.28.6':
+    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/template@7.27.2':
     resolution: {integrity: sha512-LPDZ85aEJyYSd18/DkjNh4/y1ntkE5KwUHWTiqgRxruuZL2F1yuHligVHLvcHY2vMHXttKFpJn6LwfI7cw7ODw==}
     engines: {node: '>=6.9.0'}
@@ -1230,8 +1234,8 @@ packages:
   '@borewit/text-codec@0.1.1':
     resolution: {integrity: sha512-5L/uBxmjaCIX5h8Z+uu+kA9BQLkc/Wl06UGR5ajNRxu+/XjonB5i8JpgFMrPj3LXTCPA0pv8yxUvbUi+QthGGA==}
 
-  '@changesets/apply-release-plan@7.0.13':
-    resolution: {integrity: sha512-BIW7bofD2yAWoE8H4V40FikC+1nNFEKBisMECccS16W1rt6qqhNTBDmIw5HaqmMgtLNz9e7oiALiEUuKrQ4oHg==}
+  '@changesets/apply-release-plan@7.0.14':
+    resolution: {integrity: sha512-ddBvf9PHdy2YY0OUiEl3TV78mH9sckndJR14QAt87KLEbIov81XO0q0QAmvooBxXlqRRP8I9B7XOzZwQG7JkWA==}
 
   '@changesets/assemble-release-plan@6.0.9':
     resolution: {integrity: sha512-tPgeeqCHIwNo8sypKlS3gOPmsS3wP0zHt67JDuL20P4QcXiw/O4Hl7oXiuLnP9yg+rXLQ2sScdV1Kkzde61iSQ==}
@@ -1242,12 +1246,12 @@ packages:
   '@changesets/changelog-github@0.5.1':
     resolution: {integrity: sha512-BVuHtF+hrhUScSoHnJwTELB4/INQxVFc+P/Qdt20BLiBFIHFJDDUaGsZw+8fQeJTRP5hJZrzpt3oZWh0G19rAQ==}
 
-  '@changesets/cli@2.29.7':
-    resolution: {integrity: sha512-R7RqWoaksyyKXbKXBTbT4REdy22yH81mcFK6sWtqSanxUCbUi9Uf+6aqxZtDQouIqPdem2W56CdxXgsxdq7FLQ==}
+  '@changesets/cli@2.29.8':
+    resolution: {integrity: sha512-1weuGZpP63YWUYjay/E84qqwcnt5yJMM0tep10Up7Q5cS/DGe2IZ0Uj3HNMxGhCINZuR7aO9WBMdKnPit5ZDPA==}
     hasBin: true
 
-  '@changesets/config@3.1.1':
-    resolution: {integrity: sha512-bd+3Ap2TKXxljCggI0mKPfzCQKeV/TU4yO2h2C6vAihIo8tzseAn2e7klSuiyYYXvgu53zMN1OeYMIQkaQoWnA==}
+  '@changesets/config@3.1.2':
+    resolution: {integrity: sha512-CYiRhA4bWKemdYi/uwImjPxqWNpqGPNbEBdX1BdONALFIDK7MCUj6FPkzD+z9gJcvDFUQJn9aDVf4UG7OT6Kog==}
 
   '@changesets/errors@0.2.0':
     resolution: {integrity: sha512-6BLOQUscTpZeGljvyQXlWOItQyU71kCdGz7Pi8H8zdw6BI0g3m43iL4xKUVPWtG+qrrL9DTjpdn8eYuCQSRpow==}
@@ -1258,8 +1262,8 @@ packages:
   '@changesets/get-github-info@0.6.0':
     resolution: {integrity: sha512-v/TSnFVXI8vzX9/w3DU2Ol+UlTZcu3m0kXTjTT4KlAdwSvwutcByYwyYn9hwerPWfPkT2JfpoX0KgvCEi8Q/SA==}
 
-  '@changesets/get-release-plan@4.0.13':
-    resolution: {integrity: sha512-DWG1pus72FcNeXkM12tx+xtExyH/c9I1z+2aXlObH3i9YA7+WZEVaiHzHl03thpvAgWTRaH64MpfHxozfF7Dvg==}
+  '@changesets/get-release-plan@4.0.14':
+    resolution: {integrity: sha512-yjZMHpUHgl4Xl5gRlolVuxDkm4HgSJqT93Ri1Uz8kGrQb+5iJ8dkXJ20M2j/Y4iV5QzS2c5SeTxVSKX+2eMI0g==}
 
   '@changesets/get-version-range-type@0.4.0':
     resolution: {integrity: sha512-hwawtob9DryoGTpixy1D3ZXbGgJu1Rhr+ySH2PvTLHvkZuQ7sRT4oQwMh0hbqZH1weAooedEjRsbrWcGLCeyVQ==}
@@ -1270,14 +1274,14 @@ packages:
   '@changesets/logger@0.1.1':
     resolution: {integrity: sha512-OQtR36ZlnuTxKqoW4Sv6x5YIhOmClRd5pWsjZsddYxpWs517R0HkyiefQPIytCVh4ZcC5x9XaG8KTdd5iRQUfg==}
 
-  '@changesets/parse@0.4.1':
-    resolution: {integrity: sha512-iwksMs5Bf/wUItfcg+OXrEpravm5rEd9Bf4oyIPL4kVTmJQ7PNDSd6MDYkpSJR1pn7tz/k8Zf2DhTCqX08Ou+Q==}
+  '@changesets/parse@0.4.2':
+    resolution: {integrity: sha512-Uo5MC5mfg4OM0jU3up66fmSn6/NE9INK+8/Vn/7sMVcdWg46zfbvvUSjD9EMonVqPi9fbrJH9SXHn48Tr1f2yA==}
 
   '@changesets/pre@2.0.2':
     resolution: {integrity: sha512-HaL/gEyFVvkf9KFg6484wR9s0qjAXlZ8qWPDkTyKF6+zqjBe/I2mygg3MbpZ++hdi0ToqNUF8cjj7fBy0dg8Ug==}
 
-  '@changesets/read@0.6.5':
-    resolution: {integrity: sha512-UPzNGhsSjHD3Veb0xO/MwvasGe8eMyNrR/sT9gR8Q3DhOQZirgKhhXv/8hVsI0QpPjR004Z9iFxoJU6in3uGMg==}
+  '@changesets/read@0.6.6':
+    resolution: {integrity: sha512-P5QaN9hJSQQKJShzzpBT13FzOSPyHbqdoIBUd2DJdgvnECCyO6LmAOWSV+O8se2TaZJVwSXjL+v9yhb+a9JeJg==}
 
   '@changesets/should-skip-package@0.1.2':
     resolution: {integrity: sha512-qAK/WrqWLNCP22UDdBTMPH5f41elVDlsNyat180A33dWxuUDyNpg6fPi/FyTZwRriVjg0L8gnjJn2F9XAoF0qw==}
@@ -4463,6 +4467,10 @@ packages:
     resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
     engines: {node: '>=10.13.0'}
 
+  enhanced-resolve@5.18.4:
+    resolution: {integrity: sha512-LgQMM4WXU3QI+SYgEc2liRgznaD5ojbmY3sb8LxyguVkIg5FxdpTkvk72te2R38/TGKxH634oLxXRGY6d7AP+Q==}
+    engines: {node: '>=10.13.0'}
+
   enquirer@2.3.6:
     resolution: {integrity: sha512-yjNnPr315/FjS4zIsUxYguYUPP2e1NK4d7E7ZOLiyYCcbFBiTMyID+2wvm2w6+pZ/odMA7cRkjhsPbltwBOrLg==}
     engines: {node: '>=8.6'}
@@ -5260,8 +5268,8 @@ packages:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
 
-  human-id@4.1.2:
-    resolution: {integrity: sha512-v/J+4Z/1eIJovEBdlV5TYj1IR+ZiohcYGRY+qN/oC9dAfKzVT023N/Bgw37hrKCoVRBvk3bqyzpr2PP5YeTMSg==}
+  human-id@4.1.3:
+    resolution: {integrity: sha512-tsYlhAYpjCKa//8rXZ9DqKEawhPoSytweBC2eNvcaDK+57RZLHGqNs3PZTQO6yekLFSuvA6AlnAfrw1uBvtb+Q==}
     hasBin: true
 
   human-signals@2.1.0:
@@ -5287,6 +5295,10 @@ packages:
 
   iconv-lite@0.7.0:
     resolution: {integrity: sha512-cf6L2Ds3h57VVmkZe+Pn+5APsT7FpqJtEhhieDCvrE2MK5Qk9MyffgQyuxQTm6BChfeZNtcOLHp9IcWRVcIcBQ==}
+    engines: {node: '>=0.10.0'}
+
+  iconv-lite@0.7.2:
+    resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
     engines: {node: '>=0.10.0'}
 
   identity-obj-proxy@3.0.0:
@@ -5754,8 +5766,16 @@ packages:
     resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==}
     hasBin: true
 
+  js-yaml@3.14.2:
+    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
+    hasBin: true
+
   js-yaml@4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
+    hasBin: true
+
+  js-yaml@4.1.1:
+    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
 
   jsbn@0.1.1:
@@ -7372,8 +7392,8 @@ packages:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}
     engines: {node: '>=8'}
 
-  terser-webpack-plugin@5.3.14:
-    resolution: {integrity: sha512-vkZjpUjb6OMS7dhV+tILUW6BhpDR7P2L/aQSAv+Uwk+m8KATX9EccViHTJR2qDtACKPIYndLGCyl3FMo+r2LMw==}
+  terser-webpack-plugin@5.3.16:
+    resolution: {integrity: sha512-h9oBFCWrq78NyWWVcSwZarJkZ01c2AyGrzs1crmHZO3QUg9D61Wu4NPjBy69n7JqylFF5y+CsUZYmYEIZ3mR+Q==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
       '@swc/core': '*'
@@ -7951,8 +7971,8 @@ packages:
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
 
-  watchpack@2.4.4:
-    resolution: {integrity: sha512-c5EGNOiyxxV5qmTtAB7rbiXxi1ooX1pQKMLX/MIabJjRA0SJBQOjKF+KSVfHkr9U1cADPon0mRiVe/riyaiDUA==}
+  watchpack@2.5.0:
+    resolution: {integrity: sha512-e6vZvY6xboSwLz2GD36c16+O/2Z6fKvIf4pOXptw2rY9MVwE/TXc6RGqxD3I3x0a28lwBY7DE+76uTPSsBrrCA==}
     engines: {node: '>=10.13.0'}
 
   wcwidth@1.0.1:
@@ -7982,10 +8002,12 @@ packages:
   whatwg-encoding@2.0.0:
     resolution: {integrity: sha512-p41ogyeMUrw3jWclHWTQg1k05DSVXPLcVxRTYsXUk+ZooOCZLcoYgPZ/HL/D/N+uQPOtcp1me1WhBEaX02mhWg==}
     engines: {node: '>=12'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -8941,6 +8963,8 @@ snapshots:
 
   '@babel/runtime@7.28.4': {}
 
+  '@babel/runtime@7.28.6': {}
+
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
@@ -8970,9 +8994,9 @@ snapshots:
 
   '@borewit/text-codec@0.1.1': {}
 
-  '@changesets/apply-release-plan@7.0.13':
+  '@changesets/apply-release-plan@7.0.14':
     dependencies:
-      '@changesets/config': 3.1.1
+      '@changesets/config': 3.1.2
       '@changesets/get-version-range-type': 0.4.0
       '@changesets/git': 3.0.4
       '@changesets/should-skip-package': 0.1.2
@@ -9007,19 +9031,19 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@changesets/cli@2.29.7(@types/node@24.9.2)':
+  '@changesets/cli@2.29.8(@types/node@24.9.2)':
     dependencies:
-      '@changesets/apply-release-plan': 7.0.13
+      '@changesets/apply-release-plan': 7.0.14
       '@changesets/assemble-release-plan': 6.0.9
       '@changesets/changelog-git': 0.2.1
-      '@changesets/config': 3.1.1
+      '@changesets/config': 3.1.2
       '@changesets/errors': 0.2.0
       '@changesets/get-dependents-graph': 2.1.3
-      '@changesets/get-release-plan': 4.0.13
+      '@changesets/get-release-plan': 4.0.14
       '@changesets/git': 3.0.4
       '@changesets/logger': 0.1.1
       '@changesets/pre': 2.0.2
-      '@changesets/read': 0.6.5
+      '@changesets/read': 0.6.6
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
@@ -9040,7 +9064,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@changesets/config@3.1.1':
+  '@changesets/config@3.1.2':
     dependencies:
       '@changesets/errors': 0.2.0
       '@changesets/get-dependents-graph': 2.1.3
@@ -9068,12 +9092,12 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@changesets/get-release-plan@4.0.13':
+  '@changesets/get-release-plan@4.0.14':
     dependencies:
       '@changesets/assemble-release-plan': 6.0.9
-      '@changesets/config': 3.1.1
+      '@changesets/config': 3.1.2
       '@changesets/pre': 2.0.2
-      '@changesets/read': 0.6.5
+      '@changesets/read': 0.6.6
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
 
@@ -9091,10 +9115,10 @@ snapshots:
     dependencies:
       picocolors: 1.1.1
 
-  '@changesets/parse@0.4.1':
+  '@changesets/parse@0.4.2':
     dependencies:
       '@changesets/types': 6.1.0
-      js-yaml: 3.14.1
+      js-yaml: 4.1.1
 
   '@changesets/pre@2.0.2':
     dependencies:
@@ -9103,11 +9127,11 @@ snapshots:
       '@manypkg/get-packages': 1.1.3
       fs-extra: 7.0.1
 
-  '@changesets/read@0.6.5':
+  '@changesets/read@0.6.6':
     dependencies:
       '@changesets/git': 3.0.4
       '@changesets/logger': 0.1.1
-      '@changesets/parse': 0.4.1
+      '@changesets/parse': 0.4.2
       '@changesets/types': 6.1.0
       fs-extra: 7.0.1
       p-filter: 2.1.0
@@ -9126,7 +9150,7 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
       fs-extra: 7.0.1
-      human-id: 4.1.2
+      human-id: 4.1.3
       prettier: 2.8.8
 
   '@commitlint/cli@20.1.0(@types/node@24.9.2)(typescript@5.8.3)':
@@ -9407,10 +9431,10 @@ snapshots:
     dependencies:
       effect: 3.19.3
 
-  '@effect/vitest@0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))':
+  '@effect/vitest@0.23.13(effect@3.19.3)(vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
       effect: 3.19.3
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
 
   '@effect/workflow@0.8.3(@effect/platform@0.90.10(effect@3.19.3))(@effect/rpc@0.68.4(@effect/platform@0.90.10(effect@3.19.3))(effect@3.19.3))(effect@3.19.3)':
     dependencies:
@@ -9676,7 +9700,7 @@ snapshots:
   '@inquirer/external-editor@1.0.3(@types/node@24.9.2)':
     dependencies:
       chardet: 2.1.1
-      iconv-lite: 0.7.0
+      iconv-lite: 0.7.2
     optionalDependencies:
       '@types/node': 24.9.2
 
@@ -9700,7 +9724,7 @@ snapshots:
       camelcase: 5.3.1
       find-up: 4.1.0
       get-package-type: 0.1.0
-      js-yaml: 3.14.1
+      js-yaml: 3.14.2
       resolve-from: 5.0.0
 
   '@istanbuljs/schema@0.1.3': {}
@@ -9870,14 +9894,14 @@ snapshots:
 
   '@manypkg/find-root@1.1.0':
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       '@types/node': 12.20.55
       find-up: 4.1.0
       fs-extra: 8.1.0
 
   '@manypkg/get-packages@1.1.3':
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.28.6
       '@changesets/types': 4.1.0
       '@manypkg/find-root': 1.1.0
       fs-extra: 8.1.0
@@ -10276,7 +10300,7 @@ snapshots:
       semver: 7.7.3
       tsconfig-paths: 4.2.0
       vite: 6.4.1(@types/node@24.9.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -11258,7 +11282,7 @@ snapshots:
       lodash: 4.17.21
       minimatch: 7.4.6
 
-  '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1))':
+  '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -11273,7 +11297,7 @@ snapshots:
       std-env: 3.10.0
       strip-literal: 2.1.1
       test-exclude: 6.0.0
-      vitest: 1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1)
+      vitest: 1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11292,7 +11316,7 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11368,7 +11392,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
 
   '@vitest/utils@1.6.1':
     dependencies:
@@ -12691,6 +12715,11 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.3.0
 
+  enhanced-resolve@5.18.4:
+    dependencies:
+      graceful-fs: 4.2.11
+      tapable: 2.3.0
+
   enquirer@2.3.6:
     dependencies:
       ansi-colors: 4.1.3
@@ -13725,7 +13754,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  human-id@4.1.2: {}
+  human-id@4.1.3: {}
 
   human-signals@2.1.0: {}
 
@@ -13742,6 +13771,10 @@ snapshots:
       safer-buffer: 2.1.2
 
   iconv-lite@0.7.0:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
 
@@ -14370,7 +14403,16 @@ snapshots:
       argparse: 1.0.10
       esprima: 4.0.1
 
+  js-yaml@3.14.2:
+    dependencies:
+      argparse: 1.0.10
+      esprima: 4.0.1
+
   js-yaml@4.1.0:
+    dependencies:
+      argparse: 2.0.1
+
+  js-yaml@4.1.1:
     dependencies:
       argparse: 2.0.1
 
@@ -15452,7 +15494,7 @@ snapshots:
   read-yaml-file@1.1.0:
     dependencies:
       graceful-fs: 4.2.11
-      js-yaml: 3.14.1
+      js-yaml: 3.14.2
       pify: 4.0.1
       strip-bom: 3.0.0
 
@@ -16116,7 +16158,7 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terser-webpack-plugin@5.3.14(@swc/core@1.11.21(@swc/helpers@0.5.17))(webpack@5.102.1(@swc/core@1.11.21(@swc/helpers@0.5.17))):
+  terser-webpack-plugin@5.3.16(@swc/core@1.11.21(@swc/helpers@0.5.17))(webpack@5.102.1(@swc/core@1.11.21(@swc/helpers@0.5.17))):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
@@ -16630,17 +16672,17 @@ snapshots:
       tsx: 4.20.6
       yaml: 2.8.1
 
-  vitest-canvas-mock@0.3.3(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1)):
+  vitest-canvas-mock@0.3.3(vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1)):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1)
+      vitest: 1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1)
 
   vitest-canvas-mock@0.3.3(vitest@3.2.4):
     dependencies:
       jest-canvas-mock: 2.5.2
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
 
-  vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jsdom@27.1.0)(terser@5.44.1):
+  vitest@1.6.1(@types/node@24.9.2)(@vitest/ui@3.0.4)(jsdom@27.1.0)(terser@5.44.1):
     dependencies:
       '@vitest/expect': 1.6.1
       '@vitest/runner': 1.6.1
@@ -16676,7 +16718,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4(vitest@3.2.4))(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1):
+  vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.0.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -16729,7 +16771,7 @@ snapshots:
     dependencies:
       makeerror: 1.0.12
 
-  watchpack@2.4.4:
+  watchpack@2.5.0:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
@@ -16756,7 +16798,7 @@ snapshots:
       acorn-import-phases: 1.0.4(acorn@8.15.0)
       browserslist: 4.27.0
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.18.3
+      enhanced-resolve: 5.18.4
       es-module-lexer: 1.7.0
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -16768,8 +16810,8 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.14(@swc/core@1.11.21(@swc/helpers@0.5.17))(webpack@5.102.1(@swc/core@1.11.21(@swc/helpers@0.5.17)))
-      watchpack: 2.4.4
+      terser-webpack-plugin: 5.3.16(@swc/core@1.11.21(@swc/helpers@0.5.17))(webpack@5.102.1(@swc/core@1.11.21(@swc/helpers@0.5.17)))
+      watchpack: 2.5.0
       webpack-sources: 3.3.3
     transitivePeerDependencies:
       - '@swc/core'
