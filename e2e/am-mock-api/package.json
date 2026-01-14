@@ -9,10 +9,10 @@
   "main": "./index.js",
   "dependencies": {
     "@types/express": "^4.17.17",
-    "body-parser": "^2.2.0",
+    "body-parser": "^2.2.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "express": "^4.21.2",
+    "express": "^5.2.1",
     "superagent": "^10.2.3",
     "uuid": "^13.0.0"
   }
