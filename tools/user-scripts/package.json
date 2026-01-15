@@ -17,12 +17,12 @@
   "dependencies": {
     "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
-    "effect": "catalog:effect",
-    "vitest": "catalog:vitest"
+    "effect": "catalog:effect"
   },
   "devDependencies": {
     "@effect/language-service": "catalog:effect",
-    "@effect/vitest": "catalog:effect"
+    "@effect/vitest": "catalog:effect",
+    "vitest": "catalog:vitest"
   },
   "nx": {
     "tags": ["scope:tool"]
