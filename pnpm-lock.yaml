@@ -398,6 +398,9 @@ importers:
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
+      '@forgerock/sdk-utilities':
+        specifier: workspace:*
+        version: link:../sdk-utilities
       '@forgerock/storage':
         specifier: workspace:*
         version: link:../sdk-effects/storage
@@ -528,7 +531,11 @@ importers:
 
   packages/sdk-types: {}
 
-  packages/sdk-utilities: {}
+  packages/sdk-utilities:
+    dependencies:
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
 
   scratchpad:
     dependencies:

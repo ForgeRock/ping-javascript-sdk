@@ -68,7 +68,13 @@ export function createStorage<Value>(config: StorageConfig): StorageClient<Value
   return {
     get: async function storageGet(): Promise<Value | GenericError | null> {
       if (storeType === 'custom') {
-        const value = await config.custom.get(key);
+        let value: Awaited<ReturnType<typeof config.custom.get>>;
+        try {
+          value = await config.custom.get(key);
+        } catch {
+          return createStorageError(storeType, 'Retrieving');
+        }
+
         if (value === null || (typeof value === 'object' && 'error' in value)) {
           return value;
         }
@@ -101,8 +107,12 @@ export function createStorage<Value>(config: StorageConfig): StorageClient<Value
     set: async function storageSet(value: Value): Promise<GenericError | null> {
       const valueToStore = JSON.stringify(value);
       if (storeType === 'custom') {
-        const value = await config.custom.set(key, valueToStore);
-        return Promise.resolve(value ?? null);
+        try {
+          const result = await config.custom.set(key, valueToStore);
+          return result ?? null;
+        } catch {
+          return createStorageError(storeType, 'Storing');
+        }
       }
 
       try {
@@ -114,8 +124,12 @@ export function createStorage<Value>(config: StorageConfig): StorageClient<Value
     },
     remove: async function storageRemove(): Promise<GenericError | null> {
       if (storeType === 'custom') {
-        const value = await config.custom.remove(key);
-        return Promise.resolve(value ?? null);
+        try {
+          const result = await config.custom.remove(key);
+          return result ?? null;
+        } catch {
+          return createStorageError(storeType, 'Removing');
+        }
       }
 
       try {

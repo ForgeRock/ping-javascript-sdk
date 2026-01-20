@@ -35,6 +35,9 @@
       "path": "../sdk-effects/storage/tsconfig.lib.json"
     },
     {
+      "path": "../sdk-utilities/tsconfig.lib.json"
+    },
+    {
       "path": "../sdk-types/tsconfig.lib.json"
     },
     {
