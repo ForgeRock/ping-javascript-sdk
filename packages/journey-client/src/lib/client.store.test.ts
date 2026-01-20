@@ -8,11 +8,18 @@
 import { callbackType } from '@forgerock/sdk-types';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
-import type { Step } from '@forgerock/sdk-types';
+import type { GenericError, Step } from '@forgerock/sdk-types';
 
 import { journey } from './client.store.js';
 import { createJourneyStep } from './step.utils.js';
 import { JourneyClientConfig } from './config.types.js';
+
+/**
+ * Type guard to check if a result is a GenericError
+ */
+function isGenericError(result: unknown): result is GenericError {
+  return typeof result === 'object' && result !== null && 'error' in result && 'type' in result;
+}
 
 // Create a singleton mock instance for storage
 const mockStorageInstance = {
@@ -65,13 +72,16 @@ describe('journey-client', () => {
     const client = await journey({ config: mockConfig });
     const step = await client.start();
     expect(step).toBeDefined();
+    expect(isGenericError(step)).toBe(false);
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
     const request = mockFetch.mock.calls[0][0] as Request;
     // TODO: This should be /journeys?_action=start, but the current implementation calls /authenticate
     expect(request.url).toBe('https://test.com/json/realms/root/authenticate');
     expect(step).toHaveProperty('type', 'Step');
-    expect(step && step.payload).toEqual(mockStepResponse);
+    if (!isGenericError(step)) {
+      expect(step.payload).toEqual(mockStepResponse);
+    }
   });
 
   test('next() should send the current step and return the next step', async () => {
@@ -101,6 +111,7 @@ describe('journey-client', () => {
     const client = await journey({ config: mockConfig });
     const nextStep = await client.next(initialStep, {});
     expect(nextStep).toBeDefined();
+    expect(isGenericError(nextStep)).toBe(false);
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
     const request = mockFetch.mock.calls[0][0] as Request;
@@ -109,7 +120,9 @@ describe('journey-client', () => {
     expect(request.method).toBe('POST');
     expect(await request.json()).toEqual(initialStep.payload);
     expect(nextStep).toHaveProperty('type', 'Step');
-    expect(nextStep && nextStep.payload).toEqual(nextStepPayload);
+    if (!isGenericError(nextStep)) {
+      expect(nextStep.payload).toEqual(nextStepPayload);
+    }
   });
 
   test('redirect() should store the step and call location.assign', async () => {
@@ -169,7 +182,9 @@ describe('journey-client', () => {
       expect(request.method).toBe('POST');
       expect(await request.json()).toEqual(previousStepPayload);
       expect(step).toHaveProperty('type', 'Step');
-      expect(step && step.payload).toEqual(nextStepPayload);
+      if (!isGenericError(step)) {
+        expect(step.payload).toEqual(nextStepPayload);
+      }
     });
 
     test('should correctly resume with a plain Step object from storage', async () => {
@@ -198,7 +213,9 @@ describe('journey-client', () => {
       expect(request.method).toBe('POST');
       expect(await request.json()).toEqual(plainStepPayload); // Expect the plain payload to be sent
       expect(step).toHaveProperty('type', 'Step'); // The returned step should still be an JourneyStep instance
-      expect(step && step.payload).toEqual(nextStepPayload);
+      if (!isGenericError(step)) {
+        expect(step.payload).toEqual(nextStepPayload);
+      }
     });
 
     test('should throw an error if a previous step is required but not found', async () => {
@@ -234,7 +251,9 @@ describe('journey-client', () => {
       const url = new URL(request.url);
       expect(url.origin + url.pathname).toBe('https://test.com/json/realms/root/authenticate');
       expect(step).toHaveProperty('type', 'Step');
-      expect(step && step.payload).toEqual(mockStepResponse);
+      if (!isGenericError(step)) {
+        expect(step.payload).toEqual(mockStepResponse);
+      }
     });
   });
 
