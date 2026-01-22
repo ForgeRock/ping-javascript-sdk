@@ -128,9 +128,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       },
 
       /**
-       * @function background - Initiates the authorization process in the background, returning an authorization URL or an error.
+       * @function background - Initiates the authorization process in the background, returning code and state or an error.
        * @param {GetAuthorizationUrlOptions} options - Optional parameters to customize the authorization URL.
-       * @returns {Promise<AuthorizeErrorResponse | AuthorizeSuccessResponse>} - Returns a promise that resolves to the authorization URL or an error response.
+       * @returns {Promise<AuthorizeErrorResponse | AuthorizeSuccessResponse>} - Returns a promise that resolves to code and state or an error response.
        */
       background: async (
         options?: GetAuthorizationUrlOptions,
@@ -289,16 +289,18 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
               options: storageOptions,
             });
           }),
-          Micro.tap(async (tokens) => {
-            await store.dispatch(
-              oidcApi.endpoints.revoke.initiate({
-                accessToken: tokens.accessToken,
-                clientId: config.clientId,
-                endpoint: wellknown.revocation_endpoint,
-              }),
-            );
-            await storageClient.remove();
-            await storageClient.set(tokens);
+          Micro.tap(async (newTokens) => {
+            if (tokens && 'accessToken' in tokens) {
+              await store.dispatch(
+                oidcApi.endpoints.revoke.initiate({
+                  accessToken: tokens.accessToken,
+                  clientId: config.clientId,
+                  endpoint: wellknown.revocation_endpoint,
+                }),
+              );
+              await storageClient.remove();
+            }
+            await storageClient.set(newTokens);
           }),
         );
 

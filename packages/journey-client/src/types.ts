@@ -13,7 +13,6 @@ export type {
   Callback,
   CallbackType,
   StepType,
-  callbackType,
   GenericError,
   PolicyRequirement,
   FailedPolicyRequirement,
