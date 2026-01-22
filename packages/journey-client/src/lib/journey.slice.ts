@@ -9,13 +9,22 @@ import { createSlice, PayloadAction, Slice } from '@reduxjs/toolkit';
 
 import type { Step } from '@forgerock/sdk-types';
 
-import type { JourneyClientConfig } from './config.types.js';
+import type { InternalJourneyClientConfig } from './config.types.js';
 
+/**
+ * Redux state for the journey client.
+ *
+ * Contains the current authentication state including:
+ * - authId: The authentication session identifier
+ * - step: The current authentication step
+ * - error: Any error that occurred during authentication
+ * - config: The resolved client configuration (including well-known response if used)
+ */
 export interface JourneyState {
   authId?: string;
   step?: Step;
   error?: Error;
-  config?: JourneyClientConfig;
+  config?: InternalJourneyClientConfig;
 }
 
 const initialState: JourneyState = {};
@@ -24,7 +33,7 @@ export const journeySlice: Slice<JourneyState> = createSlice({
   name: 'journey',
   initialState,
   reducers: {
-    setConfig: (state, action: PayloadAction<JourneyClientConfig>) => {
+    setConfig: (state, action: PayloadAction<InternalJourneyClientConfig>) => {
       state.config = action.payload;
     },
   },

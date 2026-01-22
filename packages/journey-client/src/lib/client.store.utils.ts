@@ -11,11 +11,13 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import { journeyApi } from './journey.api.js';
 import { journeySlice } from './journey.slice.js';
-import { JourneyClientConfig } from './config.types.js';
+import { wellknownApi } from './wellknown.api.js';
+import { InternalJourneyClientConfig } from './config.types.js';
 
 const rootReducer = combineReducers({
   [journeyApi.reducerPath]: journeyApi.reducer,
   [journeySlice.name]: journeySlice.reducer,
+  [wellknownApi.reducerPath]: wellknownApi.reducer,
 });
 
 export const createJourneyStore = ({
@@ -25,7 +27,7 @@ export const createJourneyStore = ({
 }: {
   requestMiddleware?: RequestMiddleware[];
   logger?: ReturnType<typeof loggerFn>;
-  config: JourneyClientConfig;
+  config: InternalJourneyClientConfig;
 }) => {
   return configureStore({
     reducer: rootReducer,
@@ -39,7 +41,9 @@ export const createJourneyStore = ({
             config,
           },
         },
-      }).concat(journeyApi.middleware),
+      })
+        .concat(journeyApi.middleware)
+        .concat(wellknownApi.middleware),
   });
 };
 

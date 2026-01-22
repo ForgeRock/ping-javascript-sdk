@@ -23,6 +23,13 @@ export * from './lib/config.types.js';
 export * from './lib/interfaces.js';
 export * from './lib/step.types.js';
 
+// Re-export well-known utilities for consumers who need realm inference or type guards
+export {
+  hasWellknownConfig,
+  inferRealmFromIssuer,
+  isValidWellknownUrl,
+} from './lib/wellknown.utils.js';
+
 export * from './lib/callbacks/attribute-input-callback.js';
 export * from './lib/callbacks/base-callback.js';
 export * from './lib/callbacks/choice-callback.js';

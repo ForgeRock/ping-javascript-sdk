@@ -16,9 +16,19 @@ import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { createJourneyObject } from './journey.utils.js';
+import { wellknownApi } from './wellknown.api.js';
+import {
+  hasWellknownConfig,
+  inferRealmFromIssuer,
+  isValidWellknownUrl,
+} from './wellknown.utils.js';
 
 import type { JourneyStep } from './step.utils.js';
-import type { JourneyClientConfig } from './config.types.js';
+import type {
+  JourneyClientConfig,
+  JourneyConfigInput,
+  InternalJourneyClientConfig,
+} from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
 
@@ -26,7 +36,7 @@ import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
  * Normalizes the serverConfig to ensure baseUrl has a trailing slash.
  * This is required for the resolve() function to work correctly with context paths like /am.
  */
-function normalizeConfig(config: JourneyClientConfig): JourneyClientConfig {
+function normalizeConfig(config: JourneyClientConfig): InternalJourneyClientConfig {
   if (config.serverConfig?.baseUrl) {
     const url = config.serverConfig.baseUrl;
     if (url.charAt(url.length - 1) !== '/') {
@@ -42,12 +52,111 @@ function normalizeConfig(config: JourneyClientConfig): JourneyClientConfig {
   return config;
 }
 
+/**
+ * Resolves an async configuration with well-known endpoint discovery.
+ *
+ * This function fetches the OIDC well-known configuration and merges it
+ * with the provided config, optionally inferring the realm path from the
+ * issuer URL if not explicitly provided.
+ *
+ * @param config - The async configuration with wellknown URL
+ * @param log - Logger instance for error reporting
+ * @returns The resolved internal configuration with well-known response
+ */
+async function resolveAsyncConfig(
+  config: JourneyConfigInput & { serverConfig: { wellknown: string } },
+  log: ReturnType<typeof loggerFn>,
+): Promise<InternalJourneyClientConfig> {
+  const { wellknown, baseUrl, paths, timeout } = config.serverConfig;
+
+  // Validate wellknown URL
+  if (!isValidWellknownUrl(wellknown)) {
+    const error = new Error(
+      `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost).`,
+    );
+    log.error(error.message);
+    throw error;
+  }
+
+  // Create a temporary store to fetch well-known (we need the RTK Query infrastructure)
+  const tempConfig: InternalJourneyClientConfig = {
+    serverConfig: { baseUrl: baseUrl || '', paths, timeout },
+    realmPath: config.realmPath,
+  };
+  const tempStore = createJourneyStore({ config: tempConfig, logger: log });
+
+  // Fetch the well-known configuration
+  const { data: wellknownResponse, error: fetchError } = await tempStore.dispatch(
+    wellknownApi.endpoints.configuration.initiate(wellknown),
+  );
+
+  if (fetchError || !wellknownResponse) {
+    const errorMessage = fetchError
+      ? `Failed to fetch well-known configuration: ${JSON.stringify(fetchError)}`
+      : 'Failed to fetch well-known configuration: No response received';
+    const error = new Error(errorMessage);
+    log.error(error.message);
+    throw error;
+  }
+
+  // Optionally infer realmPath from the issuer URL if not provided
+  const inferredRealm = config.realmPath ?? inferRealmFromIssuer(wellknownResponse.issuer);
+
+  // Build the resolved internal configuration
+  const resolvedConfig: InternalJourneyClientConfig = {
+    serverConfig: {
+      baseUrl,
+      paths,
+      timeout,
+    },
+    realmPath: inferredRealm,
+    middleware: config.middleware,
+    wellknownResponse,
+  };
+
+  return normalizeConfig(resolvedConfig);
+}
+
+/**
+ * Creates a journey client for AM authentication tree/journey interactions.
+ *
+ * Supports two configuration modes:
+ *
+ * 1. **Standard configuration** - Provide `serverConfig.baseUrl` directly:
+ *    ```typescript
+ *    const client = await journey({
+ *      config: {
+ *        serverConfig: { baseUrl: 'https://am.example.com/am/' },
+ *        realmPath: 'alpha',
+ *      },
+ *    });
+ *    ```
+ *
+ * 2. **Well-known discovery** - Provide `serverConfig.wellknown` for OIDC endpoint discovery:
+ *    ```typescript
+ *    const client = await journey({
+ *      config: {
+ *        serverConfig: {
+ *          baseUrl: 'https://am.example.com/am/',
+ *          wellknown: 'https://am.example.com/am/oauth2/realms/root/realms/alpha/.well-known/openid-configuration',
+ *        },
+ *        // realmPath is optional - can be inferred from the well-known issuer
+ *      },
+ *    });
+ *    ```
+ *
+ * @param options - Configuration options for the journey client
+ * @param options.config - Server configuration (standard or with well-known)
+ * @param options.requestMiddleware - Optional middleware for request customization
+ * @param options.logger - Optional logger configuration
+ * @returns A journey client instance with start, next, redirect, resume, and terminate methods
+ */
 export async function journey({
   config,
   requestMiddleware,
   logger,
 }: {
-  config: JourneyClientConfig;
+  config: JourneyConfigInput;
   requestMiddleware?: RequestMiddleware[];
   logger?: {
     level: LogLevel;
@@ -56,11 +165,19 @@ export async function journey({
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
 
-  // Normalize config to ensure baseUrl has trailing slash
-  const normalizedConfig = normalizeConfig(config);
+  // Resolve configuration based on whether wellknown is provided
+  let resolvedConfig: InternalJourneyClientConfig;
 
-  const store = createJourneyStore({ requestMiddleware, logger: log, config: normalizedConfig });
-  store.dispatch(setConfig(normalizedConfig));
+  if (hasWellknownConfig(config)) {
+    // Async config with well-known discovery
+    resolvedConfig = await resolveAsyncConfig(config, log);
+  } else {
+    // Standard config - just normalize it
+    resolvedConfig = normalizeConfig(config);
+  }
+
+  const store = createJourneyStore({ requestMiddleware, logger: log, config: resolvedConfig });
+  store.dispatch(setConfig(resolvedConfig));
 
   const stepStorage = createStorage<{ step: Step }>({
     type: 'sessionStorage',
