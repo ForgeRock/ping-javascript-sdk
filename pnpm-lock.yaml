@@ -450,6 +450,9 @@ importers:
       '@forgerock/sdk-logger':
         specifier: workspace:*
         version: link:../sdk-effects/logger
+      '@forgerock/sdk-oidc':
+        specifier: workspace:*
+        version: link:../sdk-effects/oidc
       '@forgerock/sdk-request-middleware':
         specifier: workspace:*
         version: link:../sdk-effects/sdk-request-middleware
@@ -530,6 +533,9 @@ importers:
       '@forgerock/sdk-utilities':
         specifier: workspace:*
         version: link:../../sdk-utilities
+      '@reduxjs/toolkit':
+        specifier: ^2.8.0
+        version: 2.10.1
 
   packages/sdk-effects/sdk-request-middleware:
     dependencies:

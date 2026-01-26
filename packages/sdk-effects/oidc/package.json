@@ -27,7 +27,8 @@
   },
   "dependencies": {
     "@forgerock/sdk-types": "workspace:*",
-    "@forgerock/sdk-utilities": "workspace:*"
+    "@forgerock/sdk-utilities": "workspace:*",
+    "@reduxjs/toolkit": "^2.8.0"
   },
   "nx": {
     "tags": ["scope:sdk-effects"]

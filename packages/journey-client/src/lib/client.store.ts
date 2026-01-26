@@ -7,6 +7,7 @@
 
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { callbackType } from '@forgerock/sdk-types';
+import { isGenericError } from '@forgerock/sdk-utilities';
 
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, Step } from '@forgerock/sdk-types';
@@ -21,6 +22,7 @@ import {
   hasWellknownConfig,
   inferRealmFromIssuer,
   isValidWellknownUrl,
+  createWellknownError,
 } from './wellknown.utils.js';
 
 import type { JourneyStep } from './step.utils.js';
@@ -91,12 +93,9 @@ async function resolveAsyncConfig(
   );
 
   if (fetchError || !wellknownResponse) {
-    const errorMessage = fetchError
-      ? `Failed to fetch well-known configuration: ${JSON.stringify(fetchError)}`
-      : 'Failed to fetch well-known configuration: No response received';
-    const error = new Error(errorMessage);
-    log.error(error.message);
-    throw error;
+    const genericError = createWellknownError(fetchError);
+    log.error(`${genericError.error}: ${genericError.message}`);
+    throw new Error(genericError.message);
   }
 
   // Optionally infer realmPath from the issuer URL if not provided
@@ -236,11 +235,6 @@ export async function journey({
 
       function requiresPreviousStep() {
         return (code && state) || form_post_entry || responsekey;
-      }
-
-      // Type guard for GenericError (assuming GenericError has 'error' and 'message' properties)
-      function isGenericError(obj: unknown): obj is GenericError {
-        return typeof obj === 'object' && obj !== null && 'error' in obj && 'message' in obj;
       }
 
       // Type guard for { step: JourneyStep }

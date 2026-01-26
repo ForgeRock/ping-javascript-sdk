@@ -4,6 +4,24 @@
   "include": [],
   "references": [
     {
+      "path": "../sdk-effects/storage"
+    },
+    {
+      "path": "../sdk-utilities"
+    },
+    {
+      "path": "../sdk-types"
+    },
+    {
+      "path": "../sdk-effects/sdk-request-middleware"
+    },
+    {
+      "path": "../sdk-effects/oidc"
+    },
+    {
+      "path": "../sdk-effects/logger"
+    },
+    {
       "path": "./tsconfig.lib.json"
     },
     {

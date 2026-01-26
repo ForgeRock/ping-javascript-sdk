@@ -28,6 +28,7 @@ export {
   hasWellknownConfig,
   inferRealmFromIssuer,
   isValidWellknownUrl,
+  createWellknownError,
 } from './lib/wellknown.utils.js';
 
 export * from './lib/callbacks/attribute-input-callback.js';

@@ -15,7 +15,7 @@ import { createClientStore, handleUpdateValidateError, RootState } from './clien
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi, createWellknownError } from './wellknown.api.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 /**
@@ -88,14 +88,14 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     throw error;
   }
 
-  const { data: openIdResponse } = await store.dispatch(
-    wellknownApi.endpoints.wellknown.initiate(config.serverConfig.wellknown),
+  const { data: openIdResponse, error: fetchError } = await store.dispatch(
+    wellknownApi.endpoints.configuration.initiate(config.serverConfig.wellknown),
   );
 
-  if (!openIdResponse) {
-    const error = new Error('error fetching `wellknown` response for OpenId Configuration');
-    log.error(error.message);
-    throw error;
+  if (fetchError || !openIdResponse) {
+    const genericError = createWellknownError(fetchError);
+    log.error(`${genericError.error}: ${genericError.message}`);
+    throw new Error(genericError.message);
   }
 
   store.dispatch(configSlice.actions.set({ ...config, wellknownResponse: openIdResponse }));
