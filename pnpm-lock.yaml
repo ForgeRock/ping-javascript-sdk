@@ -534,7 +534,7 @@ importers:
         specifier: workspace:*
         version: link:../../sdk-utilities
       '@reduxjs/toolkit':
-        specifier: ^2.8.0
+        specifier: 'catalog:'
         version: 2.10.1
 
   packages/sdk-effects/sdk-request-middleware:

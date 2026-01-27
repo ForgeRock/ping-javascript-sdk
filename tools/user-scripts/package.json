@@ -17,7 +17,8 @@
   "dependencies": {
     "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
-    "effect": "catalog:effect"
+    "effect": "catalog:effect",
+    "vitest": "catalog:vitest"
   },
   "devDependencies": {
     "@effect/language-service": "catalog:effect",

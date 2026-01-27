@@ -249,11 +249,11 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
         return node;
       } catch (err) {
-        const error = err as Error;
-        log.error(error.message);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        log.error(errorMessage);
         return {
           error: {
-            message: error.message ?? 'An unexpected error occurred during resume operation',
+            message: errorMessage || 'An unexpected error occurred during resume operation',
             type: 'internal_error',
           },
           type: 'internal_error',
@@ -336,10 +336,10 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           store.dispatch(nodeSlice.actions.update({ id, value, index }));
           return null;
         } catch (err) {
-          const error = err as Error;
+          const errorMessage = err instanceof Error ? err.message : String(err);
           return {
             type: 'internal_error',
-            error: { message: error.message, type: 'internal_error' },
+            error: { message: errorMessage, type: 'internal_error' },
           };
         }
       };

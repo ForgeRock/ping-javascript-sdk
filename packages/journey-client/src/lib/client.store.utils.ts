@@ -12,7 +12,6 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { journeyApi } from './journey.api.js';
 import { journeySlice } from './journey.slice.js';
 import { wellknownApi } from './wellknown.api.js';
-import { InternalJourneyClientConfig } from './config.types.js';
 
 const rootReducer = combineReducers({
   [journeyApi.reducerPath]: journeyApi.reducer,
@@ -23,11 +22,9 @@ const rootReducer = combineReducers({
 export const createJourneyStore = ({
   requestMiddleware,
   logger,
-  config,
 }: {
   requestMiddleware?: RequestMiddleware[];
   logger?: ReturnType<typeof loggerFn>;
-  config: InternalJourneyClientConfig;
 }) => {
   return configureStore({
     reducer: rootReducer,
@@ -38,7 +35,6 @@ export const createJourneyStore = ({
           extraArgument: {
             requestMiddleware,
             logger,
-            config,
           },
         },
       })

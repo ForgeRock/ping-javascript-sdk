@@ -10,7 +10,7 @@ import { callbackType } from '@forgerock/sdk-types';
 import { isGenericError } from '@forgerock/sdk-utilities';
 
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError, Step } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
 
 import { createJourneyStore } from './client.store.utils.js';
 import { journeyApi } from './journey.api.js';
@@ -38,7 +38,9 @@ import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
  * Normalizes the serverConfig to ensure baseUrl has a trailing slash.
  * This is required for the resolve() function to work correctly with context paths like /am.
  */
-function normalizeConfig(config: JourneyClientConfig): InternalJourneyClientConfig {
+function normalizeConfig(
+  config: JourneyClientConfig | InternalJourneyClientConfig,
+): InternalJourneyClientConfig {
   if (config.serverConfig?.baseUrl) {
     const url = config.serverConfig.baseUrl;
     if (url.charAt(url.length - 1) !== '/') {
@@ -52,68 +54,6 @@ function normalizeConfig(config: JourneyClientConfig): InternalJourneyClientConf
     }
   }
   return config;
-}
-
-/**
- * Resolves an async configuration with well-known endpoint discovery.
- *
- * This function fetches the OIDC well-known configuration and merges it
- * with the provided config, optionally inferring the realm path from the
- * issuer URL if not explicitly provided.
- *
- * @param config - The async configuration with wellknown URL
- * @param log - Logger instance for error reporting
- * @returns The resolved internal configuration with well-known response
- */
-async function resolveAsyncConfig(
-  config: JourneyConfigInput & { serverConfig: { wellknown: string } },
-  log: ReturnType<typeof loggerFn>,
-): Promise<InternalJourneyClientConfig> {
-  const { wellknown, baseUrl, paths, timeout } = config.serverConfig;
-
-  // Validate wellknown URL
-  if (!isValidWellknownUrl(wellknown)) {
-    const error = new Error(
-      `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost).`,
-    );
-    log.error(error.message);
-    throw error;
-  }
-
-  // Create a temporary store to fetch well-known (we need the RTK Query infrastructure)
-  const tempConfig: InternalJourneyClientConfig = {
-    serverConfig: { baseUrl: baseUrl || '', paths, timeout },
-    realmPath: config.realmPath,
-  };
-  const tempStore = createJourneyStore({ config: tempConfig, logger: log });
-
-  // Fetch the well-known configuration
-  const { data: wellknownResponse, error: fetchError } = await tempStore.dispatch(
-    wellknownApi.endpoints.configuration.initiate(wellknown),
-  );
-
-  if (fetchError || !wellknownResponse) {
-    const genericError = createWellknownError(fetchError);
-    log.error(`${genericError.error}: ${genericError.message}`);
-    throw new Error(genericError.message);
-  }
-
-  // Optionally infer realmPath from the issuer URL if not provided
-  const inferredRealm = config.realmPath ?? inferRealmFromIssuer(wellknownResponse.issuer);
-
-  // Build the resolved internal configuration
-  const resolvedConfig: InternalJourneyClientConfig = {
-    serverConfig: {
-      baseUrl,
-      paths,
-      timeout,
-    },
-    realmPath: inferredRealm,
-    middleware: config.middleware,
-    wellknownResponse,
-  };
-
-  return normalizeConfig(resolvedConfig);
 }
 
 /**
@@ -149,6 +89,7 @@ async function resolveAsyncConfig(
  * @param options.requestMiddleware - Optional middleware for request customization
  * @param options.logger - Optional logger configuration
  * @returns A journey client instance with start, next, redirect, resume, and terminate methods
+ * @throws {Error} When wellknown URL is invalid or wellknown fetch fails
  */
 export async function journey({
   config,
@@ -164,18 +105,51 @@ export async function journey({
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
 
+  // Create the store first (config will be set after wellknown fetch if needed)
+  const store = createJourneyStore({ requestMiddleware, logger: log });
+
   // Resolve configuration based on whether wellknown is provided
   let resolvedConfig: InternalJourneyClientConfig;
 
   if (hasWellknownConfig(config)) {
-    // Async config with well-known discovery
-    resolvedConfig = await resolveAsyncConfig(config, log);
+    const { wellknown, baseUrl, paths, timeout } = config.serverConfig;
+
+    // Validate wellknown URL
+    if (!isValidWellknownUrl(wellknown)) {
+      const error = new Error(
+        `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost).`,
+      );
+      log.error(error.message);
+      throw error;
+    }
+
+    // Fetch the well-known configuration using the store
+    const { data: wellknownResponse, error: fetchError } = await store.dispatch(
+      wellknownApi.endpoints.configuration.initiate(wellknown),
+    );
+
+    if (fetchError || !wellknownResponse) {
+      const genericError = createWellknownError(fetchError);
+      log.error(`${genericError.error}: ${genericError.message}`);
+      throw new Error(genericError.message);
+    }
+
+    // Optionally infer realmPath from the issuer URL if not provided
+    const inferredRealm = config.realmPath ?? inferRealmFromIssuer(wellknownResponse.issuer);
+
+    // Build the resolved internal configuration
+    resolvedConfig = normalizeConfig({
+      serverConfig: { baseUrl, paths, timeout },
+      realmPath: inferredRealm,
+      middleware: config.middleware,
+      wellknownResponse,
+    });
   } else {
     // Standard config - just normalize it
     resolvedConfig = normalizeConfig(config);
   }
 
-  const store = createJourneyStore({ requestMiddleware, logger: log, config: resolvedConfig });
+  // Dispatch the resolved config to the store
   store.dispatch(setConfig(resolvedConfig));
 
   const stepStorage = createStorage<{ step: Step }>({
@@ -215,7 +189,7 @@ export async function journey({
       }
 
       const err = await stepStorage.set({ step: step.payload });
-      if (err && (err as GenericError).error) {
+      if (isGenericError(err)) {
         log.warn('Failed to persist step before redirect', err);
       }
       window.location.assign(redirectUrl);

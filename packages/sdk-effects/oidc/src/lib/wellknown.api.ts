@@ -14,14 +14,16 @@ import type { WellKnownResponse } from '@forgerock/sdk-types';
  * RTK Query API for fetching the OIDC well-known configuration endpoint.
  *
  * The well-known endpoint (`.well-known/openid-configuration`) provides
- * OIDC Discovery information including:
- * - `authorization_endpoint` - URL for authorization requests
- * - `token_endpoint` - URL for token exchange
+ * OIDC Discovery information. Common fields include:
+ * - `issuer` - The OIDC issuer identifier (required)
+ * - `authorization_endpoint` - URL for authorization requests (required)
+ * - `token_endpoint` - URL for token exchange (required)
  * - `userinfo_endpoint` - URL for user info retrieval
  * - `end_session_endpoint` - URL for logout/session termination
  * - `revocation_endpoint` - URL for token revocation
- * - `jwks_uri` - URL for JSON Web Key Set
- * - `issuer` - The OIDC issuer identifier
+ *
+ * See `WellKnownResponse` type from `@forgerock/sdk-types` for the complete
+ * list of available fields.
  *
  * @example
  * ```typescript

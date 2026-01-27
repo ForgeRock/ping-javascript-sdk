@@ -138,6 +138,25 @@ describe('wellknown.utils', () => {
       });
     });
 
+    describe('createWellknownError_HttpErrorWithNullData_ReturnsHttpStatus', () => {
+      it('should return HTTP status message when data is null', () => {
+        // Arrange
+        const fetchError = {
+          status: 500,
+          data: null,
+        };
+
+        // Act
+        const result = createWellknownError(fetchError);
+
+        // Assert
+        expect(result.error).toBe('Well-known configuration fetch failed');
+        expect(result.message).toBe('HTTP error 500');
+        expect(result.type).toBe('wellknown_error');
+        expect(result.status).toBe(500);
+      });
+    });
+
     describe('createWellknownError_SerializedErrorWithMessage_ReturnsMessage', () => {
       it('should extract message from SerializedError', () => {
         // Arrange
