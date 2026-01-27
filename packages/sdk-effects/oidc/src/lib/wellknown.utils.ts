@@ -9,9 +9,6 @@ import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { GenericError } from '@forgerock/sdk-types';
 
-// Re-export shared pure utilities from sdk-utilities
-export { inferRealmFromIssuer, isValidWellknownUrl } from '@forgerock/sdk-utilities';
-
 /**
  * Type guard that checks if a value is a non-null object.
  * Used for safe property access without `as` casting.

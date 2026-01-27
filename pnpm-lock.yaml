@@ -474,6 +474,9 @@ importers:
       vite:
         specifier: catalog:vite
         version: 7.3.1(@types/node@24.9.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest-canvas-mock:
+        specifier: catalog:vitest
+        version: 1.1.3(vitest@4.0.9)
     devDependencies:
       '@vitest/coverage-v8':
         specifier: catalog:vitest
@@ -481,9 +484,6 @@ importers:
       vitest:
         specifier: catalog:vitest
         version: 4.0.9(@types/node@24.9.2)(@vitest/ui@4.0.9)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.9.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
-      vitest-canvas-mock:
-        specifier: catalog:vitest
-        version: 1.1.3(vitest@4.0.9)
 
   packages/oidc-client:
     dependencies:
@@ -593,6 +593,9 @@ importers:
       effect:
         specifier: catalog:effect
         version: 3.19.3
+      vitest:
+        specifier: catalog:vitest
+        version: 4.0.9(@types/node@24.9.2)(@vitest/ui@4.0.9)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.9.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
     devDependencies:
       '@effect/language-service':
         specifier: catalog:effect
@@ -600,9 +603,6 @@ importers:
       '@effect/vitest':
         specifier: catalog:effect
         version: 0.23.13(effect@3.19.3)(vitest@4.0.9)
-      vitest:
-        specifier: catalog:vitest
-        version: 4.0.9(@types/node@24.9.2)(@vitest/ui@4.0.9)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.9.3))(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
 
 packages:
 

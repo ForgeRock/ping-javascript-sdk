@@ -63,7 +63,6 @@ describe('Config Types', () => {
 
     it('should combine DaVinciConfig and wellknownResponse', () => {
       const config: InternalDaVinciConfig = {
-        // DaVinciConfig properties
         clientId: 'test-client',
         scope: 'openid profile',
         serverConfig: {
@@ -72,7 +71,6 @@ describe('Config Types', () => {
         },
         redirectUri: 'https://app.example.com/callback',
         responseType: 'code',
-        // InternalDaVinciConfig specific property
         wellknownResponse: {
           issuer: 'https://example.com',
           authorization_endpoint: 'https://example.com/auth',
@@ -81,7 +79,6 @@ describe('Config Types', () => {
           end_session_endpoint: 'https://example.com/logout',
           introspection_endpoint: 'https://example.com/introspect',
           revocation_endpoint: 'https://example.com/revoke',
-          // Optional properties
           jwks_uri: 'https://example.com/jwks',
           scopes_supported: ['openid', 'profile'],
         },
@@ -91,17 +88,8 @@ describe('Config Types', () => {
   });
 });
 
-/**
- * WellKnownResponse type tests.
- *
- * Note: WellKnownResponse is now imported from @forgerock/sdk-types.
- * The type correctly follows the OIDC Discovery spec where only
- * issuer, authorization_endpoint, token_endpoint, and userinfo_endpoint
- * are required. Other properties are optional.
- */
 describe('WellKnownResponse', () => {
   it('should have required OIDC properties', () => {
-    // Minimal wellknown response with only required properties
     const wellknown: WellKnownResponse = {
       issuer: 'https://example.com',
       authorization_endpoint: 'https://example.com/auth',
@@ -112,7 +100,6 @@ describe('WellKnownResponse', () => {
       revocation_endpoint: 'https://example.com/revoke',
     };
 
-    // Required properties should be strings
     expectTypeOf<WellKnownResponse>().toHaveProperty('issuer').toBeString();
     expectTypeOf<WellKnownResponse>().toHaveProperty('authorization_endpoint').toBeString();
     expectTypeOf<WellKnownResponse>().toHaveProperty('token_endpoint').toBeString();
@@ -133,7 +120,6 @@ describe('WellKnownResponse', () => {
       end_session_endpoint: 'https://example.com/logout',
       introspection_endpoint: 'https://example.com/introspect',
       revocation_endpoint: 'https://example.com/revoke',
-      // Optional properties
       jwks_uri: 'https://example.com/jwks',
       scopes_supported: ['openid', 'profile', 'email'],
       response_types_supported: ['code', 'token'],
@@ -143,7 +129,6 @@ describe('WellKnownResponse', () => {
       token_endpoint_auth_methods_supported: ['client_secret_basic'],
     };
 
-    // Test optional properties are allowed but not required
     expectTypeOf<WellKnownResponse>().toHaveProperty('scopes_supported');
     expectTypeOf<WellKnownResponse>().toHaveProperty('response_types_supported');
     expectTypeOf<WellKnownResponse>().toHaveProperty('grant_types_supported');
@@ -153,7 +138,6 @@ describe('WellKnownResponse', () => {
   });
 
   it('should validate optional array property types', () => {
-    // Test that optional array properties are string[] | undefined
     expectTypeOf<WellKnownResponse['scopes_supported']>().toEqualTypeOf<string[] | undefined>();
     expectTypeOf<WellKnownResponse['response_types_supported']>().toEqualTypeOf<
       string[] | undefined
@@ -183,7 +167,6 @@ describe('WellKnownResponse', () => {
       revocation_endpoint: 'https://example.com/revoke',
     };
 
-    // Type assertion to ensure required endpoint properties are strings (URLs)
     expectTypeOf(wellknown.authorization_endpoint).toBeString();
     expectTypeOf(wellknown.token_endpoint).toBeString();
     expectTypeOf(wellknown.userinfo_endpoint).toBeString();
