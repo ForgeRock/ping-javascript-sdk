@@ -15,7 +15,7 @@ import { createClientStore, handleUpdateValidateError, RootState } from './clien
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { wellknownApi, createWellknownError } from './wellknown.api.js';
+import { wellknownApi, createWellknownError } from '@forgerock/sdk-oidc';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 /**
