@@ -29,9 +29,7 @@
     "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
-    "tslib": "^2.3.0",
-    "vite": "catalog:vite",
-    "vitest-canvas-mock": "catalog:vitest"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "catalog:vitest",
