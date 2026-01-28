@@ -126,7 +126,6 @@
         "buildTargetName": "nxBuild",
         "serveTargetName": "nxServe",
         "previewTargetName": "nxPreview",
-        "testTargetName": "nxTest",
         "serveStaticTargetName": "serve-static",
         "typecheckTargetName": "typecheck",
         "buildDepsTargetName": "vite:build-deps",
@@ -146,6 +145,13 @@
           "configName": "tsconfig.lib.json"
         }
       }
+    },
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "nxTest"
+      },
+      "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"]
     }
   ],
   "parallel": 1,

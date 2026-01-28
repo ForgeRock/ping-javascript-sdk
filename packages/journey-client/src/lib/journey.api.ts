@@ -22,8 +22,16 @@ import type {
 
 import { JourneyStep } from './step.types.js';
 
-import type { JourneyClientConfig } from './config.types.js';
+import type { JourneyState } from './journey.slice.js';
 import { NextOptions, StartParam } from './interfaces.js';
+
+/**
+ * Minimal state type for accessing journey config from RTK Query endpoints.
+ * This avoids circular dependency with client.store.utils.ts.
+ */
+interface JourneyRootState {
+  journey: JourneyState;
+}
 
 // Move these functions to the top, before journeyApi definition
 function constructUrl(
@@ -84,7 +92,6 @@ function configureSessionRequest(): RequestInit {
 interface Extras {
   requestMiddleware: RequestMiddleware[];
   logger: ReturnType<typeof loggerFn>;
-  config: JourneyClientConfig;
 }
 
 export const journeyApi = createApi({
@@ -108,8 +115,9 @@ export const journeyApi = createApi({
         _: unknown,
         baseQuery: BaseQueryFn,
       ) => {
-        const { config } = api.extra as Extras;
-        if (!config.serverConfig) {
+        const state = api.getState() as JourneyRootState;
+        const config = state.journey.config;
+        if (!config?.serverConfig) {
           throw new Error('Server configuration is missing.');
         }
         const { realmPath, serverConfig } = config;
@@ -141,8 +149,9 @@ export const journeyApi = createApi({
         _: unknown,
         baseQuery: BaseQueryFn,
       ) => {
-        const { config } = api.extra as Extras;
-        if (!config.serverConfig) {
+        const state = api.getState() as JourneyRootState;
+        const config = state.journey.config;
+        if (!config?.serverConfig) {
           throw new Error('Server configuration is missing.');
         }
         const { realmPath, serverConfig } = config;
@@ -171,8 +180,9 @@ export const journeyApi = createApi({
         _: unknown,
         baseQuery: BaseQueryFn,
       ) => {
-        const { config } = api.extra as Extras;
-        if (!config.serverConfig) {
+        const state = api.getState() as JourneyRootState;
+        const config = state.journey.config;
+        if (!config?.serverConfig) {
           throw new Error('Server configuration is missing.');
         }
         const { realmPath, serverConfig } = config;

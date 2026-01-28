@@ -13,7 +13,7 @@ import { configSlice } from './config.slice.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { ErrorNode, ContinueNode, StartNode, SuccessNode } from '../types.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-oidc';
 import { InternalErrorResponse } from './client.types.js';
 
 export function createClientStore<ActionType extends ActionTypes>({

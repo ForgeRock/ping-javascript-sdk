@@ -15,18 +15,6 @@
   },
   "references": [
     {
-      "path": "../../packages/sdk-effects/logger"
-    },
-    {
-      "path": "../../packages/oidc-client"
-    },
-    {
-      "path": "../../packages/protect"
-    },
-    {
-      "path": "../../packages/journey-client"
-    },
-    {
       "path": "./tsconfig.app.json"
     },
     {

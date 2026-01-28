@@ -7,18 +7,30 @@
 
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { callbackType } from '@forgerock/sdk-types';
+import { isGenericError } from '@forgerock/sdk-utilities';
 
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError, Step } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
 
 import { createJourneyStore } from './client.store.utils.js';
 import { journeyApi } from './journey.api.js';
 import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { createJourneyObject } from './journey.utils.js';
+import { wellknownApi } from './wellknown.api.js';
+import {
+  hasWellknownConfig,
+  inferRealmFromIssuer,
+  isValidWellknownUrl,
+  createWellknownError,
+} from './wellknown.utils.js';
 
 import type { JourneyStep } from './step.utils.js';
-import type { JourneyClientConfig } from './config.types.js';
+import type {
+  JourneyClientConfig,
+  JourneyConfigInput,
+  InternalJourneyClientConfig,
+} from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
 
@@ -26,7 +38,9 @@ import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
  * Normalizes the serverConfig to ensure baseUrl has a trailing slash.
  * This is required for the resolve() function to work correctly with context paths like /am.
  */
-function normalizeConfig(config: JourneyClientConfig): JourneyClientConfig {
+function normalizeConfig(
+  config: JourneyClientConfig | InternalJourneyClientConfig,
+): InternalJourneyClientConfig {
   if (config.serverConfig?.baseUrl) {
     const url = config.serverConfig.baseUrl;
     if (url.charAt(url.length - 1) !== '/') {
@@ -42,12 +56,47 @@ function normalizeConfig(config: JourneyClientConfig): JourneyClientConfig {
   return config;
 }
 
+/**
+ * Creates a journey client for AM authentication tree/journey interactions.
+ *
+ * Supports two configuration modes:
+ *
+ * 1. **Standard configuration** - Provide `serverConfig.baseUrl` directly:
+ *    ```typescript
+ *    const client = await journey({
+ *      config: {
+ *        serverConfig: { baseUrl: 'https://am.example.com/am/' },
+ *        realmPath: 'alpha',
+ *      },
+ *    });
+ *    ```
+ *
+ * 2. **Well-known discovery** - Provide `serverConfig.wellknown` for OIDC endpoint discovery:
+ *    ```typescript
+ *    const client = await journey({
+ *      config: {
+ *        serverConfig: {
+ *          baseUrl: 'https://am.example.com/am/',
+ *          wellknown: 'https://am.example.com/am/oauth2/realms/root/realms/alpha/.well-known/openid-configuration',
+ *        },
+ *        // realmPath is optional - can be inferred from the well-known issuer
+ *      },
+ *    });
+ *    ```
+ *
+ * @param options - Configuration options for the journey client
+ * @param options.config - Server configuration (standard or with well-known)
+ * @param options.requestMiddleware - Optional middleware for request customization
+ * @param options.logger - Optional logger configuration
+ * @returns A journey client instance with start, next, redirect, resume, and terminate methods
+ * @throws {Error} When wellknown URL is invalid or wellknown fetch fails
+ */
 export async function journey({
   config,
   requestMiddleware,
   logger,
 }: {
-  config: JourneyClientConfig;
+  config: JourneyConfigInput;
   requestMiddleware?: RequestMiddleware[];
   logger?: {
     level: LogLevel;
@@ -56,11 +105,52 @@ export async function journey({
 }) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
 
-  // Normalize config to ensure baseUrl has trailing slash
-  const normalizedConfig = normalizeConfig(config);
+  // Create the store first (config will be set after wellknown fetch if needed)
+  const store = createJourneyStore({ requestMiddleware, logger: log });
 
-  const store = createJourneyStore({ requestMiddleware, logger: log, config: normalizedConfig });
-  store.dispatch(setConfig(normalizedConfig));
+  // Resolve configuration based on whether wellknown is provided
+  let resolvedConfig: InternalJourneyClientConfig;
+
+  if (hasWellknownConfig(config)) {
+    const { wellknown, baseUrl, paths, timeout } = config.serverConfig;
+
+    // Validate wellknown URL
+    if (!isValidWellknownUrl(wellknown)) {
+      const error = new Error(
+        `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost).`,
+      );
+      log.error(error.message);
+      throw error;
+    }
+
+    // Fetch the well-known configuration using the store
+    const { data: wellknownResponse, error: fetchError } = await store.dispatch(
+      wellknownApi.endpoints.configuration.initiate(wellknown),
+    );
+
+    if (fetchError || !wellknownResponse) {
+      const genericError = createWellknownError(fetchError);
+      log.error(`${genericError.error}: ${genericError.message}`);
+      throw new Error(genericError.message);
+    }
+
+    // Optionally infer realmPath from the issuer URL if not provided
+    const inferredRealm = config.realmPath ?? inferRealmFromIssuer(wellknownResponse.issuer);
+
+    // Build the resolved internal configuration
+    resolvedConfig = normalizeConfig({
+      serverConfig: { baseUrl, paths, timeout },
+      realmPath: inferredRealm,
+      middleware: config.middleware,
+      wellknownResponse,
+    });
+  } else {
+    // Standard config - just normalize it
+    resolvedConfig = normalizeConfig(config);
+  }
+
+  // Dispatch the resolved config to the store
+  store.dispatch(setConfig(resolvedConfig));
 
   const stepStorage = createStorage<{ step: Step }>({
     type: 'sessionStorage',
@@ -99,7 +189,7 @@ export async function journey({
       }
 
       const err = await stepStorage.set({ step: step.payload });
-      if (err && (err as GenericError).error) {
+      if (isGenericError(err)) {
         log.warn('Failed to persist step before redirect', err);
       }
       window.location.assign(redirectUrl);
@@ -119,11 +209,6 @@ export async function journey({
 
       function requiresPreviousStep() {
         return (code && state) || form_post_entry || responsekey;
-      }
-
-      // Type guard for GenericError (assuming GenericError has 'error' and 'message' properties)
-      function isGenericError(obj: unknown): obj is GenericError {
-        return typeof obj === 'object' && obj !== null && 'error' in obj && 'message' in obj;
       }
 
       // Type guard for { step: JourneyStep }
