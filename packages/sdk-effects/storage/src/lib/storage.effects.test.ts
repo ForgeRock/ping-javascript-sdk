@@ -113,7 +113,7 @@ const mockCustomStore: CustomStorageObject = {
 
 describe('storage Effect', () => {
   const storageName = 'MyStorage';
-  const baseConfig: Omit<StorageConfig, 'tokenStore'> = {
+  const baseConfig: StorageConfig = {
     type: 'localStorage',
     name: storageName,
     prefix: 'testPrefix',

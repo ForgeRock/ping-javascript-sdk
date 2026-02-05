@@ -14,7 +14,7 @@ resumeBehavioralData();
 
 ## Quickstart with a PingOne AIC or PingAM Authentication Journey
 
-The Ping Protect module is intended to be used along with the ForgeRock JavaScript SDK to provide the Protect feature.
+The Ping Protect module is intended to be used along with the Journey client to provide the Protect feature.
 
 ### Requirements
 
@@ -22,7 +22,7 @@ The Ping Protect module is intended to be used along with the ForgeRock JavaScri
 2. PingOne tenant with Protect enabled
 3. A Ping Protect Service configured in AIC or AM
 4. A journey/tree with the appropriate Protect Nodes
-5. A client application with the `@forgerock/javascript-sdk` and `@forgerock/protect` modules installed
+5. A client application with the `@forgerock/journey-client` and `@forgerock/protect` modules installed
 
 ### Integrate into a Client Application
 
@@ -31,11 +31,11 @@ The Ping Protect module is intended to be used along with the ForgeRock JavaScri
 Install both modules and their latest versions:
 
 ```sh
-npm install @forgerock/javascript-sdk @forgerock/protect
+npm install @forgerock/journey-client @forgerock/protect
 ```
 
 ```sh
-pnpm install @forgerock/javascript-sdk @forgerock/protect
+pnpm install @forgerock/journey-client @forgerock/protect
 ```
 
 #### Initialization (Recommended)
@@ -70,10 +70,10 @@ if (step.getCallbacksOfType('PingOneProtectInitializeCallback')) {
 
 #### Data collection
 
-You then call the `FRAuth.next` method after initialization to move the user forward in the journey.
+You then call the `next` method after initialization to move the user forward in the journey.
 
 ```js
-FRAuth.next(step);
+journeyClient.next(step);
 ```
 
 At some point in the journey, and as late as possible in order to collect as much data as you can, you will come across the `PingOneProtectEvaluationCallback`. This is when you call the `getData` method to package what's been collected for the server to evaluate.
@@ -92,12 +92,12 @@ Now that we have the data, set it on the callback in order to send it to the ser
 ```js
 callback.setData(data);
 
-FRAuth.next(step);
+journeyClient.next(step);
 ```
 
 ### Error Handling
 
-The Protect API methods will return an error object if they fail. When you encounter an error during initialization or evaluation, set the error message on the callback using the `setClientError` method. Setting the message on the callback is how it gets sent to the server on the `FRAuth.next` method call.
+The Protect API methods will return an error object if they fail. When you encounter an error during initialization or evaluation, set the error message on the callback using the `setClientError` method. Setting the message on the callback is how it gets sent to the server on the `next` method call.
 
 ```js
 if (step.getCallbacksOfType('PingOneProtectInitializeCallback')) {

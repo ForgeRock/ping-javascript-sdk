@@ -7,11 +7,15 @@
 import { type ConfigOptions } from '@forgerock/javascript-sdk';
 import { configureStore } from '@reduxjs/toolkit';
 import { deviceService } from './services/index.js';
-import { OathDevice, RetrieveOathQuery } from './types/oath.types.js';
-import { DeleteDeviceQuery, PushDevice, PushDeviceQuery } from './types/push-device.types.js';
-import { UpdatedWebAuthnDevice, WebAuthnDevice, WebAuthnQuery } from './types/webauthn.types.js';
-import { BoundDeviceQuery, Device, GetBoundDevicesQuery } from './types/bound-device.types.js';
-import {
+import type { OathDevice, RetrieveOathQuery } from './types/oath.types.js';
+import type { DeleteDeviceQuery, PushDevice, PushDeviceQuery } from './types/push-device.types.js';
+import type {
+  UpdatedWebAuthnDevice,
+  WebAuthnDevice,
+  WebAuthnQuery,
+} from './types/webauthn.types.js';
+import type { BoundDeviceQuery, Device, GetBoundDevicesQuery } from './types/bound-device.types.js';
+import type {
   GetProfileDevices,
   ProfileDevice,
   ProfileDevicesQuery,
@@ -290,7 +294,7 @@ export const deviceClient = (config: ConfigOptions) => {
        * Get profile devices
        *
        * @async
-       * @function update
+       * @function get
        * @param {GetProfileDevices} query - The query used to get profile devices
        * @returns {Promise<ProfileDevice[] | { error: unknown }>} - A promise that resolves to the response data or an error object if the response is not valid.
        */
@@ -310,7 +314,7 @@ export const deviceClient = (config: ConfigOptions) => {
         }
       },
       /**
-       * Get profile devices
+       * Update profile devices
        *
        * @async
        * @function update
@@ -333,11 +337,11 @@ export const deviceClient = (config: ConfigOptions) => {
         }
       },
       /**
-       * Get profile devices
+       * Delete profile devices
        *
        * @async
-       * @function update
-       * @param {ProfileDevicesQuery} query - The query used to update a profile device
+       * @function delete
+       * @param {ProfileDevicesQuery} query - The query used to delete a profile device
        * @returns {Promise<null | { error: unknown }>} - A promise that resolves to null or an error object if the response is not valid.
        */
       delete: async function (query: ProfileDevicesQuery): Promise<null | { error: unknown }> {

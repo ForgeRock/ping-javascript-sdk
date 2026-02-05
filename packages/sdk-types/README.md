@@ -85,6 +85,18 @@ export interface Tokens {
 
 Types for request middleware implementations.
 
+### Authorization Types
+
+Types for OIDC/OAuth2 authorization workflows.
+
+### Error Types
+
+A GenericError type used throughout the Ping Javascript SDK ecosystem.
+
+### Policy Types
+
+Password and user attribute validation policy types returned by the server during user registration or password management flows.
+
 ## Usage
 
 Import types directly from the package:
@@ -110,16 +122,16 @@ const handleCallback = (callback: Callback) => {
 
 This package follows the development practices of the overall ForgeRock/Ping Identity JavaScript SDK monorepo.
 
-### Testing
-
-```bash
-pnpm test
-```
-
 ### Building
 
 ```bash
-pnpm build
+nx build sdk-types
+```
+
+### Testing
+
+```bash
+nx test sdk-types
 ```
 
 ## License

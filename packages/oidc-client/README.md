@@ -1,6 +1,8 @@
-# oidc-client
+# OIDC Client
 
-A generic OpenID Connect (OIDC) client library for JavaScript and TypeScript, designed to work with any OIDC-compliant identity provider.
+A generic OpenID Connect (OIDC) client library for JavaScript and TypeScript, designed to work with PingOne platforms.
+
+The oidc module follows the [OIDC](https://openid.net/specs/openid-connect-core-1_0.html) specification and provides a simple and easy-to-use API to interact with the OIDC server. It allows you to authenticate, retrieve the access token, revoke the token, and sign out from the OIDC server.
 
 ```js
 // Initialize OIDC Client

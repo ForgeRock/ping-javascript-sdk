@@ -50,11 +50,12 @@ const requestMiddleware = [
 const fetchArgs = { url: 'https://api.example.com/resource' };
 
 // Initialize a query and apply middleware
-const response = await initQuery(fetchArgs, 'start')
+const response = await initQuery(fetchArgs, 'authorize')
   .applyMiddleware(requestMiddleware)
-  .applyQuery(async (args) => {
+  .applyQuery(async (request) => {
     // Your fetch implementation here
-    return fetch(args.url, args);
+    const response = await fetch(request.url, request);
+    return { data: await response.json() };
   });
 ```
 
@@ -85,7 +86,7 @@ const authMiddleware = [
 ];
 
 // Use the middleware with specific action type
-const response = await initQuery(fetchArgs, 'login')
+const response = await initQuery(fetchArgs, 'start')
   .applyMiddleware(authMiddleware)
   .applyQuery(queryCallback);
 ```
@@ -121,19 +122,49 @@ Executes the request with the provided callback function.
 
 **Parameters:**
 
-- `callback`: A function that takes the modified request and returns a Promise with the API response
+- `callback`: An async function that takes the modified `FetchArgs` (with `url` as a string) and returns a Promise that resolves to a `QueryReturnValue`
 
 **Returns:**
-A Promise with the result of the callback function
+A Promise that resolves to a `QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>`
 
-### RequestMiddleware Type
+### RequestMiddleware Types
 
 ```typescript
-type RequestMiddleware<Type, Payload> = (
+type RequestMiddleware<Type extends ActionTypes = ActionTypes, Payload = unknown> = (
   req: ModifiedFetchArgs,
   action: Action<Type, Payload>,
   next: () => ModifiedFetchArgs,
 ) => void;
+```
+
+The `endpoint` parameter for `initQuery` accepts an action type which maps to the type of request you want to intercept.
+
+```typescript
+const actionTypes = {
+  // Journey
+  begin: 'JOURNEY_START',
+  continue: 'JOURNEY_NEXT',
+  terminate: 'JOURNEY_TERMINATE',
+
+  // DaVinci
+  start: 'DAVINCI_START',
+  next: 'DAVINCI_NEXT',
+  flow: 'DAVINCI_FLOW',
+  success: 'DAVINCI_SUCCESS',
+  error: 'DAVINCI_ERROR',
+  failure: 'DAVINCI_FAILURE',
+  resume: 'DAVINCI_RESUME',
+
+  // OIDC
+  authorize: 'AUTHORIZE',
+  tokenExchange: 'TOKEN_EXCHANGE',
+  revoke: 'REVOKE',
+  userInfo: 'USER_INFO',
+  endSession: 'END_SESSION',
+} as const;
+
+type ActionTypes = (typeof actionTypes)[keyof typeof actionTypes];
+type EndpointTypes = keyof typeof actionTypes;
 ```
 
 ## Building

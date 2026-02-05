@@ -58,8 +58,8 @@ export function iFrameManager() {
    * Accessing contentWindow.location of a cross-origin iframe will fail.
    *
    * @param options - The options for the iframe request (URL, timeout, success/error params).
-   * @returns A Promise that resolves with the parsed query parameters on success,
-   *          or rejects on error, timeout, or if unable to access iframe content.
+   * @returns A Promise that resolves with the parsed query parameters on success or
+   *          when error params are present; rejects on timeout or if unable to access iframe content.
    */
   return {
     getParamsByRedirect: (options: GetParamsFromIFrameOptions): Promise<ResolvedParams> => {
@@ -116,7 +116,7 @@ export function iFrameManager() {
               // 1. Check for Error Parameters
               if (hasErrorParams(searchParams, errorParams)) {
                 cleanup();
-                resolve(parsedParams); // Reject with all parsed params for context
+                resolve(parsedParams); // Resolve with all parsed params for context
                 return;
               }
 
