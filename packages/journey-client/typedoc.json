@@ -1,0 +1,12 @@
+{
+  "name": "@forgerock/journey-client",
+  "entryPoints": [
+    "src/index.ts",
+    "src/types.ts",
+    "./src/lib/device/*.js",
+    "./src/lib/webauthn/*.js",
+    "./src/lib/recovery-codes/*.js",
+    "./src/lib/qr-code/*.js",
+    "./src/lib/policy/*.js"
+  ]
+}
