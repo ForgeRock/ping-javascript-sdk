@@ -4,6 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { deviceClient } from '../device.store.js';
+
+export type DeviceClient = ReturnType<typeof deviceClient>;
 
 // Re-export types from external dependencies that consumers need
 export type { ConfigOptions } from '@forgerock/javascript-sdk';

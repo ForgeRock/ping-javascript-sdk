@@ -19,6 +19,7 @@ export type {
 } from '@forgerock/sdk-types';
 
 // Re-export local types
+export * from './lib/client.types.js';
 export * from './lib/config.types.js';
 export * from './lib/interfaces.js';
 export * from './lib/step.types.js';
