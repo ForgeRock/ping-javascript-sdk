@@ -13,10 +13,12 @@ export function logger(config: { level: LogLevel; custom?: CustomLogger }) {
 
   // Implement log functions
   const logFunctions = {
-    error: (...args: LogMessage[]) => custom?.error(...args) || console.error(...args),
-    warn: (...args: LogMessage[]) => custom?.warn(...args) || console.warn(...args),
-    info: (...args: LogMessage[]) => custom?.info(...args) || console.info(...args),
-    debug: (...args: LogMessage[]) => custom?.debug(...args) || console.debug(...args),
+    error: (...args: LogMessage[]) =>
+      custom?.error ? custom.error(...args) : console.error(...args),
+    warn: (...args: LogMessage[]) => (custom?.warn ? custom.warn(...args) : console.warn(...args)),
+    info: (...args: LogMessage[]) => (custom?.info ? custom.info(...args) : console.info(...args)),
+    debug: (...args: LogMessage[]) =>
+      custom?.debug ? custom.debug(...args) : console.debug(...args),
   };
 
   // Implement level inclusion
