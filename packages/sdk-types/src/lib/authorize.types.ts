@@ -9,13 +9,12 @@ import type { LegacyConfigOptions } from './legacy-config.types.js';
 export type ResponseType = 'code' | 'token';
 
 /**
- * Define the options for the authorization URL
+ * Options for the authorization URL
  * @param clientId The client ID of the application
  * @param redirectUri The redirect URI of the application
  * @param responseType The response type of the authorization request
  * @param scope The scope of the authorization request
  */
-
 export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   /**
    * These four properties clientid, scope, responseType and redirectUri are required
@@ -34,13 +33,10 @@ export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   successParams?: string[];
   errorParams?: string[];
 }
+
 /**
  * Generate and store PKCE values for later use
- * @param { string } storageKey - Key to store authorization options in sessionStorage
- * @param {GenerateAndStoreAuthUrlValues} options - Options for generating PKCE values
- * @returns { state: string, verifier: string, GetAuthorizationUrlOptions }
  */
-
 export interface GenerateAndStoreAuthUrlValues extends GetAuthorizationUrlOptions {
   login?: 'redirect' | 'embedded';
   clientId: string;

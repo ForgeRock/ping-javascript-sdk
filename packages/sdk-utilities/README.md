@@ -60,6 +60,25 @@ const verifier = createVerifier();
 const challenge = await createChallenge(verifier);
 ```
 
+### Error Utilities
+
+Utilities for working with error objects:
+
+- `isGenericError`: TypeScript type guard to check if a value is a `GenericError`
+
+```typescript
+import { isGenericError } from '@forgerock/sdk-utilities';
+
+const result = await someOperation();
+
+if (isGenericError(result)) {
+  console.error(`Error (${result.type}): ${result.error}`);
+  console.error(`Message: ${result.message}`);
+} else {
+  console.log('Operation successful:', result);
+}
+```
+
 ## Development
 
 ### Testing
@@ -67,13 +86,7 @@ const challenge = await createChallenge(verifier);
 To run tests:
 
 ```bash
-pnpm test
-```
-
-To run tests in watch mode:
-
-```bash
-pnpm test:watch
+nx test sdk-utilities
 ```
 
 ### Linting
@@ -81,7 +94,7 @@ pnpm test:watch
 To lint the codebase:
 
 ```bash
-pnpm lint
+nx lint sdk-utilities
 ```
 
 ## License

@@ -8,7 +8,6 @@ The `deviceClient` API provides a structured interface for managing various type
 2. [Installation](#installation)
 3. [Configuration](#configuration)
 4. [API Methods](#api-methods)
-
    - [OATH Management](#oath-management)
    - [PUSH Management](#push-management)
    - [WebAuthn Management](#webauthn-management)
@@ -36,8 +35,7 @@ npm install @forgerock/device-client --save
 To configure the `deviceClient`, you need to provide a `ConfigOptions` object that includes the base URL for the server and the realm path.
 
 ```typescript
-import { deviceClient } from '@forgerock/device-client';
-import { type ConfigOptions } from '@forgerock/javascript-sdk';
+import { deviceClient, type ConfigOptions } from '@forgerock/device-client';
 
 const config: ConfigOptions = {
   serverConfig: {
@@ -59,59 +57,59 @@ const apiClient = deviceClient(config);
 
 #### Methods
 
-- **get(query: RetrieveOathQuery): Promise<OathDevice[]>**
+- **get(query: RetrieveOathQuery): Promise<OathDevice[] | { error: unknown }>**
 - Retrieves Oath devices based on the specified query.
 
-- **delete(query: RetrieveOathQuery & { device: OathDevice }): Promise\<null>**
+- **delete(query: RetrieveOathQuery & { device: OathDevice }): Promise<null | { error: unknown }>**
 - Deletes an Oath device based on the provided query and device information.
 
 ### PUSH Management
 
 #### Methods
 
-- **get(query: PushDeviceQuery): Promise<PushDevice[]>**
+- **get(query: PushDeviceQuery): Promise<PushDevice[] | { error: unknown }>**
 - Retrieves Push devices based on the specified query.
 
-- **delete(query: DeleteDeviceQuery): Promise\<null>**
+- **delete(query: DeleteDeviceQuery): Promise<null | { error: unknown }>**
 - Deletes a Push device based on the provided query.
 
 ### WebAuthn Management
 
 #### Methods
 
-- **get(query: WebAuthnQuery): Promise<WebAuthnDevice[]>**
+- **get(query: WebAuthnQuery): Promise<WebAuthnDevice[] | { error: unknown }>**
 - Retrieves WebAuthn devices based on the specified query.
 
-- **update(query: WebAuthnQuery & { device: WebAuthnDevice }): Promise\<UpdatedWebAuthnDevice>**
+- **update(query: WebAuthnQuery & { device: WebAuthnDevice }): Promise<UpdatedWebAuthnDevice | { error: unknown }>**
 - Updates the name of a WebAuthn device based on the provided query and body.
 
-- **delete(query: WebAuthnQuery & { device: WebAuthnDevice | UpdatedWebAuthnDevice }): Promise\<null>**
+- **delete(query: WebAuthnQuery & { device: WebAuthnDevice | UpdatedWebAuthnDevice }): Promise<null | { error: unknown }>**
 - Deletes a WebAuthn device based on the provided query and body.
 
 ### Bound Devices Management
 
 #### Methods
 
-- **get(query: GetBoundDevicesQuery): Promise\<Device[]>**
+- **get(query: GetBoundDevicesQuery): Promise<Device[] | { error: unknown }>**
 - Retrieves bound devices based on the specified query.
 
-- **update(query: BoundDeviceQuery): Promise\<Device>**
+- **update(query: BoundDeviceQuery): Promise<Device | { error: unknown }>**
 - Updates the name of a bound device based on the provided query.
 
-- **delete(query: BoundDeviceQuery): Promise\<null>**
+- **delete(query: BoundDeviceQuery): Promise<null | { error: unknown }>**
 - Deletes a bound device based on the provided query.
 
 ### Device Profiling Management
 
 #### Methods
 
-- **get(query: GetProfileDevices): Promise\<ProfileDevice[]>**
+- **get(query: GetProfileDevices): Promise<ProfileDevice[] | { error: unknown }>**
 - Retrieves device profiles based on the specified query.
 
-- **update(query: ProfileDevicesQuery): Promise\<ProfileDevice>**
+- **update(query: ProfileDevicesQuery): Promise<ProfileDevice | { error: unknown }>**
 - Updates the name of a device profile based on the provided query.
 
-- **delete(query: ProfileDevicesQuery): Promise\<null>**
+- **delete(query: ProfileDevicesQuery): Promise<null | { error: unknown }>**
 - Deletes a device profile based on the provided query.
 
 ## Example Usage

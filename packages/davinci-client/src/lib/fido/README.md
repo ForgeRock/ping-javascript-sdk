@@ -4,6 +4,8 @@
 
 The `fido` API provides an interface for registering and authenticating with the WebAuthn API and transforming data to and from DaVinci. These methods transform options from DaVinci into WebAuthn compatible options, then call `navigator.credentials.create` or `navigator.credentials.get`, and finally transform the output of the WebAuthn API into a valid payload to send back to DaVinci.
 
+**Note**: To use this module, browser support is required for `navigator.credentials.create` and `navigator.credentials.get`
+
 ## Installation and Initialization
 
 The `fido` module is exported as a member of the `@forgerock/davinci-client` package and is intended to be used alongside the `davinciClient` to progress through a flow. To install the necessary dependencies, run:

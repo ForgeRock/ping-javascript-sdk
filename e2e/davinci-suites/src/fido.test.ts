@@ -87,9 +87,7 @@ test.describe('FIDO/WebAuthn Tests', () => {
     await expect(page.getByText('FIDO2 Test Form')).toBeVisible();
   });
 
-  // Note: This test is currently not working due to a DaVinci issue where the authentication options
-  // are not included in the response.
-  test.skip('Register and authenticate with usernameless', async ({ page }) => {
+  test('Register and authenticate with usernameless', async ({ page }) => {
     const { navigate } = asyncEvents(page);
 
     await navigate(
