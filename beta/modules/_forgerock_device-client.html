@@ -35,7 +35,7 @@
 </code><button type="button">Copy</button></pre>
 
 <a id="configuration" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Configuration<a href="#configuration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>To configure the <code>deviceClient</code>, you need to provide a <code>ConfigOptions</code> object that includes the base URL for the server and the realm path.</p>
-<pre><code class="typescript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">deviceClient</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@forgerock/device-client&#39;</span><span class="hl-1">;</span><br/><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-3">type</span><span class="hl-1"> </span><span class="hl-4">ConfigOptions</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@forgerock/javascript-sdk&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">config</span><span class="hl-1">: </span><span class="hl-8">ConfigOptions</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-4">serverConfig:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">baseUrl:</span><span class="hl-1"> </span><span class="hl-2">&#39;https://api.example.com&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-4">realmPath:</span><span class="hl-1"> </span><span class="hl-2">&#39;/your-realm-path&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">};</span>
+<pre><code class="typescript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">deviceClient</span><span class="hl-1">, </span><span class="hl-3">type</span><span class="hl-1"> </span><span class="hl-4">ConfigOptions</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@forgerock/device-client&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">config</span><span class="hl-1">: </span><span class="hl-8">ConfigOptions</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-4">serverConfig:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">baseUrl:</span><span class="hl-1"> </span><span class="hl-2">&#39;https://api.example.com&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-4">realmPath:</span><span class="hl-1"> </span><span class="hl-2">&#39;/your-realm-path&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">};</span>
 </code><button type="button">Copy</button></pre>
 
 <p>If there is no realmPath or you wish to override the value, you can do so in the api call itself where you pass in the query.</p>
@@ -44,13 +44,13 @@
 
 <a id="api-methods" class="tsd-anchor"></a><h2 class="tsd-anchor-link">API Methods<a href="#api-methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="oath-management" class="tsd-anchor"></a><h3 class="tsd-anchor-link">OATH Management<a href="#oath-management" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><a id="methods" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Methods<a href="#methods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
 <li>
-<p><strong>get(query: RetrieveOathQuery): Promise&lt;OathDevice[]&gt;</strong></p>
+<p><strong>get(query: RetrieveOathQuery): Promise&lt;OathDevice[] | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Retrieves Oath devices based on the specified query.</p>
 </li>
 <li>
-<p><strong>delete(query: RetrieveOathQuery &amp; { device: OathDevice }): Promise&lt;null&gt;</strong></p>
+<p><strong>delete(query: RetrieveOathQuery &amp; { device: OathDevice }): Promise&lt;null | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Deletes an Oath device based on the provided query and device information.</p>
@@ -58,13 +58,13 @@
 </ul>
 <a id="push-management" class="tsd-anchor"></a><h3 class="tsd-anchor-link">PUSH Management<a href="#push-management" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><a id="methods-1" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Methods<a href="#methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
 <li>
-<p><strong>get(query: PushDeviceQuery): Promise&lt;PushDevice[]&gt;</strong></p>
+<p><strong>get(query: PushDeviceQuery): Promise&lt;PushDevice[] | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Retrieves Push devices based on the specified query.</p>
 </li>
 <li>
-<p><strong>delete(query: DeleteDeviceQuery): Promise&lt;null&gt;</strong></p>
+<p><strong>delete(query: DeleteDeviceQuery): Promise&lt;null | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Deletes a Push device based on the provided query.</p>
@@ -72,19 +72,19 @@
 </ul>
 <a id="webauthn-management" class="tsd-anchor"></a><h3 class="tsd-anchor-link">WebAuthn Management<a href="#webauthn-management" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><a id="methods-2" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Methods<a href="#methods-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
 <li>
-<p><strong>get(query: WebAuthnQuery): Promise&lt;WebAuthnDevice[]&gt;</strong></p>
+<p><strong>get(query: WebAuthnQuery): Promise&lt;WebAuthnDevice[] | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Retrieves WebAuthn devices based on the specified query.</p>
 </li>
 <li>
-<p><strong>update(query: WebAuthnQuery &amp; { device: WebAuthnDevice }): Promise&lt;UpdatedWebAuthnDevice&gt;</strong></p>
+<p><strong>update(query: WebAuthnQuery &amp; { device: WebAuthnDevice }): Promise&lt;UpdatedWebAuthnDevice | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Updates the name of a WebAuthn device based on the provided query and body.</p>
 </li>
 <li>
-<p><strong>delete(query: WebAuthnQuery &amp; { device: WebAuthnDevice | UpdatedWebAuthnDevice }): Promise&lt;null&gt;</strong></p>
+<p><strong>delete(query: WebAuthnQuery &amp; { device: WebAuthnDevice | UpdatedWebAuthnDevice }): Promise&lt;null | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Deletes a WebAuthn device based on the provided query and body.</p>
@@ -92,19 +92,19 @@
 </ul>
 <a id="bound-devices-management" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Bound Devices Management<a href="#bound-devices-management" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><a id="methods-3" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Methods<a href="#methods-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
 <li>
-<p><strong>get(query: GetBoundDevicesQuery): Promise&lt;Device[]&gt;</strong></p>
+<p><strong>get(query: GetBoundDevicesQuery): Promise&lt;Device[] | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Retrieves bound devices based on the specified query.</p>
 </li>
 <li>
-<p><strong>update(query: BoundDeviceQuery): Promise&lt;Device&gt;</strong></p>
+<p><strong>update(query: BoundDeviceQuery): Promise&lt;Device | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Updates the name of a bound device based on the provided query.</p>
 </li>
 <li>
-<p><strong>delete(query: BoundDeviceQuery): Promise&lt;null&gt;</strong></p>
+<p><strong>delete(query: BoundDeviceQuery): Promise&lt;null | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Deletes a bound device based on the provided query.</p>
@@ -112,19 +112,19 @@
 </ul>
 <a id="device-profiling-management" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Device Profiling Management<a href="#device-profiling-management" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><a id="methods-4" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Methods<a href="#methods-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
 <li>
-<p><strong>get(query: GetProfileDevices): Promise&lt;ProfileDevice[]&gt;</strong></p>
+<p><strong>get(query: GetProfileDevices): Promise&lt;ProfileDevice[] | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Retrieves device profiles based on the specified query.</p>
 </li>
 <li>
-<p><strong>update(query: ProfileDevicesQuery): Promise&lt;ProfileDevice&gt;</strong></p>
+<p><strong>update(query: ProfileDevicesQuery): Promise&lt;ProfileDevice | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Updates the name of a device profile based on the provided query.</p>
 </li>
 <li>
-<p><strong>delete(query: ProfileDevicesQuery): Promise&lt;null&gt;</strong></p>
+<p><strong>delete(query: ProfileDevicesQuery): Promise&lt;null | { error: unknown }&gt;</strong></p>
 </li>
 <li>
 <p>Deletes a device profile based on the provided query.</p>
