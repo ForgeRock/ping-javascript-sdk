@@ -10,7 +10,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import type { GenericError, Step, WellknownResponse } from '@forgerock/sdk-types';
 
-import { journey, isJourneyClient } from './client.store.js';
+import { journey } from './client.store.js';
 import { createJourneyStep } from './step.utils.js';
 import { JourneyClientConfig } from './config.types.js';
 
@@ -61,7 +61,6 @@ const mockConfig: JourneyClientConfig = {
   serverConfig: {
     wellknown: mockWellknownUrl,
   },
-  // realmPath will be inferred from issuer as 'root'
 };
 
 /**
@@ -104,19 +103,17 @@ describe('journey-client', () => {
     setupMockFetch();
 
     // Act
-    const result = await journey({ config: mockConfig });
+    const client = await journey({ config: mockConfig });
 
     // Assert
-    expect(isJourneyClient(result)).toBe(true);
-    if (!isJourneyClient(result)) return;
-    expect(result.start).toBeInstanceOf(Function);
-    expect(result.next).toBeInstanceOf(Function);
-    expect(result.redirect).toBeInstanceOf(Function);
-    expect(result.resume).toBeInstanceOf(Function);
-    expect(result.terminate).toBeInstanceOf(Function);
+    expect(client.start).toBeInstanceOf(Function);
+    expect(client.next).toBeInstanceOf(Function);
+    expect(client.redirect).toBeInstanceOf(Function);
+    expect(client.resume).toBeInstanceOf(Function);
+    expect(client.terminate).toBeInstanceOf(Function);
   });
 
-  test('journey_InvalidWellknownUrl_ReturnsError', async () => {
+  test('journey_InvalidWellknownUrl_ThrowsError', async () => {
     // Arrange
     const invalidConfig: JourneyClientConfig = {
       serverConfig: {
@@ -124,33 +121,20 @@ describe('journey-client', () => {
       },
     };
 
-    // Act
-    const result = await journey({ config: invalidConfig });
-
-    // Assert
-    expect(isJourneyClient(result)).toBe(false);
-    if (isJourneyClient(result)) return;
-    expect(result.error).toBe('Invalid wellknown URL');
-    expect(result.type).toBe('wellknown_error');
+    // Act & Assert
+    await expect(journey({ config: invalidConfig })).rejects.toThrow('Invalid wellknown URL');
   });
 
-  test('journey_NonAmWellknownUrl_ReturnsAmRequiredError', async () => {
-    // Arrange - PingOne URL has no /oauth2/ path
-    const pingOneConfig: JourneyClientConfig = {
+  test('journey_MissingWellknownPath_ThrowsError', async () => {
+    // Arrange — valid HTTPS URL but missing /.well-known/openid-configuration
+    const badPathConfig: JourneyClientConfig = {
       serverConfig: {
-        wellknown: 'https://auth.pingone.com/env-id/.well-known/openid-configuration',
+        wellknown: 'https://am.example.com/am/oauth2/alpha',
       },
     };
 
-    // Act
-    const result = await journey({ config: pingOneConfig });
-
-    // Assert
-    expect(isJourneyClient(result)).toBe(false);
-    if (isJourneyClient(result)) return;
-    expect(result.error).toBe('AM server required');
-    expect(result.type).toBe('wellknown_error');
-    expect(result.message).toContain('ForgeRock AM servers only');
+    // Act & Assert
+    await expect(journey({ config: badPathConfig })).rejects.toThrow('Invalid wellknown URL');
   });
 
   test('start_WellknownConfig_FetchesFirstStep', async () => {
@@ -159,9 +143,8 @@ describe('journey-client', () => {
     setupMockFetch(mockStepResponse);
 
     // Act
-    const result = await journey({ config: mockConfig });
-    if (!isJourneyClient(result)) throw new Error('Expected client');
-    const step = await result.start();
+    const client = await journey({ config: mockConfig });
+    const step = await client.start();
 
     // Assert
     expect(step).toBeDefined();
@@ -204,9 +187,8 @@ describe('journey-client', () => {
     setupMockFetch(nextStepPayload);
 
     // Act
-    const result = await journey({ config: mockConfig });
-    if (!isJourneyClient(result)) throw new Error('Expected client');
-    const nextStep = await result.next(initialStep, {});
+    const client = await journey({ config: mockConfig });
+    const nextStep = await client.next(initialStep, {});
 
     // Assert
     expect(nextStep).toBeDefined();
@@ -243,9 +225,8 @@ describe('journey-client', () => {
     setupMockFetch();
 
     // Act
-    const result = await journey({ config: mockConfig });
-    if (!isJourneyClient(result)) throw new Error('Expected client');
-    await result.redirect(step);
+    const client = await journey({ config: mockConfig });
+    await client.redirect(step);
 
     // Assert
     expect(mockStorageInstance.set).toHaveBeenCalledWith({ step: step.payload });
@@ -265,10 +246,9 @@ describe('journey-client', () => {
       setupMockFetch(nextStepPayload);
 
       // Act
-      const result = await journey({ config: mockConfig });
-      if (!isJourneyClient(result)) throw new Error('Expected client');
+      const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
-      const step = await result.resume(resumeUrl, {});
+      const step = await client.resume(resumeUrl, {});
 
       // Assert
       expect(step).toBeDefined();
@@ -301,10 +281,9 @@ describe('journey-client', () => {
       setupMockFetch(nextStepPayload);
 
       // Act
-      const result = await journey({ config: mockConfig });
-      if (!isJourneyClient(result)) throw new Error('Expected client');
+      const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
-      const step = await result.resume(resumeUrl, {});
+      const step = await client.resume(resumeUrl, {});
 
       // Assert
       expect(step).toBeDefined();
@@ -326,12 +305,11 @@ describe('journey-client', () => {
       setupMockFetch();
 
       // Act
-      const result = await journey({ config: mockConfig });
-      if (!isJourneyClient(result)) throw new Error('Expected client');
+      const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
 
       // Assert
-      await expect(result.resume(resumeUrl)).rejects.toThrow(
+      await expect(client.resume(resumeUrl)).rejects.toThrow(
         'Error: previous step information not found in storage for resume operation.',
       );
       expect(mockStorageInstance.get).toHaveBeenCalledTimes(1);
@@ -345,10 +323,9 @@ describe('journey-client', () => {
       setupMockFetch(mockStepResponse);
 
       // Act
-      const result = await journey({ config: mockConfig });
-      if (!isJourneyClient(result)) throw new Error('Expected client');
+      const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?foo=bar';
-      const step = await result.resume(resumeUrl, {});
+      const step = await client.resume(resumeUrl, {});
 
       // Assert
       expect(step).toBeDefined();
@@ -364,10 +341,10 @@ describe('journey-client', () => {
     });
   });
 
-  describe('baseUrl normalization', () => {
-    test('normalizeBaseUrl_WithoutTrailingSlash_AddsSlash', async () => {
+  describe('baseUrl from convertWellknown', () => {
+    test('journey_LocalhostWellknown_ConstructsCorrectUrls', async () => {
       // Arrange
-      const configWithoutSlash: JourneyClientConfig = {
+      const localhostConfig: JourneyClientConfig = {
         serverConfig: {
           wellknown: 'http://localhost:9443/am/oauth2/realms/root/.well-known/openid-configuration',
         },
@@ -381,6 +358,7 @@ describe('journey-client', () => {
               JSON.stringify({
                 ...mockWellknownResponse,
                 issuer: 'http://localhost:9443/am/oauth2/realms/root',
+                authorization_endpoint: 'http://localhost:9443/am/oauth2/realms/root/authorize',
               }),
             ),
           );
@@ -389,9 +367,8 @@ describe('journey-client', () => {
       });
 
       // Act
-      const result = await journey({ config: configWithoutSlash });
-      if (!isJourneyClient(result)) throw new Error('Expected client');
-      await result.start();
+      const client = await journey({ config: localhostConfig });
+      await client.start();
 
       // Assert
       expect(mockFetch).toHaveBeenCalledTimes(2);
@@ -400,8 +377,8 @@ describe('journey-client', () => {
     });
   });
 
-  describe('realm inference', () => {
-    test('journey_WellknownWithSubrealm_InfersRealmFromIssuer', async () => {
+  describe('subrealm inference', () => {
+    test('journey_WellknownWithSubrealm_DerivesCorrectPaths', async () => {
       // Arrange
       const alphaConfig: JourneyClientConfig = {
         serverConfig: {
@@ -418,6 +395,8 @@ describe('journey-client', () => {
               JSON.stringify({
                 ...mockWellknownResponse,
                 issuer: 'https://test.com/am/oauth2/realms/root/realms/alpha',
+                authorization_endpoint:
+                  'https://test.com/am/oauth2/realms/root/realms/alpha/authorize',
               }),
             ),
           );
@@ -426,50 +405,12 @@ describe('journey-client', () => {
       });
 
       // Act
-      const result = await journey({ config: alphaConfig });
-      if (!isJourneyClient(result)) throw new Error('Expected client');
-      await result.start();
+      const client = await journey({ config: alphaConfig });
+      await client.start();
 
       // Assert
       const request = mockFetch.mock.calls[1][0] as Request;
-      // Realm 'alpha' is inferred from issuer; getRealmUrlPath prepends 'root' if needed
       expect(request.url).toBe('https://test.com/am/json/realms/root/realms/alpha/authenticate');
-    });
-
-    test('journey_ExplicitRealmPath_OverridesInferredRealm', async () => {
-      // Arrange
-      const configWithExplicitRealm: JourneyClientConfig = {
-        serverConfig: {
-          wellknown:
-            'https://test.com/am/oauth2/realms/root/realms/alpha/.well-known/openid-configuration',
-        },
-        realmPath: 'beta', // Explicit override
-      };
-      const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
-      mockFetch.mockImplementation((input: RequestInfo | URL) => {
-        const url = getUrlFromInput(input);
-        if (url.includes('.well-known')) {
-          return Promise.resolve(
-            new Response(
-              JSON.stringify({
-                ...mockWellknownResponse,
-                issuer: 'https://test.com/am/oauth2/realms/root/realms/alpha',
-              }),
-            ),
-          );
-        }
-        return Promise.resolve(new Response(JSON.stringify(mockStepResponse)));
-      });
-
-      // Act
-      const result = await journey({ config: configWithExplicitRealm });
-      if (!isJourneyClient(result)) throw new Error('Expected client');
-      await result.start();
-
-      // Assert
-      const request = mockFetch.mock.calls[1][0] as Request;
-      // Explicit realmPath 'beta' overrides inferred; getRealmUrlPath prepends 'root'
-      expect(request.url).toBe('https://test.com/am/json/realms/root/realms/beta/authenticate');
     });
   });
 });

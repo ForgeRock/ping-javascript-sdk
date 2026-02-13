@@ -4,11 +4,24 @@
 
 > **Note**: This client is designed specifically for ForgeRock AM servers. For PingOne DaVinci flows, use `@forgerock/davinci-client`. For standard OIDC operations, use `@forgerock/oidc-client`.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [API Reference](#api-reference)
+- [Working with Callbacks](#working-with-callbacks)
+- [Request Middleware](#request-middleware)
+- [Error Handling](#error-handling)
+- [Building](#building)
+- [Testing](#testing)
+
 ## Features
 
 - **Wellknown Discovery**: Automatically discovers server configuration from the OIDC wellknown endpoint
+- **Automatic Path Derivation**: Derives `baseUrl`, `authenticate`, and `sessions` paths directly from the well-known response
 - **Stateful Client**: Manages authentication journey state internally
-- **Error-as-Value Pattern**: Returns errors as values instead of throwing, enabling type-safe error handling
 - **Callback Handling**: Provides a structured way to interact with various authentication callbacks
 - **Redux Toolkit & RTK Query**: Built on modern state management for predictable state and efficient API interactions
 
@@ -25,115 +38,98 @@ yarn add @forgerock/journey-client
 ## Quick Start
 
 ```typescript
-import { journey, isJourneyClient } from '@forgerock/journey-client';
+import { journey } from '@forgerock/journey-client';
 import { callbackType } from '@forgerock/sdk-types';
 
 async function authenticateUser() {
   // Initialize the client with wellknown discovery
-  const result = await journey({
-    config: {
-      serverConfig: {
-        wellknown: 'https://am.example.com/am/oauth2/alpha/.well-known/openid-configuration',
+  try {
+    const client = await journey({
+      config: {
+        serverConfig: {
+          wellknown: 'https://am.example.com/am/oauth2/alpha/.well-known/openid-configuration',
+        },
       },
-      // realmPath is optional - inferred from wellknown issuer
-    },
-  });
+    });
 
-  // Handle initialization errors using the type guard
-  if (!isJourneyClient(result)) {
-    console.error('Failed to initialize:', result.message);
-    return;
-  }
+    // Start the authentication journey
+    let step = await client.start({ journey: 'Login' });
 
-  const client = result;
+    // Handle callbacks in a loop until success or failure
+    while (step?.type === 'Step') {
+      const nameCallbacks = step.getCallbacksOfType(callbackType.NameCallback);
+      for (const cb of nameCallbacks) {
+        cb.setName('demo');
+      }
 
-  // Start the authentication journey
-  let step = await client.start({ journey: 'Login' });
+      const passwordCallbacks = step.getCallbacksOfType(callbackType.PasswordCallback);
+      for (const cb of passwordCallbacks) {
+        cb.setPassword('password');
+      }
 
-  // Handle callbacks in a loop until success or failure
-  while (step?.type === 'Step') {
-    // Handle NameCallback
-    const nameCallbacks = step.getCallbacksOfType(callbackType.NameCallback);
-    for (const cb of nameCallbacks) {
-      cb.setName('demo');
+      step = await client.next(step);
     }
 
-    // Handle PasswordCallback
-    const passwordCallbacks = step.getCallbacksOfType(callbackType.PasswordCallback);
-    for (const cb of passwordCallbacks) {
-      cb.setPassword('password');
+    // Check the final result
+    if (step?.type === 'LoginSuccess') {
+      console.log('Login successful!', step.getSessionToken());
+    } else if (step?.type === 'LoginFailure') {
+      console.error('Login failed:', step.payload.message);
     }
-
-    // Submit and get next step
-    step = await client.next(step);
-  }
-
-  // Check the final result
-  if (step?.type === 'LoginSuccess') {
-    console.log('Login successful!', step.getSessionToken());
-  } else if (step?.type === 'LoginFailure') {
-    console.error('Login failed:', step.payload.message);
+  } catch (error) {
+    console.error('Failed to initialize client:', error);
   }
 }
 ```
 
 ## Configuration
 
-The client uses OIDC wellknown discovery to automatically configure itself:
+The client requires only the OIDC wellknown endpoint URL. All other configuration is derived automatically from the well-known response:
 
 ```typescript
 import type { JourneyClientConfig } from '@forgerock/journey-client/types';
 
 const config: JourneyClientConfig = {
   serverConfig: {
-    // Required: OIDC discovery endpoint
     wellknown: 'https://am.example.com/am/oauth2/alpha/.well-known/openid-configuration',
-    // Optional: Custom path overrides
-    paths: {
-      authenticate: '/custom/authenticate',
-    },
-    // Optional: Request timeout in milliseconds
-    timeout: 30000,
   },
-  // Optional: Realm path (inferred from wellknown issuer if not provided)
-  realmPath: 'alpha',
 };
 ```
 
-### Automatic Inference
+### Automatic Derivation
 
-The client automatically infers configuration from the wellknown URL:
+The client automatically derives all needed configuration from the well-known response:
 
-| Property    | Inferred From                                         |
-| ----------- | ----------------------------------------------------- |
-| `baseUrl`   | Extracted from wellknown URL path (before `/oauth2/`) |
-| `realmPath` | Extracted from the `issuer` in the wellknown response |
+| Property       | Derived From                                                         |
+| -------------- | -------------------------------------------------------------------- |
+| `baseUrl`      | `authorization_endpoint` origin                                      |
+| `authenticate` | Issuer path with `/oauth2` replaced by `/json`, plus `/authenticate` |
+| `sessions`     | Issuer path with `/oauth2` replaced by `/json`, plus `/sessions/`    |
 
 ## API Reference
 
 ### `journey(options)`
 
-Factory function that creates a journey client instance.
+Factory function that creates a journey client instance. Throws on initialization failure (invalid URL, fetch error, non-AM server).
 
 ```typescript
-const result = await journey({
+const client = await journey({
   config: JourneyClientConfig,
   requestMiddleware?: RequestMiddleware[],
   logger?: { level: LogLevel; custom?: CustomLogger },
 });
 ```
 
-**Returns**: `Promise<JourneyClient | GenericError>`
+**Returns**: `Promise<JourneyClient>`
 
-Use the `isJourneyClient()` type guard to narrow the result:
+**Throws**: `Error` if the wellknown URL is invalid, the fetch fails, or the server is not a ForgeRock AM instance.
 
 ```typescript
-if (!isJourneyClient(result)) {
-  // result is GenericError
-  console.error(result.error, result.message);
-  return;
+try {
+  const client = await journey({ config });
+} catch (error) {
+  console.error('Initialization failed:', error.message);
 }
-// result is JourneyClient
 ```
 
 ### Client Methods
@@ -223,7 +219,7 @@ const loggingMiddleware: RequestMiddleware = (req, action, next) => {
   next();
 };
 
-const result = await journey({
+const client = await journey({
   config,
   requestMiddleware: [loggingMiddleware],
 });
@@ -231,29 +227,23 @@ const result = await journey({
 
 ### Middleware Actions
 
-| Action Type     | Description             |
-| --------------- | ----------------------- |
-| `JOURNEY_START` | Starting a new journey  |
-| `JOURNEY_NEXT`  | Submitting a step       |
-| `END_SESSION`   | Terminating the session |
+| Action Type         | Description             |
+| ------------------- | ----------------------- |
+| `JOURNEY_START`     | Starting a new journey  |
+| `JOURNEY_NEXT`      | Submitting a step       |
+| `JOURNEY_TERMINATE` | Terminating the session |
 
 ## Error Handling
 
-The client uses an error-as-value pattern instead of throwing exceptions:
+The `journey()` factory throws on initialization failure. Use try/catch:
 
 ```typescript
-const result = await journey({ config });
-
-if (!isJourneyClient(result)) {
-  // Handle initialization error
-  switch (result.type) {
-    case 'wellknown_error':
-      console.error('Configuration error:', result.message);
-      break;
-    default:
-      console.error('Unknown error:', result.error);
-  }
-  return;
+try {
+  const client = await journey({ config });
+  // client is guaranteed to be a JourneyClient
+} catch (error) {
+  // Handle initialization errors (invalid URL, fetch failure, non-AM server)
+  console.error('Failed to initialize:', error.message);
 }
 ```
 

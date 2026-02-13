@@ -5,23 +5,19 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { WellknownResponse, PathsConfig } from '@forgerock/sdk-types';
+import type { GenericError } from '@forgerock/sdk-types';
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { ResolvedServerConfig } from './wellknown.utils.js';
 
 /**
  * Server configuration for journey-client.
  *
- * @remarks
- * The `wellknown` URL is required for OIDC discovery. The `baseUrl` is
- * automatically inferred from the wellknown URL for ForgeRock AM servers.
+ * Only the OIDC discovery endpoint URL is required. All other configuration
+ * (baseUrl, paths) is automatically derived from the well-known response.
  */
 export interface JourneyServerConfig {
   /** Required OIDC discovery endpoint URL */
   wellknown: string;
-  /** Optional custom path overrides */
-  paths?: PathsConfig['paths'];
-  /** Optional request timeout in milliseconds */
-  timeout?: number;
 }
 
 /**
@@ -33,7 +29,6 @@ export interface JourneyServerConfig {
  *   serverConfig: {
  *     wellknown: 'https://am.example.com/am/oauth2/alpha/.well-known/openid-configuration',
  *   },
- *   // realmPath is optional - can be inferred from the well-known issuer
  * };
  * ```
  */
@@ -41,31 +36,19 @@ export interface JourneyClientConfig {
   serverConfig: JourneyServerConfig;
   /** Optional middleware for request customization */
   middleware?: Array<RequestMiddleware>;
-  /** Optional realm path - inferred from wellknown issuer if not provided */
-  realmPath?: string;
 }
 
 /**
- * Internal configuration after wellknown discovery and resolution.
- * Used internally by the journey client - not part of public API.
+ * Internal configuration after wellknown discovery and path resolution.
+ * Used internally by the journey client — not part of the public API.
  *
  * @internal
  */
 export interface InternalJourneyClientConfig {
-  serverConfig: {
-    /** Resolved base URL (required after inference) */
-    baseUrl: string;
-    /** Optional custom path overrides */
-    paths?: PathsConfig['paths'];
-    /** Optional request timeout in milliseconds */
-    timeout?: number;
-  };
+  serverConfig: ResolvedServerConfig;
   /** Optional middleware for request customization */
   middleware?: Array<RequestMiddleware>;
-  /** Resolved realm path */
-  realmPath?: string;
-  /** Cached wellknown response */
-  wellknownResponse: WellknownResponse;
+  error?: GenericError;
 }
 
 export type { RequestMiddleware };

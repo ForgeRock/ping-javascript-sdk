@@ -9,14 +9,13 @@
  */
 import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
-import { isGenericError } from '@forgerock/sdk-utilities';
+import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
 
 import { createClientStore, handleUpdateValidateError, RootState } from './client.store.utils.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
 import { wellknownApi } from './wellknown.api.js';
-import { createWellknownError } from './wellknown.utils.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 /**
