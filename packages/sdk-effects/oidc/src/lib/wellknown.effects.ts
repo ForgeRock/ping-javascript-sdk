@@ -8,6 +8,30 @@
 import type { WellknownResponse, GenericError } from '@forgerock/sdk-types';
 
 /**
+ * Structural types compatible with RTK Query's shapes.
+ * Defined locally to keep the effects layer framework-agnostic
+ * (no dependency on @reduxjs/toolkit).
+ */
+
+/** Compatible with RTK Query's FetchArgs. */
+interface WellknownFetchArgs {
+  url: string;
+  headers: Record<string, string>;
+}
+
+/** Compatible with RTK Query's FetchBaseQueryError. */
+interface WellknownQueryError {
+  status: number | string;
+  data?: unknown;
+  error?: string;
+}
+
+/** Compatible with RTK Query's QueryReturnValue. */
+type WellknownQueryResult<T> =
+  | { data: T; error?: undefined; meta?: unknown }
+  | { data?: undefined; error: WellknownQueryError; meta?: unknown };
+
+/**
  * The result shape returned by a {@link WellknownRequestFn}.
  *
  * Exactly one of `data` or `error` must be present — this is enforced
@@ -207,4 +231,72 @@ export async function fetchWellknownConfiguration(
   }
 
   return { success: true, data: result.data };
+}
+
+/** Callback type for the query builder — wraps RTK Query's `baseQuery`. */
+type QueryCallback = (args: WellknownFetchArgs) => Promise<WellknownQueryResult<unknown>>;
+
+/**
+ * Creates a well-known query builder for use inside RTK Query `queryFn`.
+ *
+ * Constructs a request object from the URL, then exposes `applyQuery` to
+ * execute the request through the caller's `baseQuery`. Response validation
+ * uses {@link isValidWellknownResponse}.
+ *
+ * @param url - The well-known endpoint URL
+ * @returns A builder with `applyQuery(callback)` that returns a result compatible with RTK Query's `QueryReturnValue`
+ *
+ * @example
+ * ```typescript
+ * queryFn: async (url, _api, _extra, baseQuery) => {
+ *   return initWellknownQuery(url).applyQuery(async (req) => await baseQuery(req));
+ * }
+ * ```
+ */
+export function initWellknownQuery(url: string) {
+  const request: WellknownFetchArgs = {
+    url,
+    headers: { Accept: 'application/json' },
+  };
+
+  return {
+    async applyQuery(callback: QueryCallback): Promise<WellknownQueryResult<WellknownResponse>> {
+      let result: WellknownQueryResult<unknown>;
+
+      try {
+        result = await callback(request);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during well-known fetch';
+        return {
+          error: {
+            status: 'CUSTOM_ERROR',
+            error: message,
+            data: createError(message),
+          },
+        };
+      }
+
+      if (result.error) {
+        return { error: result.error };
+      }
+
+      if (!isValidWellknownResponse(result.data)) {
+        return {
+          error: {
+            status: 'CUSTOM_ERROR',
+            error:
+              'Invalid well-known response: missing required fields (issuer, authorization_endpoint, token_endpoint)',
+            data: createError(
+              'Invalid well-known response: missing required fields (issuer, authorization_endpoint, token_endpoint)',
+            ),
+          },
+        };
+      }
+
+      return { data: result.data };
+    },
+  };
 }

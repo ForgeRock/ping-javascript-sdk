@@ -9,7 +9,7 @@ import { initQuery, RequestMiddleware } from '@forgerock/sdk-request-middleware'
 import { REQUESTED_WITH, getEndpointPath, stringify, resolve } from '@forgerock/sdk-utilities';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
-import type { ServerConfig, Step } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type {
   BaseQueryApi,
@@ -22,21 +22,19 @@ import type {
 
 import { JourneyStep } from './step.types.js';
 
-import type { JourneyState } from './journey.slice.js';
+import type { InternalJourneyClientConfig } from './config.types.js';
 import { NextOptions, StartParam } from './interfaces.js';
 
 /**
  * Minimal state type for accessing journey config from RTK Query endpoints.
- * This avoids circular dependency with client.store.utils.ts.
+ * References the config slice directly (not nested under journey).
  */
 interface JourneyRootState {
-  journey: JourneyState;
+  config: InternalJourneyClientConfig;
 }
 
-// Move these functions to the top, before journeyApi definition
 function constructUrl(
-  serverConfig: ServerConfig,
-  realmPath?: string,
+  serverConfig: InternalJourneyClientConfig['serverConfig'],
   tree?: string,
   query?: Record<string, string>,
 ): string {
@@ -45,7 +43,6 @@ function constructUrl(
   const queryString = Object.keys(params).length > 0 ? `?${stringify(params)}` : '';
   const path = getEndpointPath({
     endpoint: 'authenticate',
-    realmPath,
     customPaths: serverConfig.paths,
   });
   const url = resolve(serverConfig.baseUrl, `${path}${queryString}`);
@@ -53,15 +50,13 @@ function constructUrl(
 }
 
 function constructSessionsUrl(
-  serverConfig: ServerConfig,
-  realmPath?: string,
+  serverConfig: InternalJourneyClientConfig['serverConfig'],
   query?: Record<string, string>,
 ): string {
   const params: Record<string, string | undefined> = { ...query };
   const queryString = Object.keys(params).length > 0 ? `?${stringify(params)}` : '';
   const path = getEndpointPath({
     endpoint: 'sessions',
-    realmPath,
     customPaths: serverConfig.paths,
   });
   const url = resolve(serverConfig.baseUrl, `${path}${queryString}`);
@@ -116,15 +111,14 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const config = state.journey.config;
-        if (!config?.serverConfig) {
+        const { serverConfig } = state.config;
+        if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
-        const { realmPath, serverConfig } = config;
 
         const query = options?.query || {};
 
-        const url = constructUrl(serverConfig, realmPath, options?.journey, query);
+        const url = constructUrl(serverConfig, options?.journey, query);
         const request = configureRequest();
 
         const { requestMiddleware } = api.extra as Extras;
@@ -150,15 +144,13 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const config = state.journey.config;
-        if (!config?.serverConfig) {
+        const { serverConfig } = state.config;
+        if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
-        const { realmPath, serverConfig } = config;
         const query = options?.query || {};
 
-        // TODO: Handle the `undefined` argument better
-        const url = constructUrl(serverConfig, realmPath, undefined, query);
+        const url = constructUrl(serverConfig, undefined, query);
         const request = configureRequest(step);
 
         const { requestMiddleware } = api.extra as Extras;
@@ -181,15 +173,14 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const config = state.journey.config;
-        if (!config?.serverConfig) {
+        const { serverConfig } = state.config;
+        if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
-        const { realmPath, serverConfig } = config;
 
         const query = { ...options?.query, _action: 'logout' };
 
-        const url = constructSessionsUrl(serverConfig, realmPath, query);
+        const url = constructSessionsUrl(serverConfig, query);
         const request = configureSessionRequest();
 
         const { requestMiddleware } = api.extra as Extras;

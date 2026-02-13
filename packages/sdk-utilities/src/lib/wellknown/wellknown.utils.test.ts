@@ -6,20 +6,30 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { isValidWellknownUrl } from './wellknown.utils.js';
+import { isValidWellknownUrl, createWellknownError } from './wellknown.utils.js';
 
 describe('wellknown.utils', () => {
   describe('isValidWellknownUrl', () => {
-    describe('isValidWellknownUrl_HttpsUrl_ReturnsTrue', () => {
-      it('should return true for HTTPS URL', () => {
+    describe('isValidWellknownUrl_HttpsUrlWithCorrectPath_ReturnsTrue', () => {
+      it('should return true for HTTPS URL with correct path suffix', () => {
         expect(isValidWellknownUrl('https://am.example.com/.well-known/openid-configuration')).toBe(
           true,
         );
       });
     });
 
+    describe('isValidWellknownUrl_HttpsWithContextPath_ReturnsTrue', () => {
+      it('should return true for HTTPS URL with AM context path', () => {
+        expect(
+          isValidWellknownUrl(
+            'https://am.example.com/am/oauth2/alpha/.well-known/openid-configuration',
+          ),
+        ).toBe(true);
+      });
+    });
+
     describe('isValidWellknownUrl_HttpLocalhost_ReturnsTrue', () => {
-      it('should return true for HTTP localhost', () => {
+      it('should return true for HTTP localhost with correct path', () => {
         expect(isValidWellknownUrl('http://localhost:8080/.well-known/openid-configuration')).toBe(
           true,
         );
@@ -27,7 +37,7 @@ describe('wellknown.utils', () => {
     });
 
     describe('isValidWellknownUrl_Http127001_ReturnsTrue', () => {
-      it('should return true for HTTP 127.0.0.1', () => {
+      it('should return true for HTTP 127.0.0.1 with correct path', () => {
         expect(isValidWellknownUrl('http://127.0.0.1:8080/.well-known/openid-configuration')).toBe(
           true,
         );
@@ -39,6 +49,12 @@ describe('wellknown.utils', () => {
         expect(isValidWellknownUrl('http://am.example.com/.well-known/openid-configuration')).toBe(
           false,
         );
+      });
+    });
+
+    describe('isValidWellknownUrl_MissingWellknownPath_ReturnsFalse', () => {
+      it('should return false when path does not end with /.well-known/openid-configuration', () => {
+        expect(isValidWellknownUrl('https://am.example.com/am/oauth2/alpha')).toBe(false);
       });
     });
 
@@ -63,10 +79,50 @@ describe('wellknown.utils', () => {
     });
 
     describe('isValidWellknownUrl_HttpsLocalhost_ReturnsTrue', () => {
-      it('should return true for HTTPS localhost', () => {
+      it('should return true for HTTPS localhost with correct path', () => {
         expect(isValidWellknownUrl('https://localhost:8443/.well-known/openid-configuration')).toBe(
           true,
         );
+      });
+    });
+  });
+
+  describe('createWellknownError', () => {
+    describe('createWellknownError_NoError_ReturnsDefaultError', () => {
+      it('should return a default error when no error is provided', () => {
+        const result = createWellknownError();
+
+        expect(result.error).toBe('Well-known configuration fetch failed');
+        expect(result.message).toBe('No response received from well-known endpoint');
+        expect(result.type).toBe('wellknown_error');
+        expect(result.status).toBe('unknown');
+      });
+    });
+
+    describe('createWellknownError_GenericError_ReturnsAsIs', () => {
+      it('should return the GenericError directly if already a GenericError', () => {
+        const input = {
+          error: 'Custom error',
+          message: 'Custom message',
+          type: 'wellknown_error',
+          status: 404,
+        };
+
+        const result = createWellknownError(input);
+
+        expect(result).toBe(input);
+      });
+    });
+
+    describe('createWellknownError_SerializedError_WrapsMessage', () => {
+      it('should wrap a SerializedError into a GenericError', () => {
+        const input = { name: 'Error', message: 'Something failed' };
+
+        const result = createWellknownError(input);
+
+        expect(result.error).toBe('Well-known configuration fetch failed');
+        expect(result.message).toBe('Something failed');
+        expect(result.type).toBe('wellknown_error');
       });
     });
   });
