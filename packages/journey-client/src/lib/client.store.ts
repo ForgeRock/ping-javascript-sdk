@@ -7,25 +7,21 @@
 
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { callbackType } from '@forgerock/sdk-types';
-import { isGenericError } from '@forgerock/sdk-utilities';
-
-import type { GenericError } from '@forgerock/sdk-types';
+import { createWellknownError, isGenericError } from '@forgerock/sdk-utilities';
 
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { Step } from '@forgerock/sdk-types';
+import type { GenericError, Step } from '@forgerock/sdk-types';
 
+import { configSlice } from './config.slice.js';
 import { createJourneyStore } from './client.store.utils.js';
 import { journeyApi } from './journey.api.js';
-import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { createJourneyObject } from './journey.utils.js';
 import { wellknownApi } from './wellknown.api.js';
-import { createWellknownError } from './wellknown.utils.js';
 import { isValidWellknownUrl } from '@forgerock/sdk-utilities';
-import { inferRealmFromIssuer, inferBaseUrlFromWellknown } from './wellknown.utils.js';
 
 import type { JourneyStep } from './step.utils.js';
-import type { JourneyClientConfig, InternalJourneyClientConfig } from './config.types.js';
+import type { JourneyClientConfig } from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
 import type { JourneyLoginFailure } from './login-failure.utils.js';
@@ -46,24 +42,6 @@ export interface JourneyClient {
   redirect: (step: JourneyStep) => Promise<void>;
   resume: (url: string, options?: ResumeOptions) => Promise<JourneyResult>;
   terminate: (options?: { query?: Record<string, string> }) => Promise<unknown>;
-}
-
-/**
- * Type guard to check if a value is a JourneyClient (not a GenericError).
- */
-export function isJourneyClient(value: JourneyClient | GenericError): value is JourneyClient {
-  return !isGenericError(value);
-}
-
-/**
- * Normalizes the serverConfig to ensure baseUrl has a trailing slash.
- * This is required for the resolve() function to work correctly with context paths like /am.
- */
-function normalizeBaseUrl(baseUrl: string): string {
-  if (baseUrl.charAt(baseUrl.length - 1) !== '/') {
-    return baseUrl + '/';
-  }
-  return baseUrl;
 }
 
 /**
@@ -98,7 +76,7 @@ function normalizeBaseUrl(baseUrl: string): string {
  * @param options.config - Server configuration with required wellknown URL
  * @param options.requestMiddleware - Optional middleware for request customization
  * @param options.logger - Optional logger configuration
- * @returns A journey client instance, or a GenericError if configuration fails
+ * @returns A journey client instance
  */
 export async function journey({
   config,
@@ -111,72 +89,36 @@ export async function journey({
     level: LogLevel;
     custom?: CustomLogger;
   };
-}): Promise<JourneyClient | GenericError> {
+}) {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
 
   // Create the store first (config will be set after wellknown fetch)
   const store = createJourneyStore({ requestMiddleware, logger: log });
 
-  const { wellknown, paths, timeout } = config.serverConfig;
+  const { wellknown } = config.serverConfig;
 
-  // Step 1: Validate wellknown URL
   if (!isValidWellknownUrl(wellknown)) {
-    const message = `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost).`;
+    const message = `Invalid wellknown URL: ${wellknown}.`;
     const error: GenericError = {
       error: 'Invalid wellknown URL',
       message,
       type: 'wellknown_error',
     };
     log.error(message);
-    return error;
+    throw error;
   }
 
-  // Step 2: Infer baseUrl from wellknown URL
-  // This only works for ForgeRock AM URLs (looks for /oauth2/ in path)
-  const resolvedBaseUrl = inferBaseUrlFromWellknown(wellknown);
-  if (!resolvedBaseUrl) {
-    const message =
-      'Journey-client is designed for ForgeRock AM servers only. ' +
-      `Unable to infer baseUrl from wellknown URL: ${wellknown}. ` +
-      'The wellknown URL must contain "/oauth2/" in the path (standard AM format). ' +
-      'For PingOne or other OIDC providers, use davinci-client or oidc-client instead.';
-    const error: GenericError = {
-      error: 'AM server required',
-      message,
-      type: 'wellknown_error',
-    };
-    log.error(message);
-    return error;
-  }
-
-  // Step 3: Fetch the well-known configuration
-  const { data: wellknownResponse, error: fetchError } = await store.dispatch(
+  const { data: openIdResponse, error: fetchError } = await store.dispatch(
     wellknownApi.endpoints.configuration.initiate(wellknown),
   );
 
-  if (fetchError || !wellknownResponse) {
+  if (fetchError || !openIdResponse) {
     const error = createWellknownError(fetchError);
     log.error(`${error.error}: ${error.message}`);
-    return error;
+    throw error;
   }
 
-  // Step 4: Infer realmPath from the issuer URL if not provided
-  const resolvedRealm = config.realmPath ?? inferRealmFromIssuer(wellknownResponse.issuer);
-
-  // Step 5: Build the resolved internal configuration
-  const resolvedConfig: InternalJourneyClientConfig = {
-    serverConfig: {
-      baseUrl: normalizeBaseUrl(resolvedBaseUrl),
-      paths,
-      timeout,
-    },
-    realmPath: resolvedRealm,
-    middleware: config.middleware,
-    wellknownResponse,
-  };
-
-  // Dispatch the resolved config to the store
-  store.dispatch(setConfig(resolvedConfig));
+  store.dispatch(configSlice.actions.set({ ...config, wellknownResponse: openIdResponse }));
 
   const stepStorage = createStorage<{ step: Step }>({
     type: 'sessionStorage',

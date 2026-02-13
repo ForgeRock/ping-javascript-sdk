@@ -5,6 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type {
+  FetchArgs,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  QueryReturnValue,
+} from '@reduxjs/toolkit/query';
+
 import type { WellknownResponse, GenericError } from '@forgerock/sdk-types';
 
 /**
@@ -45,6 +52,35 @@ export interface FetchWellknownFailure {
 /** Result type — either success with data or failure with error. */
 export type FetchWellknownResult = FetchWellknownSuccess | FetchWellknownFailure;
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+/**
+ * Converts FetchBaseQueryError to GenericError.
+ */
+function toGenericError(error: FetchBaseQueryError): GenericError {
+  const status = error.status;
+  let message = `HTTP error ${String(status)}`;
+
+  if ('error' in error) {
+    message = error.error;
+  } else if ('data' in error && isObject(error.data)) {
+    if (typeof error.data['message'] === 'string') message = error.data['message'];
+    else if (typeof error.data['error'] === 'string') message = error.data['error'];
+    else if (typeof error.data['error_description'] === 'string')
+      message = error.data['error_description'];
+    else message = JSON.stringify(error.data);
+  }
+
+  return {
+    error: 'Well-known configuration fetch failed',
+    message,
+    type: 'wellknown_error',
+    status,
+  };
+}
+
 /** Type guard for successful fetch. */
 export function isFetchWellknownSuccess(
   result: FetchWellknownResult,
@@ -72,14 +108,6 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function extractErrorMessage(data: unknown): string | undefined {
-  if (!isObject(data)) return undefined;
-  if (typeof data.message === 'string') return data.message;
-  if (typeof data.error === 'string') return data.error;
-  if (typeof data.error_description === 'string') return data.error_description;
-  return JSON.stringify(data);
-}
-
 /**
  * Validates that the response contains the minimum required OIDC well-known fields.
  *
@@ -97,114 +125,62 @@ export function isValidWellknownResponse(data: unknown): data is WellknownRespon
   );
 }
 
-/** Default timeout for the built-in fetch transport (30 seconds). */
-const DEFAULT_TIMEOUT_MS = 30_000;
-
-/**
- * Default request function using the Fetch API.
- *
- * Used when no custom `requestFn` is provided. Includes a 30-second timeout
- * and maps errors to structured results: AbortError to `'abort'` status,
- * other errors to `'network'` status. For non-ok responses, attempts to
- * extract a message from the JSON body.
- */
-async function defaultRequestFn(url: string): Promise<WellknownRequestResult> {
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
-    });
-
-    if (!response.ok) {
-      let errorMessage = `HTTP error ${response.status}`;
-      try {
-        const extracted = extractErrorMessage(await response.json());
-        if (extracted) errorMessage = extracted;
-      } catch {
-        // JSON parse failed on error response body; use default HTTP status message.
-        // This is expected when servers return HTML error pages or empty bodies.
-      }
-      return { error: createError(errorMessage, response.status) };
-    }
-
-    let data: unknown;
-    try {
-      data = await response.json();
-    } catch {
-      return {
-        error: createError(
-          `Failed to parse well-known response as JSON (HTTP ${response.status})`,
-          response.status,
-        ),
-      };
-    }
-
-    return { data };
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.name === 'AbortError' || error.name === 'TimeoutError') {
-        return { error: createError('Request was aborted', 'abort') };
-      }
-      return { error: createError(error.message, 'network') };
-    }
-    return { error: createError('An unknown error occurred') };
-  }
-}
-
 /**
  * Fetches and validates OIDC well-known configuration.
  *
  * Pass a custom `requestFn` to control how the HTTP request is made.
- * When omitted, the built-in Fetch API is used (with a 30-second timeout).
  *
  * @param url - The well-known endpoint URL
- * @param requestFn - Optional custom request function (e.g., RTK Query's baseQuery)
+ * @param requestFn - Custom request function (e.g., RTK Query's baseQuery)
  * @returns A {@link FetchWellknownResult} — either `{ success: true, data }` or `{ success: false, error }`
- *
- * @example
- * ```typescript
- * // Simple — uses built-in fetch
- * const result = await fetchWellknownConfiguration(
- *   'https://auth.example.com/.well-known/openid-configuration',
- * );
- * ```
  *
  * @example
  * ```typescript
  * // With RTK Query baseQuery — inside a queryFn
  * queryFn: async (url, _api, _extra, baseQuery) => {
- *   const result = await fetchWellknownConfiguration(url, baseQuery);
+ *   const result = await initWellknownQuery(url);
  *   return result.success ? { data: result.data } : { error: result.error };
  * }
  * ```
  */
-export async function fetchWellknownConfiguration(
-  url: string,
-  requestFn?: WellknownRequestFn,
-): Promise<FetchWellknownResult> {
-  let result: WellknownRequestResult;
+export function initWellknownQuery(url: string) {
+  const request: FetchArgs = {
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
 
-  try {
-    result = await (requestFn ?? defaultRequestFn)(url);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'An unknown error occurred during well-known fetch';
-    return { success: false, error: createError(message) };
-  }
+  return {
+    async applyQuery(
+      callback: (
+        request: FetchArgs,
+      ) => Promise<QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>>,
+    ) {
+      let result;
 
-  if (result.error) {
-    return { success: false, error: result.error };
-  }
+      try {
+        result = await callback(request);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'An unknown error occurred during well-known fetch';
+        return { success: false, error: createError(message) };
+      }
 
-  if (!isValidWellknownResponse(result.data)) {
-    return {
-      success: false,
-      error: createError(
-        'Invalid well-known response: missing required fields (issuer, authorization_endpoint, token_endpoint)',
-      ),
-    };
-  }
+      if (result.error) {
+        return { success: false, error: result.error };
+      }
 
-  return { success: true, data: result.data };
+      if (!isValidWellknownResponse(result.data)) {
+        return {
+          success: false,
+          error: createError('Invalid well-known response: missing required fields (issuer)'),
+        };
+      }
+
+      return { success: true, data: result.data } as FetchWellknownSuccess;
+    },
+  };
 }

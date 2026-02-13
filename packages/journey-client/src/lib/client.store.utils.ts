@@ -10,12 +10,12 @@ import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import { journeyApi } from './journey.api.js';
-import { journeySlice } from './journey.slice.js';
 import { wellknownApi } from './wellknown.api.js';
+import { configSlice } from './config.slice.js';
 
 const rootReducer = combineReducers({
   [journeyApi.reducerPath]: journeyApi.reducer,
-  [journeySlice.name]: journeySlice.reducer,
+  [configSlice.name]: configSlice.reducer,
   [wellknownApi.reducerPath]: wellknownApi.reducer,
 });
 

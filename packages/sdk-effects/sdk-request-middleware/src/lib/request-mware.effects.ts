@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import {
+import type {
   FetchArgs,
   FetchBaseQueryError,
   FetchBaseQueryMeta,

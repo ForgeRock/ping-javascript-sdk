@@ -8,20 +8,19 @@
  * Import the RTK Query library from Redux Toolkit
  * @see https://redux-toolkit.js.org/rtk-query/overview
  */
-import {
-  createApi,
-  FetchArgs,
-  fetchBaseQuery,
-  FetchBaseQueryError,
-  FetchBaseQueryMeta,
-  QueryReturnValue,
-} from '@reduxjs/toolkit/query';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
 /**
  * Import internal modules
  */
 import { initQuery } from '@forgerock/sdk-request-middleware';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import type {
+  FetchArgs,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  QueryReturnValue,
+} from '@reduxjs/toolkit/query';
 
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
 

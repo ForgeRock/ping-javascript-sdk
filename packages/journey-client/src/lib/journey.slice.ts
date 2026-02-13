@@ -5,11 +5,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { createSlice, PayloadAction, Slice } from '@reduxjs/toolkit';
+import { createSlice, Slice } from '@reduxjs/toolkit';
 
 import type { Step } from '@forgerock/sdk-types';
-
-import type { InternalJourneyClientConfig } from './config.types.js';
+import { JourneyClientConfig } from './config.types.js';
 
 /**
  * Redux state for the journey client.
@@ -24,7 +23,7 @@ export interface JourneyState {
   authId?: string;
   step?: Step;
   error?: Error;
-  config?: InternalJourneyClientConfig;
+  config?: JourneyClientConfig;
 }
 
 const initialState: JourneyState = {};
@@ -32,11 +31,7 @@ const initialState: JourneyState = {};
 export const journeySlice: Slice<JourneyState> = createSlice({
   name: 'journey',
   initialState,
-  reducers: {
-    setConfig: (state, action: PayloadAction<InternalJourneyClientConfig>) => {
-      state.config = action.payload;
-    },
-  },
+  reducers: {},
 });
 
 export const { setConfig } = journeySlice.actions;

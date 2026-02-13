@@ -536,6 +536,10 @@ importers:
       '@forgerock/sdk-utilities':
         specifier: workspace:*
         version: link:../../sdk-utilities
+    devDependencies:
+      '@reduxjs/toolkit':
+        specifier: 'catalog:'
+        version: 2.10.1
 
   packages/sdk-effects/sdk-request-middleware:
     dependencies:
@@ -556,6 +560,10 @@ importers:
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
+    devDependencies:
+      '@reduxjs/toolkit':
+        specifier: 'catalog:'
+        version: 2.10.1
 
   scratchpad:
     dependencies:

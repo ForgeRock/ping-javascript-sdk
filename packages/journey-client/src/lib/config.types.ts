@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { WellknownResponse, PathsConfig } from '@forgerock/sdk-types';
+import type { CustomPathConfig } from '@forgerock/sdk-types';
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
 /**
@@ -18,10 +18,8 @@ import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 export interface JourneyServerConfig {
   /** Required OIDC discovery endpoint URL */
   wellknown: string;
-  /** Optional custom path overrides */
-  paths?: PathsConfig['paths'];
   /** Optional request timeout in milliseconds */
-  timeout?: number;
+  // timeout?: number; TODO: Add timeout support in future iteration if needed
 }
 
 /**
@@ -41,31 +39,17 @@ export interface JourneyClientConfig {
   serverConfig: JourneyServerConfig;
   /** Optional middleware for request customization */
   middleware?: Array<RequestMiddleware>;
-  /** Optional realm path - inferred from wellknown issuer if not provided */
-  realmPath?: string;
 }
 
 /**
- * Internal configuration after wellknown discovery and resolution.
- * Used internally by the journey client - not part of public API.
- *
- * @internal
+ * Internal configuration used within the journey client after resolving the well-known response.
  */
 export interface InternalJourneyClientConfig {
   serverConfig: {
-    /** Resolved base URL (required after inference) */
     baseUrl: string;
-    /** Optional custom path overrides */
-    paths?: PathsConfig['paths'];
-    /** Optional request timeout in milliseconds */
-    timeout?: number;
+    paths?: Pick<CustomPathConfig, 'authenticate' | 'sessions'>;
   };
-  /** Optional middleware for request customization */
   middleware?: Array<RequestMiddleware>;
-  /** Resolved realm path */
-  realmPath?: string;
-  /** Cached wellknown response */
-  wellknownResponse: WellknownResponse;
 }
 
 export type { RequestMiddleware };

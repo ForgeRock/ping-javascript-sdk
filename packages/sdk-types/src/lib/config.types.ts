@@ -23,7 +23,7 @@ export interface BaseConfig {
   serverConfig?: PathsConfig;
 }
 
-interface CustomPathConfig {
+export interface CustomPathConfig {
   authenticate: string;
   authorize: string;
   accessToken: string;

@@ -32,43 +32,31 @@ describe('PingOneProtectInitializeCallback', () => {
       ],
       output: [
         {
-          name: 'envId',
-          value: '02fb4743-189a-4bc7-9d6c-a919edfe6447',
+          name: 'agentIdentification',
+          value: true,
         },
         {
-          name: 'consoleLogEnabled',
-          value: false,
+          name: 'agentTimeout',
+          value: 1,
         },
         {
-          name: 'deviceAttributesToIgnore',
-          value: [],
-        },
-        {
-          name: 'customHost',
-          value: '',
-        },
-        {
-          name: 'lazyMetadata',
-          value: false,
+          name: 'agentPort',
+          value: 1,
         },
         {
           name: 'behavioralDataCollection',
           value: true,
         },
         {
-          name: 'deviceKeyRsyncIntervals',
-          value: 14,
-        },
-        {
-          name: 'enableTrust',
-          value: false,
-        },
-        {
           name: 'disableTags',
           value: false,
         },
         {
-          name: 'disableHub',
+          name: 'envId',
+          value: '02fb4743-189a-4bc7-9d6c-a919edfe6447',
+        },
+        {
+          name: 'universalDeviceIdentification',
           value: false,
         },
       ],
@@ -77,16 +65,13 @@ describe('PingOneProtectInitializeCallback', () => {
     const config = callback.getConfig();
     expect(mock).toHaveBeenCalled();
     expect(config).toMatchObject({
+      agentIdentification: true,
+      agentTimeout: 1,
+      agentPort: 1,
       envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447',
-      consoleLogEnabled: false,
-      deviceAttributesToIgnore: [],
-      customHost: '',
-      lazyMetadata: false,
       behavioralDataCollection: true,
-      deviceKeyRsyncIntervals: 14,
-      enableTrust: false,
       disableTags: false,
-      disableHub: false,
+      universalDeviceIdentification: false,
     });
   });
   it('should test the setClientError method', () => {
@@ -104,50 +89,38 @@ describe('PingOneProtectInitializeCallback', () => {
       ],
       output: [
         {
-          name: 'envId',
-          value: '02fb4743-189a-4bc7-9d6c-a919edfe6447',
-        },
-        {
-          name: 'consoleLogEnabled',
+          name: 'agentIdentification',
           value: false,
         },
         {
-          name: 'deviceAttributesToIgnore',
-          value: [],
+          name: 'agentTimeout',
+          value: 0,
         },
         {
-          name: 'customHost',
-          value: '',
-        },
-        {
-          name: 'lazyMetadata',
-          value: false,
+          name: 'agentPort',
+          value: 0,
         },
         {
           name: 'behavioralDataCollection',
           value: true,
         },
         {
-          name: 'deviceKeyRsyncIntervals',
-          value: 14,
-        },
-        {
-          name: 'enableTrust',
-          value: false,
-        },
-        {
           name: 'disableTags',
           value: false,
         },
         {
-          name: 'disableHub',
+          name: 'envId',
+          value: '02fb4743-189a-4bc7-9d6c-a919edfe6447',
+        },
+        {
+          name: 'universalDeviceIdentification',
           value: false,
         },
       ],
     });
     const mock = vi.spyOn(callback, 'setClientError');
-    callback.setClientError('error i just set');
+    callback.setClientError('Error I set');
     expect(mock).toHaveBeenCalled();
-    expect(callback.getInputValue('IDToken1clientError')).toBe('error i just set');
+    expect(callback.getInputValue('IDToken1clientError')).toBe('Error I set');
   });
 });
