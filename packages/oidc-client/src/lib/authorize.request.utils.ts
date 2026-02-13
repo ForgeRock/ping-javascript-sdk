@@ -7,7 +7,7 @@
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
-import type { WellKnownResponse, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { WellknownResponse, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type {
   AuthorizationError,
   AuthorizationSuccess,
@@ -19,12 +19,12 @@ import type { OidcConfig } from './config.types.js';
 /**
  * @function buildAuthorizeOptionsµ
  * @description Builds the authorization options for the OIDC client.
- * @param {WellKnownResponse} wellknown - The well-known configuration for the OIDC server.
+ * @param {WellknownResponse} wellknown - The well-known configuration for the OIDC server.
  * @param {OptionalAuthorizeOptions} options - Optional parameters for the authorization request.
  * @returns {Micro.Micro<BuildAuthorizationData, AuthorizationError, never>}
  */
 export function buildAuthorizeOptionsµ(
-  wellknown: WellKnownResponse,
+  wellknown: WellknownResponse,
   config: OidcConfig,
   options?: OptionalAuthorizeOptions,
 ): Micro.Micro<BuildAuthorizationData, AuthorizationError, never> {
@@ -48,14 +48,14 @@ export function buildAuthorizeOptionsµ(
  * @function createAuthorizeErrorµ
  * @description Creates an error response with new Authorize URL for the authorization request.
  * @param { error: string; error_description: string } res - The error response from the authorization request.
- * @param {WellKnownResponse} wellknown- The well-known configuration for the OIDC server.
+ * @param {WellknownResponse} wellknown- The well-known configuration for the OIDC server.
  * @param { OidcConfig } config- The OIDC client configuration.
  * @param { GetAuthorizationUrlOptions } options- Optional parameters for the authorization request.
  * @returns { Micro.Micro<never, AuthorizationError, never> }
  */
 export function createAuthorizeErrorµ(
   res: { error: string; error_description: string },
-  wellknown: WellKnownResponse,
+  wellknown: WellknownResponse,
   options: GetAuthorizationUrlOptions,
 ): Micro.Micro<never, AuthorizationError, never> {
   return Micro.tryPromise({
@@ -121,7 +121,7 @@ export function createAuthorizeUrlµ(
 
 export function handleResponseµ(
   response: AuthorizationSuccess | AuthorizationError,
-  wellknown: WellKnownResponse,
+  wellknown: WellknownResponse,
   options: GetAuthorizationUrlOptions,
 ): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> {
   if ('code' in response) {

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@forgerock/sdk-logger": "workspace:*",
+    "@forgerock/sdk-oidc": "workspace:*",
     "@forgerock/sdk-request-middleware": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",
     "@forgerock/sdk-utilities": "workspace:*",
@@ -32,6 +33,8 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "catalog:vitest",
+    "vite": "catalog:vite",
     "vitest": "catalog:vitest",
     "vitest-canvas-mock": "catalog:vitest"
   },

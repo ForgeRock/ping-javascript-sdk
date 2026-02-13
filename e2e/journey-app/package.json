@@ -1,12 +1,9 @@
 {
   "name": "@forgerock/journey-app",
   "version": "1.3.0",
+  "private": true,
   "description": "Ping Journey Client Test App",
   "type": "module",
-  "private": true,
-  "nx": {
-    "tags": ["scope:e2e"]
-  },
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
@@ -18,5 +15,8 @@
     "@forgerock/oidc-client": "workspace:*",
     "@forgerock/protect": "workspace:*",
     "@forgerock/sdk-logger": "workspace:*"
+  },
+  "nx": {
+    "tags": ["scope:e2e"]
   }
 }

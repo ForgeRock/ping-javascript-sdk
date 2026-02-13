@@ -1,8 +1,8 @@
 {
   "name": "@forgerock/protect-app",
   "version": "0.0.0",
-  "description": "Ping Protect Test Apps",
   "private": true,
+  "description": "Ping Protect Test Apps",
   "type": "module",
   "scripts": {
     "build": "pnpm nx nxBuild",

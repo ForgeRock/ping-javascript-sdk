@@ -668,6 +668,11 @@ export default function (app) {
     res.send(wellKnownForgeRock);
   });
 
+  // Standard AM wellknown endpoint path (used by journey-client wellknown discovery)
+  app.get('/am/oauth2/realms/root/.well-known/openid-configuration', (req, res) => {
+    res.send(wellKnownForgeRock);
+  });
+
   app.get('/as/.well-known/new-oidc-configuration', (req, res) => {
     res.send(newPiWellKnown);
   });

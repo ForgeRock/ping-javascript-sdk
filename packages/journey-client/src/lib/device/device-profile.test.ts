@@ -7,7 +7,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { vi, expect, describe, it, afterEach, beforeEach, MockInstance } from 'vitest';
+import { vi, expect, describe, it, afterEach, beforeEach, type MockInstance } from 'vitest';
 
 import { Device } from './device-profile.js';
 

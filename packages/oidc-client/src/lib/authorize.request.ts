@@ -15,7 +15,7 @@ import {
 import { oidcApi } from './oidc.api.js';
 
 import type { ClientStore } from './client.types.js';
-import type { GetAuthorizationUrlOptions, WellKnownResponse } from '@forgerock/sdk-types';
+import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { OidcConfig } from './config.types.js';
 
@@ -30,7 +30,7 @@ import type { OidcConfig } from './config.types.js';
  * @returns {Micro.Micro<AuthorizationSuccess, AuthorizationError, never>} - A micro effect that resolves to the authorization response.
  */
 export function authorizeµ(
-  wellknown: WellKnownResponse,
+  wellknown: WellknownResponse,
   config: OidcConfig,
   log: CustomLogger,
   store: ClientStore,

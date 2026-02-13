@@ -13,10 +13,10 @@
     "@forgerock/javascript-sdk": "4.7.0",
     "effect": "^3.12.7"
   },
-  "nx": {
-    "tags": ["scope:e2e"]
-  },
   "devDependencies": {
     "@effect/language-service": "^0.20.0"
+  },
+  "nx": {
+    "tags": ["scope:e2e"]
   }
 }

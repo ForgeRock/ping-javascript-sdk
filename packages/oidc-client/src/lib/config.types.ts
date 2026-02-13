@@ -4,11 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type {
-  AsyncLegacyConfigOptions,
-  WellKnownResponse,
-  ResponseType,
-} from '@forgerock/sdk-types';
+import type { AsyncLegacyConfigOptions, ResponseType } from '@forgerock/sdk-types';
 
 export interface OidcConfig extends AsyncLegacyConfigOptions {
   // Redundant properties are redeclared to define as required
@@ -20,10 +16,6 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
     timeout?: number;
   };
   responseType?: ResponseType;
-}
-
-export interface InternalDaVinciConfig extends OidcConfig {
-  wellknownResponse: WellKnownResponse;
 }
 
 export interface OauthTokens {
