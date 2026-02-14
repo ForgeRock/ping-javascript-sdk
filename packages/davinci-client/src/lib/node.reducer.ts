@@ -265,11 +265,15 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           id: option.value,
           value: option.content,
         };
+        return;
       }
 
       if (collector.type === 'DeviceRegistrationCollector') {
         if (typeof action.payload.id !== 'string') {
           throw new Error('Index argument must be a string');
+        }
+        if (typeof action.payload.value !== 'string') {
+          throw new Error('Value argument must be a string');
         }
 
         // Iterate through the options object and find option to update
@@ -281,7 +285,8 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           throw new Error('No option found matching value to update');
         }
 
-        collector.input.value = option.type;
+        collector.input.value = action.payload.value;
+        return;
       }
 
       if (collector.type === 'PhoneNumberCollector') {
@@ -295,6 +300,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           throw new Error('Value argument must contain a phoneNumber and countryCode property');
         }
         collector.input.value = action.payload.value;
+        return;
       }
 
       if (collector.type === 'FidoRegistrationCollector') {
@@ -308,6 +314,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           throw new Error('Value argument must contain an attestationValue property');
         }
         collector.input.value = action.payload.value;
+        return;
       }
 
       if (collector.type === 'FidoAuthenticationCollector') {
@@ -321,6 +328,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           throw new Error('Value argument must contain an assertionValue property');
         }
         collector.input.value = action.payload.value;
+        return;
       }
     });
 });
