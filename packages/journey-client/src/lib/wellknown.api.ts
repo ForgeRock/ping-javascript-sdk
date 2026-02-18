@@ -5,7 +5,6 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { createSelector } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { initWellknownQuery } from '@forgerock/sdk-oidc';
 
@@ -42,16 +41,3 @@ export const wellknownApi = createApi({
     }),
   }),
 });
-
-/**
- * Creates a memoized selector for cached well-known data.
- *
- * @param wellknownUrl - The well-known endpoint URL used as the cache key
- * @returns A memoized selector that extracts the WellknownResponse from state, or undefined if not yet fetched
- */
-export function createWellknownSelector(wellknownUrl: string) {
-  return createSelector(
-    wellknownApi.endpoints.configuration.select(wellknownUrl),
-    (result) => result?.data,
-  );
-}

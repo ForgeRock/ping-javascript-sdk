@@ -9,23 +9,22 @@ import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
+import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
-import { journeySlice } from './journey.slice.js';
-import { JourneyClientConfig } from './config.types.js';
+import { wellknownApi } from './wellknown.api.js';
 
 const rootReducer = combineReducers({
   [journeyApi.reducerPath]: journeyApi.reducer,
-  [journeySlice.name]: journeySlice.reducer,
+  [configSlice.name]: configSlice.reducer,
+  [wellknownApi.reducerPath]: wellknownApi.reducer,
 });
 
 export const createJourneyStore = ({
   requestMiddleware,
   logger,
-  config,
 }: {
   requestMiddleware?: RequestMiddleware[];
   logger?: ReturnType<typeof loggerFn>;
-  config: JourneyClientConfig;
 }) => {
   return configureStore({
     reducer: rootReducer,
@@ -36,10 +35,11 @@ export const createJourneyStore = ({
           extraArgument: {
             requestMiddleware,
             logger,
-            config,
           },
         },
-      }).concat(journeyApi.middleware),
+      })
+        .concat(journeyApi.middleware)
+        .concat(wellknownApi.middleware),
   });
 };
 

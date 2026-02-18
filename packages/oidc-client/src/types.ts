@@ -11,7 +11,7 @@ export * from './lib/exchange.types.js';
 export type {
   GenericError,
   GetAuthorizationUrlOptions,
-  WellKnownResponse,
+  WellknownResponse,
 } from '@forgerock/sdk-types';
 export type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 export type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';

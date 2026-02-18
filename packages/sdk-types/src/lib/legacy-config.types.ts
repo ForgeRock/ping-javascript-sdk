@@ -47,7 +47,7 @@ export interface ValidLegacyConfigOptions extends LegacyConfigOptions {
   // needs logger?
 }
 
-export interface WellKnownResponse {
+export interface WellknownResponse {
   issuer: string;
   authorization_endpoint: string;
   pushed_authorization_request_endpoint?: string;

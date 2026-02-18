@@ -8,7 +8,7 @@ import { it, expect } from '@effect/vitest';
 import { Micro } from 'effect';
 import { buildAuthorizeOptionsµ } from './authorize.request.utils.js';
 import { OidcConfig } from './config.types.js';
-import { WellKnownResponse } from '@forgerock/sdk-types';
+import { WellknownResponse } from '@forgerock/sdk-types';
 
 const clientId = '123456789';
 const redirectUri = 'https://example.com/callback.html';
@@ -23,7 +23,7 @@ const config: OidcConfig = {
   },
   responseType,
 };
-const wellknown: WellKnownResponse = {
+const wellknown: WellknownResponse = {
   issuer: 'https://example.com/issuer',
   authorization_endpoint: 'https://example.com/authorize',
   token_endpoint: 'https://example.com/token',

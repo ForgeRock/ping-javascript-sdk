@@ -24,6 +24,9 @@ export * from './lib/config.types.js';
 export * from './lib/interfaces.js';
 export * from './lib/step.types.js';
 
+// Re-export well-known utilities from sdk-utilities
+export { isValidWellknownUrl, createWellknownError } from '@forgerock/sdk-utilities';
+
 export * from './lib/callbacks/attribute-input-callback.js';
 export * from './lib/callbacks/base-callback.js';
 export * from './lib/callbacks/choice-callback.js';

@@ -5,20 +5,19 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { JourneyClientConfig } from './config.types.js';
 import { JourneyStep } from './step.types.js';
 
-export interface StartParam extends JourneyClientConfig {
+export interface StartParam {
   journey: string;
   query?: Record<string, string>;
 }
 
-export interface ResumeOptions extends JourneyClientConfig {
+export interface ResumeOptions {
   journey?: string;
   query?: Record<string, string>;
 }
 
-export interface NextOptions extends JourneyClientConfig {
+export interface NextOptions {
   query?: Record<string, string>;
 }
 

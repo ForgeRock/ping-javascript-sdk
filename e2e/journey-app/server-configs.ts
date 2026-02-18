@@ -6,17 +6,22 @@
  */
 import type { JourneyClientConfig } from '@forgerock/journey-client/types';
 
+/**
+ * Server configurations for E2E tests.
+ *
+ * All configuration (baseUrl, authenticate/sessions paths) is automatically
+ * derived from the well-known response via `convertWellknown()`.
+ */
 export const serverConfigs: Record<string, JourneyClientConfig> = {
   basic: {
     serverConfig: {
-      baseUrl: 'http://localhost:9443/am',
+      wellknown: 'http://localhost:9443/am/oauth2/realms/root/.well-known/openid-configuration',
     },
-    realmPath: 'root',
   },
   tenant: {
     serverConfig: {
-      baseUrl: 'https://openam-sdks.forgeblocks.com/am',
+      wellknown:
+        'https://openam-sdks.forgeblocks.com/am/oauth2/realms/root/realms/alpha/.well-known/openid-configuration',
     },
-    realmPath: 'alpha',
   },
 };

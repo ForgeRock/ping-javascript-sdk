@@ -7,41 +7,77 @@
 
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
 import { callbackType } from '@forgerock/sdk-types';
+import {
+  isGenericError,
+  isValidWellknownUrl,
+  createWellknownError,
+} from '@forgerock/sdk-utilities';
+
+import type { GenericError } from '@forgerock/sdk-types';
 
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError, Step } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
 
 import { createJourneyStore } from './client.store.utils.js';
+import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
-import { setConfig } from './journey.slice.js';
 import { createStorage } from '@forgerock/storage';
 import { createJourneyObject } from './journey.utils.js';
+import { wellknownApi } from './wellknown.api.js';
 
 import type { JourneyStep } from './step.utils.js';
 import type { JourneyClientConfig } from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
+import type { JourneyLoginFailure } from './login-failure.utils.js';
+import type { JourneyLoginSuccess } from './login-success.utils.js';
 
-/**
- * Normalizes the serverConfig to ensure baseUrl has a trailing slash.
- * This is required for the resolve() function to work correctly with context paths like /am.
- */
-function normalizeConfig(config: JourneyClientConfig): JourneyClientConfig {
-  if (config.serverConfig?.baseUrl) {
-    const url = config.serverConfig.baseUrl;
-    if (url.charAt(url.length - 1) !== '/') {
-      return {
-        ...config,
-        serverConfig: {
-          ...config.serverConfig,
-          baseUrl: url + '/',
-        },
-      };
-    }
-  }
-  return config;
+/** Result type for journey client methods. */
+type JourneyResult =
+  | JourneyStep
+  | JourneyLoginSuccess
+  | JourneyLoginFailure
+  | GenericError
+  | undefined;
+
+/** The journey client instance returned by the `journey()` function. */
+export interface JourneyClient {
+  start: (options?: StartParam) => Promise<JourneyResult>;
+  next: (step: JourneyStep, options?: NextOptions) => Promise<JourneyResult>;
+  redirect: (step: JourneyStep) => Promise<void>;
+  resume: (url: string, options?: ResumeOptions) => Promise<JourneyResult>;
+  terminate: (options?: { query?: Record<string, string> }) => Promise<void | GenericError>;
 }
 
+/**
+ * Creates a journey client for AM authentication tree/journey interactions.
+ *
+ * Journey-client is designed specifically for ForgeRock Access Management (AM) servers.
+ * It uses AM-proprietary endpoints for callback-based authentication trees.
+ *
+ * @param options - Configuration options for the journey client
+ * @param options.config - Server configuration with required wellknown URL
+ * @param options.requestMiddleware - Optional middleware for request customization
+ * @param options.logger - Optional logger configuration
+ * @returns A journey client instance
+ * @throws When the wellknown URL is invalid, the fetch fails, or the response indicates a non-AM server
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   const client = await journey({
+ *     config: {
+ *       serverConfig: {
+ *         wellknown: 'https://am.example.com/am/oauth2/alpha/.well-known/openid-configuration',
+ *       },
+ *     },
+ *   });
+ *   const step = await client.start({ journey: 'Login' });
+ * } catch (error) {
+ *   console.error('Failed to initialize:', error.message);
+ * }
+ * ```
+ */
 export async function journey({
   config,
   requestMiddleware,
@@ -53,21 +89,51 @@ export async function journey({
     level: LogLevel;
     custom?: CustomLogger;
   };
-}) {
+}): Promise<JourneyClient> {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
 
-  // Normalize config to ensure baseUrl has trailing slash
-  const normalizedConfig = normalizeConfig(config);
+  const store = createJourneyStore({ requestMiddleware, logger: log });
 
-  const store = createJourneyStore({ requestMiddleware, logger: log, config: normalizedConfig });
-  store.dispatch(setConfig(normalizedConfig));
+  const { wellknown } = config.serverConfig;
+
+  if (!isValidWellknownUrl(wellknown)) {
+    const message = `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost) and end with /.well-known/openid-configuration.`;
+    log.error(message);
+    throw new Error(message);
+  }
+
+  const { data: wellknownResponse, error: fetchError } = await store.dispatch(
+    wellknownApi.endpoints.configuration.initiate(wellknown),
+  );
+
+  if (fetchError || !wellknownResponse) {
+    const error = createWellknownError(fetchError);
+    const message = `${error.error}: ${error.message}`;
+    log.error(message);
+    throw new Error(message);
+  }
+
+  store.dispatch(
+    configSlice.actions.set({
+      wellknownResponse: wellknownResponse,
+      middleware: config.middleware ?? requestMiddleware,
+    }),
+  );
+
+  const configError = store.getState().config.error;
+
+  if (configError) {
+    const message = `${configError.error}: ${configError.message}`;
+    log.error(message);
+    throw new Error(message);
+  }
 
   const stepStorage = createStorage<{ step: Step }>({
     type: 'sessionStorage',
     name: 'journey-step',
   });
 
-  const self = {
+  const self: JourneyClient = {
     start: async (options?: StartParam) => {
       const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
       if (!data) {
@@ -83,11 +149,6 @@ export async function journey({
 
     /**
      * Submits the current Step payload to the authentication API and retrieves the next JourneyStep in the journey.
-     * The `step` to be submitted is provided within the `options` object.
-     *
-     * @param step The current JourneyStep containing user input to submit.
-     * @param options Optional configuration for the request.
-     * @returns A Promise that resolves to a JourneyStep, JourneyLoginSuccess, JourneyLoginFailure, or GenericError.
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
       const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
@@ -116,34 +177,25 @@ export async function journey({
       }
 
       const err = await stepStorage.set({ step: step.payload });
-      if (err && (err as GenericError).error) {
+      if (isGenericError(err)) {
         log.warn('Failed to persist step before redirect', err);
       }
       window.location.assign(redirectUrl);
     },
 
-    resume: async (
-      url: string,
-      options?: ResumeOptions,
-    ): Promise<ReturnType<typeof createJourneyObject>> => {
+    resume: async (url: string, options?: ResumeOptions): Promise<JourneyResult> => {
       const parsedUrl = new URL(url);
       const code = parsedUrl.searchParams.get('code');
       const state = parsedUrl.searchParams.get('state');
       const form_post_entry = parsedUrl.searchParams.get('form_post_entry');
       const responsekey = parsedUrl.searchParams.get('responsekey');
 
-      let previousStep: JourneyStep | undefined; // Declare previousStep here
+      let previousStep: JourneyStep | undefined;
 
       function requiresPreviousStep() {
         return (code && state) || form_post_entry || responsekey;
       }
 
-      // Type guard for GenericError (assuming GenericError has 'error' and 'message' properties)
-      function isGenericError(obj: unknown): obj is GenericError {
-        return typeof obj === 'object' && obj !== null && 'error' in obj && 'message' in obj;
-      }
-
-      // Type guard for { step: JourneyStep }
       function isStoredStep(obj: unknown): obj is { step: Step } {
         return (
           typeof obj === 'object' &&
@@ -158,9 +210,6 @@ export async function journey({
 
         if (stored) {
           if (isGenericError(stored)) {
-            // If the stored item is a GenericError, it means something went wrong during storage/retrieval
-            // or the previous step was an error.
-            // TODO: Remove throwing errors from SDK and use Result types instead
             throw new Error(`Error retrieving previous step: ${stored.message || stored.error}`);
           } else if (isStoredStep(stored)) {
             previousStep = createJourneyObject(stored.step) as JourneyStep;
@@ -178,7 +227,7 @@ export async function journey({
       const resumeOptions = {
         ...options,
         query: {
-          ...(options && options.query), // Spread options.query first
+          ...(options && options.query),
           ...(code && { code }),
           ...(state && { state }),
           ...(form_post_entry && { form_post_entry }),
@@ -197,10 +246,6 @@ export async function journey({
 
     /**
      * Ends the current authentication session by calling the `/sessions` endpoint.
-     * This will invalidate the current session and clean up any server-side state.
-     *
-     * @param options Optional StepOptions containing query parameters.
-     * @returns A Promise that resolves to void on success, or GenericError on failure.
      */
     terminate: async (options?: {
       query?: Record<string, string>;

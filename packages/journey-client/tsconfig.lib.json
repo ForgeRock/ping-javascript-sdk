@@ -22,13 +22,16 @@
       "path": "../sdk-effects/storage/tsconfig.lib.json"
     },
     {
-      "path": "../sdk-effects/sdk-request-middleware/tsconfig.lib.json"
-    },
-    {
       "path": "../sdk-utilities/tsconfig.lib.json"
     },
     {
       "path": "../sdk-types/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/sdk-request-middleware/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/oidc/tsconfig.lib.json"
     },
     {
       "path": "../sdk-effects/logger/tsconfig.lib.json"
