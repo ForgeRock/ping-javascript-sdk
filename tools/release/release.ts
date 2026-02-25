@@ -1,88 +1,82 @@
 /* eslint-disable import/extensions */
-import { Effect, Console } from 'effect';
+import { Duration, Effect, Schedule } from 'effect';
 import { NodeContext, NodeRuntime } from '@effect/platform-node';
-import { FileSystem, Path } from '@effect/platform';
 import {
-  checkGitStatus,
-  startLocalRegistry,
-  runChangesetsSnapshot,
-  restoreGitFiles,
-  publishPackages,
+  assertCleanGitStatus,
+  assertChangesetsExist,
+  versionSnapshotPackages,
   buildPackages,
+  startLocalRegistry,
+  publishToLocalRegistry,
+  restoreGitFiles,
 } from './commands/commands';
+import { RegistryNotReadyError } from './errors';
 
-const checkForChangesets = Effect.gen(function* () {
-  yield* Console.log('Checking for changeset files...');
+const REGISTRY_URL = 'http://localhost:4873';
 
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-
-  const changesetDir = path.join(process.cwd(), '.changeset');
-
-  const files = yield* fs.readDirectory(changesetDir).pipe(
-    Effect.catchTag('SystemError', (e) => {
-      if (e.reason === 'NotFound') {
-        return Effect.fail('No changesets found. Please add a changeset before releasing.');
-      }
-      // Otherwise, propagate the error
-      return Effect.fail(`An unexpected error occured ${e}`);
-    }),
-  );
-
-  const hasChangesetFiles = files
-    .filter((file) => file !== 'README.md')
-    .filter((file) => file !== 'config.json')
-    .every((file) => file.endsWith('.md'));
-
-  if (!hasChangesetFiles) {
-    yield* Effect.fail('No changesets found. Please add a changeset before releasing.');
-  }
-
-  yield* Console.log('Changeset files found.');
-}).pipe(Effect.tapError((error) => Console.error(`Changeset check failed: ${error}`)));
-
-const program = Effect.gen(function* () {
-  yield* Console.log('Starting release script...');
-
-  yield* Console.log('Checking Git status for staged files...');
-  yield* checkGitStatus;
-
-  yield* Console.log('Git status OK (no staged files found).');
-  yield* checkForChangesets;
-
-  yield* Console.log('Running Changesets snapshot version...');
-  const exitCode = yield* runChangesetsSnapshot;
-
-  if (exitCode.valueOf() == 1) {
-    return yield* Effect.fail('Failed to version all snapshots');
-  }
-
-  yield* Console.log('Building packages');
-  yield* buildPackages;
-
-  yield* Console.log('Starting Verdaccio');
-  yield* startLocalRegistry;
-  yield* Console.log('Waiting for local registry to initialize... (10 seconds)');
-  yield* Effect.sleep('10 seconds');
-
-  yield* Console.log('Publishing packages to local registry...');
-  yield* publishPackages;
-
-  yield* Console.log(
-    'Release script finished. Local registry should still be running in the background.',
-  );
-
-  yield* Console.log('Registry Url: -> http://localhost:4873');
-  yield* restoreGitFiles;
-  yield* Effect.never; // Keep script running if needed, e.g., for background process
-}).pipe(
-  Effect.catchAll((error) => {
-    if (typeof error === 'string') {
-      return Console.error(`Error: ${error}`);
+/**
+ * Polls the local Verdaccio registry until it responds with a successful status.
+ * Uses exponential backoff starting at 500ms, capped at 10 retries and 30s elapsed.
+ * Fails with `RegistryNotReadyError` if the registry never becomes available.
+ */
+const waitForRegistry = Effect.tryPromise({
+  try: async () => {
+    const response = await fetch(REGISTRY_URL);
+    if (!response.ok) {
+      throw new Error(`Registry responded with status ${response.status}`);
     }
-    return Console.error(`An unexpected error occurred: ${JSON.stringify(error)}`);
-  }),
-  Effect.provide(NodeContext.layer),
+  },
+  catch: (error) =>
+    new RegistryNotReadyError({
+      message: `Registry at ${REGISTRY_URL} is not ready`,
+      cause: String(error),
+    }),
+}).pipe(
+  Effect.retry(
+    Schedule.exponential('500 millis').pipe(
+      Schedule.intersect(Schedule.recurs(10)),
+      Schedule.compose(Schedule.elapsed),
+      Schedule.whileOutput(Duration.lessThanOrEqualTo(Duration.seconds(30))),
+    ),
+  ),
+  Effect.tap(() => Effect.log(`Registry at ${REGISTRY_URL} is ready.`)),
 );
 
-NodeRuntime.runMain(Effect.scoped(program));
+const pipeline = assertCleanGitStatus.pipe(
+  Effect.andThen(assertChangesetsExist),
+  // Finalizer placed after pre-flight checks so cleanup only runs
+  // when we've actually modified the working tree
+  Effect.andThen(
+    Effect.addFinalizer(() =>
+      restoreGitFiles.pipe(
+        Effect.tap(() => Effect.log('Restored modified files via git restore.')),
+        Effect.catchAll((error) =>
+          Effect.logError(`Failed to restore git files: ${error.message}`),
+        ),
+      ),
+    ),
+  ),
+  Effect.andThen(versionSnapshotPackages),
+  Effect.andThen(buildPackages),
+  Effect.andThen(startLocalRegistry),
+  Effect.andThen(waitForRegistry),
+  Effect.andThen(publishToLocalRegistry),
+  Effect.andThen(Effect.log(`Local release complete. Registry running at ${REGISTRY_URL}`)),
+  Effect.andThen(Effect.never),
+  Effect.scoped,
+);
+
+const program = pipeline.pipe(
+  Effect.provide(NodeContext.layer),
+  Effect.tapErrorTag('GitStatusError', (e) => Effect.logError(`Git check failed: ${e.message}`)),
+  Effect.tapErrorTag('ChangesetError', (e) =>
+    Effect.logError(`Changeset check failed: ${e.message}`),
+  ),
+  Effect.tapErrorTag('CommandExitError', (e) => Effect.logError(`Command failed: ${e.message}`)),
+  Effect.tapErrorTag('ChangesetConfigError', (e) => Effect.logError(`Config error: ${e.message}`)),
+  Effect.tapErrorTag('RegistryNotReadyError', (e) =>
+    Effect.logError(`Registry unavailable: ${e.message}`),
+  ),
+);
+
+NodeRuntime.runMain(program);

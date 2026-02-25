@@ -1,67 +1,201 @@
-import { Effect, Stream, Console } from 'effect';
+import { Effect } from 'effect';
 import { Command } from '@effect/platform';
+import { FileSystem, Path } from '@effect/platform';
+import {
+  CommandExitError,
+  GitStatusError,
+  ChangesetError,
+  ChangesetConfigError,
+  GitRestoreError,
+} from '../errors';
 
-export const buildPackages = Command.make('pnpm', 'build').pipe(
-  Command.string,
-  Stream.tap((line) => Console.log(`Build: ${line}`)),
-  Stream.runDrain,
-);
+const SNAPSHOT_TAG = 'beta';
+const LOCAL_REGISTRY_URL = 'http://localhost:4873';
 
-// Effect to check git status for staged files
-export const checkGitStatus = Command.make('git', 'status', '--porcelain').pipe(
-  Command.string,
-  Effect.flatMap((output) => {
-    // Check if the output contains lines indicating staged changes (e.g., starting with M, A, D, R, C, U followed by a space)
-    const stagedChanges = output.split('\n').some((line) => /^[MADRCU] /.test(line.trim()));
-    if (stagedChanges) {
-      return Effect.fail(
-        'Git repository has staged changes. Please commit or stash them before releasing.',
-      );
-    }
-    return Effect.void; // No staged changes
-  }),
-  // If the command fails (e.g., not a git repo), treat it as an error too.
-  Effect.catchAll((error) => Effect.fail(`Git status check command failed: ${error}`)),
-  Effect.tapError((error) => Console.error(error)), // Log the specific error message
-  Effect.asVoid, // Don't need the output on success
-);
+/**
+ * Runs a command with fully inherited stdio and `CI=true` so that tools
+ * like Nx use non-interactive output. Fails with `CommandExitError` if
+ * the exit code is non-zero.
+ *
+ * @param description - Human-readable label for the command (e.g. "pnpm build")
+ * @param cmd - The Effect Command to execute
+ */
+const runInherited = (description: string, cmd: Command.Command) =>
+  cmd.pipe(
+    Command.env({ CI: 'true' }),
+    Command.stdin('inherit'),
+    Command.stdout('inherit'),
+    Command.stderr('inherit'),
+    Command.exitCode,
+    Effect.flatMap((code) =>
+      code === 0
+        ? Effect.void
+        : Effect.fail(
+            new CommandExitError({
+              message: `${description} exited with code ${code}`,
+              cause: `Non-zero exit code: ${code}`,
+              command: description,
+              exitCode: code,
+            }),
+          ),
+    ),
+  );
 
-// Effect to run changesets snapshot
-export const runChangesetsSnapshot = Command.make(
-  'pnpm',
-  'changeset',
-  'version',
-  '--snapshot',
-  'beta',
-).pipe(Command.exitCode);
+/** Fails with `GitStatusError` if the git working tree has staged changes. */
+export const assertCleanGitStatus = Effect.gen(function* () {
+  const output = yield* Command.make('git', 'status', '--porcelain').pipe(Command.string);
 
-// Effect to start local registry (run in background)
-export const startLocalRegistry = Command.make('pnpm', 'nx', 'local-registry').pipe(
-  Command.start, // Starts the process and returns immediately
-  Effect.tap(() =>
-    Console.log('Attempting to start local registry (Verdaccio) in the background...'),
-  ),
-  Effect.tapError((error) => Console.error(`Failed to start local registry: ${error}`)),
-  Effect.asVoid, // We don't need the Process handle for this script's logic
-);
+  const hasStagedChanges = output.split('\n').some((line) => /^[MADRCU] /.test(line));
 
-export const restoreGitFiles = Command.make('git', 'restore', '.').pipe(Command.start);
+  if (hasStagedChanges) {
+    yield* Effect.fail(
+      new GitStatusError({
+        message: 'Git has staged changes. Commit or stash them before releasing.',
+        cause: 'Staged changes detected in git working tree',
+      }),
+    );
+  }
 
-export const publishPackages = Command.make(
-  'pnpm',
-  'publish',
-  '-r',
-  '--tag',
-  'beta',
-  '--registry=http://localhost:4873',
-  '--no-git-checks',
-).pipe(
-  Command.string,
-  Stream.tap((line) => Console.log(`Publish: ${line}`)),
-  Stream.runDrain,
-  Effect.tapBoth({
-    onFailure: (error) => Effect.fail(() => Console.error(`Publishing failed: ${error}`)),
-    onSuccess: () => Console.log('Packages were published successfully to the local registry.'),
-  }),
-  Effect.asVoid,
-);
+  yield* Effect.log('Git status clean — no staged changes.');
+});
+
+/** Fails with `ChangesetError` if the `.changeset/` directory contains no changeset markdown files. */
+export const assertChangesetsExist = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  const changesetDir = path.join(process.cwd(), '.changeset');
+
+  const files = yield* fs.readDirectory(changesetDir).pipe(
+    Effect.catchTag('SystemError', (e) =>
+      Effect.fail(
+        new ChangesetError({
+          message:
+            e.reason === 'NotFound'
+              ? 'No .changeset directory found.'
+              : `Failed to read .changeset directory: ${e.message}`,
+          cause: e.reason,
+        }),
+      ),
+    ),
+  );
+
+  const hasChangesets = files
+    .filter((f) => f !== 'README.md' && f !== 'config.json')
+    .some((f) => f.endsWith('.md'));
+
+  if (!hasChangesets) {
+    yield* Effect.fail(
+      new ChangesetError({
+        message: 'No changeset files found. Add a changeset before releasing.',
+        cause: 'No markdown files in .changeset directory',
+      }),
+    );
+  }
+
+  yield* Effect.log('Changeset files found.');
+});
+
+/**
+ * Versions all packages as snapshot releases via `changeset version --snapshot`.
+ * Temporarily disables the GitHub changelog in `.changeset/config.json` to avoid
+ * requiring a GITHUB_TOKEN for local releases. The modified config is reverted
+ * by `restoreGitFiles`.
+ */
+export const versionSnapshotPackages = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  const configPath = path.join(process.cwd(), '.changeset', 'config.json');
+
+  const raw = yield* fs.readFileString(configPath).pipe(
+    Effect.catchTag('SystemError', (e) =>
+      Effect.fail(
+        new ChangesetConfigError({
+          message: `Failed to read .changeset/config.json: ${e.message}`,
+          cause: e.reason,
+        }),
+      ),
+    ),
+  );
+
+  const config: Record<string, unknown> = yield* Effect.try({
+    try: () => JSON.parse(raw) as Record<string, unknown>,
+    catch: (e) =>
+      new ChangesetConfigError({
+        message: 'Invalid JSON in .changeset/config.json',
+        cause: String(e),
+      }),
+  });
+
+  if (typeof config !== 'object' || config === null || Array.isArray(config)) {
+    yield* Effect.fail(
+      new ChangesetConfigError({
+        message: '.changeset/config.json must be a JSON object',
+        cause: `Unexpected shape: ${typeof config}`,
+      }),
+    );
+  }
+
+  config.changelog = false;
+  yield* fs.writeFileString(configPath, JSON.stringify(config, null, 2) + '\n').pipe(
+    Effect.catchTag('SystemError', (e) =>
+      Effect.fail(
+        new ChangesetConfigError({
+          message: `Failed to write .changeset/config.json: ${e.message}`,
+          cause: e.reason,
+        }),
+      ),
+    ),
+  );
+
+  yield* Effect.log('Running changeset version --snapshot...');
+  yield* runInherited(
+    'changeset version --snapshot',
+    Command.make('pnpm', 'changeset', 'version', '--snapshot', SNAPSHOT_TAG),
+  );
+  yield* Effect.log('Snapshot versioning complete.');
+});
+
+/** Runs `pnpm build` with output visible in the terminal. */
+export const buildPackages = Effect.gen(function* () {
+  yield* runInherited('pnpm build', Command.make('pnpm', 'build'));
+  yield* Effect.log('Build complete.');
+});
+
+/** Starts the Verdaccio local registry as a background process. */
+export const startLocalRegistry = Effect.gen(function* () {
+  yield* Command.make('pnpm', 'nx', 'local-registry').pipe(Command.start, Effect.asVoid);
+  yield* Effect.log('Verdaccio local registry starting...');
+});
+
+/** Publishes all packages to the local Verdaccio registry. */
+export const publishToLocalRegistry = Effect.gen(function* () {
+  yield* runInherited(
+    'pnpm publish',
+    Command.make(
+      'pnpm',
+      'publish',
+      '-r',
+      '--tag',
+      SNAPSHOT_TAG,
+      `--registry=${LOCAL_REGISTRY_URL}`,
+      '--no-git-checks',
+    ),
+  );
+  yield* Effect.log('Packages published to local registry.');
+});
+
+/** Restores all modified files in the working tree via `git restore .`. */
+export const restoreGitFiles = Effect.gen(function* () {
+  const code = yield* Command.make('git', 'restore', '.').pipe(Command.exitCode);
+
+  if (code !== 0) {
+    yield* Effect.fail(
+      new GitRestoreError({
+        message: `git restore exited with code ${code}`,
+        cause: `Non-zero exit code: ${code}`,
+      }),
+    );
+  }
+});
