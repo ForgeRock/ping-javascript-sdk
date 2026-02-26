@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest';
 import { configSlice } from './config.slice.js';
 
 import type { WellknownResponse } from '@forgerock/sdk-types';
+import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { ResolvedConfig } from './config.slice.js';
 
 function createMockWellknown(overrides: Partial<WellknownResponse> = {}): WellknownResponse {
@@ -18,6 +19,8 @@ function createMockWellknown(overrides: Partial<WellknownResponse> = {}): Wellkn
     token_endpoint: 'https://am.example.com/am/oauth2/alpha/access_token',
     userinfo_endpoint: 'https://am.example.com/am/oauth2/alpha/userinfo',
     end_session_endpoint: 'https://am.example.com/am/oauth2/alpha/connect/endSession',
+    introspection_endpoint: 'https://am.example.com/am/oauth2/alpha/introspect',
+    revocation_endpoint: 'https://am.example.com/am/oauth2/alpha/token/revoke',
     ...overrides,
   };
 }
@@ -87,7 +90,7 @@ describe('journey-client config.slice', () => {
   describe('configSlice_Middleware_StoresMiddleware', () => {
     it('should store the provided middleware array', () => {
       // Arrange
-      const mockMiddleware = [{ type: 'test-middleware' as const }];
+      const mockMiddleware: RequestMiddleware[] = [(_req, _action, next) => next()];
       const payload: ResolvedConfig = {
         wellknownResponse: createMockWellknown(),
         middleware: mockMiddleware,

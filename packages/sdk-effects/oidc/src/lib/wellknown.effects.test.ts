@@ -17,6 +17,10 @@ function createMockWellknown(overrides: Partial<WellknownResponse> = {}): Wellkn
     issuer: 'https://am.example.com/am/oauth2/alpha',
     authorization_endpoint: 'https://am.example.com/am/oauth2/alpha/authorize',
     token_endpoint: 'https://am.example.com/am/oauth2/alpha/access_token',
+    userinfo_endpoint: 'https://am.example.com/am/oauth2/alpha/userinfo',
+    end_session_endpoint: 'https://am.example.com/am/oauth2/alpha/connect/endSession',
+    introspection_endpoint: 'https://am.example.com/am/oauth2/alpha/introspect',
+    revocation_endpoint: 'https://am.example.com/am/oauth2/alpha/token/revoke',
     ...overrides,
   };
 }
