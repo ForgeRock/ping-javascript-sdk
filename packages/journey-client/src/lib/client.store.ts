@@ -32,6 +32,21 @@ import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
 import type { JourneyLoginFailure } from './login-failure.utils.js';
 import type { JourneyLoginSuccess } from './login-success.utils.js';
 
+/**
+ * Checks whether an unknown value resembles an AM Step response.
+ * RTK Query's fetchBaseQuery places HTTP error response bodies in `error.data`.
+ * When AM returns a 4xx (e.g. 401 for failed social login), the body contains
+ * `code`, `reason`, and `message` — which is a valid Step that should be
+ * classified via `createJourneyObject()`.
+ */
+function isStepLike(data: unknown): data is Step {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    ('authId' in data || 'code' in data || 'callbacks' in data)
+  );
+}
+
 /** Result type for journey client methods. */
 type JourneyResult =
   | JourneyStep
@@ -135,8 +150,13 @@ export async function journey({
 
   const self: JourneyClient = {
     start: async (options?: StartParam) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
+      const { data, error: queryError } = await store.dispatch(
+        journeyApi.endpoints.start.initiate(options),
+      );
       if (!data) {
+        if (queryError && 'data' in queryError && isStepLike(queryError.data)) {
+          return createJourneyObject(queryError.data as Step);
+        }
         const error: GenericError = {
           error: 'no_response_data',
           message: 'No data received from server when starting journey',
@@ -151,8 +171,13 @@ export async function journey({
      * Submits the current Step payload to the authentication API and retrieves the next JourneyStep in the journey.
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
+      const { data, error: queryError } = await store.dispatch(
+        journeyApi.endpoints.next.initiate({ step, options }),
+      );
       if (!data) {
+        if (queryError && 'data' in queryError && isStepLike(queryError.data)) {
+          return createJourneyObject(queryError.data as Step);
+        }
         const error: GenericError = {
           error: 'no_response_data',
           message: 'No data received from server when submitting step',
@@ -210,7 +235,11 @@ export async function journey({
 
         if (stored) {
           if (isGenericError(stored)) {
-            throw new Error(`Error retrieving previous step: ${stored.message || stored.error}`);
+            return {
+              error: 'storage_error',
+              message: `Error retrieving previous step: ${stored.message || stored.error}`,
+              type: 'unknown_error',
+            } satisfies GenericError;
           } else if (isStoredStep(stored)) {
             previousStep = createJourneyObject(stored.step) as JourneyStep;
           }
@@ -218,9 +247,11 @@ export async function journey({
         await stepStorage.remove();
 
         if (!previousStep) {
-          throw new Error(
-            'Error: previous step information not found in storage for resume operation.',
-          );
+          return {
+            error: 'missing_previous_step',
+            message: 'Previous step information not found in storage for resume operation.',
+            type: 'state_error',
+          } satisfies GenericError;
         }
       }
 

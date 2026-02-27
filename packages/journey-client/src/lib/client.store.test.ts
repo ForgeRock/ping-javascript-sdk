@@ -10,6 +10,8 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import type { GenericError, Step, WellknownResponse } from '@forgerock/sdk-types';
 
+import { StepType } from '@forgerock/sdk-types';
+
 import { journey } from './client.store.js';
 import { createJourneyStep } from './step.utils.js';
 import { JourneyClientConfig } from './config.types.js';
@@ -73,9 +75,11 @@ function getUrlFromInput(input: RequestInfo | URL): string {
 }
 
 /**
- * Helper to setup mock fetch for wellknown + journey responses
+ * Helper to setup mock fetch for wellknown + journey responses.
+ * When `errorStatus` is provided, the journey response will be returned
+ * with that HTTP status code (simulating AM error responses like 401).
  */
-function setupMockFetch(journeyResponse: Step | null = null) {
+function setupMockFetch(journeyResponse: Step | null = null, options?: { errorStatus?: number }) {
   mockFetch.mockImplementation((input: RequestInfo | URL) => {
     const url = getUrlFromInput(input);
 
@@ -86,7 +90,13 @@ function setupMockFetch(journeyResponse: Step | null = null) {
 
     // Journey authenticate endpoint
     if (journeyResponse && url.includes('/authenticate')) {
-      return Promise.resolve(new Response(JSON.stringify(journeyResponse)));
+      const status = options?.errorStatus ?? 200;
+      return Promise.resolve(
+        new Response(JSON.stringify(journeyResponse), {
+          status,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
     }
 
     return Promise.reject(new Error(`Unexpected fetch: ${url}`));
@@ -205,6 +215,64 @@ describe('journey-client', () => {
     }
   });
 
+  test('start_ServerReturns401_ReturnsLoginFailure', async () => {
+    // Arrange — AM returns 401 with a login failure body
+    const failureResponse: Step = {
+      code: 401,
+      reason: 'Unauthorized',
+      message: 'Authentication Failed',
+    };
+    setupMockFetch(failureResponse, { errorStatus: 401 });
+
+    // Act
+    const client = await journey({ config: mockConfig });
+    const result = await client.start();
+
+    // Assert — should be classified as LoginFailure, not GenericError
+    expect(result).toBeDefined();
+    expect(isGenericError(result)).toBe(false);
+    expect(result).toHaveProperty('type', StepType.LoginFailure);
+    if (result && 'getCode' in result) {
+      expect(result.getCode()).toBe(401);
+      expect(result.getReason()).toBe('Unauthorized');
+      expect(result.getMessage()).toBe('Authentication Failed');
+    }
+  });
+
+  test('next_ServerReturns401_ReturnsLoginFailure', async () => {
+    // Arrange — AM returns 401 after submitting credentials
+    const initialStep = createJourneyStep({
+      authId: 'test-auth-id',
+      callbacks: [
+        {
+          type: callbackType.NameCallback,
+          input: [{ name: 'IDToken1', value: 'test-user' }],
+          output: [],
+        },
+      ],
+    });
+    const failureResponse: Step = {
+      code: 401,
+      reason: 'Unauthorized',
+      message: 'Authentication Failed',
+    };
+    setupMockFetch(failureResponse, { errorStatus: 401 });
+
+    // Act
+    const client = await journey({ config: mockConfig });
+    const result = await client.next(initialStep, {});
+
+    // Assert — should be classified as LoginFailure, not GenericError
+    expect(result).toBeDefined();
+    expect(isGenericError(result)).toBe(false);
+    expect(result).toHaveProperty('type', StepType.LoginFailure);
+    if (result && 'getCode' in result) {
+      expect(result.getCode()).toBe(401);
+      expect(result.getReason()).toBe('Unauthorized');
+      expect(result.getMessage()).toBe('Authentication Failed');
+    }
+  });
+
   test('redirect_WellknownConfig_StoresStepAndCallsLocationAssign', async () => {
     // Arrange
     const mockStepPayload: Step = {
@@ -299,7 +367,7 @@ describe('journey-client', () => {
       }
     });
 
-    test('resume_PreviousStepRequiredButNotFound_ThrowsError', async () => {
+    test('resume_PreviousStepRequiredButNotFound_ReturnsGenericError', async () => {
       // Arrange
       mockStorageInstance.get.mockResolvedValue(undefined);
       setupMockFetch();
@@ -307,13 +375,41 @@ describe('journey-client', () => {
       // Act
       const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
+      const result = await client.resume(resumeUrl);
 
-      // Assert
-      await expect(client.resume(resumeUrl)).rejects.toThrow(
-        'Error: previous step information not found in storage for resume operation.',
-      );
+      // Assert — returns GenericError instead of throwing
+      expect(result).toBeDefined();
+      expect(isGenericError(result)).toBe(true);
+      if (isGenericError(result)) {
+        expect(result.error).toBe('missing_previous_step');
+        expect(result.message).toContain('not found in storage');
+      }
       expect(mockStorageInstance.get).toHaveBeenCalledTimes(1);
       expect(mockStorageInstance.remove).toHaveBeenCalledTimes(1);
+    });
+
+    test('resume_StorageReturnsError_ReturnsGenericError', async () => {
+      // Arrange — storage returns a GenericError (e.g. sessionStorage unavailable)
+      const storageError: GenericError = {
+        error: 'storage_unavailable',
+        message: 'sessionStorage is not available',
+        type: 'unknown_error',
+      };
+      mockStorageInstance.get.mockResolvedValue(storageError);
+      setupMockFetch();
+
+      // Act
+      const client = await journey({ config: mockConfig });
+      const resumeUrl = 'https://app.com/callback?code=123&state=abc';
+      const result = await client.resume(resumeUrl);
+
+      // Assert — returns GenericError instead of throwing
+      expect(result).toBeDefined();
+      expect(isGenericError(result)).toBe(true);
+      if (isGenericError(result)) {
+        expect(result.error).toBe('storage_error');
+        expect(result.message).toContain('sessionStorage is not available');
+      }
     });
 
     test('resume_NoPreviousStepRequired_CallsStartWithUrlParams', async () => {
