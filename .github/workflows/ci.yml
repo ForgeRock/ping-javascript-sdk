@@ -43,7 +43,7 @@ jobs:
       - name: Ensure builds run
         run: pnpm nx run-many -t build --no-agents
 
-      - run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm
+      - run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --pnpm --packageManager=pnpm
 
       - name: build docs
         run: pnpm generate-docs

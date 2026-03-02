@@ -6,7 +6,7 @@ runs:
   steps:
     - name: Create PR for beta publish
       shell: bash
-      run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --packageManager=pnpm --comment=off
+      run: pnpm pkg-pr-new publish './packages/*' './packages/sdk-effects/*' --pnpm --packageManager=pnpm --comment=off
 
     - name: Run Builds
       shell: bash
