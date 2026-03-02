@@ -64,7 +64,7 @@ runs:
       run: pnpm nx sync:check
 
     - name: Run Nx build/lint/test/e2e
-      run: pnpm exec nx affected -t build lint test e2e-ci
+      run: pnpm exec nx affected -t build lint test typecheck e2e-ci
       shell: bash
 
     - name: Upload Playwright report
