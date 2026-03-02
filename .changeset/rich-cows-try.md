@@ -8,19 +8,7 @@
 
 ### @forgerock/journey-client
 
-Add well-known OIDC endpoint discovery support. The journey client can now fetch configuration from the `.well-known/openid-configuration` endpoint:
-
-```typescript
-const client = await journey({
-  serverConfig: {
-    baseUrl: 'https://am.example.com/am/',
-    wellknown:
-      'https://am.example.com/am/oauth2/realms/root/realms/alpha/.well-known/openid-configuration',
-  },
-});
-```
-
-The realm path can be automatically inferred from the well-known issuer URL.
+Add well-known OIDC endpoint discovery support. The journey client can now fetch configuration from the `.well-known/openid-configuration` endpoint. The realm path can be automatically inferred from the well-known issuer URL.
 
 ### @forgerock/sdk-oidc
 
