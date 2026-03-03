@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 export interface GetProfileDevices {
-  realm: string;
+  realm?: string;
   userId: string;
 }
 
