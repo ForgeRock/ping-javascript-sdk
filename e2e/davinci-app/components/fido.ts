@@ -9,6 +9,7 @@ import type {
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   Updater,
+  FidoClient,
 } from '@forgerock/davinci-client/types';
 
 export default function fidoComponent(
@@ -17,7 +18,7 @@ export default function fidoComponent(
   updater: Updater<FidoRegistrationCollector | FidoAuthenticationCollector>,
   submitForm: () => Promise<void>,
 ) {
-  const fidoApi = fido();
+  const fidoApi: FidoClient = fido();
   if (collector.type === 'FidoRegistrationCollector') {
     const button = document.createElement('button');
     button.type = 'button';

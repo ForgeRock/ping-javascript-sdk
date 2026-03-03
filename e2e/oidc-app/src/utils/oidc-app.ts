@@ -12,6 +12,7 @@ import type {
   GenericError,
   GetAuthorizationUrlOptions,
   OauthTokens,
+  OidcClient,
   TokenExchangeErrorResponse,
 } from '@forgerock/oidc-client/types';
 
@@ -49,7 +50,7 @@ export async function oidcApp({ config, urlParams }) {
   const state = urlParams.get('state');
   const piflow = urlParams.get('piflow');
 
-  const oidcClient = await oidc({ config });
+  const oidcClient: OidcClient = await oidc({ config });
   if ('error' in oidcClient) {
     displayError(oidcClient);
   }
