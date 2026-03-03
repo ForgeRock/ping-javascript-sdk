@@ -14,8 +14,7 @@ import {
 } from '@forgerock/sdk-utilities';
 
 import type { GenericError } from '@forgerock/sdk-types';
-
-import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { Step } from '@forgerock/sdk-types';
 
 import { createJourneyStore } from './client.store.utils.js';
@@ -28,7 +27,7 @@ import { wellknownApi } from './wellknown.api.js';
 import type { JourneyStep } from './step.utils.js';
 import type { JourneyClientConfig } from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
-import { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
+import type { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
 import type { JourneyLoginFailure } from './login-failure.utils.js';
 import type { JourneyLoginSuccess } from './login-success.utils.js';
 
@@ -78,13 +77,13 @@ export interface JourneyClient {
  * }
  * ```
  */
-export async function journey({
+export async function journey<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
   logger,
 }: {
   config: JourneyClientConfig;
-  requestMiddleware?: RequestMiddleware[];
+  requestMiddleware?: RequestMiddleware<ActionType>[];
   logger?: {
     level: LogLevel;
     custom?: CustomLogger;
@@ -116,7 +115,6 @@ export async function journey({
   store.dispatch(
     configSlice.actions.set({
       wellknownResponse: wellknownResponse,
-      middleware: config.middleware ?? requestMiddleware,
     }),
   );
 

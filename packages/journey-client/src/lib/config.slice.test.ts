@@ -9,7 +9,6 @@ import { describe, it, expect } from 'vitest';
 import { configSlice } from './config.slice.js';
 
 import type { WellknownResponse } from '@forgerock/sdk-types';
-import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { ResolvedConfig } from './config.slice.js';
 
 function createMockWellknown(overrides: Partial<WellknownResponse> = {}): WellknownResponse {
@@ -84,23 +83,6 @@ describe('journey-client config.slice', () => {
       expect(state.error).toBeDefined();
       expect(state.error?.type).toBe('wellknown_error');
       expect(state.error?.message).toContain('authorization_endpoint');
-    });
-  });
-
-  describe('configSlice_Middleware_StoresMiddleware', () => {
-    it('should store the provided middleware array', () => {
-      // Arrange
-      const mockMiddleware: RequestMiddleware[] = [(_req, _action, next) => next()];
-      const payload: ResolvedConfig = {
-        wellknownResponse: createMockWellknown(),
-        middleware: mockMiddleware,
-      };
-
-      // Act
-      const state = configSlice.reducer(undefined, configSlice.actions.set(payload));
-
-      // Assert
-      expect(state.middleware).toEqual(mockMiddleware);
     });
   });
 });

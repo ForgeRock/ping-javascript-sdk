@@ -7,7 +7,7 @@
 
 // Re-export types from internal packages that consumers need
 export type { LogLevel, CustomLogger } from '@forgerock/sdk-logger';
-export type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+export type { RequestMiddleware, ActionTypes } from '@forgerock/sdk-request-middleware';
 export type {
   Step,
   Callback,
