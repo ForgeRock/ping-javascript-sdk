@@ -6,7 +6,7 @@
  */
 
 import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import { configSlice } from './config.slice.js';
@@ -19,11 +19,11 @@ const rootReducer = combineReducers({
   [wellknownApi.reducerPath]: wellknownApi.reducer,
 });
 
-export const createJourneyStore = ({
+export const createJourneyStore = <ActionType extends ActionTypes>({
   requestMiddleware,
   logger,
 }: {
-  requestMiddleware?: RequestMiddleware[];
+  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
   logger?: ReturnType<typeof loggerFn>;
 }) => {
   return configureStore({

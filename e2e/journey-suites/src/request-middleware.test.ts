@@ -9,7 +9,7 @@ import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 import { username, password } from './utils/demo-user.js';
 
-test.skip('Test happy paths on test page', async ({ page }) => {
+test('Test middleware on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
   await navigate('/?middleware=true&journey=Login');
 
@@ -24,7 +24,7 @@ test.skip('Test happy paths on test page', async ({ page }) => {
   });
 
   page.on('request', async (req) => {
-    networkArray.push(`${new URL(req.url()).pathname}, ${req.resourceType()}`);
+    networkArray.push(req.url().toString());
   });
 
   page.on('request', async (req) => {
@@ -46,17 +46,33 @@ test.skip('Test happy paths on test page', async ({ page }) => {
   await clickButton('Logout', '/authenticate');
 
   // Test assertions
-  // test URL query parameters added to URL on networkArray
 
-  expect(networkArray).toContain('start-authenticate-middleware, fetch');
-  expect(networkArray).toContain('authenticate-middleware, fetch');
-  expect(networkArray).toContain('end-session-middleware, fetch');
+  // Test URL query parameters added to URL on networkArray
+  const startRequest = networkArray.find((url) => url.includes('start-authenticate-middleware'));
+  const nextRequest = networkArray.find((url) => url.includes('authenticate-middleware'));
+  const endRequest = networkArray.find((url) => url.includes('end-session-middleware'));
 
-  expect(
-    headerArray.find((headers) => headers.get('x-start-authenticate-middleware')),
-  ).toBeTruthy();
-  expect(headerArray.find((headers) => headers.get('x-authenticate-middleware'))).toBeTruthy();
-  expect(headerArray.find((headers) => headers.get('x-end-session-middleware'))).toBeTruthy();
+  expect(startRequest?.includes('start-authenticate-middleware=start-authentication')).toBeTruthy();
+  expect(nextRequest?.includes('authenticate-middleware=authentication')).toBeTruthy();
+  expect(endRequest?.includes('end-session-middleware=end-session')).toBeTruthy();
+
+  // Check for addition of custom headers
+  const startHeader = headerArray.find((headers) => headers.get('x-start-authenticate-middleware'));
+  const nextHeader = headerArray.find((headers) => headers.get('x-authenticate-middleware'));
+  const endHeader = headerArray.find((headers) => headers.get('x-end-session-middleware'));
+
+  expect(startHeader?.get('x-start-authenticate-middleware')).toBe('start-authentication');
+  expect(nextHeader?.get('x-authenticate-middleware')).toBe('authentication');
+  expect(endHeader?.get('x-end-session-middleware')).toBe('end-session');
+
+  // Check that Accept-Language header was modified from default en-US locale and set to correct value in each middleware
+  expect(startHeader?.get('Accept-Language')).not.toContain('en-US');
+  expect(nextHeader?.get('Accept-Language')).not.toContain('en-US');
+  expect(endHeader?.get('Accept-Language')).not.toContain('en-US');
+
+  expect(startHeader?.get('Accept-Language')).toBe('xx-XX');
+  expect(nextHeader?.get('Accept-Language')).toBe('yy-YY');
+  expect(endHeader?.get('Accept-Language')).toBe('zz-ZZ');
 
   expect(messageArray.includes('Journey completed successfully')).toBe(true);
   expect(messageArray.includes('Logout successful')).toBe(true);

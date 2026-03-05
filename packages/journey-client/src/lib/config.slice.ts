@@ -6,10 +6,7 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
 import type { WellknownResponse } from '@forgerock/sdk-types';
-import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
-
 import type { InternalJourneyClientConfig } from './config.types.js';
 import { convertWellknown } from './wellknown.utils.js';
 
@@ -20,12 +17,10 @@ import { convertWellknown } from './wellknown.utils.js';
  */
 export interface ResolvedConfig {
   wellknownResponse: WellknownResponse;
-  middleware?: Array<RequestMiddleware>;
 }
 
 const initialState: InternalJourneyClientConfig = {
   serverConfig: { baseUrl: '', paths: { authenticate: '', sessions: '' } },
-  middleware: [],
 };
 
 /**
@@ -48,7 +43,6 @@ export const configSlice = createSlice({
         state.serverConfig = wellknown;
         state.error = undefined;
       }
-      state.middleware = action.payload.middleware;
     },
   },
 });

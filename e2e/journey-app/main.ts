@@ -21,7 +21,8 @@ const searchParams = new URLSearchParams(qs);
 const config = serverConfigs[searchParams.get('clientId') || 'basic'];
 
 const journeyName = searchParams.get('journey') ?? 'UsernamePassword';
-let requestMiddleware: RequestMiddleware[] = [];
+let requestMiddleware: RequestMiddleware<'JOURNEY_START' | 'JOURNEY_NEXT' | 'JOURNEY_TERMINATE'>[] =
+  [];
 
 if (searchParams.get('middleware') === 'true') {
   requestMiddleware = [
@@ -30,10 +31,12 @@ if (searchParams.get('middleware') === 'true') {
         case 'JOURNEY_START':
           req.url.searchParams.set('start-authenticate-middleware', 'start-authentication');
           req.headers.append('x-start-authenticate-middleware', 'start-authentication');
+          req.headers?.set('Accept-Language', 'xx-XX');
           break;
         case 'JOURNEY_NEXT':
           req.url.searchParams.set('authenticate-middleware', 'authentication');
           req.headers.append('x-authenticate-middleware', 'authentication');
+          req.headers?.set('Accept-Language', 'yy-YY');
           break;
       }
       next();
@@ -43,6 +46,7 @@ if (searchParams.get('middleware') === 'true') {
         case 'JOURNEY_TERMINATE':
           req.url.searchParams.set('end-session-middleware', 'end-session');
           req.headers.append('x-end-session-middleware', 'end-session');
+          req.headers?.set('Accept-Language', 'zz-ZZ');
           break;
       }
       next();

@@ -6,7 +6,6 @@
  */
 
 import type { GenericError } from '@forgerock/sdk-types';
-import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
 /**
@@ -34,8 +33,6 @@ export interface JourneyServerConfig {
  */
 export interface JourneyClientConfig {
   serverConfig: JourneyServerConfig;
-  /** Optional middleware for request customization */
-  middleware?: Array<RequestMiddleware>;
 }
 
 /**
@@ -46,9 +43,5 @@ export interface JourneyClientConfig {
  */
 export interface InternalJourneyClientConfig {
   serverConfig: ResolvedServerConfig;
-  /** Optional middleware for request customization */
-  middleware?: Array<RequestMiddleware>;
   error?: GenericError;
 }
-
-export type { RequestMiddleware };
