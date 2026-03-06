@@ -35,7 +35,8 @@ npm install @forgerock/device-client --save
 To configure the `deviceClient`, you need to provide a `ConfigOptions` object that includes the base URL for the server and the realm path.
 
 ```typescript
-import { deviceClient, type ConfigOptions } from '@forgerock/device-client';
+import { deviceClient } from '@forgerock/device-client';
+import type { ConfigOptions } from '@forgerock/device-client/types';
 
 const config: ConfigOptions = {
   serverConfig: {

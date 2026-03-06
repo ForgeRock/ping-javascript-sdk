@@ -9,6 +9,7 @@
 
 import './style.css';
 import { protect } from '@forgerock/protect';
+import type { Protect } from '@forgerock/protect/types';
 import {
   CallbackType,
   Config,
@@ -23,7 +24,7 @@ import {
   UserManager,
 } from '@forgerock/javascript-sdk';
 
-const protectAPI = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
+const protectAPI: Protect = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
 const FATAL = 'Fatal';
 
 // Check URL for query parameters

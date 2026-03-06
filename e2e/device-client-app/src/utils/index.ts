@@ -1,4 +1,5 @@
 import { deviceClient } from '@forgerock/device-client';
+import type { ConfigOptions, DeviceClient } from '@forgerock/device-client/types';
 import {
   CallbackType,
   Config,
@@ -76,11 +77,8 @@ export const LoginAndGetClient = Effect.gen(function* () {
   const un = url.searchParams.get('un') || 'devicetestuser';
   const pw = url.searchParams.get('pw') || 'password';
 
-  const config = {
+  const config: ConfigOptions = {
     realmPath,
-    tree,
-    clientId: 'WebOAuthClient',
-    scope: 'profile email me.read openid',
     serverConfig: {
       baseUrl: amUrl,
       timeout: 3000,
@@ -120,7 +118,7 @@ export const LoginAndGetClient = Effect.gen(function* () {
     Effect.flatMap(() => getTokens),
   );
 
-  const client = deviceClient(config);
+  const client: DeviceClient = deviceClient(config);
   return client;
 });
 

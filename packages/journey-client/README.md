@@ -38,8 +38,7 @@ yarn add @forgerock/journey-client
 ## Quick Start
 
 ```typescript
-import { journey } from '@forgerock/journey-client';
-import { callbackType } from '@forgerock/sdk-types';
+import { journey, callbackType } from '@forgerock/journey-client';
 
 async function authenticateUser() {
   // Initialize the client with wellknown discovery
