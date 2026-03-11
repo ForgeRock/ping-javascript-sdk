@@ -36,13 +36,10 @@ describe('wellknown.utils', () => {
   describe('convertWellknown', () => {
     describe('convertWellknown_SimplifiedAmFormat_ReturnsCorrectConfig', () => {
       it('should derive baseUrl and paths from a simplified AM well-known response', () => {
-        // Arrange
         const data = createMockWellknown();
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://am.example.com');
         expect(result.paths.authenticate).toBe('/am/json/alpha/authenticate');
@@ -52,16 +49,13 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_LegacyRootRealm_ReturnsCorrectConfig', () => {
       it('should handle legacy root realm format', () => {
-        // Arrange
         const data = createMockWellknown({
           issuer: 'https://test.com/am/oauth2/realms/root',
           authorization_endpoint: 'https://test.com/am/oauth2/realms/root/authorize',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://test.com');
         expect(result.paths.authenticate).toBe('/am/json/realms/root/authenticate');
@@ -71,16 +65,13 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_LegacySubrealm_ReturnsCorrectConfig', () => {
       it('should handle legacy subrealm format', () => {
-        // Arrange
         const data = createMockWellknown({
           issuer: 'https://test.com/am/oauth2/realms/root/realms/alpha',
           authorization_endpoint: 'https://test.com/am/oauth2/realms/root/realms/alpha/authorize',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://test.com');
         expect(result.paths.authenticate).toBe('/am/json/realms/root/realms/alpha/authenticate');
@@ -90,17 +81,14 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_NestedSubrealm_ReturnsCorrectConfig', () => {
       it('should handle deeply nested subrealm format', () => {
-        // Arrange
         const data = createMockWellknown({
           issuer: 'https://test.com/am/oauth2/realms/root/realms/customers/realms/premium',
           authorization_endpoint:
             'https://test.com/am/oauth2/realms/root/realms/customers/realms/premium/authorize',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://test.com');
         expect(result.paths.authenticate).toBe(
@@ -114,16 +102,13 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_IssuerWithPort_ReturnsCorrectBaseUrl', () => {
       it('should preserve non-standard port in baseUrl', () => {
-        // Arrange
         const data = createMockWellknown({
           issuer: 'https://am.example.com:8443/am/oauth2/alpha',
           authorization_endpoint: 'https://am.example.com:8443/am/oauth2/alpha/authorize',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://am.example.com:8443');
         expect(result.paths.authenticate).toBe('/am/json/alpha/authenticate');
@@ -132,16 +117,13 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_NoContextPath_ReturnsCorrectConfig', () => {
       it('should handle URLs without AM context path', () => {
-        // Arrange
         const data = createMockWellknown({
           issuer: 'https://am.example.com/oauth2/alpha',
           authorization_endpoint: 'https://am.example.com/oauth2/alpha/authorize',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://am.example.com');
         expect(result.paths.authenticate).toBe('/json/alpha/authenticate');
@@ -151,16 +133,13 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_NonAmIssuer_ReturnsGenericError', () => {
       it('should return a GenericError when issuer does not contain /oauth2/', () => {
-        // Arrange
         const data = createMockWellknown({
           issuer: 'https://auth.pingone.com/env-id/as',
           authorization_endpoint: 'https://auth.pingone.com/env-id/as/authorize',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         expect(result).toMatchObject({
           error: 'Well-known configuration conversion failed',
           message: expect.stringContaining('ForgeRock AM issuer'),
@@ -171,15 +150,12 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_MissingAuthEndpoint_ReturnsGenericError', () => {
       it('should return a GenericError when authorization_endpoint is missing', () => {
-        // Arrange
         const data = createMockWellknown({
           authorization_endpoint: '',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         expect(result).toMatchObject({
           error: 'Well-known configuration conversion failed',
           message: expect.stringContaining('authorization_endpoint'),
@@ -190,16 +166,13 @@ describe('wellknown.utils', () => {
 
     describe('convertWellknown_LocalhostDev_ReturnsCorrectConfig', () => {
       it('should handle localhost development URLs', () => {
-        // Arrange
         const data = createMockWellknown({
           issuer: 'http://localhost:9443/am/oauth2/realms/root',
           authorization_endpoint: 'http://localhost:9443/am/oauth2/realms/root/authorize',
         });
 
-        // Act
         const result = convertWellknown(data);
 
-        // Assert
         assertResolvedConfig(result);
         expect(result.baseUrl).toBe('http://localhost:9443');
         expect(result.paths.authenticate).toBe('/am/json/realms/root/authenticate');

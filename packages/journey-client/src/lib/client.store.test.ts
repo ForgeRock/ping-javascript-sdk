@@ -99,13 +99,10 @@ describe('journey-client', () => {
   });
 
   test('journey_WellknownConfig_ReturnsClientWithAllMethods', async () => {
-    // Arrange
     setupMockFetch();
 
-    // Act
     const client = await journey({ config: mockConfig });
 
-    // Assert
     expect(client.start).toBeInstanceOf(Function);
     expect(client.next).toBeInstanceOf(Function);
     expect(client.redirect).toBeInstanceOf(Function);
@@ -114,39 +111,32 @@ describe('journey-client', () => {
   });
 
   test('journey_InvalidWellknownUrl_ThrowsError', async () => {
-    // Arrange
     const invalidConfig: JourneyClientConfig = {
       serverConfig: {
         wellknown: 'not-a-valid-url',
       },
     };
 
-    // Act & Assert
     await expect(journey({ config: invalidConfig })).rejects.toThrow('Invalid wellknown URL');
   });
 
   test('journey_MissingWellknownPath_ThrowsError', async () => {
-    // Arrange — valid HTTPS URL but missing /.well-known/openid-configuration
     const badPathConfig: JourneyClientConfig = {
       serverConfig: {
         wellknown: 'https://am.example.com/am/oauth2/alpha',
       },
     };
 
-    // Act & Assert
     await expect(journey({ config: badPathConfig })).rejects.toThrow('Invalid wellknown URL');
   });
 
   test('start_WellknownConfig_FetchesFirstStep', async () => {
-    // Arrange
     const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
     setupMockFetch(mockStepResponse);
 
-    // Act
     const client = await journey({ config: mockConfig });
     const step = await client.start();
 
-    // Assert
     expect(step).toBeDefined();
     expect(isGenericError(step)).toBe(false);
 
@@ -163,7 +153,6 @@ describe('journey-client', () => {
   });
 
   test('next_WellknownConfig_SendsStepAndReturnsNext', async () => {
-    // Arrange
     const initialStep = createJourneyStep({
       authId: 'test-auth-id',
       callbacks: [
@@ -186,11 +175,9 @@ describe('journey-client', () => {
     };
     setupMockFetch(nextStepPayload);
 
-    // Act
     const client = await journey({ config: mockConfig });
     const nextStep = await client.next(initialStep, {});
 
-    // Assert
     expect(nextStep).toBeDefined();
     expect(isGenericError(nextStep)).toBe(false);
 
@@ -206,7 +193,6 @@ describe('journey-client', () => {
   });
 
   test('redirect_WellknownConfig_StoresStepAndCallsLocationAssign', async () => {
-    // Arrange
     const mockStepPayload: Step = {
       callbacks: [
         {
@@ -224,11 +210,9 @@ describe('journey-client', () => {
     });
     setupMockFetch();
 
-    // Act
     const client = await journey({ config: mockConfig });
     await client.redirect(step);
 
-    // Assert
     expect(mockStorageInstance.set).toHaveBeenCalledWith({ step: step.payload });
     expect(assignMock).toHaveBeenCalledWith('https://sso.com/redirect');
 
@@ -237,7 +221,6 @@ describe('journey-client', () => {
 
   describe('resume()', () => {
     test('resume_WithPreviousStepInStorage_CallsNextWithUrlParams', async () => {
-      // Arrange
       const previousStepPayload: Step = {
         callbacks: [{ type: callbackType.RedirectCallback, input: [], output: [] }],
       };
@@ -245,12 +228,10 @@ describe('journey-client', () => {
       const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(nextStepPayload);
 
-      // Act
       const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
       const step = await client.resume(resumeUrl, {});
 
-      // Assert
       expect(step).toBeDefined();
       expect(mockStorageInstance.get).toHaveBeenCalledTimes(1);
       expect(mockStorageInstance.remove).toHaveBeenCalledTimes(1);
@@ -269,7 +250,6 @@ describe('journey-client', () => {
     });
 
     test('resume_WithPlainStepObjectInStorage_CorrectlyResumes', async () => {
-      // Arrange
       const plainStepPayload: Step = {
         callbacks: [
           { type: callbackType.TextOutputCallback, output: [{ name: 'message', value: 'Hello' }] },
@@ -280,12 +260,10 @@ describe('journey-client', () => {
       const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(nextStepPayload);
 
-      // Act
       const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
       const step = await client.resume(resumeUrl, {});
 
-      // Assert
       expect(step).toBeDefined();
       expect(mockStorageInstance.get).toHaveBeenCalledTimes(1);
       expect(mockStorageInstance.remove).toHaveBeenCalledTimes(1);
@@ -300,15 +278,12 @@ describe('journey-client', () => {
     });
 
     test('resume_PreviousStepRequiredButNotFound_ThrowsError', async () => {
-      // Arrange
       mockStorageInstance.get.mockResolvedValue(undefined);
       setupMockFetch();
 
-      // Act
       const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
 
-      // Assert
       await expect(client.resume(resumeUrl)).rejects.toThrow(
         'Error: previous step information not found in storage for resume operation.',
       );
@@ -317,17 +292,14 @@ describe('journey-client', () => {
     });
 
     test('resume_NoPreviousStepRequired_CallsStartWithUrlParams', async () => {
-      // Arrange
       mockStorageInstance.get.mockResolvedValue(undefined);
       const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(mockStepResponse);
 
-      // Act
       const client = await journey({ config: mockConfig });
       const resumeUrl = 'https://app.com/callback?foo=bar';
       const step = await client.resume(resumeUrl, {});
 
-      // Assert
       expect(step).toBeDefined();
       expect(mockStorageInstance.get).not.toHaveBeenCalled();
       expect(mockFetch).toHaveBeenCalledTimes(2); // wellknown + start
@@ -342,14 +314,11 @@ describe('journey-client', () => {
   });
 
   test('start_NoDataFromServer_ReturnsGenericError', async () => {
-    // Arrange: server returns null for the authenticate endpoint
     setupMockFetch(null);
 
-    // Act
     const client = await journey({ config: mockConfig });
     const result = await client.start();
 
-    // Assert
     expect(isGenericError(result)).toBe(true);
     if (isGenericError(result)) {
       expect(result.error).toBe('no_response_data');
@@ -359,7 +328,6 @@ describe('journey-client', () => {
 
   describe('baseUrl from convertWellknown', () => {
     test('journey_LocalhostWellknown_ConstructsCorrectUrls', async () => {
-      // Arrange
       const localhostConfig: JourneyClientConfig = {
         serverConfig: {
           wellknown: 'http://localhost:9443/am/oauth2/realms/root/.well-known/openid-configuration',
@@ -382,11 +350,9 @@ describe('journey-client', () => {
         return Promise.resolve(new Response(JSON.stringify(mockStepResponse)));
       });
 
-      // Act
       const client = await journey({ config: localhostConfig });
       await client.start();
 
-      // Assert
       expect(mockFetch).toHaveBeenCalledTimes(2);
       const request = mockFetch.mock.calls[1][0] as Request;
       expect(request.url).toBe('http://localhost:9443/am/json/realms/root/authenticate');
@@ -395,7 +361,6 @@ describe('journey-client', () => {
 
   describe('subrealm inference', () => {
     test('journey_WellknownWithSubrealm_DerivesCorrectPaths', async () => {
-      // Arrange
       const alphaConfig: JourneyClientConfig = {
         serverConfig: {
           wellknown:
@@ -420,11 +385,9 @@ describe('journey-client', () => {
         return Promise.resolve(new Response(JSON.stringify(mockStepResponse)));
       });
 
-      // Act
       const client = await journey({ config: alphaConfig });
       await client.start();
 
-      // Assert
       const request = mockFetch.mock.calls[1][0] as Request;
       expect(request.url).toBe('https://test.com/am/json/realms/root/realms/alpha/authenticate');
     });
