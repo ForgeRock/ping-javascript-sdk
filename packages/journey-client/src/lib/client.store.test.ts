@@ -341,6 +341,22 @@ describe('journey-client', () => {
     });
   });
 
+  test('start_NoDataFromServer_ReturnsGenericError', async () => {
+    // Arrange: server returns null for the authenticate endpoint
+    setupMockFetch(null);
+
+    // Act
+    const client = await journey({ config: mockConfig });
+    const result = await client.start();
+
+    // Assert
+    expect(isGenericError(result)).toBe(true);
+    if (isGenericError(result)) {
+      expect(result.error).toBe('no_response_data');
+      expect(result.type).toBe('unknown_error');
+    }
+  });
+
   describe('baseUrl from convertWellknown', () => {
     test('journey_LocalhostWellknown_ConstructsCorrectUrls', async () => {
       // Arrange

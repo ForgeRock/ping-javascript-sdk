@@ -11,9 +11,12 @@ import { convertWellknown } from './wellknown.utils.js';
 import type { WellknownResponse } from '@forgerock/sdk-types';
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
-function assertResolved(result: unknown): asserts result is ResolvedServerConfig {
-  expect(result).toBeDefined();
-  expect(result).not.toHaveProperty('error');
+function assertResolvedConfig(
+  result: ReturnType<typeof convertWellknown>,
+): asserts result is ResolvedServerConfig {
+  if ('error' in result) {
+    throw new Error(`Expected ResolvedServerConfig but got GenericError: ${result.error}`);
+  }
 }
 
 function createMockWellknown(overrides: Partial<WellknownResponse> = {}): WellknownResponse {
@@ -40,7 +43,7 @@ describe('wellknown.utils', () => {
         const result = convertWellknown(data);
 
         // Assert
-        assertResolved(result);
+        assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://am.example.com');
         expect(result.paths.authenticate).toBe('/am/json/alpha/authenticate');
         expect(result.paths.sessions).toBe('/am/json/alpha/sessions/');
@@ -59,7 +62,7 @@ describe('wellknown.utils', () => {
         const result = convertWellknown(data);
 
         // Assert
-        assertResolved(result);
+        assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://test.com');
         expect(result.paths.authenticate).toBe('/am/json/realms/root/authenticate');
         expect(result.paths.sessions).toBe('/am/json/realms/root/sessions/');
@@ -78,7 +81,7 @@ describe('wellknown.utils', () => {
         const result = convertWellknown(data);
 
         // Assert
-        assertResolved(result);
+        assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://test.com');
         expect(result.paths.authenticate).toBe('/am/json/realms/root/realms/alpha/authenticate');
         expect(result.paths.sessions).toBe('/am/json/realms/root/realms/alpha/sessions/');
@@ -98,7 +101,7 @@ describe('wellknown.utils', () => {
         const result = convertWellknown(data);
 
         // Assert
-        assertResolved(result);
+        assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://test.com');
         expect(result.paths.authenticate).toBe(
           '/am/json/realms/root/realms/customers/realms/premium/authenticate',
@@ -121,7 +124,7 @@ describe('wellknown.utils', () => {
         const result = convertWellknown(data);
 
         // Assert
-        assertResolved(result);
+        assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://am.example.com:8443');
         expect(result.paths.authenticate).toBe('/am/json/alpha/authenticate');
       });
@@ -139,7 +142,7 @@ describe('wellknown.utils', () => {
         const result = convertWellknown(data);
 
         // Assert
-        assertResolved(result);
+        assertResolvedConfig(result);
         expect(result.baseUrl).toBe('https://am.example.com');
         expect(result.paths.authenticate).toBe('/json/alpha/authenticate');
         expect(result.paths.sessions).toBe('/json/alpha/sessions/');
@@ -197,7 +200,7 @@ describe('wellknown.utils', () => {
         const result = convertWellknown(data);
 
         // Assert
-        assertResolved(result);
+        assertResolvedConfig(result);
         expect(result.baseUrl).toBe('http://localhost:9443');
         expect(result.paths.authenticate).toBe('/am/json/realms/root/authenticate');
         expect(result.paths.sessions).toBe('/am/json/realms/root/sessions/');
