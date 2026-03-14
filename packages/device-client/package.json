@@ -31,6 +31,18 @@
     "msw": "catalog:"
   },
   "nx": {
-    "tags": ["scope:package"]
+    "tags": ["scope:package"],
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": ["{options.outputPath}"],
+        "options": {
+          "outputPath": "packages/device-client/dist",
+          "main": "packages/device-client/src/index.ts",
+          "tsConfig": "packages/device-client/tsconfig.lib.json",
+          "format": ["esm"]
+        }
+      }
+    }
   }
 }

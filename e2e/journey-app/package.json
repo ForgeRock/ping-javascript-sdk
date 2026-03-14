@@ -14,7 +14,8 @@
     "@forgerock/journey-client": "workspace:*",
     "@forgerock/oidc-client": "workspace:*",
     "@forgerock/protect": "workspace:*",
-    "@forgerock/sdk-logger": "workspace:*"
+    "@forgerock/sdk-logger": "workspace:*",
+    "@forgerock/device-client": "workspace:*"
   },
   "nx": {
     "tags": ["scope:e2e"]
