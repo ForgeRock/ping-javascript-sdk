@@ -31,6 +31,9 @@
   "devDependencies": {
     "msw": "catalog:"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "nx": {
     "tags": ["scope:package"]
   }
