@@ -27,15 +27,12 @@ function createMockWellknown(overrides: Partial<WellknownResponse> = {}): Wellkn
 describe('journey-client config.slice', () => {
   describe('configSlice_ValidAmWellknown_SetsResolvedServerConfig', () => {
     it('should derive baseUrl and paths from a standard AM well-known response', () => {
-      // Arrange
       const payload: ResolvedConfig = {
         wellknownResponse: createMockWellknown(),
       };
 
-      // Act
       const state = configSlice.reducer(undefined, configSlice.actions.set(payload));
 
-      // Assert
       expect(state.serverConfig).toEqual({
         baseUrl: 'https://am.example.com',
         paths: {
@@ -49,7 +46,6 @@ describe('journey-client config.slice', () => {
 
   describe('configSlice_NonAmIssuer_SetsError', () => {
     it('should set a GenericError when the issuer is not a ForgeRock AM issuer', () => {
-      // Arrange
       const payload: ResolvedConfig = {
         wellknownResponse: createMockWellknown({
           issuer: 'https://auth.pingone.com/env-id/as',
@@ -57,10 +53,8 @@ describe('journey-client config.slice', () => {
         }),
       };
 
-      // Act
       const state = configSlice.reducer(undefined, configSlice.actions.set(payload));
 
-      // Assert
       expect(state.error).toBeDefined();
       expect(state.error?.type).toBe('wellknown_error');
       expect(state.error?.message).toContain('ForgeRock AM issuer');
@@ -69,17 +63,14 @@ describe('journey-client config.slice', () => {
 
   describe('configSlice_MissingAuthEndpoint_SetsError', () => {
     it('should set a GenericError when authorization_endpoint is empty', () => {
-      // Arrange
       const payload: ResolvedConfig = {
         wellknownResponse: createMockWellknown({
           authorization_endpoint: '',
         }),
       };
 
-      // Act
       const state = configSlice.reducer(undefined, configSlice.actions.set(payload));
 
-      // Assert
       expect(state.error).toBeDefined();
       expect(state.error?.type).toBe('wellknown_error');
       expect(state.error?.message).toContain('authorization_endpoint');
