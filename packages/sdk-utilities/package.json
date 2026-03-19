@@ -29,7 +29,7 @@
   },
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
-  "files": ["dist"],
+  "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo"],
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",

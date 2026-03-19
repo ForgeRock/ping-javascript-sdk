@@ -19,7 +19,7 @@
   },
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
-  "files": ["dist"],
+  "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo"],
   "scripts": {
     "lint": "pnpm nx nxLint",
     "test": "pnpm nx nxTest",
