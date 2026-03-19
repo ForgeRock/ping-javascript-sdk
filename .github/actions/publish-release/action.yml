@@ -32,7 +32,7 @@ runs:
 
     - name: Run Builds
       shell: bash
-      run: pnpm nx run-many -t build --no-agents
+      run: pnpm nx run-many -t build --no-agents --skip-nx-cache
 
     - name: Generate API Docs
       shell: bash
