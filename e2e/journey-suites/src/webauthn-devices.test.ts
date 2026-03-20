@@ -5,76 +5,24 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { expect, test, Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import type { CDPSession } from '@playwright/test';
-
 import { asyncEvents } from './utils/async-events.js';
 import { username, password } from './utils/demo-user.js';
 
 test.use({ browserName: 'chromium' });
 
-test.describe('WebAuthn registration delete devices', () => {
+function toBase64Url(value: string): string {
+  return value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/u, '');
+}
+
+test.describe('WebAuthn register, authenticate, and delete device', () => {
   let cdp: CDPSession | undefined;
   let authenticatorId: string | undefined;
-
-  async function login(page: Page, journey = 'Login'): Promise<void> {
-    const { clickButton, navigate } = asyncEvents(page);
-
-    await navigate(`/?clientId=tenant&journey=${journey}`);
-    await expect(page.getByLabel('User Name')).toBeVisible();
-
-    await page.getByLabel('User Name').fill(username);
-    await page.getByLabel('Password').fill(password);
-    await clickButton('Submit', '/authenticate');
-    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
-  }
-
-  async function logout(page: Page): Promise<void> {
-    const { clickButton } = asyncEvents(page);
-    await clickButton('Logout', '/sessions');
-    await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
-  }
-
-  async function getDevicesBeforeSession(page: Page): Promise<void> {
-    const getButton = page.getByRole('button', { name: 'Get Registered Devices' });
-    await expect(getButton).toBeVisible();
-    await getButton.click();
-    await expect(page.locator('#deviceStatus')).toContainText('Devices before session:');
-  }
-
-  async function deleteDevicesInSession(page: Page): Promise<void> {
-    await login(page);
-
-    const deleteButton = page.getByRole('button', { name: 'Delete Devices From This Session' });
-    await expect(deleteButton).toBeVisible();
-    await deleteButton.click();
-
-    await expect(page.locator('#deviceStatus')).toContainText(
-      /Deleted|No devices found in this session|No devices found/,
-    );
-
-    await logout(page);
-  }
-
-  async function completeAuthenticationJourney(page: Page): Promise<void> {
-    const { clickButton, navigate } = asyncEvents(page);
-
-    await navigate('/?clientId=tenant&journey=TEST_WebAuthnAuthentication_UsernamePassword');
-    await expect(page.getByLabel('User Name')).toBeVisible();
-    await page.getByLabel('User Name').fill(username);
-    await clickButton('Submit', '/authenticate');
-
-    await expect(page.getByLabel('Password')).toBeVisible();
-    await page.getByLabel('Password').fill(password);
-    await clickButton('Submit', '/authenticate');
-
-    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
-  }
 
   test.beforeEach(async ({ context, page }) => {
     cdp = await context.newCDPSession(page);
     await cdp.send('WebAuthn.enable');
-
     const response = await cdp.send('WebAuthn.addVirtualAuthenticator', {
       options: {
         protocol: 'ctap2',
@@ -85,65 +33,72 @@ test.describe('WebAuthn registration delete devices', () => {
         automaticPresenceSimulation: true,
       },
     });
-
     authenticatorId = response.authenticatorId;
-
-    await login(page);
-    await getDevicesBeforeSession(page);
-    await logout(page);
   });
 
-  test.afterEach(async ({ page }) => {
-    await page.unroute('**/*');
-
-    try {
-      await deleteDevicesInSession(page);
-    } catch (error) {
-      console.error('Delete failed:', error);
-    }
-
-    if (!cdp) {
-      return;
-    }
-
-    if (authenticatorId) {
+  test.afterEach(async () => {
+    if (cdp && authenticatorId) {
       await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
+      await cdp.send('WebAuthn.disable');
+    }
+  });
+
+  test('should register, authenticate, and delete a device', async ({ page }) => {
+    if (!cdp || !authenticatorId) {
+      throw new Error('Virtual authenticator was not initialized');
     }
 
-    await cdp.send('WebAuthn.disable');
-  });
+    const { credentials: initialCredentials } = await cdp.send('WebAuthn.getCredentials', {
+      authenticatorId,
+    });
+    expect(initialCredentials).toHaveLength(0);
 
-  async function completeRegistrationJourney(page): Promise<void> {
-    await login(page, 'TEST_WebAuthn-Registration');
-  }
+    // login with username and password and register a device
+    const { clickButton, navigate } = asyncEvents(page);
+    await navigate(`/?clientId=tenant&journey=TEST_WebAuthn-Registration`);
+    await expect(page.getByLabel('User Name')).toBeVisible();
+    await page.getByLabel('User Name').fill(username);
+    await page.getByLabel('Password').fill(password);
+    await clickButton('Submit', '/authenticate');
+    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
 
-  test('should register multiple devices, authenticate and delete devices', async ({ page }) => {
-    await completeRegistrationJourney(page);
-    await logout(page);
+    // capture and assert virtual authenticator credentialId
+    const { credentials: recordedCredentials } = await cdp.send('WebAuthn.getCredentials', {
+      authenticatorId,
+    });
+    expect(recordedCredentials).toHaveLength(1);
+    const virtualCredentialId = recordedCredentials[0]?.credentialId;
+    expect(virtualCredentialId).toBeTruthy();
+    if (!virtualCredentialId) {
+      throw new Error('Registered WebAuthn credential id was not captured');
+    }
 
-    await completeRegistrationJourney(page);
-    await logout(page);
+    // assert registered credentialId in query param matches virtual authenticator credentialId
+    const registrationUrl = new URL(page.url());
+    const registrationUrlValues = Array.from(registrationUrl.searchParams.values());
+    expect(registrationUrlValues).toContain(toBase64Url(virtualCredentialId));
 
-    await completeAuthenticationJourney(page);
+    // logout
+    await clickButton('Logout', '/sessions');
+    await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
 
-    const deleteButton = page.getByRole('button', { name: 'Delete Devices From This Session' });
-    await expect(deleteButton).toBeVisible();
-    await deleteButton.click();
-    await expect(page.locator('#deviceStatus')).toContainText(
-      'Deleted 2 WebAuthn device(s) for user',
+    // capture credentialId from registrationUrl query param
+    const authenticationUrl = new URL(registrationUrl.toString());
+    authenticationUrl.searchParams.set('journey', 'TEST_WebAuthnAuthentication');
+
+    // authenticate with registered webauthn device
+    await navigate(authenticationUrl.toString());
+    await expect(page.getByLabel('User Name')).toBeVisible();
+    await page.getByLabel('User Name').fill(username);
+    await clickButton('Submit', '/authenticate');
+    await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
+
+    // delete registered webauthn device
+    await page.getByRole('button', { name: 'Delete Webauthn Device' }).click();
+    const deviceStatus = page.locator('#deviceStatus');
+    await expect(deviceStatus).toContainText('Deleted WebAuthn device');
+    await expect(deviceStatus).toContainText(
+      `credential id ${toBase64Url(virtualCredentialId)} for user`,
     );
-
-    await logout(page);
-  });
-
-  test('should delete all registered devices', async ({ page }) => {
-    await completeRegistrationJourney(page);
-
-    const deleteAllButton = page.getByRole('button', { name: 'Delete All Registered Devices' });
-    await expect(deleteAllButton).toBeVisible();
-    await deleteAllButton.click();
-
-    await expect(page.locator('#deviceStatus')).toContainText('Deleted');
-    await expect(page.locator('#deviceStatus')).toContainText('registered WebAuthn device(s)');
   });
 });
