@@ -15,14 +15,12 @@ import { renderCallbacks } from './callback-map.js';
 import { renderDeleteDevicesSection } from './components/delete-device.js';
 import { renderQRCodeStep } from './components/qr-code.js';
 import { renderRecoveryCodesStep } from './components/recovery-codes.js';
-import { deleteWebAuthnDevice } from './services/delete-webauthn-devices.js';
-import { webauthnComponent } from './components/webauthn.js';
+import { deleteWebAuthnDevice } from './services/delete-webauthn-device.js';
+import { webauthnComponent } from './components/webauthn-step.js';
 import { serverConfigs } from './server-configs.js';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
-
-const WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM = 'webauthnCredentialId';
 
 const config = serverConfigs[searchParams.get('clientId') || 'basic'];
 
@@ -65,27 +63,9 @@ if (searchParams.get('middleware') === 'true') {
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
-  const getCredentialIdFromUrl = (): string | null => {
-    const params = new URLSearchParams(window.location.search);
-    const value = params.get(WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM);
-    return value && value.length > 0 ? value : null;
-  };
-
-  const setCredentialIdInUrl = (credentialId: string | null): void => {
-    const url = new URL(window.location.href);
-    if (credentialId) {
-      url.searchParams.set(WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM, credentialId);
-    } else {
-      url.searchParams.delete(WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM);
-    }
-    window.history.replaceState({}, document.title, url.toString());
-  };
-
-  let registrationCredentialId: string | null = getCredentialIdFromUrl();
-
   let journeyClient: JourneyClient;
   try {
-    journeyClient = await journey({ config, requestMiddleware });
+    journeyClient = await journey({ config: config, requestMiddleware });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Failed to initialize journey client:', message);
@@ -134,13 +114,8 @@ if (searchParams.get('middleware') === 'true') {
       webAuthnStep === WebAuthnStepType.Authentication ||
       webAuthnStep === WebAuthnStepType.Registration
     ) {
-      const webAuthnResponse = await webauthnComponent(journeyEl, step, 0);
-      if (webAuthnResponse.success) {
-        if (webAuthnResponse.credentialId) {
-          registrationCredentialId = webAuthnResponse.credentialId;
-          setCredentialIdInUrl(registrationCredentialId);
-          console.log('[WebAuthn] stored registration credentialId:', registrationCredentialId);
-        }
+      const webAuthnSuccess = await webauthnComponent(journeyEl, step, 0);
+      if (webAuthnSuccess) {
         submitForm();
         return;
       } else {
@@ -180,9 +155,7 @@ if (searchParams.get('middleware') === 'true') {
     completeHeader.innerText = 'Complete';
     journeyEl.appendChild(completeHeader);
 
-    renderDeleteDevicesSection(journeyEl, () =>
-      deleteWebAuthnDevice(config, registrationCredentialId),
-    );
+    renderDeleteDevicesSection(journeyEl, () => deleteWebAuthnDevice(config));
 
     const sessionLabelEl = document.createElement('span');
     sessionLabelEl.id = 'sessionLabel';

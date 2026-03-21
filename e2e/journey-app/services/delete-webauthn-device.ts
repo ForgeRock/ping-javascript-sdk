@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { deviceClient } from '@forgerock/device-client';
+import { deviceClient as createDeviceClient } from '@forgerock/device-client';
 import type { WebAuthnDevice } from '@forgerock/device-client/types';
 import { JourneyClientConfig } from '@forgerock/journey-client/types';
 
@@ -82,10 +82,12 @@ async function getUserIdFromSession(baseUrl: string, realmUrlPath: string): Prom
  *
  * This queries devices via device-client and deletes the matching device.
  */
-export async function deleteWebAuthnDevice(
-  config: JourneyClientConfig,
-  credentialId: string | null,
-): Promise<string> {
+export async function deleteWebAuthnDevice(config: JourneyClientConfig): Promise<string> {
+  const WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM = 'webauthnCredentialId';
+
+  const params = new URLSearchParams(window.location.search);
+  const credentialId = params.get(WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM);
+
   if (!credentialId) {
     return 'No credential id found. Register a WebAuthn device first.';
   }
@@ -100,14 +102,12 @@ export async function deleteWebAuthnDevice(
   }
 
   const realm = realmUrlPath.replace(/^realms\//, '') || 'root';
-  const webAuthnClient = deviceClient({
+  const deviceClient = createDeviceClient({
     realmPath: realm,
-    serverConfig: {
-      baseUrl,
-    },
+    serverConfig: { baseUrl },
   });
 
-  const devices = await webAuthnClient.webAuthn.get({ userId });
+  const devices = await deviceClient.webAuthn.get({ userId });
   if (!Array.isArray(devices)) {
     throw new Error(`Failed to retrieve devices: ${String(devices.error)}`);
   }
@@ -117,7 +117,7 @@ export async function deleteWebAuthnDevice(
     return `No WebAuthn device found matching credential id: ${credentialId}`;
   }
 
-  const response = await webAuthnClient.webAuthn.delete({
+  const response = await deviceClient.webAuthn.delete({
     userId,
     device,
   });
