@@ -5,29 +5,28 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch/ref to publish from'
-        required: false
-        default: 'main'
-        type: string
-      dist_tag:
-        description: 'npm dist-tag'
+      snapshot_tag:
+        description: 'changesets snapshot tag (beta/canary)'
         required: false
         default: 'beta'
         type: string
-      prerelease:
-        description: 'changesets prerelease tag (beta/canary)'
+      npm_tag:
+        description: 'npm dist-tag for publishing snapshot'
         required: false
         default: 'beta'
         type: string
-      access:
-        description: 'npm access'
+      npm_access:
+        description: 'access level for publishing snapshot to npm'
         required: false
         default: 'public'
-        type: string
+        type: choice
+        options:
+          - public
+          - restricted
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
   NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+  SLACK_WEBHOOK_URL_BETA: ${{ secrets.SLACK_WEBHOOK_URL_BETA }}
   PNPM_CACHE_FOLDER: .pnpm-store
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   CI: true
@@ -97,7 +96,7 @@ jobs:
 
   snapshot:
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    name: Publish Snapshots
+    name: Publish snapshot/beta to npm
     permissions:
       contents: write
       id-token: write
@@ -107,22 +106,55 @@ jobs:
     env:
       HUSKY: 0
     steps:
-      - uses: actions/checkout@v4
+      - name: Branch name
+        run: |
+          echo "Checking out branch: ${{ github.ref_name }}"
+
+      # Checkout the branch selected when triggering the workflow
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
-          ref: ${{ inputs.branch }}
 
       - name: Setup Project
         uses: ./.github/actions/setup
         with:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Version Packages as prerelease
-        run: pnpm changeset version --snapshot ${{ inputs.prerelease }}
+      - name: Version Packages for snapshot
+        run: pnpm changeset version --snapshot ${{ inputs.snapshot_tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      # The actual npm publish that must occur in the authorized file
-      - name: Publish packages with dist-tag
-        run: pnpm publish -r --tag ${{ inputs.dist_tag }} --no-git-checks --access ${{ inputs.access }}
+      - name: Publish packages snapshot with npm_tag
+        id: npmpublish
+        run: pnpm publish -r --tag ${{ inputs.npm_tag }} --no-git-checks --access ${{ inputs.npm_access }}
+
+      - name: Format published packages for Slack
+        if: steps.npmpublish.outcome == 'success'
+        id: format-packages
+        env:
+          NPM_TAG: ${{ inputs.npm_tag }}
+          SNAPSHOT_TAG: ${{ inputs.snapshot_tag }}
+        run: |
+          FORMATTED=$(jq -rs --arg tag "$SNAPSHOT_TAG" '[.[] | select(.version | contains($tag))] | .[] | ":package: *\(.name)* `\(.version)`"' packages/*/package.json)
+          PAYLOAD=$(jq -n --arg packages "$FORMATTED" --arg npmTag "$NPM_TAG" '{"npmTag": $npmTag, "publishedPackages": $packages}')
+          echo "payload<<EOF" >> $GITHUB_OUTPUT
+          echo "$PAYLOAD" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Send GitHub Action data to a Slack workflow
+        if: steps.npmpublish.outcome == 'success'
+        id: slack-notify-beta
+        continue-on-error: true
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_URL_BETA }}
+          webhook-type: webhook-trigger
+          payload: ${{ steps.format-packages.outputs.payload }}
+
+      - name: Warn if Slack notification failed
+        if: steps.slack-notify-beta.outcome == 'failure'
+        run: |
+          echo "::warning::Slack beta notification failed. Check the webhook URL and payload format."
