@@ -177,6 +177,4 @@ jobs:
 
             ${{ steps.coverage-matrix-summary.outputs.table }}
 
-            > **Note:** E2E coverage requires V8 coverage data from instrumented test runs and is not collected during PR CI.
-
             [Full dashboard](https://forgerock.github.io/ping-javascript-sdk/coverage-matrix/)
