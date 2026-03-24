@@ -102,3 +102,5 @@ GEMINI.md
 .polaris-setup-progress.json
 .playwright-mcp
 .polaris/
+
+.e2e-coverage/
