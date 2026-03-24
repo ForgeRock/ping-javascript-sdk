@@ -85,3 +85,4 @@ test-output
 # Gemini local knowledge base files
 GEMINI.md
 **/GEMINI.md
+.e2e-coverage/

@@ -4,7 +4,7 @@ import * as path from 'path';
 
 const pages = ['oath', 'push', 'webauthn', 'device-binding', 'device-profile'];
 
-export default defineConfig(() => ({
+export default defineConfig({
   root: __dirname + '/src',
   cacheDir: '../../node_modules/.vite/e2e/device-client-app',
   publicDir: __dirname + '/public',
@@ -25,7 +25,6 @@ export default defineConfig(() => ({
       'Access-Control-Allow-Origin': 'http://localhost:8443',
     },
   },
-  plugins: [],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],
@@ -53,4 +52,4 @@ export default defineConfig(() => ({
       },
     },
   },
-}));
+});

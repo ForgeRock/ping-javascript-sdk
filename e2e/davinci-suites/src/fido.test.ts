@@ -1,4 +1,4 @@
-import { test, expect, CDPSession } from '@playwright/test';
+import { test, expect, CDPSession } from '@forgerock/e2e-shared/coverage-fixture';
 import { asyncEvents } from './utils/async-events.js';
 
 const username = 'JSFidoUser@user.com';

@@ -78,6 +78,12 @@
     },
     {
       "path": "./e2e/am-mock-api"
+    },
+    {
+      "path": "./tools/coverage-matrix"
+    },
+    {
+      "path": "./e2e/shared"
     }
   ]
 }
