@@ -3,7 +3,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
   root: __dirname,
-  base: '/ping-javascript-sdk/coverage-matrix/',
+  base: './',
   plugins: [svelte()],
   build: {
     outDir: './dist',
