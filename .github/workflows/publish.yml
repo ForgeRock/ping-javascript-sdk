@@ -79,6 +79,20 @@ jobs:
         if: steps.changesets.outputs.published == 'false'
         uses: ./.github/actions/publish-beta
 
+      # Coverage Matrix: build dashboard and deploy to GitHub Pages
+      - name: Generate coverage matrix and build dashboard
+        continue-on-error: true
+        run: NX_CLOUD_DISTRIBUTED_EXECUTION=false pnpm nx run @forgerock/coverage-matrix:coverage-report
+
+      - name: Deploy coverage dashboard to GitHub Pages
+        continue-on-error: true
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./tools/coverage-matrix/dist
+          destination_dir: coverage-matrix
+          keep_files: true
+
       - name: Calculate baseline bundle sizes
         run: |
           chmod +x ./scripts/bundle-sizes.sh

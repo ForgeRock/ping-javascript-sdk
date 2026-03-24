@@ -177,14 +177,6 @@ jobs:
 
             ${{ steps.coverage-matrix-summary.outputs.table }}
 
-            [Full dashboard](https://forgerock.github.io/ping-javascript-sdk/coverage-matrix/)
+            > **Note:** E2E coverage requires V8 coverage data from instrumented test runs and is not collected during PR CI.
 
-      - name: Deploy dashboard to GitHub Pages
-        continue-on-error: true
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./tools/coverage-matrix/dist
-          destination_dir: coverage-matrix
-          keep_files: true
+            [Full dashboard](https://forgerock.github.io/ping-javascript-sdk/coverage-matrix/)
