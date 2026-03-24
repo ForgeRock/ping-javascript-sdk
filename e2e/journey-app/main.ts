@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025-2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -7,12 +7,16 @@
 import './style.css';
 
 import { journey } from '@forgerock/journey-client';
+import { WebAuthn, WebAuthnStepType } from '@forgerock/journey-client/webauthn';
 
 import type { JourneyClient, RequestMiddleware } from '@forgerock/journey-client/types';
 
 import { renderCallbacks } from './callback-map.js';
+import { renderDeleteDevicesSection } from './components/delete-device.js';
 import { renderQRCodeStep } from './components/qr-code.js';
 import { renderRecoveryCodesStep } from './components/recovery-codes.js';
+import { deleteWebAuthnDevice } from './services/delete-webauthn-device.js';
+import { webauthnComponent } from './components/webauthn-step.js';
 import { serverConfigs } from './server-configs.js';
 
 const qs = window.location.search;
@@ -70,34 +74,6 @@ if (searchParams.get('middleware') === 'true') {
   }
   let step = await journeyClient.start({ journey: journeyName });
 
-  function renderComplete() {
-    if (step?.type !== 'LoginSuccess') {
-      throw new Error('Expected step to be defined and of type LoginSuccess');
-    }
-
-    const session = step.getSessionToken();
-
-    console.log(`Session Token: ${session || 'none'}`);
-
-    journeyEl.innerHTML = `
-      <h2 id="completeHeader">Complete</h2>
-      <span id="sessionLabel">Session:</span>
-      <pre id="sessionToken" id="sessionToken">${session}</pre>
-      <button type="button" id="logoutButton">Logout</button>
-    `;
-
-    const loginBtn = document.getElementById('logoutButton') as HTMLButtonElement;
-    loginBtn.addEventListener('click', async () => {
-      await journeyClient.terminate();
-
-      console.log('Logout successful');
-
-      step = await journeyClient.start({ journey: journeyName });
-
-      renderForm();
-    });
-  }
-
   function renderError() {
     if (step?.type !== 'LoginFailure') {
       throw new Error('Expected step to be defined and of type LoginFailure');
@@ -117,6 +93,7 @@ if (searchParams.get('middleware') === 'true') {
   // Represents the main render function for app
   async function renderForm() {
     journeyEl.innerHTML = '';
+    errorEl.textContent = '';
 
     if (step?.type !== 'Step') {
       throw new Error('Expected step to be defined and of type Step');
@@ -129,6 +106,23 @@ if (searchParams.get('middleware') === 'true') {
     journeyEl.appendChild(header);
 
     const submitForm = () => formEl.requestSubmit();
+
+    // Handle WebAuthn steps first so we can hide the Submit button while processing,
+    // auto-submit on success, and show an error on failure.
+    const webAuthnStep = WebAuthn.getWebAuthnStepType(step);
+    if (
+      webAuthnStep === WebAuthnStepType.Authentication ||
+      webAuthnStep === WebAuthnStepType.Registration
+    ) {
+      const webAuthnSuccess = await webauthnComponent(journeyEl, step, 0);
+      if (webAuthnSuccess) {
+        submitForm();
+        return;
+      } else {
+        errorEl.textContent =
+          'WebAuthn failed or was cancelled. Please try again or use a different method.';
+      }
+    }
 
     const stepRendered =
       renderQRCodeStep(journeyEl, step) || renderRecoveryCodesStep(journeyEl, step);
@@ -143,6 +137,52 @@ if (searchParams.get('middleware') === 'true') {
     submitBtn.id = 'submitButton';
     submitBtn.innerText = 'Submit';
     journeyEl.appendChild(submitBtn);
+  }
+
+  function renderComplete() {
+    if (step?.type !== 'LoginSuccess') {
+      throw new Error('Expected step to be defined and of type LoginSuccess');
+    }
+
+    const session = step.getSessionToken();
+
+    console.log(`Session Token: ${session || 'none'}`);
+
+    journeyEl.replaceChildren();
+
+    const completeHeader = document.createElement('h2');
+    completeHeader.id = 'completeHeader';
+    completeHeader.innerText = 'Complete';
+    journeyEl.appendChild(completeHeader);
+
+    renderDeleteDevicesSection(journeyEl, () => deleteWebAuthnDevice(config));
+
+    const sessionLabelEl = document.createElement('span');
+    sessionLabelEl.id = 'sessionLabel';
+    sessionLabelEl.innerText = 'Session:';
+
+    const sessionTokenEl = document.createElement('pre');
+    sessionTokenEl.id = 'sessionToken';
+    sessionTokenEl.textContent = session || 'none';
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.type = 'button';
+    logoutBtn.id = 'logoutButton';
+    logoutBtn.innerText = 'Logout';
+
+    journeyEl.appendChild(sessionLabelEl);
+    journeyEl.appendChild(sessionTokenEl);
+    journeyEl.appendChild(logoutBtn);
+
+    logoutBtn.addEventListener('click', async () => {
+      await journeyClient.terminate();
+
+      console.log('Logout successful');
+
+      step = await journeyClient.start({ journey: journeyName });
+
+      renderForm();
+    });
   }
 
   formEl.addEventListener('submit', async (event) => {

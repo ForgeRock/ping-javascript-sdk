@@ -10,11 +10,15 @@
     "./helper.ts",
     "./server-configs.ts",
     "./callback-map.ts",
-    "components/**/*.ts"
+    "components/**/*.ts",
+    "services/**/*.ts"
   ],
   "references": [
     {
       "path": "../../packages/sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/device-client/tsconfig.lib.json"
     },
     {
       "path": "../../packages/oidc-client/tsconfig.lib.json"

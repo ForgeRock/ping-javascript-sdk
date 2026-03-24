@@ -328,6 +328,9 @@ importers:
 
   e2e/journey-app:
     dependencies:
+      '@forgerock/device-client':
+        specifier: workspace:*
+        version: link:../../packages/device-client
       '@forgerock/journey-client':
         specifier: workspace:*
         version: link:../../packages/journey-client
