@@ -1,0 +1,2233 @@
+{
+  "generatedAt": "2026-03-24T17:27:19.360Z",
+  "packages": [
+    {
+      "name": "@forgerock/davinci-client",
+      "path": "packages/davinci-client",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "davinci",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/lib/client.store.ts"
+            },
+            {
+              "name": "fido",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/lib/fido/fido.ts"
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "sourcePath": "./src/types.ts",
+          "exports": [
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/dist/src/lib/logger.types.d.ts"
+            },
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/dist/src/lib/logger.types.d.ts"
+            },
+            {
+              "name": "DaVinciConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "DavinciClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "Updater",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "CollectorValueType",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "InitFlow",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "Validator",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "GetClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "StartNode",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "ContinueNode",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "ErrorNode",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "SuccessNode",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "FailureNode",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "NodeStates",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "Collectors",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "DaVinciValidationError",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "ActionCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "SingleValueCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "FlowCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "PasswordCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "TextCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "IdpCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "SubmitCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "ValidatedTextCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "ReadOnlyCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "MultiSelectCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "SingleSelectCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "DeviceRegistrationCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "DeviceAuthenticationCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "PhoneNumberCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "ProtectCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "FidoRegistrationCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "FidoAuthenticationCollector",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "InternalErrorResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/types.ts"
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/dist/src/lib/request-mware.types.d.ts"
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/dist/src/lib/request-mware.derived.d.ts"
+            },
+            {
+              "name": "FidoClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/davinci-client/src/lib/fido/fido.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/device-client",
+      "path": "packages/device-client",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "deviceClient",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/device.store.ts"
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "sourcePath": "./src/types.ts",
+          "exports": [
+            {
+              "name": "DeviceClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/index.ts"
+            },
+            {
+              "name": "ConfigOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/types.ts"
+            },
+            {
+              "name": "OathDevice",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/oath.types.ts"
+            },
+            {
+              "name": "DeleteOathQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/oath.types.ts"
+            },
+            {
+              "name": "RetrieveOathQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/oath.types.ts"
+            },
+            {
+              "name": "OathResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/oath.types.ts"
+            },
+            {
+              "name": "DeletedOathDevice",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/oath.types.ts"
+            },
+            {
+              "name": "WebAuthnQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/webauthn.types.ts"
+            },
+            {
+              "name": "WebAuthnBody",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/webauthn.types.ts"
+            },
+            {
+              "name": "WebAuthnDevice",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/webauthn.types.ts"
+            },
+            {
+              "name": "UpdatedWebAuthnDevice",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/webauthn.types.ts"
+            },
+            {
+              "name": "WebAuthnCredential",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/webauthn.types.ts"
+            },
+            {
+              "name": "GetProfileDevices",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/profile-device.types.ts"
+            },
+            {
+              "name": "ProfileDevicesQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/profile-device.types.ts"
+            },
+            {
+              "name": "ProfileDevice",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/profile-device.types.ts"
+            },
+            {
+              "name": "PushDeviceQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/push-device.types.ts"
+            },
+            {
+              "name": "PushDeviceBody",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/push-device.types.ts"
+            },
+            {
+              "name": "DeleteDeviceQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/push-device.types.ts"
+            },
+            {
+              "name": "DeviceInfoResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/push-device.types.ts"
+            },
+            {
+              "name": "DeviceInfo",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/push-device.types.ts"
+            },
+            {
+              "name": "PushDevice",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/push-device.types.ts"
+            },
+            {
+              "name": "DeletedPushDevice",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/push-device.types.ts"
+            },
+            {
+              "name": "GetBoundDevicesQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/bound-device.types.ts"
+            },
+            {
+              "name": "BoundDeviceQuery",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/bound-device.types.ts"
+            },
+            {
+              "name": "DeviceResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/bound-device.types.ts"
+            },
+            {
+              "name": "Device",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/bound-device.types.ts"
+            },
+            {
+              "name": "DeviceProfile",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/device-client/src/lib/types/updateDeviceProfile.types.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/journey-client",
+      "path": "packages/journey-client",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "callbackType",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/am-callback.types.d.ts"
+            },
+            {
+              "name": "journey",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/client.store.ts"
+            },
+            {
+              "name": "JourneyClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/client.store.ts"
+            }
+          ]
+        },
+        {
+          "name": "./device",
+          "sourcePath": "./src/lib/device/device-profile.ts",
+          "exports": [
+            {
+              "name": "Device",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/device/device-profile.ts"
+            }
+          ]
+        },
+        {
+          "name": "./policy",
+          "sourcePath": "./src/lib/policy/policy.ts",
+          "exports": [
+            {
+              "name": "Policy",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/policy/policy.ts"
+            },
+            {
+              "name": "MessageCreator",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/policy/interfaces.ts"
+            },
+            {
+              "name": "ProcessedPropertyError",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/policy/interfaces.ts"
+            }
+          ]
+        },
+        {
+          "name": "./qr-code",
+          "sourcePath": "./src/lib/qr-code/qr-code.ts",
+          "exports": [
+            {
+              "name": "QRCodeData",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/qr-code/qr-code.ts"
+            },
+            {
+              "name": "QRCode",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/qr-code/qr-code.ts"
+            }
+          ]
+        },
+        {
+          "name": "./recovery-codes",
+          "sourcePath": "./src/lib/recovery-codes/recovery-codes.ts",
+          "exports": [
+            {
+              "name": "RecoveryCodes",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/recovery-codes/recovery-codes.ts"
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "sourcePath": "./src/types.ts",
+          "exports": [
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/dist/src/lib/logger.types.d.ts"
+            },
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/dist/src/lib/logger.types.d.ts"
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/dist/src/lib/request-mware.types.d.ts"
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/dist/src/lib/request-mware.derived.d.ts"
+            },
+            {
+              "name": "Step",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/am-callback.types.d.ts"
+            },
+            {
+              "name": "Callback",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/am-callback.types.d.ts"
+            },
+            {
+              "name": "CallbackType",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/am-callback.types.d.ts"
+            },
+            {
+              "name": "StepType",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/enums.d.ts"
+            },
+            {
+              "name": "GenericError",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/error.types.d.ts"
+            },
+            {
+              "name": "PolicyRequirement",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/am-callback.types.d.ts"
+            },
+            {
+              "name": "FailedPolicyRequirement",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/am-callback.types.d.ts"
+            },
+            {
+              "name": "isValidWellknownUrl",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/dist/src/lib/wellknown/wellknown.utils.d.ts"
+            },
+            {
+              "name": "createWellknownError",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/dist/src/lib/wellknown/wellknown.utils.d.ts"
+            },
+            {
+              "name": "JourneyClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/client.store.ts"
+            },
+            {
+              "name": "JourneyServerConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/config.types.ts"
+            },
+            {
+              "name": "JourneyClientConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/config.types.ts"
+            },
+            {
+              "name": "InternalJourneyClientConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/config.types.ts"
+            },
+            {
+              "name": "StartParam",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/interfaces.ts"
+            },
+            {
+              "name": "ResumeOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/interfaces.ts"
+            },
+            {
+              "name": "NextOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/interfaces.ts"
+            },
+            {
+              "name": "JourneyStep",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/step.types.ts"
+            },
+            {
+              "name": "AttributeInputCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/attribute-input-callback.ts"
+            },
+            {
+              "name": "BaseCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/base-callback.ts"
+            },
+            {
+              "name": "ChoiceCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/choice-callback.ts"
+            },
+            {
+              "name": "ConfirmationCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/confirmation-callback.ts"
+            },
+            {
+              "name": "DeviceProfileCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/device-profile-callback.ts"
+            },
+            {
+              "name": "createCallback",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/factory.ts"
+            },
+            {
+              "name": "CallbackFactory",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/factory.ts"
+            },
+            {
+              "name": "HiddenValueCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/hidden-value-callback.ts"
+            },
+            {
+              "name": "KbaCreateCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/kba-create-callback.ts"
+            },
+            {
+              "name": "MetadataCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/metadata-callback.ts"
+            },
+            {
+              "name": "NameCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/name-callback.ts"
+            },
+            {
+              "name": "PasswordCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/password-callback.ts"
+            },
+            {
+              "name": "PingOneProtectEvaluationCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/ping-protect-evaluation-callback.ts"
+            },
+            {
+              "name": "PingOneProtectInitializeCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/ping-protect-initialize-callback.ts"
+            },
+            {
+              "name": "PollingWaitCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/polling-wait-callback.ts"
+            },
+            {
+              "name": "ReCaptchaCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/recaptcha-callback.ts"
+            },
+            {
+              "name": "ReCaptchaEnterpriseCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/recaptcha-enterprise-callback.ts"
+            },
+            {
+              "name": "RedirectCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/redirect-callback.ts"
+            },
+            {
+              "name": "SelectIdPCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/select-idp-callback.ts"
+            },
+            {
+              "name": "IdPValue",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/select-idp-callback.ts"
+            },
+            {
+              "name": "SuspendedTextOutputCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/suspended-text-output-callback.ts"
+            },
+            {
+              "name": "TextInputCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/text-input-callback.ts"
+            },
+            {
+              "name": "TextOutputCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/text-output-callback.ts"
+            },
+            {
+              "name": "TermsAndConditionsCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/terms-and-conditions-callback.ts"
+            },
+            {
+              "name": "ValidatedCreatePasswordCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/validated-create-password-callback.ts"
+            },
+            {
+              "name": "ValidatedCreateUsernameCallback",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/callbacks/validated-create-username-callback.ts"
+            }
+          ]
+        },
+        {
+          "name": "./webauthn",
+          "sourcePath": "./src/lib/webauthn/webauthn.ts",
+          "exports": [
+            {
+              "name": "WebAuthn",
+              "kind": "class",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/webauthn/webauthn.ts"
+            },
+            {
+              "name": "WebAuthnOutcome",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/webauthn/enums.ts"
+            },
+            {
+              "name": "WebAuthnStepType",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/webauthn/enums.ts"
+            },
+            {
+              "name": "RelyingParty",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/webauthn/interfaces.ts"
+            },
+            {
+              "name": "WebAuthnAuthenticationMetadata",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/webauthn/interfaces.ts"
+            },
+            {
+              "name": "WebAuthnCallbacks",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/webauthn/interfaces.ts"
+            },
+            {
+              "name": "WebAuthnRegistrationMetadata",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/journey-client/src/lib/webauthn/interfaces.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/oidc-client",
+      "path": "packages/oidc-client",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "oidc",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.store.ts"
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "sourcePath": "./src/types.ts",
+          "exports": [
+            {
+              "name": "GenericError",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/error.types.d.ts"
+            },
+            {
+              "name": "GetAuthorizationUrlOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/authorize.types.d.ts"
+            },
+            {
+              "name": "WellknownResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/dist/src/lib/legacy-config.types.d.ts"
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/dist/src/lib/request-mware.derived.d.ts"
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/dist/src/lib/request-mware.types.d.ts"
+            },
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/dist/src/lib/logger.types.d.ts"
+            },
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/dist/src/lib/logger.types.d.ts"
+            },
+            {
+              "name": "StorageConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/storage/dist/src/lib/storage.effects.d.ts"
+            },
+            {
+              "name": "OidcClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "ClientStore",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "RootState",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "AppDispatch",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "GetTokensOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "RevokeSuccessResult",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "RevokeErrorResult",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "LogoutSuccessResult",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "LogoutErrorResult",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "UserInfoResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/client.types.ts"
+            },
+            {
+              "name": "OidcConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/config.types.ts"
+            },
+            {
+              "name": "OauthTokens",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/config.types.ts"
+            },
+            {
+              "name": "BuildAuthorizationData",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/authorize.request.types.ts"
+            },
+            {
+              "name": "OptionalAuthorizeOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/authorize.request.types.ts"
+            },
+            {
+              "name": "AuthorizeErrorResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/authorize.request.types.ts"
+            },
+            {
+              "name": "AuthorizeSuccessResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/authorize.request.types.ts"
+            },
+            {
+              "name": "AuthorizationSuccess",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/authorize.request.types.ts"
+            },
+            {
+              "name": "AuthorizationError",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/authorize.request.types.ts"
+            },
+            {
+              "name": "TokenExchangeResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/exchange.types.ts"
+            },
+            {
+              "name": "TokenExchangeErrorResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/exchange.types.ts"
+            },
+            {
+              "name": "TokenRequestOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/oidc-client/src/lib/exchange.types.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/protect",
+      "path": "packages/protect",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "protect",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/protect/src/lib/protect.ts"
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "sourcePath": "./src/types.ts",
+          "exports": [
+            {
+              "name": "ProtectConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/protect/src/lib/protect.types.ts"
+            },
+            {
+              "name": "Protect",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/protect/src/lib/protect.types.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/iframe-manager",
+      "path": "packages/sdk-effects/iframe-manager",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "iFrameManager",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/iframe-manager/src/lib/iframe-manager.effects.ts"
+            },
+            {
+              "name": "GetParamsFromIFrameOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/iframe-manager/src/lib/iframe-manager.effects.ts"
+            },
+            {
+              "name": "ResolvedParams",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/iframe-manager/src/lib/iframe-manager.effects.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/sdk-logger",
+      "path": "packages/sdk-effects/logger",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "logger",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/src/lib/logger.effects.ts"
+            },
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/src/lib/logger.types.ts"
+            },
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/src/lib/logger.types.ts"
+            },
+            {
+              "name": "LogMessage",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/src/lib/logger.types.ts"
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "sourcePath": "./src/types.ts",
+          "exports": [
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/logger/src/lib/logger.types.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/sdk-oidc",
+      "path": "packages/sdk-effects/oidc",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "createAuthorizeUrl",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/oidc/src/lib/authorize.effects.ts"
+            },
+            {
+              "name": "getStorageKey",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/oidc/src/lib/state-pkce.effects.ts"
+            },
+            {
+              "name": "generateAndStoreAuthUrlValues",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/oidc/src/lib/state-pkce.effects.ts"
+            },
+            {
+              "name": "getStoredAuthUrlValues",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/oidc/src/lib/state-pkce.effects.ts"
+            },
+            {
+              "name": "isValidWellknownResponse",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/oidc/src/lib/wellknown.effects.ts"
+            },
+            {
+              "name": "initWellknownQuery",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/oidc/src/lib/wellknown.effects.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/sdk-request-middleware",
+      "path": "packages/sdk-effects/sdk-request-middleware",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "middlewareWrapper",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.effects.ts"
+            },
+            {
+              "name": "initQuery",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.effects.ts"
+            },
+            {
+              "name": "actionTypes",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.derived.ts"
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.derived.ts"
+            },
+            {
+              "name": "EndpointTypes",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.derived.ts"
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.types.ts"
+            },
+            {
+              "name": "QueryApi",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.types.ts"
+            },
+            {
+              "name": "Action",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.types.ts"
+            },
+            {
+              "name": "ModifiedFetchArgs",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.types.ts"
+            },
+            {
+              "name": "RequestObj",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.types.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/storage",
+      "path": "packages/sdk-effects/storage",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "createStorage",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/storage/src/lib/storage.effects.ts"
+            },
+            {
+              "name": "StorageClient",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/storage/src/lib/storage.effects.ts"
+            },
+            {
+              "name": "StorageConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/storage/src/lib/storage.effects.ts"
+            },
+            {
+              "name": "BrowserStorageConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/storage/src/lib/storage.effects.ts"
+            },
+            {
+              "name": "CustomStorageConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-effects/storage/src/lib/storage.effects.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/sdk-types",
+      "path": "packages/sdk-types",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "callbackType",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "CallbackType",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "NameValue",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "Callback",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "AuthResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "FailureDetail",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "Step",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "StepDetail",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "FailedPolicyRequirement",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "PolicyRequirement",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "PolicyParams",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "ConfigurablePaths",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "CustomPathConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/am-callback.types.ts"
+            },
+            {
+              "name": "StepType",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/enums.ts"
+            },
+            {
+              "name": "GenericError",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/error.types.ts"
+            },
+            {
+              "name": "ServerConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-config.types.ts"
+            },
+            {
+              "name": "AsyncServerConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-config.types.ts"
+            },
+            {
+              "name": "AsyncLegacyConfigOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-config.types.ts"
+            },
+            {
+              "name": "ValidLegacyConfigOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-config.types.ts"
+            },
+            {
+              "name": "WellknownResponse",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-config.types.ts"
+            },
+            {
+              "name": "LegacyConfigOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-config.types.ts"
+            },
+            {
+              "name": "LegacyActionTypes",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-mware.types.ts"
+            },
+            {
+              "name": "LegacyRequestMiddleware",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/legacy-mware.types.ts"
+            },
+            {
+              "name": "BrandedString",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/branded.types.ts"
+            },
+            {
+              "name": "Tokens",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/tokens.types.ts"
+            },
+            {
+              "name": "CustomStorageObject",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/tokens.types.ts"
+            },
+            {
+              "name": "OAuthConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/config.types.ts"
+            },
+            {
+              "name": "DavinciOAuthConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/config.types.ts"
+            },
+            {
+              "name": "BaseConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/config.types.ts"
+            },
+            {
+              "name": "PathsConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/config.types.ts"
+            },
+            {
+              "name": "ResponseType",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/authorize.types.ts"
+            },
+            {
+              "name": "GetAuthorizationUrlOptions",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/authorize.types.ts"
+            },
+            {
+              "name": "GenerateAndStoreAuthUrlValues",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/authorize.types.ts"
+            },
+            {
+              "name": "PolicyKey",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-types/src/lib/policy.types.ts"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@forgerock/sdk-utilities",
+      "path": "packages/sdk-utilities",
+      "modules": [
+        {
+          "name": ".",
+          "sourcePath": "./src/index.ts",
+          "exports": [
+            {
+              "name": "isGenericError",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/error/error.utils.ts"
+            },
+            {
+              "name": "createRandomString",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/oidc/pkce.utils.ts"
+            },
+            {
+              "name": "createState",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/oidc/pkce.utils.ts"
+            },
+            {
+              "name": "createVerifier",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/oidc/pkce.utils.ts"
+            },
+            {
+              "name": "createChallenge",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/oidc/pkce.utils.ts"
+            },
+            {
+              "name": "plural",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/strings/strings.utils.ts"
+            },
+            {
+              "name": "getRealmUrlPath",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/am-url.utils.ts"
+            },
+            {
+              "name": "getEndpointPath",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/am-url.utils.ts"
+            },
+            {
+              "name": "getBaseUrl",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/url.utils.ts"
+            },
+            {
+              "name": "parseQuery",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/url.utils.ts"
+            },
+            {
+              "name": "resolve",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/url.utils.ts"
+            },
+            {
+              "name": "stringify",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/url.utils.ts"
+            },
+            {
+              "name": "isValidWellknownUrl",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/wellknown/wellknown.utils.ts"
+            },
+            {
+              "name": "createWellknownError",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/wellknown/wellknown.utils.ts"
+            },
+            {
+              "name": "getProp",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/object.utils.ts"
+            },
+            {
+              "name": "reduceToObject",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/object.utils.ts"
+            },
+            {
+              "name": "reduceToString",
+              "kind": "function",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/object.utils.ts"
+            },
+            {
+              "name": "REQUESTED_WITH",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/constants/index.ts"
+            },
+            {
+              "name": "X_REQUESTED_PLATFORM",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/constants/index.ts"
+            }
+          ]
+        },
+        {
+          "name": "./constants",
+          "sourcePath": "./src/lib/constants/index.ts",
+          "exports": [
+            {
+              "name": "REQUESTED_WITH",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/constants/index.ts"
+            },
+            {
+              "name": "X_REQUESTED_PLATFORM",
+              "kind": "constant",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/constants/index.ts"
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "sourcePath": "./src/types.ts",
+          "exports": [
+            {
+              "name": "ConfigurablePaths",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/am-url.types.ts"
+            },
+            {
+              "name": "CustomPathConfig",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/am-url.types.ts"
+            },
+            {
+              "name": "GetEndpointPathParams",
+              "kind": "type",
+              "sourceFile": "/home/runner/work/ping-javascript-sdk/ping-javascript-sdk/packages/sdk-utilities/src/lib/url/am-url.types.ts"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "unitTestMappings": [
+    {
+      "testFile": "packages/davinci-client/src/lib/node.reducer.test.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "DeviceAuthenticationCollector",
+        "DeviceRegistrationCollector",
+        "FidoAuthenticationCollector",
+        "FidoRegistrationCollector",
+        "MultiSelectCollector",
+        "PhoneNumberCollector",
+        "ProtectCollector",
+        "SubmitCollector",
+        "TextCollector"
+      ]
+    },
+    {
+      "testFile": "packages/davinci-client/src/lib/davinci.utils.test.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "ContinueNode"
+      ]
+    },
+    {
+      "testFile": "packages/davinci-client/src/lib/collector.utils.test.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "MultiSelectCollector",
+        "PhoneNumberCollector",
+        "ValidatedTextCollector"
+      ]
+    },
+    {
+      "testFile": "packages/device-client/src/lib/device.store.test.ts",
+      "packageName": "@forgerock/device-client",
+      "importedExports": [
+        "deviceClient"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/step.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Step",
+        "NameCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/login-success.utils.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "StepType"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/login-failure.utils.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "StepType"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/client.store.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "GenericError",
+        "Step",
+        "journey",
+        "JourneyClientConfig"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/webauthn/webauthn.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "WebAuthnStepType",
+        "WebAuthn"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/recovery-codes/recovery-codes.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "RecoveryCodes"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/qr-code/qr-code.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "QRCode"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/policy/policy.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "Policy",
+        "MessageCreator"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/device/device-profile.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "Device"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/validated-create-username-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "ValidatedCreateUsernameCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/validated-create-password-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "ValidatedCreatePasswordCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/text-output-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "TextOutputCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/text-input-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "TextInputCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/terms-and-conditions-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "TermsAndConditionsCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/suspended-text-output-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "SuspendedTextOutputCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/select-idp-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "SelectIdPCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/redirect-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "RedirectCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/recaptcha-enterprise-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "ReCaptchaEnterpriseCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/recaptcha-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "ReCaptchaCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/polling-wait-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "PollingWaitCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/ping-protect-initialize-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "PingOneProtectInitializeCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/ping-protect-evaluation-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "PingOneProtectEvaluationCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/password-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "PasswordCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/name-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "NameCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/metadata-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "MetadataCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/kba-create-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "KbaCreateCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/hidden-value-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "HiddenValueCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/factory.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "createCallback",
+        "BaseCallback",
+        "AttributeInputCallback",
+        "ChoiceCallback",
+        "ConfirmationCallback",
+        "DeviceProfileCallback",
+        "HiddenValueCallback",
+        "KbaCreateCallback",
+        "MetadataCallback",
+        "NameCallback",
+        "PasswordCallback",
+        "PingOneProtectEvaluationCallback",
+        "PingOneProtectInitializeCallback",
+        "PollingWaitCallback",
+        "ReCaptchaCallback",
+        "ReCaptchaEnterpriseCallback",
+        "RedirectCallback",
+        "SelectIdPCallback",
+        "SuspendedTextOutputCallback",
+        "TermsAndConditionsCallback",
+        "TextInputCallback",
+        "TextOutputCallback",
+        "ValidatedCreatePasswordCallback",
+        "ValidatedCreateUsernameCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/device-profile-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "DeviceProfileCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/confirmation-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "ConfirmationCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/choice-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "ChoiceCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/base-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "BaseCallback"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/callbacks/attribute-input-callback.test.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "callbackType",
+        "Callback",
+        "AttributeInputCallback"
+      ]
+    },
+    {
+      "testFile": "packages/oidc-client/src/lib/logout.request.test.ts",
+      "packageName": "@forgerock/oidc-client",
+      "importedExports": [
+        "OauthTokens",
+        "OidcConfig"
+      ]
+    },
+    {
+      "testFile": "packages/oidc-client/src/lib/exchange.utils.test.ts",
+      "packageName": "@forgerock/oidc-client",
+      "importedExports": [
+        "OidcConfig",
+        "GetAuthorizationUrlOptions"
+      ]
+    },
+    {
+      "testFile": "packages/oidc-client/src/lib/client.store.test.ts",
+      "packageName": "@forgerock/oidc-client",
+      "importedExports": [
+        "oidc",
+        "OidcConfig"
+      ]
+    },
+    {
+      "testFile": "packages/oidc-client/src/lib/authorize.request.utils.test.ts",
+      "packageName": "@forgerock/oidc-client",
+      "importedExports": [
+        "OidcConfig",
+        "WellknownResponse"
+      ]
+    },
+    {
+      "testFile": "packages/protect/src/lib/protect.test.ts",
+      "packageName": "@forgerock/protect",
+      "importedExports": [
+        "protect",
+        "ProtectConfig",
+        "Protect"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-effects/logger/src/lib/logger.test.ts",
+      "packageName": "@forgerock/sdk-logger",
+      "importedExports": [
+        "logger"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-effects/oidc/src/lib/wellknown.effects.test.ts",
+      "packageName": "@forgerock/sdk-oidc",
+      "importedExports": [
+        "isValidWellknownResponse",
+        "initWellknownQuery"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-effects/oidc/src/lib/state-pkce.test.ts",
+      "packageName": "@forgerock/sdk-oidc",
+      "importedExports": [
+        "generateAndStoreAuthUrlValues",
+        "getStorageKey",
+        "getStoredAuthUrlValues"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-effects/oidc/src/lib/authorize.test.ts",
+      "packageName": "@forgerock/sdk-oidc",
+      "importedExports": [
+        "createAuthorizeUrl",
+        "getStorageKey"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.test.ts",
+      "packageName": "@forgerock/sdk-request-middleware",
+      "importedExports": [
+        "ActionTypes",
+        "Action",
+        "ModifiedFetchArgs",
+        "initQuery",
+        "middlewareWrapper"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-effects/storage/src/lib/storage.effects.test.ts",
+      "packageName": "@forgerock/storage",
+      "importedExports": [
+        "createStorage",
+        "StorageConfig"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-utilities/src/lib/wellknown/wellknown.utils.test.ts",
+      "packageName": "@forgerock/sdk-utilities",
+      "importedExports": [
+        "isValidWellknownUrl",
+        "createWellknownError"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-utilities/src/lib/url/am-url.test.ts",
+      "packageName": "@forgerock/sdk-utilities",
+      "importedExports": [
+        "getEndpointPath",
+        "getRealmUrlPath",
+        "GetEndpointPathParams"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-utilities/src/lib/oidc/pkce.test.ts",
+      "packageName": "@forgerock/sdk-utilities",
+      "importedExports": [
+        "createChallenge",
+        "createVerifier"
+      ]
+    },
+    {
+      "testFile": "packages/sdk-utilities/src/lib/error/error.utils.test.ts",
+      "packageName": "@forgerock/sdk-utilities",
+      "importedExports": [
+        "isGenericError"
+      ]
+    }
+  ],
+  "typeTestMappings": [
+    {
+      "testFile": "packages/davinci-client/src/types.test-d.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "StartNode",
+        "ContinueNode",
+        "ErrorNode",
+        "SuccessNode",
+        "FailureNode",
+        "ActionCollector",
+        "SingleValueCollector",
+        "FlowCollector",
+        "PasswordCollector",
+        "TextCollector",
+        "IdpCollector",
+        "SubmitCollector",
+        "NodeStates"
+      ]
+    },
+    {
+      "testFile": "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "Updater",
+        "PasswordCollector",
+        "TextCollector",
+        "ValidatedTextCollector",
+        "SingleSelectCollector",
+        "MultiSelectCollector",
+        "DeviceRegistrationCollector",
+        "DeviceAuthenticationCollector",
+        "PhoneNumberCollector",
+        "FidoRegistrationCollector",
+        "FidoAuthenticationCollector",
+        "Collectors"
+      ]
+    },
+    {
+      "testFile": "packages/davinci-client/src/lib/node.types.test-d.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "Collectors",
+        "ContinueNode",
+        "ErrorNode",
+        "FailureNode",
+        "StartNode",
+        "SuccessNode",
+        "ActionCollector",
+        "FlowCollector",
+        "MultiSelectCollector",
+        "PasswordCollector",
+        "ReadOnlyCollector",
+        "SingleSelectCollector",
+        "SingleValueCollector",
+        "IdpCollector",
+        "SubmitCollector",
+        "TextCollector",
+        "ValidatedTextCollector",
+        "DeviceRegistrationCollector",
+        "DeviceAuthenticationCollector",
+        "PhoneNumberCollector",
+        "ProtectCollector",
+        "FidoRegistrationCollector",
+        "FidoAuthenticationCollector"
+      ]
+    },
+    {
+      "testFile": "packages/davinci-client/src/lib/config.types.test-d.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "DaVinciConfig"
+      ]
+    },
+    {
+      "testFile": "packages/davinci-client/src/lib/collector.types.test-d.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "TextCollector",
+        "PasswordCollector",
+        "FlowCollector",
+        "IdpCollector",
+        "SubmitCollector",
+        "SingleSelectCollector",
+        "MultiSelectCollector"
+      ]
+    },
+    {
+      "testFile": "packages/davinci-client/src/lib/client.types.test-d.ts",
+      "packageName": "@forgerock/davinci-client",
+      "importedExports": [
+        "InitFlow",
+        "InternalErrorResponse",
+        "Updater",
+        "ErrorNode",
+        "FailureNode",
+        "ContinueNode",
+        "StartNode",
+        "SuccessNode"
+      ]
+    },
+    {
+      "testFile": "packages/journey-client/src/lib/client.types.test-d.ts",
+      "packageName": "@forgerock/journey-client",
+      "importedExports": [
+        "GenericError",
+        "JourneyClient",
+        "JourneyStep"
+      ]
+    }
+  ],
+  "e2eSuiteMappings": [
+    {
+      "suiteName": "davinci-suites",
+      "packages": [
+        "@forgerock/davinci-client",
+        "@forgerock/javascript-sdk",
+        "@forgerock/protect"
+      ],
+      "packageImports": [
+        {
+          "packageName": "@forgerock/davinci-client",
+          "importedNames": [
+            "DaVinciConfig",
+            "davinci",
+            "CustomLogger",
+            "DavinciClient",
+            "GetClient",
+            "InternalErrorResponse",
+            "NodeStates",
+            "ProtectCollector",
+            "RequestMiddleware",
+            "TextCollector",
+            "ValidatedTextCollector",
+            "Updater",
+            "Validator",
+            "SubmitCollector",
+            "IdpCollector",
+            "SingleSelectCollector",
+            "PasswordCollector",
+            "DeviceAuthenticationCollector",
+            "DeviceRegistrationCollector",
+            "PhoneNumberCollector",
+            "MultiSelectCollector",
+            "ReadOnlyCollector",
+            "FlowCollector",
+            "InitFlow",
+            "fido",
+            "FidoRegistrationCollector",
+            "FidoAuthenticationCollector",
+            "FidoClient"
+          ]
+        },
+        {
+          "packageName": "@forgerock/javascript-sdk",
+          "importedNames": [
+            "Config",
+            "FRUser",
+            "TokenManager"
+          ]
+        },
+        {
+          "packageName": "@forgerock/protect",
+          "importedNames": [
+            "protect"
+          ]
+        }
+      ]
+    },
+    {
+      "suiteName": "journey-suites",
+      "packages": [
+        "@forgerock/journey-client",
+        "@forgerock/protect"
+      ],
+      "packageImports": [
+        {
+          "packageName": "@forgerock/journey-client",
+          "importedNames": [
+            "JourneyClientConfig",
+            "journey",
+            "JourneyClient",
+            "RequestMiddleware",
+            "AttributeInputCallback",
+            "BaseCallback",
+            "ChoiceCallback",
+            "ConfirmationCallback",
+            "DeviceProfileCallback",
+            "HiddenValueCallback",
+            "KbaCreateCallback",
+            "MetadataCallback",
+            "NameCallback",
+            "PasswordCallback",
+            "PingOneProtectEvaluationCallback",
+            "PingOneProtectInitializeCallback",
+            "PollingWaitCallback",
+            "ReCaptchaCallback",
+            "ReCaptchaEnterpriseCallback",
+            "RedirectCallback",
+            "SelectIdPCallback",
+            "SuspendedTextOutputCallback",
+            "TermsAndConditionsCallback",
+            "TextInputCallback",
+            "TextOutputCallback",
+            "ValidatedCreatePasswordCallback",
+            "ValidatedCreateUsernameCallback",
+            "RecoveryCodes",
+            "JourneyStep",
+            "QRCode",
+            "Device"
+          ]
+        },
+        {
+          "packageName": "@forgerock/protect",
+          "importedNames": [
+            "protect"
+          ]
+        }
+      ]
+    },
+    {
+      "suiteName": "oidc-suites",
+      "packages": [
+        "@forgerock/oidc-client"
+      ],
+      "packageImports": [
+        {
+          "packageName": "@forgerock/oidc-client",
+          "importedNames": [
+            "oidc",
+            "AuthorizationError",
+            "GenericError",
+            "GetAuthorizationUrlOptions",
+            "OauthTokens",
+            "OidcClient",
+            "TokenExchangeErrorResponse"
+          ]
+        }
+      ]
+    },
+    {
+      "suiteName": "protect-suites",
+      "packages": [
+        "@forgerock/protect",
+        "@forgerock/javascript-sdk"
+      ],
+      "packageImports": [
+        {
+          "packageName": "@forgerock/protect",
+          "importedNames": [
+            "protect",
+            "Protect"
+          ]
+        },
+        {
+          "packageName": "@forgerock/javascript-sdk",
+          "importedNames": [
+            "CallbackType",
+            "Config",
+            "FRAuth",
+            "FRStep",
+            "FRUser",
+            "NameCallback",
+            "PasswordCallback",
+            "PingOneProtectEvaluationCallback",
+            "PingOneProtectInitializeCallback",
+            "TokenManager",
+            "UserManager"
+          ]
+        }
+      ]
+    }
+  ],
+  "warnings": []
+}

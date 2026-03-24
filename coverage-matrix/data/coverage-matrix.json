@@ -1,0 +1,3347 @@
+{
+  "generatedAt": "2026-03-24T17:27:21.565Z",
+  "source": "hybrid",
+  "packages": [
+    {
+      "name": "@forgerock/davinci-client",
+      "path": "packages/davinci-client",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "davinci",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "fido",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "path": "./src/types.ts",
+          "exports": [
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DaVinciConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/config.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "DavinciClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Updater",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "CollectorValueType",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "InitFlow",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "Validator",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StartNode",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "ContinueNode",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "ErrorNode",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "SuccessNode",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "FailureNode",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "NodeStates",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "Collectors",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "DaVinciValidationError",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ActionCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "SingleValueCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "FlowCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/collector.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "PasswordCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/collector.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "TextCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/collector.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "IdpCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/collector.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "SubmitCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/collector.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "ValidatedTextCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "ReadOnlyCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "MultiSelectCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/collector.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "SingleSelectCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts",
+                    "packages/davinci-client/src/lib/collector.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "DeviceRegistrationCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "DeviceAuthenticationCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "PhoneNumberCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "ProtectCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "FidoRegistrationCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "FidoAuthenticationCollector",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/updater-narrowing.types.test-d.ts",
+                    "packages/davinci-client/src/lib/node.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "InternalErrorResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/davinci-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "FidoClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 2,
+        "unitCovered": 0,
+        "e2eCovered": 1,
+        "uncovered": 1,
+        "totalSourceFiles": 27,
+        "unitTestedFiles": 7
+      }
+    },
+    {
+      "name": "@forgerock/device-client",
+      "path": "packages/device-client",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "deviceClient",
+              "kind": "constant",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/device-client/src/lib/device.store.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "path": "./src/types.ts",
+          "exports": [
+            {
+              "name": "DeviceClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ConfigOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "OathDevice",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeleteOathQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RetrieveOathQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "OathResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeletedOathDevice",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnBody",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnDevice",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "UpdatedWebAuthnDevice",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnCredential",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetProfileDevices",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ProfileDevicesQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ProfileDevice",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PushDeviceQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PushDeviceBody",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeleteDeviceQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeviceInfoResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeviceInfo",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PushDevice",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeletedPushDevice",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetBoundDevicesQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "BoundDeviceQuery",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeviceResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Device",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeviceProfile",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 1,
+        "unitCovered": 1,
+        "e2eCovered": 0,
+        "uncovered": 0,
+        "totalSourceFiles": 13,
+        "unitTestedFiles": 4
+      }
+    },
+    {
+      "name": "@forgerock/journey-client",
+      "path": "packages/journey-client",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "callbackType",
+              "kind": "constant",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/step.test.ts",
+                    "packages/journey-client/src/lib/client.store.test.ts",
+                    "packages/journey-client/src/lib/callbacks/validated-create-username-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/validated-create-password-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/text-output-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/text-input-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/terms-and-conditions-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/suspended-text-output-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/select-idp-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/redirect-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/recaptcha-enterprise-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/recaptcha-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/polling-wait-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/ping-protect-initialize-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/ping-protect-evaluation-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/password-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/name-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/metadata-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/kba-create-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/hidden-value-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts",
+                    "packages/journey-client/src/lib/callbacks/device-profile-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/confirmation-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/choice-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/base-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/attribute-input-callback.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "journey",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/client.store.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "JourneyClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "./device",
+          "path": "./src/lib/device/device-profile.ts",
+          "exports": [
+            {
+              "name": "Device",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/device/device-profile.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./policy",
+          "path": "./src/lib/policy/policy.ts",
+          "exports": [
+            {
+              "name": "Policy",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/policy/policy.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "MessageCreator",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ProcessedPropertyError",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./qr-code",
+          "path": "./src/lib/qr-code/qr-code.ts",
+          "exports": [
+            {
+              "name": "QRCodeData",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "QRCode",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/qr-code/qr-code.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./recovery-codes",
+          "path": "./src/lib/recovery-codes/recovery-codes.ts",
+          "exports": [
+            {
+              "name": "RecoveryCodes",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/recovery-codes/recovery-codes.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "path": "./src/types.ts",
+          "exports": [
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Step",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Callback",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CallbackType",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StepType",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GenericError",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "PolicyRequirement",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "FailedPolicyRequirement",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "isValidWellknownUrl",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "createWellknownError",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "JourneyClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "JourneyServerConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "JourneyClientConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "InternalJourneyClientConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StartParam",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ResumeOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "NextOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "JourneyStep",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/client.types.test-d.ts"
+                  ],
+                  "source": "static"
+                }
+              }
+            },
+            {
+              "name": "AttributeInputCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts",
+                    "packages/journey-client/src/lib/callbacks/attribute-input-callback.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "BaseCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts",
+                    "packages/journey-client/src/lib/callbacks/base-callback.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ChoiceCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts",
+                    "packages/journey-client/src/lib/callbacks/choice-callback.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ConfirmationCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts",
+                    "packages/journey-client/src/lib/callbacks/confirmation-callback.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DeviceProfileCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts",
+                    "packages/journey-client/src/lib/callbacks/device-profile-callback.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "createCallback",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CallbackFactory",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "HiddenValueCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/hidden-value-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "KbaCreateCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/kba-create-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "MetadataCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/metadata-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "NameCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/step.test.ts",
+                    "packages/journey-client/src/lib/callbacks/name-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PasswordCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/password-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PingOneProtectEvaluationCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/ping-protect-evaluation-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PingOneProtectInitializeCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/ping-protect-initialize-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PollingWaitCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/polling-wait-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ReCaptchaCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/recaptcha-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ReCaptchaEnterpriseCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/recaptcha-enterprise-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RedirectCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/redirect-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "SelectIdPCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/select-idp-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "IdPValue",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "SuspendedTextOutputCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/suspended-text-output-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "TextInputCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/text-input-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "TextOutputCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/text-output-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "TermsAndConditionsCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/terms-and-conditions-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ValidatedCreatePasswordCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/validated-create-password-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ValidatedCreateUsernameCallback",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/callbacks/validated-create-username-callback.test.ts",
+                    "packages/journey-client/src/lib/callbacks/factory.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./webauthn",
+          "path": "./src/lib/webauthn/webauthn.ts",
+          "exports": [
+            {
+              "name": "WebAuthn",
+              "kind": "class",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/webauthn/webauthn.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnOutcome",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnStepType",
+              "kind": "constant",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/journey-client/src/lib/webauthn/webauthn.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RelyingParty",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnAuthenticationMetadata",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnCallbacks",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WebAuthnRegistrationMetadata",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 35,
+        "unitCovered": 32,
+        "e2eCovered": 23,
+        "uncovered": 3,
+        "totalSourceFiles": 59,
+        "unitTestedFiles": 44
+      }
+    },
+    {
+      "name": "@forgerock/oidc-client",
+      "path": "packages/oidc-client",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "oidc",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/oidc-client/src/lib/client.store.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "path": "./src/types.ts",
+          "exports": [
+            {
+              "name": "GenericError",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetAuthorizationUrlOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WellknownResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StorageConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "OidcClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ClientStore",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RootState",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AppDispatch",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetTokensOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RevokeSuccessResult",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RevokeErrorResult",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LogoutSuccessResult",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LogoutErrorResult",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "UserInfoResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "OidcConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "OauthTokens",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "BuildAuthorizationData",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "OptionalAuthorizeOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AuthorizeErrorResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AuthorizeSuccessResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AuthorizationSuccess",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AuthorizationError",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "TokenExchangeResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "TokenExchangeErrorResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "TokenRequestOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 1,
+        "unitCovered": 1,
+        "e2eCovered": 1,
+        "uncovered": 0,
+        "totalSourceFiles": 18,
+        "unitTestedFiles": 11
+      }
+    },
+    {
+      "name": "@forgerock/protect",
+      "path": "packages/protect",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "protect",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/protect/src/lib/protect.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "path": "./src/types.ts",
+          "exports": [
+            {
+              "name": "ProtectConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Protect",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 1,
+        "unitCovered": 1,
+        "e2eCovered": 1,
+        "uncovered": 0,
+        "totalSourceFiles": 4,
+        "unitTestedFiles": 1
+      }
+    },
+    {
+      "name": "@forgerock/iframe-manager",
+      "path": "packages/sdk-effects/iframe-manager",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "iFrameManager",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetParamsFromIFrameOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ResolvedParams",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 1,
+        "unitCovered": 0,
+        "e2eCovered": 1,
+        "uncovered": 0,
+        "totalSourceFiles": 2,
+        "unitTestedFiles": 0
+      }
+    },
+    {
+      "name": "@forgerock/sdk-logger",
+      "path": "packages/sdk-effects/logger",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "logger",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/logger/src/lib/logger.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LogLevel",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LogMessage",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "path": "./src/types.ts",
+          "exports": [
+            {
+              "name": "CustomLogger",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 1,
+        "unitCovered": 1,
+        "e2eCovered": 1,
+        "uncovered": 0,
+        "totalSourceFiles": 4,
+        "unitTestedFiles": 1
+      }
+    },
+    {
+      "name": "@forgerock/sdk-oidc",
+      "path": "packages/sdk-effects/oidc",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "createAuthorizeUrl",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/oidc/src/lib/authorize.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "getStorageKey",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/oidc/src/lib/state-pkce.test.ts",
+                    "packages/sdk-effects/oidc/src/lib/authorize.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "generateAndStoreAuthUrlValues",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/oidc/src/lib/state-pkce.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "getStoredAuthUrlValues",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/oidc/src/lib/state-pkce.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "isValidWellknownResponse",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/oidc/src/lib/wellknown.effects.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "initWellknownQuery",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/oidc/src/lib/wellknown.effects.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 6,
+        "unitCovered": 6,
+        "e2eCovered": 6,
+        "uncovered": 0,
+        "totalSourceFiles": 4,
+        "unitTestedFiles": 3
+      }
+    },
+    {
+      "name": "@forgerock/sdk-request-middleware",
+      "path": "packages/sdk-effects/sdk-request-middleware",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "middlewareWrapper",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "initQuery",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "actionTypes",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ActionTypes",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "EndpointTypes",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RequestMiddleware",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "QueryApi",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Action",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ModifiedFetchArgs",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "RequestObj",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 3,
+        "unitCovered": 2,
+        "e2eCovered": 2,
+        "uncovered": 1,
+        "totalSourceFiles": 5,
+        "unitTestedFiles": 2
+      }
+    },
+    {
+      "name": "@forgerock/storage",
+      "path": "packages/sdk-effects/storage",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "createStorage",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-effects/storage/src/lib/storage.effects.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StorageClient",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StorageConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "BrowserStorageConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CustomStorageConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 1,
+        "unitCovered": 1,
+        "e2eCovered": 1,
+        "uncovered": 0,
+        "totalSourceFiles": 2,
+        "unitTestedFiles": 1
+      }
+    },
+    {
+      "name": "@forgerock/sdk-types",
+      "path": "packages/sdk-types",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "callbackType",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CallbackType",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "NameValue",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Callback",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AuthResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "FailureDetail",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Step",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StepDetail",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "FailedPolicyRequirement",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PolicyRequirement",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PolicyParams",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ConfigurablePaths",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CustomPathConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "StepType",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GenericError",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ServerConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AsyncServerConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "AsyncLegacyConfigOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ValidLegacyConfigOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "WellknownResponse",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LegacyConfigOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LegacyActionTypes",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "LegacyRequestMiddleware",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "BrandedString",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "Tokens",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CustomStorageObject",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "OAuthConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "DavinciOAuthConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "BaseConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PathsConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "ResponseType",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetAuthorizationUrlOptions",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GenerateAndStoreAuthUrlValues",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "PolicyKey",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 4,
+        "unitCovered": 0,
+        "e2eCovered": 3,
+        "uncovered": 1,
+        "totalSourceFiles": 11,
+        "unitTestedFiles": 0
+      }
+    },
+    {
+      "name": "@forgerock/sdk-utilities",
+      "path": "packages/sdk-utilities",
+      "modules": [
+        {
+          "name": ".",
+          "path": "./src/index.ts",
+          "exports": [
+            {
+              "name": "isGenericError",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-utilities/src/lib/error/error.utils.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "createRandomString",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "createState",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "createVerifier",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-utilities/src/lib/oidc/pkce.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "createChallenge",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-utilities/src/lib/oidc/pkce.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "plural",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "getRealmUrlPath",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-utilities/src/lib/url/am-url.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "getEndpointPath",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-utilities/src/lib/url/am-url.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "getBaseUrl",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "parseQuery",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "resolve",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "stringify",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "isValidWellknownUrl",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-utilities/src/lib/wellknown/wellknown.utils.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "createWellknownError",
+              "kind": "function",
+              "coverage": {
+                "unit": {
+                  "covered": true,
+                  "testFiles": [
+                    "packages/sdk-utilities/src/lib/wellknown/wellknown.utils.test.ts"
+                  ],
+                  "source": "static"
+                },
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "getProp",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "reduceToObject",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "reduceToString",
+              "kind": "function",
+              "coverage": {
+                "unit": null,
+                "e2e": {
+                  "covered": true,
+                  "source": "runtime"
+                },
+                "typeTest": null
+              }
+            },
+            {
+              "name": "REQUESTED_WITH",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "X_REQUESTED_PLATFORM",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./constants",
+          "path": "./src/lib/constants/index.ts",
+          "exports": [
+            {
+              "name": "REQUESTED_WITH",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "X_REQUESTED_PLATFORM",
+              "kind": "constant",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "./types",
+          "path": "./src/types.ts",
+          "exports": [
+            {
+              "name": "ConfigurablePaths",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "CustomPathConfig",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            },
+            {
+              "name": "GetEndpointPathParams",
+              "kind": "type",
+              "coverage": {
+                "unit": null,
+                "e2e": null,
+                "typeTest": null
+              }
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalExports": 19,
+        "unitCovered": 7,
+        "e2eCovered": 15,
+        "uncovered": 3,
+        "totalSourceFiles": 16,
+        "unitTestedFiles": 4
+      }
+    }
+  ]
+}
