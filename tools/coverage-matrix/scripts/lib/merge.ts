@@ -94,14 +94,35 @@ function normalizeDistPath(filePath: string): string {
   return filePath.replace(/\/dist\/src\//, '/src/').replace(/\.js$/, '.ts');
 }
 
+/**
+ * Extract the workspace-relative portion of a coverage path.
+ *
+ * Covered file paths are absolute and originate from different machines
+ * (DTE agents vs main runner). We extract from the first `/packages/` or
+ * `/e2e/` segment onward so comparisons are machine-independent.
+ */
+function toWorkspaceRelative(filePath: string, workspaceRoot: string): string {
+  // If the path starts with the known workspace root, just strip it
+  if (filePath.startsWith(workspaceRoot)) {
+    return filePath.slice(workspaceRoot.length).replace(/^\//, '');
+  }
+  // Otherwise, extract from known workspace directory markers
+  const match = filePath.match(/\/(packages\/.*)/);
+  if (match) return match[1];
+  return filePath;
+}
+
 /** Build a flat Set of all source files covered by e2e tests (V8/Playwright data) */
-function buildRuntimeE2eFileSet(runtimeCoverage: RuntimeCoverage | null): Set<string> {
+function buildRuntimeE2eFileSet(
+  runtimeCoverage: RuntimeCoverage | null,
+  workspaceRoot: string,
+): Set<string> {
   const files = new Set<string>();
   if (!runtimeCoverage) return files;
 
   for (const entry of runtimeCoverage.e2eCoverage) {
     for (const file of entry.coveredFiles) {
-      files.add(normalizeDistPath(file));
+      files.add(toWorkspaceRelative(normalizeDistPath(file), workspaceRoot));
     }
   }
   return files;
@@ -114,6 +135,7 @@ function buildExportEntry(
   e2eExportMap: Map<string, string[]> | undefined,
   runtimeUnitFiles: Set<string> | undefined,
   runtimeE2eFiles: Set<string>,
+  workspaceRoot: string,
 ): ExportEntry {
   const isType = exportDef.kind === 'type';
 
@@ -138,10 +160,12 @@ function buildExportEntry(
     }
   }
 
-  // E2E coverage — runtime Istanbul only, no static fallback.
+  // E2E coverage — runtime V8 only, no static fallback.
   // Only count exports whose source file had functions actually invoked.
+  // Compare workspace-relative paths since DTE agents have different absolute roots.
   let e2eCoverage: CoverageEntry | null = null;
-  if (!isType && runtimeE2eFiles.has(exportDef.sourceFile)) {
+  const relativeSourceFile = toWorkspaceRelative(exportDef.sourceFile, workspaceRoot);
+  if (!isType && runtimeE2eFiles.has(relativeSourceFile)) {
     e2eCoverage = {
       covered: true,
       source: 'runtime',
@@ -183,9 +207,18 @@ function buildModuleEntry(
   e2eExportMap: Map<string, string[]> | undefined,
   runtimeUnitFiles: Set<string> | undefined,
   runtimeE2eFiles: Set<string>,
+  workspaceRoot: string,
 ): ModuleEntry {
   const exports = moduleDef.exports.map((exp) =>
-    buildExportEntry(exp, unitMap, typeTestMap, e2eExportMap, runtimeUnitFiles, runtimeE2eFiles),
+    buildExportEntry(
+      exp,
+      unitMap,
+      typeTestMap,
+      e2eExportMap,
+      runtimeUnitFiles,
+      runtimeE2eFiles,
+      workspaceRoot,
+    ),
   );
   return {
     name: moduleDef.name,
@@ -250,6 +283,7 @@ function buildPackageEntry(
       pkgE2eExportMap,
       runtimeUnitFiles,
       runtimeE2eFiles,
+      workspaceRoot,
     ),
   );
 
@@ -282,7 +316,7 @@ export function buildCoverageMatrix(
   const typeTestMap = buildTypeTestMap(staticAnalysis);
   const e2eExportMap = buildE2eExportMap(staticAnalysis);
   const runtimeUnitMap = buildRuntimeUnitMap(runtimeCoverage);
-  const runtimeE2eFiles = buildRuntimeE2eFileSet(runtimeCoverage);
+  const runtimeE2eFiles = buildRuntimeE2eFileSet(runtimeCoverage, workspaceRoot);
 
   const hasRuntime = runtimeUnitMap.size > 0 || runtimeE2eFiles.size > 0;
   const source = hasRuntime ? 'hybrid' : 'static';
