@@ -6,7 +6,7 @@
  * of the MIT license. See the LICENSE file for details.
  *
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@forgerock/e2e-shared/coverage-fixture';
 import {
   pingAmUsername,
   pingAmPassword,

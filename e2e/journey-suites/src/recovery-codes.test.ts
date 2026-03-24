@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from '@forgerock/e2e-shared/coverage-fixture';
 import { asyncEvents } from './utils/async-events.js';
 
 test.describe('Recovery Codes Journey', () => {

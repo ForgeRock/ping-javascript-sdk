@@ -1,0 +1,24 @@
+{
+  "name": "@forgerock/protect-suites",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Ping Protect E2E Suites",
+  "homepage": "https://github.com/ForgeRock/ping-javascript-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/ForgeRock/ping-javascript-sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "src/index.js",
+  "nx": {
+    "implicitDependencies": ["@forgerock/protect-app"]
+  },
+  "dependencies": {
+    "@forgerock/e2e-shared": "workspace:*"
+  }
+}
