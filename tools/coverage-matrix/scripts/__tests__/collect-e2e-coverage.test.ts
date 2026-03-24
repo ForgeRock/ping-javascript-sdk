@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import { collectE2eCoverage } from '../lib/collect-e2e-coverage.js';
 
 const tmpDir = join(import.meta.dirname, '.tmp-e2e-coverage-test');
-const coverageDir = join(tmpDir, '.e2e-coverage');
+const suiteDir = join(tmpDir, 'e2e', 'test-suite');
+const coverageDir = join(suiteDir, '.e2e-coverage');
 
 function writeV8Coverage(filename: string, entries: unknown[]): void {
   mkdirSync(coverageDir, { recursive: true });
