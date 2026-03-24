@@ -189,13 +189,13 @@ jobs:
 
             ${{ steps.coverage-matrix-summary.outputs.table }}
 
-            [Full dashboard](https://forgerock.github.io/ping-javascript-sdk/coverage-matrix/)
+            [Full dashboard](https://forgerock.github.io/ping-javascript-sdk/coverage-matrix/) · [PR preview](https://ForgeRock.github.io/ping-javascript-sdk/pr-${{ github.event.number }}/${{ github.sha }}/coverage-matrix/)
 
-      - name: Deploy coverage dashboard to GitHub Pages
+      - name: Preview coverage dashboard
         continue-on-error: true
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./tools/coverage-matrix/dist
-          destination_dir: coverage-matrix
+          destination_dir: pr-${{ github.event.number }}/${{ github.sha }}/coverage-matrix
           keep_files: true
