@@ -17,7 +17,14 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 
-const COVERAGE_DIR = join(import.meta.dirname, '..', '..', '.e2e-coverage');
+/**
+ * Resolve the coverage output directory relative to the test file's suite directory.
+ *
+ * Playwright tests run with cwd set to the suite root (e.g. e2e/oidc-suites).
+ * Writing coverage into {cwd}/.e2e-coverage keeps it inside the project so
+ * Nx Cloud DTE agents transfer it back as a declared output.
+ */
+const COVERAGE_DIR = join(process.cwd(), '.e2e-coverage');
 
 export const test = base.extend({
   page: async ({ page }, use, testInfo) => {

@@ -61,31 +61,51 @@ function extractFilePath(url: string): string | null {
  * Uses Playwright's built-in V8 coverage — no Istanbul instrumentation
  * required. The browser itself tracks function execution.
  */
+/**
+ * Discover all `.e2e-coverage/` directories under `e2e/` suite projects.
+ *
+ * Each e2e suite writes coverage into its own project dir (e.g.
+ * `e2e/oidc-suites/.e2e-coverage/`) so that Nx Cloud DTE agents transfer
+ * the data back as declared outputs.
+ */
+function findCoverageDirs(workspaceRoot: string): string[] {
+  const e2eRoot = join(workspaceRoot, 'e2e');
+  if (!existsSync(e2eRoot)) return [];
+
+  return readdirSync(e2eRoot, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => join(e2eRoot, d.name, '.e2e-coverage'))
+    .filter((dir) => existsSync(dir));
+}
+
 export function collectE2eCoverage(workspaceRoot: string): RuntimeE2eCoverage | null {
-  const coverageDir = join(workspaceRoot, '.e2e-coverage');
+  const coverageDirs = findCoverageDirs(workspaceRoot);
 
-  if (!existsSync(coverageDir)) return null;
-
-  const files = readdirSync(coverageDir).filter((f) => f.endsWith('.json'));
-  if (files.length === 0) return null;
+  if (coverageDirs.length === 0) return null;
 
   const allCoveredFiles = new Set<string>();
 
-  for (const file of files) {
-    try {
-      const entries: V8CoverageEntry[] = JSON.parse(readFileSync(join(coverageDir, file), 'utf-8'));
+  for (const coverageDir of coverageDirs) {
+    const files = readdirSync(coverageDir).filter((f) => f.endsWith('.json'));
 
-      for (const entry of entries) {
-        const filePath = extractFilePath(entry.url);
-        if (!filePath || !filePath.includes('/packages/')) continue;
-        if (hasGenuineInvocations(entry)) {
-          allCoveredFiles.add(filePath);
+    for (const file of files) {
+      try {
+        const entries: V8CoverageEntry[] = JSON.parse(
+          readFileSync(join(coverageDir, file), 'utf-8'),
+        );
+
+        for (const entry of entries) {
+          const filePath = extractFilePath(entry.url);
+          if (!filePath || !filePath.includes('/packages/')) continue;
+          if (hasGenuineInvocations(entry)) {
+            allCoveredFiles.add(filePath);
+          }
         }
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn(`[collect-e2e-coverage] Skipping ${file}: ${message}`);
+        continue;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.warn(`[collect-e2e-coverage] Skipping ${file}: ${message}`);
-      continue;
     }
   }
 
