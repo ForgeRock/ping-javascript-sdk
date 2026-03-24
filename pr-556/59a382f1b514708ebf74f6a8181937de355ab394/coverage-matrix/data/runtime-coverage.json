@@ -1,0 +1,214 @@
+{
+  "unitCoverage": [
+    {
+      "packageName": "@forgerock/davinci-client",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/davinci-client/src/lib/collector.utils.ts",
+        "/home/workflows/workspace/packages/davinci-client/src/lib/config.slice.ts",
+        "/home/workflows/workspace/packages/davinci-client/src/lib/davinci.utils.ts",
+        "/home/workflows/workspace/packages/davinci-client/src/lib/node.reducer.ts",
+        "/home/workflows/workspace/packages/davinci-client/src/lib/node.slice.ts",
+        "/home/workflows/workspace/packages/davinci-client/src/lib/node.utils.ts",
+        "/home/workflows/workspace/packages/davinci-client/src/lib/fido/fido.utils.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/device-client",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/device-client/src/lib/device.store.test.utils.ts",
+        "/home/workflows/workspace/packages/device-client/src/lib/device.store.ts",
+        "/home/workflows/workspace/packages/device-client/src/lib/device.store.utils.ts",
+        "/home/workflows/workspace/packages/device-client/src/lib/services/index.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/journey-client",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/journey-client/src/lib/client.store.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/client.store.utils.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/config.slice.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/journey.api.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/journey.utils.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/login-failure.utils.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/login-success.utils.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/step.utils.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/wellknown.api.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/wellknown.utils.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/attribute-input-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/base-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/choice-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/confirmation-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/device-profile-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/factory.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/hidden-value-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/kba-create-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/metadata-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/name-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/password-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/ping-protect-evaluation-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/ping-protect-initialize-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/polling-wait-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/recaptcha-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/recaptcha-enterprise-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/redirect-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/select-idp-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/suspended-text-output-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/terms-and-conditions-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/text-input-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/text-output-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/validated-create-password-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/callbacks/validated-create-username-callback.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/device/defaults.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/device/device-profile.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/policy/message-creator.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/policy/policy.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/qr-code/qr-code.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/recovery-codes/recovery-codes.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/recovery-codes/script-parser.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/webauthn/enums.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/webauthn/helpers.ts",
+        "/home/workflows/workspace/packages/journey-client/src/lib/webauthn/webauthn.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/oidc-client",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/oidc-client/src/lib/authorize.request.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/authorize.request.utils.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/client.store.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/client.store.utils.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/exchange.request.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/exchange.utils.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/logout.request.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/oidc.api.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/oidc.api.utils.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/token.utils.ts",
+        "/home/workflows/workspace/packages/oidc-client/src/lib/wellknown.api.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/protect",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/protect/src/lib/protect.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/iframe-manager",
+      "coveredFiles": []
+    },
+    {
+      "packageName": "@forgerock/sdk-logger",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/sdk-effects/logger/src/lib/logger.effects.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/sdk-oidc",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/sdk-effects/oidc/src/lib/authorize.effects.ts",
+        "/home/workflows/workspace/packages/sdk-effects/oidc/src/lib/state-pkce.effects.ts",
+        "/home/workflows/workspace/packages/sdk-effects/oidc/src/lib/wellknown.effects.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/sdk-request-middleware",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.derived.ts",
+        "/home/workflows/workspace/packages/sdk-effects/sdk-request-middleware/src/lib/request-mware.effects.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/storage",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/sdk-effects/storage/src/lib/storage.effects.ts"
+      ]
+    },
+    {
+      "packageName": "@forgerock/sdk-types",
+      "coveredFiles": []
+    },
+    {
+      "packageName": "@forgerock/sdk-utilities",
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/sdk-utilities/src/lib/error/error.utils.ts",
+        "/home/workflows/workspace/packages/sdk-utilities/src/lib/oidc/pkce.utils.ts",
+        "/home/workflows/workspace/packages/sdk-utilities/src/lib/url/am-url.utils.ts",
+        "/home/workflows/workspace/packages/sdk-utilities/src/lib/wellknown/wellknown.utils.ts"
+      ]
+    }
+  ],
+  "e2eCoverage": [
+    {
+      "coveredFiles": [
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/client.store.js",
+        "/home/workflows/workspace/packages/protect/dist/src/lib/protect.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/client.store.utils.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/node.slice.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/davinci.api.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/config.slice.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/wellknown.api.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/collector.utils.js",
+        "/home/workflows/workspace/packages/sdk-effects/storage/dist/src/lib/storage.effects.js",
+        "/home/workflows/workspace/packages/sdk-effects/logger/dist/src/lib/logger.effects.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/node.reducer.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/davinci.utils.js",
+        "/home/workflows/workspace/packages/sdk-effects/sdk-request-middleware/dist/src/lib/request-mware.effects.js",
+        "/home/workflows/workspace/packages/sdk-effects/oidc/dist/src/lib/authorize.effects.js",
+        "/home/workflows/workspace/packages/sdk-effects/oidc/dist/src/lib/state-pkce.effects.js",
+        "/home/workflows/workspace/packages/sdk-effects/oidc/dist/src/lib/wellknown.effects.js",
+        "/home/workflows/workspace/packages/sdk-utilities/dist/src/lib/oidc/pkce.utils.js",
+        "/home/workflows/workspace/packages/protect/dist/src/lib/signals-sdk.js",
+        "/home/workflows/workspace/packages/davinci-client/dist/src/lib/node.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/client.store.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/qr-code/qr-code.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/recovery-codes/recovery-codes.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/client.store.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/config.slice.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/journey.api.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/journey.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/wellknown.api.js",
+        "/home/workflows/workspace/packages/sdk-types/dist/src/lib/enums.js",
+        "/home/workflows/workspace/packages/sdk-types/dist/src/lib/legacy-mware.types.js",
+        "/home/workflows/workspace/packages/sdk-types/dist/src/lib/policy.types.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/wellknown.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/login-success.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/step.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/factory.js",
+        "/home/workflows/workspace/packages/sdk-utilities/dist/src/lib/url/am-url.utils.js",
+        "/home/workflows/workspace/packages/sdk-utilities/dist/src/lib/url/url.utils.js",
+        "/home/workflows/workspace/packages/sdk-utilities/dist/src/lib/wellknown/wellknown.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/base-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/choice-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/confirmation-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/name-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/password-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/polling-wait-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/text-output-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/device/device-profile.js",
+        "/home/workflows/workspace/packages/sdk-utilities/dist/src/lib/object.utils.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/device-profile-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/ping-protect-evaluation-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/ping-protect-initialize-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/hidden-value-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/recovery-codes/script-parser.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/metadata-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/suspended-text-output-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/attribute-input-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/kba-create-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/terms-and-conditions-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/validated-create-password-callback.js",
+        "/home/workflows/workspace/packages/journey-client/dist/src/lib/callbacks/validated-create-username-callback.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/client.store.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/exchange.request.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/client.store.utils.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/oidc.api.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/wellknown.api.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/token.utils.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/exchange.utils.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/authorize.request.js",
+        "/home/workflows/workspace/packages/oidc-client/dist/src/lib/authorize.request.utils.js",
+        "/home/workflows/workspace/packages/sdk-effects/iframe-manager/dist/src/lib/iframe-manager.effects.js"
+      ]
+    }
+  ]
+}
