@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { test, expect, CDPSession } from '@playwright/test';
+import { test, expect, CDPSession } from '@forgerock/e2e-shared/coverage-fixture';
 import { asyncEvents } from './utils/async-events.js';
 
 const username = 'JSFidoUser@user.com';
