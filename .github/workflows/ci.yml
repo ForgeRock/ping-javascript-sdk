@@ -165,12 +165,24 @@ jobs:
             }
           "
 
+      - name: Find coverage matrix comment
+        continue-on-error: true
+        if: github.event_name == 'pull_request'
+        id: find-coverage-comment
+        uses: peter-evans/find-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: <!-- coverage-matrix -->
+
       - name: Post coverage matrix PR comment
         continue-on-error: true
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v4
         with:
+          comment-id: ${{ steps.find-coverage-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
           body: |
             <!-- coverage-matrix -->
             ## Coverage Matrix
