@@ -50,7 +50,7 @@ export interface JourneyClient {
  * It uses AM-proprietary endpoints for callback-based authentication trees.
  *
  * @param options - Configuration options for the journey client
- * @param options.config - Server configuration with required wellknown URL
+ * @param options.config - Configuration options (see {@link JourneyClientConfig}); only `serverConfig.wellknown` is required
  * @param options.requestMiddleware - Optional middleware for request customization
  * @param options.logger - Optional logger configuration
  * @returns A journey client instance
@@ -85,6 +85,33 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
   };
 }): Promise<JourneyClient> {
   const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
+
+  const ignoredProperties = [
+    'callbackFactory',
+    'clientId',
+    'middleware',
+    'oauthThreshold',
+    'platformHeader',
+    'prefix',
+    'realmPath',
+    'redirectUri',
+    'scope',
+    'tokenStore',
+    'tree',
+    'type',
+  ] as const;
+
+  const providedIgnored: string[] = ignoredProperties.filter((prop) => config[prop] !== undefined);
+
+  if (config.serverConfig?.timeout !== undefined) {
+    providedIgnored.push('serverConfig.timeout');
+  }
+
+  if (providedIgnored.length > 0) {
+    log.warn(
+      `The following configuration properties are not used by journey-client and will be ignored: ${providedIgnored.join(', ')}`,
+    );
+  }
 
   const store = createJourneyStore({ requestMiddleware, logger: log });
 

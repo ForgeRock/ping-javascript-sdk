@@ -359,6 +359,71 @@ describe('journey-client', () => {
     });
   });
 
+  describe('config property warnings', () => {
+    test('journey_ExtraConfigProperties_LogsWarning', async () => {
+      setupMockFetch();
+      const customLogger = {
+        error: vi.fn(),
+        warn: vi.fn(),
+        info: vi.fn(),
+        debug: vi.fn(),
+      };
+
+      await journey({
+        config: {
+          serverConfig: { wellknown: mockWellknownUrl },
+          clientId: 'test-client',
+          scope: 'openid',
+          redirectUri: 'https://example.com/callback',
+        },
+        logger: { level: 'warn', custom: customLogger },
+      });
+
+      expect(customLogger.warn).toHaveBeenCalledTimes(1);
+      expect(customLogger.warn).toHaveBeenCalledWith(expect.stringContaining('clientId'));
+      expect(customLogger.warn).toHaveBeenCalledWith(expect.stringContaining('scope'));
+      expect(customLogger.warn).toHaveBeenCalledWith(expect.stringContaining('redirectUri'));
+    });
+
+    test('journey_SingleIgnoredProperty_LogsWarning', async () => {
+      setupMockFetch();
+      const customLogger = {
+        error: vi.fn(),
+        warn: vi.fn(),
+        info: vi.fn(),
+        debug: vi.fn(),
+      };
+
+      await journey({
+        config: {
+          serverConfig: { wellknown: mockWellknownUrl },
+          clientId: 'test-client',
+        },
+        logger: { level: 'warn', custom: customLogger },
+      });
+
+      expect(customLogger.warn).toHaveBeenCalledTimes(1);
+      expect(customLogger.warn).toHaveBeenCalledWith(expect.stringContaining('clientId'));
+    });
+
+    test('journey_MinimalConfig_NoWarning', async () => {
+      setupMockFetch();
+      const customLogger = {
+        error: vi.fn(),
+        warn: vi.fn(),
+        info: vi.fn(),
+        debug: vi.fn(),
+      };
+
+      await journey({
+        config: { serverConfig: { wellknown: mockWellknownUrl } },
+        logger: { level: 'warn', custom: customLogger },
+      });
+
+      expect(customLogger.warn).not.toHaveBeenCalled();
+    });
+  });
+
   describe('subrealm inference', () => {
     test('journey_WellknownWithSubrealm_DerivesCorrectPaths', async () => {
       const alphaConfig: JourneyClientConfig = {
