@@ -25,6 +25,7 @@ import type {
   UnknownCollector,
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
+  QrCodeCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
 
@@ -46,6 +47,7 @@ export type Collectors =
   | ProtectCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
+  | QrCodeCollector
   | UnknownCollector;
 
 export interface CollectorErrors {

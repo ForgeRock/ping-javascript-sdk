@@ -52,6 +52,7 @@ export type PhoneNumberCollector = collectors.PhoneNumberCollector;
 export type ProtectCollector = collectors.ProtectCollector;
 export type FidoRegistrationCollector = collectors.FidoRegistrationCollector;
 export type FidoAuthenticationCollector = collectors.FidoAuthenticationCollector;
+export type QrCodeCollector = collectors.QrCodeCollector;
 
 export type InternalErrorResponse = client.InternalErrorResponse;
 export type { RequestMiddleware, ActionTypes } from '@forgerock/sdk-request-middleware';

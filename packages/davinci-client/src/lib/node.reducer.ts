@@ -28,6 +28,7 @@ import {
   returnUnknownCollector,
   returnFidoRegistrationCollector,
   returnFidoAuthenticationCollector,
+  returnQrCodeCollector,
 } from './collector.utils.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type {
@@ -53,6 +54,7 @@ import type {
   FidoAuthenticationCollector,
   FidoAuthenticationInputValue,
   FidoRegistrationInputValue,
+  QrCodeCollector,
 } from './collector.types.js';
 
 /**
@@ -98,6 +100,7 @@ const initialCollectorValues: (
   | ProtectCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
+  | QrCodeCollector
 )[] = [];
 
 /**
@@ -122,6 +125,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
              */
             if (field.type === 'LABEL') {
               return returnReadOnlyCollector(field, idx);
+            }
+
+            if (field.type === 'QR_CODE') {
+              return returnQrCodeCollector(field, idx);
             }
 
             // *Some* collectors may have default or existing data to display

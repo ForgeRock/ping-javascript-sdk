@@ -29,6 +29,7 @@ import type {
   AutoCollectors,
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
+  QrCodeCollectorBase,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -38,6 +39,7 @@ import type {
   MultiSelectField,
   PhoneNumberField,
   ProtectField,
+  QrCodeField,
   ReadOnlyField,
   RedirectField,
   SingleSelectField,
@@ -711,6 +713,42 @@ export function returnNoValueCollector<
  */
 export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
   return returnNoValueCollector(field, idx, 'ReadOnlyCollector');
+}
+
+/**
+ * @function returnQrCodeCollector - Creates a QrCodeCollector object for displaying QR code images.
+ * @param {QrCodeField} field - The field object containing key, content, type, and optional fallbackText.
+ * @param {number} idx - The index to be used in the id of the QrCodeCollector.
+ * @returns {QrCodeCollectorBase} The constructed QrCodeCollector object.
+ */
+export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollectorBase {
+  let error = '';
+  if (!('content' in field) || !field.content) {
+    error = `${error}Content is not found in the field object. `;
+  }
+  if (!('key' in field) || !field.key) {
+    error = `${error}Key is not found in the field object. `;
+  }
+  if (!('type' in field)) {
+    error = `${error}Type is not found in the field object. `;
+  }
+
+  const key = field.key || field.type;
+
+  return {
+    category: 'NoValueCollector',
+    error: error || null,
+    type: 'QrCodeCollector',
+    id: `${key}-${idx}`,
+    name: `${key}-${idx}`,
+    output: {
+      key: `${key}-${idx}`,
+      label: field.content || '',
+      type: field.type,
+      src: field.content || '',
+      fallbackText: field.fallbackText || '',
+    },
+  };
 }
 
 /**
