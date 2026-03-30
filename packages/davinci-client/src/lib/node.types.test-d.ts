@@ -33,6 +33,7 @@ import {
   PhoneNumberCollector,
   UnknownCollector,
   ProtectCollector,
+  PollingCollector,
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
 } from './collector.types.js';
@@ -234,6 +235,7 @@ describe('Node Types', () => {
         | SingleSelectCollector
         | ValidatedTextCollector
         | ProtectCollector
+        | PollingCollector
         | FidoRegistrationCollector
         | FidoAuthenticationCollector
         | UnknownCollector

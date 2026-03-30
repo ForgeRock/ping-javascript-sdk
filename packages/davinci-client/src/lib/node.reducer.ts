@@ -25,6 +25,7 @@ import {
   returnObjectSelectCollector,
   returnObjectValueCollector,
   returnProtectCollector,
+  returnPollingCollector,
   returnUnknownCollector,
   returnFidoRegistrationCollector,
   returnFidoAuthenticationCollector,
@@ -49,6 +50,7 @@ import type {
   PhoneNumberOutputValue,
   UnknownCollector,
   ProtectCollector,
+  PollingCollector,
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   FidoAuthenticationInputValue,
@@ -96,6 +98,7 @@ const initialCollectorValues: (
   | ValidatedTextCollector
   | UnknownCollector
   | ProtectCollector
+  | PollingCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
 )[] = [];
@@ -179,6 +182,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
               case 'PROTECT': {
                 return returnProtectCollector(field, idx);
               }
+              case 'POLLING': {
+                // No data to send
+                return returnPollingCollector(field, idx);
+              }
               case 'FIDO2': {
                 if (field.action === 'REGISTER') {
                   return returnFidoRegistrationCollector(field, idx);
@@ -225,7 +232,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       if (
         collector.category === 'SingleValueCollector' ||
         collector.category === 'ValidatedSingleValueCollector' ||
-        collector.type === 'ProtectCollector'
+        collector.category === 'SingleValueAutoCollector'
       ) {
         if (typeof action.payload.value !== 'string') {
           throw new Error('Value argument must be a string');

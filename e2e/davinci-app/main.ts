@@ -32,6 +32,7 @@ import multiValueComponent from './components/multi-value.js';
 import labelComponent from './components/label.js';
 import objectValueComponent from './components/object-value.js';
 import fidoComponent from './components/fido.js';
+import pollingComponent from './components/polling.js';
 
 const loggerFn = {
   error: () => {
@@ -259,6 +260,14 @@ const urlParams = new URLSearchParams(window.location.search);
         fidoComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
+          davinciClient.update(collector), // Returns an update function for this collector
+          submitForm,
+        );
+      } else if (collector.type === 'PollingCollector') {
+        pollingComponent(
+          formEl, // You can ignore this; it's just for rendering
+          collector, // This is the plain object of the collector
+          davinciClient.poll, // Returns a poll function
           davinciClient.update(collector), // Returns an update function for this collector
           submitForm,
         );

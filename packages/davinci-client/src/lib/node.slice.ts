@@ -110,10 +110,10 @@ export const nodeSlice = createSlice({
     },
 
     /**
-     * @method failure - Method for creating an error node
+     * @method failure - Method for creating a failure node
      * @param {Object} state - The current state of the slice
      * @param {PayloadAction<DaVinciFailureResponse>} action - The action to be dispatched
-     * @returns {FailureNode} - The error node
+     * @returns {FailureNode} - The failure node
      */
     failure(
       state,

@@ -13,7 +13,7 @@
   },
   "author": "ForgeRock",
   "scripts": {
-    "build": "nx affected --target=build",
+    "build": "nx sync && nx affected --target=build",
     "changeset": "changeset",
     "ci:release": "pnpm nx run-many -t build --no-agents && pnpm publish -r --no-git-checks && changeset tag",
     "ci:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm nx format:write --uncommitted",

@@ -19,7 +19,7 @@ export interface DaVinciRequest {
   eventName: string;
   interactionId: string;
   parameters: {
-    eventType: 'submit' | 'action';
+    eventType: 'submit' | 'action' | 'polling';
     data: {
       actionKey: string;
       formData?: Record<string, unknown>;
@@ -212,6 +212,15 @@ export type FidoAuthenticationField = {
   required: boolean;
 };
 
+export type PollingField = {
+  type: 'POLLING';
+  key: string;
+  pollInterval: number;
+  pollRetries: number;
+  pollChallengeStatus: boolean;
+  challenge: string;
+};
+
 export type UnknownField = Record<string, unknown>;
 
 export type ComplexValueFields =
@@ -219,7 +228,8 @@ export type ComplexValueFields =
   | DeviceRegistrationField
   | PhoneNumberField
   | FidoRegistrationField
-  | FidoAuthenticationField;
+  | FidoAuthenticationField
+  | PollingField;
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField;
 export type RedirectFields = RedirectField;
