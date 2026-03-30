@@ -11,7 +11,12 @@ import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logge
 import { createStorage } from '@forgerock/storage';
 import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
 
-import { createClientStore, handleUpdateValidateError, RootState } from './client.store.utils.js';
+import {
+  createClientStore,
+  handleChallengePolling,
+  handleUpdateValidateError,
+  RootState,
+} from './client.store.utils.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
@@ -34,6 +39,7 @@ import type {
   ObjectValueCollectors,
   PhoneNumberInputValue,
   AutoCollectors,
+  PollingCollector,
   MultiValueCollectors,
   FidoRegistrationInputValue,
   FidoAuthenticationInputValue,
@@ -44,6 +50,7 @@ import type {
   NodeStates,
   Updater,
   Validator,
+  PollingStatus,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import type { ContinueNode, StartNode } from './node.types.js';
@@ -402,6 +409,49 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       return returnValidator(collectorToUpdate);
+    },
+
+    /**
+     * @method: poll - Poll for updates for a polling collector
+     */
+    poll: async (collector: PollingCollector): Promise<PollingStatus | InternalErrorResponse> => {
+      try {
+        if (collector.type !== 'PollingCollector') {
+          log.error('Collector provided to poll is not a PollingCollector');
+          return {
+            error: {
+              message: 'Collector provided to poll is not a PollingCollector',
+              type: 'argument_error',
+            },
+            type: 'internal_error',
+          };
+        }
+
+        const challenge = collector.output.config.challenge;
+
+        // Challenge Polling
+        if (challenge) {
+          return await handleChallengePolling({
+            collector,
+            challenge,
+            store,
+            log,
+          });
+        } else {
+          // TODO: Handle continue polling
+          return 'error' as PollingStatus;
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        log.error(errorMessage);
+        return {
+          error: {
+            message: errorMessage || 'An unexpected error occurred during poll operation',
+            type: 'internal_error',
+          },
+          type: 'internal_error',
+        };
+      }
     },
 
     /**

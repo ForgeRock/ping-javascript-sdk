@@ -40,6 +40,7 @@ import type {
   PhoneNumberField,
   ProtectField,
   QrCodeField,
+  PollingField,
   ReadOnlyField,
   RedirectField,
   SingleSelectField,
@@ -273,7 +274,7 @@ export function returnSingleValueCollector<
  * @returns {AutoCollector} The constructed AutoCollector object.
  */
 export function returnSingleValueAutoCollector<
-  Field extends ProtectField,
+  Field extends ProtectField | PollingField,
   CollectorType extends SingleValueAutoCollectorTypes = 'SingleValueAutoCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -284,7 +285,7 @@ export function returnSingleValueAutoCollector<
     error = `${error}Type is not found in the field object. `;
   }
 
-  if (collectorType === 'ProtectCollector') {
+  if (collectorType === 'ProtectCollector' && field.type === 'PROTECT') {
     return {
       category: 'SingleValueAutoCollector',
       error: error || null,
@@ -305,6 +306,31 @@ export function returnSingleValueAutoCollector<
         },
       },
     } as InferAutoCollectorType<'ProtectCollector'>;
+  } else if (collectorType === 'PollingCollector' && field.type === 'POLLING') {
+    return {
+      category: 'SingleValueAutoCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field?.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: '',
+        type: field.type,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+        config: {
+          pollInterval: field.pollInterval,
+          pollRetries: field.pollRetries,
+          ...(field.pollChallengeStatus !== undefined && {
+            pollChallengeStatus: field.pollChallengeStatus,
+          }),
+          ...(field.challenge && { challenge: field.challenge }),
+        },
+      },
+    } as InferAutoCollectorType<'PollingCollector'>;
   } else {
     return {
       category: 'SingleValueAutoCollector',
@@ -440,6 +466,16 @@ export function returnSingleSelectCollector(field: SingleSelectField, idx: numbe
  */
 export function returnProtectCollector(field: ProtectField, idx: number) {
   return returnSingleValueAutoCollector(field, idx, 'ProtectCollector');
+}
+
+/**
+ * @function returnPollingCollector - Creates a PollingCollector object based on the provided field and index.
+ * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @param {number} idx - The index to be used in the id of the PollingCollector.
+ * @returns {PollingCollector} The constructed PollingCollector object.
+ */
+export function returnPollingCollector(field: PollingField, idx: number) {
+  return returnSingleValueAutoCollector(field, idx, 'PollingCollector');
 }
 
 /**

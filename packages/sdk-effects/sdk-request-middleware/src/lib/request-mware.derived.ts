@@ -19,6 +19,7 @@ export const actionTypes = {
   error: 'DAVINCI_ERROR',
   failure: 'DAVINCI_FAILURE',
   resume: 'DAVINCI_RESUME',
+  poll: 'DAVINCI_POLL',
 
   // OIDC
   authorize: 'AUTHORIZE',

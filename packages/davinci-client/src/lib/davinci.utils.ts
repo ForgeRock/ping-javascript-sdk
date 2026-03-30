@@ -62,6 +62,12 @@ export function transformSubmitRequest(
     acc[collector.input.key] = collector.input.value;
     return acc;
   }, {});
+
+  // Set eventType based on PollingCollector presence
+  const eventType = collectors?.some((collector) => collector.type === 'PollingCollector')
+    ? 'polling'
+    : 'submit';
+
   logger.debug('Transforming submit request', { node, formData });
 
   return {
@@ -69,7 +75,7 @@ export function transformSubmitRequest(
     eventName: node.server.eventName || '',
     interactionId: node.server.interactionId || '',
     parameters: {
-      eventType: 'submit',
+      eventType,
       data: {
         actionKey: node.client?.action || '',
         formData: formData || {},
