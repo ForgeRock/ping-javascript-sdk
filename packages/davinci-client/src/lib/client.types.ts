@@ -92,5 +92,11 @@ export type Validator = (value: string) =>
 
 export type NodeStates = StartNode | ContinueNode | ErrorNode | SuccessNode | FailureNode;
 
-export type PollingStatusComplete = 'approved' | 'denied' | 'continue' | string;
-export type PollingStatus = PollingStatusComplete | 'expired' | 'timedOut' | 'error';
+export type PollingStatusChallengeComplete = 'approved' | 'denied' | 'continue' | string;
+export type PollingStatusChallenge =
+  | PollingStatusChallengeComplete
+  | 'expired'
+  | 'timedOut'
+  | 'error';
+export type PollingStatusContinue = 'continue' | 'timedOut';
+export type PollingStatus = PollingStatusContinue | PollingStatusChallenge;

@@ -183,7 +183,7 @@ export async function handleChallengePolling({
     retriesLeft--;
     return store.dispatch(
       davinciApi.endpoints.poll.initiate({
-        challengeEndpoint,
+        endpoint: challengeEndpoint,
         interactionId,
       }),
     );

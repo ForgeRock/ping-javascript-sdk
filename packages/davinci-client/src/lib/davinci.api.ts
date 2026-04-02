@@ -430,19 +430,19 @@ export const davinciApi = createApi({
     }),
 
     /**
-     * @method poll - method for polling in a DaVinci flow
+     * @method poll - method for challenge polling in a DaVinci flow
      */
     /**
      * The poll endpoint differs from others in that it does not use onQueryStarted. This allows
-     * us to use the response from onQueryFn, while avoiding updating the node state with the poll
+     * us to use the response from queryFn, while avoiding updating the node state with the poll
      * response which causes the node to lose the initial collectors state when polling started.
      */
-    poll: builder.mutation<unknown, { challengeEndpoint: string; interactionId: string }>({
-      async queryFn({ challengeEndpoint, interactionId }, api, _c, baseQuery) {
+    poll: builder.mutation<unknown, { endpoint: string; interactionId: string }>({
+      async queryFn({ endpoint, interactionId }, api, _c, baseQuery) {
         const { requestMiddleware, logger } = api.extra as Extras;
 
         const request: FetchArgs = {
-          url: challengeEndpoint,
+          url: endpoint,
           credentials: 'include',
           method: 'POST',
           headers: {

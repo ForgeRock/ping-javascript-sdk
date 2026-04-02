@@ -607,6 +607,7 @@ export interface PollingOutputValue {
   pollRetries: number;
   pollChallengeStatus?: boolean;
   challenge?: string;
+  retriesRemaining?: number;
 }
 
 export type AutoCollectorCategories = 'SingleValueAutoCollector' | 'ObjectValueAutoCollector';

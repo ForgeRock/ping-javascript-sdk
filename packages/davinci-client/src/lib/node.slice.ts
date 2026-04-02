@@ -222,10 +222,11 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
+
     /**
-     * @method start - Method for creating a start node
+     * @method success - Method for creating a success node
      * @param {Object} state - The current state of the slice
-     * @returns {StartNode} - The start node
+     * @returns {SuccessNode} - The success node
      */
     success(
       state,
@@ -264,6 +265,7 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
+
     /**
      * @method update - Method for updating collector values with the node
      * @param {Object} state - The current state of the slice
@@ -275,6 +277,32 @@ export const nodeSlice = createSlice({
 
       newState.client.collectors = nodeCollectorReducer(newState.client.collectors, action);
 
+      return newState;
+    },
+
+    /**
+     * @method poll - Method for creating the next node after continue polling
+     * @param {Object} state - The current state of the slice
+     * @param {PayloadAction} action - The action to be dispatched
+     * @returns {ContinueNode} - The next node
+     */
+    poll(
+      state,
+      action: PayloadAction<{
+        requestId: string;
+      }>,
+    ) {
+      const newState = state as Draft<ContinueNode>;
+
+      // Update retries remaining in poll collector
+      newState.client.collectors = nodeCollectorReducer(newState.client.collectors, action);
+
+      // Update cache key
+      newState.cache = {
+        key: action.payload.requestId,
+      };
+
+      // Return the previous continue node with updated retries and cache key
       return newState;
     },
   },

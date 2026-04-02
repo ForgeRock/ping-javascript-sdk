@@ -230,6 +230,7 @@ export function handleResponse(
    */
   if (cacheEntry.isSuccess) {
     const requestId = cacheEntry.requestId;
+
     const hasNextUrl = () => {
       const data = cacheEntry.data;
 
@@ -243,9 +244,19 @@ export function handleResponse(
       return false;
     };
 
+    const isContinuePollingEvent = () => {
+      const data = cacheEntry.data;
+      return (
+        'eventName' in data &&
+        ['rewindStateToLastRenderedUI', 'rewindStateToSpecificRenderedUI'].includes(data.eventName)
+      );
+    };
+
     if ('session' in cacheEntry.data || 'authorizeResponse' in cacheEntry.data) {
       const data = cacheEntry.data as DaVinciSuccessResponse;
       dispatch(nodeSlice.actions.success({ data, requestId, httpStatus: status }));
+    } else if (isContinuePollingEvent()) {
+      dispatch(nodeSlice.actions.poll({ requestId }));
     } else if (hasNextUrl()) {
       const data = cacheEntry.data as DaVinciNextResponse;
       dispatch(nodeSlice.actions.next({ data, requestId, httpStatus: status }));
