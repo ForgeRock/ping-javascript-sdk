@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import {
+import type {
   PollingCollector,
   PollingStatus,
   InternalErrorResponse,
@@ -31,13 +31,21 @@ export default function pollingComponent(
 
     const status = await poll(collector);
     if (typeof status !== 'string' && 'error' in status) {
-      console.error(status.error.message);
+      console.error(status.error?.message);
+
+      const errEl = document.createElement('p');
+      errEl.innerText = 'Polling error: ' + status.error?.message;
+      formEl?.appendChild(errEl);
       return;
     }
 
     const result = updater(status);
     if (result && 'error' in result) {
       console.error(result.error.message);
+
+      const errEl = document.createElement('p');
+      errEl.innerText = 'Polling error: ' + result.error.message;
+      formEl?.appendChild(errEl);
       return;
     }
 

@@ -265,6 +265,17 @@ export interface DaVinciNextResponse extends DaVinciBaseResponse {
 }
 
 /**
+ * Continue Polling Response DaVinci API
+ */
+
+export interface DaVinciPollResponse extends DaVinciBaseResponse {
+  // Optional properties
+  eventName?: string;
+  success?: boolean;
+  _links?: Links;
+}
+
+/**
  * Error Response from DaVinci API
  */
 

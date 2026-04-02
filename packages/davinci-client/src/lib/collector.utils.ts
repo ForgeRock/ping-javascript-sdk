@@ -326,6 +326,7 @@ export function returnSingleValueAutoCollector<
             pollChallengeStatus: field.pollChallengeStatus,
           }),
           ...(field.challenge && { challenge: field.challenge }),
+          ...(!field.challenge && { retriesRemaining: field.pollRetries }),
         },
       },
     } as InferAutoCollectorType<'PollingCollector'>;

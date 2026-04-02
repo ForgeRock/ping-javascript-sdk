@@ -54,7 +54,6 @@ export type PollingCollector = collectors.PollingCollector;
 export type FidoRegistrationCollector = collectors.FidoRegistrationCollector;
 export type FidoAuthenticationCollector = collectors.FidoAuthenticationCollector;
 
-export type PollingStatusComplete = client.PollingStatusComplete;
 export type PollingStatus = client.PollingStatus;
 
 export type InternalErrorResponse = client.InternalErrorResponse;

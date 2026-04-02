@@ -4,13 +4,14 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-/**
- * Import RTK slices and api
- */
+import { Micro } from 'effect';
 import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
 import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
 
+/**
+ * Import RTK slices and api
+ */
 import {
   createClientStore,
   handleChallengePolling,
@@ -412,7 +413,9 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     },
 
     /**
-     * @method: poll - Poll for updates for a polling collector
+     * @method poll - Perform challenge polling or continue polling
+     * @param {PollingCollector} collector - the polling collector
+     * @returns {Promise<PollingStatus | InternalErrorResponse>} - Returns a promise that resolves to a polling status or error
      */
     poll: async (collector: PollingCollector): Promise<PollingStatus | InternalErrorResponse> => {
       try {
@@ -427,19 +430,53 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
+        const pollChallengeStatus = collector.output.config.pollChallengeStatus;
         const challenge = collector.output.config.challenge;
 
-        // Challenge Polling
-        if (challenge) {
+        if (challenge && pollChallengeStatus === true) {
+          // Challenge Polling
           return await handleChallengePolling({
             collector,
             challenge,
             store,
             log,
           });
+        } else if (!challenge && !pollChallengeStatus) {
+          // Continue polling
+          const retriesLeft = collector.output.config.retriesRemaining;
+          const pollInterval = collector.output.config.pollInterval ?? 2000; // miliseconds
+
+          if (retriesLeft === undefined) {
+            log.error('No retries found on PollingCollector');
+            return {
+              error: {
+                message: 'No retries found on PollingCollector',
+                type: 'argument_error',
+              },
+              type: 'internal_error',
+            };
+          }
+
+          if (retriesLeft > 0) {
+            const getStatusµ = Micro.sync(() => 'continue' as PollingStatus).pipe(
+              Micro.delay(pollInterval),
+            );
+            const status: PollingStatus = await Micro.runPromise(getStatusµ);
+            return status;
+          } else {
+            // Retries exhausted
+            return 'timedOut' as PollingStatus;
+          }
         } else {
-          // TODO: Handle continue polling
-          return 'error' as PollingStatus;
+          // Error if polling type can't be determined from configuration
+          log.error('Invalid polling collector configuration');
+          return {
+            error: {
+              message: 'Invalid polling collector configuration',
+              type: 'internal_error',
+            },
+            type: 'internal_error',
+          };
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err);

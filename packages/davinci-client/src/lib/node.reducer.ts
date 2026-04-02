@@ -77,6 +77,7 @@ export const updateCollectorValues = createAction<{
     | FidoAuthenticationInputValue;
   index?: number;
 }>('node/update');
+export const pollCollectorValues = createAction('node/poll');
 
 /**
  * @const initialCollectorValues - Initial state for the collector values
@@ -329,5 +330,20 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         }
         collector.input.value = action.payload.value;
       }
+    })
+    /**
+     * Using the `pollCollectorValues` const (e.g. `'node/poll'`) to add the case
+     * 'node/poll' is essentially derived `createSlice` below. `node.poll()` is
+     * transformed to `'node/poll'` for the action type.
+     */
+    .addCase(pollCollectorValues, (state) => {
+      // For challenge polling, track and decrement retries when this reducer is called
+      const pollCollector = state.find((collector) => collector.type === 'PollingCollector');
+
+      if (!pollCollector?.output.config.retriesRemaining) {
+        throw new Error('No poll collector found to update');
+      }
+
+      pollCollector.output.config.retriesRemaining--;
     });
 });
