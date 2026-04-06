@@ -38,7 +38,7 @@
     "e2e": {
       "dependsOn": ["^e2e"],
       "inputs": ["default", "^default"],
-      "outputs": ["{projectRoot}/.playwright"],
+      "outputs": ["{projectRoot}/.playwright", "{projectRoot}/.e2e-coverage"],
       "cache": true
     },
     "lint": {
@@ -61,7 +61,7 @@
     "e2e-ci--**/*": {
       "dependsOn": ["^build"],
       "inputs": ["default", "^default"],
-      "outputs": ["{projectRoot}/.playwright"],
+      "outputs": ["{projectRoot}/.playwright", "{projectRoot}/.e2e-coverage"],
       "cache": true
     },
     "@nx/js:tsc": {

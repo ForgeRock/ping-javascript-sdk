@@ -5,7 +5,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pages = ['ping-am', 'ping-one'];
-export default defineConfig(() => ({
+
+export default defineConfig({
   root: __dirname + '/src',
   cacheDir: '../../node_modules/.vite/e2e/oidc-app',
   publicDir: __dirname + '/public',
@@ -17,7 +18,6 @@ export default defineConfig(() => ({
     port: 8443,
     host: 'localhost',
   },
-  plugins: [],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],
@@ -42,4 +42,4 @@ export default defineConfig(() => ({
       },
     },
   },
-}));
+});

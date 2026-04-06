@@ -2,7 +2,11 @@
   "name": "@forgerock/oidc-suites",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "nx": {
     "implicitDependencies": ["oidc-suites"]
+  },
+  "dependencies": {
+    "@forgerock/e2e-shared": "workspace:*"
   }
 }

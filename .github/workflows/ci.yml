@@ -134,3 +134,68 @@ jobs:
 
             ---
             <sub>🔄 Updated automatically on each push to this PR</sub>
+
+      # Coverage Matrix (non-blocking)
+      # Runs the full pipeline: analyze exports, collect V8 unit coverage,
+      # merge into final matrix, and build the Svelte dashboard.
+      # Zero manual path maintenance — discovers packages and exports automatically.
+      - name: Generate coverage matrix and build dashboard
+        continue-on-error: true
+        run: NX_CLOUD_DISTRIBUTED_EXECUTION=false pnpm nx run @forgerock/coverage-matrix:coverage-report
+
+      - name: Generate coverage matrix summary
+        continue-on-error: true
+        id: coverage-matrix-summary
+        run: |
+          node -e "
+            const fs = require('fs');
+            try {
+              const data = JSON.parse(fs.readFileSync('tools/coverage-matrix/data/coverage-matrix.json', 'utf-8'));
+              const rows = data.packages.map(p => {
+                const s = p.summary;
+                const uPct = s.totalExports > 0 ? Math.round(s.unitCovered / s.totalExports * 100) : 0;
+                const ePct = s.totalExports > 0 ? Math.round(s.e2eCovered / s.totalExports * 100) : 0;
+                const fPct = s.totalSourceFiles > 0 ? Math.round(s.unitTestedFiles / s.totalSourceFiles * 100) : 0;
+                return '| ' + p.name + ' | ' + s.totalExports + ' | ' + fPct + '% (' + s.unitTestedFiles + '/' + s.totalSourceFiles + ') | ' + uPct + '% | ' + ePct + '% | ' + s.uncovered + ' |';
+              });
+              const table = '| Package | Exports | Unit Files | Unit Exports | E2E | Uncovered |\n|---------|---------|------------|--------------|-----|-----------|' + '\n' + rows.join('\n');
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, 'table<<EOF\n' + table + '\nEOF\n');
+            } catch (e) {
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, 'table=Coverage matrix data not available.\n');
+            }
+          "
+
+      - name: Find coverage matrix comment
+        continue-on-error: true
+        if: github.event_name == 'pull_request'
+        id: find-coverage-comment
+        uses: peter-evans/find-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: <!-- coverage-matrix -->
+
+      - name: Post coverage matrix PR comment
+        continue-on-error: true
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-coverage-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            <!-- coverage-matrix -->
+            ## Coverage Matrix
+
+            ${{ steps.coverage-matrix-summary.outputs.table }}
+
+            [Full dashboard](https://forgerock.github.io/ping-javascript-sdk/coverage-matrix/) · [PR preview](https://ForgeRock.github.io/ping-javascript-sdk/pr-${{ github.event.number }}/${{ github.sha }}/coverage-matrix/)
+
+      - name: Preview coverage dashboard
+        continue-on-error: true
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./tools/coverage-matrix/dist
+          destination_dir: pr-${{ github.event.number }}/${{ github.sha }}/coverage-matrix
+          keep_files: true
