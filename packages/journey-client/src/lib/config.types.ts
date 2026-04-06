@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { GenericError } from '@forgerock/sdk-types';
+import type { AsyncLegacyConfigOptions, GenericError } from '@forgerock/sdk-types';
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
 /**
@@ -17,10 +17,17 @@ import type { ResolvedServerConfig } from './wellknown.utils.js';
 export interface JourneyServerConfig {
   /** Required OIDC discovery endpoint URL */
   wellknown: string;
+  /** Optional request timeout in milliseconds. Included for config-sharing compatibility with other clients. */
+  timeout?: number;
 }
 
 /**
  * Configuration for creating a journey client instance.
+ *
+ * Extends {@link AsyncLegacyConfigOptions} so that the same config object can
+ * be shared across journey-client, davinci-client, and oidc-client. Properties
+ * like `clientId`, `scope`, and `redirectUri` are accepted but not used by
+ * journey-client — a warning is logged when they are provided.
  *
  * @example
  * ```typescript
@@ -31,7 +38,7 @@ export interface JourneyServerConfig {
  * };
  * ```
  */
-export interface JourneyClientConfig {
+export interface JourneyClientConfig extends AsyncLegacyConfigOptions {
   serverConfig: JourneyServerConfig;
 }
 
