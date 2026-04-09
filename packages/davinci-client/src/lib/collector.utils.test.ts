@@ -812,7 +812,7 @@ describe('No Value Collectors', () => {
 });
 
 describe('returnQrCodeCollector', () => {
-  it('should return a valid QrCodeCollector with src and fallbackText', () => {
+  it('should return a valid QrCodeCollector with src and label from fallbackText', () => {
     const mockField: QrCodeField = {
       type: 'QR_CODE',
       key: 'qr-code-field',
@@ -828,10 +828,9 @@ describe('returnQrCodeCollector', () => {
       name: 'qr-code-field-2',
       output: {
         key: 'qr-code-field-2',
-        label: 'data:image/png;base64,abc123',
+        label: '04ZKS2KCIWKXT8FHRX',
         type: 'QR_CODE',
         src: 'data:image/png;base64,abc123',
-        fallbackText: '04ZKS2KCIWKXT8FHRX',
       },
     });
   });
@@ -851,10 +850,9 @@ describe('returnQrCodeCollector', () => {
       name: 'qr-code-field-0',
       output: {
         key: 'qr-code-field-0',
-        label: 'data:image/png;base64,abc123',
+        label: '',
         type: 'QR_CODE',
         src: 'data:image/png;base64,abc123',
-        fallbackText: '',
       },
     });
   });
@@ -866,22 +864,21 @@ describe('returnQrCodeCollector', () => {
     expect(result.output.src).toBe('');
   });
 
-  it('should set error and fall back to type when key is missing', () => {
+  it('should fall back to type for id/name when key is missing', () => {
     const mockField = {
       type: 'QR_CODE',
       content: 'data:image/png;base64,abc123',
     } as unknown as QrCodeField;
     const result = returnQrCodeCollector(mockField, 0);
-    expect(result.error).toContain('Key is not found');
+    expect(result.error).toBeNull();
     expect(result.id).toBe('QR_CODE-0');
     expect(result.name).toBe('QR_CODE-0');
   });
 
-  it('should accumulate multiple errors when key and content are missing', () => {
+  it('should only report content error when both key and content are missing', () => {
     const mockField = { type: 'QR_CODE' } as unknown as QrCodeField;
     const result = returnQrCodeCollector(mockField, 0);
     expect(result.error).toContain('Content is not found');
-    expect(result.error).toContain('Key is not found');
   });
 });
 

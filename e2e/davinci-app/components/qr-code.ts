@@ -22,9 +22,9 @@ export default function (formEl: HTMLFormElement, collector: QrCodeCollector) {
   img.setAttribute('data-testid', 'qr-code-image');
   container.appendChild(img);
 
-  if (collector.output.fallbackText) {
+  if (collector.output.label) {
     const fallback = document.createElement('p');
-    fallback.innerText = `Manual code: ${collector.output.fallbackText}`;
+    fallback.innerText = `Manual code: ${collector.output.label}`;
     fallback.setAttribute('data-testid', 'qr-code-fallback');
     container.appendChild(fallback);
   }

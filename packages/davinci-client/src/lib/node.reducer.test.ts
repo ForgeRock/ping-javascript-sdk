@@ -442,10 +442,9 @@ describe('The node collector reducer', () => {
         name: 'qr-code-field-0',
         output: {
           key: 'qr-code-field-0',
-          label: 'data:image/png;base64,abc123',
+          label: '04ZKS2KCIWKXT8FHRX',
           type: 'QR_CODE',
           src: 'data:image/png;base64,abc123',
-          fallbackText: '04ZKS2KCIWKXT8FHRX',
         },
       } satisfies QrCodeCollector,
     ]);

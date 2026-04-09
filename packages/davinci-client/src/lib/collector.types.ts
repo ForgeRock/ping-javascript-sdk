@@ -508,7 +508,6 @@ export interface QrCodeCollectorBase {
     label: string;
     type: string;
     src: string;
-    fallbackText: string;
   };
 }
 

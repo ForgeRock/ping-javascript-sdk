@@ -680,7 +680,7 @@ export function returnObjectValueCollector(
  * @returns {NoValueCollector} The constructed NoValueCollector object.
  */
 export function returnNoValueCollector<
-  Field extends ReadOnlyField,
+  Field extends ReadOnlyField | QrCodeField,
   CollectorType extends NoValueCollectorTypes = 'NoValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -722,31 +722,14 @@ export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
  * @returns {QrCodeCollectorBase} The constructed QrCodeCollector object.
  */
 export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollectorBase {
-  let error = '';
-  if (!('content' in field) || !field.content) {
-    error = `${error}Content is not found in the field object. `;
-  }
-  if (!('key' in field) || !field.key) {
-    error = `${error}Key is not found in the field object. `;
-  }
-  if (!('type' in field)) {
-    error = `${error}Type is not found in the field object. `;
-  }
-
-  const key = field.key || field.type;
+  const base = returnNoValueCollector(field, idx, 'QrCodeCollector');
 
   return {
-    category: 'NoValueCollector',
-    error: error || null,
-    type: 'QrCodeCollector',
-    id: `${key}-${idx}`,
-    name: `${key}-${idx}`,
+    ...base,
     output: {
-      key: `${key}-${idx}`,
-      label: field.content || '',
-      type: field.type,
+      ...base.output,
+      label: field.fallbackText || '',
       src: field.content || '',
-      fallbackText: field.fallbackText || '',
     },
   };
 }
