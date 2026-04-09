@@ -7,6 +7,7 @@
 
 export * from './lib/client.store.js';
 export * from './types.js';
+export { createJourneyObject } from './lib/journey.utils.js';
 
 // Re-export types from internal packages that consumers need
 export { callbackType } from '@forgerock/sdk-types';

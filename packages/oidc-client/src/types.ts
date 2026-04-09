@@ -23,3 +23,5 @@ export type { StorageConfig } from '@forgerock/storage';
 // Re-export functions needed to resolve OidcClient and ClientStore type aliases
 export { oidc } from './lib/client.store.js';
 export { createClientStore } from './lib/client.store.utils.js';
+export type { AuthorizeUrlResult } from '@forgerock/sdk-oidc';
+export type { PkceValues } from './lib/exchange.utils.js';

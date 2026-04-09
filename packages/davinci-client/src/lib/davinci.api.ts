@@ -262,7 +262,7 @@ export const davinciApi = createApi({
         }
 
         try {
-          const authorizeUrl = await createAuthorizeUrl(authorizeEndpoint, {
+          const authorizeResult = await createAuthorizeUrl(authorizeEndpoint, {
             clientId: state?.config?.clientId,
             login: 'redirect', // TODO: improve this in SDK to be more semantic
             redirectUri: state?.config?.redirectUri,
@@ -270,7 +270,7 @@ export const davinciApi = createApi({
             responseMode: 'pi.flow',
             scope: state?.config?.scope,
           });
-          const url = new URL(authorizeUrl);
+          const url = new URL(authorizeResult.url);
           const existingParams = url.searchParams;
 
           if (options?.query) {
