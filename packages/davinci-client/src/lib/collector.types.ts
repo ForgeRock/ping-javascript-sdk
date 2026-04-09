@@ -482,7 +482,7 @@ export type SubmitCollector = ActionCollectorNoUrl<'SubmitCollector'>;
 /**
  * @interface NoValueCollector - Represents a collector that collects no value; text only for display.
  */
-export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'NoValueCollector';
+export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'NoValueCollector' | 'QrCodeCollector';
 
 export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   category: 'NoValueCollector';
@@ -497,6 +497,20 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   };
 }
 
+export interface QrCodeCollectorBase {
+  category: 'NoValueCollector';
+  error: string | null;
+  type: 'QrCodeCollector';
+  id: string;
+  name: string;
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    src: string;
+  };
+}
+
 /**
  * Type to help infer the collector based on the collector type
  * Used specifically in the returnNoValueCollector wrapper function.
@@ -507,15 +521,20 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
 export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
   T extends 'ReadOnlyCollector'
     ? NoValueCollectorBase<'ReadOnlyCollector'>
-    : NoValueCollectorBase<'NoValueCollector'>;
+    : T extends 'QrCodeCollector'
+      ? QrCodeCollectorBase
+      : NoValueCollectorBase<'NoValueCollector'>;
 
 export type NoValueCollectors =
   | NoValueCollectorBase<'NoValueCollector'>
-  | NoValueCollectorBase<'ReadOnlyCollector'>;
+  | NoValueCollectorBase<'ReadOnlyCollector'>
+  | QrCodeCollectorBase;
 
 export type NoValueCollector<T extends NoValueCollectorTypes> = NoValueCollectorBase<T>;
 
 export type ReadOnlyCollector = NoValueCollectorBase<'ReadOnlyCollector'>;
+
+export type QrCodeCollector = QrCodeCollectorBase;
 
 export type UnknownCollector = {
   category: 'UnknownCollector';

@@ -22,6 +22,7 @@ import {
   returnObjectValueCollector,
   returnSingleValueAutoCollector,
   returnObjectValueAutoCollector,
+  returnQrCodeCollector,
 } from './collector.utils.js';
 import type {
   DaVinciField,
@@ -31,6 +32,7 @@ import type {
   FidoRegistrationField,
   PhoneNumberField,
   ProtectField,
+  QrCodeField,
   ReadOnlyField,
   RedirectField,
   StandardField,
@@ -806,6 +808,77 @@ describe('No Value Collectors', () => {
         },
       });
     });
+  });
+});
+
+describe('returnQrCodeCollector', () => {
+  it('should return a valid QrCodeCollector with src and label from fallbackText', () => {
+    const mockField: QrCodeField = {
+      type: 'QR_CODE',
+      key: 'qr-code-field',
+      content: 'data:image/png;base64,abc123',
+      fallbackText: '04ZKS2KCIWKXT8FHRX',
+    };
+    const result = returnQrCodeCollector(mockField, 2);
+    expect(result).toEqual({
+      category: 'NoValueCollector',
+      error: null,
+      type: 'QrCodeCollector',
+      id: 'qr-code-field-2',
+      name: 'qr-code-field-2',
+      output: {
+        key: 'qr-code-field-2',
+        label: '04ZKS2KCIWKXT8FHRX',
+        type: 'QR_CODE',
+        src: 'data:image/png;base64,abc123',
+      },
+    });
+  });
+
+  it('should handle missing fallbackText gracefully', () => {
+    const mockField: QrCodeField = {
+      type: 'QR_CODE',
+      key: 'qr-code-field',
+      content: 'data:image/png;base64,abc123',
+    };
+    const result = returnQrCodeCollector(mockField, 0);
+    expect(result).toEqual({
+      category: 'NoValueCollector',
+      error: null,
+      type: 'QrCodeCollector',
+      id: 'qr-code-field-0',
+      name: 'qr-code-field-0',
+      output: {
+        key: 'qr-code-field-0',
+        label: '',
+        type: 'QR_CODE',
+        src: 'data:image/png;base64,abc123',
+      },
+    });
+  });
+
+  it('should set error when content is missing', () => {
+    const mockField = { type: 'QR_CODE', key: 'qr-code-field' } as unknown as QrCodeField;
+    const result = returnQrCodeCollector(mockField, 0);
+    expect(result.error).toContain('Content is not found');
+    expect(result.output.src).toBe('');
+  });
+
+  it('should fall back to type for id/name when key is missing', () => {
+    const mockField = {
+      type: 'QR_CODE',
+      content: 'data:image/png;base64,abc123',
+    } as unknown as QrCodeField;
+    const result = returnQrCodeCollector(mockField, 0);
+    expect(result.error).toBeNull();
+    expect(result.id).toBe('QR_CODE-0');
+    expect(result.name).toBe('QR_CODE-0');
+  });
+
+  it('should only report content error when both key and content are missing', () => {
+    const mockField = { type: 'QR_CODE' } as unknown as QrCodeField;
+    const result = returnQrCodeCollector(mockField, 0);
+    expect(result.error).toContain('Content is not found');
   });
 });
 

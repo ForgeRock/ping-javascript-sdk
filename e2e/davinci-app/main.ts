@@ -32,6 +32,7 @@ import multiValueComponent from './components/multi-value.js';
 import labelComponent from './components/label.js';
 import objectValueComponent from './components/object-value.js';
 import fidoComponent from './components/fido.js';
+import qrCodeComponent from './components/qr-code.js';
 
 const loggerFn = {
   error: () => {
@@ -223,6 +224,8 @@ const urlParams = new URLSearchParams(window.location.search);
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
         );
+      } else if (collector.type === 'QrCodeCollector') {
+        qrCodeComponent(formEl, collector);
       } else if (collector.type === 'TextCollector') {
         textComponent(
           formEl, // You can ignore this; it's just for rendering

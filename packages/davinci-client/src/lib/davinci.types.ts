@@ -74,6 +74,13 @@ export type ReadOnlyField = {
   key?: string;
 };
 
+export type QrCodeField = {
+  type: 'QR_CODE';
+  key: string;
+  content: string;
+  fallbackText?: string;
+};
+
 export type RedirectField = {
   type: 'SOCIAL_LOGIN_BUTTON';
   key: string;
@@ -221,7 +228,7 @@ export type ComplexValueFields =
   | FidoRegistrationField
   | FidoAuthenticationField;
 export type MultiValueFields = MultiSelectField;
-export type ReadOnlyFields = ReadOnlyField;
+export type ReadOnlyFields = ReadOnlyField | QrCodeField;
 export type RedirectFields = RedirectField;
 export type SingleValueFields = StandardField | ValidatedField | SingleSelectField | ProtectField;
 

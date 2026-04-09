@@ -31,7 +31,9 @@ runs:
         registry-url: 'https://registry.npmjs.org'
 
     - name: Update npm
-      run: npm install -g npm@latest
+      run: |
+        corepack enable
+        corepack install -g npm@latest
       shell: bash
 
     - name: Install dependencies

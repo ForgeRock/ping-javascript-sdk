@@ -32,7 +32,7 @@ jobs:
         with:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - run: npx nx-cloud fix-ci
+      - run: pnpm nx fix-ci
         if: always()
 
       - uses: codecov/codecov-action@v5

@@ -57,12 +57,21 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
   },
   /**
    * Phone Number Input With Email and Password
-   *
    */
   '20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0': {
     clientId: '20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0',
     redirectUri: window.location.origin + '/',
     scope: 'openid profile email revoke',
+    serverConfig: {
+      wellknown:
+        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+    },
+  },
+  /** QR Code policy id : aa3c00c3ec25a9721be078f7bf44678d **/
+  'c12743f9-08e8-4420-a624-71bbb08e9fe1': {
+    clientId: 'c12743f9-08e8-4420-a624-71bbb08e9fe1',
+    redirectUri: window.location.origin + '/',
+    scope: 'openid profile email',
     serverConfig: {
       wellknown:
         'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',

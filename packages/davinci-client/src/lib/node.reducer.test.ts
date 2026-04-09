@@ -15,6 +15,7 @@ import type {
   MultiSelectCollector,
   PhoneNumberCollector,
   ProtectCollector,
+  QrCodeCollector,
   SubmitCollector,
   TextCollector,
 } from './collector.types.js';
@@ -414,6 +415,39 @@ describe('The node collector reducer', () => {
     expect(() => nodeCollectorReducer(state, action)).toThrowError(
       'ActionCollectors are read-only',
     );
+  });
+
+  it('should handle QR_CODE field type', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'QR_CODE',
+            key: 'qr-code-field',
+            content: 'data:image/png;base64,abc123',
+            fallbackText: '04ZKS2KCIWKXT8FHRX',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'QrCodeCollector',
+        id: 'qr-code-field-0',
+        name: 'qr-code-field-0',
+        output: {
+          key: 'qr-code-field-0',
+          label: '04ZKS2KCIWKXT8FHRX',
+          type: 'QR_CODE',
+          src: 'data:image/png;base64,abc123',
+        },
+      } satisfies QrCodeCollector,
+    ]);
   });
 });
 
