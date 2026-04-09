@@ -148,10 +148,9 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     throw new Error(message);
   }
 
-  const stepStorage = createStorage<{ step: Step }>({
-    type: 'sessionStorage',
-    name: 'journey-step',
-  });
+  const stepStorage = createStorage<{ step: Step }>(
+    config.storage ?? { type: 'sessionStorage', name: 'journey-step' },
+  );
 
   const self: JourneyClient = {
     start: async (options?: StartParam) => {
@@ -199,6 +198,11 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
       const err = await stepStorage.set({ step: step.payload });
       if (isGenericError(err)) {
         log.warn('Failed to persist step before redirect', err);
+      }
+      if (typeof window === 'undefined') {
+        throw new Error(
+          'redirect() requires a browser environment. Extract the redirect URL from the RedirectCallback for server-side redirection.',
+        );
       }
       window.location.assign(redirectUrl);
     },

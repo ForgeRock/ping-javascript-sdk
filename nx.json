@@ -131,7 +131,8 @@
         "buildDepsTargetName": "vite:build-deps",
         "watchDepsTargetName": "vite:watch-deps"
       },
-      "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"]
+      "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"],
+      "exclude": ["e2e/svelte-app/**/*"]
     },
     {
       "plugin": "@nx/js/typescript",
@@ -151,7 +152,8 @@
       "options": {
         "testTargetName": "nxTest"
       },
-      "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"]
+      "include": ["packages/**/**/*", "e2e/**/**/*", "tools/**/**/*"],
+      "exclude": ["e2e/svelte-app/**/*"]
     }
   ],
   "parallel": 1,

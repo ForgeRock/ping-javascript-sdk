@@ -16,3 +16,5 @@ export type {
 export type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 export type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 export type { StorageConfig } from '@forgerock/storage';
+export type { AuthorizeUrlResult } from '@forgerock/sdk-oidc';
+export type { PkceValues } from './lib/exchange.utils.js';

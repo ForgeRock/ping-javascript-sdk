@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { createAuthorizeUrl, type AuthorizeUrlResult } from '@forgerock/sdk-oidc';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
@@ -29,6 +29,7 @@ import type {
   RevokeSuccessResult,
   UserInfoResponse,
 } from './client.types.js';
+import type { PkceValues } from './exchange.utils.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
@@ -105,7 +106,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        * @param {GetAuthorizationUrlOptions} options - Optional parameters to customize the authorization URL.
        * @returns {Promise<string | GenericError>} - Returns a promise that resolves to the authorization URL or an error.
        */
-      url: async (options?: GetAuthorizationUrlOptions): Promise<string | GenericError> => {
+      url: async (
+        options?: GetAuthorizationUrlOptions,
+      ): Promise<AuthorizeUrlResult | GenericError> => {
         const optionsWithDefaults = {
           clientId: config.clientId,
           redirectUri: config.redirectUri,
@@ -179,7 +182,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       exchange: async (
         code: string,
         state: string,
-        options?: Partial<StorageConfig>,
+        options?: Partial<StorageConfig> & { pkceValues?: PkceValues },
       ): Promise<OauthTokens | TokenExchangeErrorResponse | GenericError> => {
         const storeState = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, storeState);
@@ -199,6 +202,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           endpoint: wellknown.token_endpoint,
           store,
           options,
+          pkceValues: options?.pkceValues,
         }).pipe(
           Micro.tap(async (tokens) => {
             await storageClient.set(tokens);

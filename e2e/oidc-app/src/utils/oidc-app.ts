@@ -88,14 +88,14 @@ export async function oidcApp({ config, urlParams }) {
   });
 
   document.getElementById('login-redirect').addEventListener('click', async () => {
-    const authorizeUrl = await oidcClient.authorize.url();
-    if (typeof authorizeUrl !== 'string' && 'error' in authorizeUrl) {
-      console.error('Authorization URL Error:', authorizeUrl);
-      displayError(authorizeUrl);
+    const authorizeResult = await oidcClient.authorize.url();
+    if ('error' in authorizeResult) {
+      console.error('Authorization URL Error:', authorizeResult);
+      displayError(authorizeResult);
       return;
     } else {
-      console.log('Authorization URL:', authorizeUrl);
-      window.location.assign(authorizeUrl);
+      console.log('Authorization URL:', authorizeResult.url);
+      window.location.assign(authorizeResult.url);
     }
   });
 
