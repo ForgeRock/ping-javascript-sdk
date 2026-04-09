@@ -16,15 +16,32 @@ import type { TokenExchangeResponse, TokenRequestOptions } from './exchange.type
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { OidcConfig } from './config.types.js';
 
+/** Options for providing PKCE values directly instead of reading sessionStorage. */
+export interface PkceValues {
+  verifier: string;
+  state: string;
+}
+
 export function createValuesµ(
   code: string,
   config: OidcConfig,
   state: string,
   endpoint: string,
   options?: Partial<StorageConfig>,
+  pkceValues?: PkceValues,
 ) {
   return Micro.sync(() => {
-    const storedValues = getStoredAuthUrlValues(config.clientId, options?.prefix);
+    // If PKCE values are provided directly, use them (SSR path).
+    // Otherwise, fall back to reading from sessionStorage (browser path).
+    const storedValues: GetAuthorizationUrlOptions = pkceValues
+      ? {
+          ...pkceValues,
+          clientId: config.clientId,
+          redirectUri: config.redirectUri,
+          responseType: 'code',
+          scope: config.scope || 'openid',
+        }
+      : getStoredAuthUrlValues(config.clientId, options?.prefix);
 
     return {
       code,
