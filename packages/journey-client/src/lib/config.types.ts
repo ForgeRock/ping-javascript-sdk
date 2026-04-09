@@ -6,6 +6,7 @@
  */
 
 import type { AsyncLegacyConfigOptions, GenericError } from '@forgerock/sdk-types';
+import type { StorageConfig } from '@forgerock/storage';
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
 /**
@@ -40,6 +41,8 @@ export interface JourneyServerConfig {
  */
 export interface JourneyClientConfig extends AsyncLegacyConfigOptions {
   serverConfig: JourneyServerConfig;
+  /** Storage configuration for step persistence during redirects. Defaults to sessionStorage in browsers. */
+  storage?: StorageConfig;
 }
 
 /**

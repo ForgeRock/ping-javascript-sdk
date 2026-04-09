@@ -8,7 +8,12 @@ import { Micro } from 'effect';
 
 import { logger } from '@forgerock/sdk-logger';
 
-import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
+import {
+  createValuesµ,
+  handleTokenResponseµ,
+  validateValuesµ,
+  type PkceValues,
+} from './exchange.utils.js';
 import { oidcApi } from './oidc.api.js';
 
 import type { ClientStore } from './client.types.js';
@@ -24,6 +29,8 @@ interface BuildTokenExchangeµParams {
   state: string;
   store: ClientStore;
   options?: Partial<StorageConfig>;
+  /** Provide PKCE values directly (SSR) instead of reading from sessionStorage. */
+  pkceValues?: PkceValues;
 }
 
 export function buildTokenExchangeµ({
@@ -34,8 +41,9 @@ export function buildTokenExchangeµ({
   state,
   store,
   options,
+  pkceValues,
 }: BuildTokenExchangeµParams): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> {
-  return createValuesµ(code, config, state, endpoint, options).pipe(
+  return createValuesµ(code, config, state, endpoint, options, pkceValues).pipe(
     Micro.flatMap((options) => validateValuesµ(options)),
     Micro.tap((options) => log.debug('Token exchange values created', options)),
     Micro.tapError((options) =>

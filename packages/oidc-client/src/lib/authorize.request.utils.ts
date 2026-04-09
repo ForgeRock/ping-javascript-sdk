@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { createAuthorizeUrl, type AuthorizeUrlResult } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
 import type { WellknownResponse, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
@@ -49,7 +49,6 @@ export function buildAuthorizeOptionsµ(
  * @description Creates an error response with new Authorize URL for the authorization request.
  * @param { error: string; error_description: string } res - The error response from the authorization request.
  * @param {WellknownResponse} wellknown- The well-known configuration for the OIDC server.
- * @param { OidcConfig } config- The OIDC client configuration.
  * @param { GetAuthorizationUrlOptions } options- Optional parameters for the authorization request.
  * @returns { Micro.Micro<never, AuthorizationError, never> }
  */
@@ -75,12 +74,12 @@ export function createAuthorizeErrorµ(
       } as const;
     },
   }).pipe(
-    Micro.flatMap((url) => {
+    Micro.flatMap((result) => {
       return Micro.fail({
         error: res.error,
         error_description: res.error_description,
         type: 'auth_error',
-        redirectUrl: url,
+        redirectUrl: result.url,
       } as const);
     }),
   );
@@ -89,6 +88,7 @@ export function createAuthorizeErrorµ(
 /**
  * @function createAuthorizeUrlµ
  * @description Creates an authorization URL and related options/config for the Authorize request.
+ *              Stores PKCE values in sessionStorage for the background authorize flow.
  * @param {string} path - The path to the authorization endpoint.
  * @param { GetAuthorizationUrlOptions } options - Optional parameters for the authorization request.
  * @returns { Micro.Micro<[string, GetAuthorizationUrlOptions], AuthorizationError, never> }
@@ -98,13 +98,18 @@ export function createAuthorizeUrlµ(
   options: GetAuthorizationUrlOptions,
 ): Micro.Micro<[string, GetAuthorizationUrlOptions], AuthorizationError, never> {
   return Micro.tryPromise({
-    try: async () => [
-      await createAuthorizeUrl(path, {
+    try: async (): Promise<[string, GetAuthorizationUrlOptions]> => {
+      const result = await createAuthorizeUrl(path, {
         ...options,
         prompt: 'none',
-      }),
-      options,
-    ],
+      });
+
+      // For the background flow, persist PKCE values in sessionStorage
+      // so the token exchange can retrieve them after the iframe redirect.
+      storePkceValues(options.clientId, result, options);
+
+      return [result.url, options];
+    },
     catch: (error) => {
       let message = 'Error creating authorization URL';
       if (error instanceof Error) {
@@ -117,6 +122,26 @@ export function createAuthorizeUrlµ(
       } as const;
     },
   });
+}
+
+/**
+ * Store PKCE values in sessionStorage for the background authorize flow.
+ * This is the browser-only path — server-side callers handle storage themselves.
+ */
+function storePkceValues(
+  clientId: string,
+  result: AuthorizeUrlResult,
+  options: GetAuthorizationUrlOptions,
+): void {
+  const storageKey = `FR-SDK-authflow-${clientId}`;
+  globalThis.sessionStorage.setItem(
+    storageKey,
+    JSON.stringify({
+      ...options,
+      state: result.state,
+      verifier: result.verifier,
+    }),
+  );
 }
 
 export function handleResponseµ(

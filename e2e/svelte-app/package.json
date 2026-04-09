@@ -1,0 +1,26 @@
+{
+  "name": "@forgerock/svelte-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SvelteKit SSR proof of concept for Journey Client",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@forgerock/journey-client": "workspace:*",
+    "@forgerock/oidc-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^6.0.0",
+    "@sveltejs/kit": "^2.21.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "svelte": "^5.0.0",
+    "vite": "catalog:vite"
+  },
+  "nx": {
+    "tags": ["scope:e2e"]
+  }
+}

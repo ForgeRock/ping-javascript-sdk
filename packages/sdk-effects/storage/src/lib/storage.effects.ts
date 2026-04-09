@@ -27,6 +27,21 @@ export interface CustomStorageConfig {
   custom: CustomStorageObject;
 }
 
+/**
+ * Lazily access browser storage globals. Using `globalThis` property access
+ * instead of bare `sessionStorage`/`localStorage` avoids ReferenceError
+ * in Node.js/SSR environments — property access returns `undefined` rather than throwing.
+ */
+function getBrowserStorage(type: 'localStorage' | 'sessionStorage'): Storage {
+  const storage = type === 'localStorage' ? globalThis.localStorage : globalThis.sessionStorage;
+  if (!storage) {
+    throw new Error(
+      `${type} is not available in this environment. Use type: 'custom' for server-side usage.`,
+    );
+  }
+  return storage;
+}
+
 function createStorageError(
   storeType: 'localStorage' | 'sessionStorage' | 'custom',
   action: 'Storing' | 'Retrieving' | 'Removing' | 'Parsing',
@@ -56,10 +71,6 @@ function createStorageError(
 export function createStorage<Value>(config: StorageConfig): StorageClient<Value> {
   const { type: storeType, prefix = 'pic', name } = config;
   const key = `${prefix}-${name}`;
-  const storageTypes = {
-    sessionStorage,
-    localStorage,
-  };
 
   if (storeType === 'custom' && !('custom' in config)) {
     throw new Error('Custom storage configuration must include a custom storage object');
@@ -89,7 +100,7 @@ export function createStorage<Value>(config: StorageConfig): StorageClient<Value
 
       let value: string | null;
       try {
-        value = await storageTypes[storeType].getItem(key);
+        value = await getBrowserStorage(storeType).getItem(key);
         if (value === null) {
           return value;
         }
@@ -116,7 +127,7 @@ export function createStorage<Value>(config: StorageConfig): StorageClient<Value
       }
 
       try {
-        await storageTypes[storeType].setItem(key, valueToStore);
+        await getBrowserStorage(storeType).setItem(key, valueToStore);
         return Promise.resolve(null);
       } catch {
         return createStorageError(storeType, 'Storing');
@@ -133,7 +144,7 @@ export function createStorage<Value>(config: StorageConfig): StorageClient<Value
       }
 
       try {
-        await storageTypes[storeType].removeItem(key);
+        await getBrowserStorage(storeType).removeItem(key);
         return Promise.resolve(null);
       } catch {
         return createStorageError(storeType, 'Removing');

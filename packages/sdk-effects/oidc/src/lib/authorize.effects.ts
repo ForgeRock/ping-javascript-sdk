@@ -10,26 +10,34 @@
  */
 import { createChallenge } from '@forgerock/sdk-utilities';
 
-import { generateAndStoreAuthUrlValues } from './state-pkce.effects.js';
+import { generateAuthUrlValues } from './state-pkce.effects.js';
 
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
+/** Result of creating an authorization URL with PKCE. */
+export interface AuthorizeUrlResult {
+  /** The fully-formed authorization URL to redirect to. */
+  url: string;
+  /** The PKCE verifier — caller must persist this for token exchange. */
+  verifier: string;
+  /** The state parameter — caller must persist this for CSRF validation. */
+  state: string;
+}
+
 /**
- * @function createAuthorizeUrl - Create authorization URL for initial call to DaVinci
- * @param baseUrl {string}
- * @param options {GetAuthorizationUrlOptions}
- * @returns {Promise<string>} - the authorization URL
+ * Creates an authorization URL with PKCE parameters.
+ *
+ * Returns the URL along with the verifier and state values. The caller is
+ * responsible for persisting verifier/state (in sessionStorage, a cookie,
+ * a server-side session, etc.) so they can be provided during token exchange.
  */
 export async function createAuthorizeUrl(
   authorizeUrl: string,
   options: GetAuthorizationUrlOptions,
-): Promise<string> {
-  /**
-   * Generate state and verifier for PKCE
-   */
+): Promise<AuthorizeUrlResult> {
   const baseUrl = new URL(authorizeUrl).origin;
 
-  const [authorizeUrlOptions, storeOptions] = generateAndStoreAuthUrlValues({
+  const authorizeUrlOptions = generateAuthUrlValues({
     clientId: options.clientId,
     serverConfig: { baseUrl },
     responseType: options.responseType,
@@ -54,7 +62,9 @@ export async function createAuthorizeUrl(
 
   const url = new URL(`${authorizeUrl}?${requestParams.toString()}`);
 
-  storeOptions();
-
-  return url.toString();
+  return {
+    url: url.toString(),
+    verifier: authorizeUrlOptions.verifier,
+    state: authorizeUrlOptions.state,
+  };
 }
