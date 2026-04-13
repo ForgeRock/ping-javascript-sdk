@@ -372,6 +372,8 @@ describe('Collector Types', () => {
           key: 'read-only',
           label: 'Read Only Field',
           type: 'READ_ONLY',
+          content: '',
+          richContent: { content: '', replacements: [] },
         },
       };
 

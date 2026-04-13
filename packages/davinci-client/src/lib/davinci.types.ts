@@ -68,9 +68,22 @@ export type StandardField = {
   required?: boolean;
 };
 
+export type RichContentReplacement = {
+  type: 'link';
+  value: string;
+  href: string;
+  target?: '_self' | '_blank';
+};
+
+export type RichContent = {
+  content: string;
+  replacements?: Record<string, RichContentReplacement>;
+};
+
 export type ReadOnlyField = {
   type: 'LABEL';
   content: string;
+  richContent?: RichContent;
   key?: string;
 };
 

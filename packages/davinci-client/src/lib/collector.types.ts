@@ -501,6 +501,25 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   };
 }
 
+export interface RichContentLink {
+  key: string;
+  type: 'link';
+  value: string;
+  href: string;
+  target?: '_self' | '_blank';
+}
+
+export type ValidatedReplacement = RichContentLink;
+
+export interface CollectorRichContent {
+  content: string;
+  replacements: ValidatedReplacement[];
+}
+
+export type ValidateReplacementsResult =
+  | { ok: true; replacements: ValidatedReplacement[] }
+  | { ok: false; error: string };
+
 export interface QrCodeCollectorBase {
   category: 'NoValueCollector';
   error: string | null;
@@ -512,6 +531,21 @@ export interface QrCodeCollectorBase {
     label: string;
     type: string;
     src: string;
+  };
+}
+
+export interface ReadOnlyCollectorBase {
+  category: 'NoValueCollector';
+  error: string | null;
+  type: 'ReadOnlyCollector';
+  id: string;
+  name: string;
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    content: string;
+    richContent: CollectorRichContent;
   };
 }
 
@@ -539,7 +573,7 @@ export interface AgreementCollector extends NoValueCollectorBase<'AgreementColle
  */
 export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
   T extends 'ReadOnlyCollector'
-    ? NoValueCollectorBase<'ReadOnlyCollector'>
+    ? ReadOnlyCollectorBase
     : T extends 'QrCodeCollector'
       ? QrCodeCollectorBase
       : T extends 'AgreementCollector'
@@ -548,13 +582,13 @@ export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
 
 export type NoValueCollectors =
   | NoValueCollectorBase<'NoValueCollector'>
-  | NoValueCollectorBase<'ReadOnlyCollector'>
+  | ReadOnlyCollectorBase
   | QrCodeCollectorBase
   | AgreementCollector;
 
-export type NoValueCollector<T extends NoValueCollectorTypes> = NoValueCollectorBase<T>;
+export type NoValueCollector<T extends NoValueCollectorTypes> = InferNoValueCollectorType<T>;
 
-export type ReadOnlyCollector = NoValueCollectorBase<'ReadOnlyCollector'>;
+export type ReadOnlyCollector = ReadOnlyCollectorBase;
 
 export type QrCodeCollector = QrCodeCollectorBase;
 

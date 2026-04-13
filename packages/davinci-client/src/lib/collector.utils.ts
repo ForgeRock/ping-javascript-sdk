@@ -31,6 +31,9 @@ import type {
   ObjectValueAutoCollectorTypes,
   QrCodeCollectorBase,
   AgreementCollector,
+  ValidatedReplacement,
+  ValidateReplacementsResult,
+  ReadOnlyCollectorBase,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -44,6 +47,7 @@ import type {
   PollingField,
   ReadOnlyField,
   RedirectField,
+  RichContentReplacement,
   SingleSelectField,
   StandardField,
   ValidatedField,
@@ -713,6 +717,42 @@ export function returnObjectValueCollector(
 }
 
 /**
+ * @function validateReplacements - Validates replacement hrefs and converts the
+ * Record<string, RichContentReplacement> from the API response into a ValidatedReplacement[].
+ * Returns a discriminated result — never throws.
+ *
+ * @param {Record<string, RichContentReplacement>} replacements - The replacements object from the API.
+ * @returns {ValidateReplacementsResult} Success with validated array, or failure with error message.
+ */
+export function validateReplacements(
+  replacements: Record<string, RichContentReplacement>,
+): ValidateReplacementsResult {
+  const validated: ValidatedReplacement[] = [];
+
+  for (const [key, replacement] of Object.entries(replacements)) {
+    let href: URL;
+    try {
+      href = new URL(replacement.href);
+    } catch {
+      return { ok: false, error: `Invalid href for key: ${key}` };
+    }
+    if (!['https:', 'http:'].includes(href.protocol)) {
+      return { ok: false, error: `Unsafe href protocol for key: ${key}` };
+    }
+
+    validated.push({
+      key,
+      type: replacement.type,
+      value: replacement.value,
+      href: replacement.href,
+      ...(replacement.target && { target: replacement.target }),
+    });
+  }
+
+  return { ok: true, replacements: validated };
+}
+
+/**
  * @function returnNoValueCollector - Creates a NoValueCollector object based on the provided field, index, and optional collector type.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the NoValueCollector.
@@ -746,13 +786,70 @@ export function returnNoValueCollector<
 }
 
 /**
- * @function returnReadOnlyCollector - Creates a ReadOnlyCollector object based on the provided field and index.
- * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @function returnReadOnlyCollector - Creates a ReadOnlyCollector with pass-through rich content.
+ * When richContent is present, validates replacements and passes through the template.
+ * When absent, richContent echoes the plain content with empty replacements.
+ *
+ * @param {ReadOnlyField} field - The LABEL field from the API response.
  * @param {number} idx - The index to be used in the id of the ReadOnlyCollector.
- * @returns {ReadOnlyCollector} The constructed ReadOnlyCollector object.
+ * @returns {ReadOnlyCollectorBase} The constructed ReadOnlyCollector.
  */
-export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
-  return returnNoValueCollector(field, idx, 'ReadOnlyCollector');
+export function returnReadOnlyCollector(field: ReadOnlyField, idx: number): ReadOnlyCollectorBase {
+  const fieldErrors = [
+    ...(!('content' in field) ? ['Content is not found in the field object.'] : []),
+    ...(!('type' in field) ? ['Type is not found in the field object.'] : []),
+  ];
+
+  const id = `${field.key || field.type}-${idx}`;
+
+  if (!field.richContent) {
+    const errors = fieldErrors;
+    return {
+      category: 'NoValueCollector',
+      error: errors.length > 0 ? errors.join(' ') : null,
+      type: 'ReadOnlyCollector',
+      id,
+      name: id,
+      output: {
+        key: id,
+        label: field.content,
+        type: field.type,
+        content: field.content,
+        richContent: { content: field.content, replacements: [] },
+      },
+    };
+  }
+
+  // Validate that all {{key}} references in the template have corresponding replacements
+  const templateKeys = [...field.richContent.content.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]);
+  const apiReplacements = field.richContent.replacements ?? {};
+  const missingKeys = templateKeys.filter((k) => !(k in apiReplacements));
+  const templateErrors = missingKeys.map((k) => `Missing replacement for key: {{${k}}}`);
+
+  const validationResult =
+    templateErrors.length === 0 ? validateReplacements(apiReplacements) : null;
+
+  const replacements = validationResult?.ok ? validationResult.replacements : [];
+  const validationErrors = validationResult && !validationResult.ok ? [validationResult.error] : [];
+  const errors = [...fieldErrors, ...templateErrors, ...validationErrors];
+
+  return {
+    category: 'NoValueCollector',
+    error: errors.length > 0 ? errors.join(' ') : null,
+    type: 'ReadOnlyCollector',
+    id,
+    name: id,
+    output: {
+      key: id,
+      label: field.content,
+      type: field.type,
+      content: field.content,
+      richContent: {
+        content: field.richContent.content,
+        replacements,
+      },
+    },
+  };
 }
 
 /**
