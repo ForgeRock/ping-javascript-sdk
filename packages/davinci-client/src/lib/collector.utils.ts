@@ -29,7 +29,10 @@ import type {
   AutoCollectors,
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
-  QrCodeCollectorBase,
+  QrCodeCollector,
+  ReadOnlyCollector,
+  RichTextCollector,
+  RichContentLink,
   AgreementCollector,
   PhoneNumberExtensionOutputValue,
 } from './collector.types.js';
@@ -45,6 +48,7 @@ import type {
   PollingField,
   ReadOnlyField,
   RedirectField,
+  RichContentReplacement,
   SingleSelectField,
   StandardField,
   ValidatedField,
@@ -756,6 +760,27 @@ export function returnObjectValueCollector(
 }
 
 /**
+ * @function normalizeReplacements - Flattens the API's keyed
+ * `Record<string, RichContentReplacement>` into an array of `RichContentLink`
+ * with the original key carried on each entry. Hrefs are passed through
+ * unmodified — consumers are responsible for sanitizing before rendering.
+ *
+ * @param {Record<string, RichContentReplacement>} replacements - The replacements map from the API.
+ * @returns {RichContentLink[]} The flattened array of replacement entries.
+ */
+export function normalizeReplacements(
+  replacements: Record<string, RichContentReplacement>,
+): RichContentLink[] {
+  return Object.entries(replacements).map(([key, replacement]) => ({
+    key,
+    type: replacement.type,
+    value: replacement.value,
+    href: replacement.href,
+    ...(replacement.target && { target: replacement.target }),
+  }));
+}
+
+/**
  * @function returnNoValueCollector - Creates a NoValueCollector object based on the provided field, index, and optional collector type.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the NoValueCollector.
@@ -789,22 +814,50 @@ export function returnNoValueCollector<
 }
 
 /**
- * @function returnReadOnlyCollector - Creates a ReadOnlyCollector object based on the provided field and index.
- * @param {DaVinciField} field - The field object containing key, label, type, and links.
- * @param {number} idx - The index to be used in the id of the ReadOnlyCollector.
- * @returns {ReadOnlyCollector} The constructed ReadOnlyCollector object.
+ * @function returnReadOnlyCollector - Creates a `ReadOnlyCollector` (plain text) or
+ * `RichTextCollector` (template + link replacements) depending on whether the field
+ * carries a `richContent` payload.
+ *
+ * @param {ReadOnlyField} field - The LABEL field from the API response.
+ * @param {number} idx - The index to be used in the id of the collector.
+ * @returns {ReadOnlyCollector | RichTextCollector} The constructed collector.
  */
-export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
-  return returnNoValueCollector(field, idx, 'ReadOnlyCollector');
+export function returnReadOnlyCollector(
+  field: ReadOnlyField,
+  idx: number,
+): ReadOnlyCollector | RichTextCollector {
+  if (field.richContent) {
+    const base = returnNoValueCollector(field, idx, 'RichTextCollector');
+    return {
+      ...base,
+      output: {
+        ...base.output,
+        content: field.content,
+        richContent: {
+          content: field.richContent.content,
+          replacements: normalizeReplacements(field.richContent.replacements ?? {}),
+        },
+      },
+    };
+  }
+
+  const base = returnNoValueCollector(field, idx, 'ReadOnlyCollector');
+  return {
+    ...base,
+    output: {
+      ...base.output,
+      content: field.content,
+    },
+  };
 }
 
 /**
  * @function returnQrCodeCollector - Creates a QrCodeCollector object for displaying QR code images.
  * @param {QrCodeField} field - The field object containing key, content, type, and optional fallbackText.
  * @param {number} idx - The index to be used in the id of the QrCodeCollector.
- * @returns {QrCodeCollectorBase} The constructed QrCodeCollector object.
+ * @returns {QrCodeCollector} The constructed QrCodeCollector object.
  */
-export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollectorBase {
+export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollector {
   const base = returnNoValueCollector(field, idx, 'QrCodeCollector');
 
   return {

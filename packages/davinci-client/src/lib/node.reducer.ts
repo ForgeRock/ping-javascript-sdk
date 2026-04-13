@@ -44,6 +44,7 @@ import type {
   SubmitCollector,
   TextCollector,
   ReadOnlyCollector,
+  RichTextCollector,
   ValidatedTextCollector,
   DeviceAuthenticationCollector,
   DeviceRegistrationCollector,
@@ -105,6 +106,7 @@ const initialCollectorValues: (
   | PhoneNumberCollector
   | PhoneNumberExtensionCollector
   | ReadOnlyCollector
+  | RichTextCollector
   | ValidatedTextCollector
   | UnknownCollector
   | ProtectCollector

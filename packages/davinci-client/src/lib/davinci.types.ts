@@ -68,9 +68,38 @@ export type StandardField = {
   required?: boolean;
 };
 
+/**
+ * A single replacement entry in the raw DaVinci `richContent.replacements` map.
+ * The map's key (set on the parent `RichContent`) corresponds to the `{{key}}`
+ * token in `content`. Currently only `link` is supported.
+ */
+export type RichContentReplacement = {
+  type: 'link';
+  value: string;
+  href: string;
+  target?: '_self' | '_blank';
+};
+
+/**
+ * Raw rich-content payload as returned by DaVinci on a LABEL field.
+ * `content` is a template string with `{{key}}` tokens; `replacements` maps
+ * each key to its substitution data. Validated and normalized into
+ * `CollectorRichContent` by the SDK.
+ */
+export type RichContent = {
+  content: string;
+  replacements?: Record<string, RichContentReplacement>;
+};
+
+/**
+ * The shape of a LABEL field in a DaVinci form. `content` is the plain-text
+ * fallback; `richContent`, when present, carries a template + replacement data
+ * for rendering inline links.
+ */
 export type ReadOnlyField = {
   type: 'LABEL';
   content: string;
+  richContent?: RichContent;
   key?: string;
 };
 
