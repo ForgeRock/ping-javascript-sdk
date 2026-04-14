@@ -286,7 +286,7 @@ export interface DaVinciPollResponse extends DaVinciBaseResponse {
  * Error Response from DaVinci API
  */
 
-interface NestedErrorDetails {
+export interface NestedErrorDetails {
   // Optional properties
   code?: string;
   target?: string;

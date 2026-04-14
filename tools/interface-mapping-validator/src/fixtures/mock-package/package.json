@@ -1,0 +1,9 @@
+{
+  "name": "@mock/test-client",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./types": "./dist/src/types.d.ts",
+    "./webauthn": "./dist/src/lib/webauthn.js",
+    "./package.json": "./package.json"
+  }
+}

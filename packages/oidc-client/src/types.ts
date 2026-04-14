@@ -11,8 +11,13 @@ export * from './lib/exchange.types.js';
 export type {
   GenericError,
   GetAuthorizationUrlOptions,
+  ResponseType,
   WellknownResponse,
 } from '@forgerock/sdk-types';
 export type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 export type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 export type { StorageConfig } from '@forgerock/storage';
+
+// Re-export functions needed to resolve OidcClient and ClientStore type aliases
+export { oidc } from './lib/client.store.js';
+export { createClientStore } from './lib/client.store.utils.js';

@@ -1,0 +1,28 @@
+{
+  "name": "@forgerock/interface-mapping-validator",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Validates interface_mapping.md against actual SDK exports",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm nx nxBuild",
+    "generate": "tsx src/main.ts --generate",
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch",
+    "validate": "tsx src/main.ts",
+    "validate:fix": "tsx src/main.ts --fix"
+  },
+  "dependencies": {
+    "ts-morph": "^28.0.0",
+    "tsx": "^4.20.0",
+    "vitest": "catalog:vitest"
+  },
+  "devDependencies": {
+    "@forgerock/javascript-sdk": "4.9.0",
+    "vitest": "catalog:vitest"
+  },
+  "nx": {
+    "tags": ["scope:tool"]
+  }
+}

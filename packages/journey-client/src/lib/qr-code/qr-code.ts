@@ -94,3 +94,6 @@ export abstract class QRCode {
     });
   }
 }
+
+export type { JourneyStep } from '../step.utils.js';
+export type { BaseCallback } from '../callbacks/base-callback.js';

@@ -42,6 +42,16 @@
           "tsConfig": "packages/device-client/tsconfig.lib.json",
           "format": ["esm"]
         }
+      },
+      "api-report": {
+        "dependsOn": ["build"],
+        "command": "tsx tools/api-report/src/main.ts {projectRoot}",
+        "inputs": [
+          "{projectRoot}/dist/**/*.d.ts",
+          "{workspaceRoot}/api-extractor.base.json",
+          "{workspaceRoot}/tools/api-report/src/**/*.ts"
+        ],
+        "outputs": ["{projectRoot}/api-report/"]
       }
     }
   }

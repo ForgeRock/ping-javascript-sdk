@@ -32,7 +32,7 @@ import type { JourneyLoginFailure } from './login-failure.utils.js';
 import type { JourneyLoginSuccess } from './login-success.utils.js';
 
 /** Result type for journey client methods. */
-type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | GenericError;
+export type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | GenericError;
 
 /** The journey client instance returned by the `journey()` function. */
 export interface JourneyClient {

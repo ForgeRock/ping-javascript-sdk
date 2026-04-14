@@ -132,3 +132,4 @@ export abstract class Policy {
 }
 
 export type { MessageCreator, ProcessedPropertyError };
+export type { FailedPolicyRequirement, PolicyRequirement, Step } from '@forgerock/sdk-types';

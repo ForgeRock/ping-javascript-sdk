@@ -33,7 +33,7 @@ import type { MetadataCallback } from '../callbacks/metadata-callback.js';
 import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 
 // <clientdata>::<attestation>::<publickeyCredential>::<DeviceName>
-type OutcomeWithName<
+export type OutcomeWithName<
   ClientId extends string,
   Attestation extends AttestationType,
   PubKeyCred extends PublicKeyCredential,
@@ -506,3 +506,9 @@ export type {
   WebAuthnCallbacks,
   WebAuthnRegistrationMetadata,
 };
+export type { AttestationType, UserVerificationType } from './interfaces.js';
+export type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+export type { MetadataCallback } from '../callbacks/metadata-callback.js';
+export type { TextOutputCallback } from '../callbacks/text-output-callback.js';
+export type { JourneyStep } from '../step.utils.js';
+export type { BaseCallback } from '../callbacks/base-callback.js';
