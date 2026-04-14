@@ -56,6 +56,7 @@ export type FidoAuthenticationCollector = collectors.FidoAuthenticationCollector
 export type QrCodeCollector = collectors.QrCodeCollector;
 
 export type PollingStatus = client.PollingStatus;
+export type Poller = client.Poller;
 
 export type InternalErrorResponse = client.InternalErrorResponse;
 export type { RequestMiddleware, ActionTypes } from '@forgerock/sdk-request-middleware';

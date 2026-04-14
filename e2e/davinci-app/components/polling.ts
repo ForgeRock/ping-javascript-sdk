@@ -4,17 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type {
-  PollingCollector,
-  PollingStatus,
-  InternalErrorResponse,
-  Updater,
-} from '@forgerock/davinci-client/types';
+import type { PollingCollector, Poller, Updater } from '@forgerock/davinci-client/types';
 
 export default function pollingComponent(
   formEl: HTMLFormElement,
   collector: PollingCollector,
-  poll: (collector: PollingCollector) => Promise<PollingStatus | InternalErrorResponse>,
+  poll: Poller,
   updater: Updater<PollingCollector>,
   submitForm: () => Promise<void>,
 ) {
@@ -25,11 +20,13 @@ export default function pollingComponent(
   formEl.appendChild(button);
 
   button.onclick = async () => {
+    button.disabled = true;
+
     const p = document.createElement('p');
     p.innerText = 'Polling...';
     formEl?.appendChild(p);
 
-    const status = await poll(collector);
+    const status = await poll();
     if (typeof status !== 'string' && 'error' in status) {
       console.error(status.error?.message);
 
@@ -54,5 +51,7 @@ export default function pollingComponent(
     formEl?.appendChild(resultEl);
 
     await submitForm();
+
+    button.disabled = false;
   };
 }

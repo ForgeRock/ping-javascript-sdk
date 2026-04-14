@@ -114,6 +114,102 @@ describe('transformSubmitRequest', () => {
     const result = transformSubmitRequest(node, logger({ level: 'none' }));
     expect(result).toEqual(expectedRequest);
   });
+
+  it('should set eventType to "submit" when PollingCollector exists but has no payload', () => {
+    const node: ContinueNode = {
+      cache: {
+        key: '123',
+      },
+      client: {
+        action: 'SIGNON',
+        collectors: [
+          {
+            category: 'SingleValueAutoCollector',
+            error: null,
+            type: 'PollingCollector',
+            id: 'polling-field-2',
+            name: 'polling-field',
+            input: {
+              key: 'polling-field',
+              value: '',
+              type: 'POLLING',
+            },
+            output: {
+              key: 'polling-field',
+              type: 'POLLING',
+              config: {
+                pollInterval: 2000,
+                pollRetries: 20,
+                pollChallengeStatus: true,
+                challenge: '123_456-7890',
+              },
+            },
+          },
+        ],
+        status: 'continue',
+      },
+      error: null,
+      httpStatus: 200,
+      server: {
+        id: '123',
+        eventName: 'login',
+        interactionId: '456',
+        status: 'continue',
+      },
+      status: 'continue',
+    };
+
+    const result = transformSubmitRequest(node, logger({ level: 'none' }));
+    expect(result.parameters.eventType).toBe('submit');
+  });
+
+  it('should set eventType to "polling" when PollingCollector has populated payload', () => {
+    const node: ContinueNode = {
+      cache: {
+        key: '123',
+      },
+      client: {
+        action: 'SIGNON',
+        collectors: [
+          {
+            category: 'SingleValueAutoCollector',
+            error: null,
+            type: 'PollingCollector',
+            id: 'polling-field-2',
+            name: 'polling-field',
+            input: {
+              key: 'polling-field',
+              value: 'complete',
+              type: 'POLLING',
+            },
+            output: {
+              key: 'polling-field',
+              type: 'POLLING',
+              config: {
+                pollInterval: 2000,
+                pollRetries: 20,
+                pollChallengeStatus: true,
+                challenge: '123_456-7890',
+              },
+            },
+          },
+        ],
+        status: 'continue',
+      },
+      error: null,
+      httpStatus: 200,
+      server: {
+        id: '123',
+        eventName: 'login',
+        interactionId: '456',
+        status: 'continue',
+      },
+      status: 'continue',
+    };
+
+    const result = transformSubmitRequest(node, logger({ level: 'none' }));
+    expect(result.parameters.eventType).toBe('polling');
+  });
 });
 
 describe('transformActionRequest', () => {

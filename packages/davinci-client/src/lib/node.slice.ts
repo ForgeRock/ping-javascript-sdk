@@ -364,5 +364,44 @@ export const nodeSlice = createSlice({
     selectServer: (state) => {
       return state.server;
     },
+    selectContinueServer: (state) => {
+      if (state.status !== 'continue') {
+        return {
+          error: {
+            code: 'unknown',
+            type: 'state_error',
+            message: 'Not in a continue node state, must be in a continue node to use poll method',
+          } as const,
+          state: null,
+        };
+      }
+      return { error: null, state: state.server };
+    },
+    selectSelfLink: (state) => {
+      if (state.status !== 'continue') {
+        return {
+          error: {
+            code: 'unknown',
+            type: 'state_error',
+            message: 'Not in a continue node state, must be in a continue node for self link',
+          } as const,
+          state: null,
+        };
+      }
+
+      const links = state.server._links;
+      if (!links || !('self' in links) || !('href' in links['self']) || !links['self'].href) {
+        return {
+          error: {
+            code: 'unknown',
+            type: 'state_error',
+            message: 'No self link found in server info for challenge polling operation',
+          } as const,
+          state: null,
+        };
+      }
+
+      return { error: null, state: links['self'].href };
+    },
   },
 });

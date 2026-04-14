@@ -12,6 +12,8 @@ import { nodeNext0 } from './mock-data/node.next.mock.js';
 import { success0, success1 } from './mock-data/davinci.success.mock.js';
 import { nodeSuccess0, nodeSuccess1 } from './mock-data/node.success.mock.js';
 import { error0a, error2b, error3 } from './mock-data/davinci.error.mock.js';
+import { continuePolling } from './mock-data/node.poll.mock.js';
+import type { ContinueNode } from './node.types.js';
 
 describe('The node slice reducers', () => {
   it('should return the initial state', () => {
@@ -249,5 +251,101 @@ describe('The node slice reducers', () => {
       },
       status: 'failure',
     });
+  });
+
+  it('should decrement retriesRemaining and update cache key on poll', () => {
+    // Build a continue state from a node that contains a PollingCollector.
+    const continueState = nodeSlice.reducer(undefined, {
+      type: 'node/next',
+      payload: { data: continuePolling, requestId: '1234', httpStatus: 200 },
+    });
+
+    // Dispatch a single poll action with a new requestId
+    const result = nodeSlice.reducer(continueState, {
+      type: 'node/poll',
+      payload: { requestId: '5678' },
+    });
+
+    // Cache key must reflect the latest requestId
+    expect(result.cache).toEqual({ key: '5678' });
+    // Node must remain in the continue state — poll does not change the node type
+    expect(result.status).toBe('continue');
+
+    // retriesRemaining must have decreased by 1 (5 → 4)
+    const pollingCollector = (result as ContinueNode).client.collectors.find(
+      (c) => c.type === 'PollingCollector',
+    );
+    expect(pollingCollector?.output.config.retriesRemaining).toBe(4);
+  });
+});
+
+describe('nodeSlice.selectors.selectContinueServer', () => {
+  const continueState: ContinueNode = {
+    cache: { key: 'test-key' },
+    client: { action: 'test', collectors: [], status: 'continue' },
+    error: null,
+    httpStatus: 200,
+    server: {
+      _links: { self: { href: 'https://auth.pingone.ca/envId/davinci/connections/abc' } },
+      interactionId: 'interaction-123',
+      status: 'continue',
+    },
+    status: 'continue',
+  };
+
+  it('returns the server when node is in continue state', () => {
+    const result = nodeSlice.selectors.selectContinueServer({ node: continueState });
+    expect(result).toEqual({ error: null, state: continueState.server });
+  });
+
+  it('returns an error when node is not in continue state (initial start state)', () => {
+    const result = nodeSlice.selectors.selectContinueServer({ node: nodeSlice.getInitialState() });
+    expect(result.error).not.toBeNull();
+    expect(result.error?.type).toBe('state_error');
+    expect(result.state).toBeNull();
+  });
+});
+
+describe('nodeSlice.selectors.selectSelfLink', () => {
+  const continueState: ContinueNode = {
+    cache: { key: 'test-key' },
+    client: { action: 'test', collectors: [], status: 'continue' },
+    error: null,
+    httpStatus: 200,
+    server: {
+      _links: { self: { href: 'https://auth.pingone.ca/envId/davinci/connections/abc' } },
+      interactionId: 'interaction-123',
+      status: 'continue',
+    },
+    status: 'continue',
+  };
+
+  it('returns the self link href when in continue state with self link present', () => {
+    const result = nodeSlice.selectors.selectSelfLink({ node: continueState });
+    expect(result).toEqual({
+      error: null,
+      state: 'https://auth.pingone.ca/envId/davinci/connections/abc',
+    });
+  });
+
+  it('returns an error when not in continue state', () => {
+    const result = nodeSlice.selectors.selectSelfLink({ node: nodeSlice.getInitialState() });
+    expect(result.error).not.toBeNull();
+    expect(result.error?.type).toBe('state_error');
+    expect(result.state).toBeNull();
+  });
+
+  it('returns an error when in continue state but self link is missing', () => {
+    const stateWithoutSelfLink: ContinueNode = {
+      ...continueState,
+      server: {
+        ...continueState.server,
+        _links: { other: { href: 'https://example.com' } },
+      },
+    };
+    const result = nodeSlice.selectors.selectSelfLink({ node: stateWithoutSelfLink });
+    expect(result.error).not.toBeNull();
+    expect(result.error?.type).toBe('state_error');
+    expect(result.state).toBeNull();
   });
 });

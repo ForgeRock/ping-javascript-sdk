@@ -224,8 +224,8 @@ export type PollingField = {
   key: string;
   pollInterval: number;
   pollRetries: number;
-  pollChallengeStatus: boolean;
-  challenge: string;
+  pollChallengeStatus?: boolean;
+  challenge?: string;
 };
 
 export type UnknownField = Record<string, unknown>;

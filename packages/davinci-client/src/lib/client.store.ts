@@ -5,7 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Micro } from 'effect';
-import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
+import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
 import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
 
@@ -14,10 +15,11 @@ import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
  */
 import {
   createClientStore,
-  handleChallengePolling,
+  createInternalError,
   handleUpdateValidateError,
-  RootState,
+  type RootState,
 } from './client.store.utils.js';
+import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
@@ -51,7 +53,7 @@ import type {
   NodeStates,
   Updater,
   Validator,
-  PollingStatus,
+  Poller,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import type { ContinueNode, StartNode } from './node.types.js';
@@ -417,78 +419,27 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      * @param {PollingCollector} collector - the polling collector
      * @returns {Promise<PollingStatus | InternalErrorResponse>} - Returns a promise that resolves to a polling status or error
      */
-    poll: async (collector: PollingCollector): Promise<PollingStatus | InternalErrorResponse> => {
-      try {
-        if (collector.type !== 'PollingCollector') {
-          log.error('Collector provided to poll is not a PollingCollector');
-          return {
-            error: {
-              message: 'Collector provided to poll is not a PollingCollector',
-              type: 'argument_error',
-            },
-            type: 'internal_error',
-          };
+    poll: (collector: PollingCollector): Poller => {
+      return async () => {
+        const result = await getPollingModeµ(collector).pipe(
+          Micro.flatMap((mode) => pollingµ({ mode, collector, store, log })),
+          Micro.tapError((err) => Micro.sync(() => log.error(err.error.message))),
+          Micro.runPromiseExit,
+        );
+
+        if (exitIsSuccess(result)) {
+          return result.value;
         }
 
-        const pollChallengeStatus = collector.output.config.pollChallengeStatus;
-        const challenge = collector.output.config.challenge;
-
-        if (challenge && pollChallengeStatus === true) {
-          // Challenge Polling
-          return await handleChallengePolling({
-            collector,
-            challenge,
-            store,
-            log,
-          });
-        } else if (!challenge && !pollChallengeStatus) {
-          // Continue polling
-          const retriesLeft = collector.output.config.retriesRemaining;
-          const pollInterval = collector.output.config.pollInterval ?? 2000; // miliseconds
-
-          if (retriesLeft === undefined) {
-            log.error('No retries found on PollingCollector');
-            return {
-              error: {
-                message: 'No retries found on PollingCollector',
-                type: 'argument_error',
-              },
-              type: 'internal_error',
-            };
-          }
-
-          if (retriesLeft > 0) {
-            const getStatusµ = Micro.sync(() => 'continue' as PollingStatus).pipe(
-              Micro.delay(pollInterval),
-            );
-            const status: PollingStatus = await Micro.runPromise(getStatusµ);
-            return status;
-          } else {
-            // Retries exhausted
-            return 'timedOut' as PollingStatus;
-          }
-        } else {
-          // Error if polling type can't be determined from configuration
-          log.error('Invalid polling collector configuration');
-          return {
-            error: {
-              message: 'Invalid polling collector configuration',
-              type: 'internal_error',
-            },
-            type: 'internal_error',
-          };
+        if (exitIsFail(result)) {
+          return result.cause.error;
         }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        log.error(errorMessage);
-        return {
-          error: {
-            message: errorMessage || 'An unexpected error occurred during poll operation',
-            type: 'internal_error',
-          },
-          type: 'internal_error',
-        };
-      }
+
+        return createInternalError(
+          'An unexpected error occurred during poll operation',
+          'unknown_error',
+        );
+      };
     },
 
     /**

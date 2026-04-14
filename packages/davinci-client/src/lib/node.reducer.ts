@@ -344,13 +344,24 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
      * transformed to `'node/poll'` for the action type.
      */
     .addCase(pollCollectorValues, (state) => {
-      // For challenge polling, track and decrement retries when this reducer is called
+      // For continue polling, track and decrement retries when this reducer is called
       const pollCollector = state.find((collector) => collector.type === 'PollingCollector');
 
-      if (!pollCollector?.output.config.retriesRemaining) {
-        throw new Error('No poll collector found to update');
+      if (!pollCollector) {
+        return;
       }
 
+      if (pollCollector.output.config.retriesRemaining === undefined) {
+        pollCollector.error = 'Polling collector does not track retriesRemaining';
+        return;
+      }
+
+      if (pollCollector.output.config.retriesRemaining <= 0) {
+        pollCollector.error = 'No poll retries left';
+        return;
+      }
+
+      pollCollector.error = null;
       pollCollector.output.config.retriesRemaining--;
     });
 });

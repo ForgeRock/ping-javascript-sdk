@@ -31,6 +31,7 @@ import {
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions
  * @param {ContinueNode} node - The node to transform into a DaVinciRequest
+ * @param {ReturnType<typeof loggerFn>} logger - Logger instance
  * @returns {DaVinciRequest} - The transformed request object
  */
 export function transformSubmitRequest(
@@ -63,10 +64,14 @@ export function transformSubmitRequest(
     return acc;
   }, {});
 
-  // Set eventType based on PollingCollector presence
-  const eventType = collectors?.some((collector) => collector.type === 'PollingCollector')
-    ? 'polling'
-    : 'submit';
+  // Determine eventType: check if there's a PollingCollector with a non-empty string value
+  const hasPollingWithPayload = collectors?.some(
+    (collector) =>
+      collector.type === 'PollingCollector' &&
+      typeof collector.input.value === 'string' &&
+      collector.input.value,
+  );
+  const eventType = hasPollingWithPayload ? 'polling' : 'submit';
 
   logger.debug('Transforming submit request', { node, formData });
 
