@@ -51,9 +51,6 @@ jobs:
         with:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - run: npm install npm@latest -g
-      - run: npm --version
-
       - name: publish
         uses: changesets/action@v1
         id: changesets
