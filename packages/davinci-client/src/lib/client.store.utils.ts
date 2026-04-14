@@ -10,6 +10,7 @@ import { exitIsSuccess, exitIsFail } from 'effect/Micro';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { GenericError } from '@forgerock/sdk-types';
 import { isGenericError } from '@forgerock/sdk-utilities';
 
 import { configSlice } from './config.slice.js';
@@ -18,7 +19,7 @@ import { davinciApi } from './davinci.api.js';
 import { ErrorNode, ContinueNode, StartNode, SuccessNode } from '../types.js';
 import { wellknownApi } from './wellknown.api.js';
 import type { InternalErrorResponse, PollingStatus } from './client.types.js';
-import { PollingCollector } from './collector.types.js';
+import type { PollingCollector } from './collector.types.js';
 
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
@@ -80,6 +81,197 @@ export interface RootStateWithNode<T extends ErrorNode | ContinueNode | StartNod
 
 export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;
 
+/**
+ * Discriminated union representing the validated polling mode.
+ */
+export type PollingMode =
+  | { _tag: 'challenge'; challenge: string }
+  | { _tag: 'continue'; retriesRemaining: number; pollInterval: number };
+
+function internalError(
+  message: string,
+  type: GenericError['type'] = 'internal_error',
+): InternalErrorResponse {
+  return { error: { message, type }, type: 'internal_error' };
+}
+
+export function determinePollingMode(collector: PollingCollector): PollingMode {
+  if (collector.type !== 'PollingCollector') {
+    throw internalError('Collector provided to poll is not a PollingCollector', 'argument_error');
+  }
+
+  const { pollChallengeStatus, challenge, retriesRemaining, pollInterval } =
+    collector.output.config;
+
+  if (challenge && pollChallengeStatus === true) {
+    return { _tag: 'challenge', challenge };
+  }
+
+  if (!challenge && !pollChallengeStatus) {
+    if (retriesRemaining === undefined) {
+      throw internalError('No retries found on PollingCollector', 'argument_error');
+    }
+    return { _tag: 'continue', retriesRemaining, pollInterval: pollInterval ?? 2000 };
+  }
+
+  throw internalError('Invalid polling collector configuration');
+}
+
+/**
+ * Shape returned by RTK Query's dispatch for the poll endpoint.
+ */
+export interface PollDispatchResult {
+  data?: unknown;
+  error?: { message?: string; status?: number | string; data?: unknown };
+}
+
+/**
+ * Validated prerequisites needed to initiate challenge polling.
+ */
+interface PollingPrerequisites {
+  interactionId: string;
+  challengeEndpoint: string;
+}
+
+/**
+ * Selects and validates server is in continue state from root state.
+ * Narrows from the NodeStates server union to ContinueNode['server'].
+ * Throws InternalErrorResponse on validation failure.
+ */
+function selectContinueServer(rootState: RootState): ContinueNode['server'] {
+  const server = nodeSlice.selectors.selectServer(rootState);
+
+  if (server === null) {
+    throw internalError('No server info found for poll operation', 'state_error');
+  }
+
+  if (isGenericError(server)) {
+    throw internalError(server.message ?? 'Failed to retrieve server info for poll operation');
+  }
+
+  if (server.status !== 'continue') {
+    throw internalError(
+      'Not in a continue node state, must be in a continue node to use poll method',
+      'state_error',
+    );
+  }
+
+  return server;
+}
+
+/**
+ * Extracts the self link href from server links.
+ * Throws InternalErrorResponse if self link is missing.
+ */
+function selectSelfLink(server: ContinueNode['server']): string {
+  const links = server._links;
+  if (!links || !('self' in links) || !('href' in links['self']) || !links['self'].href) {
+    throw internalError('No self link found in server info for challenge polling operation');
+  }
+  return links['self'].href;
+}
+
+/**
+ * Constructs the challenge polling endpoint from a self link URL.
+ * Throws InternalErrorResponse if URL cannot be parsed.
+ */
+function buildChallengeEndpoint(selfHref: string, challenge: string): string {
+  const url = new URL(selfHref);
+  const envId = url.pathname.split('/')[1];
+
+  if (!url.origin || !envId) {
+    throw internalError(
+      'Failed to construct challenge polling endpoint. Requires host and environment ID.',
+      'parse_error',
+    );
+  }
+
+  return `${url.origin}/${envId}/davinci/user/credentials/challenge/${challenge}/status`;
+}
+
+/**
+ * Pure function: validates all prerequisites for challenge polling and constructs the endpoint URL.
+ * Composes selectors that each extract and validate a piece of state.
+ * Throws InternalErrorResponse on any validation failure — designed to be caught by Micro.try.
+ */
+export function validatePollingPrerequisites(
+  rootState: RootState,
+  challenge: string,
+): PollingPrerequisites {
+  if (!challenge) {
+    throw internalError('No challenge found on collector for poll operation', 'state_error');
+  }
+  const server = selectContinueServer(rootState);
+  const selfHref = selectSelfLink(server);
+  const challengeEndpoint = buildChallengeEndpoint(selfHref, challenge);
+
+  if (!server.interactionId) {
+    throw internalError('Missing interactionId in server info for challenge polling');
+  }
+
+  return { interactionId: server.interactionId, challengeEndpoint };
+}
+
+/**
+ * Pure predicate: determines if challenge polling should continue.
+ * Returns true when the challenge has not yet completed and no error occurred.
+ */
+export function isChallengeStillPending(response: PollDispatchResult): boolean {
+  if (response.error) return false;
+
+  const data = response.data as Record<string, unknown> | undefined;
+  if (data?.['isChallengeComplete']) return false;
+
+  return true;
+}
+
+export function interpretChallengeResponse(
+  response: PollDispatchResult,
+): Micro.Micro<PollingStatus, InternalErrorResponse> {
+  const { data, error } = response;
+
+  if (error) {
+    // FetchBaseQueryError — has status field
+    if ('status' in error) {
+      const errorDetails = error.data as Record<string, unknown> | undefined;
+      const serviceName = errorDetails?.['serviceName'];
+
+      // Expired challenge is an expected polling outcome, not a failure
+      if (error.status === 400 && serviceName === 'challengeExpired') {
+        return Micro.succeed('expired');
+      }
+
+      // Other HTTP errors are also expected outcomes (e.g. bad challenge returning 400 with code 4019)
+      return Micro.succeed('error');
+    }
+
+    // SerializedError — has message field
+    const message =
+      'message' in error && error.message
+        ? error.message
+        : 'An unknown error occurred while challenge polling';
+
+    return Micro.fail(internalError(message, 'unknown_error'));
+  }
+
+  const pollResponse = data as Record<string, unknown> | undefined;
+
+  // Challenge completed — extract status
+  if (pollResponse?.['isChallengeComplete'] === true) {
+    const pollStatus = pollResponse['status'];
+    return pollStatus
+      ? Micro.succeed(pollStatus as PollingStatus)
+      : Micro.succeed('error' as PollingStatus);
+  }
+
+  // If we reach here, Micro.repeat exhausted its schedule without the challenge completing
+  return Micro.succeed('timedOut');
+}
+
+/**
+ * Orchestrates challenge polling using extracted pure functions.
+ * The shell: reads state, dispatches effects, runs the pipeline at the boundary.
+ */
 export async function handleChallengePolling({
   collector,
   challenge,
@@ -91,169 +283,32 @@ export async function handleChallengePolling({
   store: ReturnType<ClientStore>;
   log: ReturnType<typeof loggerFn>;
 }): Promise<PollingStatus | InternalErrorResponse> {
-  if (!challenge) {
-    log.error('No challenge found on collector for poll operation');
-    return {
-      error: {
-        message: 'No challenge found on collector for poll operation',
-        type: 'state_error',
-      },
-      type: 'internal_error',
-    };
-  }
+  const maxRetries = collector.output.config.pollRetries ?? 60;
+  const pollInterval = collector.output.config.pollInterval ?? 2000;
 
-  const rootState: RootState = store.getState();
-  const serverSlice = nodeSlice.selectors.selectServer(rootState);
-
-  if (serverSlice === null) {
-    log.error('No server info found for poll operation');
-    return {
-      error: {
-        message: 'No server info found for poll operation',
-        type: 'state_error',
-      },
-      type: 'internal_error',
-    };
-  }
-
-  if (isGenericError(serverSlice)) {
-    log.error(serverSlice.message ?? serverSlice.error);
-    return {
-      error: {
-        message: serverSlice.message ?? 'Failed to retrieve server info for poll operation',
-        type: 'internal_error',
-      },
-      type: 'internal_error',
-    };
-  }
-
-  if (serverSlice.status !== 'continue') {
-    return {
-      error: {
-        message: 'Not in a continue node state, must be in a continue node to use poll method',
-        type: 'state_error',
-      },
-    } as InternalErrorResponse;
-  }
-
-  // Construct the challenge polling endpoint
-  const links = serverSlice._links;
-  if (!links || !('self' in links) || !('href' in links['self']) || !links['self'].href) {
-    return {
-      error: {
-        message: 'No self link found in server info for challenge polling operation',
-        type: 'internal_error',
-      },
-    } as InternalErrorResponse;
-  }
-
-  const selfUrl = links['self'].href;
-  const url = new URL(selfUrl);
-  const baseUrl = url.origin;
-  const paths = url.pathname.split('/');
-  const envId = paths[1];
-
-  if (!baseUrl || !envId) {
-    return {
-      error: {
-        message:
-          'Failed to construct challenge polling endpoint. Requires host and environment ID.',
-        type: 'parse_error',
-      },
-    } as InternalErrorResponse;
-  }
-
-  const interactionId = serverSlice.interactionId;
-  if (!interactionId) {
-    return {
-      error: {
-        message: 'Missing interactionId in server info for challenge polling',
-        type: 'internal_error',
-      },
-    } as InternalErrorResponse;
-  }
-
-  const challengeEndpoint = `${baseUrl}/${envId}/davinci/user/credentials/challenge/${challenge}/status`;
-
-  // Start challenge polling
-  let retriesLeft = collector.output.config.pollRetries ?? 60;
-  const pollInterval = collector.output.config.pollInterval ?? 2000; // miliseconds
-
-  const queryµ = Micro.promise(() => {
-    retriesLeft--;
-    return store.dispatch(
-      davinciApi.endpoints.poll.initiate({
-        endpoint: challengeEndpoint,
-        interactionId,
-      }),
-    );
-  });
-
-  const challengePollµ = Micro.repeat(queryµ, {
-    while: ({ data, error }) =>
-      retriesLeft > 0 && !error && !(data as Record<string, unknown>)['isChallengeComplete'],
-    schedule: Micro.scheduleSpaced(pollInterval),
+  // validate → query → repeat → interpret
+  const challengePollµ = Micro.try({
+    try: () => validatePollingPrerequisites(store.getState(), challenge),
+    catch: (error) => error as InternalErrorResponse,
   }).pipe(
-    Micro.flatMap(({ data, error }) => {
-      const pollResponse = data as Record<string, unknown>;
-
-      // Check for any errors and return the appropriate status
-      if (error) {
-        // SerializedError
-        let message = 'An unknown error occurred while challenge polling';
-        if ('message' in error && error.message) {
-          message = error.message;
-          return Micro.fail({
-            error: {
-              message,
-              type: 'unknown_error',
-            },
-            type: 'internal_error',
-          } as InternalErrorResponse);
-        }
-
-        // FetchBaseQueryError
-        let status: number | string = 'unknown';
-        if ('status' in error) {
-          status = error.status;
-
-          const errorDetails = error.data as Record<string, unknown>;
-          const serviceName = errorDetails['serviceName'];
-
-          // Check for an expired challenge
-          if (status === 400 && serviceName && serviceName === 'challengeExpired') {
-            log.debug('Challenge expired for polling');
-            return Micro.succeed('expired' as PollingStatus);
-          } else {
-            // If we're here there is some other type of network error and status != 200
-            // e.g. A bad challenge can return a httpStatus of 400 with code 4019
-            log.debug('Network error occurred during polling');
-            return Micro.succeed('error' as PollingStatus);
-          }
-        }
-      }
-
-      // If a successful response is recieved it can be either a timeout or true success
-      if (pollResponse['isChallengeComplete'] === true) {
-        const pollStatus = pollResponse['status'];
-        if (!pollStatus) {
-          return Micro.succeed('error' as PollingStatus);
-        } else {
-          return Micro.succeed(pollStatus as PollingStatus);
-        }
-      } else if (retriesLeft <= 0 && !pollResponse['isChallengeComplete']) {
-        return Micro.succeed('timedOut' as PollingStatus);
-      }
-
-      // Just in case no polling status was determined
-      return Micro.fail({
-        error: {
-          message: 'Unknown error occurred during polling',
-          type: 'unknown_error',
-        },
-        type: 'internal_error',
-      } as InternalErrorResponse);
-    }),
+    Micro.flatMap(({ interactionId, challengeEndpoint }) =>
+      Micro.promise(() =>
+        store.dispatch(
+          davinciApi.endpoints.poll.initiate({
+            endpoint: challengeEndpoint,
+            interactionId,
+          }),
+        ),
+      ).pipe(
+        Micro.repeat({
+          while: isChallengeStillPending,
+          times: maxRetries,
+          schedule: Micro.scheduleSpaced(pollInterval),
+        }),
+      ),
+    ),
+    Micro.flatMap(interpretChallengeResponse),
+    Micro.tapError(({ error }) => Micro.sync(() => log.error(error.message))),
   );
 
   const result = await Micro.runPromiseExit(challengePollµ);
@@ -262,13 +317,10 @@ export async function handleChallengePolling({
     return result.value;
   } else if (exitIsFail(result)) {
     return result.cause.error;
-  } else {
-    return {
-      error: {
-        message: result.cause.message,
-        type: 'unknown_error',
-      },
-      type: 'internal_error',
-    };
   }
+
+  return {
+    error: { message: result.cause.message, type: 'unknown_error' },
+    type: 'internal_error',
+  };
 }

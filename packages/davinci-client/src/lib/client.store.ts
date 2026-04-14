@@ -4,7 +4,6 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
 import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
 import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
@@ -14,6 +13,7 @@ import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
  */
 import {
   createClientStore,
+  determinePollingMode,
   handleChallengePolling,
   handleUpdateValidateError,
   RootState,
@@ -419,75 +419,21 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      */
     poll: async (collector: PollingCollector): Promise<PollingStatus | InternalErrorResponse> => {
       try {
-        if (collector.type !== 'PollingCollector') {
-          log.error('Collector provided to poll is not a PollingCollector');
-          return {
-            error: {
-              message: 'Collector provided to poll is not a PollingCollector',
-              type: 'argument_error',
-            },
-            type: 'internal_error',
-          };
+        const mode = determinePollingMode(collector);
+        if (mode._tag === 'challenge') {
+          return handleChallengePolling({ collector, challenge: mode.challenge, store, log });
+        }
+        // Continue polling — delay then return 'continue' or 'timedOut'
+        if (mode.retriesRemaining <= 0) {
+          return 'timedOut';
         }
 
-        const pollChallengeStatus = collector.output.config.pollChallengeStatus;
-        const challenge = collector.output.config.challenge;
-
-        if (challenge && pollChallengeStatus === true) {
-          // Challenge Polling
-          return await handleChallengePolling({
-            collector,
-            challenge,
-            store,
-            log,
-          });
-        } else if (!challenge && !pollChallengeStatus) {
-          // Continue polling
-          const retriesLeft = collector.output.config.retriesRemaining;
-          const pollInterval = collector.output.config.pollInterval ?? 2000; // miliseconds
-
-          if (retriesLeft === undefined) {
-            log.error('No retries found on PollingCollector');
-            return {
-              error: {
-                message: 'No retries found on PollingCollector',
-                type: 'argument_error',
-              },
-              type: 'internal_error',
-            };
-          }
-
-          if (retriesLeft > 0) {
-            const getStatusµ = Micro.sync(() => 'continue' as PollingStatus).pipe(
-              Micro.delay(pollInterval),
-            );
-            const status: PollingStatus = await Micro.runPromise(getStatusµ);
-            return status;
-          } else {
-            // Retries exhausted
-            return 'timedOut' as PollingStatus;
-          }
-        } else {
-          // Error if polling type can't be determined from configuration
-          log.error('Invalid polling collector configuration');
-          return {
-            error: {
-              message: 'Invalid polling collector configuration',
-              type: 'internal_error',
-            },
-            type: 'internal_error',
-          };
-        }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        log.error(errorMessage);
-        return {
-          error: {
-            message: errorMessage || 'An unexpected error occurred during poll operation',
-            type: 'internal_error',
-          },
-          type: 'internal_error',
-        };
+        await new Promise((resolve) => setTimeout(resolve, mode.pollInterval));
+        return 'continue';
+      } catch (error) {
+        const err = error as InternalErrorResponse;
+        log.error(err.error.message);
+        return err;
       }
     },
 
