@@ -14,6 +14,7 @@ import type {
   FidoRegistrationCollector,
   MultiSelectCollector,
   PhoneNumberCollector,
+  PollingCollector,
   ProtectCollector,
   QrCodeCollector,
   SubmitCollector,
@@ -1058,6 +1059,134 @@ describe('The node collector reducer with FidoRegistrationFieldValue', () => {
         },
       },
     ]);
+  });
+});
+
+describe('The node collector reducer with pollCollectorValues', () => {
+  const basePollingCollector: PollingCollector = {
+    category: 'SingleValueAutoCollector',
+    error: null,
+    type: 'PollingCollector',
+    id: 'polling-0',
+    name: 'polling',
+    input: {
+      key: 'polling',
+      value: '',
+      type: 'POLLING',
+    },
+    output: {
+      key: 'polling',
+      type: 'POLLING',
+      config: {
+        pollInterval: 2000,
+        pollRetries: 5,
+        retriesRemaining: 5,
+      },
+    },
+  };
+
+  it('should decrement retriesRemaining on each poll', () => {
+    const action = { type: 'node/poll' };
+    const result = nodeCollectorReducer([basePollingCollector], action);
+    expect((result[0] as PollingCollector).output.config.retriesRemaining).toBe(4);
+  });
+
+  it('should decrement retriesRemaining from 1 to 0', () => {
+    const action = { type: 'node/poll' };
+    const state: PollingCollector[] = [
+      {
+        ...basePollingCollector,
+        output: {
+          ...basePollingCollector.output,
+          config: { ...basePollingCollector.output.config, retriesRemaining: 1 },
+        },
+      },
+    ];
+    const result = nodeCollectorReducer(state, action);
+    expect((result[0] as PollingCollector).output.config.retriesRemaining).toBe(0);
+  });
+
+  it('should return state unchanged when no PollingCollector exists', () => {
+    const action = { type: 'node/poll' };
+    const state: TextCollector[] = [
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'TextCollector',
+        id: 'username-0',
+        name: 'username',
+        input: { key: 'username', value: '', type: 'TEXT' },
+        output: { key: 'username', label: 'Username', type: 'TEXT', value: '' },
+      },
+    ];
+    const result = nodeCollectorReducer(state, action);
+    expect(result).toEqual(state);
+  });
+
+  it('should return state unchanged when state is empty', () => {
+    const action = { type: 'node/poll' };
+    const result = nodeCollectorReducer([], action);
+    expect(result).toEqual([]);
+  });
+
+  it('should set error when retriesRemaining is undefined', () => {
+    const action = { type: 'node/poll' };
+    const state: PollingCollector[] = [
+      {
+        ...basePollingCollector,
+        output: {
+          ...basePollingCollector.output,
+          config: { pollInterval: 2000, pollRetries: 5 },
+        },
+      },
+    ];
+    const result = nodeCollectorReducer(state, action);
+    expect((result[0] as PollingCollector).error).toBe(
+      'Polling collector does not track retriesRemaining',
+    );
+  });
+
+  it('should set error when retriesRemaining is 0', () => {
+    const action = { type: 'node/poll' };
+    const state: PollingCollector[] = [
+      {
+        ...basePollingCollector,
+        output: {
+          ...basePollingCollector.output,
+          config: { ...basePollingCollector.output.config, retriesRemaining: 0 },
+        },
+      },
+    ];
+    const result = nodeCollectorReducer(state, action);
+    expect((result[0] as PollingCollector).error).toBe('No poll retries left');
+  });
+
+  it('should set error when retriesRemaining is negative', () => {
+    const action = { type: 'node/poll' };
+    const state: PollingCollector[] = [
+      {
+        ...basePollingCollector,
+        output: {
+          ...basePollingCollector.output,
+          config: { ...basePollingCollector.output.config, retriesRemaining: -1 },
+        },
+      },
+    ];
+    const result = nodeCollectorReducer(state, action);
+    expect((result[0] as PollingCollector).error).toBe('No poll retries left');
+  });
+
+  it('should clear error on successful decrement', () => {
+    const action = { type: 'node/poll' };
+    const state: PollingCollector[] = [
+      {
+        ...basePollingCollector,
+        error: 'previous error',
+      },
+    ];
+    const result = nodeCollectorReducer(state, action);
+    expect((result[0] as PollingCollector).error).toBeNull();
+    expect((result[0] as PollingCollector).output.config.retriesRemaining).toBe(4);
   });
 });
 

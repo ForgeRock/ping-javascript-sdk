@@ -25,6 +25,7 @@ import {
   returnObjectSelectCollector,
   returnObjectValueCollector,
   returnProtectCollector,
+  returnPollingCollector,
   returnUnknownCollector,
   returnFidoRegistrationCollector,
   returnFidoAuthenticationCollector,
@@ -50,6 +51,7 @@ import type {
   PhoneNumberOutputValue,
   UnknownCollector,
   ProtectCollector,
+  PollingCollector,
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   FidoAuthenticationInputValue,
@@ -77,6 +79,7 @@ export const updateCollectorValues = createAction<{
     | FidoAuthenticationInputValue;
   index?: number;
 }>('node/update');
+export const pollCollectorValues = createAction('node/poll');
 
 /**
  * @const initialCollectorValues - Initial state for the collector values
@@ -98,6 +101,7 @@ const initialCollectorValues: (
   | ValidatedTextCollector
   | UnknownCollector
   | ProtectCollector
+  | PollingCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
   | QrCodeCollector
@@ -186,6 +190,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
               case 'PROTECT': {
                 return returnProtectCollector(field, idx);
               }
+              case 'POLLING': {
+                // No data to send
+                return returnPollingCollector(field, idx);
+              }
               case 'FIDO2': {
                 if (field.action === 'REGISTER') {
                   return returnFidoRegistrationCollector(field, idx);
@@ -232,7 +240,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       if (
         collector.category === 'SingleValueCollector' ||
         collector.category === 'ValidatedSingleValueCollector' ||
-        collector.type === 'ProtectCollector'
+        collector.category === 'SingleValueAutoCollector'
       ) {
         if (typeof action.payload.value !== 'string') {
           throw new Error('Value argument must be a string');
@@ -329,5 +337,31 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         }
         collector.input.value = action.payload.value;
       }
+    })
+    /**
+     * Using the `pollCollectorValues` const (e.g. `'node/poll'`) to add the case
+     * 'node/poll' is essentially derived `createSlice` below. `node.poll()` is
+     * transformed to `'node/poll'` for the action type.
+     */
+    .addCase(pollCollectorValues, (state) => {
+      // For continue polling, track and decrement retries when this reducer is called
+      const pollCollector = state.find((collector) => collector.type === 'PollingCollector');
+
+      if (!pollCollector) {
+        return;
+      }
+
+      if (pollCollector.output.config.retriesRemaining === undefined) {
+        pollCollector.error = 'Polling collector does not track retriesRemaining';
+        return;
+      }
+
+      if (pollCollector.output.config.retriesRemaining <= 0) {
+        pollCollector.error = 'No poll retries left';
+        return;
+      }
+
+      pollCollector.error = null;
+      pollCollector.output.config.retriesRemaining--;
     });
 });

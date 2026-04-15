@@ -31,6 +31,7 @@ import {
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions
  * @param {ContinueNode} node - The node to transform into a DaVinciRequest
+ * @param {ReturnType<typeof loggerFn>} logger - Logger instance
  * @returns {DaVinciRequest} - The transformed request object
  */
 export function transformSubmitRequest(
@@ -62,6 +63,16 @@ export function transformSubmitRequest(
     acc[collector.input.key] = collector.input.value;
     return acc;
   }, {});
+
+  // Determine eventType: check if there's a PollingCollector with a non-empty string value
+  const hasPollingWithPayload = collectors?.some(
+    (collector) =>
+      collector.type === 'PollingCollector' &&
+      typeof collector.input.value === 'string' &&
+      collector.input.value,
+  );
+  const eventType = hasPollingWithPayload ? 'polling' : 'submit';
+
   logger.debug('Transforming submit request', { node, formData });
 
   return {
@@ -69,7 +80,7 @@ export function transformSubmitRequest(
     eventName: node.server.eventName || '',
     interactionId: node.server.interactionId || '',
     parameters: {
-      eventType: 'submit',
+      eventType,
       data: {
         actionKey: node.client?.action || '',
         formData: formData || {},
@@ -224,6 +235,7 @@ export function handleResponse(
    */
   if (cacheEntry.isSuccess) {
     const requestId = cacheEntry.requestId;
+
     const hasNextUrl = () => {
       const data = cacheEntry.data;
 
@@ -237,9 +249,19 @@ export function handleResponse(
       return false;
     };
 
+    const isContinuePollingEvent = () => {
+      const data = cacheEntry.data;
+      return (
+        'eventName' in data &&
+        ['rewindStateToLastRenderedUI', 'rewindStateToSpecificRenderedUI'].includes(data.eventName)
+      );
+    };
+
     if ('session' in cacheEntry.data || 'authorizeResponse' in cacheEntry.data) {
       const data = cacheEntry.data as DaVinciSuccessResponse;
       dispatch(nodeSlice.actions.success({ data, requestId, httpStatus: status }));
+    } else if (isContinuePollingEvent()) {
+      dispatch(nodeSlice.actions.poll({ requestId }));
     } else if (hasNextUrl()) {
       const data = cacheEntry.data as DaVinciNextResponse;
       dispatch(nodeSlice.actions.next({ data, requestId, httpStatus: status }));

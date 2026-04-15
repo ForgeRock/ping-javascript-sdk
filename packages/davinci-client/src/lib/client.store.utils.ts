@@ -8,13 +8,15 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { GenericError } from '@forgerock/sdk-types';
+
+import type { ErrorNode, ContinueNode, StartNode, SuccessNode } from '../types.js';
+import type { InternalErrorResponse } from './client.types.js';
 
 import { configSlice } from './config.slice.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
-import { ErrorNode, ContinueNode, StartNode, SuccessNode } from '../types.js';
 import { wellknownApi } from './wellknown.api.js';
-import { InternalErrorResponse } from './client.types.js';
 
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
@@ -65,7 +67,7 @@ export function handleUpdateValidateError(
   };
 }
 
-type ClientStore = typeof createClientStore;
+export type ClientStore = typeof createClientStore;
 
 export type RootState = ReturnType<ReturnType<ClientStore>['getState']>;
 
@@ -75,3 +77,29 @@ export interface RootStateWithNode<T extends ErrorNode | ContinueNode | StartNod
 }
 
 export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;
+
+/**
+ * @function createInternalError
+ * @description - Creates an InternalErrorResponse object
+ * @param message - The error message
+ * @param type - The error type
+ * @returns - An InternalErrorResponse object
+ */
+export function createInternalError(
+  message: string,
+  type: GenericError['type'] = 'internal_error',
+): InternalErrorResponse {
+  return { error: { message, type }, type: 'internal_error' };
+}
+
+/**
+ * Type guard: checks if a value is an InternalErrorResponse.
+ */
+export function isInternalError(value: unknown): value is InternalErrorResponse {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    (value as Record<string, unknown>)['type'] === 'internal_error'
+  );
+}

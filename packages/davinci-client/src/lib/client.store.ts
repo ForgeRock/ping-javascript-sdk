@@ -4,14 +4,22 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-/**
- * Import RTK slices and api
- */
-import { CustomLogger, logger as loggerFn, LogLevel } from '@forgerock/sdk-logger';
+import { Micro } from 'effect';
+import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
 import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
 
-import { createClientStore, handleUpdateValidateError, RootState } from './client.store.utils.js';
+/**
+ * Import RTK slices and api
+ */
+import {
+  createClientStore,
+  createInternalError,
+  handleUpdateValidateError,
+  type RootState,
+} from './client.store.utils.js';
+import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
@@ -34,6 +42,7 @@ import type {
   ObjectValueCollectors,
   PhoneNumberInputValue,
   AutoCollectors,
+  PollingCollector,
   MultiValueCollectors,
   FidoRegistrationInputValue,
   FidoAuthenticationInputValue,
@@ -44,6 +53,7 @@ import type {
   NodeStates,
   Updater,
   Validator,
+  Poller,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import type { ContinueNode, StartNode } from './node.types.js';
@@ -402,6 +412,34 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       return returnValidator(collectorToUpdate);
+    },
+
+    /**
+     * @method poll - Perform challenge polling or continue polling
+     * @param {PollingCollector} collector - the polling collector
+     * @returns {Promise<PollingStatus | InternalErrorResponse>} - Returns a promise that resolves to a polling status or error
+     */
+    poll: (collector: PollingCollector): Poller => {
+      return async () => {
+        const result = await getPollingModeµ(collector).pipe(
+          Micro.flatMap((mode) => pollingµ({ mode, collector, store, log })),
+          Micro.tapError((err) => Micro.sync(() => log.error(err.error.message))),
+          Micro.runPromiseExit,
+        );
+
+        if (exitIsSuccess(result)) {
+          return result.value;
+        }
+
+        if (exitIsFail(result)) {
+          return result.cause.error;
+        }
+
+        return createInternalError(
+          'An unexpected error occurred during poll operation',
+          'unknown_error',
+        );
+      };
     },
 
     /**

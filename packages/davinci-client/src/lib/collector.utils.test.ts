@@ -33,6 +33,7 @@ import type {
   PhoneNumberField,
   ProtectField,
   QrCodeField,
+  PollingField,
   ReadOnlyField,
   RedirectField,
   StandardField,
@@ -908,6 +909,40 @@ describe('returnSingleValueAutoCollector', () => {
         config: {
           behavioralDataCollection: mockField.behavioralDataCollection,
           universalDeviceIdentification: mockField.universalDeviceIdentification,
+        },
+      },
+    });
+  });
+
+  it('should create a valid PollingCollector', () => {
+    const mockField: PollingField = {
+      type: 'POLLING',
+      key: 'polling-key',
+      pollInterval: 2000,
+      pollRetries: 20,
+      pollChallengeStatus: true,
+      challenge: 'hlMtnk2RsPtnlYs2n1IiS9qhTZQLK-AOHNAo8-F3eY0',
+    };
+    const result = returnSingleValueAutoCollector(mockField, 1, 'PollingCollector');
+    expect(result).toEqual({
+      category: 'SingleValueAutoCollector',
+      error: null,
+      type: 'PollingCollector',
+      id: 'polling-key-1',
+      name: 'polling-key',
+      input: {
+        key: mockField.key,
+        value: '',
+        type: mockField.type,
+      },
+      output: {
+        key: mockField.key,
+        type: mockField.type,
+        config: {
+          pollInterval: 2000,
+          pollRetries: 20,
+          pollChallengeStatus: true,
+          challenge: 'hlMtnk2RsPtnlYs2n1IiS9qhTZQLK-AOHNAo8-F3eY0',
         },
       },
     });

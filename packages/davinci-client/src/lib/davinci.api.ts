@@ -58,10 +58,12 @@ export const davinciApi = createApi({
   reducerPath: 'davinci',
   // TODO: implement extraOptions for request interceptors: https://stackoverflow.com/a/77569083 & https://stackoverflow.com/a/65129117
   baseQuery: fetchBaseQuery({
-    prepareHeaders: (headers) => {
+    prepareHeaders: (headers, { endpoint }) => {
       headers.set('Accept', 'application/json');
-      headers.set('x-requested-with', 'ping-sdk');
-      headers.set('x-requested-platform', 'javascript');
+      if (endpoint !== 'poll') {
+        headers.set('x-requested-with', 'ping-sdk');
+        headers.set('x-requested-platform', 'javascript');
+      }
       return headers;
     },
   }),
@@ -348,6 +350,10 @@ export const davinciApi = createApi({
         handleResponse(cacheEntry, api.dispatch, response?.status || 0, logger);
       },
     }),
+
+    /**
+     * @method resume - method for resuming a social login DaVinci flow
+     */
     resume: builder.query<unknown, { serverInfo: ContinueNode['server']; continueToken: string }>({
       async queryFn({ serverInfo, continueToken }, api, _c, baseQuery) {
         const { requestMiddleware, logger } = api.extra as Extras;
@@ -420,6 +426,38 @@ export const davinciApi = createApi({
         logger.debug('Davinci API response', cacheEntry);
 
         handleResponse(cacheEntry, api.dispatch, response?.status || 0, logger);
+      },
+    }),
+
+    /**
+     * @method poll - method for challenge polling in a DaVinci flow
+     */
+    /**
+     * The poll endpoint differs from others in that it does not use onQueryStarted. This allows
+     * us to use the response from queryFn, while avoiding updating the node state with the poll
+     * response which causes the node to lose the initial collectors state when polling started.
+     */
+    poll: builder.mutation<unknown, { endpoint: string; interactionId: string }>({
+      async queryFn({ endpoint, interactionId }, api, _c, baseQuery) {
+        const { requestMiddleware, logger } = api.extra as Extras;
+
+        const request: FetchArgs = {
+          url: endpoint,
+          credentials: 'include',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            interactionId,
+          },
+          body: JSON.stringify({}),
+        };
+
+        logger.debug('Davinci API request', request);
+        const response: BaseQueryResponse = initQuery(request, 'poll')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => await baseQuery(req));
+
+        return response;
       },
     }),
   }),

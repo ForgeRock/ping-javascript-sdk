@@ -33,6 +33,7 @@ import {
   PhoneNumberCollector,
   UnknownCollector,
   ProtectCollector,
+  PollingCollector,
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   QrCodeCollector,
@@ -235,6 +236,7 @@ describe('Node Types', () => {
         | SingleSelectCollector
         | ValidatedTextCollector
         | ProtectCollector
+        | PollingCollector
         | FidoRegistrationCollector
         | FidoAuthenticationCollector
         | QrCodeCollector

@@ -89,5 +89,23 @@ export type Validator = (value: string) =>
       };
       type: string;
     };
+export type Poller = () => Promise<PollingStatus | InternalErrorResponse>;
 
 export type NodeStates = StartNode | ContinueNode | ErrorNode | SuccessNode | FailureNode;
+
+/**
+ * Polling status type for handling custom statuses. Resolves to any string.
+ */
+export type CustomPollingStatus = string & {};
+export type PollingStatusChallengeComplete =
+  | 'approved'
+  | 'denied'
+  | 'continue'
+  | CustomPollingStatus;
+export type PollingStatusChallenge =
+  | PollingStatusChallengeComplete
+  | 'expired'
+  | 'timedOut'
+  | 'error';
+export type PollingStatusContinue = 'continue' | 'timedOut';
+export type PollingStatus = PollingStatusContinue | PollingStatusChallenge;

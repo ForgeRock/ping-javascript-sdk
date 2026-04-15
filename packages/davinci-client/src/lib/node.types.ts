@@ -22,6 +22,7 @@ import type {
   ValidatedTextCollector,
   PhoneNumberCollector,
   ProtectCollector,
+  PollingCollector,
   UnknownCollector,
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
@@ -45,6 +46,7 @@ export type Collectors =
   | ReadOnlyCollector
   | ValidatedTextCollector
   | ProtectCollector
+  | PollingCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
   | QrCodeCollector

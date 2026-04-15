@@ -110,10 +110,10 @@ export const nodeSlice = createSlice({
     },
 
     /**
-     * @method failure - Method for creating an error node
+     * @method failure - Method for creating a failure node
      * @param {Object} state - The current state of the slice
      * @param {PayloadAction<DaVinciFailureResponse>} action - The action to be dispatched
-     * @returns {FailureNode} - The error node
+     * @returns {FailureNode} - The failure node
      */
     failure(
       state,
@@ -222,10 +222,11 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
+
     /**
-     * @method start - Method for creating a start node
+     * @method success - Method for creating a success node
      * @param {Object} state - The current state of the slice
-     * @returns {StartNode} - The start node
+     * @returns {SuccessNode} - The success node
      */
     success(
       state,
@@ -264,6 +265,7 @@ export const nodeSlice = createSlice({
 
       return newState;
     },
+
     /**
      * @method update - Method for updating collector values with the node
      * @param {Object} state - The current state of the slice
@@ -275,6 +277,32 @@ export const nodeSlice = createSlice({
 
       newState.client.collectors = nodeCollectorReducer(newState.client.collectors, action);
 
+      return newState;
+    },
+
+    /**
+     * @method poll - Method for creating the next node after continue polling
+     * @param {Object} state - The current state of the slice
+     * @param {PayloadAction} action - The action to be dispatched
+     * @returns {ContinueNode} - The next node
+     */
+    poll(
+      state,
+      action: PayloadAction<{
+        requestId: string;
+      }>,
+    ) {
+      const newState = state as Draft<ContinueNode>;
+
+      // Update retries remaining in poll collector
+      newState.client.collectors = nodeCollectorReducer(newState.client.collectors, action);
+
+      // Update cache key
+      newState.cache = {
+        key: action.payload.requestId,
+      };
+
+      // Return the previous continue node with updated retries and cache key
       return newState;
     },
   },
@@ -335,6 +363,45 @@ export const nodeSlice = createSlice({
     },
     selectServer: (state) => {
       return state.server;
+    },
+    selectContinueServer: (state) => {
+      if (state.status !== 'continue') {
+        return {
+          error: {
+            code: 'unknown',
+            type: 'state_error',
+            message: 'Not in a continue node state, must be in a continue node to use poll method',
+          } as const,
+          state: null,
+        };
+      }
+      return { error: null, state: state.server };
+    },
+    selectSelfLink: (state) => {
+      if (state.status !== 'continue') {
+        return {
+          error: {
+            code: 'unknown',
+            type: 'state_error',
+            message: 'Not in a continue node state, must be in a continue node for self link',
+          } as const,
+          state: null,
+        };
+      }
+
+      const links = state.server._links;
+      if (!links || !('self' in links) || !('href' in links['self']) || !links['self'].href) {
+        return {
+          error: {
+            code: 'unknown',
+            type: 'state_error',
+            message: 'No self link found in server info for challenge polling operation',
+          } as const,
+          state: null,
+        };
+      }
+
+      return { error: null, state: links['self'].href };
     },
   },
 });

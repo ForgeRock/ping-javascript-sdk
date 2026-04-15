@@ -602,8 +602,19 @@ export interface FidoAuthenticationOutputValue {
   trigger: string;
 }
 
+export interface PollingOutputValue {
+  pollInterval: number;
+  pollRetries: number;
+  pollChallengeStatus?: boolean;
+  challenge?: string;
+  retriesRemaining?: number;
+}
+
 export type AutoCollectorCategories = 'SingleValueAutoCollector' | 'ObjectValueAutoCollector';
-export type SingleValueAutoCollectorTypes = 'SingleValueAutoCollector' | 'ProtectCollector';
+export type SingleValueAutoCollectorTypes =
+  | 'SingleValueAutoCollector'
+  | 'ProtectCollector'
+  | 'PollingCollector';
 export type ObjectValueAutoCollectorTypes =
   | 'ObjectValueAutoCollector'
   | 'FidoRegistrationCollector'
@@ -652,6 +663,12 @@ export type FidoAuthenticationCollector = AutoCollector<
   FidoAuthenticationInputValue,
   FidoAuthenticationOutputValue
 >;
+export type PollingCollector = AutoCollector<
+  'SingleValueAutoCollector',
+  'PollingCollector',
+  string,
+  PollingOutputValue
+>;
 export type SingleValueAutoCollector = AutoCollector<
   'SingleValueAutoCollector',
   'SingleValueAutoCollector',
@@ -667,6 +684,7 @@ export type AutoCollectors =
   | ProtectCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
+  | PollingCollector
   | SingleValueAutoCollector
   | ObjectValueAutoCollector;
 
@@ -679,14 +697,16 @@ export type AutoCollectors =
  */
 export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'ProtectCollector'
   ? ProtectCollector
-  : T extends 'FidoRegistrationCollector'
-    ? FidoRegistrationCollector
-    : T extends 'FidoAuthenticationCollector'
-      ? FidoAuthenticationCollector
-      : T extends 'ObjectValueAutoCollector'
-        ? ObjectValueAutoCollector
-        : /**
-           * At this point, we have not passed in a collector type
-           * so we can return a SingleValueAutoCollector
-           **/
-          SingleValueAutoCollector;
+  : T extends 'PollingCollector'
+    ? PollingCollector
+    : T extends 'FidoRegistrationCollector'
+      ? FidoRegistrationCollector
+      : T extends 'FidoAuthenticationCollector'
+        ? FidoAuthenticationCollector
+        : T extends 'ObjectValueAutoCollector'
+          ? ObjectValueAutoCollector
+          : /**
+             * At this point, we have not passed in a collector type
+             * so we can return a SingleValueAutoCollector
+             **/
+            SingleValueAutoCollector;
