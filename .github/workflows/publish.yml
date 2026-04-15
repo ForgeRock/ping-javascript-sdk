@@ -40,6 +40,8 @@ jobs:
       pull-requests: write
       id-token: write
     runs-on: ubuntu-latest
+    env:
+      LEFTHOOK: 0
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,7 +103,7 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     env:
-      HUSKY: 0
+      LEFTHOOK: 0
     steps:
       - name: Branch name
         run: |
