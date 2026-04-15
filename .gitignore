@@ -28,6 +28,10 @@ out-tsc/
 .swc
 .vite
 
+# Lefthook
+.lefthook-local.yml
+.lefthook/
+
 # IDEs
 .vscode
 
@@ -77,6 +81,8 @@ packages/davinci-client/src/lib/mock-data/*.d.ts
 packages/davinci-client/src/lib/mock-data/*.d.ts.map
 **/**/tsconfig.tsbuildinfo
 **/**/tsconfig.spec.vitest-temp.json
+# api-extractor temp directories
+packages/*/temp/
 
 test-output
 .cursor/rules/nx-rules.mdc

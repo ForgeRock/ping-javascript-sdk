@@ -22,24 +22,24 @@ export type SingleValueCollectorTypes =
   | 'TextCollector'
   | 'ValidatedTextCollector';
 
-interface SelectorOption {
+export interface SelectorOption {
   label: string;
   value: string;
 }
 
-interface ValidationRequired {
+export interface ValidationRequired {
   type: 'required';
   message: string;
   rule: boolean;
 }
 
-interface ValidationRegex {
+export interface ValidationRegex {
   type: 'regex';
   message: string;
   rule: string;
 }
 
-interface ValidationPhoneNumber {
+export interface ValidationPhoneNumber {
   type: 'validatePhoneNumber';
   message: string;
   rule: boolean;
@@ -271,7 +271,7 @@ export type ObjectValueCollectorTypes =
   | 'ObjectValueCollector'
   | 'ObjectSelectCollector';
 
-interface DeviceOptionWithDefault {
+export interface DeviceOptionWithDefault {
   type: string;
   label: string;
   content: string;
@@ -280,7 +280,7 @@ interface DeviceOptionWithDefault {
   key: string;
 }
 
-interface DeviceOptionNoDefault {
+export interface DeviceOptionNoDefault {
   type: string;
   label: string;
   content: string;

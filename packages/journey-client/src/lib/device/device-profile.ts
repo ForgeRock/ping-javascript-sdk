@@ -285,3 +285,10 @@ export class Device {
     return profile;
   }
 }
+
+export type {
+  CollectParameters,
+  DeviceProfileData,
+  Geolocation,
+  ProfileConfigOptions,
+} from './interfaces.js';

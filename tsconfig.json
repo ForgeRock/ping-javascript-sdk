@@ -78,6 +78,12 @@
     },
     {
       "path": "./e2e/am-mock-api"
+    },
+    {
+      "path": "./tools/interface-mapping-validator"
+    },
+    {
+      "path": "./tools/api-report"
     }
   ]
 }

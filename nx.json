@@ -3,7 +3,7 @@
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "sharedGlobals": [
       "!{workspaceRoot}/.github/pull_request_template.md",
-      "!{workspaceRoot}/.husky/*",
+      "!{workspaceRoot}/lefthook.yml",
       "!{workspaceRoot}/.verdaccio/*",
       "!{workspaceRoot}/renovate.json",
       "!{projectRoot}/LICENSE",
@@ -118,7 +118,8 @@
       "options": {
         "targetName": "nxLint"
       },
-      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"]
+      "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"],
+      "exclude": ["tools/**/fixtures/**/*"]
     },
     {
       "plugin": "@nx/vite/plugin",

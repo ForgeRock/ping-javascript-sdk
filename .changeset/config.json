@@ -18,6 +18,8 @@
     "@forgerock/device-client-app",
     "@forgerock/davinci-app",
     "@forgerock/davinci-suites",
+    "@forgerock/api-report",
+    "@forgerock/interface-mapping-validator",
     "@forgerock/mock-api-v2",
     "@forgerock/oidc-app",
     "@forgerock/oidc-suites",

@@ -1,0 +1,40 @@
+pre-commit:
+  commands:
+    nx-sync:
+      run: pnpm nx sync
+    nx-check:
+      run: pnpm nx affected -t typecheck lint build api-report --tui=false
+      stage_fixed: true
+    format:
+      run: pnpm nx format:write
+      stage_fixed: true
+    interface-mapping:
+      glob: >-
+        {tools/interface-mapping-validator/**/*.ts,
+        interface_mapping.md,
+        packages/*/src/index.ts,
+        packages/*/src/types.ts,
+        packages/*/package.json,
+        packages/sdk-effects/*/src/index.ts,
+        packages/sdk-effects/*/src/types.ts,
+        packages/sdk-effects/*/package.json}
+      run: >
+        pnpm tsx tools/interface-mapping-validator/src/main.ts ||
+        (echo "" &&
+         echo "Interface mapping is out of sync." &&
+         echo "Run: pnpm mapping:generate" &&
+         exit 1)
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm run commitlint {1}
+
+prepare-commit-msg:
+  commands:
+    commitizen:
+      interactive: true
+      run: |
+        if [ "$2" = "template" ]; then
+          exec < /dev/tty && pnpm run commit || true
+        fi

@@ -25,24 +25,20 @@
     "format": "pnpm nx format:write",
     "generate-docs": "typedoc",
     "lint": "nx affected --target=lint",
+    "api-report": "pnpm nx run-many -t api-report -p journey-client oidc-client device-client davinci-client",
+    "api-report:fix": "for pkg in packages/journey-client packages/oidc-client packages/device-client packages/davinci-client; do pnpm tsx tools/api-report/src/main.ts $pkg --fix; done && pnpm api-report",
+    "mapping:validate": "pnpm tsx tools/interface-mapping-validator/src/main.ts",
+    "mapping:generate": "pnpm tsx tools/interface-mapping-validator/src/main.ts --generate",
     "local-release": "pnpm ts-node tools/release/release.ts",
     "nx": "nx",
     "postinstall": "ts-patch install",
     "preinstall": "npx only-allow pnpm",
-    "prepare": "node .husky/install.mjs",
+    "prepare": "lefthook install",
     "serve": "nx serve",
     "test": "CI=true nx affected:test",
     "test:e2e": "CI=true nx affected:e2e",
     "verdaccio": "nx local-registry",
     "watch": "nx vite:watch-deps"
-  },
-  "lint-staged": {
-    "*": [
-      "pnpm nx sync",
-      "pnpm nx affected -t typecheck lint build",
-      "pnpm nx format:write",
-      "git add"
-    ]
   },
   "config": {
     "commitizen": {
@@ -96,11 +92,10 @@
     "eslint-plugin-playwright": "^2.0.0",
     "eslint-plugin-prettier": "^5.2.3",
     "fast-check": "^4.0.0",
-    "husky": "^9.0.0",
+    "@evilmartians/lefthook": "^2.1.4",
     "jiti": "2.6.1",
     "jsdom": "27.1.0",
     "jsonc-eslint-parser": "^2.1.0",
-    "lint-staged": "^15.0.0",
     "madge": "8.0.0",
     "nx": "22.3.3",
     "pkg-pr-new": "^0.0.60",
@@ -109,6 +104,7 @@
     "shx": "^0.4.0",
     "swc-loader": "0.2.6",
     "ts-node": "10.9.2",
+    "tsx": "^4.20.0",
     "ts-patch": "3.3.0",
     "tslib": "^2.5.0",
     "typedoc": "^0.27.4",

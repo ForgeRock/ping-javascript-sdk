@@ -5,59 +5,48 @@
  */
 import 'immer'; // Side-effect needed only for getting types in workspace
 
-import type { FidoClient } from './lib/fido/fido.js';
-import type * as collectors from './lib/collector.types.js';
-import type * as config from './lib/config.types.js';
-import type * as nodes from './lib/node.types.js';
-import type * as client from './lib/client.types.js';
-import { davinci } from './lib/client.store.js';
-import { nodeSlice } from './lib/node.slice.js';
-
 export type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
+export type { RequestMiddleware, ActionTypes } from '@forgerock/sdk-request-middleware';
 
-export type DaVinciConfig = config.DaVinciConfig;
+// Config types
+export type { DaVinciConfig } from './lib/config.types.js';
+
+// DaVinci API types (request/response shapes, query params, links, etc.)
+export * from './lib/davinci.types.js';
+
+// Client types (InitFlow, Updater, Validator, NodeStates, InternalErrorResponse, etc.)
+export * from './lib/client.types.js';
+
+// Node types (ContinueNode, ErrorNode, StartNode, SuccessNode, FailureNode, Collectors, etc.)
+export * from './lib/node.types.js';
+
+// All collector types (single-value, multi-value, object-value, auto-collectors, etc.)
+export * from './lib/collector.types.js';
+
+// Fido types
+export type { FidoClient } from './lib/fido/fido.js';
+
+// Node slice and reducer exports needed to resolve DavinciClient
+export {
+  updateCollectorValues,
+  nextCollectorValues,
+  nodeCollectorReducer,
+} from './lib/node.reducer.js';
+
+// Re-export the davinci function so DavinciClient type alias can be resolved
+export { davinci } from './lib/client.store.js';
+
+import { davinci } from './lib/client.store.js';
 
 export type DavinciClient = Awaited<ReturnType<typeof davinci>>;
-export type Updater<T = unknown> = client.Updater<T>;
-export type CollectorValueType<T> = client.CollectorValueType<T>;
-export type InitFlow = client.InitFlow;
-export type Validator = client.Validator;
-export type GetClient = ReturnType<typeof nodeSlice.selectors.selectClient>;
-export type StartNode = nodes.StartNode;
-export type ContinueNode = nodes.ContinueNode;
-export type ErrorNode = nodes.ErrorNode;
-export type SuccessNode = nodes.SuccessNode;
-export type FailureNode = nodes.FailureNode;
-export type NodeStates = ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
-export type Collectors = nodes.Collectors;
-export type DaVinciValidationError = nodes.DaVinciError;
 
-export type ActionCollector<T extends collectors.ActionCollectorTypes> =
-  collectors.ActionCollector<T>;
-export type SingleValueCollector<T extends collectors.SingleValueCollectorTypes> =
-  collectors.SingleValueCollector<T>;
-
-export type FlowCollector = collectors.FlowCollector;
-export type PasswordCollector = collectors.PasswordCollector;
-export type TextCollector = collectors.TextCollector;
-export type IdpCollector = collectors.IdpCollector;
-export type SubmitCollector = collectors.SubmitCollector;
-export type ValidatedTextCollector = collectors.ValidatedTextCollector;
-export type ReadOnlyCollector = collectors.ReadOnlyCollector;
-export type MultiSelectCollector = collectors.MultiSelectCollector;
-export type SingleSelectCollector = collectors.SingleSelectCollector;
-export type DeviceRegistrationCollector = collectors.DeviceRegistrationCollector;
-export type DeviceAuthenticationCollector = collectors.DeviceAuthenticationCollector;
-export type PhoneNumberCollector = collectors.PhoneNumberCollector;
-export type ProtectCollector = collectors.ProtectCollector;
-export type PollingCollector = collectors.PollingCollector;
-export type FidoRegistrationCollector = collectors.FidoRegistrationCollector;
-export type FidoAuthenticationCollector = collectors.FidoAuthenticationCollector;
-export type QrCodeCollector = collectors.QrCodeCollector;
-
-export type PollingStatus = client.PollingStatus;
-export type Poller = client.Poller;
-
-export type InternalErrorResponse = client.InternalErrorResponse;
-export type { RequestMiddleware, ActionTypes } from '@forgerock/sdk-request-middleware';
-export type { FidoClient };
+/**
+ * The client property of any node state.
+ * Represents the parsed client-facing state from a DaVinci flow node.
+ */
+export type GetClient =
+  | import('./lib/node.types.js').StartNode['client']
+  | import('./lib/node.types.js').ContinueNode['client']
+  | import('./lib/node.types.js').ErrorNode['client']
+  | import('./lib/node.types.js').SuccessNode['client']
+  | import('./lib/node.types.js').FailureNode['client'];

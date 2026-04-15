@@ -1,0 +1,19 @@
+{
+  "name": "@forgerock/api-report",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Validates client package API surfaces for forgotten re-exports",
+  "type": "module",
+  "scripts": {
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
+  },
+  "dependencies": {
+    "@microsoft/api-extractor": "^7.52.8",
+    "tsx": "^4.20.0"
+  },
+  "nx": {
+    "tags": ["scope:tool"]
+  }
+}

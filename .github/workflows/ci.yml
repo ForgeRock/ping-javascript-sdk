@@ -59,6 +59,70 @@ jobs:
         with:
           message: Deployed ${{ github.sha }} to https://ForgeRock.github.io/ping-javascript-sdk/pr-${{ github.event.number }}/${{github.sha}} branch gh-pages in ForgeRock/ping-javascript-sdk
 
+      - name: Validate interface mapping
+        id: interface-mapping
+        continue-on-error: true
+        run: |
+          set +e
+          OUTPUT=$(pnpm exec tsx tools/interface-mapping-validator/src/main.ts 2>&1)
+          EXIT_CODE=$?
+          set -e
+          echo "$OUTPUT"
+          echo 'report<<MAPPING_EOF' >> "$GITHUB_OUTPUT"
+          echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+          echo 'MAPPING_EOF' >> "$GITHUB_OUTPUT"
+          exit $EXIT_CODE
+
+      - name: Find interface mapping comment
+        id: find-mapping-comment
+        if: always()
+        uses: peter-evans/find-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: <!-- interface-mapping-check -->
+
+      - name: Update interface mapping comment
+        if: always() && steps.interface-mapping.outcome == 'failure'
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          comment-id: ${{ steps.find-mapping-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            <!-- interface-mapping-check -->
+            ## Interface Mapping Out of Date
+
+            The `interface_mapping.md` document is out of sync with the SDK exports.
+
+            <details>
+            <summary>Drift report</summary>
+
+            ```
+            ${{ steps.interface-mapping.outputs.report }}
+            ```
+
+            </details>
+
+            **To fix**, run:
+            ```bash
+            pnpm mapping:generate
+            ```
+            Then commit the updated `interface_mapping.md`.
+
+      - name: Update interface mapping comment (passing)
+        if: always() && steps.interface-mapping.outcome == 'success' && steps.find-mapping-comment.outputs.comment-id != ''
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          comment-id: ${{ steps.find-mapping-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            <!-- interface-mapping-check -->
+            ## Interface Mapping Up to Date
+
+            The `interface_mapping.md` document is in sync with the SDK exports.
+
       - name: Download baseline bundle sizes
         uses: dawidd6/action-download-artifact@v3
         with:

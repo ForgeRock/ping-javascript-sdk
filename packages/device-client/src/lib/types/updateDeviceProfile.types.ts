@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-type Device = {
+export type DeviceMetadata = {
   platform: string;
   version: 34;
   device: string;
@@ -16,7 +16,7 @@ type Device = {
   jailBreakScore: 0;
 };
 
-type Hardware = {
+export type Hardware = {
   hardware: string;
   manufacturer: string;
   storage: 5939;
@@ -32,25 +32,25 @@ type Hardware = {
   };
 };
 
-type Browser = {
+export type Browser = {
   userAgent: string;
 };
 
-type Bluetooth = {
+export type Bluetooth = {
   supported: true;
 };
 
-type Network = {
+export type Network = {
   connected: true;
 };
 
-type Telephony = {
+export type Telephony = {
   networkCountryIso: 'us';
   carrierName: 'T-Mobile';
 };
 
-type Metadata = {
-  platform: Device;
+export type Metadata = {
+  platform: DeviceMetadata;
   hardware: Hardware;
   browser: Browser;
   bluetooth: Bluetooth;

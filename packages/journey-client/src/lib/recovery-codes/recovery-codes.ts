@@ -70,3 +70,7 @@ export abstract class RecoveryCodes {
       });
   }
 }
+
+export type { JourneyStep } from '../step.utils.js';
+export type { TextOutputCallback } from '../callbacks/text-output-callback.js';
+export type { BaseCallback } from '../callbacks/base-callback.js';
