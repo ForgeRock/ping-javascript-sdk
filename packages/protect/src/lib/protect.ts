@@ -1,19 +1,19 @@
 /*
  *
- * Copyright © 2025 Ping Identity Corporation. All right reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  *
  */
 
-import { Protect, ProtectConfig } from './protect.types.js';
+import { Protect, ProtectConfig, SignalsInitializationOptions } from './protect.types.js';
 
 // Add Signals SDK namespace to the window object
 declare global {
   interface Window {
     _pingOneSignals: {
-      init: (initParams?: ProtectConfig) => Promise<void>;
+      init: (initParams?: ProtectConfig | SignalsInitializationOptions) => Promise<void>;
       getData: () => Promise<string>;
       pauseBehavioralData: () => void;
       resumeBehavioralData: () => void;
@@ -24,10 +24,10 @@ declare global {
 /**
  * @async
  * @function protect - returns a set of methods to interact with the PingOne Signals SDK
- * @param {ProtectConfig} options - the configuration options for the PingOne Signals SDK
+ * @param {ProtectConfig | SignalsInitializationOptions} options - the configuration options for the PingOne Signals SDK
  * @returns {Promise<Protect>} - a set of methods to interact with the PingOne Signals SDK
  */
-export function protect(options: ProtectConfig): Protect {
+export function protect(options: ProtectConfig | SignalsInitializationOptions): Protect {
   let protectApiInitialized = false;
 
   return {
@@ -48,7 +48,10 @@ export function protect(options: ProtectConfig): Protect {
       try {
         await window._pingOneSignals.init(options);
 
-        if (options.behavioralDataCollection === true) {
+        if (
+          options.behavioralDataCollection === true ||
+          options.behavioralDataCollection === 'true'
+        ) {
           window._pingOneSignals.resumeBehavioralData();
         }
       } catch (err) {
