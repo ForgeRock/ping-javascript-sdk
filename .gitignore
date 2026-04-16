@@ -91,3 +91,6 @@ test-output
 # Gemini local knowledge base files
 GEMINI.md
 **/GEMINI.md
+
+.claude/worktrees
+.claude/settings.local.json

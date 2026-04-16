@@ -164,5 +164,6 @@
   "useInferencePlugins": true,
   "defaultBase": "main",
   "nxCloudId": "6762f3018aed9c5fad7009bb",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json"
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "analytics": false
 }
