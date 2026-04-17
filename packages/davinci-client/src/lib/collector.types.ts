@@ -297,11 +297,17 @@ export interface DeviceValue {
 export interface PhoneNumberInputValue {
   countryCode: string;
   phoneNumber: string;
+  extension: string;
 }
 
 export interface PhoneNumberOutputValue {
   countryCode?: string;
   phoneNumber?: string;
+  extension?: string;
+}
+
+export interface PhoneNumberOptions {
+  showExtension: boolean;
 }
 
 export interface ObjectOptionsCollectorWithStringValue<
@@ -331,6 +337,7 @@ export interface ObjectOptionsCollectorWithObjectValue<
   T extends ObjectValueCollectorTypes,
   V = Record<string, string>,
   D = Record<string, string>,
+  O = Record<string, string>,
 > {
   category: 'ObjectValueCollector';
   error: string | null;
@@ -341,38 +348,14 @@ export interface ObjectOptionsCollectorWithObjectValue<
     key: string;
     value: V;
     type: string;
-    validation: ValidationRequired[] | null;
-  };
-  output: {
-    key: string;
-    label: string;
-    type: string;
-    options: DeviceOptionWithDefault[];
-    value?: D | null;
-  };
-}
-
-export interface ObjectValueCollectorWithObjectValue<
-  T extends ObjectValueCollectorTypes,
-  IV = Record<string, string>,
-  OV = Record<string, string>,
-> {
-  category: 'ObjectValueCollector';
-  error: string | null;
-  type: T;
-  id: string;
-  name: string;
-  input: {
-    key: string;
-    value: IV;
-    type: string;
     validation: (ValidationRequired | ValidationPhoneNumber)[] | null;
   };
   output: {
     key: string;
     label: string;
     type: string;
-    value?: OV | null;
+    options: O;
+    value?: D | null;
   };
 }
 
@@ -396,8 +379,7 @@ export type ObjectValueCollectors =
 
 export type ObjectValueCollector<T extends ObjectValueCollectorTypes> =
   | ObjectOptionsCollectorWithObjectValue<T>
-  | ObjectOptionsCollectorWithStringValue<T>
-  | ObjectValueCollectorWithObjectValue<T>;
+  | ObjectOptionsCollectorWithStringValue<T>;
 
 export type DeviceRegistrationCollector = ObjectOptionsCollectorWithStringValue<
   'DeviceRegistrationCollector',
@@ -405,12 +387,15 @@ export type DeviceRegistrationCollector = ObjectOptionsCollectorWithStringValue<
 >;
 export type DeviceAuthenticationCollector = ObjectOptionsCollectorWithObjectValue<
   'DeviceAuthenticationCollector',
-  DeviceValue
+  DeviceValue,
+  Record<string, string>,
+  DeviceOptionWithDefault[]
 >;
-export type PhoneNumberCollector = ObjectValueCollectorWithObjectValue<
+export type PhoneNumberCollector = ObjectOptionsCollectorWithObjectValue<
   'PhoneNumberCollector',
   PhoneNumberInputValue,
-  PhoneNumberOutputValue
+  PhoneNumberOutputValue,
+  PhoneNumberOptions
 >;
 
 /** *********************************************************************

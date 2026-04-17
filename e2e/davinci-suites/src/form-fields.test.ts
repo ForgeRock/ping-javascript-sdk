@@ -42,9 +42,10 @@ test('Should render form fields', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Submit' }).click();
   const request = await requestPromise;
-
-  const parsedData = JSON.parse(request.postData());
+  const postData = request.postData();
+  const parsedData = postData ? JSON.parse(postData) : {};
   const data = parsedData.parameters.data;
+
   expect(data.actionKey).toBe('submit');
   expect(data.formData).toStrictEqual({
     'text-input-key': 'The input',
@@ -55,6 +56,7 @@ test('Should render form fields', async ({ page }) => {
     'phone-field': {
       phoneNumber: '1234567890',
       countryCode: 'GB',
+      extension: '4321',
     },
   });
 });
