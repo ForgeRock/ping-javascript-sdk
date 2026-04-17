@@ -155,9 +155,10 @@ export type PhoneNumberField = {
   type: 'PHONE_NUMBER';
   key: string;
   label: string;
-  defaultCountryCode: string | null;
   required: boolean;
+  defaultCountryCode: string | null;
   validatePhoneNumber: boolean;
+  showExtension: boolean;
 };
 
 export type ProtectField = {

@@ -87,6 +87,7 @@ export default function objectValueComponent(
       updater({
         phoneNumber: selectedValue,
         countryCode: collector.output.value?.countryCode || '',
+        extension: collector.output.value?.extension || '',
       } as any);
     });
 

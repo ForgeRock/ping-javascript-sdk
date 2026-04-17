@@ -652,11 +652,16 @@ export function returnObjectCollector<
       });
     }
 
+    options = { showExtension: field.showExtension };
+
     const prefilledCountryCode = prefillData?.countryCode;
     const prefilledPhone = prefillData?.phoneNumber;
+    const prefilledExtension = prefillData?.extension;
+
     defaultValue = {
       countryCode: prefilledCountryCode ? prefilledCountryCode : field.defaultCountryCode || '',
       phoneNumber: prefilledPhone || '',
+      extension: prefilledExtension || '',
     };
   }
 

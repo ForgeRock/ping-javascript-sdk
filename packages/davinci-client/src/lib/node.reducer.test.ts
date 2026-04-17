@@ -756,6 +756,7 @@ describe('The phone number collector reducer', () => {
             label: 'Phone Number',
             type: 'PHONE_NUMBER',
             required: false,
+            showExtension: false,
           },
         ],
       },
@@ -772,6 +773,7 @@ describe('The phone number collector reducer', () => {
           value: {
             countryCode: '',
             phoneNumber: '',
+            extension: '',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -780,9 +782,11 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
+          options: { showExtension: false },
           value: {
             countryCode: '',
             phoneNumber: '',
+            extension: '',
           },
         },
       },
@@ -800,8 +804,18 @@ describe('The phone number collector reducer', () => {
             label: 'Phone Number',
             type: 'PHONE_NUMBER',
             required: false,
+            showExtension: true,
           },
         ],
+        formData: {
+          value: {
+            'phone-number-key': {
+              countryCode: 'US',
+              phoneNumber: '1234567890',
+              extension: '54321',
+            },
+          },
+        },
       },
     };
     expect(nodeCollectorReducer(undefined, action)).toEqual([
@@ -815,7 +829,8 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           value: {
             countryCode: 'US',
-            phoneNumber: '',
+            phoneNumber: '1234567890',
+            extension: '54321',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -824,9 +839,11 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
+          options: { showExtension: true },
           value: {
             countryCode: 'US',
-            phoneNumber: '',
+            phoneNumber: '1234567890',
+            extension: '54321',
           },
         },
       },
@@ -841,6 +858,7 @@ describe('The phone number collector reducer', () => {
         value: {
           countryCode: 'US',
           phoneNumber: '555-555-5555',
+          extension: '54321',
         },
       },
     };
@@ -856,6 +874,7 @@ describe('The phone number collector reducer', () => {
           value: {
             countryCode: '',
             phoneNumber: '',
+            extension: '',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -864,8 +883,11 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
+          options: { showExtension: true },
           value: {
             countryCode: '',
+            phoneNumber: '',
+            extension: '',
           },
         },
       },
@@ -882,6 +904,7 @@ describe('The phone number collector reducer', () => {
           value: {
             countryCode: 'US',
             phoneNumber: '555-555-5555',
+            extension: '54321',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -890,8 +913,11 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
+          options: { showExtension: true },
           value: {
             countryCode: '',
+            phoneNumber: '',
+            extension: '',
           },
         },
       },
