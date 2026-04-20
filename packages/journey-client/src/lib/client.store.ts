@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025-2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -16,7 +16,6 @@ import {
 import type { GenericError } from '@forgerock/sdk-types';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { Step } from '@forgerock/sdk-types';
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
@@ -156,15 +155,9 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
 
   const self: JourneyClient = {
     start: async (options?: StartParam) => {
-      const { data, error } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
+      const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
       if (data) {
         return createJourneyObject(data);
-      }
-
-      const errorData = (error as FetchBaseQueryError | undefined)?.data;
-      const errorStep = errorData as Step | undefined;
-      if (errorStep?.code !== undefined) {
-        return createJourneyObject(errorStep);
       }
 
       const genericError: GenericError = {
@@ -179,17 +172,9 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
      * Submits the current Step payload to the authentication API and retrieves the next JourneyStep in the journey.
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
-      const { data, error } = await store.dispatch(
-        journeyApi.endpoints.next.initiate({ step, options }),
-      );
+      const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
       if (data) {
         return createJourneyObject(data);
-      }
-
-      const errorData = (error as FetchBaseQueryError | undefined)?.data;
-      const errorStep = errorData as Step | undefined;
-      if (errorStep?.code !== undefined) {
-        return createJourneyObject(errorStep);
       }
 
       const genericError: GenericError = {

@@ -89,6 +89,9 @@ interface Extras {
   logger: ReturnType<typeof loggerFn>;
 }
 
+// Only treat these numeric codes as login failures coming back in the Step payload.
+const LOGIN_FAILURE_CODES = [400, 401, 403, 412, 423, 429];
+
 export const journeyApi = createApi({
   reducerPath: 'journeyReducer',
   baseQuery: fetchBaseQuery({
@@ -133,6 +136,24 @@ export const journeyApi = createApi({
             return result as QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>;
           });
 
+        /**
+         * If the endpoint returned an HTTP error whose body is an AM Step with a
+         * login-failure code, treat it as successful data so callers receive the
+         * Step via the `data` path (keeps downstream logic simpler).
+         */
+        if ('error' in response) {
+          const errorData = (response.error as FetchBaseQueryError | undefined)?.data as
+            | Step
+            | undefined;
+          if (errorData && errorData.code && LOGIN_FAILURE_CODES.includes(errorData.code)) {
+            return { data: errorData } as QueryReturnValue<
+              Step,
+              FetchBaseQueryError,
+              FetchBaseQueryMeta
+            >;
+          }
+        }
+
         return response as QueryReturnValue<Step, FetchBaseQueryError, FetchBaseQueryMeta>;
       },
     }),
@@ -161,6 +182,24 @@ export const journeyApi = createApi({
             const result = await baseQuery(req, api, api.extra as Extras);
             return result as QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>;
           });
+
+        /**
+         * If the endpoint returned an HTTP error whose body is an AM Step with a
+         * login-failure code, treat it as successful data so callers receive the
+         * Step via the `data` path (keeps downstream logic simpler).
+         */
+        if ('error' in response) {
+          const errorData = (response.error as FetchBaseQueryError | undefined)?.data as
+            | Step
+            | undefined;
+          if (errorData && errorData.code && LOGIN_FAILURE_CODES.includes(errorData.code)) {
+            return { data: errorData } as QueryReturnValue<
+              Step,
+              FetchBaseQueryError,
+              FetchBaseQueryMeta
+            >;
+          }
+        }
 
         return response as QueryReturnValue<Step, FetchBaseQueryError, FetchBaseQueryMeta>;
       },
