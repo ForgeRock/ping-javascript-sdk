@@ -1,3 +1,4 @@
+// @vitest-environment node
 /*
  * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
@@ -75,7 +76,7 @@ function getUrlFromInput(input: RequestInfo | URL): string {
 /**
  * Helper to setup mock fetch for wellknown + journey responses
  */
-function setupMockFetch(journeyResponse: Step | null = null) {
+function setupMockFetch(journeyResponse: Step | null = null, authenticateStatus = 200) {
   mockFetch.mockImplementation((input: RequestInfo | URL) => {
     const url = getUrlFromInput(input);
 
@@ -85,8 +86,13 @@ function setupMockFetch(journeyResponse: Step | null = null) {
     }
 
     // Journey authenticate endpoint
-    if (journeyResponse && url.includes('/authenticate')) {
-      return Promise.resolve(new Response(JSON.stringify(journeyResponse)));
+    if (url.includes('/authenticate')) {
+      if (journeyResponse === null) {
+        return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+      }
+      return Promise.resolve(
+        new Response(JSON.stringify(journeyResponse), { status: authenticateStatus }),
+      );
     }
 
     return Promise.reject(new Error(`Unexpected fetch: ${url}`));
@@ -152,6 +158,30 @@ describe('journey-client', () => {
     }
   });
 
+  test('start_401WithCodeInBody_ReturnsLoginFailure', async () => {
+    const failurePayload: Step = {
+      code: 401,
+      message: 'Access Denied',
+      reason: 'Unauthorized',
+      detail: { failureUrl: 'https://example.com/failure' },
+    };
+    setupMockFetch(failurePayload, 401);
+
+    const client = await journey({ config: mockConfig });
+    const result = await client.start();
+
+    expect(result).toBeDefined();
+    expect(isGenericError(result)).toBe(false);
+    expect(result).toHaveProperty('type', 'LoginFailure');
+
+    if (!isGenericError(result) && result.type === 'LoginFailure') {
+      expect(result.payload).toEqual(failurePayload);
+      expect(result.getCode()).toBe(401);
+      expect(result.getMessage()).toBe('Access Denied');
+      expect(result.getReason()).toBe('Unauthorized');
+    }
+  });
+
   test('next_WellknownConfig_SendsStepAndReturnsNext', async () => {
     const initialStep = createJourneyStep({
       authId: 'test-auth-id',
@@ -192,6 +222,34 @@ describe('journey-client', () => {
     }
   });
 
+  test('next_401WithCodeInBody_ReturnsLoginFailure', async () => {
+    const initialStep = createJourneyStep({
+      authId: 'test-auth-id',
+      callbacks: [],
+    });
+    const failurePayload: Step = {
+      code: 401,
+      message: 'Access Denied',
+      reason: 'Unauthorized',
+      detail: { failureUrl: 'https://example.com/failure' },
+    };
+    setupMockFetch(failurePayload, 401);
+
+    const client = await journey({ config: mockConfig });
+    const result = await client.next(initialStep, {});
+
+    expect(result).toBeDefined();
+    expect(isGenericError(result)).toBe(false);
+    expect(result).toHaveProperty('type', 'LoginFailure');
+
+    if (!isGenericError(result) && result.type === 'LoginFailure') {
+      expect(result.payload).toEqual(failurePayload);
+      expect(result.getCode()).toBe(401);
+      expect(result.getMessage()).toBe('Access Denied');
+      expect(result.getReason()).toBe('Unauthorized');
+    }
+  });
+
   test('redirect_WellknownConfig_StoresStepAndCallsLocationAssign', async () => {
     const mockStepPayload: Step = {
       callbacks: [
@@ -204,6 +262,15 @@ describe('journey-client', () => {
     };
     const step = createJourneyStep(mockStepPayload);
     const assignMock = vi.fn();
+    // Node test environment doesn't provide `window`, so create a minimal shim
+    // with a real `location` getter so we can keep using vi.spyOn(..., 'get').
+    (globalThis as unknown as { window?: unknown }).window = {};
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      get: () => ({
+        assign: vi.fn(),
+      }),
+    });
     const locationSpy = vi.spyOn(window, 'location', 'get').mockReturnValue({
       ...window.location,
       assign: assignMock,

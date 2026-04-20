@@ -16,6 +16,7 @@ import {
 import type { GenericError } from '@forgerock/sdk-types';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { Step } from '@forgerock/sdk-types';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
@@ -155,32 +156,48 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
 
   const self: JourneyClient = {
     start: async (options?: StartParam) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      if (!data) {
-        const error: GenericError = {
-          error: 'no_response_data',
-          message: 'No data received from server when starting journey',
-          type: 'unknown_error',
-        };
-        return error;
+      const { data, error } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
+      if (data) {
+        return createJourneyObject(data);
       }
-      return createJourneyObject(data);
+
+      const errorData = (error as FetchBaseQueryError | undefined)?.data;
+      const errorStep = errorData as Step | undefined;
+      if (errorStep?.code !== undefined) {
+        return createJourneyObject(errorStep);
+      }
+
+      const genericError: GenericError = {
+        error: 'no_response_data',
+        message: 'No data received from server when starting journey',
+        type: 'unknown_error',
+      };
+      return genericError;
     },
 
     /**
      * Submits the current Step payload to the authentication API and retrieves the next JourneyStep in the journey.
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      if (!data) {
-        const error: GenericError = {
-          error: 'no_response_data',
-          message: 'No data received from server when submitting step',
-          type: 'unknown_error',
-        };
-        return error;
+      const { data, error } = await store.dispatch(
+        journeyApi.endpoints.next.initiate({ step, options }),
+      );
+      if (data) {
+        return createJourneyObject(data);
       }
-      return createJourneyObject(data);
+
+      const errorData = (error as FetchBaseQueryError | undefined)?.data;
+      const errorStep = errorData as Step | undefined;
+      if (errorStep?.code !== undefined) {
+        return createJourneyObject(errorStep);
+      }
+
+      const genericError: GenericError = {
+        error: 'no_response_data',
+        message: 'No data received from server when submitting step',
+        type: 'unknown_error',
+      };
+      return genericError;
     },
 
     // TODO: Remove the actual redirect from this method and just return the URL to the caller
