@@ -6,19 +6,19 @@ on:
   workflow_dispatch:
     inputs:
       snapshot_tag:
-        description: "changesets snapshot tag (beta/canary)"
+        description: 'changesets snapshot tag (beta/canary)'
         required: false
-        default: "beta"
+        default: 'beta'
         type: string
       npm_tag:
-        description: "npm dist-tag for publishing snapshot"
+        description: 'npm dist-tag for publishing snapshot'
         required: false
-        default: "beta"
+        default: 'beta'
         type: string
       npm_access:
-        description: "access level for publishing snapshot to npm"
+        description: 'access level for publishing snapshot to npm'
         required: false
-        default: "public"
+        default: 'public'
         type: choice
         options:
           - public
@@ -61,7 +61,7 @@ jobs:
           version: pnpm ci:version
           title: Release PR
           branch: main
-          commit: "chore: version-packages"
+          commit: 'chore: version-packages'
           setupGitUser: true
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -95,15 +95,10 @@ jobs:
 
   snapshot:
     # Guard against publishing snapshots from the protected release branch.
-    # Both github.ref (the branch selected in the UI) and inputs.branch (the
-    # free-text checkout ref) must be checked, since they are independent values
-    # and the checkout step uses inputs.branch directly.
     if: >-
       ${{
         github.event_name == 'workflow_dispatch' &&
-        github.ref != 'refs/heads/changeset-release/main' &&
-        github.event.inputs.branch != 'changeset-release/main' &&
-        github.event.inputs.branch != 'refs/heads/changeset-release/main'
+        github.ref != 'refs/heads/changeset-release/main'
       }}
     name: Publish Snapshots
     permissions:
