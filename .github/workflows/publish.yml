@@ -94,8 +94,13 @@ jobs:
           retention-days: 30
 
   snapshot:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    name: Publish snapshot/beta to npm
+    # Guard against publishing snapshots from the protected release branch.
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' &&
+        github.ref != 'refs/heads/changeset-release/main'
+      }}
+    name: Publish Snapshots
     permissions:
       contents: write
       id-token: write
