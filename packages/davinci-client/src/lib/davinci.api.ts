@@ -58,12 +58,10 @@ export const davinciApi = createApi({
   reducerPath: 'davinci',
   // TODO: implement extraOptions for request interceptors: https://stackoverflow.com/a/77569083 & https://stackoverflow.com/a/65129117
   baseQuery: fetchBaseQuery({
-    prepareHeaders: (headers, { endpoint }) => {
+    prepareHeaders: (headers) => {
       headers.set('Accept', 'application/json');
-      if (endpoint !== 'poll') {
-        headers.set('x-requested-with', 'ping-sdk');
-        headers.set('x-requested-platform', 'javascript');
-      }
+      headers.set('x-requested-with', 'ping-sdk');
+      headers.set('x-requested-platform', 'javascript');
       return headers;
     },
   }),
