@@ -8,6 +8,7 @@ import type { ReadOnlyCollector } from '@forgerock/davinci-client/types';
 
 export default function (formEl: HTMLFormElement, collector: ReadOnlyCollector) {
   const p = document.createElement('p');
+  p.style.whiteSpace = 'pre-line';
   const { richContent } = collector.output;
 
   if (richContent.replacements.length === 0) {
