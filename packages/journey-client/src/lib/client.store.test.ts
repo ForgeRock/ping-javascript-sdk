@@ -6,13 +6,18 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { callbackType } from '@forgerock/sdk-types';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-
-import type { GenericError, Step, WellknownResponse } from '@forgerock/sdk-types';
 
 import { journey } from './client.store.js';
 import { createJourneyStep } from './step.utils.js';
+
+import {
+  callbackType,
+  type GenericError,
+  type Step,
+  type WellknownResponse,
+} from '@forgerock/sdk-types';
+
 import { JourneyClientConfig } from './config.types.js';
 
 /**
@@ -158,7 +163,7 @@ describe('journey-client', () => {
     }
   });
 
-  test('start_401WithCodeInBody_ReturnsLoginFailure', async () => {
+  test('start_401WithStepPayload_ReturnsLoginFailure', async () => {
     const failurePayload: Step = {
       code: 401,
       message: 'Access Denied',
@@ -222,7 +227,7 @@ describe('journey-client', () => {
     }
   });
 
-  test('next_401WithCodeInBody_ReturnsLoginFailure', async () => {
+  test('next_401WithStepPayload_ReturnsLoginFailure', async () => {
     const initialStep = createJourneyStep({
       authId: 'test-auth-id',
       callbacks: [],
@@ -388,7 +393,7 @@ describe('journey-client', () => {
 
     expect(isGenericError(result)).toBe(true);
     if (isGenericError(result)) {
-      expect(result.error).toBe('no_response_data');
+      expect(result.error).toBe('request_failed');
       expect(result.type).toBe('unknown_error');
     }
   });

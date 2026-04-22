@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2020 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,6 +8,8 @@
 import { initQuery, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { REQUESTED_WITH, getEndpointPath, stringify, resolve } from '@forgerock/sdk-utilities';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+
+import { NextOptions, StartParam } from './interfaces.js';
 
 import type { Step } from '@forgerock/sdk-types';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
@@ -21,9 +23,7 @@ import type {
 } from '@reduxjs/toolkit/query';
 
 import { JourneyStep } from './step.types.js';
-
 import type { InternalJourneyClientConfig } from './config.types.js';
-import { NextOptions, StartParam } from './interfaces.js';
 
 /**
  * Minimal state type for accessing journey config from RTK Query endpoints.
@@ -89,9 +89,6 @@ interface Extras {
   logger: ReturnType<typeof loggerFn>;
 }
 
-// Only treat these numeric codes as login failures coming back in the Step payload.
-const LOGIN_FAILURE_CODES = [400, 401, 403, 412, 423, 429];
-
 export const journeyApi = createApi({
   reducerPath: 'journeyReducer',
   baseQuery: fetchBaseQuery({
@@ -136,24 +133,6 @@ export const journeyApi = createApi({
             return result as QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>;
           });
 
-        /**
-         * If the endpoint returned an HTTP error whose body is an AM Step with a
-         * login-failure code, treat it as successful data so callers receive the
-         * Step via the `data` path (keeps downstream logic simpler).
-         */
-        if ('error' in response) {
-          const errorData = (response.error as FetchBaseQueryError | undefined)?.data as
-            | Step
-            | undefined;
-          if (errorData && errorData.code && LOGIN_FAILURE_CODES.includes(errorData.code)) {
-            return { data: errorData } as QueryReturnValue<
-              Step,
-              FetchBaseQueryError,
-              FetchBaseQueryMeta
-            >;
-          }
-        }
-
         return response as QueryReturnValue<Step, FetchBaseQueryError, FetchBaseQueryMeta>;
       },
     }),
@@ -182,24 +161,6 @@ export const journeyApi = createApi({
             const result = await baseQuery(req, api, api.extra as Extras);
             return result as QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>;
           });
-
-        /**
-         * If the endpoint returned an HTTP error whose body is an AM Step with a
-         * login-failure code, treat it as successful data so callers receive the
-         * Step via the `data` path (keeps downstream logic simpler).
-         */
-        if ('error' in response) {
-          const errorData = (response.error as FetchBaseQueryError | undefined)?.data as
-            | Step
-            | undefined;
-          if (errorData && errorData.code && LOGIN_FAILURE_CODES.includes(errorData.code)) {
-            return { data: errorData } as QueryReturnValue<
-              Step,
-              FetchBaseQueryError,
-              FetchBaseQueryMeta
-            >;
-          }
-        }
 
         return response as QueryReturnValue<Step, FetchBaseQueryError, FetchBaseQueryMeta>;
       },

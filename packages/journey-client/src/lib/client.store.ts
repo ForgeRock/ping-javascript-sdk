@@ -6,16 +6,11 @@
  */
 
 import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
-import { callbackType } from '@forgerock/sdk-types';
 import {
   isGenericError,
   isValidWellknownUrl,
   createWellknownError,
 } from '@forgerock/sdk-utilities';
-
-import type { GenericError } from '@forgerock/sdk-types';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { Step } from '@forgerock/sdk-types';
 
 import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
@@ -23,6 +18,9 @@ import { journeyApi } from './journey.api.js';
 import { createStorage } from '@forgerock/storage';
 import { createJourneyObject } from './journey.utils.js';
 import { wellknownApi } from './wellknown.api.js';
+
+import { callbackType, type GenericError, type Step } from '@forgerock/sdk-types';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
 import type { JourneyStep } from './step.utils.js';
 import type { JourneyClientConfig } from './config.types.js';
@@ -155,34 +153,18 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
 
   const self: JourneyClient = {
     start: async (options?: StartParam) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      if (data) {
-        return createJourneyObject(data);
-      }
-
-      const genericError: GenericError = {
-        error: 'no_response_data',
-        message: 'No data received from server when starting journey',
-        type: 'unknown_error',
-      };
-      return genericError;
+      const { data, error } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
+      return createJourneyObject(data, error);
     },
 
     /**
      * Submits the current Step payload to the authentication API and retrieves the next JourneyStep in the journey.
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      if (data) {
-        return createJourneyObject(data);
-      }
-
-      const genericError: GenericError = {
-        error: 'no_response_data',
-        message: 'No data received from server when submitting step',
-        type: 'unknown_error',
-      };
-      return genericError;
+      const { data, error } = await store.dispatch(
+        journeyApi.endpoints.next.initiate({ step, options }),
+      );
+      return createJourneyObject(data, error);
     },
 
     // TODO: Remove the actual redirect from this method and just return the URL to the caller
