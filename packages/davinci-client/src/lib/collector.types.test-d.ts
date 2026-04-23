@@ -23,6 +23,10 @@ import type {
   InferSingleValueCollectorType,
   InferMultiValueCollectorType,
   InferActionCollectorType,
+  InferNoValueCollectorType,
+  ReadOnlyCollector,
+  QrCodeCollector,
+  AgreementCollector,
 } from './collector.types.js';
 
 describe('Collector Types', () => {
@@ -353,6 +357,67 @@ describe('Collector Types', () => {
       };
 
       expectTypeOf(tCollector).toMatchTypeOf<FlowCollector>();
+    });
+  });
+
+  describe('InferNoValueCollectorType', () => {
+    it('should correctly infer ReadOnlyCollector Type', () => {
+      const tCollector: InferNoValueCollectorType<'ReadOnlyCollector'> = {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'ReadOnlyCollector',
+        id: 'read-only-0',
+        name: 'read-only',
+        output: {
+          key: 'read-only',
+          label: 'Read Only Field',
+          type: 'READ_ONLY',
+        },
+      };
+
+      expectTypeOf(tCollector).toEqualTypeOf<ReadOnlyCollector>();
+    });
+
+    it('should correctly infer QrCodeCollector Type', () => {
+      const tCollector: InferNoValueCollectorType<'QrCodeCollector'> = {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'QrCodeCollector',
+        id: 'qr-code-0',
+        name: 'qr-code-0',
+        output: {
+          key: 'qr-code-0',
+          label: 'FALLBACK TEXT',
+          type: 'QR_CODE',
+          src: 'data:image/png;base64,abc123',
+        },
+      };
+
+      expectTypeOf(tCollector).toEqualTypeOf<QrCodeCollector>();
+    });
+
+    it('should correctly infer AgreementCollector Type', () => {
+      const tCollector: InferNoValueCollectorType<'AgreementCollector'> = {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'AgreementCollector',
+        id: 'agreement-0',
+        name: 'agreement-0',
+        output: {
+          key: 'agreement-0',
+          label: 'Please accept the terms and conditions',
+          type: 'AGREEMENT',
+          titleEnabled: true,
+          title: 'Terms and Conditions',
+          agreement: {
+            id: 'agreement-123',
+            useDynamicAgreement: false,
+          },
+          enabled: true,
+        },
+      };
+
+      expectTypeOf(tCollector).toEqualTypeOf<AgreementCollector>();
     });
   });
 });

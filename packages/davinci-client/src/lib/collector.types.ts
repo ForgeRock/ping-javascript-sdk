@@ -482,7 +482,11 @@ export type SubmitCollector = ActionCollectorNoUrl<'SubmitCollector'>;
 /**
  * @interface NoValueCollector - Represents a collector that collects no value; text only for display.
  */
-export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'NoValueCollector' | 'QrCodeCollector';
+export type NoValueCollectorTypes =
+  | 'ReadOnlyCollector'
+  | 'NoValueCollector'
+  | 'QrCodeCollector'
+  | 'AgreementCollector';
 
 export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   category: 'NoValueCollector';
@@ -511,6 +515,21 @@ export interface QrCodeCollectorBase {
   };
 }
 
+export interface AgreementCollector extends NoValueCollectorBase<'AgreementCollector'> {
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    titleEnabled: boolean;
+    title: string;
+    agreement: {
+      id: string;
+      useDynamicAgreement: boolean;
+    };
+    enabled: boolean;
+  };
+}
+
 /**
  * Type to help infer the collector based on the collector type
  * Used specifically in the returnNoValueCollector wrapper function.
@@ -523,18 +542,25 @@ export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
     ? NoValueCollectorBase<'ReadOnlyCollector'>
     : T extends 'QrCodeCollector'
       ? QrCodeCollectorBase
-      : NoValueCollectorBase<'NoValueCollector'>;
+      : T extends 'AgreementCollector'
+        ? AgreementCollector
+        : NoValueCollectorBase<'NoValueCollector'>;
 
 export type NoValueCollectors =
   | NoValueCollectorBase<'NoValueCollector'>
   | NoValueCollectorBase<'ReadOnlyCollector'>
-  | QrCodeCollectorBase;
+  | QrCodeCollectorBase
+  | AgreementCollector;
 
 export type NoValueCollector<T extends NoValueCollectorTypes> = NoValueCollectorBase<T>;
 
 export type ReadOnlyCollector = NoValueCollectorBase<'ReadOnlyCollector'>;
 
 export type QrCodeCollector = QrCodeCollectorBase;
+
+/** *********************************************************************
+ * UNKNOWN COLLECTOR
+ */
 
 export type UnknownCollector = {
   category: 'UnknownCollector';

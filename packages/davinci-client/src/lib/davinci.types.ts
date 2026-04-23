@@ -81,6 +81,19 @@ export type QrCodeField = {
   fallbackText?: string;
 };
 
+export type AgreementField = {
+  type: 'AGREEMENT';
+  key: string;
+  content: string;
+  titleEnabled: boolean;
+  title: string;
+  agreement: {
+    id: string;
+    useDynamicAgreement: boolean;
+  };
+  enabled: boolean;
+};
+
 export type RedirectField = {
   type: 'SOCIAL_LOGIN_BUTTON';
   key: string;
@@ -238,7 +251,7 @@ export type ComplexValueFields =
   | FidoAuthenticationField
   | PollingField;
 export type MultiValueFields = MultiSelectField;
-export type ReadOnlyFields = ReadOnlyField | QrCodeField;
+export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField;
 export type RedirectFields = RedirectField;
 export type SingleValueFields = StandardField | ValidatedField | SingleSelectField | ProtectField;
 

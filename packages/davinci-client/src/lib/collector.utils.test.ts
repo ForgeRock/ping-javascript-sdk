@@ -23,6 +23,7 @@ import {
   returnSingleValueAutoCollector,
   returnObjectValueAutoCollector,
   returnQrCodeCollector,
+  returnAgreementCollector,
 } from './collector.utils.js';
 import type {
   DaVinciField,
@@ -37,6 +38,7 @@ import type {
   ReadOnlyField,
   RedirectField,
   StandardField,
+  AgreementField,
 } from './davinci.types.js';
 import type {
   MultiSelectCollector,
@@ -879,6 +881,49 @@ describe('returnQrCodeCollector', () => {
   it('should only report content error when both key and content are missing', () => {
     const mockField = { type: 'QR_CODE' } as unknown as QrCodeField;
     const result = returnQrCodeCollector(mockField, 0);
+    expect(result.error).toContain('Content is not found');
+  });
+});
+
+describe('returnAgreementCollector', () => {
+  it('should return a valid AgreementCollector with all fields', () => {
+    const mockField: AgreementField = {
+      type: 'AGREEMENT',
+      key: 'agreement-field',
+      content: 'Please accept the terms and conditions',
+      titleEnabled: true,
+      title: 'Terms and Conditions',
+      agreement: {
+        id: 'agreement-123',
+        useDynamicAgreement: false,
+      },
+      enabled: true,
+    };
+    const result = returnAgreementCollector(mockField, 0);
+    expect(result).toEqual({
+      category: 'NoValueCollector',
+      error: null,
+      type: 'AgreementCollector',
+      id: 'agreement-field-0',
+      name: 'agreement-field-0',
+      output: {
+        key: 'agreement-field-0',
+        label: 'Please accept the terms and conditions',
+        type: 'AGREEMENT',
+        titleEnabled: true,
+        title: 'Terms and Conditions',
+        agreement: {
+          id: 'agreement-123',
+          useDynamicAgreement: false,
+        },
+        enabled: true,
+      },
+    });
+  });
+
+  it('should set error when content is missing', () => {
+    const mockField = { type: 'AGREEMENT', key: 'agreement-field' } as unknown as AgreementField;
+    const result = returnAgreementCollector(mockField, 0);
     expect(result.error).toContain('Content is not found');
   });
 });
