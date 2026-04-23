@@ -80,6 +80,9 @@ importers:
       '@effect/cli':
         specifier: catalog:effect
         version: 0.69.2(@effect/platform@0.90.10(effect@3.21.0))(@effect/printer-ansi@0.45.0(@effect/typeclass@0.36.0(effect@3.21.0))(effect@3.21.0))(@effect/printer@0.45.0(@effect/typeclass@0.36.0(effect@3.21.0))(effect@3.21.0))(effect@3.21.0)
+      '@effect/tsgo':
+        specifier: ^0.5.1
+        version: 0.5.1
       '@eslint/eslintrc':
         specifier: ^3.0.0
         version: 3.3.1
@@ -224,6 +227,9 @@ importers:
       prettier:
         specifier: ^3.2.5
         version: 3.6.2
+      setup:
+        specifier: ^0.0.3
+        version: 0.0.3
       shx:
         specifier: ^0.4.0
         version: 0.4.0
@@ -1585,6 +1591,45 @@ packages:
       '@effect/experimental': ^0.54.6
       '@effect/platform': ^0.90.4
       effect: ^3.17.7
+
+  '@effect/tsgo-darwin-arm64@0.5.1':
+    resolution: {integrity: sha512-sJFjIPbfKTB9jLsUcMCmIZCOdTOQQqpKa2Ah7kP+8jXTqNvmIFZg4IzZQIPjHDSCKfU8f3JfOEEdhwktCdQ57Q==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@effect/tsgo-darwin-x64@0.5.1':
+    resolution: {integrity: sha512-2b4WtHHddhUl846ZJOPhv3C/3JRwocwUer65vsxkb0ixS76ly3z1BOWwdL7naAsrtaUJ0n9FaN9WI4tbwxa5OA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@effect/tsgo-linux-arm64@0.5.1':
+    resolution: {integrity: sha512-tgBW2rGLSewvnE61EYU31tmH6mdrrwHpNmbnYiNgU2rjs35gVYin2WZ7aM9r71hjUYbS2p9i4OcwRvSbyyVq/Q==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@effect/tsgo-linux-arm@0.5.1':
+    resolution: {integrity: sha512-xs7+sx71e+lhRgl6R0ZfCxFXzTwhO00BcpPs5CtfNS4EEhNQc9EfRvGYtx3D4l9+5KwPr5VWJbYJz99Y5e2H9w==}
+    cpu: [arm]
+    os: [linux]
+
+  '@effect/tsgo-linux-x64@0.5.1':
+    resolution: {integrity: sha512-70dMv3/H+P3KDNWb31qPXJiJh6s78k3+J+QXN8RatKiQYrJw2HhREYL6ToVx9y5WOV7XFvC0eCIIa4/AMwQLTw==}
+    cpu: [x64]
+    os: [linux]
+
+  '@effect/tsgo-win32-arm64@0.5.1':
+    resolution: {integrity: sha512-v4lSFoPLYmVFBJbtOseSd0T0Vij5Vdk6IAUKpQwMiy0gSDPJnE+M6Esj3tY9IpFD3LxcdqhTxBl73pEcf+ihYg==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@effect/tsgo-win32-x64@0.5.1':
+    resolution: {integrity: sha512-dfyXhmVQkxncSnujjSXsOMwzqFIBNDViXiD3Uj9DPDNLSxyg0ybBNxYJTpvJhqHxqseA9wE2aCIMu/pfpac+0Q==}
+    cpu: [x64]
+    os: [win32]
+
+  '@effect/tsgo@0.5.1':
+    resolution: {integrity: sha512-INANZ/NK9akOwSQVWpQgSDLjlegrs4gui21nuQsgN7zCjCmj4m/ixUDuVgtW2C0UfqhPWWabyFWCDntu7ryCZQ==}
+    hasBin: true
 
   '@effect/typeclass@0.36.0':
     resolution: {integrity: sha512-+8xYvX4tjD7gKwGYzOyFh90I+ptdXzoNHLQTSa8kGh/xOVZMIGYb0VgLoNHE02UsuVrB+JJJuBmKLdd5TeDTPg==}
@@ -7318,6 +7363,9 @@ packages:
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
+  setup@0.0.3:
+    resolution: {integrity: sha512-NcuGT1k9V3jdwcNdZzpnO6h2WtLMieaIVRMWeQvlSVRMB6b51T3jeUBSeBzP5Mmqy50viW5y7LRaMaTm/MZ4CA==}
+
   shebang-command@1.2.0:
     resolution: {integrity: sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg==}
     engines: {node: '>=0.10.0'}
@@ -9638,6 +9686,37 @@ snapshots:
       effect: 3.21.0
       uuid: 11.1.0
 
+  '@effect/tsgo-darwin-arm64@0.5.1':
+    optional: true
+
+  '@effect/tsgo-darwin-x64@0.5.1':
+    optional: true
+
+  '@effect/tsgo-linux-arm64@0.5.1':
+    optional: true
+
+  '@effect/tsgo-linux-arm@0.5.1':
+    optional: true
+
+  '@effect/tsgo-linux-x64@0.5.1':
+    optional: true
+
+  '@effect/tsgo-win32-arm64@0.5.1':
+    optional: true
+
+  '@effect/tsgo-win32-x64@0.5.1':
+    optional: true
+
+  '@effect/tsgo@0.5.1':
+    optionalDependencies:
+      '@effect/tsgo-darwin-arm64': 0.5.1
+      '@effect/tsgo-darwin-x64': 0.5.1
+      '@effect/tsgo-linux-arm': 0.5.1
+      '@effect/tsgo-linux-arm64': 0.5.1
+      '@effect/tsgo-linux-x64': 0.5.1
+      '@effect/tsgo-win32-arm64': 0.5.1
+      '@effect/tsgo-win32-x64': 0.5.1
+
   '@effect/typeclass@0.36.0(effect@3.21.0)':
     dependencies:
       effect: 3.21.0
@@ -11752,7 +11831,7 @@ snapshots:
       std-env: 3.10.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.9.3))(terser@5.46.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.46.1)(tsx@4.20.6)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11811,7 +11890,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.9.3))(terser@5.46.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.46.1)(tsx@4.20.6)(yaml@2.8.1)
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -16213,6 +16292,8 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
+  setup@0.0.3: {}
+
   shebang-command@1.2.0:
     dependencies:
       shebang-regex: 1.0.0
@@ -17089,7 +17170,7 @@ snapshots:
     dependencies:
       cssfontparser: 1.2.1
       moo-color: 1.0.3
-      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.9.3))(terser@5.46.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/node@24.9.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.46.1)(tsx@4.20.6)(yaml@2.8.1)
 
   vitest@3.2.4(@types/node@24.9.2)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@27.1.0)(msw@2.12.1(@types/node@24.9.2)(typescript@5.8.3))(terser@5.46.1)(tsx@4.20.6)(yaml@2.8.1):
     dependencies:
