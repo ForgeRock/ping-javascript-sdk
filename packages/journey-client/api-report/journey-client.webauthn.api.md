@@ -92,10 +92,10 @@ export enum UserVerificationType {
 
 // @public
 export abstract class WebAuthn {
-    static authenticate(step: JourneyStep): Promise<JourneyStep>;
+    static authenticate(step: JourneyStep, mediation?: CredentialMediationRequirement, signal?: AbortSignal): Promise<JourneyStep>;
     static createAuthenticationPublicKey(metadata: WebAuthnAuthenticationMetadata): PublicKeyCredentialRequestOptions;
     static createRegistrationPublicKey(metadata: WebAuthnRegistrationMetadata): PublicKeyCredentialCreationOptions;
-    static getAuthenticationCredential(options: PublicKeyCredentialRequestOptions): Promise<PublicKeyCredential | null>;
+    static getAuthenticationCredential(options: PublicKeyCredentialRequestOptions, mediation?: CredentialMediationRequirement, signal?: AbortSignal): Promise<PublicKeyCredential | null>;
     static getAuthenticationOutcome(credential: PublicKeyCredential | null): OutcomeWithName<string, AttestationType, PublicKeyCredential> | OutcomeWithName<string, AttestationType, PublicKeyCredential, string>;
     static getCallbacks(step: JourneyStep): WebAuthnCallbacks;
     static getMetadataCallback(step: JourneyStep): MetadataCallback | undefined;
@@ -104,6 +104,7 @@ export abstract class WebAuthn {
     static getRegistrationOutcome(credential: PublicKeyCredential | null): OutcomeWithName<string, AttestationType, PublicKeyCredential>;
     static getTextOutputCallback(step: JourneyStep): TextOutputCallback | undefined;
     static getWebAuthnStepType(step: JourneyStep): WebAuthnStepType;
+    static isConditionalMediationSupported(): Promise<boolean>;
     static register<T extends string = ''>(step: JourneyStep, deviceName?: T): Promise<JourneyStep>;
 }
 
