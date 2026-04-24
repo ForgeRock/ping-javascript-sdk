@@ -12,10 +12,10 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
 import type { ClientStore, RootState } from './client.store.utils.js';
-import type { PollingStatus, InternalErrorResponse } from './client.types.js';
+import type { NodeStates, PollingStatus, InternalErrorResponse } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
 
-import { createInternalError, isInternalError } from './client.store.utils.js';
+import { createInternalError } from './client.store.utils.js';
 import { davinciApi } from './davinci.api.js';
 import { nodeSlice } from './node.slice.js';
 
@@ -36,22 +36,23 @@ interface PollingPrerequisites {
 }
 
 /**
- * Discriminated union representing the validated polling mode.
+ * Discriminated union representing the validated polling mode, with all config
+ * baked in at construction. Branches consume the mode directly — no re-reading
+ * of collector config and no scattered `?? default` fallbacks.
  */
 export type PollingMode =
-  | { _tag: 'challenge'; challenge: string }
-  | { _tag: 'continue'; retriesRemaining: number; pollInterval: number }
-  | { _tag: 'unknown' };
+  | { _tag: 'challenge'; challenge: string; pollInterval: number; maxAttempts: number }
+  | { _tag: 'continue'; pollInterval: number };
 
-/**
- * Type guard: determines if a value is a plain object (Record<string, unknown>).
- */
+const DEFAULT_POLL_INTERVAL_MS = 2000;
+const DEFAULT_CHALLENGE_MAX_ATTEMPTS = 60;
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
 /**
- * Determines the polling mode for a given PollingCollector.
- * Succeeds with a discriminated PollingMode, or fails with InternalErrorResponse.
+ * Determines the polling mode for a given PollingCollector. Any invalid
+ * configuration fails directly — no ghost 'unknown' tag downstream.
  */
 export function getPollingModeµ(
   collector: PollingCollector,
@@ -62,11 +63,16 @@ export function getPollingModeµ(
     );
   }
 
-  const { pollChallengeStatus, challenge, retriesRemaining, pollInterval } =
+  const { pollChallengeStatus, challenge, retriesRemaining, pollInterval, pollRetries } =
     collector.output.config;
 
   if (challenge && pollChallengeStatus === true) {
-    return Micro.succeed({ _tag: 'challenge', challenge });
+    return Micro.succeed({
+      _tag: 'challenge',
+      challenge,
+      pollInterval: pollInterval ?? DEFAULT_POLL_INTERVAL_MS,
+      maxAttempts: pollRetries ?? DEFAULT_CHALLENGE_MAX_ATTEMPTS,
+    });
   }
 
   if (!challenge && !pollChallengeStatus) {
@@ -77,12 +83,13 @@ export function getPollingModeµ(
     }
     return Micro.succeed({
       _tag: 'continue',
-      retriesRemaining,
-      pollInterval: pollInterval ?? 2000,
+      pollInterval: pollInterval ?? DEFAULT_POLL_INTERVAL_MS,
     });
   }
 
-  return Micro.succeed({ _tag: 'unknown' });
+  return Micro.fail(
+    createInternalError('Invalid polling collector configuration', 'argument_error'),
+  );
 }
 
 /**
@@ -167,22 +174,18 @@ export function validatePollingPrerequisitesµ(
 }
 
 /**
- * Pure predicate: determines if challenge polling should continue.
- * Returns true when the challenge has not yet completed and no error occurred.
+ * Classification of a single challenge-poll response. Both the `while`
+ * predicate and the terminal switch are projections of this outcome — one
+ * inspection of the response, two uses.
  */
-export function isChallengeStillPending(response: PollDispatchResult): boolean {
-  if (response.error) return false;
+export type ChallengeOutcome =
+  | { _tag: 'pending' }
+  | { _tag: 'completed'; status: PollingStatus }
+  | { _tag: 'expired' }
+  | { _tag: 'responseError' }
+  | { _tag: 'internalError'; error: InternalErrorResponse };
 
-  const data = isRecord(response.data) ? response.data : undefined;
-  if (data?.['isChallengeComplete']) return false;
-
-  return true;
-}
-
-export function interpretChallengeResponse(
-  response: PollDispatchResult,
-  log: ReturnType<typeof loggerFn>,
-): PollingStatus | InternalErrorResponse {
+export function classifyChallengeResponse(response: PollDispatchResult): ChallengeOutcome {
   const { data, error } = response;
 
   if (error) {
@@ -191,15 +194,11 @@ export function interpretChallengeResponse(
       const errorDetails = isRecord(error.data) ? error.data : undefined;
       const serviceName = errorDetails?.['serviceName'];
 
-      // Expired challenge is an expected polling outcome, not a failure
       if (error.status === 400 && serviceName === 'challengeExpired') {
-        log.debug('Challenge expired for polling');
-        return 'expired';
+        return { _tag: 'expired' };
       }
 
-      // Other HTTP errors are also expected outcomes (e.g. bad challenge returning 400 with code 4019)
-      log.debug('Unknown error occurred during polling');
-      return 'error';
+      return { _tag: 'responseError' };
     }
 
     // SerializedError — has message field
@@ -208,44 +207,92 @@ export function interpretChallengeResponse(
         ? error.message
         : 'An unknown error occurred while challenge polling';
 
-    return createInternalError(message, 'unknown_error');
+    return {
+      _tag: 'internalError',
+      error: createInternalError(message, 'unknown_error'),
+    };
   }
 
   if (!isRecord(data)) {
-    log.debug('Unable to parse polling response');
-    return 'error';
+    return { _tag: 'responseError' };
   }
 
-  // Challenge completed — extract status
   if (data['isChallengeComplete'] === true) {
-    const pollStatus = data['status'];
-    return pollStatus ? (pollStatus as PollingStatus) : 'error';
+    const status = data['status'];
+    return status
+      ? { _tag: 'completed', status: status as PollingStatus }
+      : { _tag: 'responseError' };
   }
 
-  // If we reach here, Micro.repeat exhausted its schedule without the challenge completing
-  log.debug('Challenge polling timed out');
-  return 'timedOut';
+  return { _tag: 'pending' };
 }
 
 /**
- * Builds a Micro effect for the challenge polling branch.
- * validate → dispatch → repeat → interpret → lift errors
+ * Shape returned from one iteration of continue polling — the latest node and the
+ * next PollingCollector the server wants us to use (or null if the flow advanced).
+ */
+export interface PollingContinuation {
+  node: NodeStates;
+  nextPollingCollector: PollingCollector | null;
+}
+
+/**
+ * Pure snapshot of the current node and whether the server still wants polling.
+ * The caller decides whether to loop based on `nextPollingCollector`.
+ */
+export function evaluatePollingContinuation(rootState: RootState): PollingContinuation {
+  const node = nodeSlice.selectSlice(rootState);
+  const { state: collectors } = nodeSlice.selectors.selectCollectors(rootState);
+
+  for (const c of collectors ?? []) {
+    if (c.type === 'PollingCollector') {
+      return { node, nextPollingCollector: c };
+    }
+  }
+
+  return { node, nextPollingCollector: null };
+}
+
+/**
+ * Stamps the PollingCollector's input.value, dispatches `next`, and resolves with
+ * the resulting NodeStates. The value is what `transformSubmitRequest` inspects to
+ * set `eventType: 'polling'` on the wire.
+ */
+function advanceFlowµ({
+  store,
+  collectorId,
+  pollingValue,
+}: {
+  store: ReturnType<ClientStore>;
+  collectorId: string;
+  pollingValue: string;
+}): Micro.Micro<NodeStates, InternalErrorResponse> {
+  return Micro.sync(() =>
+    store.dispatch(nodeSlice.actions.update({ id: collectorId, value: pollingValue })),
+  ).pipe(
+    Micro.flatMap(() =>
+      Micro.promise(() => store.dispatch(davinciApi.endpoints.next.initiate(undefined))),
+    ),
+    Micro.map(() => nodeSlice.selectSlice(store.getState())),
+  );
+}
+
+/**
+ * Challenge polling branch. All config comes from the mode; the loop body stays
+ * thin: dispatch → repeat while pending → classify terminal → branch.
  */
 function challengePollingµ({
-  collector,
-  challenge,
+  mode,
   store,
+  collectorId,
   log,
 }: {
-  collector: PollingCollector;
-  challenge: string;
+  mode: Extract<PollingMode, { _tag: 'challenge' }>;
   store: ReturnType<ClientStore>;
+  collectorId: string;
   log: ReturnType<typeof loggerFn>;
-}): Micro.Micro<PollingStatus, InternalErrorResponse> {
-  const maxRetries = collector.output.config.pollRetries ?? 60;
-  const pollInterval = collector.output.config.pollInterval ?? 2000;
-
-  return validatePollingPrerequisitesµ(store.getState(), challenge).pipe(
+}): Micro.Micro<NodeStates, InternalErrorResponse> {
+  return validatePollingPrerequisitesµ(store.getState(), mode.challenge).pipe(
     Micro.flatMap(({ interactionId, challengeEndpoint }) =>
       Micro.promise(() =>
         store.dispatch(
@@ -257,35 +304,62 @@ function challengePollingµ({
       ),
     ),
     Micro.repeat({
-      while: isChallengeStillPending,
+      while: (r) => classifyChallengeResponse(r)._tag === 'pending',
       // `times` tracks repetitions after the initial attempt, so decrement by one
-      times: maxRetries - 1,
-      schedule: Micro.scheduleSpaced(pollInterval),
+      times: mode.maxAttempts - 1,
+      schedule: Micro.scheduleSpaced(mode.pollInterval),
     }),
-    Micro.map((response) => interpretChallengeResponse(response, log)),
-    Micro.flatMap((result) =>
-      isInternalError(result) ? Micro.fail(result) : Micro.succeed(result),
-    ),
+    Micro.flatMap((response): Micro.Micro<NodeStates, InternalErrorResponse> => {
+      const outcome = classifyChallengeResponse(response);
+      switch (outcome._tag) {
+        case 'completed':
+          return advanceFlowµ({ store, collectorId, pollingValue: outcome.status });
+        case 'expired':
+          log.debug('Challenge expired for polling');
+          return advanceFlowµ({ store, collectorId, pollingValue: 'expired' });
+        case 'responseError':
+          log.debug('Unknown error occurred during polling');
+          return Micro.fail(createInternalError('Challenge polling error', 'unknown_error'));
+        case 'pending':
+          // Micro.repeat exhausted its schedule without the challenge completing
+          log.debug('Challenge polling timed out');
+          return Micro.fail(createInternalError('Challenge polling timedOut', 'unknown_error'));
+        case 'internalError':
+          return Micro.fail(outcome.error);
+        default:
+          outcome satisfies never;
+          throw new Error('Unreachable polling outcome');
+      }
+    }),
   );
 }
 
 /**
- * Builds a Micro effect for the continue polling branch.
- * If retries remain, delays by pollInterval then returns 'continue'.
- * If retries are exhausted, returns 'timedOut' immediately.
+ * Continue polling branch. Repeats while the server keeps returning a
+ * PollingCollector on a 'continue' node; stops once the flow advances.
  */
-function continuePollingµ(
-  mode: Extract<PollingMode, { _tag: 'continue' }>,
-): Micro.Micro<PollingStatus, InternalErrorResponse> {
-  if (mode.retriesRemaining <= 0) {
-    return Micro.succeed('timedOut' as PollingStatus);
-  }
-  return Micro.sleep(mode.pollInterval).pipe(Micro.map(() => 'continue'));
+function continuePollingµ({
+  mode,
+  store,
+  collectorId,
+}: {
+  mode: Extract<PollingMode, { _tag: 'continue' }>;
+  store: ReturnType<ClientStore>;
+  collectorId: string;
+}): Micro.Micro<NodeStates, InternalErrorResponse> {
+  return Micro.sleep(mode.pollInterval).pipe(
+    Micro.flatMap(() => advanceFlowµ({ store, collectorId, pollingValue: 'continue' })),
+    Micro.map(() => evaluatePollingContinuation(store.getState())),
+    Micro.repeat({
+      while: ({ node, nextPollingCollector }) =>
+        node.status === 'continue' && nextPollingCollector !== null,
+    }),
+    Micro.map(({ node }) => node),
+  );
 }
 
 /**
  * Routes a validated PollingMode to the appropriate polling effect.
- * This is the single entry point — the caller lifts getPollingMode into Micro, pipes through this.
  */
 export function pollingµ({
   mode,
@@ -297,16 +371,10 @@ export function pollingµ({
   collector: PollingCollector;
   store: ReturnType<ClientStore>;
   log: ReturnType<typeof loggerFn>;
-}): Micro.Micro<PollingStatus, InternalErrorResponse> {
+}): Micro.Micro<NodeStates, InternalErrorResponse> {
   if (mode._tag === 'challenge') {
-    return challengePollingµ({ collector, challenge: mode.challenge, store, log });
+    return challengePollingµ({ mode, store, collectorId: collector.id, log });
   }
 
-  if (mode._tag === 'continue') {
-    return continuePollingµ(mode);
-  }
-
-  return Micro.fail(
-    createInternalError('Invalid polling collector configuration', 'argument_error'),
-  );
+  return continuePollingµ({ mode, store, collectorId: collector.id });
 }

@@ -236,11 +236,13 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     resume: (input: {
         continueToken: string;
     }) => Promise<InternalErrorResponse | NodeStates>;
-    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
+    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | StartNode | ErrorNode | FailureNode | SuccessNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     poll: (collector: PollingCollector) => Poller;
     getClient: () => {
+        status: "start";
+    } | {
         action: string;
         collectors: Collectors[];
         description?: string;
@@ -254,8 +256,6 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         status: "error";
     } | {
         status: "failure";
-    } | {
-        status: "start";
     } | {
         authorization?: {
             code?: string;
@@ -266,7 +266,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     getCollectors: () => Collectors[];
     getError: () => DaVinciError | null;
     getErrorCollectors: () => CollectorErrors[];
-    getNode: () => ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode;
+    getNode: () => ContinueNode | StartNode | ErrorNode | FailureNode | SuccessNode;
     getServer: () => {
         _links?: Links;
         id?: string;
@@ -275,6 +275,8 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         href?: string;
         eventName?: string;
         status: "continue";
+    } | {
+        status: "start";
     } | {
         _links?: Links;
         eventName?: string;
@@ -290,8 +292,6 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         interactionId?: string;
         interactionToken?: string;
         status: "failure";
-    } | {
-        status: "start";
     } | {
         _links?: Links;
         eventName?: string;
@@ -1324,7 +1324,9 @@ export interface PhoneNumberOutputValue {
 }
 
 // @public (undocumented)
-export type Poller = () => Promise<PollingStatus | InternalErrorResponse>;
+export type Poller = (options?: {
+    signal?: AbortSignal;
+}) => Promise<NodeStates | InternalErrorResponse>;
 
 // @public (undocumented)
 export type PollingCollector = AutoCollector<'SingleValueAutoCollector', 'PollingCollector', string, PollingOutputValue>;

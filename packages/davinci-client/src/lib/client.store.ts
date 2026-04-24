@@ -415,16 +415,17 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     },
 
     /**
-     * @method poll - Perform challenge polling or continue polling
-     * @param {PollingCollector} collector - the polling collector
-     * @returns {Promise<PollingStatus | InternalErrorResponse>} - Returns a promise that resolves to a polling status or error
+     * @method poll - Drive a DaVinci polling flow end-to-end.
+     * Loops internally (sleep + dispatch `next`) until the server advances past
+     * the polling node, or until the challenge resolves, then returns the final node.
+     * Pass `{ signal }` to cancel an in-flight poll from the caller (e.g. on unmount).
      */
     poll: (collector: PollingCollector): Poller => {
-      return async () => {
+      return async ({ signal } = {}) => {
         const result = await getPollingModeµ(collector).pipe(
           Micro.flatMap((mode) => pollingµ({ mode, collector, store, log })),
           Micro.tapError((err) => Micro.sync(() => log.error(err.error.message))),
-          Micro.runPromiseExit,
+          (effect) => Micro.runPromiseExit(effect, { signal }),
         );
 
         if (exitIsSuccess(result)) {
@@ -435,10 +436,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           return result.cause.error;
         }
 
-        return createInternalError(
-          'An unexpected error occurred during poll operation',
-          'unknown_error',
-        );
+        return createInternalError('Polling was cancelled', 'state_error');
       };
     },
 

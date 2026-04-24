@@ -89,7 +89,9 @@ export type Validator = (value: string) =>
       };
       type: string;
     };
-export type Poller = () => Promise<PollingStatus | InternalErrorResponse>;
+export type Poller = (options?: {
+  signal?: AbortSignal;
+}) => Promise<NodeStates | InternalErrorResponse>;
 
 export type NodeStates = StartNode | ContinueNode | ErrorNode | SuccessNode | FailureNode;
 

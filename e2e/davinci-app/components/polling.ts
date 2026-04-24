@@ -4,54 +4,51 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { PollingCollector, Poller, Updater } from '@forgerock/davinci-client/types';
+import type {
+  InternalErrorResponse,
+  NodeStates,
+  PollingCollector,
+  Poller,
+} from '@forgerock/davinci-client/types';
+
+function isInternalErrorResponse(
+  value: NodeStates | InternalErrorResponse,
+): value is InternalErrorResponse {
+  return 'type' in value && value.type === 'internal_error';
+}
 
 export default function pollingComponent(
   formEl: HTMLFormElement,
   collector: PollingCollector,
   poll: Poller,
-  updater: Updater<PollingCollector>,
-  submitForm: () => Promise<void>,
+  onNode: (node: NodeStates) => void,
 ) {
   const button = document.createElement('button');
   button.type = 'button';
   button.value = collector.output.key;
-  button.innerHTML = 'Start polling';
+  button.textContent = 'Start polling';
   formEl.appendChild(button);
+
+  const controller = new AbortController();
 
   button.onclick = async () => {
     button.disabled = true;
 
-    const p = document.createElement('p');
-    p.innerText = 'Polling...';
-    formEl?.appendChild(p);
+    const status = document.createElement('p');
+    status.textContent = 'Polling...';
+    formEl.appendChild(status);
 
-    const status = await poll();
-    if (typeof status !== 'string' && 'error' in status) {
-      console.error(status.error?.message);
+    const result = await poll({ signal: controller.signal });
 
+    if (isInternalErrorResponse(result)) {
+      console.error(result.error?.message);
       const errEl = document.createElement('p');
-      errEl.innerText = 'Polling error: ' + status.error?.message;
-      formEl?.appendChild(errEl);
+      errEl.textContent = 'Polling error: ' + result.error?.message;
+      formEl.appendChild(errEl);
+      button.disabled = false;
       return;
     }
 
-    const result = updater(status);
-    if (result && 'error' in result) {
-      console.error(result.error.message);
-
-      const errEl = document.createElement('p');
-      errEl.innerText = 'Polling error: ' + result.error.message;
-      formEl?.appendChild(errEl);
-      return;
-    }
-
-    const resultEl = document.createElement('p');
-    resultEl.innerText = 'Polling result: ' + JSON.stringify(status, null, 2);
-    formEl?.appendChild(resultEl);
-
-    await submitForm();
-
-    button.disabled = false;
+    onNode(result);
   };
 }
