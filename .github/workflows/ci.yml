@@ -124,7 +124,7 @@ jobs:
             The `interface_mapping.md` document is in sync with the SDK exports.
 
       - name: Download baseline bundle sizes
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           workflow: publish.yml
           branch: main
