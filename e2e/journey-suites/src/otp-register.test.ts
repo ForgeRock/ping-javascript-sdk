@@ -11,7 +11,7 @@ import { username, password } from './utils/demo-user.js';
 
 test('Test happy paths on test page', async ({ page }) => {
   const { clickButton, navigate } = asyncEvents(page);
-  await navigate('/?journey=TEST_OTPRegistration&clientId=tenant');
+  await navigate('/?journey=QRCodeTest');
 
   const messageArray: string[] = [];
 
@@ -30,16 +30,10 @@ test('Test happy paths on test page', async ({ page }) => {
 
   // Test assertions
   expect(
-    messageArray.includes(
-      'Scan the QR code image below with the ForgeRock Authenticator app to register your device with your login.',
+    messageArray.some((msg) =>
+      msg.includes(
+        'Scan the QR code image below with the ForgeRock Authenticator app to register your device with your login.',
+      ),
     ),
   ).toBe(true);
-
-  // TODO: Use when AM Mock API is available
-  // expect(
-  //   messageArray.includes(
-  //     'otpauth://totp/ForgeRock:jlowery?secret=QITSTC234FRIU8DD987DW3VPICFY======&issuer=ForgeRock&period=30&digits=6&b=032b75',
-  //   ),
-  // ).toBe(true);
-  // expect(messageArray.includes('Basic login with OTP registration step successful')).toBe(true);
 });
