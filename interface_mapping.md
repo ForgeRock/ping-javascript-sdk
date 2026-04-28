@@ -1,7 +1,7 @@
 ---
 document: interface_mapping
 version: '1.0'
-last_updated: '2026-04-06'
+last_updated: '2026-04-24'
 legacy_sdk: '@forgerock/javascript-sdk'
 legacy_source: '.opensource/forgerock-javascript-sdk/packages/javascript-sdk/src'
 new_packages:
@@ -312,21 +312,19 @@ const oidcClient = await oidc({ config });
 
 ### resume() URL Parameter Parsing
 
-The legacy `FRAuth.resume()` automatically parses 10+ URL parameters from the redirect URL and conditionally adjusts behavior. The new `journeyClient.resume()` handles a subset of these:
+The legacy `FRAuth.resume()` automatically parses 10+ URL parameters from the redirect URL and conditionally adjusts behavior. The new `journeyClient.resume()` continues to parse these URL parameters and forwards them through as `options.query` values.
 
-| URL Parameter                        | Legacy Behavior                              | New Behavior                                           |
-| ------------------------------------ | -------------------------------------------- | ------------------------------------------------------ |
-| `code`                               | Extracted, passed as query param to `next()` | Same — extracted and passed through                    |
-| `state`                              | Extracted, passed as query param             | Same                                                   |
-| `form_post_entry`                    | Extracted, triggers previous step retrieval  | Same                                                   |
-| `responsekey`                        | Extracted, triggers previous step retrieval  | Same                                                   |
-| `error`, `errorCode`, `errorMessage` | Extracted, passed as query params            | **Not parsed** — check return value for `GenericError` |
-| `suspendedId`                        | Extracted; skips previous step retrieval     | **Not parsed** — handle suspended flows manually       |
-| `RelayState`                         | Extracted for SAML flows                     | **Not parsed**                                         |
-| `nonce`, `scope`                     | Extracted, passed as query params            | **Not parsed**                                         |
-| `authIndexValue`                     | Used as fallback tree name                   | **Not parsed** — pass tree via `options.journey`       |
-
-> **Migration note:** If your app relies on `suspendedId`, `RelayState`, or `authIndexValue` URL parameters being auto-parsed, you must extract them manually from the URL and pass them via `options.query` in the new SDK.
+| URL Parameter                        | Legacy Behavior                              | New Behavior                        |
+| ------------------------------------ | -------------------------------------------- | ----------------------------------- |
+| `code`                               | Extracted, passed as query param to `next()` | Same — extracted and passed through |
+| `state`                              | Extracted, passed as query param             | Same                                |
+| `form_post_entry`                    | Extracted, triggers previous step retrieval  | Same                                |
+| `responsekey`                        | Extracted, triggers previous step retrieval  | Same                                |
+| `error`, `errorCode`, `errorMessage` | Extracted, passed as query params            | Same                                |
+| `suspendedId`                        | Extracted, passed as query params            | Same                                |
+| `RelayState`                         | Extracted for SAML flows                     | Same                                |
+| `nonce`, `scope`                     | Extracted, passed as query params            | Same                                |
+| `authIndexValue`                     | Extracted, used as fallback journey name     | Same                                |
 
 ### Before/After: Start and Next
 
@@ -1133,12 +1131,11 @@ The legacy `@forgerock/token-vault` package provided advanced token security via
 
 ### Key Behavioral Removals
 
-| Legacy Behavior                                                              | New Approach                                                                                                                                                                                                               |
-| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Global config via `Config.set()`                                             | Each client manages its own config independently                                                                                                                                                                           |
-| Automatic PKCE challenge generation in `OAuth2Client`                        | `@forgerock/oidc-client` handles PKCE internally                                                                                                                                                                           |
-| `HttpClient` auto-injecting bearer tokens and refreshing on 401              | Manually get tokens, add `Authorization` header, handle 401 yourself                                                                                                                                                       |
-| Token stored in `localStorage` by default                                    | OIDC client uses `localStorage` by default; journey client step storage uses `sessionStorage`                                                                                                                              |
-| Per-call config overrides via `StepOptions`                                  | **Major change:** Config is fixed at client creation time. Legacy apps that passed different `tree`, `serverConfig`, or `middleware` per-call must create separate client instances. Only `query` params can vary per-call |
-| `FRUser.logout()` silently swallows errors per-step                          | `oidcClient.user.logout()` returns structured `LogoutErrorResult` with per-operation error details                                                                                                                         |
-| `FRAuth.resume()` auto-parses 10+ URL params (suspendedId, RelayState, etc.) | `journeyClient.resume()` only parses `code`, `state`, `form_post_entry`, `responsekey`. Other params must be extracted manually                                                                                            |
+| Legacy Behavior                                                 | New Approach                                                                                                                                                                                                               |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Global config via `Config.set()`                                | Each client manages its own config independently                                                                                                                                                                           |
+| Automatic PKCE challenge generation in `OAuth2Client`           | `@forgerock/oidc-client` handles PKCE internally                                                                                                                                                                           |
+| `HttpClient` auto-injecting bearer tokens and refreshing on 401 | Manually get tokens, add `Authorization` header, handle 401 yourself                                                                                                                                                       |
+| Token stored in `localStorage` by default                       | OIDC client uses `localStorage` by default; journey client step storage uses `sessionStorage`                                                                                                                              |
+| Per-call config overrides via `StepOptions`                     | **Major change:** Config is fixed at client creation time. Legacy apps that passed different `tree`, `serverConfig`, or `middleware` per-call must create separate client instances. Only `query` params can vary per-call |
+| `FRUser.logout()` silently swallows errors per-step             | `oidcClient.user.logout()` returns structured `LogoutErrorResult` with per-operation error details                                                                                                                         |

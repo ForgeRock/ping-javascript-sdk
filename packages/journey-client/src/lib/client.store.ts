@@ -206,9 +206,17 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     resume: async (url: string, options?: ResumeOptions): Promise<JourneyResult> => {
       const parsedUrl = new URL(url);
       const code = parsedUrl.searchParams.get('code');
+      const error = parsedUrl.searchParams.get('error');
+      const errorCode = parsedUrl.searchParams.get('errorCode');
+      const errorMessage = parsedUrl.searchParams.get('errorMessage');
       const state = parsedUrl.searchParams.get('state');
       const form_post_entry = parsedUrl.searchParams.get('form_post_entry');
+      const nonce = parsedUrl.searchParams.get('nonce');
+      const RelayState = parsedUrl.searchParams.get('RelayState');
       const responsekey = parsedUrl.searchParams.get('responsekey');
+      const scope = parsedUrl.searchParams.get('scope');
+      const suspendedId = parsedUrl.searchParams.get('suspendedId');
+      const authIndexValue = parsedUrl.searchParams.get('authIndexValue') ?? undefined;
 
       let previousStep: JourneyStep | undefined;
 
@@ -247,12 +255,23 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
       const resumeOptions = {
         ...options,
         query: {
-          ...(options && options.query),
           ...(code && { code }),
-          ...(state && { state }),
+          ...(error && { error }),
+          ...(errorCode && { errorCode }),
+          ...(errorMessage && { errorMessage }),
           ...(form_post_entry && { form_post_entry }),
+          ...(nonce && { nonce }),
+          ...(RelayState && { RelayState }),
           ...(responsekey && { responsekey }),
+          ...(scope && { scope }),
+          ...(state && { state }),
+          ...(suspendedId && { suspendedId }),
+
+          ...(options && options.query),
         },
+        ...((options?.journey ?? authIndexValue) && {
+          journey: options?.journey ?? authIndexValue,
+        }),
       };
 
       if (previousStep) {

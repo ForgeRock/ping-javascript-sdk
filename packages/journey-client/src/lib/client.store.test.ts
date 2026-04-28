@@ -249,6 +249,52 @@ describe('journey-client', () => {
       }
     });
 
+    test('resume_WithPreviousStepInStorage_ForwardsLegacyUrlParams', async () => {
+      const previousStepPayload: Step = {
+        callbacks: [{ type: callbackType.RedirectCallback, input: [], output: [] }],
+      };
+      mockStorageInstance.get.mockResolvedValue({ step: previousStepPayload });
+      const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
+      setupMockFetch(nextStepPayload);
+
+      const client = await journey({ config: mockConfig });
+      const resumeUrl =
+        'https://app.com/callback?code=123&state=abc&error=access_denied&errorCode=E1&errorMessage=oops&form_post_entry=fp&nonce=n1&RelayState=rs&responsekey=rk&scope=openid&suspendedId=s1';
+      await client.resume(resumeUrl, {});
+
+      const request = mockFetch.mock.calls[1][0] as Request;
+      const url = new URL(request.url);
+      expect(url.searchParams.get('code')).toBe('123');
+      expect(url.searchParams.get('state')).toBe('abc');
+      expect(url.searchParams.get('error')).toBe('access_denied');
+      expect(url.searchParams.get('errorCode')).toBe('E1');
+      expect(url.searchParams.get('errorMessage')).toBe('oops');
+      expect(url.searchParams.get('form_post_entry')).toBe('fp');
+      expect(url.searchParams.get('nonce')).toBe('n1');
+      expect(url.searchParams.get('RelayState')).toBe('rs');
+      expect(url.searchParams.get('responsekey')).toBe('rk');
+      expect(url.searchParams.get('scope')).toBe('openid');
+      expect(url.searchParams.get('suspendedId')).toBe('s1');
+    });
+
+    test('resume_WithPreviousStepInStorage_AllowsOptionsQueryToOverrideUrlParams', async () => {
+      const previousStepPayload: Step = {
+        callbacks: [{ type: callbackType.RedirectCallback, input: [], output: [] }],
+      };
+      mockStorageInstance.get.mockResolvedValue({ step: previousStepPayload });
+      const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
+      setupMockFetch(nextStepPayload);
+
+      const client = await journey({ config: mockConfig });
+      const resumeUrl = 'https://app.com/callback?code=123&state=abc';
+      await client.resume(resumeUrl, { query: { code: 'override' } });
+
+      const request = mockFetch.mock.calls[1][0] as Request;
+      const url = new URL(request.url);
+      expect(url.searchParams.get('code')).toBe('override');
+      expect(url.searchParams.get('state')).toBe('abc');
+    });
+
     test('resume_WithPlainStepObjectInStorage_CorrectlyResumes', async () => {
       const plainStepPayload: Step = {
         callbacks: [
