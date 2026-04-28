@@ -23,7 +23,7 @@
     "@opentelemetry/sdk-trace-node": "2.2.0",
     "@opentelemetry/sdk-trace-web": "2.2.0",
     "effect": "catalog:effect",
-    "nanoid": "5.1.6"
+    "nanoid": "5.1.9"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:effect",
