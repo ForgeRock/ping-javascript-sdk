@@ -62,15 +62,17 @@ export default function objectValueComponent(
       formEl.appendChild(buttonEl);
     }
   } else {
+    const inputId = `phone-number-input-${collector.output.key}`;
+
     const phoneLabel = document.createElement('label');
     phoneLabel.textContent = collector.output.label || 'Phone Number';
     phoneLabel.className = 'object-options-title';
-    phoneLabel.setAttribute('for', 'phone-number-input');
+    phoneLabel.setAttribute('for', inputId);
 
     const phoneInput = document.createElement('input');
     phoneInput.setAttribute('type', 'tel');
-    phoneInput.setAttribute('id', 'phone-number-input');
-    phoneInput.setAttribute('name', 'phone-number-input');
+    phoneInput.setAttribute('id', inputId);
+    phoneInput.setAttribute('name', inputId);
     phoneInput.setAttribute('placeholder', 'Enter phone number');
 
     // Add change event listener

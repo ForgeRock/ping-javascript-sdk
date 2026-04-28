@@ -31,7 +31,7 @@ test('Should render form fields', async ({ page }) => {
   await page.locator('#combobox-field-key-3').check();
   await page.locator('#combobox-field-key-2').uncheck();
 
-  await page.locator('#phone-number-input').fill('1234567890');
+  await page.getByLabel('Phone', { exact: true }).fill('1234567890');
 
   await expect(page.getByRole('button', { name: 'Flow Button' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Flow Link' })).toBeVisible();
@@ -53,8 +53,12 @@ test('Should render form fields', async ({ page }) => {
     'radio-group-key': 'option2 value',
     'combobox-field-key': ['option1 value', 'option3 value'],
     'phone-field': {
-      phoneNumber: '1234567890',
+      phoneNumber: '(555)555-1234',
       countryCode: 'GB',
+    },
+    'phone-field1': {
+      phoneNumber: '1234567890',
+      countryCode: 'CR',
     },
   });
 });
