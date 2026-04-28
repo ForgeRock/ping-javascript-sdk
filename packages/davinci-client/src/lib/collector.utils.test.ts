@@ -24,7 +24,7 @@ import {
   returnObjectValueAutoCollector,
   returnQrCodeCollector,
   returnAgreementCollector,
-  validateReplacements,
+  normalizeReplacements,
 } from './collector.utils.js';
 import type {
   DaVinciField,
@@ -866,7 +866,7 @@ describe('No Value Collectors', () => {
       });
     });
 
-    it('should set error and empty replacements when richContent has unsafe href', () => {
+    it('should pass through unsafe-looking hrefs unchanged (consumer is responsible for sanitization)', () => {
       const field: ReadOnlyField = {
         type: 'LABEL',
         content: 'Click the link',
@@ -884,55 +884,11 @@ describe('No Value Collectors', () => {
 
       const result = returnReadOnlyCollector(field, 0);
 
-      expect(result.error).toBe('Unsafe href protocol for key: bad');
-      expect(result.output.content).toBe('Click the link');
+      expect(result.error).toBeNull();
       expect(result.output.richContent).toEqual({
         content: 'Click {{bad}}',
-        replacements: [],
+        replacements: [{ key: 'bad', type: 'link', value: 'here', href: 'javascript:alert(1)' }],
       });
-    });
-
-    it('should validate template keys exist in replacements', () => {
-      const field: ReadOnlyField = {
-        type: 'LABEL',
-        content: 'Fallback text',
-        richContent: {
-          content: 'Click {{broken}}',
-          replacements: {},
-        },
-      };
-
-      const result = returnReadOnlyCollector(field, 0);
-
-      expect(result.error).toBe('Missing replacement for key: {{broken}}');
-      expect(result.output.content).toBe('Fallback text');
-      expect(result.output.richContent).toEqual({
-        content: 'Click {{broken}}',
-        replacements: [],
-      });
-    });
-
-    it('should report all missing keys when template has partial replacement coverage', () => {
-      const field: ReadOnlyField = {
-        type: 'LABEL',
-        content: 'Read our terms and policy',
-        richContent: {
-          content: 'Read our {{link1}} and {{link2}}',
-          replacements: {
-            link1: {
-              type: 'link',
-              value: 'terms',
-              href: 'https://example.com/terms',
-            },
-          },
-        },
-      };
-
-      const result = returnReadOnlyCollector(field, 0);
-
-      expect(result.error).toBe('Missing replacement for key: {{link2}}');
-      expect(result.output.content).toBe('Read our terms and policy');
-      expect(result.output.richContent.replacements).toEqual([]);
     });
   });
 });
@@ -1305,8 +1261,8 @@ describe('Return collector validator', () => {
   });
 });
 
-describe('validateReplacements', () => {
-  it('should validate a single link replacement', () => {
+describe('normalizeReplacements', () => {
+  it('should flatten a single link replacement', () => {
     const replacements: Record<string, RichContentReplacement> = {
       link1: {
         type: 'link',
@@ -1316,23 +1272,18 @@ describe('validateReplacements', () => {
       },
     };
 
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({
-      ok: true,
-      replacements: [
-        {
-          key: 'link1',
-          type: 'link',
-          value: 'terms and conditions',
-          href: 'https://example.com',
-          target: '_blank',
-        },
-      ],
-    });
+    expect(normalizeReplacements(replacements)).toEqual([
+      {
+        key: 'link1',
+        type: 'link',
+        value: 'terms and conditions',
+        href: 'https://example.com',
+        target: '_blank',
+      },
+    ]);
   });
 
-  it('should validate multiple link replacements', () => {
+  it('should flatten multiple link replacements', () => {
     const replacements: Record<string, RichContentReplacement> = {
       link1: {
         type: 'link',
@@ -1348,21 +1299,16 @@ describe('validateReplacements', () => {
       },
     };
 
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({
-      ok: true,
-      replacements: [
-        {
-          key: 'link1',
-          type: 'link',
-          value: 'terms',
-          href: 'https://example.com',
-          target: '_blank',
-        },
-        { key: 'link2', type: 'link', value: 'policy', href: 'https://xyz.com', target: '_self' },
-      ],
-    });
+    expect(normalizeReplacements(replacements)).toEqual([
+      {
+        key: 'link1',
+        type: 'link',
+        value: 'terms',
+        href: 'https://example.com',
+        target: '_blank',
+      },
+      { key: 'link2', type: 'link', value: 'policy', href: 'https://xyz.com', target: '_self' },
+    ]);
   });
 
   it('should omit target when not provided', () => {
@@ -1374,21 +1320,16 @@ describe('validateReplacements', () => {
       },
     };
 
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({
-      ok: true,
-      replacements: [{ key: 'link', type: 'link', value: 'here', href: 'https://example.com' }],
-    });
+    expect(normalizeReplacements(replacements)).toEqual([
+      { key: 'link', type: 'link', value: 'here', href: 'https://example.com' },
+    ]);
   });
 
   it('should return empty array for empty replacements', () => {
-    const result = validateReplacements({});
-
-    expect(result).toEqual({ ok: true, replacements: [] });
+    expect(normalizeReplacements({})).toEqual([]);
   });
 
-  it('should return error for javascript: URI scheme', () => {
+  it('should pass non-http(s) hrefs through unchanged', () => {
     const replacements: Record<string, RichContentReplacement> = {
       link: {
         type: 'link',
@@ -1397,75 +1338,9 @@ describe('validateReplacements', () => {
       },
     };
 
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({ ok: false, error: 'Unsafe href protocol for key: link' });
-  });
-
-  it('should return error for data: URI scheme', () => {
-    const replacements: Record<string, RichContentReplacement> = {
-      link: {
-        type: 'link',
-        value: 'here',
-        href: 'data:text/html,<script>alert(1)</script>',
-      },
-    };
-
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({ ok: false, error: 'Unsafe href protocol for key: link' });
-  });
-
-  it('should return error for invalid href', () => {
-    const replacements: Record<string, RichContentReplacement> = {
-      link: {
-        type: 'link',
-        value: 'here',
-        href: 'not a url',
-      },
-    };
-
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({ ok: false, error: 'Invalid href for key: link' });
-  });
-
-  it('should allow https: href', () => {
-    const replacements: Record<string, RichContentReplacement> = {
-      link: {
-        type: 'link',
-        value: 'here',
-        href: 'https://example.com/terms',
-      },
-    };
-
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({
-      ok: true,
-      replacements: [
-        { key: 'link', type: 'link', value: 'here', href: 'https://example.com/terms' },
-      ],
-    });
-  });
-
-  it('should allow http: href', () => {
-    const replacements: Record<string, RichContentReplacement> = {
-      link: {
-        type: 'link',
-        value: 'here',
-        href: 'http://example.com/terms',
-      },
-    };
-
-    const result = validateReplacements(replacements);
-
-    expect(result).toEqual({
-      ok: true,
-      replacements: [
-        { key: 'link', type: 'link', value: 'here', href: 'http://example.com/terms' },
-      ],
-    });
+    expect(normalizeReplacements(replacements)).toEqual([
+      { key: 'link', type: 'link', value: 'here', href: 'javascript:alert(1)' },
+    ]);
   });
 });
 

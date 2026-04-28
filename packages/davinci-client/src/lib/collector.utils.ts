@@ -29,11 +29,10 @@ import type {
   AutoCollectors,
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
-  QrCodeCollectorBase,
+  QrCodeCollector,
+  ReadOnlyCollector,
+  RichContentLink,
   AgreementCollector,
-  ValidatedReplacement,
-  ValidateReplacementsResult,
-  ReadOnlyCollectorBase,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -717,39 +716,24 @@ export function returnObjectValueCollector(
 }
 
 /**
- * @function validateReplacements - Validates replacement hrefs and converts the
- * Record<string, RichContentReplacement> from the API response into a ValidatedReplacement[].
- * Returns a discriminated result — never throws.
+ * @function normalizeReplacements - Flattens the API's keyed
+ * `Record<string, RichContentReplacement>` into an array of `RichContentLink`
+ * with the original key carried on each entry. Hrefs are passed through
+ * unmodified — consumers are responsible for sanitizing before rendering.
  *
- * @param {Record<string, RichContentReplacement>} replacements - The replacements object from the API.
- * @returns {ValidateReplacementsResult} Success with validated array, or failure with error message.
+ * @param {Record<string, RichContentReplacement>} replacements - The replacements map from the API.
+ * @returns {RichContentLink[]} The flattened array of replacement entries.
  */
-export function validateReplacements(
+export function normalizeReplacements(
   replacements: Record<string, RichContentReplacement>,
-): ValidateReplacementsResult {
-  const validated: ValidatedReplacement[] = [];
-
-  for (const [key, replacement] of Object.entries(replacements)) {
-    let href: URL;
-    try {
-      href = new URL(replacement.href);
-    } catch {
-      return { ok: false, error: `Invalid href for key: ${key}` };
-    }
-    if (!['https:', 'http:'].includes(href.protocol)) {
-      return { ok: false, error: `Unsafe href protocol for key: ${key}` };
-    }
-
-    validated.push({
-      key,
-      type: replacement.type,
-      value: replacement.value,
-      href: replacement.href,
-      ...(replacement.target && { target: replacement.target }),
-    });
-  }
-
-  return { ok: true, replacements: validated };
+): RichContentLink[] {
+  return Object.entries(replacements).map(([key, replacement]) => ({
+    key,
+    type: replacement.type,
+    value: replacement.value,
+    href: replacement.href,
+    ...(replacement.target && { target: replacement.target }),
+  }));
 }
 
 /**
@@ -787,66 +771,35 @@ export function returnNoValueCollector<
 
 /**
  * @function returnReadOnlyCollector - Creates a ReadOnlyCollector with pass-through rich content.
- * When richContent is present, validates replacements and passes through the template.
- * When absent, richContent echoes the plain content with empty replacements.
+ * When richContent is present, the template and normalized replacements are passed through
+ * unmodified. When absent, richContent echoes the plain content with empty replacements.
  *
  * @param {ReadOnlyField} field - The LABEL field from the API response.
  * @param {number} idx - The index to be used in the id of the ReadOnlyCollector.
- * @returns {ReadOnlyCollectorBase} The constructed ReadOnlyCollector.
+ * @returns {ReadOnlyCollector} The constructed ReadOnlyCollector.
  */
-export function returnReadOnlyCollector(field: ReadOnlyField, idx: number): ReadOnlyCollectorBase {
-  const fieldErrors = [
-    ...(!('content' in field) ? ['Content is not found in the field object.'] : []),
-    ...(!('type' in field) ? ['Type is not found in the field object.'] : []),
-  ];
-
-  const id = `${field.key || field.type}-${idx}`;
+export function returnReadOnlyCollector(field: ReadOnlyField, idx: number): ReadOnlyCollector {
+  const base = returnNoValueCollector(field, idx, 'ReadOnlyCollector');
 
   if (!field.richContent) {
-    const errors = fieldErrors;
     return {
-      category: 'NoValueCollector',
-      error: errors.length > 0 ? errors.join(' ') : null,
-      type: 'ReadOnlyCollector',
-      id,
-      name: id,
+      ...base,
       output: {
-        key: id,
-        label: field.content,
-        type: field.type,
+        ...base.output,
         content: field.content,
         richContent: { content: field.content, replacements: [] },
       },
     };
   }
 
-  // Validate that all {{key}} references in the template have corresponding replacements
-  const templateKeys = [...field.richContent.content.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]);
-  const apiReplacements = field.richContent.replacements ?? {};
-  const missingKeys = templateKeys.filter((k) => !(k in apiReplacements));
-  const templateErrors = missingKeys.map((k) => `Missing replacement for key: {{${k}}}`);
-
-  const validationResult =
-    templateErrors.length === 0 ? validateReplacements(apiReplacements) : null;
-
-  const replacements = validationResult?.ok ? validationResult.replacements : [];
-  const validationErrors = validationResult && !validationResult.ok ? [validationResult.error] : [];
-  const errors = [...fieldErrors, ...templateErrors, ...validationErrors];
-
   return {
-    category: 'NoValueCollector',
-    error: errors.length > 0 ? errors.join(' ') : null,
-    type: 'ReadOnlyCollector',
-    id,
-    name: id,
+    ...base,
     output: {
-      key: id,
-      label: field.content,
-      type: field.type,
+      ...base.output,
       content: field.content,
       richContent: {
         content: field.richContent.content,
-        replacements,
+        replacements: normalizeReplacements(field.richContent.replacements ?? {}),
       },
     },
   };
@@ -856,9 +809,9 @@ export function returnReadOnlyCollector(field: ReadOnlyField, idx: number): Read
  * @function returnQrCodeCollector - Creates a QrCodeCollector object for displaying QR code images.
  * @param {QrCodeField} field - The field object containing key, content, type, and optional fallbackText.
  * @param {number} idx - The index to be used in the id of the QrCodeCollector.
- * @returns {QrCodeCollectorBase} The constructed QrCodeCollector object.
+ * @returns {QrCodeCollector} The constructed QrCodeCollector object.
  */
-export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollectorBase {
+export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollector {
   const base = returnNoValueCollector(field, idx, 'QrCodeCollector');
 
   return {
