@@ -14,6 +14,7 @@ import type {
   FidoRegistrationCollector,
   MultiSelectCollector,
   PhoneNumberCollector,
+  PhoneNumberExtensionCollector,
   PollingCollector,
   ProtectCollector,
   QrCodeCollector,
@@ -801,7 +802,6 @@ describe('The phone number collector reducer', () => {
             label: 'Phone Number',
             type: 'PHONE_NUMBER',
             required: false,
-            showExtension: false,
           },
         ],
       },
@@ -818,7 +818,6 @@ describe('The phone number collector reducer', () => {
           value: {
             countryCode: '',
             phoneNumber: '',
-            extension: '',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -827,11 +826,9 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
-          options: { showExtension: false },
           value: {
             countryCode: '',
             phoneNumber: '',
-            extension: '',
           },
         },
       },
@@ -849,7 +846,6 @@ describe('The phone number collector reducer', () => {
             label: 'Phone Number',
             type: 'PHONE_NUMBER',
             required: false,
-            showExtension: true,
           },
         ],
         formData: {
@@ -857,7 +853,6 @@ describe('The phone number collector reducer', () => {
             'phone-number-key': {
               countryCode: 'US',
               phoneNumber: '1234567890',
-              extension: '54321',
             },
           },
         },
@@ -875,7 +870,6 @@ describe('The phone number collector reducer', () => {
           value: {
             countryCode: 'US',
             phoneNumber: '1234567890',
-            extension: '54321',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -884,11 +878,9 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
-          options: { showExtension: true },
           value: {
             countryCode: 'US',
             phoneNumber: '1234567890',
-            extension: '54321',
           },
         },
       },
@@ -903,7 +895,6 @@ describe('The phone number collector reducer', () => {
         value: {
           countryCode: 'US',
           phoneNumber: '555-555-5555',
-          extension: '54321',
         },
       },
     };
@@ -919,7 +910,6 @@ describe('The phone number collector reducer', () => {
           value: {
             countryCode: '',
             phoneNumber: '',
-            extension: '',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -928,11 +918,9 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
-          options: { showExtension: true },
           value: {
             countryCode: '',
             phoneNumber: '',
-            extension: '',
           },
         },
       },
@@ -949,7 +937,6 @@ describe('The phone number collector reducer', () => {
           value: {
             countryCode: 'US',
             phoneNumber: '555-555-5555',
-            extension: '54321',
           },
           type: 'PHONE_NUMBER',
           validation: null,
@@ -958,12 +945,193 @@ describe('The phone number collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
-          options: { showExtension: true },
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+          },
+        },
+      },
+    ]);
+  });
+});
+
+describe('The phone number extension collector reducer', () => {
+  it('should populate phone number extension collector', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            key: 'phone-number-key',
+            defaultCountryCode: null,
+            label: 'Phone Number',
+            type: 'PHONE_NUMBER',
+            required: false,
+            showExtension: true,
+            extensionLabel: 'Extension',
+          },
+        ],
+      },
+    };
+    expect(nodeCollectorReducer(undefined, action)).toEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberExtensionCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
           value: {
             countryCode: '',
             phoneNumber: '',
             extension: '',
           },
+          type: 'PHONE_NUMBER',
+          validation: null,
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+            extension: '',
+          },
+          options: { extensionLabel: 'Extension' },
+        },
+      },
+    ]);
+  });
+
+  it('should populate phone number extension collector with default value', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            key: 'phone-number-key',
+            defaultCountryCode: 'US',
+            label: 'Phone Number',
+            type: 'PHONE_NUMBER',
+            required: false,
+            showExtension: true,
+            extensionLabel: 'Extension',
+          },
+        ],
+        formData: {
+          value: {
+            'phone-number-key': {
+              countryCode: 'US',
+              phoneNumber: '1234567890',
+              extension: '123',
+            },
+          },
+        },
+      },
+    };
+    expect(nodeCollectorReducer(undefined, action)).toEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberExtensionCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
+          value: {
+            countryCode: 'US',
+            phoneNumber: '1234567890',
+            extension: '123',
+          },
+          type: 'PHONE_NUMBER',
+          validation: null,
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: 'US',
+            phoneNumber: '1234567890',
+            extension: '123',
+          },
+          options: { extensionLabel: 'Extension' },
+        },
+      },
+    ]);
+  });
+
+  it('should handle collector updates', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'phone-number-key-0',
+        value: {
+          countryCode: 'US',
+          phoneNumber: '555-555-5555',
+          extension: '456',
+        },
+      },
+    };
+    const state: PhoneNumberExtensionCollector[] = [
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberExtensionCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+            extension: '',
+          },
+          type: 'PHONE_NUMBER',
+          validation: null,
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+            extension: '',
+          },
+          options: { extensionLabel: 'Extension' },
+        },
+      },
+    ];
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberExtensionCollector',
+        id: 'phone-number-key-0',
+        name: 'phone-number-key',
+        input: {
+          key: 'phone-number-key',
+          value: {
+            countryCode: 'US',
+            phoneNumber: '555-555-5555',
+            extension: '456',
+          },
+          type: 'PHONE_NUMBER',
+          validation: null,
+        },
+        output: {
+          key: 'phone-number-key',
+          label: 'Phone Number',
+          type: 'PHONE_NUMBER',
+          value: {
+            countryCode: '',
+            phoneNumber: '',
+            extension: '',
+          },
+          options: { extensionLabel: 'Extension' },
         },
       },
     ]);
