@@ -23,6 +23,14 @@ import type {
   InferSingleValueCollectorType,
   InferMultiValueCollectorType,
   InferActionCollectorType,
+  PhoneNumberCollector,
+  PhoneNumberExtensionCollector,
+  ObjectValueCollectorWithObjectValue,
+  InferValueObjectCollectorType,
+  PhoneNumberInputValue,
+  PhoneNumberOutputValue,
+  PhoneNumberExtensionInputValue,
+  PhoneNumberExtensionOutputValue,
 } from './collector.types.js';
 
 describe('Collector Types', () => {
@@ -353,6 +361,112 @@ describe('Collector Types', () => {
       };
 
       expectTypeOf(tCollector).toMatchTypeOf<FlowCollector>();
+    });
+
+    it('should correctly infer PhoneNumberCollector Type', () => {
+      const tCollector: InferValueObjectCollectorType<'PhoneNumberCollector'> = {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberCollector',
+        id: '',
+        name: '',
+        input: {
+          key: '',
+          value: { countryCode: '', phoneNumber: '' },
+          type: '',
+          validation: null,
+        },
+        output: {
+          key: '',
+          label: '',
+          type: '',
+          value: { countryCode: '', phoneNumber: '' },
+        },
+      };
+
+      expectTypeOf(tCollector).toEqualTypeOf<PhoneNumberCollector>();
+    });
+  });
+
+  describe('ObjectValueCollector Types', () => {
+    it('should correctly infer PhoneNumberExtensionCollector Type', () => {
+      const tCollector: InferValueObjectCollectorType<'PhoneNumberExtensionCollector'> = {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberExtensionCollector',
+        id: '',
+        name: '',
+        input: {
+          key: '',
+          value: { countryCode: '', phoneNumber: '', extension: '' },
+          type: '',
+          validation: null,
+        },
+        output: {
+          key: '',
+          label: '',
+          type: '',
+          options: { extensionLabel: '' },
+          value: {},
+        },
+      };
+
+      expectTypeOf(tCollector).toEqualTypeOf<PhoneNumberExtensionCollector>();
+    });
+
+    it('should validate PhoneNumberExtensionCollector structure', () => {
+      expectTypeOf<PhoneNumberExtensionCollector>()
+        .toHaveProperty('category')
+        .toEqualTypeOf<'ObjectValueCollector'>();
+      expectTypeOf<PhoneNumberExtensionCollector>()
+        .toHaveProperty('type')
+        .toEqualTypeOf<'PhoneNumberExtensionCollector'>();
+      expectTypeOf<
+        PhoneNumberExtensionCollector['input']['value']
+      >().toEqualTypeOf<PhoneNumberExtensionInputValue>();
+      expectTypeOf<
+        PhoneNumberExtensionCollector['output']['value']
+      >().toEqualTypeOf<PhoneNumberExtensionOutputValue>();
+    });
+
+    it('should validate PhoneNumberCollector structure', () => {
+      expectTypeOf<PhoneNumberCollector>().toEqualTypeOf<
+        ObjectValueCollectorWithObjectValue<
+          'PhoneNumberCollector',
+          PhoneNumberInputValue,
+          PhoneNumberOutputValue
+        >
+      >();
+      expectTypeOf<PhoneNumberCollector>()
+        .toHaveProperty('category')
+        .toEqualTypeOf<'ObjectValueCollector'>();
+      expectTypeOf<PhoneNumberCollector>()
+        .toHaveProperty('type')
+        .toEqualTypeOf<'PhoneNumberCollector'>();
+      expectTypeOf<PhoneNumberCollector['input']['value']>().toEqualTypeOf<PhoneNumberInputValue>();
+    });
+
+    it('should validate PhoneNumberCollector base type constraints', () => {
+      const collector: PhoneNumberCollector = {
+        category: 'ObjectValueCollector',
+        type: 'PhoneNumberCollector',
+        error: null,
+        id: 'test',
+        name: 'Test',
+        input: {
+          key: 'phone',
+          value: { countryCode: '+1', phoneNumber: '5555555555' },
+          type: 'string',
+          validation: null,
+        },
+        output: {
+          key: 'phone',
+          label: 'Phone Number',
+          type: 'phone',
+          value: { countryCode: '+1', phoneNumber: '5555555555' },
+        },
+      };
+      expectTypeOf(collector).toEqualTypeOf<PhoneNumberCollector>();
     });
   });
 });

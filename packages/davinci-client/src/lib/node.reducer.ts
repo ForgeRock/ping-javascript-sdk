@@ -57,6 +57,9 @@ import type {
   FidoAuthenticationInputValue,
   FidoRegistrationInputValue,
   QrCodeCollector,
+  PhoneNumberExtensionOutputValue,
+  PhoneNumberExtensionCollector,
+  PhoneNumberExtensionInputValue,
 } from './collector.types.js';
 
 /**
@@ -75,6 +78,7 @@ export const updateCollectorValues = createAction<{
     | string
     | string[]
     | PhoneNumberInputValue
+    | PhoneNumberExtensionInputValue
     | FidoRegistrationInputValue
     | FidoAuthenticationInputValue;
   index?: number;
@@ -97,6 +101,7 @@ const initialCollectorValues: (
   | DeviceAuthenticationCollector
   | DeviceRegistrationCollector
   | PhoneNumberCollector
+  | PhoneNumberExtensionCollector
   | ReadOnlyCollector
   | ValidatedTextCollector
   | UnknownCollector
@@ -172,7 +177,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 return returnPasswordCollector(field, idx);
               }
               case 'PHONE_NUMBER': {
-                const prefillData = data as PhoneNumberOutputValue;
+                const prefillData = data as
+                  | PhoneNumberOutputValue
+                  | PhoneNumberExtensionOutputValue;
                 return returnObjectValueCollector(field, idx, prefillData);
               }
               case 'TEXT': {
@@ -308,6 +315,25 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         }
         if (!('phoneNumber' in action.payload.value) || !('countryCode' in action.payload.value)) {
           throw new Error('Value argument must contain a phoneNumber and countryCode property');
+        }
+        collector.input.value = action.payload.value;
+      }
+
+      if (collector.type === 'PhoneNumberExtensionCollector') {
+        if (typeof action.payload.id !== 'string') {
+          throw new Error('Index argument must be a string');
+        }
+        if (typeof action.payload.value !== 'object') {
+          throw new Error('Value argument must be an object');
+        }
+        if (
+          !('phoneNumber' in action.payload.value) ||
+          !('countryCode' in action.payload.value) ||
+          !('extension' in action.payload.value)
+        ) {
+          throw new Error(
+            'Value argument must contain a phoneNumber, countryCode, and extension property',
+          );
         }
         collector.input.value = action.payload.value;
       }

@@ -267,6 +267,7 @@ export type ObjectValueCollectorTypes =
   | 'DeviceAuthenticationCollector'
   | 'DeviceRegistrationCollector'
   | 'PhoneNumberCollector'
+  | 'PhoneNumberExtensionCollector'
   | 'ObjectOptionsCollector'
   | 'ObjectValueCollector'
   | 'ObjectSelectCollector';
@@ -302,6 +303,22 @@ export interface PhoneNumberInputValue {
 export interface PhoneNumberOutputValue {
   countryCode?: string;
   phoneNumber?: string;
+}
+
+export interface PhoneNumberExtensionInputValue {
+  countryCode: string;
+  phoneNumber: string;
+  extension: string;
+}
+
+export interface PhoneNumberExtensionOutputValue {
+  countryCode?: string;
+  phoneNumber?: string;
+  extension?: string;
+}
+
+export interface PhoneNumberExtensionOptions {
+  extensionLabel: string;
 }
 
 export interface ObjectOptionsCollectorWithStringValue<
@@ -376,6 +393,27 @@ export interface ObjectValueCollectorWithObjectValue<
   };
 }
 
+export interface PhoneNumberExtensionCollector {
+  category: 'ObjectValueCollector';
+  error: string | null;
+  type: 'PhoneNumberExtensionCollector';
+  id: string;
+  name: string;
+  input: {
+    key: string;
+    value: PhoneNumberExtensionInputValue;
+    type: string;
+    validation: ValidationRequired[] | null;
+  };
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    options: PhoneNumberExtensionOptions;
+    value: PhoneNumberExtensionOutputValue;
+  };
+}
+
 export type InferValueObjectCollectorType<T extends ObjectValueCollectorTypes> =
   T extends 'DeviceAuthenticationCollector'
     ? DeviceAuthenticationCollector
@@ -383,14 +421,17 @@ export type InferValueObjectCollectorType<T extends ObjectValueCollectorTypes> =
       ? DeviceRegistrationCollector
       : T extends 'PhoneNumberCollector'
         ? PhoneNumberCollector
-        :
-            | ObjectOptionsCollectorWithObjectValue<'ObjectValueCollector'>
-            | ObjectOptionsCollectorWithStringValue<'ObjectValueCollector'>;
+        : T extends 'PhoneNumberExtensionCollector'
+          ? PhoneNumberExtensionCollector
+          :
+              | ObjectOptionsCollectorWithObjectValue<'ObjectValueCollector'>
+              | ObjectOptionsCollectorWithStringValue<'ObjectValueCollector'>;
 
 export type ObjectValueCollectors =
   | DeviceAuthenticationCollector
   | DeviceRegistrationCollector
   | PhoneNumberCollector
+  | PhoneNumberExtensionCollector
   | ObjectOptionsCollectorWithObjectValue<'ObjectSelectCollector'>
   | ObjectOptionsCollectorWithStringValue<'ObjectSelectCollector'>;
 
