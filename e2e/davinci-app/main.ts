@@ -247,7 +247,10 @@ const urlParams = new URLSearchParams(window.location.search);
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
         );
-      } else if (collector.type === 'PhoneNumberCollector') {
+      } else if (
+        collector.type === 'PhoneNumberCollector' ||
+        collector.type === 'PhoneNumberExtensionCollector'
+      ) {
         objectValueComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector

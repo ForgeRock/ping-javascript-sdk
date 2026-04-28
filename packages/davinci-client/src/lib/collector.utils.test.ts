@@ -30,6 +30,7 @@ import type {
   DeviceRegistrationField,
   FidoAuthenticationField,
   FidoRegistrationField,
+  PhoneNumberExtensionField,
   PhoneNumberField,
   ProtectField,
   QrCodeField,
@@ -41,7 +42,9 @@ import type {
 import type {
   MultiSelectCollector,
   PhoneNumberCollector,
+  PhoneNumberExtensionCollector,
   PhoneNumberOutputValue,
+  PhoneNumberExtensionOutputValue,
   ValidatedTextCollector,
 } from './collector.types.js';
 
@@ -558,7 +561,7 @@ describe('Object value collectors', () => {
   });
 });
 
-describe('returnPhoneNumberCollector', () => {
+describe('returnObjectValueCollector with phone fields', () => {
   it('input value is empty when no prefill or default country code', () => {
     const mockField: PhoneNumberField = {
       key: 'phone-number-key',
@@ -567,7 +570,6 @@ describe('returnPhoneNumberCollector', () => {
       type: 'PHONE_NUMBER',
       required: true,
       validatePhoneNumber: true,
-      showExtension: false,
     };
 
     const result = returnObjectValueCollector(mockField, 1, {});
@@ -582,7 +584,6 @@ describe('returnPhoneNumberCollector', () => {
         value: {
           countryCode: '',
           phoneNumber: '',
-          extension: '',
         },
         type: mockField.type,
         validation: [
@@ -602,11 +603,9 @@ describe('returnPhoneNumberCollector', () => {
         key: mockField.key,
         label: mockField.label,
         type: mockField.type,
-        options: { showExtension: false },
         value: {
           countryCode: '',
           phoneNumber: '',
-          extension: '',
         },
       },
     });
@@ -620,7 +619,6 @@ describe('returnPhoneNumberCollector', () => {
       type: 'PHONE_NUMBER',
       required: false,
       validatePhoneNumber: false,
-      showExtension: false,
     };
     const result = returnObjectValueCollector(mockField, 1, {});
     expect(result).toEqual({
@@ -634,7 +632,6 @@ describe('returnPhoneNumberCollector', () => {
         value: {
           countryCode: mockField.defaultCountryCode,
           phoneNumber: '',
-          extension: '',
         },
         type: mockField.type,
         validation: null,
@@ -643,11 +640,9 @@ describe('returnPhoneNumberCollector', () => {
         key: mockField.key,
         label: mockField.label,
         type: mockField.type,
-        options: { showExtension: false },
         value: {
           countryCode: mockField.defaultCountryCode,
           phoneNumber: '',
-          extension: '',
         },
       },
     });
@@ -661,7 +656,6 @@ describe('returnPhoneNumberCollector', () => {
       type: 'PHONE_NUMBER',
       required: false,
       validatePhoneNumber: false,
-      showExtension: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       countryCode: 'CA',
@@ -678,7 +672,6 @@ describe('returnPhoneNumberCollector', () => {
         value: {
           countryCode: prefillMock.countryCode,
           phoneNumber: '',
-          extension: '',
         },
         type: mockField.type,
         validation: null,
@@ -687,11 +680,9 @@ describe('returnPhoneNumberCollector', () => {
         key: mockField.key,
         label: mockField.label,
         type: mockField.type,
-        options: { showExtension: false },
         value: {
           countryCode: prefillMock.countryCode,
           phoneNumber: '',
-          extension: '',
         },
       },
     });
@@ -707,7 +698,6 @@ describe('returnPhoneNumberCollector', () => {
       type: 'PHONE_NUMBER',
       required: false,
       validatePhoneNumber: false,
-      showExtension: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       phoneNumber: '1234567890',
@@ -724,7 +714,6 @@ describe('returnPhoneNumberCollector', () => {
         value: {
           countryCode: '',
           phoneNumber: prefillMock.phoneNumber,
-          extension: '',
         },
         type: mockField.type,
         validation: null,
@@ -733,11 +722,9 @@ describe('returnPhoneNumberCollector', () => {
         key: mockField.key,
         label: mockField.label,
         type: mockField.type,
-        options: { showExtension: false },
         value: {
           countryCode: '',
           phoneNumber: prefillMock.phoneNumber,
-          extension: '',
         },
       },
     });
@@ -751,7 +738,6 @@ describe('returnPhoneNumberCollector', () => {
       type: 'PHONE_NUMBER',
       required: false,
       validatePhoneNumber: false,
-      showExtension: false,
     };
     const prefillMock: PhoneNumberOutputValue = {
       countryCode: 'CA',
@@ -769,7 +755,6 @@ describe('returnPhoneNumberCollector', () => {
         value: {
           countryCode: prefillMock.countryCode,
           phoneNumber: prefillMock.phoneNumber,
-          extension: '',
         },
         type: mockField.type,
         validation: null,
@@ -778,18 +763,16 @@ describe('returnPhoneNumberCollector', () => {
         key: mockField.key,
         label: mockField.label,
         type: mockField.type,
-        options: { showExtension: false },
         value: {
           countryCode: prefillMock.countryCode,
           phoneNumber: prefillMock.phoneNumber,
-          extension: '',
         },
       },
     });
   });
 
-  it('showExtension is reflected in output options', () => {
-    const mockField: PhoneNumberField = {
+  it('showExtension true returns PhoneNumberExtensionCollector', () => {
+    const mockField: PhoneNumberExtensionField = {
       key: 'phone-number-key',
       defaultCountryCode: null,
       label: 'Phone Number',
@@ -797,13 +780,14 @@ describe('returnPhoneNumberCollector', () => {
       required: false,
       validatePhoneNumber: false,
       showExtension: true,
+      extensionLabel: 'Extension',
     };
     const result = returnObjectValueCollector(mockField, 1, {});
-    expect(result.output.options).toEqual({ showExtension: true });
+    expect(result.type).toBe('PhoneNumberExtensionCollector');
   });
 
   it('prefilled extension is set on collector', () => {
-    const mockField: PhoneNumberField = {
+    const mockField: PhoneNumberExtensionField = {
       key: 'phone-number-key',
       defaultCountryCode: null,
       label: 'Phone Number',
@@ -811,14 +795,20 @@ describe('returnPhoneNumberCollector', () => {
       required: false,
       validatePhoneNumber: false,
       showExtension: true,
+      extensionLabel: 'Extension',
     };
-    const prefillMock: PhoneNumberOutputValue = {
+    const prefillMock: PhoneNumberExtensionOutputValue = {
       phoneNumber: '1234567890',
       extension: '123',
     };
-    const result = returnObjectValueCollector(mockField, 1, prefillMock);
+    const result = returnObjectValueCollector(
+      mockField,
+      1,
+      prefillMock,
+    ) as PhoneNumberExtensionCollector;
     expect(result.input.value.extension).toBe('123');
     expect(result.output.value?.extension).toBe('123');
+    expect(result.output.options.extensionLabel).toBe('Extension');
   });
 });
 

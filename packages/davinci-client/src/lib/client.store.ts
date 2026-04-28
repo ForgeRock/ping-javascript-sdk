@@ -46,6 +46,7 @@ import type {
   MultiValueCollectors,
   FidoRegistrationInputValue,
   FidoAuthenticationInputValue,
+  PhoneNumberExtensionInputValue,
 } from './collector.types.js';
 import type {
   InitFlow,
@@ -338,6 +339,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           | string
           | string[]
           | PhoneNumberInputValue
+          | PhoneNumberExtensionInputValue
           | FidoRegistrationInputValue
           | FidoAuthenticationInputValue,
         index?: number,

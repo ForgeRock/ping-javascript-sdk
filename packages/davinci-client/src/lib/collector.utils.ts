@@ -30,6 +30,7 @@ import type {
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
   QrCodeCollectorBase,
+  PhoneNumberExtensionOutputValue,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -46,6 +47,7 @@ import type {
   SingleSelectField,
   StandardField,
   ValidatedField,
+  PhoneNumberExtensionField,
 } from './davinci.types.js';
 
 /**
@@ -573,9 +575,18 @@ export function returnMultiSelectCollector(field: MultiSelectField, idx: number,
  * @returns {ObjectCollector} The constructed ObjectCollector object.
  */
 export function returnObjectCollector<
-  Field extends DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField,
+  Field extends
+    | DeviceAuthenticationField
+    | DeviceRegistrationField
+    | PhoneNumberField
+    | PhoneNumberExtensionField,
   CollectorType extends ObjectValueCollectorTypes = 'ObjectValueCollector',
->(field: Field, idx: number, collectorType: CollectorType, prefillData?: PhoneNumberOutputValue) {
+>(
+  field: Field,
+  idx: number,
+  collectorType: CollectorType,
+  prefillData?: PhoneNumberOutputValue | PhoneNumberExtensionOutputValue,
+) {
   let error = '';
   if (!('key' in field)) {
     error = `${error}Key is not found in the field object. `;
@@ -652,17 +663,28 @@ export function returnObjectCollector<
       });
     }
 
-    options = { showExtension: field.showExtension };
-
     const prefilledCountryCode = prefillData?.countryCode;
     const prefilledPhone = prefillData?.phoneNumber;
-    const prefilledExtension = prefillData?.extension;
 
-    defaultValue = {
-      countryCode: prefilledCountryCode ? prefilledCountryCode : field.defaultCountryCode || '',
-      phoneNumber: prefilledPhone || '',
-      extension: prefilledExtension || '',
-    };
+    if ('showExtension' in field && field.showExtension === true) {
+      const prefilledExtension =
+        prefillData && 'extension' in prefillData ? prefillData.extension : '';
+
+      // PhoneNumberExtensionCollector default value
+      defaultValue = {
+        countryCode: prefilledCountryCode ? prefilledCountryCode : field.defaultCountryCode || '',
+        phoneNumber: prefilledPhone || '',
+        extension: prefilledExtension ?? '',
+      };
+
+      options = { extensionLabel: field.extensionLabel || '' };
+    } else {
+      // PhoneNumberCollector default value
+      defaultValue = {
+        countryCode: prefilledCountryCode ? prefilledCountryCode : field.defaultCountryCode || '',
+        phoneNumber: prefilledPhone || '',
+      };
+    }
   }
 
   return {
@@ -707,11 +729,25 @@ export function returnObjectSelectCollector(
 }
 
 export function returnObjectValueCollector(
-  field: PhoneNumberField,
+  field: PhoneNumberField | PhoneNumberExtensionField,
   idx: number,
-  prefillData: PhoneNumberOutputValue,
+  prefillData: PhoneNumberOutputValue | PhoneNumberExtensionOutputValue,
 ) {
-  return returnObjectCollector(field, idx, 'PhoneNumberCollector', prefillData);
+  if ('showExtension' in field && field.showExtension === true) {
+    return returnObjectCollector(
+      field,
+      idx,
+      'PhoneNumberExtensionCollector',
+      prefillData as PhoneNumberExtensionOutputValue,
+    );
+  }
+
+  return returnObjectCollector(
+    field,
+    idx,
+    'PhoneNumberCollector',
+    prefillData as PhoneNumberOutputValue,
+  );
 }
 
 /**
