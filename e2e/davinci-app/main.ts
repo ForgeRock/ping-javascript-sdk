@@ -33,6 +33,7 @@ import labelComponent from './components/label.js';
 import objectValueComponent from './components/object-value.js';
 import fidoComponent from './components/fido.js';
 import qrCodeComponent from './components/qr-code.js';
+import agreementComponent from './components/agreement.js';
 import pollingComponent from './components/polling.js';
 
 const loggerFn = {
@@ -227,6 +228,8 @@ const urlParams = new URLSearchParams(window.location.search);
         );
       } else if (collector.type === 'QrCodeCollector') {
         qrCodeComponent(formEl, collector);
+      } else if (collector.type === 'AgreementCollector') {
+        agreementComponent(formEl, collector);
       } else if (collector.type === 'TextCollector') {
         textComponent(
           formEl, // You can ignore this; it's just for rendering

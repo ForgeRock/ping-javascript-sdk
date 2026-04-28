@@ -37,6 +37,7 @@ import {
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   QrCodeCollector,
+  AgreementCollector,
 } from './collector.types.js';
 // ErrorDetail and Links are used as part of the DaVinciError and server._links types respectively
 
@@ -240,6 +241,7 @@ describe('Node Types', () => {
         | FidoRegistrationCollector
         | FidoAuthenticationCollector
         | QrCodeCollector
+        | AgreementCollector
         | UnknownCollector
       >();
 

@@ -17,6 +17,7 @@ import type {
   PollingCollector,
   ProtectCollector,
   QrCodeCollector,
+  AgreementCollector,
   SubmitCollector,
   TextCollector,
 } from './collector.types.js';
@@ -448,6 +449,50 @@ describe('The node collector reducer', () => {
           src: 'data:image/png;base64,abc123',
         },
       } satisfies QrCodeCollector,
+    ]);
+  });
+
+  it('should handle AGREEMENT field type', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'AGREEMENT',
+            key: 'agreement-field',
+            content: 'Please accept the terms and conditions',
+            titleEnabled: true,
+            title: 'Terms and Conditions',
+            agreement: {
+              id: 'agreement-123',
+              useDynamicAgreement: false,
+            },
+            enabled: true,
+          },
+        ],
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'AgreementCollector',
+        id: 'agreement-field-0',
+        name: 'agreement-field-0',
+        output: {
+          key: 'agreement-field-0',
+          label: 'Please accept the terms and conditions',
+          type: 'AGREEMENT',
+          titleEnabled: true,
+          title: 'Terms and Conditions',
+          agreement: {
+            id: 'agreement-123',
+            useDynamicAgreement: false,
+          },
+          enabled: true,
+        },
+      } satisfies AgreementCollector,
     ]);
   });
 });

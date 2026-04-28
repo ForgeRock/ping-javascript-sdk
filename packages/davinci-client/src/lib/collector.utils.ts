@@ -30,6 +30,7 @@ import type {
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
   QrCodeCollectorBase,
+  AgreementCollector,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -46,6 +47,8 @@ import type {
   SingleSelectField,
   StandardField,
   ValidatedField,
+  AgreementField,
+  ReadOnlyFields,
 } from './davinci.types.js';
 
 /**
@@ -717,7 +720,7 @@ export function returnObjectValueCollector(
  * @returns {NoValueCollector} The constructed NoValueCollector object.
  */
 export function returnNoValueCollector<
-  Field extends ReadOnlyField | QrCodeField,
+  Field extends ReadOnlyFields,
   CollectorType extends NoValueCollectorTypes = 'NoValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -767,6 +770,29 @@ export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCo
       ...base.output,
       label: field.fallbackText || '',
       src: field.content || '',
+    },
+  };
+}
+
+/**
+ * @function returnAgreementCollector - Creates an AgreementCollector object based on the provided field and index.
+ * @param {AgreementField} field - The field object containing key, label, type, and agreement details.
+ * @param {number} idx - The index to be used in the id of the AgreementCollector.
+ * @returns {AgreementCollector} The constructed AgreementCollector object.
+ */
+export function returnAgreementCollector(field: AgreementField, idx: number): AgreementCollector {
+  const base = returnNoValueCollector(field, idx, 'AgreementCollector');
+  return {
+    ...base,
+    output: {
+      ...base.output,
+      titleEnabled: field.titleEnabled,
+      title: field.title,
+      agreement: {
+        id: field.agreement?.id ?? '',
+        useDynamicAgreement: field.agreement?.useDynamicAgreement ?? false,
+      },
+      enabled: field.enabled ?? false,
     },
   };
 }
