@@ -158,7 +158,11 @@ export type PhoneNumberField = {
   required: boolean;
   defaultCountryCode: string | null;
   validatePhoneNumber: boolean;
+};
+
+export type PhoneNumberExtensionField = PhoneNumberField & {
   showExtension: boolean;
+  extensionLabel: string;
 };
 
 export type ProtectField = {
@@ -235,6 +239,7 @@ export type ComplexValueFields =
   | DeviceAuthenticationField
   | DeviceRegistrationField
   | PhoneNumberField
+  | PhoneNumberExtensionField
   | FidoRegistrationField
   | FidoAuthenticationField
   | PollingField;

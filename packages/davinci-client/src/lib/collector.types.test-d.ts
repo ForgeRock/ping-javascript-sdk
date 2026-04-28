@@ -24,11 +24,13 @@ import type {
   InferMultiValueCollectorType,
   InferActionCollectorType,
   PhoneNumberCollector,
-  ObjectOptionsCollectorWithObjectValue,
+  PhoneNumberExtensionCollector,
+  ObjectValueCollectorWithObjectValue,
   InferValueObjectCollectorType,
   PhoneNumberInputValue,
   PhoneNumberOutputValue,
-  PhoneNumberOptions,
+  PhoneNumberExtensionInputValue,
+  PhoneNumberExtensionOutputValue,
 } from './collector.types.js';
 
 describe('Collector Types', () => {
@@ -370,7 +372,7 @@ describe('Collector Types', () => {
         name: '',
         input: {
           key: '',
-          value: { countryCode: '', phoneNumber: '', extension: '' },
+          value: { countryCode: '', phoneNumber: '' },
           type: '',
           validation: null,
         },
@@ -378,8 +380,7 @@ describe('Collector Types', () => {
           key: '',
           label: '',
           type: '',
-          options: { showExtension: false },
-          value: { countryCode: '', phoneNumber: '', extension: '' },
+          value: { countryCode: '', phoneNumber: '' },
         },
       };
 
@@ -388,13 +389,52 @@ describe('Collector Types', () => {
   });
 
   describe('ObjectValueCollector Types', () => {
+    it('should correctly infer PhoneNumberExtensionCollector Type', () => {
+      const tCollector: InferValueObjectCollectorType<'PhoneNumberExtensionCollector'> = {
+        category: 'ObjectValueCollector',
+        error: null,
+        type: 'PhoneNumberExtensionCollector',
+        id: '',
+        name: '',
+        input: {
+          key: '',
+          value: { countryCode: '', phoneNumber: '', extension: '' },
+          type: '',
+          validation: null,
+        },
+        output: {
+          key: '',
+          label: '',
+          type: '',
+          options: { extensionLabel: '' },
+          value: {},
+        },
+      };
+
+      expectTypeOf(tCollector).toEqualTypeOf<PhoneNumberExtensionCollector>();
+    });
+
+    it('should validate PhoneNumberExtensionCollector structure', () => {
+      expectTypeOf<PhoneNumberExtensionCollector>()
+        .toHaveProperty('category')
+        .toEqualTypeOf<'ObjectValueCollector'>();
+      expectTypeOf<PhoneNumberExtensionCollector>()
+        .toHaveProperty('type')
+        .toEqualTypeOf<'PhoneNumberExtensionCollector'>();
+      expectTypeOf<
+        PhoneNumberExtensionCollector['input']['value']
+      >().toEqualTypeOf<PhoneNumberExtensionInputValue>();
+      expectTypeOf<
+        PhoneNumberExtensionCollector['output']['value']
+      >().toEqualTypeOf<PhoneNumberExtensionOutputValue>();
+    });
+
     it('should validate PhoneNumberCollector structure', () => {
       expectTypeOf<PhoneNumberCollector>().toEqualTypeOf<
-        ObjectOptionsCollectorWithObjectValue<
+        ObjectValueCollectorWithObjectValue<
           'PhoneNumberCollector',
           PhoneNumberInputValue,
-          PhoneNumberOutputValue,
-          PhoneNumberOptions
+          PhoneNumberOutputValue
         >
       >();
       expectTypeOf<PhoneNumberCollector>()
@@ -404,7 +444,6 @@ describe('Collector Types', () => {
         .toHaveProperty('type')
         .toEqualTypeOf<'PhoneNumberCollector'>();
       expectTypeOf<PhoneNumberCollector['input']['value']>().toEqualTypeOf<PhoneNumberInputValue>();
-      expectTypeOf<PhoneNumberCollector['output']['options']>().toEqualTypeOf<PhoneNumberOptions>();
     });
 
     it('should validate PhoneNumberCollector base type constraints', () => {
@@ -416,7 +455,7 @@ describe('Collector Types', () => {
         name: 'Test',
         input: {
           key: 'phone',
-          value: { countryCode: '+1', phoneNumber: '5555555555', extension: '' },
+          value: { countryCode: '+1', phoneNumber: '5555555555' },
           type: 'string',
           validation: null,
         },
@@ -424,7 +463,6 @@ describe('Collector Types', () => {
           key: 'phone',
           label: 'Phone Number',
           type: 'phone',
-          options: { showExtension: true },
           value: { countryCode: '+1', phoneNumber: '5555555555' },
         },
       };

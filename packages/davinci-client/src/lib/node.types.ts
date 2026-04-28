@@ -27,6 +27,7 @@ import type {
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   QrCodeCollector,
+  PhoneNumberExtensionCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
 
@@ -43,6 +44,7 @@ export type Collectors =
   | DeviceAuthenticationCollector
   | DeviceRegistrationCollector
   | PhoneNumberCollector
+  | PhoneNumberExtensionCollector
   | ReadOnlyCollector
   | ValidatedTextCollector
   | ProtectCollector
