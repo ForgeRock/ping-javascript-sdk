@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2024 - 2026 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
@@ -23,6 +23,18 @@ export class PingOneProtectInitializeCallback extends BaseCallback {
    * Get callback's initialization config settings
    */
   public getConfig() {
+    const signalsInitializationOptions = this.getOutputByName<Record<string, string> | undefined>(
+      'signalsInitializationOptions',
+      undefined,
+    );
+    if (
+      signalsInitializationOptions !== null &&
+      typeof signalsInitializationOptions === 'object' &&
+      !Array.isArray(signalsInitializationOptions)
+    ) {
+      return signalsInitializationOptions;
+    }
+
     const config = {
       envId: this.getOutputByName<string>('envId', ''),
       consoleLogEnabled: this.getOutputByName<boolean>('consoleLogEnabled', false),

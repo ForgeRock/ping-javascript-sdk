@@ -305,7 +305,7 @@ export class PingOneProtectEvaluationCallback extends BaseCallback {
 // @public
 export class PingOneProtectInitializeCallback extends BaseCallback {
     constructor(payload: Callback);
-    getConfig(): {
+    getConfig(): Record<string, string> | {
         envId: string;
         consoleLogEnabled: boolean;
         deviceAttributesToIgnore: string[];

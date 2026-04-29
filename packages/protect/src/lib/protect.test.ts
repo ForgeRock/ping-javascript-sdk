@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2025 Ping Identity Corporation. All right reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -68,6 +68,29 @@ describe('protect (with successfully loaded signals sdk)', () => {
   });
 
   describe('native node methods', () => {
+    it('should call start with a signalsInitializationOptions pass-through config', async () => {
+      const passthroughConfig = {
+        envId: '12345',
+        behavioralDataCollection: 'true',
+        customOption: 'value1',
+      };
+      const protectApi = protect(passthroughConfig);
+      await protectApi.start();
+      expect(window._pingOneSignals.init).toHaveBeenCalledWith(passthroughConfig);
+    });
+
+    it('should resume behavioralData when behavioralDataCollection is string "true"', async () => {
+      const protectApi = protect({ envId: '12345', behavioralDataCollection: 'true' });
+      await protectApi.start();
+      expect(window._pingOneSignals.resumeBehavioralData).toHaveBeenCalled();
+    });
+
+    it('should not resume behavioralData when behavioralDataCollection is string "false"', async () => {
+      const protectApi = protect({ envId: '12345', behavioralDataCollection: 'false' });
+      await protectApi.start();
+      expect(window._pingOneSignals.resumeBehavioralData).not.toHaveBeenCalled();
+    });
+
     it('should call start', async () => {
       const protectApi = protect(config);
       const protectMock = vi.spyOn(protectApi, 'start');

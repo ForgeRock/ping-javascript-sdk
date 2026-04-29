@@ -1,11 +1,17 @@
 /*
  *
- * Copyright © 2025 Ping Identity Corporation. All right reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  *
  */
+
+/**
+ * @type SignalsInitializationOptions - Arbitrary string key-value map passed directly to the Signals SDK initialization.
+ * Used when AM returns a `signalsInitializationOptions` output on the `PingOneProtectInitializeCallback`.
+ */
+export type SignalsInitializationOptions = Record<string, string>;
 
 /**
  * @interface ProtectConfig - Interface for the Protect module configuration parameters
