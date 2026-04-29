@@ -35,6 +35,8 @@ import type {
   RichContentLink,
   AgreementCollector,
   PhoneNumberExtensionOutputValue,
+  PasswordCollector,
+  ValidatedPasswordCollector,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -42,6 +44,7 @@ import type {
   FidoAuthenticationField,
   FidoRegistrationField,
   MultiSelectField,
+  PasswordField,
   PhoneNumberField,
   ProtectField,
   QrCodeField,
@@ -155,7 +158,7 @@ export function returnSubmitCollector(field: StandardField, idx: number) {
  * @returns {SingleValueCollector} The constructed SingleValueCollector object.
  */
 export function returnSingleValueCollector<
-  Field extends StandardField | SingleSelectField | ValidatedField,
+  Field extends StandardField | SingleSelectField | ValidatedField | PasswordField,
   CollectorType extends SingleValueCollectorTypes = 'SingleValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType, data?: string) {
   let error = '';
@@ -170,6 +173,7 @@ export function returnSingleValueCollector<
   }
 
   if (collectorType === 'PasswordCollector') {
+    const verify = 'verify' in field ? field.verify === true : false;
     return {
       category: 'SingleValueCollector',
       error: error || null,
@@ -185,7 +189,32 @@ export function returnSingleValueCollector<
         key: field.key,
         label: field.label,
         type: field.type,
-        // No default or existing value is passed
+        verify,
+      },
+    } as InferSingleValueCollectorType<CollectorType>;
+  } else if (collectorType === 'ValidatedPasswordCollector') {
+    // Reducer routes here only when passwordPolicy is present, but fallback to {} keeps the
+    // factory total and consistent with the type definition (passwordPolicy is optional).
+    const validation =
+      'passwordPolicy' in field && field.passwordPolicy ? field.passwordPolicy : {};
+    const verify = 'verify' in field ? field.verify === true : false;
+    return {
+      category: 'SingleValueCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field?.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: '',
+        type: field.type,
+        validation,
+      },
+      output: {
+        key: field.key,
+        label: field.label,
+        type: field.type,
+        verify,
       },
     } as InferSingleValueCollectorType<CollectorType>;
   } else if (collectorType === 'SingleSelectCollector') {
@@ -439,13 +468,33 @@ export function returnObjectValueAutoCollector<
 }
 
 /**
- * @function returnPasswordCollector - Creates a PasswordCollector object based on the provided field and index.
- * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @function returnPasswordCollector - Creates a PasswordCollector (no password policy).
+ * @param {PasswordField} field - The PASSWORD / PASSWORD_VERIFY field; a `verify` flag is
+ *   propagated to the collector output if set.
  * @param {number} idx - The index to be used in the id of the PasswordCollector.
  * @returns {PasswordCollector} The constructed PasswordCollector object.
  */
-export function returnPasswordCollector(field: StandardField, idx: number) {
-  return returnSingleValueCollector(field, idx, 'PasswordCollector');
+export function returnPasswordCollector(field: PasswordField, idx: number): PasswordCollector {
+  return returnSingleValueCollector(field, idx, 'PasswordCollector') as PasswordCollector;
+}
+
+/**
+ * @function returnValidatedPasswordCollector - Creates a ValidatedPasswordCollector for
+ *   fields that carry a `passwordPolicy`. The reducer routes both `PASSWORD` and
+ *   `PASSWORD_VERIFY` here when a policy is present.
+ * @param {PasswordField} field - The PASSWORD or PASSWORD_VERIFY field carrying a passwordPolicy.
+ * @param {number} idx - The index of the field in the form.
+ * @returns {ValidatedPasswordCollector} The constructed ValidatedPasswordCollector.
+ */
+export function returnValidatedPasswordCollector(
+  field: PasswordField,
+  idx: number,
+): ValidatedPasswordCollector {
+  return returnSingleValueCollector(
+    field,
+    idx,
+    'ValidatedPasswordCollector',
+  ) as ValidatedPasswordCollector;
 }
 
 /**

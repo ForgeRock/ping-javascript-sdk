@@ -10,6 +10,7 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type { Updater } from './client.types.js';
 import type {
   PasswordCollector,
+  ValidatedPasswordCollector,
   TextCollector,
   ValidatedTextCollector,
   SingleSelectCollector,
@@ -29,6 +30,7 @@ import type { Collectors } from './node.types.js';
 type MockUpdate = <
   T extends
     | PasswordCollector
+    | ValidatedPasswordCollector
     | TextCollector
     | ValidatedTextCollector
     | SingleSelectCollector
@@ -58,6 +60,22 @@ describe('Updater Type Narrowing with Real Usage Pattern', () => {
         // 2. update() should return Updater<PasswordCollector>
         const updater = mockUpdate(collector);
         expectTypeOf(updater).toEqualTypeOf<Updater<PasswordCollector>>();
+
+        // 3. The updater parameter should accept string
+        expectTypeOf(updater).parameter(0).toEqualTypeOf<string>();
+      }
+    });
+
+    it('ValidatedPasswordCollector should narrow collector to ValidatedPasswordCollector type', () => {
+      const collector = {} as Collectors;
+
+      if (collector.type === 'ValidatedPasswordCollector') {
+        // 1. Collector itself should be narrowed to ValidatedPasswordCollector
+        expectTypeOf(collector).toEqualTypeOf<ValidatedPasswordCollector>();
+
+        // 2. update() should return Updater<ValidatedPasswordCollector>
+        const updater = mockUpdate(collector);
+        expectTypeOf(updater).toEqualTypeOf<Updater<ValidatedPasswordCollector>>();
 
         // 3. The updater parameter should accept string
         expectTypeOf(updater).parameter(0).toEqualTypeOf<string>();

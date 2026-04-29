@@ -36,36 +36,38 @@ export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
  */
 export type CollectorValueType<T> = T extends { type: 'PasswordCollector' }
   ? string
-  : T extends { type: 'TextCollector'; category: 'SingleValueCollector' }
+  : T extends { type: 'ValidatedPasswordCollector' }
     ? string
-    : T extends { type: 'TextCollector'; category: 'ValidatedSingleValueCollector' }
+    : T extends { type: 'TextCollector'; category: 'SingleValueCollector' }
       ? string
-      : T extends { type: 'SingleSelectCollector' }
+      : T extends { type: 'TextCollector'; category: 'ValidatedSingleValueCollector' }
         ? string
-        : T extends { type: 'MultiSelectCollector' }
-          ? string[]
-          : T extends { type: 'DeviceRegistrationCollector' }
-            ? string
-            : T extends { type: 'DeviceAuthenticationCollector' }
+        : T extends { type: 'SingleSelectCollector' }
+          ? string
+          : T extends { type: 'MultiSelectCollector' }
+            ? string[]
+            : T extends { type: 'DeviceRegistrationCollector' }
               ? string
-              : T extends { type: 'PhoneNumberCollector' }
-                ? PhoneNumberInputValue
-                : T extends { type: 'FidoRegistrationCollector' }
-                  ? FidoRegistrationInputValue
-                  : T extends { type: 'FidoAuthenticationCollector' }
-                    ? FidoAuthenticationInputValue
-                    : T extends { category: 'SingleValueCollector' }
-                      ? string
-                      : T extends { category: 'ValidatedSingleValueCollector' }
+              : T extends { type: 'DeviceAuthenticationCollector' }
+                ? string
+                : T extends { type: 'PhoneNumberCollector' }
+                  ? PhoneNumberInputValue
+                  : T extends { type: 'FidoRegistrationCollector' }
+                    ? FidoRegistrationInputValue
+                    : T extends { type: 'FidoAuthenticationCollector' }
+                      ? FidoAuthenticationInputValue
+                      : T extends { category: 'SingleValueCollector' }
                         ? string
-                        : T extends { category: 'MultiValueCollector' }
-                          ? string[]
-                          :
-                              | string
-                              | string[]
-                              | PhoneNumberInputValue
-                              | FidoRegistrationInputValue
-                              | FidoAuthenticationInputValue;
+                        : T extends { category: 'ValidatedSingleValueCollector' }
+                          ? string
+                          : T extends { category: 'MultiValueCollector' }
+                            ? string[]
+                            :
+                                | string
+                                | string[]
+                                | PhoneNumberInputValue
+                                | FidoRegistrationInputValue
+                                | FidoAuthenticationInputValue;
 
 /**
  * Generic updater function that accepts values appropriate for the collector type.
