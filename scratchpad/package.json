@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "dotenv": "17.2.3",
-    "tsx": "4.20.6"
+    "tsx": "4.21.0"
   },
   "publishConfig": {
     "registry": "https://npm.petrov.ca",
