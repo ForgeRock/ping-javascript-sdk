@@ -16,6 +16,7 @@ import {
   returnActionCollector,
   returnFlowCollector,
   returnPasswordCollector,
+  returnValidatedPasswordCollector,
   returnIdpCollector,
   returnSubmitCollector,
   returnTextCollector,
@@ -39,6 +40,7 @@ import type {
   SingleSelectCollector,
   FlowCollector,
   PasswordCollector,
+  ValidatedPasswordCollector,
   SingleValueCollector,
   IdpCollector,
   SubmitCollector,
@@ -89,6 +91,7 @@ export const pollCollectorValues = createAction('node/poll');
 const initialCollectorValues: (
   | FlowCollector
   | PasswordCollector
+  | ValidatedPasswordCollector
   | TextCollector
   | IdpCollector
   | SubmitCollector
@@ -173,10 +176,11 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 // Intentional fall-through
                 return returnObjectSelectCollector(field, idx);
               }
-              case 'PASSWORD':
-              case 'PASSWORD_VERIFY': {
-                // No data to send
+              case 'PASSWORD': {
                 return returnPasswordCollector(field, idx);
+              }
+              case 'PASSWORD_VERIFY': {
+                return returnValidatedPasswordCollector(field, idx);
               }
               case 'PHONE_NUMBER': {
                 const prefillData = data as PhoneNumberOutputValue;
