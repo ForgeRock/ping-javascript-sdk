@@ -1,5 +1,27 @@
 # @forgerock/davinci-client
 
+## 2.1.0
+
+### Minor Changes
+
+- [#562](https://github.com/ForgeRock/ping-javascript-sdk/pull/562) [`63e94aa`](https://github.com/ForgeRock/ping-javascript-sdk/commit/63e94aa47114eee07846d5e90b47c1649190df4c) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Add QR code collector support to davinci-client
+
+- [#563](https://github.com/ForgeRock/ping-javascript-sdk/pull/563) [`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9) Thanks [@ancheetah](https://github.com/ancheetah)! - Support both challenge polling and continue polling in DaVinci
+
+- [#579](https://github.com/ForgeRock/ping-javascript-sdk/pull/579) [`6c13d93`](https://github.com/ForgeRock/ping-javascript-sdk/commit/6c13d93db76fa1c8d19382909bea34cb0b80f4cf) Thanks [@ancheetah](https://github.com/ancheetah)! - Support form agreements with AgreementCollector
+
+### Patch Changes
+
+- [#564](https://github.com/ForgeRock/ping-javascript-sdk/pull/564) [`15d5af3`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d5af32310174296ae1513c95168c5e8336d668) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Update interfaces and types that are missing from exports
+
+- Updated dependencies [[`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9), [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801)]:
+  - @forgerock/sdk-request-middleware@2.1.0
+  - @forgerock/storage@2.1.0
+  - @forgerock/sdk-logger@2.1.0
+  - @forgerock/sdk-oidc@2.1.0
+  - @forgerock/sdk-types@2.1.0
+  - @forgerock/sdk-utilities@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

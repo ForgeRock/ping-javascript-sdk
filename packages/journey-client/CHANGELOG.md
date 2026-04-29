@@ -1,5 +1,33 @@
 # @forgerock/journey-client
 
+## 2.1.0
+
+### Patch Changes
+
+- [#564](https://github.com/ForgeRock/ping-javascript-sdk/pull/564) [`15d5af3`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d5af32310174296ae1513c95168c5e8336d668) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Update interfaces and types that are missing from exports
+
+- [#583](https://github.com/ForgeRock/ping-javascript-sdk/pull/583) [`b081582`](https://github.com/ForgeRock/ping-javascript-sdk/commit/b0815826304b0bb05fd94391ce1d4edf4b3df8e0) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - Restore legacy resume() redirect query-param handling.
+
+  resume() now parses and forwards additional URL params (error, errorCode, errorMessage, nonce, RelayState, scope, suspendedId) and uses authIndexValue as a fallback journey value.
+
+- [#557](https://github.com/ForgeRock/ping-javascript-sdk/pull/557) [`5fe2f41`](https://github.com/ForgeRock/ping-javascript-sdk/commit/5fe2f4157249111d77b7d29d09535e56f79120cf) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Extend `JourneyClientConfig` from `AsyncLegacyConfigOptions` so the same config object can be shared across journey-client, davinci-client, and oidc-client
+  - `clientId`, `scope`, `redirectUri`, and other inherited properties are now accepted but ignored — a warning is logged when they are provided
+  - `serverConfig.wellknown` remains required
+
+- [#578](https://github.com/ForgeRock/ping-javascript-sdk/pull/578) [`096733d`](https://github.com/ForgeRock/ping-javascript-sdk/commit/096733df543a6fa2e9468873677ab2f350aade36) Thanks [@SteinGabriel](https://github.com/SteinGabriel)! - Support `signalsInitializationOptions` pass-through config from AM in `PingOneProtectInitializeCallback`.
+  - `getConfig()` detects `signalsInitializationOptions` in the callback output; if it is a valid plain object, returns it directly as `SignalsInitializationOptions`
+  - Falls back to the existing `ProtectConfig` construction when the property is absent or invalid (null, string, array)
+  - `protect()` now accepts `ProtectConfig | SignalsInitializationOptions` so the pass-through config flows in without type assertions
+  - Updates vendored Signals SDK from v5.6.0w to v5.6.9w
+
+- Updated dependencies [[`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9), [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801)]:
+  - @forgerock/sdk-request-middleware@2.1.0
+  - @forgerock/storage@2.1.0
+  - @forgerock/sdk-logger@2.1.0
+  - @forgerock/sdk-oidc@2.1.0
+  - @forgerock/sdk-types@2.1.0
+  - @forgerock/sdk-utilities@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

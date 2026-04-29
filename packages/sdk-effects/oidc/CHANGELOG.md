@@ -1,5 +1,15 @@
 # @forgerock/sdk-oidc
 
+## 2.1.0
+
+### Patch Changes
+
+- [#555](https://github.com/ForgeRock/ping-javascript-sdk/pull/555) [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801) Thanks [@ancheetah](https://github.com/ancheetah)! - Fixes files distributed in sdk-effects packages. Excludes files not in `/dist` folder.
+
+- Updated dependencies []:
+  - @forgerock/sdk-types@2.1.0
+  - @forgerock/sdk-utilities@2.1.0
+
 ## 2.0.0
 
 ### Major Changes
