@@ -24,6 +24,7 @@ import {
   returnObjectValueAutoCollector,
   returnQrCodeCollector,
   returnAgreementCollector,
+  normalizeReplacements,
 } from './collector.utils.js';
 import type {
   DaVinciField,
@@ -37,6 +38,7 @@ import type {
   PollingField,
   ReadOnlyField,
   RedirectField,
+  RichContentReplacement,
   StandardField,
   AgreementField,
 } from './davinci.types.js';
@@ -796,7 +798,7 @@ describe('No Value Collectors', () => {
   });
 
   describe('returnReadOnlyCollector', () => {
-    it('should return a valid ReadOnlyCollector with value in output', () => {
+    it('should return a ReadOnlyCollector with plain content and empty richContent when no richContent on field', () => {
       const result = returnReadOnlyCollector(mockField, 0);
       expect(result).toEqual({
         category: 'NoValueCollector',
@@ -808,7 +810,84 @@ describe('No Value Collectors', () => {
           key: 'LABEL-0',
           label: mockField.content,
           type: mockField.type,
+          content: mockField.content,
+          richContent: {
+            content: mockField.content,
+            replacements: [],
+          },
         },
+      });
+    });
+
+    it('should pass through richContent template and validated replacements', () => {
+      const field: ReadOnlyField = {
+        type: 'LABEL',
+        content: 'I agree to the terms and conditions',
+        richContent: {
+          content: 'I agree to the {{link}}',
+          replacements: {
+            link: {
+              type: 'link',
+              value: 'terms and conditions',
+              href: 'https://example.com',
+              target: '_blank',
+            },
+          },
+        },
+        key: 'terms',
+      };
+
+      const result = returnReadOnlyCollector(field, 0);
+
+      expect(result).toEqual({
+        category: 'NoValueCollector',
+        error: null,
+        type: 'ReadOnlyCollector',
+        id: 'terms-0',
+        name: 'terms-0',
+        output: {
+          key: 'terms-0',
+          label: 'I agree to the terms and conditions',
+          type: 'LABEL',
+          content: 'I agree to the terms and conditions',
+          richContent: {
+            content: 'I agree to the {{link}}',
+            replacements: [
+              {
+                key: 'link',
+                type: 'link',
+                value: 'terms and conditions',
+                href: 'https://example.com',
+                target: '_blank',
+              },
+            ],
+          },
+        },
+      });
+    });
+
+    it('should pass through unsafe-looking hrefs unchanged (consumer is responsible for sanitization)', () => {
+      const field: ReadOnlyField = {
+        type: 'LABEL',
+        content: 'Click the link',
+        richContent: {
+          content: 'Click {{bad}}',
+          replacements: {
+            bad: {
+              type: 'link',
+              value: 'here',
+              href: 'javascript:alert(1)',
+            },
+          },
+        },
+      };
+
+      const result = returnReadOnlyCollector(field, 0);
+
+      expect(result.error).toBeNull();
+      expect(result.output.richContent).toEqual({
+        content: 'Click {{bad}}',
+        replacements: [{ key: 'bad', type: 'link', value: 'here', href: 'javascript:alert(1)' }],
       });
     });
   });
@@ -1179,5 +1258,150 @@ describe('Return collector validator', () => {
     expect(result).toContain(
       'Invalid regular expression: /[invalid/: Unterminated character class',
     );
+  });
+});
+
+describe('normalizeReplacements', () => {
+  it('should flatten a single link replacement', () => {
+    const replacements: Record<string, RichContentReplacement> = {
+      link1: {
+        type: 'link',
+        value: 'terms and conditions',
+        href: 'https://example.com',
+        target: '_blank',
+      },
+    };
+
+    expect(normalizeReplacements(replacements)).toEqual([
+      {
+        key: 'link1',
+        type: 'link',
+        value: 'terms and conditions',
+        href: 'https://example.com',
+        target: '_blank',
+      },
+    ]);
+  });
+
+  it('should flatten multiple link replacements', () => {
+    const replacements: Record<string, RichContentReplacement> = {
+      link1: {
+        type: 'link',
+        value: 'terms',
+        href: 'https://example.com',
+        target: '_blank',
+      },
+      link2: {
+        type: 'link',
+        value: 'policy',
+        href: 'https://xyz.com',
+        target: '_self',
+      },
+    };
+
+    expect(normalizeReplacements(replacements)).toEqual([
+      {
+        key: 'link1',
+        type: 'link',
+        value: 'terms',
+        href: 'https://example.com',
+        target: '_blank',
+      },
+      { key: 'link2', type: 'link', value: 'policy', href: 'https://xyz.com', target: '_self' },
+    ]);
+  });
+
+  it('should omit target when not provided', () => {
+    const replacements: Record<string, RichContentReplacement> = {
+      link: {
+        type: 'link',
+        value: 'here',
+        href: 'https://example.com',
+      },
+    };
+
+    expect(normalizeReplacements(replacements)).toEqual([
+      { key: 'link', type: 'link', value: 'here', href: 'https://example.com' },
+    ]);
+  });
+
+  it('should return empty array for empty replacements', () => {
+    expect(normalizeReplacements({})).toEqual([]);
+  });
+
+  it('should pass non-http(s) hrefs through unchanged', () => {
+    const replacements: Record<string, RichContentReplacement> = {
+      link: {
+        type: 'link',
+        value: 'here',
+        href: 'javascript:alert(1)',
+      },
+    };
+
+    expect(normalizeReplacements(replacements)).toEqual([
+      { key: 'link', type: 'link', value: 'here', href: 'javascript:alert(1)' },
+    ]);
+  });
+});
+
+describe('Terms and Conditions Integration', () => {
+  it('should handle a form with a checkbox and a label with a T&C link', () => {
+    const labelField: ReadOnlyField = {
+      type: 'LABEL',
+      content: 'I agree to the terms and conditions',
+      richContent: {
+        content: 'I agree to the {{link}}',
+        replacements: {
+          link: {
+            type: 'link',
+            value: 'terms and conditions',
+            href: 'https://example.com/terms',
+            target: '_blank',
+          },
+        },
+      },
+      key: 'terms-label',
+    };
+
+    const checkboxField = {
+      type: 'CHECKBOX' as const,
+      key: 'agree-checkbox',
+      label: 'Agreement',
+      required: true,
+      options: [{ label: 'I agree', value: 'agree' }],
+      inputType: 'MULTI_SELECT' as const,
+    };
+
+    const labelCollector = returnReadOnlyCollector(labelField, 0);
+    const checkboxCollector = returnMultiSelectCollector(checkboxField, 1, []);
+
+    // Verify label collector has pass-through richContent
+    expect(labelCollector.type).toBe('ReadOnlyCollector');
+    expect(labelCollector.category).toBe('NoValueCollector');
+    expect(labelCollector.error).toBeNull();
+    expect(labelCollector.output.label).toBe('I agree to the terms and conditions');
+    expect(labelCollector.output.content).toBe('I agree to the terms and conditions');
+    expect(labelCollector.output.richContent).toEqual({
+      content: 'I agree to the {{link}}',
+      replacements: [
+        {
+          key: 'link',
+          type: 'link',
+          value: 'terms and conditions',
+          href: 'https://example.com/terms',
+          target: '_blank',
+        },
+      ],
+    });
+
+    // Verify checkbox collector works alongside
+    expect(checkboxCollector.type).toBe('MultiSelectCollector');
+    expect(checkboxCollector.category).toBe('MultiValueCollector');
+    expect(checkboxCollector.error).toBeNull();
+    expect(checkboxCollector.output.options).toEqual([{ label: 'I agree', value: 'agree' }]);
+    expect(checkboxCollector.input.value).toEqual([]);
+    expect(checkboxCollector.input.validation).toEqual([
+      { type: 'required', message: 'Value cannot be empty', rule: true },
+    ]);
   });
 });

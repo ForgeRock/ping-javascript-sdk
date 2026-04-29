@@ -27,6 +27,9 @@ import type {
   ReadOnlyCollector,
   QrCodeCollector,
   AgreementCollector,
+  RichContentLink,
+  CollectorRichContent,
+  NoValueCollector,
 } from './collector.types.js';
 
 describe('Collector Types', () => {
@@ -372,6 +375,8 @@ describe('Collector Types', () => {
           key: 'read-only',
           label: 'Read Only Field',
           type: 'READ_ONLY',
+          content: '',
+          richContent: { content: '', replacements: [] },
         },
       };
 
@@ -418,6 +423,66 @@ describe('Collector Types', () => {
       };
 
       expectTypeOf(tCollector).toEqualTypeOf<AgreementCollector>();
+    });
+  });
+
+  describe('Rich Content Types', () => {
+    describe('RichContentLink', () => {
+      it('should require key, type, value, and href', () => {
+        expectTypeOf<RichContentLink>().toHaveProperty('key').toBeString();
+        expectTypeOf<RichContentLink>().toHaveProperty('type').toEqualTypeOf<'link'>();
+        expectTypeOf<RichContentLink>().toHaveProperty('value').toBeString();
+        expectTypeOf<RichContentLink>().toHaveProperty('href').toBeString();
+      });
+
+      it('should have optional target constrained to _self or _blank', () => {
+        expectTypeOf<RichContentLink>()
+          .toHaveProperty('target')
+          .toEqualTypeOf<'_self' | '_blank' | undefined>();
+      });
+    });
+
+    describe('CollectorRichContent', () => {
+      it('should have required content string and replacements array', () => {
+        expectTypeOf<CollectorRichContent>().toHaveProperty('content').toBeString();
+        expectTypeOf<CollectorRichContent>()
+          .toHaveProperty('replacements')
+          .toEqualTypeOf<RichContentLink[]>();
+      });
+    });
+
+    describe('ReadOnlyCollector', () => {
+      it('should have content as string, not array', () => {
+        expectTypeOf<ReadOnlyCollector['output']['content']>().toBeString();
+      });
+
+      it('should have required richContent with CollectorRichContent shape', () => {
+        expectTypeOf<
+          ReadOnlyCollector['output']['richContent']
+        >().toEqualTypeOf<CollectorRichContent>();
+      });
+
+      it('should have standard collector fields', () => {
+        expectTypeOf<ReadOnlyCollector>()
+          .toHaveProperty('category')
+          .toEqualTypeOf<'NoValueCollector'>();
+        expectTypeOf<ReadOnlyCollector>()
+          .toHaveProperty('type')
+          .toEqualTypeOf<'ReadOnlyCollector'>();
+        expectTypeOf<ReadOnlyCollector>().toHaveProperty('error').toEqualTypeOf<string | null>();
+      });
+    });
+
+    describe("NoValueCollector<'ReadOnlyCollector'>", () => {
+      it('should resolve to ReadOnlyCollector', () => {
+        expectTypeOf<NoValueCollector<'ReadOnlyCollector'>>().toEqualTypeOf<ReadOnlyCollector>();
+      });
+
+      it('should have content and richContent on output', () => {
+        type Resolved = NoValueCollector<'ReadOnlyCollector'>;
+        expectTypeOf<Resolved['output']['content']>().toBeString();
+        expectTypeOf<Resolved['output']['richContent']>().toEqualTypeOf<CollectorRichContent>();
+      });
     });
   });
 });

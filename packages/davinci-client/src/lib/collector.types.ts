@@ -501,17 +501,50 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   };
 }
 
-export interface QrCodeCollectorBase {
-  category: 'NoValueCollector';
-  error: string | null;
-  type: 'QrCodeCollector';
-  id: string;
-  name: string;
-  output: {
-    key: string;
-    label: string;
-    type: string;
+/**
+ * @interface RichContentLink - A hyperlink replacement embedded inside a
+ * `ReadOnlyCollector` template. The `key` matches the `{{key}}` token in the
+ * template; `href` is passed through from DaVinci unmodified — consumers are
+ * responsible for sanitizing it before rendering.
+ */
+export interface RichContentLink {
+  key: string;
+  type: 'link';
+  value: string;
+  href: string;
+  target?: '_self' | '_blank';
+}
+
+/**
+ * @interface CollectorRichContent - The normalized rich-content payload exposed on a
+ * `ReadOnlyCollector`. `content` holds the raw template (with `{{key}}` tokens), and
+ * `replacements` is the array of substitution entries (the API's keyed Record flattened
+ * into an array, with the original key carried on each entry).
+ */
+export interface CollectorRichContent {
+  content: string;
+  replacements: RichContentLink[];
+}
+
+/**
+ * @interface QrCodeCollector - Collector for displaying a QR code image. Extends the
+ * generic `NoValueCollectorBase` with the image `src` on `output`.
+ */
+export interface QrCodeCollector extends NoValueCollectorBase<'QrCodeCollector'> {
+  output: NoValueCollectorBase<'QrCodeCollector'>['output'] & {
     src: string;
+  };
+}
+
+/**
+ * @interface ReadOnlyCollector - Display-only collector for LABEL fields. Extends
+ * `NoValueCollectorBase` with the original plain-text `content` and a structured
+ * `richContent` payload (template + validated replacements).
+ */
+export interface ReadOnlyCollector extends NoValueCollectorBase<'ReadOnlyCollector'> {
+  output: NoValueCollectorBase<'ReadOnlyCollector'>['output'] & {
+    content: string;
+    richContent: CollectorRichContent;
   };
 }
 
@@ -539,24 +572,20 @@ export interface AgreementCollector extends NoValueCollectorBase<'AgreementColle
  */
 export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
   T extends 'ReadOnlyCollector'
-    ? NoValueCollectorBase<'ReadOnlyCollector'>
+    ? ReadOnlyCollector
     : T extends 'QrCodeCollector'
-      ? QrCodeCollectorBase
+      ? QrCodeCollector
       : T extends 'AgreementCollector'
         ? AgreementCollector
         : NoValueCollectorBase<'NoValueCollector'>;
 
 export type NoValueCollectors =
   | NoValueCollectorBase<'NoValueCollector'>
-  | NoValueCollectorBase<'ReadOnlyCollector'>
-  | QrCodeCollectorBase
+  | ReadOnlyCollector
+  | QrCodeCollector
   | AgreementCollector;
 
-export type NoValueCollector<T extends NoValueCollectorTypes> = NoValueCollectorBase<T>;
-
-export type ReadOnlyCollector = NoValueCollectorBase<'ReadOnlyCollector'>;
-
-export type QrCodeCollector = QrCodeCollectorBase;
+export type NoValueCollector<T extends NoValueCollectorTypes> = InferNoValueCollectorType<T>;
 
 /** *********************************************************************
  * UNKNOWN COLLECTOR

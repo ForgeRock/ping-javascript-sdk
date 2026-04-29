@@ -29,7 +29,9 @@ import type {
   AutoCollectors,
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
-  QrCodeCollectorBase,
+  QrCodeCollector,
+  ReadOnlyCollector,
+  RichContentLink,
   AgreementCollector,
 } from './collector.types.js';
 import type {
@@ -44,6 +46,7 @@ import type {
   PollingField,
   ReadOnlyField,
   RedirectField,
+  RichContentReplacement,
   SingleSelectField,
   StandardField,
   ValidatedField,
@@ -713,6 +716,27 @@ export function returnObjectValueCollector(
 }
 
 /**
+ * @function normalizeReplacements - Flattens the API's keyed
+ * `Record<string, RichContentReplacement>` into an array of `RichContentLink`
+ * with the original key carried on each entry. Hrefs are passed through
+ * unmodified — consumers are responsible for sanitizing before rendering.
+ *
+ * @param {Record<string, RichContentReplacement>} replacements - The replacements map from the API.
+ * @returns {RichContentLink[]} The flattened array of replacement entries.
+ */
+export function normalizeReplacements(
+  replacements: Record<string, RichContentReplacement>,
+): RichContentLink[] {
+  return Object.entries(replacements).map(([key, replacement]) => ({
+    key,
+    type: replacement.type,
+    value: replacement.value,
+    href: replacement.href,
+    ...(replacement.target && { target: replacement.target }),
+  }));
+}
+
+/**
  * @function returnNoValueCollector - Creates a NoValueCollector object based on the provided field, index, and optional collector type.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the NoValueCollector.
@@ -746,22 +770,48 @@ export function returnNoValueCollector<
 }
 
 /**
- * @function returnReadOnlyCollector - Creates a ReadOnlyCollector object based on the provided field and index.
- * @param {DaVinciField} field - The field object containing key, label, type, and links.
+ * @function returnReadOnlyCollector - Creates a ReadOnlyCollector with pass-through rich content.
+ * When richContent is present, the template and normalized replacements are passed through
+ * unmodified. When absent, richContent echoes the plain content with empty replacements.
+ *
+ * @param {ReadOnlyField} field - The LABEL field from the API response.
  * @param {number} idx - The index to be used in the id of the ReadOnlyCollector.
- * @returns {ReadOnlyCollector} The constructed ReadOnlyCollector object.
+ * @returns {ReadOnlyCollector} The constructed ReadOnlyCollector.
  */
-export function returnReadOnlyCollector(field: ReadOnlyField, idx: number) {
-  return returnNoValueCollector(field, idx, 'ReadOnlyCollector');
+export function returnReadOnlyCollector(field: ReadOnlyField, idx: number): ReadOnlyCollector {
+  const base = returnNoValueCollector(field, idx, 'ReadOnlyCollector');
+
+  if (!field.richContent) {
+    return {
+      ...base,
+      output: {
+        ...base.output,
+        content: field.content,
+        richContent: { content: field.content, replacements: [] },
+      },
+    };
+  }
+
+  return {
+    ...base,
+    output: {
+      ...base.output,
+      content: field.content,
+      richContent: {
+        content: field.richContent.content,
+        replacements: normalizeReplacements(field.richContent.replacements ?? {}),
+      },
+    },
+  };
 }
 
 /**
  * @function returnQrCodeCollector - Creates a QrCodeCollector object for displaying QR code images.
  * @param {QrCodeField} field - The field object containing key, content, type, and optional fallbackText.
  * @param {number} idx - The index to be used in the id of the QrCodeCollector.
- * @returns {QrCodeCollectorBase} The constructed QrCodeCollector object.
+ * @returns {QrCodeCollector} The constructed QrCodeCollector object.
  */
-export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollectorBase {
+export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCollector {
   const base = returnNoValueCollector(field, idx, 'QrCodeCollector');
 
   return {

@@ -7,9 +7,43 @@
 import type { ReadOnlyCollector } from '@forgerock/davinci-client/types';
 
 export default function (formEl: HTMLFormElement, collector: ReadOnlyCollector) {
-  // create paragraph element with text of "Loading ... "
   const p = document.createElement('p');
+  p.style.whiteSpace = 'pre-line';
+  const { richContent } = collector.output;
 
-  p.innerText = collector.output.label;
+  if (richContent.replacements.length === 0) {
+    p.innerText = collector.output.content;
+    formEl?.appendChild(p);
+    return;
+  }
+
+  // Interpolate the template by splitting on {{key}} and inserting links
+  const segments = richContent.content.split(/\{\{(\w+)\}\}/);
+  const replacementMap = new Map(richContent.replacements.map((r) => [r.key, r]));
+
+  for (let i = 0; i < segments.length; i++) {
+    if (i % 2 === 0) {
+      // Text segment
+      if (segments[i]) {
+        p.appendChild(document.createTextNode(segments[i]));
+      }
+    } else {
+      // Replacement key
+      const replacement = replacementMap.get(segments[i]);
+      if (replacement?.type === 'link') {
+        const a = document.createElement('a');
+        a.href = replacement.href;
+        a.textContent = replacement.value;
+        if (replacement.target) {
+          a.target = replacement.target;
+          if (replacement.target === '_blank') {
+            a.rel = 'noopener noreferrer';
+          }
+        }
+        p.appendChild(a);
+      }
+    }
+  }
+
   formEl?.appendChild(p);
 }
