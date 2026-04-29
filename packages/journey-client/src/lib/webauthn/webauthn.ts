@@ -1,9 +1,9 @@
 /*
  * @forgerock/ping-javascript-sdk
  *
- * index.ts
+ * webauthn.ts
  *
- * Copyright (c) 2024 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2024 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -60,6 +60,28 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  *   await WebAuthn.authenticate(step);
  * }
  * ```
+ *
+ * Conditional mediation (passkey autofill) support:
+ *
+ * Conditional mediation is **opt-in** in this SDK via the `authenticate()` parameters.
+ *
+ * ```js
+ * // Optional: feature-detect conditional UI before attempting
+ * const supportsConditionalUI = await WebAuthn.isConditionalMediationSupported();
+ *
+ * if (supportsConditionalUI) {
+ *   const controller = new AbortController();
+ *
+ *   await WebAuthn.authenticate(step, 'conditional', controller.signal);
+ * }
+ * ```
+ *
+ * Notes:
+ * - When `mediation` is `'conditional'`, an `AbortSignal` is required.
+ * - If conditional mediation is requested but not supported by the browser,
+ *   `authenticate()` throws a `NotSupportedError` and sets the hidden WebAuthn outcome to `unsupported`.
+ * - To enable passkey autofill, add `autocomplete="webauthn"` to your username field:
+ *   `<input type="text" name="username" autocomplete="webauthn" />`
  */
 export abstract class WebAuthn {
   /**
@@ -101,9 +123,15 @@ export abstract class WebAuthn {
    * Populates the step with the necessary authentication outcome.
    *
    * @param step The step that contains WebAuthn authentication data
+   * @param mediation Optional mediation requirement passed through to `navigator.credentials.get()`
+   * @param signal Optional AbortSignal passed through to `navigator.credentials.get()` (required when `mediation` is `'conditional'`)
    * @return The populated step
    */
-  public static async authenticate(step: JourneyStep): Promise<JourneyStep> {
+  public static async authenticate(
+    step: JourneyStep,
+    mediation?: CredentialMediationRequirement,
+    signal?: AbortSignal,
+  ): Promise<JourneyStep> {
     const { hiddenCallback, metadataCallback, textOutputCallback } = this.getCallbacks(step);
     if (hiddenCallback && (metadataCallback || textOutputCallback)) {
       let outcome: ReturnType<typeof this.getAuthenticationOutcome>;
@@ -115,8 +143,27 @@ export abstract class WebAuthn {
           const meta = metadataCallback.getOutputValue('data') as WebAuthnAuthenticationMetadata;
           publicKey = this.createAuthenticationPublicKey(meta);
 
+          if (mediation === 'conditional') {
+            if (!signal) {
+              throw new Error(
+                'AbortSignal is required for conditional mediation WebAuthn requests',
+              );
+            }
+
+            const isConditionalMediationSupported = await this.isConditionalMediationSupported();
+            if (!isConditionalMediationSupported) {
+              const e = new Error(
+                'Conditional mediation was requested, but is not supported by this browser.',
+              );
+              e.name = WebAuthnOutcomeType.NotSupportedError;
+              throw e;
+            }
+          }
+
           credential = await this.getAuthenticationCredential(
             publicKey as PublicKeyCredentialRequestOptions,
+            mediation,
+            signal,
           );
           outcome = this.getAuthenticationOutcome(credential);
         } else {
@@ -126,6 +173,12 @@ export abstract class WebAuthn {
         }
       } catch (error) {
         if (!(error instanceof Error)) throw error;
+        // In conditional mediation flows, the app may abort an in-flight request when the user
+        // submits a different method or the step changes. Treat this as cancellation and do not
+        // mutate the hidden outcome.
+        if (mediation === 'conditional' && error.name === 'AbortError') {
+          throw error;
+        }
         // NotSupportedError is a special case
         if (error.name === WebAuthnOutcomeType.NotSupportedError) {
           hiddenCallback.setInputValue(WebAuthnOutcome.Unsupported);
@@ -295,10 +348,14 @@ export abstract class WebAuthn {
    * Retrieves the credential from the browser Web Authentication API.
    *
    * @param options The public key options associated with the request
+   * @param mediation Optional mediation requirement passed through to `navigator.credentials.get()`
+   * @param signal Optional AbortSignal passed through to `navigator.credentials.get()`
    * @return The credential
    */
   public static async getAuthenticationCredential(
     options: PublicKeyCredentialRequestOptions,
+    mediation?: CredentialMediationRequirement,
+    signal?: AbortSignal,
   ): Promise<PublicKeyCredential | null> {
     // Feature check before we attempt registering a device
     if (!window.PublicKeyCredential) {
@@ -306,8 +363,26 @@ export abstract class WebAuthn {
       e.name = WebAuthnOutcomeType.NotSupportedError;
       throw e;
     }
-    const credential = await navigator.credentials.get({ publicKey: options });
+
+    const credential = await navigator.credentials.get({
+      publicKey: options,
+      ...(mediation && { mediation }),
+      ...(signal && { signal }),
+    });
     return credential as PublicKeyCredential;
+  }
+
+  /**
+   * Determines if the browser supports conditional mediation.
+   *
+   * @return Whether the browser supports conditional mediation
+   */
+  public static async isConditionalMediationSupported(): Promise<boolean> {
+    return (
+      typeof PublicKeyCredential !== 'undefined' &&
+      typeof PublicKeyCredential.isConditionalMediationAvailable === 'function' &&
+      (await PublicKeyCredential.isConditionalMediationAvailable())
+    );
   }
 
   /**
