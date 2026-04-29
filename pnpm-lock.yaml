@@ -301,8 +301,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/davinci-client
       '@forgerock/javascript-sdk':
-        specifier: 4.7.0
-        version: 4.7.0
+        specifier: 4.9.0
+        version: 4.9.0
       '@forgerock/protect':
         specifier: workspace:*
         version: link:../../packages/protect
@@ -318,8 +318,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/device-client
       '@forgerock/javascript-sdk':
-        specifier: 4.7.0
-        version: 4.7.0
+        specifier: 4.9.0
+        version: 4.9.0
       effect:
         specifier: ^3.12.7
         version: 3.20.0
@@ -402,8 +402,8 @@ importers:
   e2e/protect-app:
     dependencies:
       '@forgerock/javascript-sdk':
-        specifier: 4.7.0
-        version: 4.7.0
+        specifier: 4.9.0
+        version: 4.9.0
       '@forgerock/protect':
         specifier: workspace:*
         version: link:../../packages/protect
@@ -450,8 +450,8 @@ importers:
   packages/device-client:
     dependencies:
       '@forgerock/javascript-sdk':
-        specifier: 4.7.0
-        version: 4.7.0
+        specifier: 4.9.0
+        version: 4.9.0
       '@reduxjs/toolkit':
         specifier: 'catalog:'
         version: 2.10.1
@@ -1991,9 +1991,6 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
-
-  '@forgerock/javascript-sdk@4.7.0':
-    resolution: {integrity: sha512-0wpy2/ii9F9yKI3r+huqQtp6bVAeajf2+Llq25dvkfxQX19FKKi9KPPMF7JTVti6heYHyo36lxweB7xerB5UTQ==}
 
   '@forgerock/javascript-sdk@4.9.0':
     resolution: {integrity: sha512-xNE4LMIFYvvPpsq04RqSGnZ+zT+LjOdHePPj6K4uukqewBaZMDmynozkOTtCFmWui7gqANuhf2arbdo3J5uTVQ==}
@@ -10054,14 +10051,6 @@ snapshots:
   '@exodus/bytes@1.15.0(@noble/hashes@1.8.0)':
     optionalDependencies:
       '@noble/hashes': 1.8.0
-
-  '@forgerock/javascript-sdk@4.7.0':
-    dependencies:
-      '@reduxjs/toolkit': 2.10.1
-      immer: 10.2.0
-    transitivePeerDependencies:
-      - react
-      - react-redux
 
   '@forgerock/javascript-sdk@4.9.0':
     dependencies:
