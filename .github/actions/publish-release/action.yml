@@ -39,7 +39,7 @@ runs:
       run: pnpm generate-docs
 
     - name: Publish api docs
-      uses: JamesIves/github-pages-deploy-action@v4.7.4
+      uses: JamesIves/github-pages-deploy-action@v4.8.0
       with:
         folder: docs
         commit-message: 'chore: release-api-docs'
