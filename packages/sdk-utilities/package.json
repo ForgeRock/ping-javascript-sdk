@@ -7,6 +7,9 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/sdk-utilities"
   },
+  "description": "Shared utility functions for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
   "sideEffects": false,
   "type": "module",
   "exports": {

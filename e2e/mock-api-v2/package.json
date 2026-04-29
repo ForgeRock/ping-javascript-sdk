@@ -2,7 +2,7 @@
   "name": "@forgerock/mock-api-v2",
   "version": "1.0.0",
   "private": true,
-  "description": "",
+  "description": "Mock API server for Ping JavaScript SDK end-to-end tests",
   "type": "module",
   "main": "./src/main.js",
   "scripts": {

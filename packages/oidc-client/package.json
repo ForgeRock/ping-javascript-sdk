@@ -6,6 +6,9 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/oidc-client"
   },
+  "description": "OpenID Connect client for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
   "sideEffects": false,
   "type": "module",
   "exports": {

@@ -180,11 +180,10 @@ export type ProtectField = {
   universalDeviceIdentification: boolean;
 };
 
-export interface FidoRegistrationOptions
-  extends Omit<
-    PublicKeyCredentialCreationOptions,
-    'challenge' | 'user' | 'pubKeyCredParams' | 'excludeCredentials'
-  > {
+export interface FidoRegistrationOptions extends Omit<
+  PublicKeyCredentialCreationOptions,
+  'challenge' | 'user' | 'pubKeyCredParams' | 'excludeCredentials'
+> {
   challenge: number[];
   user: {
     id: number[];
@@ -212,8 +211,10 @@ export type FidoRegistrationField = {
   required: boolean;
 };
 
-export interface FidoAuthenticationOptions
-  extends Omit<PublicKeyCredentialRequestOptions, 'challenge' | 'allowCredentials'> {
+export interface FidoAuthenticationOptions extends Omit<
+  PublicKeyCredentialRequestOptions,
+  'challenge' | 'allowCredentials'
+> {
   challenge: number[];
   allowCredentials?: {
     id: number[];
