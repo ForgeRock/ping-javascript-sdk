@@ -7,6 +7,10 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/sdk-types"
   },
+  "description": "Shared TypeScript types for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {

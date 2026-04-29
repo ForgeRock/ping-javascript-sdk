@@ -6,6 +6,9 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/protect"
   },
+  "description": "Behavioral risk signals collector for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
   "sideEffects": ["dist/src/lib/signals-sdk.js"],
   "type": "module",
   "exports": {

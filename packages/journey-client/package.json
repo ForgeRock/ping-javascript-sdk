@@ -6,6 +6,10 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/journey-client"
   },
+  "description": "Journey/Authentication Tree client for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": "./dist/src/index.js",

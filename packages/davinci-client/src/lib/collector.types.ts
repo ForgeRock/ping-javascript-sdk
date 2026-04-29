@@ -158,12 +158,12 @@ export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> =
         : T extends 'PasswordCollector'
           ? PasswordCollector
           : /**
-             * At this point, we have not passed in a collector type
-             * or we have explicitly passed in 'SingleValueCollector'
-             * So we can return either a SingleValueCollector with value
-             * or without a value.
-             **/
-            | SingleValueCollectorWithValue<'SingleValueCollector'>
+               * At this point, we have not passed in a collector type
+               * or we have explicitly passed in 'SingleValueCollector'
+               * So we can return either a SingleValueCollector with value
+               * or without a value.
+               **/
+              | SingleValueCollectorWithValue<'SingleValueCollector'>
               | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 /**
@@ -588,8 +588,10 @@ export interface ProtectOutputValue {
   universalDeviceIdentification: boolean;
 }
 
-export interface AttestationValue
-  extends Omit<PublicKeyCredential, 'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'> {
+export interface AttestationValue extends Omit<
+  PublicKeyCredential,
+  'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'
+> {
   rawId: string;
   response: {
     // https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorAttestationResponse
@@ -607,8 +609,10 @@ export interface FidoRegistrationOutputValue {
   trigger: string;
 }
 
-export interface AssertionValue
-  extends Omit<PublicKeyCredential, 'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'> {
+export interface AssertionValue extends Omit<
+  PublicKeyCredential,
+  'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'
+> {
   rawId: string;
   response: {
     // https://developer.mozilla.org/en-US/docs/Web/API/AuthenticatorAssertionResponse

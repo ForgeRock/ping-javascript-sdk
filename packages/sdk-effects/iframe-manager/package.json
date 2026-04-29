@@ -7,6 +7,10 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/sdk-effects/iframe-manager"
   },
+  "description": "Iframe lifecycle and messaging utilities for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {

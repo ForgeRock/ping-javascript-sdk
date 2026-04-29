@@ -6,6 +6,9 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/davinci-client"
   },
+  "description": "DaVinci flow client for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
   "sideEffects": ["./src/types.js"],
   "type": "module",
   "exports": {
@@ -15,7 +18,7 @@
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "typings": "./dist/src/index.d.ts",
-  "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo", "./LICENSE"],
+  "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo"],
   "scripts": {
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",

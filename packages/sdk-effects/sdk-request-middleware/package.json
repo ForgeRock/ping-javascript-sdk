@@ -7,6 +7,10 @@
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
     "directory": "packages/sdk-effects/sdk-request-middleware"
   },
+  "description": "Request middleware utilities for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
