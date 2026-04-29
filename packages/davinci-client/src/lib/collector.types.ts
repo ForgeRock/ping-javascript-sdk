@@ -5,7 +5,11 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
+import type {
+  FidoAuthenticationOptions,
+  FidoRegistrationOptions,
+  PasswordPolicy,
+} from './davinci.types.js';
 
 /** *********************************************************************
  * SINGLE-VALUE COLLECTORS
@@ -16,6 +20,7 @@ import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davin
  */
 export type SingleValueCollectorTypes =
   | 'PasswordCollector'
+  | 'ValidatedPasswordCollector'
   | 'SingleValueCollector'
   | 'SingleSelectCollector'
   | 'SingleSelectObjectCollector'
@@ -157,14 +162,16 @@ export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> =
         ? ValidatedTextCollector
         : T extends 'PasswordCollector'
           ? PasswordCollector
-          : /**
-               * At this point, we have not passed in a collector type
-               * or we have explicitly passed in 'SingleValueCollector'
-               * So we can return either a SingleValueCollector with value
-               * or without a value.
-               **/
-              | SingleValueCollectorWithValue<'SingleValueCollector'>
-              | SingleValueCollectorNoValue<'SingleValueCollector'>;
+          : T extends 'ValidatedPasswordCollector'
+            ? ValidatedPasswordCollector
+            : /**
+                 * At this point, we have not passed in a collector type
+                 * or we have explicitly passed in 'SingleValueCollector'
+                 * So we can return either a SingleValueCollector with value
+                 * or without a value.
+                 **/
+                | SingleValueCollectorWithValue<'SingleValueCollector'>
+                | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 /**
  * SINGLE-VALUE COLLECTOR TYPES
@@ -174,13 +181,51 @@ export type SingleValueCollector<T extends SingleValueCollectorTypes> =
   | SingleValueCollectorNoValue<T>;
 
 export type SingleValueCollectors =
-  | SingleValueCollectorNoValue<'PasswordCollector'>
+  | PasswordCollector
+  | ValidatedPasswordCollector
   | SingleSelectCollectorWithValue<'SingleSelectCollector'>
   | SingleValueCollectorWithValue<'SingleValueCollector'>
   | SingleValueCollectorWithValue<'TextCollector'>
   | ValidatedSingleValueCollectorWithValue<'TextCollector'>;
 
-export type PasswordCollector = SingleValueCollectorNoValue<'PasswordCollector'>;
+export interface PasswordCollector {
+  category: 'SingleValueCollector';
+  error: string | null;
+  type: 'PasswordCollector';
+  id: string;
+  name: string;
+  input: {
+    key: string;
+    value: string | number | boolean;
+    type: string;
+  };
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    verify: boolean;
+  };
+}
+
+export interface ValidatedPasswordCollector {
+  category: 'SingleValueCollector';
+  error: string | null;
+  type: 'ValidatedPasswordCollector';
+  id: string;
+  name: string;
+  input: {
+    key: string;
+    value: string | number | boolean;
+    type: string;
+  };
+  output: {
+    key: string;
+    label: string;
+    type: string;
+    verify: boolean;
+    passwordPolicy: PasswordPolicy;
+  };
+}
 export type TextCollector = SingleValueCollectorWithValue<'TextCollector'>;
 export type SingleSelectCollector = SingleSelectCollectorWithValue<'SingleSelectCollector'>;
 export type ValidatedTextCollector = ValidatedSingleValueCollectorWithValue<'TextCollector'>;

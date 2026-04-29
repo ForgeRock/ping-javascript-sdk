@@ -38,7 +38,7 @@ describe('transformSubmitRequest', () => {
             category: 'SingleValueCollector',
             error: null,
             input: { key: 'password', value: 'secret', type: 'PASSWORD' },
-            output: { key: 'password', label: 'Password', type: 'PASSWORD' },
+            output: { key: 'password', label: 'Password', type: 'PASSWORD', verify: false },
             type: 'PasswordCollector',
             id: 'xyz',
             name: 'password',

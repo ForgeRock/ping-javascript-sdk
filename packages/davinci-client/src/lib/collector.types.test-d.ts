@@ -14,6 +14,7 @@ import type {
   ActionCollectorNoUrl,
   TextCollector,
   PasswordCollector,
+  ValidatedPasswordCollector,
   FlowCollector,
   IdpCollector,
   SubmitCollector,
@@ -28,6 +29,7 @@ import type {
   QrCodeCollector,
   AgreementCollector,
 } from './collector.types.js';
+import type { PasswordPolicy } from './davinci.types.js';
 
 describe('Collector Types', () => {
   describe('SingleValueCollector Types', () => {
@@ -42,18 +44,35 @@ describe('Collector Types', () => {
     });
 
     it('should validate PasswordCollector structure', () => {
-      expectTypeOf<PasswordCollector>().toMatchTypeOf<
-        SingleValueCollectorNoValue<'PasswordCollector'>
-      >();
       expectTypeOf<PasswordCollector>()
         .toHaveProperty('category')
         .toEqualTypeOf<'SingleValueCollector'>();
-      expectTypeOf<PasswordCollector>().toHaveProperty('type');
+      expectTypeOf<PasswordCollector>().toHaveProperty('type').toEqualTypeOf<'PasswordCollector'>();
       expectTypeOf<PasswordCollector['output']>().toEqualTypeOf<{
         key: string;
         label: string;
         type: string;
+        verify: boolean;
       }>();
+    });
+
+    it('should validate ValidatedPasswordCollector structure', () => {
+      expectTypeOf<ValidatedPasswordCollector>()
+        .toHaveProperty('category')
+        .toEqualTypeOf<'SingleValueCollector'>();
+      expectTypeOf<ValidatedPasswordCollector>()
+        .toHaveProperty('type')
+        .toEqualTypeOf<'ValidatedPasswordCollector'>();
+      expectTypeOf<ValidatedPasswordCollector['output']>()
+        .toHaveProperty('verify')
+        .toEqualTypeOf<boolean>();
+      expectTypeOf<ValidatedPasswordCollector['output']>()
+        .toHaveProperty('passwordPolicy')
+        .toEqualTypeOf<PasswordPolicy>();
+    });
+
+    it('should validate PasswordCollector output does NOT have passwordPolicy', () => {
+      expectTypeOf<PasswordCollector['output']>().not.toHaveProperty('passwordPolicy');
     });
 
     it('should validate SingleCollector structure', () => {
@@ -266,10 +285,34 @@ describe('Collector Types', () => {
           key: '',
           label: '',
           type: '',
+          verify: false,
         },
       };
 
       expectTypeOf(tCollector).toMatchTypeOf<PasswordCollector>();
+    });
+    it('should correctly infer ValidatedPasswordCollector Type', () => {
+      const tCollector: InferSingleValueCollectorType<'ValidatedPasswordCollector'> = {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'ValidatedPasswordCollector',
+        id: '',
+        name: '',
+        input: {
+          key: '',
+          value: '',
+          type: '',
+        },
+        output: {
+          key: '',
+          label: '',
+          type: '',
+          verify: false,
+          passwordPolicy: {},
+        },
+      };
+
+      expectTypeOf(tCollector).toMatchTypeOf<ValidatedPasswordCollector>();
     });
     it('should correctly infer SingleValueCollector Type', () => {
       const tCollector: InferSingleValueCollectorType<'SingleValueCollector'> = {

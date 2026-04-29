@@ -53,19 +53,48 @@ export interface Links {
 }
 
 export type StandardField = {
-  type:
-    | 'PASSWORD'
-    | 'PASSWORD_VERIFY'
-    | 'TEXT'
-    | 'SUBMIT_BUTTON'
-    | 'FLOW_BUTTON'
-    | 'FLOW_LINK'
-    | 'BUTTON';
+  type: 'TEXT' | 'SUBMIT_BUTTON' | 'FLOW_BUTTON' | 'FLOW_LINK' | 'BUTTON';
   key: string;
   label: string;
 
   // Optional properties
   required?: boolean;
+};
+
+export interface PasswordPolicy {
+  id?: string;
+  name?: string;
+  description?: string;
+  excludesProfileData?: boolean;
+  notSimilarToCurrent?: boolean;
+  excludesCommonlyUsed?: boolean;
+  maxAgeDays?: number;
+  minAgeDays?: number;
+  maxRepeatedCharacters?: number;
+  minUniqueCharacters?: number;
+  history?: { count?: number; retentionDays?: number };
+  lockout?: { failureCount?: number; durationSeconds?: number };
+  length?: { min?: number; max?: number };
+  minCharacters?: Record<string, number>;
+  populationCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  default?: boolean;
+}
+
+/**
+ * Raw server field shape for password inputs. The server tags the `type` as
+ * `PASSWORD_VERIFY` whenever `verify` is set, but our collector taxonomy ignores
+ * that — we pick `PasswordCollector` vs `ValidatedPasswordCollector` based on
+ * whether `passwordPolicy` is present.
+ */
+export type PasswordField = {
+  type: 'PASSWORD' | 'PASSWORD_VERIFY';
+  key: string;
+  label: string;
+  required?: boolean;
+  verify?: boolean;
+  passwordPolicy?: PasswordPolicy;
 };
 
 export type ReadOnlyField = {
@@ -254,7 +283,12 @@ export type ComplexValueFields =
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField;
 export type RedirectFields = RedirectField;
-export type SingleValueFields = StandardField | ValidatedField | SingleSelectField | ProtectField;
+export type SingleValueFields =
+  | StandardField
+  | PasswordField
+  | ValidatedField
+  | SingleSelectField
+  | ProtectField;
 
 export type DaVinciField =
   | ComplexValueFields

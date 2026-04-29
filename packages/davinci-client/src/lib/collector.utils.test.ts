@@ -12,6 +12,7 @@ import {
   returnSubmitCollector,
   returnSingleValueCollector,
   returnPasswordCollector,
+  returnValidatedPasswordCollector,
   returnTextCollector,
   returnSingleSelectCollector,
   returnMultiSelectCollector,
@@ -25,10 +26,12 @@ import {
   returnQrCodeCollector,
   returnAgreementCollector,
 } from './collector.utils.js';
+import { returnPasswordPolicyValidator } from './password-policy.rules.js';
 import type {
   DaVinciField,
   DeviceAuthenticationField,
   DeviceRegistrationField,
+  PasswordField,
   FidoAuthenticationField,
   FidoRegistrationField,
   PhoneNumberField,
@@ -318,6 +321,7 @@ describe('Single Value Collectors', () => {
           key: mockField.key,
           label: mockField.label,
           type: mockField.type,
+          verify: false,
         },
       });
       expect(result.output).not.toHaveProperty('value');
@@ -339,9 +343,26 @@ describe('Single Value Collectors', () => {
 
   describe('Specialized Single Value Collectors', () => {
     it('creates a password collector', () => {
-      const result = returnPasswordCollector(mockField, 1);
+      const passwordField: PasswordField = {
+        type: 'PASSWORD',
+        key: 'password',
+        label: 'Password',
+      };
+      const result = returnPasswordCollector(passwordField, 1);
       expect(result.type).toBe('PasswordCollector');
       expect(result.output).not.toHaveProperty('value');
+      expect(result.output.verify).toBe(false);
+    });
+
+    it('propagates verify: true from a PASSWORD field onto the PasswordCollector', () => {
+      const passwordField: PasswordField = {
+        type: 'PASSWORD',
+        key: 'password',
+        label: 'Password',
+        verify: true,
+      };
+      const result = returnPasswordCollector(passwordField, 1);
+      expect(result.output.verify).toBe(true);
     });
 
     it('creates a text collector', () => {
@@ -1179,5 +1200,223 @@ describe('Return collector validator', () => {
     expect(result).toContain(
       'Invalid regular expression: /[invalid/: Unterminated character class',
     );
+  });
+});
+
+describe('returnValidatedPasswordCollector', () => {
+  const mockPasswordPolicy = {
+    id: '39cad7af-3c2f-4672-9c3f-c47e5169e582',
+    name: 'Standard',
+    length: { min: 8, max: 255 },
+    minCharacters: {
+      '~!@#$%^&*()-_=+[]{}|;:,.<>/?': 1,
+      '0123456789': 1,
+      ABCDEFGHIJKLMNOPQRSTUVWXYZ: 1,
+      abcdefghijklmnopqrstuvwxyz: 1,
+    },
+  };
+
+  it('should create a ValidatedPasswordCollector with embedded passwordPolicy', () => {
+    const field: PasswordField = {
+      type: 'PASSWORD_VERIFY',
+      key: 'user.password',
+      label: 'Password',
+      required: true,
+      passwordPolicy: mockPasswordPolicy,
+    };
+
+    const result = returnValidatedPasswordCollector(field, 0);
+
+    expect(result).toEqual({
+      category: 'SingleValueCollector',
+      error: null,
+      type: 'ValidatedPasswordCollector',
+      id: 'user.password-0',
+      name: 'user.password',
+      input: {
+        key: 'user.password',
+        value: '',
+        type: 'PASSWORD_VERIFY',
+      },
+      output: {
+        key: 'user.password',
+        label: 'Password',
+        type: 'PASSWORD_VERIFY',
+        verify: false,
+        passwordPolicy: mockPasswordPolicy,
+      },
+    });
+  });
+
+  it('should propagate verify: true from the field onto the collector', () => {
+    const field: PasswordField = {
+      type: 'PASSWORD_VERIFY',
+      key: 'user.password',
+      label: 'Password',
+      verify: true,
+      passwordPolicy: mockPasswordPolicy,
+    };
+
+    const result = returnValidatedPasswordCollector(field, 0);
+
+    expect(result.output.verify).toBe(true);
+  });
+
+  it('should fall back to an empty policy when called directly with a field that has no policy', () => {
+    // In normal flows the reducer selects returnPasswordCollector when a field has no policy.
+    // This test exercises the factory's defensive fallback for callers who bypass the reducer.
+    const field: PasswordField = {
+      type: 'PASSWORD_VERIFY',
+      key: 'user.password',
+      label: 'Password',
+    };
+
+    const result = returnValidatedPasswordCollector(field, 1);
+
+    expect(result.output.passwordPolicy).toEqual({});
+    expect(result.output.verify).toBe(false);
+  });
+
+  it('should record errors when field is missing properties', () => {
+    const invalidField = {} as PasswordField;
+    const result = returnValidatedPasswordCollector(invalidField, 0);
+    expect(result.error).toContain('Key is not found');
+    expect(result.error).toContain('Label is not found');
+    expect(result.error).toContain('Type is not found');
+  });
+});
+
+describe('returnPasswordPolicyValidator', () => {
+  const makeCollector = (passwordPolicy?: Record<string, unknown>) => {
+    const field: PasswordField = {
+      type: 'PASSWORD_VERIFY',
+      key: 'user.password',
+      label: 'Password',
+      ...(passwordPolicy && { passwordPolicy }),
+    } as PasswordField;
+    return returnValidatedPasswordCollector(field, 0);
+  };
+
+  it('should return an empty array when the collector has no passwordPolicy', () => {
+    const validate = returnPasswordPolicyValidator(makeCollector());
+    expect(validate('anything')).toEqual([]);
+  });
+
+  it('should return an empty array when the value satisfies all policy rules', () => {
+    const validate = returnPasswordPolicyValidator(
+      makeCollector({
+        length: { min: 8, max: 20 },
+        minUniqueCharacters: 5,
+        maxRepeatedCharacters: 2,
+        minCharacters: { '0123456789': 1, '!@#$%^&*()': 1 },
+      }),
+    );
+    expect(validate('Valid1@Password')).toEqual([]);
+  });
+
+  describe('length rule', () => {
+    it('should fail with a range message when value is shorter than length.min and max is set', () => {
+      const validate = returnPasswordPolicyValidator(
+        makeCollector({ length: { min: 8, max: 20 } }),
+      );
+      const errors = validate('short');
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toContain('8');
+      expect(errors[0]).toContain('20');
+    });
+
+    it('should fail when value is longer than length.max', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ length: { min: 1, max: 4 } }));
+      expect(validate('toolong')).toHaveLength(1);
+    });
+
+    it('should check only the lower bound when length.max is undefined', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ length: { min: 8 } }));
+      expect(validate('short')).toHaveLength(1);
+      expect(validate('longenough')).toEqual([]);
+    });
+
+    it('should check only the upper bound when length.min is undefined', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ length: { max: 4 } }));
+      expect(validate('toolong')).toHaveLength(1);
+      expect(validate('ok')).toEqual([]);
+    });
+
+    it('should skip the length check entirely when both min and max are undefined', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ length: {} }));
+      expect(validate('')).toEqual([]);
+      expect(validate('anything-at-all')).toEqual([]);
+    });
+  });
+
+  describe('minUniqueCharacters rule', () => {
+    it('should fail when the count of distinct characters is below the minimum', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ minUniqueCharacters: 5 }));
+      const errors = validate('aaa111@@@');
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toContain('5');
+    });
+
+    it('should pass when the count of distinct characters meets the minimum', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ minUniqueCharacters: 3 }));
+      expect(validate('abc')).toEqual([]);
+    });
+  });
+
+  describe('maxRepeatedCharacters rule', () => {
+    it('should fail based on total occurrences of any character, not only consecutive runs', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ maxRepeatedCharacters: 2 }));
+      const errors = validate('aXaXaX');
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toContain('2');
+    });
+
+    it('should pass when no character appears more than the maximum', () => {
+      const validate = returnPasswordPolicyValidator(makeCollector({ maxRepeatedCharacters: 2 }));
+      expect(validate('abcabc')).toEqual([]);
+    });
+  });
+
+  describe('minCharacters rule', () => {
+    it('should fail when the value contains fewer characters from the required charset than required', () => {
+      const validate = returnPasswordPolicyValidator(
+        makeCollector({ minCharacters: { '0123456789': 2 } }),
+      );
+      const errors = validate('Password@1');
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toContain('2');
+      expect(errors[0]).toContain('0123456789');
+    });
+
+    it('should pass when enough characters from the required charset are present', () => {
+      const validate = returnPasswordPolicyValidator(
+        makeCollector({ minCharacters: { '!@#$%^&*()': 2 } }),
+      );
+      expect(validate('hello@world!')).toEqual([]);
+    });
+
+    it('should emit one error per failing charset when multiple are required', () => {
+      const validate = returnPasswordPolicyValidator(
+        makeCollector({
+          minCharacters: {
+            '0123456789': 1,
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ: 1,
+          },
+        }),
+      );
+      const errors = validate('lowercaseonly');
+      expect(errors).toHaveLength(2);
+    });
+  });
+
+  it('should accumulate errors from multiple failing rules', () => {
+    const validate = returnPasswordPolicyValidator(
+      makeCollector({
+        length: { min: 12, max: 20 },
+        minUniqueCharacters: 10,
+        minCharacters: { '0123456789': 1 },
+      }),
+    );
+    expect(validate('aaa').length).toBeGreaterThanOrEqual(3);
   });
 });

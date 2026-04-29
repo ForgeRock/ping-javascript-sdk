@@ -26,7 +26,7 @@ export const nodeNext0 = {
         id: 'password-1',
         name: 'password',
         input: { key: 'password', value: '', type: 'PASSWORD' },
-        output: { key: 'password', label: 'Password', type: 'PASSWORD' },
+        output: { key: 'password', label: 'Password', type: 'PASSWORD', verify: false },
       },
       {
         category: 'ActionCollector',

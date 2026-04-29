@@ -13,6 +13,8 @@ import type {
   FidoAuthenticationCollector,
   FidoRegistrationCollector,
   MultiSelectCollector,
+  PasswordCollector,
+  ValidatedPasswordCollector,
   PhoneNumberCollector,
   PollingCollector,
   ProtectCollector,
@@ -124,6 +126,7 @@ describe('The node collector reducer', () => {
           key: 'password',
           label: 'Password',
           type: 'PASSWORD',
+          verify: false,
         },
       },
       {
@@ -202,6 +205,7 @@ describe('The node collector reducer', () => {
           key: 'password',
           label: 'Password',
           type: 'PASSWORD',
+          verify: false,
         },
       },
       {
@@ -276,6 +280,7 @@ describe('The node collector reducer', () => {
           key: 'password',
           label: 'Password',
           type: 'PASSWORD',
+          verify: false,
         },
       },
       {
@@ -1232,6 +1237,178 @@ describe('The node collector reducer with pollCollectorValues', () => {
     const result = nodeCollectorReducer(state, action);
     expect((result[0] as PollingCollector).error).toBeNull();
     expect((result[0] as PollingCollector).output.config.retriesRemaining).toBe(4);
+  });
+});
+
+describe('PASSWORD_VERIFY with password policy', () => {
+  const mockPasswordPolicy = {
+    id: '39cad7af-3c2f-4672-9c3f-c47e5169e582',
+    name: 'Standard',
+    description: 'A standard policy that incorporates industry best practices',
+    length: { min: 8, max: 255 },
+    minCharacters: {
+      '~!@#$%^&*()-_=+[]{}|;:,.<>/?': 1,
+      '0123456789': 1,
+      ABCDEFGHIJKLMNOPQRSTUVWXYZ: 1,
+      abcdefghijklmnopqrstuvwxyz: 1,
+    },
+  };
+
+  it('should produce ValidatedPasswordCollector with embedded passwordPolicy', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'PASSWORD_VERIFY',
+            key: 'user.password',
+            label: 'Password',
+            required: true,
+            passwordPolicy: mockPasswordPolicy,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'ValidatedPasswordCollector',
+        id: 'user.password-0',
+        name: 'user.password',
+        input: {
+          key: 'user.password',
+          value: '',
+          type: 'PASSWORD_VERIFY',
+        },
+        output: {
+          key: 'user.password',
+          label: 'Password',
+          type: 'PASSWORD_VERIFY',
+          verify: false,
+          passwordPolicy: mockPasswordPolicy,
+        },
+      } satisfies ValidatedPasswordCollector,
+    ]);
+  });
+
+  it('should produce ValidatedPasswordCollector with an empty policy when a PASSWORD_VERIFY field has no policy', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'PASSWORD_VERIFY',
+            key: 'user.password',
+            label: 'Password',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result[0].type).toBe('ValidatedPasswordCollector');
+    expect((result[0] as ValidatedPasswordCollector).output.passwordPolicy).toEqual({});
+  });
+
+  it('should ignore passwordPolicy on a PASSWORD field and produce a PasswordCollector', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'PASSWORD',
+            key: 'user.password',
+            label: 'Password',
+            passwordPolicy: mockPasswordPolicy,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result[0].type).toBe('PasswordCollector');
+    expect(result[0].output).not.toHaveProperty('passwordPolicy');
+  });
+
+  it('should propagate verify: true from the field onto PasswordCollector', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'PASSWORD',
+            key: 'password',
+            label: 'Password',
+            verify: true,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result[0].type).toBe('PasswordCollector');
+    expect((result[0] as PasswordCollector).output.verify).toBe(true);
+  });
+
+  it('should propagate verify: true from the field onto ValidatedPasswordCollector', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'PASSWORD_VERIFY',
+            key: 'user.password',
+            label: 'Password',
+            verify: true,
+            passwordPolicy: mockPasswordPolicy,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result[0].type).toBe('ValidatedPasswordCollector');
+    expect((result[0] as ValidatedPasswordCollector).output.verify).toBe(true);
+  });
+
+  it('should default verify to false when the field omits it', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'PASSWORD',
+            key: 'password',
+            label: 'Password',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect((result[0] as PasswordCollector).output.verify).toBe(false);
+  });
+
+  it('should still produce PasswordCollector for PASSWORD type (no regression)', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'PASSWORD',
+            key: 'password',
+            label: 'Password',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result[0].type).toBe('PasswordCollector');
+    expect(result[0].output).not.toHaveProperty('passwordPolicy');
   });
 });
 
