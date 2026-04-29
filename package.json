@@ -94,7 +94,7 @@
     "fast-check": "^4.0.0",
     "@evilmartians/lefthook": "^2.1.4",
     "jiti": "2.6.1",
-    "jsdom": "27.1.0",
+    "jsdom": "27.4.0",
     "jsonc-eslint-parser": "^2.1.0",
     "madge": "8.0.0",
     "nx": "22.6.5",
