@@ -1,5 +1,15 @@
 # @forgerock/sdk-request-middleware
 
+## 2.1.0
+
+### Minor Changes
+
+- [#563](https://github.com/ForgeRock/ping-javascript-sdk/pull/563) [`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9) Thanks [@ancheetah](https://github.com/ancheetah)! - Support both challenge polling and continue polling in DaVinci
+
+### Patch Changes
+
+- [#555](https://github.com/ForgeRock/ping-javascript-sdk/pull/555) [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801) Thanks [@ancheetah](https://github.com/ancheetah)! - Fixes files distributed in sdk-effects packages. Excludes files not in `/dist` folder.
+
 ## 2.0.0
 
 ### Major Changes

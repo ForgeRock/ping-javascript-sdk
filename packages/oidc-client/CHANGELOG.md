@@ -1,5 +1,19 @@
 # @forgerock/oidc-client
 
+## 2.1.0
+
+### Patch Changes
+
+- [#564](https://github.com/ForgeRock/ping-javascript-sdk/pull/564) [`15d5af3`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d5af32310174296ae1513c95168c5e8336d668) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Update interfaces and types that are missing from exports
+
+- Updated dependencies [[`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9), [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801)]:
+  - @forgerock/sdk-request-middleware@2.1.0
+  - @forgerock/iframe-manager@2.1.0
+  - @forgerock/storage@2.1.0
+  - @forgerock/sdk-logger@2.1.0
+  - @forgerock/sdk-oidc@2.1.0
+  - @forgerock/sdk-types@2.1.0
+
 ## 2.0.0
 
 ### Major Changes
