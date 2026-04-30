@@ -788,6 +788,59 @@ describe('returnObjectValueCollector with phone fields', () => {
     expect(result.type).toBe('PhoneNumberExtensionCollector');
   });
 
+  it('creates a full PhoneNumberExtensionCollector with all fields', () => {
+    const mockField: PhoneNumberExtensionField = {
+      key: 'phone-number-key',
+      defaultCountryCode: 'US',
+      label: 'Phone Number',
+      type: 'PHONE_NUMBER',
+      required: true,
+      validatePhoneNumber: true,
+      showExtension: true,
+      extensionLabel: 'Extension',
+    };
+    const result = returnObjectValueCollector(mockField, 1, {}) as PhoneNumberExtensionCollector;
+    expect(result).toEqual({
+      category: 'ObjectValueCollector',
+      error: null,
+      type: 'PhoneNumberExtensionCollector',
+      id: 'phone-number-key-1',
+      name: 'phone-number-key',
+      input: {
+        key: mockField.key,
+        value: {
+          countryCode: 'US',
+          phoneNumber: '',
+          extension: '',
+        },
+        type: mockField.type,
+        validation: [
+          {
+            message: 'Value cannot be empty',
+            rule: true,
+            type: 'required',
+          },
+          {
+            message: 'Phone number should be validated',
+            rule: true,
+            type: 'validatePhoneNumber',
+          },
+        ],
+      },
+      output: {
+        key: mockField.key,
+        label: mockField.label,
+        type: mockField.type,
+        extensionLabel: 'Extension',
+        value: {
+          countryCode: 'US',
+          phoneNumber: '',
+          extension: '',
+        },
+      },
+    });
+  });
+
   it('prefilled extension is set on collector', () => {
     const mockField: PhoneNumberExtensionField = {
       key: 'phone-number-key',
@@ -810,7 +863,20 @@ describe('returnObjectValueCollector with phone fields', () => {
     ) as PhoneNumberExtensionCollector;
     expect(result.input.value.extension).toBe('123');
     expect(result.output.value?.extension).toBe('123');
-    expect(result.output.options.extensionLabel).toBe('Extension');
+    expect(result.output.extensionLabel).toBe('Extension');
+  });
+
+  it('PhoneNumberCollector does not have extensionLabel in output', () => {
+    const mockField: PhoneNumberField = {
+      key: 'phone-number-key',
+      defaultCountryCode: null,
+      label: 'Phone Number',
+      type: 'PHONE_NUMBER',
+      required: false,
+      validatePhoneNumber: false,
+    };
+    const result = returnObjectValueCollector(mockField, 1, {});
+    expect(result.output).not.toHaveProperty('extensionLabel');
   });
 });
 

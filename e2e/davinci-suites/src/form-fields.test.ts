@@ -57,7 +57,7 @@ test('Should render form fields', async ({ page }) => {
     'phone-field': {
       phoneNumber: '1234567890',
       countryCode: 'GB',
-      extension: '7890',
+      extension: '7890', // Tests PhoneNumberExtensionCollector
     },
   });
 });

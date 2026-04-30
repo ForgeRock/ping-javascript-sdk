@@ -2,6 +2,4 @@
 '@forgerock/davinci-client': minor
 ---
 
-Add support for extension in PhoneNumberCollector
-
-BREAKING CHANGE: `ObjectValueCollectorWithObjectValue` type was removed
+A new PhoneNumberExtensionCollector has been added to support phone number fields that include an extension. When a DaVinci PHONE_NUMBER field has showExtension: true, the SDK now produces a PhoneNumberExtensionCollector instead of a PhoneNumberCollector.

@@ -317,10 +317,6 @@ export interface PhoneNumberExtensionOutputValue {
   extension?: string;
 }
 
-export interface PhoneNumberExtensionOptions {
-  extensionLabel: string;
-}
-
 export interface ObjectOptionsCollectorWithStringValue<
   T extends ObjectValueCollectorTypes,
   V = string,
@@ -409,7 +405,7 @@ export interface PhoneNumberExtensionCollector {
     key: string;
     label: string;
     type: string;
-    options: PhoneNumberExtensionOptions;
+    extensionLabel: string;
     value: PhoneNumberExtensionOutputValue;
   };
 }

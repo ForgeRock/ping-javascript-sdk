@@ -410,7 +410,7 @@ describe('Collector Types', () => {
           key: '',
           label: '',
           type: '',
-          options: { extensionLabel: '' },
+          extensionLabel: '',
           value: {},
         },
       };

@@ -115,7 +115,7 @@ export default function objectValueComponent(
     phoneInput.setAttribute('placeholder', 'Enter phone number');
 
     const extensionLabel = document.createElement('label');
-    extensionLabel.textContent = collector.output.options.extensionLabel || 'Extension';
+    extensionLabel.textContent = collector.output.extensionLabel || 'Extension';
     extensionLabel.className = 'object-options-title';
     extensionLabel.setAttribute('for', 'extension-input-1');
 
@@ -141,12 +141,6 @@ export default function objectValueComponent(
       const target = event.target as HTMLInputElement;
       const phoneValue = target.value;
       const extensionValue = extensionInput.value;
-
-      if (!phoneValue) {
-        console.error('No value found for phone number');
-        return;
-      }
-
       const phoneNumberExtensionInputValue: PhoneNumberExtensionInputValue = {
         phoneNumber: phoneValue,
         countryCode: collector.output.value?.countryCode || '',
@@ -161,12 +155,6 @@ export default function objectValueComponent(
       const target = event.target as HTMLInputElement;
       const extensionValue = target.value;
       const phoneValue = phoneInput.value;
-
-      if (!extensionValue) {
-        console.error('No value found for extension');
-        return;
-      }
-
       const phoneNumberExtensionInputValue: PhoneNumberExtensionInputValue = {
         phoneNumber: phoneValue,
         countryCode: collector.output.value?.countryCode || '',

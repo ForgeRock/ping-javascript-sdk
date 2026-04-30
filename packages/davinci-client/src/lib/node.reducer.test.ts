@@ -994,12 +994,12 @@ describe('The phone number extension collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
+          extensionLabel: 'Extension',
           value: {
             countryCode: '',
             phoneNumber: '',
             extension: '',
           },
-          options: { extensionLabel: 'Extension' },
         },
       },
     ]);
@@ -1052,12 +1052,12 @@ describe('The phone number extension collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
+          extensionLabel: 'Extension',
           value: {
             countryCode: 'US',
             phoneNumber: '1234567890',
             extension: '123',
           },
-          options: { extensionLabel: 'Extension' },
         },
       },
     ]);
@@ -1101,7 +1101,7 @@ describe('The phone number extension collector reducer', () => {
             phoneNumber: '',
             extension: '',
           },
-          options: { extensionLabel: 'Extension' },
+          extensionLabel: 'Extension',
         },
       },
     ];
@@ -1126,12 +1126,12 @@ describe('The phone number extension collector reducer', () => {
           key: 'phone-number-key',
           label: 'Phone Number',
           type: 'PHONE_NUMBER',
+          extensionLabel: 'Extension',
           value: {
             countryCode: '',
             phoneNumber: '',
             extension: '',
           },
-          options: { extensionLabel: 'Extension' },
         },
       },
     ]);

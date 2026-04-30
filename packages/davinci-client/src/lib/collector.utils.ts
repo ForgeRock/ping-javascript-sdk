@@ -612,6 +612,7 @@ export function returnObjectCollector<
 
   let options;
   let defaultValue;
+  let extensionLabel: string | null = null;
 
   if (field.type === 'DEVICE_AUTHENTICATION') {
     if (!('options' in field)) {
@@ -680,7 +681,7 @@ export function returnObjectCollector<
         extension: prefilledExtension ?? '',
       };
 
-      options = { extensionLabel: field.extensionLabel || '' };
+      extensionLabel = field.extensionLabel;
     } else {
       // PhoneNumberCollector default value
       defaultValue = {
@@ -707,6 +708,7 @@ export function returnObjectCollector<
       label: field.label,
       type: field.type,
       ...(options && { options: options || [] }),
+      ...(extensionLabel !== null && { extensionLabel }),
       ...(defaultValue && { value: defaultValue }),
     },
   } as InferValueObjectCollectorType<CollectorType>;
