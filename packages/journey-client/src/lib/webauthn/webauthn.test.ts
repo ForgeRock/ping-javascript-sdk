@@ -3,7 +3,7 @@
  *
  * fr-webauthn.test.ts
  *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2020 - 2026 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
@@ -52,7 +52,6 @@ describe('Test FRWebAuthn class with 7.0 "Passwordless"', () => {
     // eslint-disable-next-line
     const step = createJourneyStep(webAuthnAuthJSCallback70 as any);
     const stepType = WebAuthn.getWebAuthnStepType(step);
-    console.log('the step type', stepType, WebAuthnStepType.Authentication);
     expect(stepType).toBe(WebAuthnStepType.Authentication);
   });
 

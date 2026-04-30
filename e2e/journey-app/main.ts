@@ -7,7 +7,6 @@
 import './style.css';
 
 import { journey } from '@forgerock/journey-client';
-import { WebAuthn, WebAuthnStepType } from '@forgerock/journey-client/webauthn';
 
 import type { JourneyClient, RequestMiddleware } from '@forgerock/journey-client/types';
 
@@ -16,7 +15,7 @@ import { renderDeleteDevicesSection } from './components/delete-device.js';
 import { renderQRCodeStep } from './components/qr-code.js';
 import { renderRecoveryCodesStep } from './components/recovery-codes.js';
 import { deleteWebAuthnDevice } from './services/delete-webauthn-device.js';
-import { webauthnComponent } from './components/webauthn-step.js';
+import { handleWebAuthnStep } from './components/webauthn-step.js';
 import { serverConfigs } from './server-configs.js';
 
 const qs = window.location.search;
@@ -107,27 +106,24 @@ if (searchParams.get('middleware') === 'true') {
 
     const submitForm = () => formEl.requestSubmit();
 
-    // Handle WebAuthn steps first so we can hide the Submit button while processing,
-    // auto-submit on success, and show an error on failure.
-    const webAuthnStep = WebAuthn.getWebAuthnStepType(step);
-    if (
-      webAuthnStep === WebAuthnStepType.Authentication ||
-      webAuthnStep === WebAuthnStepType.Registration
-    ) {
-      const webAuthnSuccess = await webauthnComponent(journeyEl, step, 0);
-      if (webAuthnSuccess) {
-        submitForm();
-        return;
-      } else {
-        errorEl.textContent =
-          'WebAuthn failed or was cancelled. Please try again or use a different method.';
-      }
+    const { callbacksRendered, didSubmit } = await handleWebAuthnStep(
+      journeyEl,
+      step,
+      step.callbacks,
+      submitForm,
+      (message) => {
+        errorEl.textContent = message;
+      },
+    );
+
+    if (didSubmit) {
+      return;
     }
 
     const stepRendered =
       renderQRCodeStep(journeyEl, step) || renderRecoveryCodesStep(journeyEl, step);
 
-    if (!stepRendered) {
+    if (!stepRendered && !callbacksRendered) {
       const callbacks = step.callbacks;
       renderCallbacks(journeyEl, callbacks, submitForm);
     }
