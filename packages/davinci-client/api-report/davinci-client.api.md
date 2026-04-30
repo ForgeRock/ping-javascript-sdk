@@ -6,16 +6,21 @@
 
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { ActionTypes } from '@forgerock/sdk-request-middleware';
+import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
+import { BaseQueryFn } from '@reduxjs/toolkit/query';
 import { CustomLogger } from '@forgerock/sdk-logger';
-import type { DaVinciConfig } from '@forgerock/sdk-types';
+import { FetchArgs } from '@reduxjs/toolkit/query';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
+import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
+import { MutationDefinition } from '@reduxjs/toolkit/query';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
+import { QueryDefinition } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import { RootState } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Unsubscribe } from '@reduxjs/toolkit';
 
@@ -72,12 +77,29 @@ export interface ActionCollectorWithUrl<T extends ActionCollectorTypes> {
 export { ActionTypes }
 
 // @public (undocumented)
+export interface AgreementCollector extends NoValueCollectorBase<'AgreementCollector'> {
+    // (undocumented)
+    output: {
+        key: string;
+        label: string;
+        type: string;
+        titleEnabled: boolean;
+        title: string;
+        agreement: {
+            id: string;
+            useDynamicAgreement: boolean;
+        };
+        enabled: boolean;
+    };
+}
+
+// @public (undocumented)
 export type AgreementField = {
     type: 'AGREEMENT';
     key: string;
     content: string;
     titleEnabled: boolean;
-    title?: string;
+    title: string;
     agreement: {
         id: string;
         useDynamicAgreement: boolean;
@@ -146,15 +168,6 @@ export type AutoCollectors = ProtectCollector | FidoRegistrationCollector | Fido
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
 
 // @public (undocumented)
-export interface BooleanCollector extends SingleValueCollectorWithValue<'BooleanCollector', boolean> {
-    // (undocumented)
-    output: SingleValueCollectorWithValue<'BooleanCollector', boolean>['output'] & {
-        appearance: string;
-        richContent?: CollectorRichContent;
-    };
-}
-
-// @public (undocumented)
 export interface CollectorErrors {
     // (undocumented)
     code: string;
@@ -164,32 +177,12 @@ export interface CollectorErrors {
     target: string;
 }
 
-// @public
-export interface CollectorRichContent {
-    // (undocumented)
-    content: string;
-    // (undocumented)
-    replacements: RichContentLink[];
-}
-
 // @public (undocumented)
-export type Collectors = FlowCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | ImageCollector | UnknownCollector;
+export type Collectors = FlowCollector | PasswordCollector | TextCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | ReadOnlyCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | AgreementCollector | UnknownCollector;
 
 // @public
 export type CollectorValueType<T> = T extends {
     type: 'PasswordCollector';
-} | {
-    type: 'ValidatedPasswordCollector';
-} | {
-    type: 'SingleSelectCollector';
-} | {
-    type: 'DeviceRegistrationCollector';
-} | {
-    type: 'DeviceAuthenticationCollector';
-} | {
-    type: 'ProtectCollector';
-} | {
-    type: 'PollingCollector';
 } ? string : T extends {
     type: 'TextCollector';
     category: 'SingleValueCollector';
@@ -197,16 +190,16 @@ export type CollectorValueType<T> = T extends {
     type: 'TextCollector';
     category: 'ValidatedSingleValueCollector';
 } ? string : T extends {
-    type: 'BooleanCollector';
-} | {
-    type: 'ValidatedBooleanCollector';
-} ? boolean : T extends {
+    type: 'SingleSelectCollector';
+} ? string : T extends {
     type: 'MultiSelectCollector';
 } ? string[] : T extends {
+    type: 'DeviceRegistrationCollector';
+} ? string : T extends {
+    type: 'DeviceAuthenticationCollector';
+} ? string : T extends {
     type: 'PhoneNumberCollector';
 } ? PhoneNumberInputValue : T extends {
-    type: 'PhoneNumberExtensionCollector';
-} ? PhoneNumberExtensionInputValue : T extends {
     type: 'FidoRegistrationCollector';
 } ? FidoRegistrationInputValue : T extends {
     type: 'FidoAuthenticationCollector';
@@ -215,20 +208,11 @@ export type CollectorValueType<T> = T extends {
 } ? string : T extends {
     category: 'ValidatedSingleValueCollector';
 } ? string : T extends {
-    category: 'SingleValueAutoCollector';
-} ? string : T extends {
     category: 'MultiValueCollector';
-} ? string[] : T extends {
-    category: 'ActionCollector';
-} ? never : T extends {
-    category: 'NoValueCollector';
-} ? never : CollectorValueTypes;
-
-// @public
-export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue;
+} ? string[] : string | string[] | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue;
 
 // @public (undocumented)
-export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField;
+export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | FidoRegistrationField | FidoAuthenticationField | PollingField;
 
 // @public (undocumented)
 export interface ContinueNode {
@@ -286,7 +270,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
-    pollStatus: (collector: PollingCollector) => Poller;
+    poll: (collector: PollingCollector) => Poller;
     getClient: () => {
         action: string;
         collectors: Collectors[];
@@ -350,7 +334,33 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         status: "success";
     } | null;
     cache: {
-        getLatestResponse: () => ({
+        getLatestResponse: () => ((state: RootState<    {
+        flow: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
+        next: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
+        start: MutationDefinition<StartOptions<OutgoingQueryParams> | undefined, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
+        resume: QueryDefinition<    {
+        serverInfo: ContinueNode["server"];
+        continueToken: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
+        poll: MutationDefinition<    {
+        endpoint: string;
+        interactionId: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
+        }, never, "davinci">) => ({
+            requestId?: undefined;
+            status: QueryStatus.uninitialized;
+            data?: undefined;
+            error?: undefined;
+            endpointName?: string;
+            startedTimeStamp?: undefined;
+            fulfilledTimeStamp?: undefined;
+        } & {
+            status: QueryStatus.uninitialized;
+            isUninitialized: true;
+            isLoading: false;
+            isSuccess: false;
+            isError: false;
+        }) | ({
             status: QueryStatus.fulfilled;
         } & Omit<{
             requestId: string;
@@ -375,6 +385,23 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isSuccess: true;
             isError: false;
         }) | ({
+            status: QueryStatus.pending;
+        } & {
+            requestId: string;
+            data?: unknown;
+            error?: FetchBaseQueryError | SerializedError | undefined;
+            endpointName: string;
+            startedTimeStamp: number;
+            fulfilledTimeStamp?: number;
+        } & {
+            data?: undefined;
+        } & {
+            status: QueryStatus.pending;
+            isUninitialized: false;
+            isLoading: true;
+            isSuccess: false;
+            isError: false;
+        }) | ({
             status: QueryStatus.rejected;
         } & Omit<{
             requestId: string;
@@ -396,13 +423,39 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isLoading: false;
             isSuccess: false;
             isError: true;
-        }) | {
+        })) | {
             error: {
                 message: string;
                 type: string;
             };
         };
-        getResponseWithId: (requestId: string) => ({
+        getResponseWithId: (requestId: string) => ((state: RootState<    {
+        flow: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
+        next: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
+        start: MutationDefinition<StartOptions<OutgoingQueryParams> | undefined, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
+        resume: QueryDefinition<    {
+        serverInfo: ContinueNode["server"];
+        continueToken: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
+        poll: MutationDefinition<    {
+        endpoint: string;
+        interactionId: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
+        }, never, "davinci">) => ({
+            requestId?: undefined;
+            status: QueryStatus.uninitialized;
+            data?: undefined;
+            error?: undefined;
+            endpointName?: string;
+            startedTimeStamp?: undefined;
+            fulfilledTimeStamp?: undefined;
+        } & {
+            status: QueryStatus.uninitialized;
+            isUninitialized: true;
+            isLoading: false;
+            isSuccess: false;
+            isError: false;
+        }) | ({
             status: QueryStatus.fulfilled;
         } & Omit<{
             requestId: string;
@@ -427,6 +480,23 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isSuccess: true;
             isError: false;
         }) | ({
+            status: QueryStatus.pending;
+        } & {
+            requestId: string;
+            data?: unknown;
+            error?: FetchBaseQueryError | SerializedError | undefined;
+            endpointName: string;
+            startedTimeStamp: number;
+            fulfilledTimeStamp?: number;
+        } & {
+            data?: undefined;
+        } & {
+            status: QueryStatus.pending;
+            isUninitialized: false;
+            isLoading: true;
+            isSuccess: false;
+            isError: false;
+        }) | ({
             status: QueryStatus.rejected;
         } & Omit<{
             requestId: string;
@@ -448,7 +518,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isLoading: false;
             isSuccess: false;
             isError: true;
-        }) | {
+        })) | {
             error: {
                 message: string;
                 type: string;
@@ -500,7 +570,11 @@ export type DaVinciCacheEntry = {
 // @public (undocumented)
 export type DavinciClient = Awaited<ReturnType<typeof davinci>>;
 
-export { DaVinciConfig }
+// @public (undocumented)
+export interface DaVinciConfig extends AsyncLegacyConfigOptions {
+    // (undocumented)
+    responseType?: string;
+}
 
 // @public (undocumented)
 export interface DaVinciError extends Omit<GenericError, 'error'> {
@@ -829,9 +903,6 @@ export interface FailureNode {
     status: 'failure';
 }
 
-// @public
-export function fido(): FidoClient;
-
 // @public (undocumented)
 export type FidoAuthenticationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoAuthenticationCollector', FidoAuthenticationInputValue, FidoAuthenticationOutputValue>;
 
@@ -945,25 +1016,6 @@ export type GetClient = StartNode['client'] | ContinueNode['client'] | ErrorNode
 // @public (undocumented)
 export type IdpCollector = ActionCollectorWithUrl<'IdpCollector'>;
 
-// @public
-export interface ImageCollector extends NoValueCollectorBase<'ImageCollector'> {
-    // (undocumented)
-    output: NoValueCollectorBase<'ImageCollector'>['output'] & {
-        src: string;
-        alt: string;
-        href?: string;
-    };
-}
-
-// @public (undocumented)
-export type ImageField = {
-    type: 'IMAGE';
-    key: string;
-    description: string;
-    imageUrl: string;
-    hyperlinkUrl?: string;
-};
-
 // @public (undocumented)
 export type InferActionCollectorType<T extends ActionCollectorTypes> = T extends 'IdpCollector' ? IdpCollector : T extends 'SubmitCollector' ? SubmitCollector : T extends 'FlowCollector' ? FlowCollector : ActionCollectorWithUrl<'ActionCollector'> | ActionCollectorNoUrl<'ActionCollector'>;
 
@@ -974,13 +1026,13 @@ export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'Pr
 export type InferMultiValueCollectorType<T extends MultiValueCollectorTypes> = T extends 'MultiSelectCollector' ? MultiValueCollectorWithValue<'MultiSelectCollector'> : MultiValueCollectorWithValue<'MultiValueCollector'> | MultiValueCollectorNoValue<'MultiValueCollector'>;
 
 // @public
-export type InferNoValueCollectorType<T extends NoValueCollectorTypes> = T extends 'ReadOnlyCollector' ? ReadOnlyCollector : T extends 'RichTextCollector' ? RichTextCollector : T extends 'QrCodeCollector' ? QrCodeCollector : T extends 'ImageCollector' ? ImageCollector : NoValueCollectorBase<'NoValueCollector'>;
+export type InferNoValueCollectorType<T extends NoValueCollectorTypes> = T extends 'ReadOnlyCollector' ? NoValueCollectorBase<'ReadOnlyCollector'> : T extends 'QrCodeCollector' ? QrCodeCollectorBase : T extends 'AgreementCollector' ? AgreementCollector : NoValueCollectorBase<'NoValueCollector'>;
 
 // @public
-export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> = T extends 'TextCollector' ? TextCollector : T extends 'SingleSelectCollector' ? SingleSelectCollector : T extends 'ValidatedTextCollector' ? ValidatedTextCollector : T extends 'PasswordCollector' ? PasswordCollector : T extends 'ValidatedPasswordCollector' ? ValidatedPasswordCollector : T extends 'BooleanCollector' ? BooleanCollector : T extends 'ValidatedBooleanCollector' ? ValidatedBooleanCollector : SingleValueCollectorWithValue<'SingleValueCollector'> | SingleValueCollectorNoValue<'SingleValueCollector'>;
+export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> = T extends 'TextCollector' ? TextCollector : T extends 'SingleSelectCollector' ? SingleSelectCollector : T extends 'ValidatedTextCollector' ? ValidatedTextCollector : T extends 'PasswordCollector' ? PasswordCollector : SingleValueCollectorWithValue<'SingleValueCollector'> | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 // @public (undocumented)
-export type InferValueObjectCollectorType<T extends ObjectValueCollectorTypes> = T extends 'DeviceAuthenticationCollector' ? DeviceAuthenticationCollector : T extends 'DeviceRegistrationCollector' ? DeviceRegistrationCollector : T extends 'PhoneNumberCollector' ? PhoneNumberCollector : T extends 'PhoneNumberExtensionCollector' ? PhoneNumberExtensionCollector : ObjectOptionsCollectorWithObjectValue<'ObjectValueCollector'> | ObjectOptionsCollectorWithStringValue<'ObjectValueCollector'>;
+export type InferValueObjectCollectorType<T extends ObjectValueCollectorTypes> = T extends 'DeviceAuthenticationCollector' ? DeviceAuthenticationCollector : T extends 'DeviceRegistrationCollector' ? DeviceRegistrationCollector : T extends 'PhoneNumberCollector' ? PhoneNumberCollector : ObjectOptionsCollectorWithObjectValue<'ObjectValueCollector'> | ObjectOptionsCollectorWithStringValue<'ObjectValueCollector'>;
 
 // @public (undocumented)
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
@@ -1115,15 +1167,15 @@ value: Record<string, unknown>;
 }, string>;
 
 // @public
-export const nodeCollectorReducer: Reducer<Collectors[]> & {
-    getInitialState: () => Collectors[];
+export const nodeCollectorReducer: Reducer<(TextCollector | SingleSelectCollector | ValidatedTextCollector | PasswordCollector | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | IdpCollector | SubmitCollector | FlowCollector | QrCodeCollectorBase | AgreementCollector | ReadOnlyCollector | UnknownCollector | ProtectCollector | FidoRegistrationCollector | FidoAuthenticationCollector | PollingCollector | ActionCollector<"ActionCollector"> | SingleValueCollector<"SingleValueCollector">)[]> & {
+    getInitialState: () => (TextCollector | SingleSelectCollector | ValidatedTextCollector | PasswordCollector | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | IdpCollector | SubmitCollector | FlowCollector | QrCodeCollectorBase | AgreementCollector | ReadOnlyCollector | UnknownCollector | ProtectCollector | FidoRegistrationCollector | FidoAuthenticationCollector | PollingCollector | ActionCollector<"ActionCollector"> | SingleValueCollector<"SingleValueCollector">)[];
 };
 
 // @public (undocumented)
 export type NodeStates = StartNode | ContinueNode | ErrorNode | SuccessNode | FailureNode;
 
 // @public (undocumented)
-export type NoValueCollector<T extends NoValueCollectorTypes> = InferNoValueCollectorType<T>;
+export type NoValueCollector<T extends NoValueCollectorTypes> = NoValueCollectorBase<T>;
 
 // @public (undocumented)
 export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
@@ -1146,10 +1198,10 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
 }
 
 // @public (undocumented)
-export type NoValueCollectors = NoValueCollectorBase<'NoValueCollector'> | ReadOnlyCollector | RichTextCollector | QrCodeCollector | ImageCollector;
+export type NoValueCollectors = NoValueCollectorBase<'NoValueCollector'> | NoValueCollectorBase<'ReadOnlyCollector'> | QrCodeCollectorBase | AgreementCollector;
 
 // @public
-export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'RichTextCollector' | 'NoValueCollector' | 'QrCodeCollector' | 'ImageCollector';
+export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'NoValueCollector' | 'QrCodeCollector' | 'AgreementCollector';
 
 // @public
 export interface OAuthDetails {
@@ -1228,10 +1280,10 @@ export type ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector' | 'FidoRe
 export type ObjectValueCollector<T extends ObjectValueCollectorTypes> = ObjectOptionsCollectorWithObjectValue<T> | ObjectOptionsCollectorWithStringValue<T> | ObjectValueCollectorWithObjectValue<T>;
 
 // @public (undocumented)
-export type ObjectValueCollectors = DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ObjectOptionsCollectorWithObjectValue<'ObjectSelectCollector'> | ObjectOptionsCollectorWithStringValue<'ObjectSelectCollector'>;
+export type ObjectValueCollectors = DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | ObjectOptionsCollectorWithObjectValue<'ObjectSelectCollector'> | ObjectOptionsCollectorWithStringValue<'ObjectSelectCollector'>;
 
 // @public
-export type ObjectValueCollectorTypes = 'DeviceAuthenticationCollector' | 'DeviceRegistrationCollector' | 'PhoneNumberCollector' | 'PhoneNumberExtensionCollector' | 'ObjectOptionsCollector' | 'ObjectValueCollector' | 'ObjectSelectCollector';
+export type ObjectValueCollectorTypes = 'DeviceAuthenticationCollector' | 'DeviceRegistrationCollector' | 'PhoneNumberCollector' | 'ObjectOptionsCollector' | 'ObjectValueCollector' | 'ObjectSelectCollector';
 
 // @public (undocumented)
 export interface ObjectValueCollectorWithObjectValue<T extends ObjectValueCollectorTypes, IV = Record<string, string>, OV = Record<string, string>> {
@@ -1268,156 +1320,18 @@ export interface OutgoingQueryParams {
 }
 
 // @public (undocumented)
-export interface PasswordCollector {
-    // (undocumented)
-    category: 'SingleValueCollector';
-    // (undocumented)
-    error: string | null;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    input: {
-        key: string;
-        value: string | number | boolean;
-        type: string;
-    };
-    // (undocumented)
-    name: string;
-    // (undocumented)
-    output: {
-        key: string;
-        label: string;
-        type: string;
-        verify: boolean;
-    };
-    // (undocumented)
-    type: 'PasswordCollector';
-}
-
-// @public
-export type PasswordField = {
-    type: 'PASSWORD' | 'PASSWORD_VERIFY';
-    key: string;
-    label: string;
-    required?: boolean;
-    verify?: boolean;
-    passwordPolicy?: PasswordPolicy;
-};
-
-// @public
-export interface PasswordPolicy {
-    // (undocumented)
-    createdAt?: string;
-    // (undocumented)
-    default?: boolean;
-    // (undocumented)
-    description?: string;
-    // (undocumented)
-    excludesCommonlyUsed?: boolean;
-    // (undocumented)
-    excludesProfileData?: boolean;
-    // (undocumented)
-    history?: {
-        count?: number;
-        retentionDays?: number;
-    };
-    // (undocumented)
-    id?: string;
-    // (undocumented)
-    length?: {
-        min?: number;
-        max?: number;
-    };
-    // (undocumented)
-    lockout?: {
-        failureCount?: number;
-        durationSeconds?: number;
-    };
-    // (undocumented)
-    maxAgeDays?: number;
-    // (undocumented)
-    maxRepeatedCharacters?: number;
-    // (undocumented)
-    minAgeDays?: number;
-    // (undocumented)
-    minCharacters?: Record<string, number>;
-    // (undocumented)
-    minUniqueCharacters?: number;
-    // (undocumented)
-    name?: string;
-    // (undocumented)
-    notSimilarToCurrent?: boolean;
-    // (undocumented)
-    populationCount?: number;
-    // (undocumented)
-    updatedAt?: string;
-}
+export type PasswordCollector = SingleValueCollectorNoValue<'PasswordCollector'>;
 
 // @public (undocumented)
 export type PhoneNumberCollector = ObjectValueCollectorWithObjectValue<'PhoneNumberCollector', PhoneNumberInputValue, PhoneNumberOutputValue>;
-
-// @public (undocumented)
-export interface PhoneNumberExtensionCollector {
-    // (undocumented)
-    category: 'ObjectValueCollector';
-    // (undocumented)
-    error: string | null;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    input: {
-        key: string;
-        value: PhoneNumberExtensionInputValue;
-        type: string;
-        validation: (ValidationRequired | ValidationPhoneNumber)[] | null;
-    };
-    // (undocumented)
-    name: string;
-    // (undocumented)
-    output: {
-        key: string;
-        label: string;
-        type: string;
-        extensionLabel: string;
-        value: PhoneNumberExtensionOutputValue;
-    };
-    // (undocumented)
-    type: 'PhoneNumberExtensionCollector';
-}
-
-// @public (undocumented)
-export type PhoneNumberExtensionField = PhoneNumberField & {
-    showExtension: boolean;
-    extensionLabel: string;
-};
-
-// @public (undocumented)
-export interface PhoneNumberExtensionInputValue {
-    // (undocumented)
-    countryCode: string;
-    // (undocumented)
-    extension: string;
-    // (undocumented)
-    phoneNumber: string;
-}
-
-// @public (undocumented)
-export interface PhoneNumberExtensionOutputValue {
-    // (undocumented)
-    countryCode?: string;
-    // (undocumented)
-    extension?: string;
-    // (undocumented)
-    phoneNumber?: string;
-}
 
 // @public (undocumented)
 export type PhoneNumberField = {
     type: 'PHONE_NUMBER';
     key: string;
     label: string;
-    required: boolean;
     defaultCountryCode: string | null;
+    required: boolean;
     validatePhoneNumber: boolean;
 };
 
@@ -1498,12 +1412,28 @@ export interface ProtectOutputValue {
     universalDeviceIdentification: boolean;
 }
 
-// @public
-export interface QrCodeCollector extends NoValueCollectorBase<'QrCodeCollector'> {
+// @public (undocumented)
+export type QrCodeCollector = QrCodeCollectorBase;
+
+// @public (undocumented)
+export interface QrCodeCollectorBase {
     // (undocumented)
-    output: NoValueCollectorBase<'QrCodeCollector'>['output'] & {
+    category: 'NoValueCollector';
+    // (undocumented)
+    error: string | null;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    output: {
+        key: string;
+        label: string;
+        type: string;
         src: string;
     };
+    // (undocumented)
+    type: 'QrCodeCollector';
 }
 
 // @public (undocumented)
@@ -1514,25 +1444,18 @@ export type QrCodeField = {
     fallbackText?: string;
 };
 
-// @public
-export interface ReadOnlyCollector extends NoValueCollectorBase<'ReadOnlyCollector'> {
-    // (undocumented)
-    output: NoValueCollectorBase<'ReadOnlyCollector'>['output'] & {
-        content: string;
-        title?: string;
-    };
-}
+// @public (undocumented)
+export type ReadOnlyCollector = NoValueCollectorBase<'ReadOnlyCollector'>;
 
 // @public (undocumented)
 export type ReadOnlyField = {
     type: 'LABEL';
     content: string;
-    richContent?: RichContent;
     key?: string;
 };
 
 // @public (undocumented)
-export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
+export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField;
 
 // @public (undocumented)
 export type RedirectField = {
@@ -1547,43 +1470,6 @@ export type RedirectFields = RedirectField;
 
 export { RequestMiddleware }
 
-// @public
-export type RichContent = {
-    content: string;
-    replacements?: Record<string, RichContentReplacement>;
-};
-
-// @public
-export interface RichContentLink {
-    // (undocumented)
-    href: string;
-    // (undocumented)
-    key: string;
-    // (undocumented)
-    target?: '_self' | '_blank';
-    // (undocumented)
-    type: 'link';
-    // (undocumented)
-    value: string;
-}
-
-// @public
-export type RichContentReplacement = {
-    type: 'link';
-    value: string;
-    href: string;
-    target?: '_self' | '_blank';
-};
-
-// @public
-export interface RichTextCollector extends NoValueCollectorBase<'RichTextCollector'> {
-    // (undocumented)
-    output: NoValueCollectorBase<'RichTextCollector'>['output'] & {
-        content: string;
-        richContent: CollectorRichContent;
-    };
-}
-
 // @public (undocumented)
 export interface SelectorOption {
     // (undocumented)
@@ -1591,18 +1477,6 @@ export interface SelectorOption {
     // (undocumented)
     value: string;
 }
-
-// @public (undocumented)
-export type SingleCheckboxField = {
-    type: 'SINGLE_CHECKBOX';
-    inputType: 'BOOLEAN';
-    key: string;
-    label: string;
-    required?: boolean;
-    errorMessage?: string;
-    appearance: string;
-    richContent?: RichContent;
-};
 
 // @public (undocumented)
 export type SingleSelectCollector = SingleSelectCollectorWithValue<'SingleSelectCollector'>;
@@ -1711,13 +1585,13 @@ export interface SingleValueCollectorNoValue<T extends SingleValueCollectorTypes
 }
 
 // @public (undocumented)
-export type SingleValueCollectors = PasswordCollector | ValidatedPasswordCollector | SingleSelectCollector | TextCollector | ValidatedTextCollector | BooleanCollector | ValidatedBooleanCollector | SingleValueCollectorWithValue<'SingleValueCollector'>;
+export type SingleValueCollectors = SingleValueCollectorNoValue<'PasswordCollector'> | SingleSelectCollectorWithValue<'SingleSelectCollector'> | SingleValueCollectorWithValue<'SingleValueCollector'> | SingleValueCollectorWithValue<'TextCollector'> | ValidatedSingleValueCollectorWithValue<'TextCollector'>;
 
 // @public
-export type SingleValueCollectorTypes = 'PasswordCollector' | 'ValidatedPasswordCollector' | 'BooleanCollector' | 'ValidatedBooleanCollector' | 'SingleValueCollector' | 'SingleSelectCollector' | 'SingleSelectObjectCollector' | 'TextCollector' | 'ValidatedTextCollector';
+export type SingleValueCollectorTypes = 'PasswordCollector' | 'SingleValueCollector' | 'SingleSelectCollector' | 'SingleSelectObjectCollector' | 'TextCollector' | 'ValidatedTextCollector';
 
 // @public (undocumented)
-export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTypes, V = string> {
+export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTypes> {
     // (undocumented)
     category: 'SingleValueCollector';
     // (undocumented)
@@ -1727,7 +1601,7 @@ export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTyp
     // (undocumented)
     input: {
         key: string;
-        value: V;
+        value: string | number | boolean;
         type: string;
     };
     // (undocumented)
@@ -1737,18 +1611,18 @@ export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTyp
         key: string;
         label: string;
         type: string;
-        value: V;
+        value: string | number | boolean;
     };
     // (undocumented)
     type: T;
 }
 
 // @public (undocumented)
-export type SingleValueFields = StandardField | PasswordField | ValidatedField | SingleCheckboxField | SingleSelectField | ProtectField;
+export type SingleValueFields = StandardField | ValidatedField | SingleSelectField | ProtectField;
 
 // @public (undocumented)
 export type StandardField = {
-    type: 'TEXT' | 'SUBMIT_BUTTON' | 'FLOW_BUTTON' | 'FLOW_LINK' | 'BUTTON';
+    type: 'PASSWORD' | 'PASSWORD_VERIFY' | 'TEXT' | 'SUBMIT_BUTTON' | 'FLOW_BUTTON' | 'FLOW_LINK' | 'BUTTON';
     key: string;
     label: string;
     required?: boolean;
@@ -1847,24 +1721,12 @@ export type UnknownField = Record<string, unknown>;
 // @public (undocumented)
 export const updateCollectorValues: ActionCreatorWithPayload<    {
 id: string;
-value: CollectorValueTypes;
+value: string | string[] | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue;
 index?: number;
 }, string>;
 
 // @public
 export type Updater<T = unknown> = (value: CollectorValueType<T>, index?: number) => InternalErrorResponse | null;
-
-// @public (undocumented)
-export interface ValidatedBooleanCollector extends ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean> {
-    // (undocumented)
-    output: ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>['output'] & {
-        appearance: string;
-        richContent?: CollectorRichContent;
-    };
-}
-
-// @public
-export type ValidatedCollectors = ValidatedTextCollector | ValidatedBooleanCollector | ValidatedPasswordCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors;
 
 // @public (undocumented)
 export type ValidatedField = {
@@ -1879,35 +1741,7 @@ export type ValidatedField = {
 };
 
 // @public (undocumented)
-export interface ValidatedPasswordCollector {
-    // (undocumented)
-    category: 'SingleValueCollector';
-    // (undocumented)
-    error: string | null;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    input: {
-        key: string;
-        value: string | number | boolean;
-        type: string;
-        validation: PasswordPolicy;
-    };
-    // (undocumented)
-    name: string;
-    // (undocumented)
-    output: {
-        key: string;
-        label: string;
-        type: string;
-        verify: boolean;
-    };
-    // (undocumented)
-    type: 'ValidatedPasswordCollector';
-}
-
-// @public (undocumented)
-export interface ValidatedSingleValueCollectorWithValue<T extends SingleValueCollectorTypes, V = string> {
+export interface ValidatedSingleValueCollectorWithValue<T extends SingleValueCollectorTypes> {
     // (undocumented)
     category: 'ValidatedSingleValueCollector';
     // (undocumented)
@@ -1917,9 +1751,9 @@ export interface ValidatedSingleValueCollectorWithValue<T extends SingleValueCol
     // (undocumented)
     input: {
         key: string;
+        value: string | number | boolean;
         type: string;
         validation: (ValidationRequired | ValidationRegex)[];
-        value: V;
     };
     // (undocumented)
     name: string;
@@ -1928,7 +1762,7 @@ export interface ValidatedSingleValueCollectorWithValue<T extends SingleValueCol
         key: string;
         label: string;
         type: string;
-        value: V;
+        value: string | number | boolean;
     };
     // (undocumented)
     type: T;
@@ -1967,8 +1801,8 @@ export interface ValidationRequired {
     type: 'required';
 }
 
-// @public
-export type Validator<T extends ValidatedCollectors = ValidatedCollectors> = (value: CollectorValueType<T>) => string[] | {
+// @public (undocumented)
+export type Validator = (value: string) => string[] | {
     error: {
         message: string;
         type: string;
