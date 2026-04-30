@@ -80,6 +80,7 @@ export interface WebAuthnAuthenticationMetadata {
   acceptableCredentials?: string;
   allowCredentials?: string;
   challenge: string;
+  mediation?: CredentialMediationRequirement;
   relyingPartyId: string;
   timeout: number;
   userVerification: UserVerificationType;

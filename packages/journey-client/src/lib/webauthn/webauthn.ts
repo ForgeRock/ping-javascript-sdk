@@ -63,7 +63,7 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  *
  * Conditional mediation (passkey autofill) support:
  *
- * Conditional mediation is **opt-in** in this SDK via the `authenticate()` parameters.
+ * Conditional mediation is **server-driven** in this SDK via WebAuthn metadata (`meta.mediation`).
  *
  * ```js
  * // Optional: feature-detect conditional UI before attempting
@@ -72,18 +72,22 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  * if (supportsConditionalUI) {
  *   const controller = new AbortController();
  *
- *   await WebAuthn.authenticate(step, 'conditional', controller.signal);
+ *   // Optional: provide a signal to cancel an in-flight request
+ *   await WebAuthn.authenticate(step, controller.signal);
  * }
  * ```
  *
  * Notes:
- * - When `mediation` is `'conditional'`, an `AbortSignal` is required.
+ * - When server-driven mediation is `'conditional'`, an `AbortSignal` will be used.
+ *   If you don't provide one, the SDK will create one.
  * - If conditional mediation is requested but not supported by the browser,
  *   `authenticate()` throws a `NotSupportedError` and sets the hidden WebAuthn outcome to `unsupported`.
  * - To enable passkey autofill, add `autocomplete="webauthn"` to your username field:
  *   `<input type="text" name="username" autocomplete="webauthn" />`
  */
 export abstract class WebAuthn {
+  private static conditionalAbortController?: AbortController;
+
   /**
    * Determines if the given step is a WebAuthn step.
    *
@@ -120,35 +124,45 @@ export abstract class WebAuthn {
   }
 
   /**
+   * Determines if the browser supports conditional mediation.
+   *
+   * @return Whether the browser supports conditional mediation
+   */
+  public static async isConditionalMediationSupported(): Promise<boolean> {
+    return (
+      typeof PublicKeyCredential !== 'undefined' &&
+      typeof PublicKeyCredential.isConditionalMediationAvailable === 'function' &&
+      (await PublicKeyCredential.isConditionalMediationAvailable())
+    );
+  }
+
+  /**
    * Populates the step with the necessary authentication outcome.
    *
    * @param step The step that contains WebAuthn authentication data
-   * @param mediation Optional mediation requirement passed through to `navigator.credentials.get()`
-   * @param signal Optional AbortSignal passed through to `navigator.credentials.get()` (required when `mediation` is `'conditional'`)
+   * @param signal Optional AbortSignal passed through to `navigator.credentials.get()`
    * @return The populated step
    */
-  public static async authenticate(
-    step: JourneyStep,
-    mediation?: CredentialMediationRequirement,
-    signal?: AbortSignal,
-  ): Promise<JourneyStep> {
+  public static async authenticate(step: JourneyStep, signal?: AbortSignal): Promise<JourneyStep> {
     const { hiddenCallback, metadataCallback, textOutputCallback } = this.getCallbacks(step);
     if (hiddenCallback && (metadataCallback || textOutputCallback)) {
       let outcome: ReturnType<typeof this.getAuthenticationOutcome>;
       let credential: PublicKeyCredential | null = null;
+      let mediation: CredentialMediationRequirement | undefined;
 
       try {
         let publicKey: PublicKeyCredentialRequestOptions;
         if (metadataCallback) {
           const meta = metadataCallback.getOutputValue('data') as WebAuthnAuthenticationMetadata;
+          mediation = meta.mediation;
           publicKey = this.createAuthenticationPublicKey(meta);
 
           if (mediation === 'conditional') {
-            if (!signal) {
-              throw new Error(
-                'AbortSignal is required for conditional mediation WebAuthn requests',
-              );
-            }
+            // Abort any prior conditional request started by the SDK.
+            // (If the caller provides their own signal, we still abort the prior SDK-owned one.)
+            this.conditionalAbortController?.abort();
+
+            const abortSignal = signal ?? this.createAbortController().signal;
 
             const isConditionalMediationSupported = await this.isConditionalMediationSupported();
             if (!isConditionalMediationSupported) {
@@ -158,14 +172,21 @@ export abstract class WebAuthn {
               e.name = WebAuthnOutcomeType.NotSupportedError;
               throw e;
             }
-          }
 
-          credential = await this.getAuthenticationCredential(
-            publicKey as PublicKeyCredentialRequestOptions,
-            mediation,
-            signal,
-          );
-          outcome = this.getAuthenticationOutcome(credential);
+            credential = await this.getAuthenticationCredential(
+              publicKey as PublicKeyCredentialRequestOptions,
+              mediation,
+              abortSignal,
+            );
+            outcome = this.getAuthenticationOutcome(credential);
+          } else {
+            credential = await this.getAuthenticationCredential(
+              publicKey as PublicKeyCredentialRequestOptions,
+              mediation,
+              signal,
+            );
+            outcome = this.getAuthenticationOutcome(credential);
+          }
         } else {
           throw new Error(
             'No metadata callback found for WebAuthn authentication. Please disable JavaScript in server node.',
@@ -373,19 +394,6 @@ export abstract class WebAuthn {
   }
 
   /**
-   * Determines if the browser supports conditional mediation.
-   *
-   * @return Whether the browser supports conditional mediation
-   */
-  public static async isConditionalMediationSupported(): Promise<boolean> {
-    return (
-      typeof PublicKeyCredential !== 'undefined' &&
-      typeof PublicKeyCredential.isConditionalMediationAvailable === 'function' &&
-      (await PublicKeyCredential.isConditionalMediationAvailable())
-    );
-  }
-
-  /**
    * Converts an authentication credential into the outcome expected by OpenAM.
    *
    * @param credential The credential to convert
@@ -515,7 +523,7 @@ export abstract class WebAuthn {
       challenge: Uint8Array.from(atob(challenge), (c) => c.charCodeAt(0)).buffer,
       timeout,
       // only add key-value pair if proper value is provided
-      ...(allowCredentialsValue && { allowCredentials: allowCredentialsValue }),
+      ...(allowCredentialsValue?.length ? { allowCredentials: allowCredentialsValue } : {}),
       ...(userVerification && { userVerification }),
       ...(rpId && { rpId }),
     };
@@ -571,6 +579,19 @@ export abstract class WebAuthn {
         name: displayName || userName,
       },
     };
+  }
+
+  /**
+   * Creates and stores an SDK-owned {@link AbortController} for conditional mediation,
+   * aborting any previous SDK-owned controller first.
+   *
+   * @return A new AbortController for conditional mediation.
+   */
+  private static createAbortController(): AbortController {
+    this.conditionalAbortController?.abort();
+    const abortController = new AbortController();
+    this.conditionalAbortController = abortController;
+    return abortController;
   }
 }
 

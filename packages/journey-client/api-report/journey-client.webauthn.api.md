@@ -92,7 +92,7 @@ export enum UserVerificationType {
 
 // @public
 export abstract class WebAuthn {
-    static authenticate(step: JourneyStep, mediation?: CredentialMediationRequirement, signal?: AbortSignal): Promise<JourneyStep>;
+    static authenticate(step: JourneyStep, signal?: AbortSignal): Promise<JourneyStep>;
     static createAuthenticationPublicKey(metadata: WebAuthnAuthenticationMetadata): PublicKeyCredentialRequestOptions;
     static createRegistrationPublicKey(metadata: WebAuthnRegistrationMetadata): PublicKeyCredentialCreationOptions;
     static getAuthenticationCredential(options: PublicKeyCredentialRequestOptions, mediation?: CredentialMediationRequirement, signal?: AbortSignal): Promise<PublicKeyCredential | null>;
@@ -116,6 +116,8 @@ export interface WebAuthnAuthenticationMetadata {
     allowCredentials?: string;
     // (undocumented)
     challenge: string;
+    // (undocumented)
+    mediation?: CredentialMediationRequirement;
     // (undocumented)
     relyingPartyId: string;
     // (undocumented)
