@@ -84,6 +84,9 @@
     },
     {
       "path": "./tools/api-report"
+    },
+    {
+      "path": "./tools/treeshake-check"
     }
   ]
 }

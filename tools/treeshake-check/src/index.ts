@@ -4,6 +4,7 @@ import { Command, Options } from '@effect/cli';
 import { NodeContext, NodeRuntime } from '@effect/platform-node';
 import { Console, Effect, Option } from 'effect';
 import { analyzeTreeshakeability, checkPackage } from './lib/treeshake-check.js';
+import { EXPLANATIONS, primaryCause } from './lib/explanations.js';
 import type { TreeshakeResult } from './lib/schemas.js';
 
 const tree = `
@@ -48,10 +49,17 @@ const top = Options.integer('top').pipe(
   Options.optional,
 );
 
-// ─── Renderers ───────────────────────────────────────────────────────────────
+// ─── Rendering helpers ───────────────────────────────────────────────────────
 
-const pct = (n: number, total: number) =>
-  total === 0 ? '0%' : `${((n / total) * 100).toFixed(1)}%`;
+const indent = (text: string, prefix = '    ') =>
+  text
+    .split('\n')
+    .map((line) => prefix + line)
+    .join('\n');
+
+const SEPARATOR = '  ───────────────────────────────────────────────';
+
+// ─── Renderers ───────────────────────────────────────────────────────────────
 
 const renderJson = (result: TreeshakeResult) => Console.log(JSON.stringify(result, null, 2));
 
@@ -60,7 +68,7 @@ const renderHuman = (result: TreeshakeResult, topN: Option.Option<number>) =>
     if (result._tag === 'FullyTreeshakeable') {
       yield* Console.info(tree);
       if (result.hints.recommendations.length > 0) {
-        yield* Console.info('\nNotes:');
+        yield* Console.info('\nRecommendations:');
         for (const rec of result.hints.recommendations) {
           yield* Console.info(`  • ${rec}`);
         }
@@ -68,56 +76,111 @@ const renderHuman = (result: TreeshakeResult, topN: Option.Option<number>) =>
       return;
     }
 
+    // ─── Headline verdict ──────────────────────────────────────────────────
+    const survivedPct = (result.totalRenderedBytes / result.totalOriginalBytes) * 100;
+    const moduleCount = result.modules.length;
+
+    yield* Console.info('\n  This package is not tree-shakeable.\n');
     yield* Console.info(
-      `Not fully tree-shakeable: ${result.totalRenderedBytes} of ` +
-        `${result.totalOriginalBytes} bytes survived ` +
-        `(${pct(result.totalRenderedBytes, result.totalOriginalBytes)}).\n`,
+      `  When a consumer imports anything from this package, ${survivedPct.toFixed(0)}% ` +
+        `of its code (${result.totalRenderedBytes} of ${result.totalOriginalBytes} bytes) ` +
+        `gets pulled into their bundle, even if they only use a single export.\n`,
+    );
+    yield* Console.info(
+      `  ${moduleCount} ${moduleCount === 1 ? 'file is' : 'files are'} preventing ` +
+        `tree-shaking. Details below.\n`,
     );
 
-    // Sort modules worst-first; optionally truncate
+    // ─── Per-module diagnosis ──────────────────────────────────────────────
     const sorted = [...result.modules].sort((a, b) => b.renderedLength - a.renderedLength);
     const shown = Option.match(topN, {
       onNone: () => sorted,
       onSome: (n) => sorted.slice(0, n),
     });
 
-    yield* Console.info(
-      Option.isSome(topN) ? `Top ${shown.length} unshaken modules:` : 'Per-module breakdown:',
-    );
+    yield* Console.info(`${SEPARATOR}\n`);
 
-    for (const m of shown) {
-      const exportInfo =
-        m.renderedExports.length === 0 && m.removedExports.length === 0
-          ? '    exports:  (none)'
-          : `    exports:  rendered=[${m.renderedExports.join(', ')}] ` +
-            `removed=[${m.removedExports.join(', ')}]`;
+    for (const [i, m] of shown.entries()) {
+      const cause = primaryCause(m.suspectedCauses);
+      const explanation = EXPLANATIONS[cause];
+      const filePct = (m.renderedLength / m.originalLength) * 100;
 
+      yield* Console.info(`  [${i + 1}] ${m.id}\n`);
+      yield* Console.info(`      Problem: ${explanation.summary}\n`);
       yield* Console.info(
-        `\n  ${m.id}\n` +
-          `    bytes:    ${m.renderedLength}/${m.originalLength} ` +
-          `(${pct(m.renderedLength, m.originalLength)} survived)\n` +
-          `${exportInfo}\n` +
-          `    likely:   ${m.suspectedCauses.join(', ')}`,
+        `      Impact:  ${m.renderedLength} of ${m.originalLength} bytes ` +
+          `(${filePct.toFixed(0)}%) end up in consumer bundles\n`,
+      );
+
+      if (m.renderedExports.length > 0) {
+        yield* Console.info(`      Exports affected: ${m.renderedExports.join(', ')}\n`);
+      }
+
+      yield* Console.info('      Why this happens:');
+      yield* Console.info(indent(explanation.why, '        '));
+      yield* Console.info('');
+
+      yield* Console.info('      How to fix:');
+      for (const f of explanation.fix) {
+        yield* Console.info(`        • ${f}`);
+      }
+
+      if (explanation.example) {
+        yield* Console.info('\n      Example:');
+        yield* Console.info('        Before:');
+        yield* Console.info(indent(explanation.example.before, '          '));
+        yield* Console.info('\n        After:');
+        yield* Console.info(indent(explanation.example.after, '          '));
+      }
+
+      // Show a snippet of the actual surviving code as evidence
+      if (m.survivingCode && m.survivingCode.trim().length > 0) {
+        const snippet =
+          m.survivingCode.length > 400
+            ? m.survivingCode.slice(0, 400) + '\n... (truncated)'
+            : m.survivingCode;
+        yield* Console.info('\n      Surviving code:');
+        yield* Console.info(indent(snippet, '        '));
+      }
+
+      yield* Console.info(`\n${SEPARATOR}\n`);
+    }
+
+    // ─── Truncation notice ─────────────────────────────────────────────────
+    if (Option.isSome(topN) && sorted.length > Option.getOrThrow(topN)) {
+      yield* Console.info(
+        `  (Showing top ${shown.length} of ${sorted.length}. ` +
+          `Run without --top to see all, or with --json for machine-readable output.)\n`,
       );
     }
 
-    if (Option.isSome(topN) && sorted.length > Option.getOrThrow(topN)) {
-      yield* Console.info(`\n  ...and ${sorted.length - Option.getOrThrow(topN)} more.`);
+    // ─── Aggregate summary when all modules share a cause ──────────────────
+    const uniqueCauses = new Set(result.modules.map((m) => primaryCause(m.suspectedCauses)));
+    if (uniqueCauses.size === 1 && result.modules.length > 1) {
+      const [onlyCause] = Array.from(uniqueCauses);
+      yield* Console.info(
+        `  Summary: All ${result.modules.length} files have the same root cause ` +
+          `(${EXPLANATIONS[onlyCause].summary}). Applying the fix above resolves all of them.\n`,
+      );
     }
 
+    // ─── Rollup warnings, if any ───────────────────────────────────────────
     if (result.warnings.length > 0) {
-      yield* Console.info('\nRollup warnings:');
+      yield* Console.info('  Rollup warnings encountered during analysis:');
       for (const w of result.warnings) {
         const loc = w.loc ? ` (${w.loc.file ?? '?'}:${w.loc.line}:${w.loc.column})` : '';
-        yield* Console.info(`  [${w.code ?? 'WARN'}] ${w.message}${loc}`);
+        yield* Console.info(`    [${w.code ?? 'WARN'}] ${w.message}${loc}`);
       }
+      yield* Console.info('');
     }
 
+    // ─── Package-level recommendations ─────────────────────────────────────
     if (result.hints.recommendations.length > 0) {
-      yield* Console.info('\nRecommendations:');
+      yield* Console.info('  Package-level recommendations:');
       for (const rec of result.hints.recommendations) {
-        yield* Console.info(`  • ${rec}`);
+        yield* Console.info(`    • ${rec}`);
       }
+      yield* Console.info('');
     }
   });
 
@@ -189,5 +252,5 @@ cli(process.argv).pipe(
       ),
   }),
   Effect.provide(NodeContext.layer),
-  NodeRuntime.runMain as any,
+  NodeRuntime.runMain,
 );

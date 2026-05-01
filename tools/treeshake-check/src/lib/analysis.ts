@@ -9,15 +9,28 @@ import type { ModuleAnalysis, PackageJson, PackageJsonHints, SuspectedCause } fr
  * of real-world cases, and labeling them "suspected" makes the uncertainty
  * honest.
  */
+// src/lib/analysis.ts (additions)
+
 export const detectCauses = (code: string): ReadonlyArray<SuspectedCause> => {
   const causes = new Set<SuspectedCause>();
 
-  // CJS contamination — these strings shouldn't appear in clean ESM output
+  // TypeScript enum IIFE: `(function (X) { ... })(X || (X = {}));`
+  // This is the most common cause for type-package authors and produces
+  // the highest false-negative rate in the original heuristics.
+  if (
+    /\(function\s*\([A-Z_$][\w$]*\)\s*\{[\s\S]*?\}\)\s*\(\s*[A-Z_$][\w$]*\s*\|\|\s*\(\s*[A-Z_$][\w$]*\s*=\s*\{\s*\}\s*\)\s*\)/.test(
+      code,
+    )
+  ) {
+    causes.add('EnumPattern');
+  }
+
+  // CJS contamination
   if (/\b(require\s*\(|module\.exports|exports\.[a-zA-Z_$]|__esModule)/.test(code)) {
     causes.add('CommonJsContamination');
   }
 
-  // Object.defineProperty / Object.assign / prototype mutations
+  // Prototype mutations / Object.defineProperty
   if (/Object\.(defineProperty|defineProperties|assign|setPrototypeOf|freeze)\s*\(/.test(code)) {
     causes.add('PrototypeMutation');
   }
@@ -25,15 +38,14 @@ export const detectCauses = (code: string): ReadonlyArray<SuspectedCause> => {
     causes.add('PrototypeMutation');
   }
 
-  // Top-level assignment to global-ish names
+  // Global assignment
   if (/^\s*(window|globalThis|self|global)\.[a-zA-Z_$]/m.test(code)) {
     causes.add('GlobalAssignment');
   }
 
-  // Bare top-level function call without /*#__PURE__*/ annotation
-  // Approximate but catches the common `someInit()` / `extend(Foo, Bar)` case
+  // Bare top-level function call without /*#__PURE__*/
   const topLevelCall = /^(?!.*\/\*#__PURE__\*\/)\s*[a-zA-Z_$][\w$]*\s*\(/m;
-  if (topLevelCall.test(code)) {
+  if (topLevelCall.test(code) && !causes.has('EnumPattern')) {
     causes.add('UnannotatedCall');
     causes.add('TopLevelSideEffect');
   }

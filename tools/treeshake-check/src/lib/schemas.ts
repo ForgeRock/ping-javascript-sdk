@@ -28,6 +28,7 @@ export const SuspectedCause = Schema.Literal(
   'GlobalAssignment',
   'CommonJsContamination',
   'UnannotatedCall',
+  'EnumPattern',
   'Unknown',
 );
 export type SuspectedCause = typeof SuspectedCause.Type;
