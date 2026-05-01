@@ -28,6 +28,39 @@ const detectTopLevelCall = (code: string): boolean => {
   });
 };
 
+/**
+ * Resolve the ESM entry point from a package.json.
+ *
+ * Priority: exports["." | flat] → module → main
+ * Within the exports conditions, priority is: import → module → default
+ * Returns undefined when no usable ESM entry can be found (e.g. require-only).
+ */
+export const resolveEntry = (pkg: PackageJson): string | undefined => {
+  const { exports } = pkg;
+
+  if (exports !== undefined) {
+    if (typeof exports === 'string') return exports;
+
+    // exports is a record — determine whether it's a subpath map or flat conditions
+    const dotEntry = (exports as Record<string, unknown>)['.'];
+    const conditions: unknown = dotEntry !== undefined ? dotEntry : exports;
+
+    if (typeof conditions === 'string') return conditions;
+
+    if (conditions !== null && typeof conditions === 'object') {
+      const c = conditions as Record<string, unknown>;
+      const candidate = c['import'] ?? c['module'] ?? c['default'];
+      if (typeof candidate === 'string') return candidate;
+    }
+
+    // No usable ESM condition found in exports — don't fall through to module/main.
+    // Falling through would return a CJS path dressed as ESM.
+    return undefined;
+  }
+
+  return pkg.module ?? pkg.main;
+};
+
 export const detectCauses = (code: string): ReadonlyArray<SuspectedCause> => {
   const causes = new Set<SuspectedCause>();
 

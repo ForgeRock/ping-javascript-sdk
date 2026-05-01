@@ -3,7 +3,12 @@ import { FileSystem, Path } from '@effect/platform';
 import { Data, Effect, Schema, pipe } from 'effect';
 import virtualPlugin from '@rollup/plugin-virtual';
 import { rollup, type RollupBuild } from 'rollup';
-import { analyzePackageJsonHints, buildModuleAnalysis, defaultHints } from './analysis.js';
+import {
+  analyzePackageJsonHints,
+  buildModuleAnalysis,
+  defaultHints,
+  resolveEntry,
+} from './analysis.js';
 import {
   PackageJsonFromString,
   type PackageJson,
@@ -51,7 +56,7 @@ export const getEntryFromPackageJson = (cwd?: string) =>
   pipe(
     readPackageJson(cwd ?? process.cwd()),
     Effect.flatMap(({ pkg, pkgPath }) => {
-      const entry = pkg.module ?? pkg.main;
+      const entry = resolveEntry(pkg);
       return entry !== undefined
         ? Effect.succeed({ entry, pkg } as const)
         : new MissingEntryPoint({ path: pkgPath });

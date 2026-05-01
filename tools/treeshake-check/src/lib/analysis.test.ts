@@ -1,6 +1,11 @@
 // tools/treeshake-check/src/lib/analysis.test.ts
 import { describe, it, expect } from '@effect/vitest';
-import { detectCauses, buildModuleAnalysis, analyzePackageJsonHints } from './analysis.js';
+import {
+  detectCauses,
+  buildModuleAnalysis,
+  analyzePackageJsonHints,
+  resolveEntry,
+} from './analysis.js';
 
 // ─── detectCauses ─────────────────────────────────────────────────────────────
 
@@ -208,5 +213,75 @@ describe('analyzePackageJsonHints', () => {
       type: 'module',
     });
     expect(hints.recommendations).toHaveLength(0);
+  });
+});
+
+// ─── resolveEntry ─────────────────────────────────────────────────────────────
+
+describe('resolveEntry', () => {
+  // exports field — subpath map with conditions
+  it('reads import condition from exports["."]]', () => {
+    expect(
+      resolveEntry({
+        exports: { '.': { import: './dist/esm/index.js', require: './dist/cjs/index.js' } },
+      }),
+    ).toBe('./dist/esm/index.js');
+  });
+
+  it('reads module condition from exports["."] when import is absent', () => {
+    expect(
+      resolveEntry({
+        exports: { '.': { module: './dist/esm/index.js', require: './dist/cjs/index.js' } },
+      }),
+    ).toBe('./dist/esm/index.js');
+  });
+
+  it('reads default condition from exports["."] when no esm-specific condition', () => {
+    expect(resolveEntry({ exports: { '.': { default: './dist/index.js' } } })).toBe(
+      './dist/index.js',
+    );
+  });
+
+  // exports field — flat conditions (no subpath key)
+  it('reads import condition from flat exports object', () => {
+    expect(
+      resolveEntry({ exports: { import: './dist/esm/index.js', require: './dist/cjs/index.js' } }),
+    ).toBe('./dist/esm/index.js');
+  });
+
+  // exports field — bare string shorthand
+  it('reads bare string exports field', () => {
+    expect(resolveEntry({ exports: './dist/index.js' })).toBe('./dist/index.js');
+  });
+
+  // exports field takes priority over module/main
+  it('prefers exports over module and main', () => {
+    expect(
+      resolveEntry({
+        exports: { '.': { import: './esm/index.js' } },
+        module: './module/index.js',
+        main: './main/index.js',
+      }),
+    ).toBe('./esm/index.js');
+  });
+
+  // fallback chain
+  it('falls back to module when no exports field', () => {
+    expect(resolveEntry({ module: './dist/index.js', main: './dist/cjs/index.js' })).toBe(
+      './dist/index.js',
+    );
+  });
+
+  it('falls back to main when no exports or module field', () => {
+    expect(resolveEntry({ main: './dist/index.js' })).toBe('./dist/index.js');
+  });
+
+  it('returns undefined when no entry can be resolved', () => {
+    expect(resolveEntry({ name: 'no-entry' })).toBeUndefined();
+  });
+
+  // CJS-only exports should be skipped (require-only map with no default)
+  it('returns undefined for require-only exports map with no default', () => {
+    expect(resolveEntry({ exports: { '.': { require: './dist/cjs/index.js' } } })).toBeUndefined();
   });
 });

@@ -5,10 +5,20 @@ import { Schema } from 'effect';
 
 export const SideEffectsValue = Schema.Union(Schema.Boolean, Schema.Array(Schema.String));
 
+// Conditions object: { import?: string, module?: string, require?: string, default?: string, ... }
+export const ExportsConditions = Schema.Record({
+  key: Schema.String,
+  value: Schema.Union(Schema.String, Schema.Unknown),
+});
+
+// exports field: string | conditions | { ".": conditions | string }
+export const ExportsField = Schema.Union(Schema.String, ExportsConditions);
+
 export const PackageJson = Schema.Struct({
   name: Schema.optional(Schema.String),
   module: Schema.optional(Schema.String),
   main: Schema.optional(Schema.String),
+  exports: Schema.optional(ExportsField),
   type: Schema.optional(Schema.Literal('module', 'commonjs')),
   sideEffects: Schema.optional(SideEffectsValue),
   dependencies: Schema.optional(Schema.Unknown),

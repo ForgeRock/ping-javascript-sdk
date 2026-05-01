@@ -65,9 +65,31 @@ layer(NodeContext.layer)('getEntryFromPackageJson', (it) => {
     }),
   );
 
+  it.scoped('reads import condition from exports field', () =>
+    Effect.gen(function* () {
+      const dir = yield* writeTempPackage({
+        name: 'exports-pkg',
+        exports: { '.': { import: './dist/esm/index.js', require: './dist/cjs/index.js' } },
+      });
+      const result = yield* getEntryFromPackageJson(dir);
+      expect(result.entry).toBe('./dist/esm/index.js');
+    }),
+  );
+
   it.scoped('fails with MissingEntryPoint when neither module nor main are present', () =>
     Effect.gen(function* () {
       const dir = yield* writeTempPackage({ name: 'no-entry' });
+      const error = yield* Effect.flip(getEntryFromPackageJson(dir));
+      expect(error).toBeInstanceOf(MissingEntryPoint);
+    }),
+  );
+
+  it.scoped('fails with MissingEntryPoint when exports has only require condition', () =>
+    Effect.gen(function* () {
+      const dir = yield* writeTempPackage({
+        name: 'cjs-only',
+        exports: { '.': { require: './dist/cjs/index.js' } },
+      });
       const error = yield* Effect.flip(getEntryFromPackageJson(dir));
       expect(error).toBeInstanceOf(MissingEntryPoint);
     }),
