@@ -1,0 +1,5 @@
+{
+  "name": "@fixtures/mixed",
+  "version": "0.0.1",
+  "module": "./dist/index.js"
+}
