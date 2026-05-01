@@ -103,7 +103,7 @@ test.describe('Device registration tests', () => {
     await page.getByRole('button', { name: 'DEVICE_REGISTRATION' }).click();
     await expect(page.getByText('SDK Automation - Device Registration')).toBeVisible();
     await page.getByRole('button', { name: 'Text Message' }).click();
-    await expect(page.getByText('SDK Automation - Enter Phone Number')).toBeVisible();
+    await expect(page.getByText('SDK Automation [JS] - Enter Phone Number')).toBeVisible();
     await page.getByRole('textbox', { name: 'Enter Phone Number' }).fill('3035550100');
     await page.getByRole('button', { name: 'Submit' }).click();
 

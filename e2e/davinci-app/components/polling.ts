@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -9,7 +9,7 @@ import type { PollingCollector, Poller, Updater } from '@forgerock/davinci-clien
 export default function pollingComponent(
   formEl: HTMLFormElement,
   collector: PollingCollector,
-  poll: Poller,
+  pollStatus: Poller,
   updater: Updater<PollingCollector>,
   submitForm: () => Promise<void>,
 ) {
@@ -26,7 +26,7 @@ export default function pollingComponent(
     p.innerText = 'Polling...';
     formEl?.appendChild(p);
 
-    const status = await poll();
+    const status = await pollStatus();
     if (typeof status !== 'string' && 'error' in status) {
       console.error(status.error?.message);
 

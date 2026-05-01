@@ -415,11 +415,14 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     },
 
     /**
-     * @method poll - Perform challenge polling or continue polling
-     * @param {PollingCollector} collector - the polling collector
+     * @method pollStatus - A helper for challenge or continue polling
+     * @description - In challenge polling mode, periodically polls the `/status` endpoint and returns a status.
+     *                In continue polling mode, returns a polling status after a delay based on poll retries remaining.
+     *                The polling mode is automatically detected.
+     * @param {PollingCollector} collector - The polling collector
      * @returns {Promise<PollingStatus | InternalErrorResponse>} - Returns a promise that resolves to a polling status or error
      */
-    poll: (collector: PollingCollector): Poller => {
+    pollStatus: (collector: PollingCollector): Poller => {
       return async () => {
         const result = await getPollingModeµ(collector).pipe(
           Micro.flatMap((mode) => pollingµ({ mode, collector, store, log })),
