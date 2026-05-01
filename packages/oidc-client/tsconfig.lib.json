@@ -36,6 +36,9 @@
     },
     {
       "path": "../sdk-effects/iframe-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "../../tools/treeshake-check/tsconfig.lib.json"
     }
   ],
   "exclude": [

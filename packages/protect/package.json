@@ -26,9 +26,13 @@
   "scripts": {
     "lint": "pnpm nx nxLint",
     "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch"
+    "test:watch": "pnpm nx nxTest --watch",
+    "treeshake-check": "treeshake-check"
   },
   "dependencies": {},
+  "devDependencies": {
+    "@forgerock/treeshake-check": "workspace:*"
+  },
   "publishConfig": {
     "access": "public"
   },

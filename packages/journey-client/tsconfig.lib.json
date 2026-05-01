@@ -35,6 +35,9 @@
     },
     {
       "path": "../sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
+      "path": "../../tools/treeshake-check/tsconfig.lib.json"
     }
   ]
 }

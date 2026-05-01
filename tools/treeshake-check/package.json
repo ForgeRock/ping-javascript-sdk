@@ -1,0 +1,29 @@
+{
+  "name": "@forgerock/treeshake-check",
+  "version": "0.0.1",
+  "private": true,
+  "description": "check packages for treeshaking",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "treeshake-check": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@effect/cli": "^0.75.1",
+    "@effect/platform": "catalog:effect",
+    "@effect/platform-node": "catalog:effect",
+    "@rollup/plugin-virtual": "^3.0.2",
+    "effect": "catalog:effect",
+    "rollup": "^4.59.0"
+  }
+}

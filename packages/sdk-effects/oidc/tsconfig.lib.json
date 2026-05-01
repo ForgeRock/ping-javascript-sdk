@@ -22,6 +22,9 @@
     },
     {
       "path": "../../sdk-types/tsconfig.lib.json"
+    },
+    {
+      "path": "../../../tools/treeshake-check/tsconfig.lib.json"
     }
   ],
   "exclude": [

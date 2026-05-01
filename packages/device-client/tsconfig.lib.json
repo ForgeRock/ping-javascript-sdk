@@ -19,5 +19,10 @@
     "src/**/*.test.ts",
     "src/**/*.test.utils.ts",
     "src/lib/mock-data/*"
+  ],
+  "references": [
+    {
+      "path": "../../tools/treeshake-check/tsconfig.lib.json"
+    }
   ]
 }

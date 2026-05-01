@@ -29,7 +29,8 @@
     "build": "pnpm nx nxBuild",
     "lint": "pnpm nx nxLint",
     "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch"
+    "test:watch": "pnpm nx nxTest --watch",
+    "treeshake-check": "treeshake-check"
   },
   "dependencies": {
     "@forgerock/sdk-logger": "workspace:*",
@@ -42,6 +43,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@forgerock/treeshake-check": "workspace:*",
     "@vitest/coverage-v8": "catalog:vitest",
     "vite": "catalog:vite",
     "vitest": "catalog:vitest",

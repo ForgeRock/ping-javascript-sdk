@@ -30,5 +30,9 @@
     "src/**/*.types.test-d.ts",
     "src/**/*.utils.test-d.ts"
   ],
-  "references": []
+  "references": [
+    {
+      "path": "../../tools/treeshake-check/tsconfig.lib.json"
+    }
+  ]
 }
