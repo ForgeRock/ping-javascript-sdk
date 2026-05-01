@@ -18,6 +18,10 @@
     },
     "./package.json": "./package.json"
   },
+  "devDependencies": {
+    "@effect/vitest": "catalog:effect",
+    "vitest": "catalog:vitest"
+  },
   "dependencies": {
     "@effect/cli": "^0.75.1",
     "@effect/platform": "catalog:effect",
