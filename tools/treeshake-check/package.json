@@ -27,6 +27,7 @@
     "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
     "@rollup/plugin-virtual": "^3.0.2",
+    "acorn": "^8.16.0",
     "effect": "catalog:effect",
     "rollup": "^4.59.0"
   }

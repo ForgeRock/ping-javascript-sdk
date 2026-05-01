@@ -1,22 +1,37 @@
 // src/lib/analysis.ts
+import * as acorn from 'acorn';
 import type { ModuleAnalysis, PackageJson, PackageJsonHints, SuspectedCause } from './schemas.js';
 
-/**
- * Heuristic detection of common patterns that prevent tree-shaking.
- *
- * This is regex-based and approximate — a rigorous implementation would
- * AST-walk the surviving code. But these patterns catch the vast majority
- * of real-world cases, and labeling them "suspected" makes the uncertainty
- * honest.
- */
-// src/lib/analysis.ts (additions)
+// Walk the AST to find top-level ExpressionStatement → CallExpression nodes
+// that are not preceded by a /*#__PURE__*/ annotation. Falls back to a regex
+// heuristic when acorn cannot parse the code (e.g. unparseable rollup output).
+const detectTopLevelCall = (code: string): boolean => {
+  let ast: acorn.Program;
+  try {
+    ast = acorn.parse(code, { ecmaVersion: 'latest', sourceType: 'module' });
+  } catch {
+    const topLevelCall = /^(?!.*\/\*#__PURE__\*\/)\s*[a-zA-Z_$][\w$]*\s*\(/m;
+    return topLevelCall.test(code);
+  }
+
+  return ast.body.some((node) => {
+    if (node.type !== 'ExpressionStatement') return false;
+    const expr = (node as acorn.ExpressionStatement).expression;
+    if (expr.type !== 'CallExpression') return false;
+
+    // Check for a /*#__PURE__*/ annotation immediately before this node
+    const preceding = code.slice(0, node.start);
+    const annotationIdx = preceding.lastIndexOf('/*#__PURE__*/');
+    if (annotationIdx === -1) return true;
+    const between = preceding.slice(annotationIdx + '/*#__PURE__*/'.length);
+    return !/^\s*$/.test(between);
+  });
+};
 
 export const detectCauses = (code: string): ReadonlyArray<SuspectedCause> => {
   const causes = new Set<SuspectedCause>();
 
   // TypeScript enum IIFE: `(function (X) { ... })(X || (X = {}));`
-  // This is the most common cause for type-package authors and produces
-  // the highest false-negative rate in the original heuristics.
   if (
     /\(function\s*\([A-Z_$][\w$]*\)\s*\{[\s\S]*?\}\)\s*\(\s*[A-Z_$][\w$]*\s*\|\|\s*\(\s*[A-Z_$][\w$]*\s*=\s*\{\s*\}\s*\)\s*\)/.test(
       code,
@@ -43,9 +58,8 @@ export const detectCauses = (code: string): ReadonlyArray<SuspectedCause> => {
     causes.add('GlobalAssignment');
   }
 
-  // Bare top-level function call without /*#__PURE__*/
-  const topLevelCall = /^(?!.*\/\*#__PURE__\*\/)\s*[a-zA-Z_$][\w$]*\s*\(/m;
-  if (topLevelCall.test(code) && !causes.has('EnumPattern')) {
+  // Bare top-level call without /*#__PURE__*/ — AST-based, regex fallback
+  if (!causes.has('EnumPattern') && detectTopLevelCall(code)) {
     causes.add('UnannotatedCall');
     causes.add('TopLevelSideEffect');
   }

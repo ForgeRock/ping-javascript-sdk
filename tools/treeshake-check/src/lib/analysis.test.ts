@@ -79,6 +79,29 @@ describe('detectCauses', () => {
     expect(causes).toContain('EnumPattern');
     expect(causes).toContain('GlobalAssignment');
   });
+
+  // AST precision tests — cases the regex approach got wrong
+  it('does NOT flag import statements as calls (AST precision)', () => {
+    const code = `import { foo } from 'bar';\nexport const x = 1;`;
+    expect(new Set(detectCauses(code))).not.toContain('UnannotatedCall');
+  });
+
+  it('does NOT flag variable-assigned calls as UnannotatedCall (AST precision)', () => {
+    const code = `const x = createStore();\nexport { x };`;
+    expect(new Set(detectCauses(code))).not.toContain('UnannotatedCall');
+  });
+
+  it('flags bare top-level call expression statement with no annotation (AST precision)', () => {
+    const code = `initializeGlobals();\nexport const x = 1;`;
+    const causes = new Set(detectCauses(code));
+    expect(causes).toContain('UnannotatedCall');
+    expect(causes).toContain('TopLevelSideEffect');
+  });
+
+  it('does not flag PURE-annotated bare call (AST precision)', () => {
+    const code = `/*#__PURE__*/createRegistry();\nexport const x = 1;`;
+    expect(new Set(detectCauses(code))).not.toContain('UnannotatedCall');
+  });
 });
 
 // ─── buildModuleAnalysis ──────────────────────────────────────────────────────
