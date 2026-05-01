@@ -2,10 +2,10 @@
 // src/index.ts
 import { Command, Options } from '@effect/cli';
 import { NodeContext, NodeRuntime } from '@effect/platform-node';
-import { Console, Effect, Option } from 'effect';
+import { Console, Effect, Option, Schema, pipe } from 'effect';
 import { analyzeTreeshakeability, checkPackage } from './lib/treeshake-check.js';
 import { EXPLANATIONS, primaryCause } from './lib/explanations.js';
-import type { TreeshakeResult } from './lib/schemas.js';
+import { TreeshakeResult } from './lib/schemas.js';
 
 const tree = `
       \\\\///  /Thanks
@@ -61,7 +61,11 @@ const SEPARATOR = '  ───────────────────�
 
 // ─── Renderers ───────────────────────────────────────────────────────────────
 
-const renderJson = (result: TreeshakeResult) => Console.log(JSON.stringify(result, null, 2));
+const renderJson = (result: TreeshakeResult) =>
+  pipe(
+    Schema.encode(TreeshakeResult)(result),
+    Effect.flatMap((encoded) => Console.log(JSON.stringify(encoded, null, 2))),
+  );
 
 const renderHuman = (result: TreeshakeResult, topN: Option.Option<number>) =>
   Effect.gen(function* () {

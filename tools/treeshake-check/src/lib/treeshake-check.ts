@@ -1,6 +1,6 @@
 // src/lib/treeshake-check.ts
 import { FileSystem, Path } from '@effect/platform';
-import { Data, Effect, Schema } from 'effect';
+import { Data, Effect, Schema, pipe } from 'effect';
 import virtualPlugin from '@rollup/plugin-virtual';
 import { rollup, type RollupBuild } from 'rollup';
 import { analyzePackageJsonHints, buildModuleAnalysis, defaultHints } from './analysis.js';
@@ -48,14 +48,15 @@ const readPackageJson = (cwd: string) =>
   });
 
 export const getEntryFromPackageJson = (cwd?: string) =>
-  Effect.gen(function* () {
-    const { pkg, pkgPath } = yield* readPackageJson(cwd ?? process.cwd());
-    const entry = pkg.module ?? pkg.main;
-    if (entry === undefined) {
-      return yield* new MissingEntryPoint({ path: pkgPath });
-    }
-    return { entry, pkg } as const;
-  });
+  pipe(
+    readPackageJson(cwd ?? process.cwd()),
+    Effect.flatMap(({ pkg, pkgPath }) => {
+      const entry = pkg.module ?? pkg.main;
+      return entry !== undefined
+        ? Effect.succeed({ entry, pkg } as const)
+        : new MissingEntryPoint({ path: pkgPath });
+    }),
+  );
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -167,7 +168,7 @@ export const analyzeTreeshakeability = (
  * Full check: read package.json from `cwd`, resolve its entry, then analyze.
  */
 export const checkPackage = (cwd?: string) =>
-  Effect.gen(function* () {
-    const { entry, pkg } = yield* getEntryFromPackageJson(cwd);
-    return yield* analyzeTreeshakeability(entry, pkg);
-  });
+  pipe(
+    getEntryFromPackageJson(cwd),
+    Effect.flatMap(({ entry, pkg }) => analyzeTreeshakeability(entry, pkg)),
+  );
