@@ -1,10 +1,11 @@
 // tools/treeshake-check/src/treeshake-check.integration.test.ts
 import { describe, expect, live } from '@effect/vitest';
+import { assert } from 'vitest';
 import { Effect } from 'effect';
 import { NodeContext } from '@effect/platform-node';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { analyzeTreeshakeability } from './lib/treeshake-check.js';
+import { analyzeTreeshakeability, BundleFailed } from './lib/treeshake-check.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -18,7 +19,10 @@ describe('analyzeTreeshakeability integration', () => {
     run(
       Effect.gen(function* () {
         const result = yield* analyzeTreeshakeability(fixturePath('clean'));
-        expect(result._tag).toBe('FullyTreeshakeable');
+        assert(result._tag === 'FullyTreeshakeable');
+        expect(result.hints.hasSideEffectsField).toBe(false);
+        expect(result.hints.hasModuleField).toBe(false);
+        expect(result.hints.recommendations).toHaveLength(0);
       }),
     ),
   );
@@ -27,11 +31,9 @@ describe('analyzeTreeshakeability integration', () => {
     run(
       Effect.gen(function* () {
         const result = yield* analyzeTreeshakeability(fixturePath('enum-only'));
-        expect(result._tag).toBe('HasSideEffects');
-        if (result._tag === 'HasSideEffects') {
-          const allCauses = new Set(result.modules.flatMap((m) => m.suspectedCauses));
-          expect(allCauses).toContain('EnumPattern');
-        }
+        assert(result._tag === 'HasSideEffects');
+        const allCauses = new Set(result.modules.flatMap((m) => m.suspectedCauses));
+        expect(allCauses).toContain('EnumPattern');
       }),
     ),
   );
@@ -40,12 +42,10 @@ describe('analyzeTreeshakeability integration', () => {
     run(
       Effect.gen(function* () {
         const result = yield* analyzeTreeshakeability(fixturePath('mixed'));
-        expect(result._tag).toBe('HasSideEffects');
-        if (result._tag === 'HasSideEffects') {
-          const allCauses = new Set(result.modules.flatMap((m) => m.suspectedCauses));
-          expect(allCauses).toContain('EnumPattern');
-          expect(allCauses).toContain('PrototypeMutation');
-        }
+        assert(result._tag === 'HasSideEffects');
+        const allCauses = new Set(result.modules.flatMap((m) => m.suspectedCauses));
+        expect(allCauses).toContain('EnumPattern');
+        expect(allCauses).toContain('PrototypeMutation');
       }),
     ),
   );
@@ -54,20 +54,18 @@ describe('analyzeTreeshakeability integration', () => {
     run(
       Effect.gen(function* () {
         const result = yield* analyzeTreeshakeability(fixturePath('enum-only'));
-        expect(result._tag).toBe('HasSideEffects');
-        if (result._tag === 'HasSideEffects') {
-          expect(result.totalRenderedBytes).toBeGreaterThan(0);
-          expect(result.totalOriginalBytes).toBeGreaterThan(0);
-        }
+        assert(result._tag === 'HasSideEffects');
+        expect(result.totalRenderedBytes).toBeGreaterThan(0);
+        expect(result.totalOriginalBytes).toBeGreaterThan(0);
       }),
     ),
   );
 
-  live('returns FullyTreeshakeable with no modules for clean package', () =>
+  live('fails with BundleFailed when entry file has a syntax error', () =>
     run(
       Effect.gen(function* () {
-        const result = yield* analyzeTreeshakeability(fixturePath('clean'));
-        expect(result._tag).toBe('FullyTreeshakeable');
+        const error = yield* Effect.flip(analyzeTreeshakeability(fixturePath('bad-syntax')));
+        expect(error).toBeInstanceOf(BundleFailed);
       }),
     ),
   );
