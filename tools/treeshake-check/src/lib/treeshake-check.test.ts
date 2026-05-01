@@ -9,8 +9,7 @@ import {
   MissingEntryPoint,
 } from './treeshake-check.js';
 
-// Writes a temporary package.json and returns the temp directory path.
-// Must run inside a Scope (it.scoped) — the temp dir is deleted when scope closes.
+// Requires Scope — only call inside it.scoped; temp dir is cleaned up when scope closes.
 const writeTempPackage = (contents: object) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
