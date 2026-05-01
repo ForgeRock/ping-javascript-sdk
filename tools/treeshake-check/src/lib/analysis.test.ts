@@ -21,7 +21,7 @@ describe('detectCauses', () => {
   });
 
   it('detects Object.defineProperty as PrototypeMutation', () => {
-    const code = 'Object.defineProperty(exports, "__esModule", { value: true });';
+    const code = 'Object.defineProperty(MyClass.prototype, "foo", { value: 1 });';
     const causes = new Set(detectCauses(code));
     expect(causes).toContain('PrototypeMutation');
   });
@@ -60,6 +60,13 @@ describe('detectCauses', () => {
 
   it('returns Unknown for empty input', () => {
     expect(detectCauses('')).toEqual(['Unknown']);
+  });
+
+  it('enum IIFE does not also trigger UnannotatedCall', () => {
+    const code = 'var X; (function (X) { X["A"] = "A"; })(X || (X = {}));';
+    const causes = new Set(detectCauses(code));
+    expect(causes).toContain('EnumPattern');
+    expect(causes).not.toContain('UnannotatedCall');
   });
 
   it('detects multiple causes in one file', () => {
@@ -163,5 +170,20 @@ describe('analyzePackageJsonHints', () => {
   it('recognizes type: module correctly', () => {
     const hints = analyzePackageJsonHints({ name: 'foo', type: 'module', sideEffects: false });
     expect(hints.hasTypeModule).toBe(true);
+  });
+
+  it('does not recommend type module when module field is present', () => {
+    const hints = analyzePackageJsonHints({ name: 'foo', module: './esm/index.js' });
+    expect(hints.recommendations.some((r) => r.includes('"type": "module"'))).toBe(false);
+  });
+
+  it('produces no recommendations when fully configured', () => {
+    const hints = analyzePackageJsonHints({
+      name: 'foo',
+      module: './esm/index.js',
+      sideEffects: false,
+      type: 'module',
+    });
+    expect(hints.recommendations).toHaveLength(0);
   });
 });
