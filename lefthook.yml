@@ -2,6 +2,9 @@ pre-commit:
   commands:
     nx-sync:
       run: pnpm nx sync
+    copyright-sync:
+      run: node tools/copyright/sync-header-years.mjs --fix
+      stage_fixed: true
     nx-check:
       run: pnpm nx affected -t typecheck lint build api-report --tui=false
       stage_fixed: true

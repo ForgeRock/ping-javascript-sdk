@@ -22,6 +22,8 @@
     "circular-dep-check": "madge --circular .",
     "clean": "shx rm -rf ./{coverage,dist,docs,node_modules,tmp}/ ./{packages,e2e}/*/{dist,node_modules}/ ./e2e/node_modules/ && git clean -fX -e \"!.env*,nx-cloud.env\" -e \"!**/GEMINI.md\"",
     "commit": "git cz",
+    "copyright:check": "node tools/copyright/sync-header-years.mjs --check",
+    "copyright:sync": "node tools/copyright/sync-header-years.mjs --fix",
     "commitlint": "commitlint --edit",
     "create-package": "nx g @nx/js:library",
     "format": "pnpm nx format:write",
@@ -45,7 +47,6 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
-  "dependencies": {},
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.27.9",
