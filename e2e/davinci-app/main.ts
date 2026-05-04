@@ -273,7 +273,7 @@ const urlParams = new URLSearchParams(window.location.search);
         pollingComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
-          davinciClient.poll(collector), // Returns a poll function
+          davinciClient.pollStatus(collector), // Returns a poll function
           davinciClient.update(collector), // Returns an update function for this collector
           submitForm,
         );
