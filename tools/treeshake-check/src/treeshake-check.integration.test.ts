@@ -9,7 +9,7 @@ import { analyzeTreeshakeability, BundleFailed } from './lib/treeshake-check.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-const fixturePath = (name: string) => resolve(__dirname, '__fixtures__', name, 'dist', 'index.js');
+const fixturePath = (name: string) => resolve(__dirname, '__fixtures__', name, 'index.js');
 
 layer(NodeContext.layer)('analyzeTreeshakeability integration', (it) => {
   it.scoped('reports clean package as fully tree-shakeable', () =>

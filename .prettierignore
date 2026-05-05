@@ -13,3 +13,4 @@ e2e/*/dist
 */dist
 **/dist/*
 **/**/*.d.ts*
+tools/treeshake-check/src/__fixtures__/**

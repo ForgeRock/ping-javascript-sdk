@@ -270,7 +270,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
-    poll: (collector: PollingCollector) => Poller;
+    pollStatus: (collector: PollingCollector) => Poller;
     getClient: () => {
         action: string;
         collectors: Collectors[];

@@ -20,6 +20,6 @@ export default [
     },
   },
   {
-    ignores: ['**/out-tsc', '**/__fixtures__/**/dist'],
+    ignores: ['**/out-tsc'],
   },
 ];
