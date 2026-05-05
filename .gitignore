@@ -95,3 +95,6 @@ GEMINI.md
 .claude/worktrees
 .claude/settings.local.json
 .opensource
+
+# Polaris
+.polaris-setup-progress.json

@@ -31,6 +31,7 @@ import {
   DeviceRegistrationCollector,
   DeviceAuthenticationCollector,
   PhoneNumberCollector,
+  PhoneNumberExtensionCollector,
   UnknownCollector,
   ProtectCollector,
   PollingCollector,
@@ -233,6 +234,7 @@ describe('Node Types', () => {
         | DeviceAuthenticationCollector
         | DeviceRegistrationCollector
         | PhoneNumberCollector
+        | PhoneNumberExtensionCollector
         | ReadOnlyCollector
         | SingleSelectCollector
         | ValidatedTextCollector

@@ -105,6 +105,7 @@ test.describe('Device registration tests', () => {
     await page.getByRole('button', { name: 'Text Message' }).click();
     await expect(page.getByText('SDK Automation [JS] - Enter Phone Number')).toBeVisible();
     await page.getByRole('textbox', { name: 'Enter Phone Number' }).fill('3035550100');
+    await expect(page.getByText('Extension')).not.toBeVisible(); // Tests standard PhoneNumberCollector
     await page.getByRole('button', { name: 'Submit' }).click();
 
     await expect(page.getByText('SMS/Voice MFA Registered')).toBeVisible();
