@@ -244,9 +244,6 @@ importers:
       prettier:
         specifier: ^3.2.5
         version: 3.8.3
-      setup:
-        specifier: ^0.0.3
-        version: 0.0.3
       shx:
         specifier: ^0.4.0
         version: 0.4.0
@@ -7364,9 +7361,6 @@ packages:
 
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
-
-  setup@0.0.3:
-    resolution: {integrity: sha512-NcuGT1k9V3jdwcNdZzpnO6h2WtLMieaIVRMWeQvlSVRMB6b51T3jeUBSeBzP5Mmqy50viW5y7LRaMaTm/MZ4CA==}
 
   shebang-command@1.2.0:
     resolution: {integrity: sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg==}
@@ -16419,8 +16413,6 @@ snapshots:
       es-object-atoms: 1.1.1
 
   setprototypeof@1.2.0: {}
-
-  setup@0.0.3: {}
 
   shebang-command@1.2.0:
     dependencies:
