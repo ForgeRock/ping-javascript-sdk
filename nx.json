@@ -125,7 +125,7 @@
         "targetName": "nxLint"
       },
       "include": ["e2e/**/**/*", "packages/**/**/*", "tools/**/**/*"],
-      "exclude": ["tools/**/fixtures/**/*"]
+      "exclude": ["tools/**/fixtures/**/*", "tools/**/__fixtures__/**/*"]
     },
     {
       "plugin": "@nx/vite/plugin",
