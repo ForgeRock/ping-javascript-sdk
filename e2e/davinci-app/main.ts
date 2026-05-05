@@ -6,8 +6,9 @@
  */
 import './style.css';
 
-import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
+import { oidc } from '@forgerock/oidc-client';
+import type { OidcConfig } from '@forgerock/oidc-client/types';
 import type {
   CustomLogger,
   DaVinciConfig,
@@ -86,6 +87,11 @@ const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
   const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
+  const oidcResult = await oidc({ config: config as OidcConfig });
+  if ('error' in oidcResult) {
+    throw new Error(`Failed to initialize oidc client: ${oidcResult.error}`);
+  }
+  const oidcClient = oidcResult;
   const protectApi = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
@@ -99,10 +105,6 @@ const urlParams = new URLSearchParams(window.location.search);
 
   if (continueToken) {
     resumed = await davinciClient.resume({ continueToken });
-  } else {
-    // the current davinci-config has a slightly
-    // different middleware type than the old legacy config
-    await Config.setAsync(config as any);
   }
 
   function renderComplete() {
@@ -141,25 +143,26 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const tokenBtn = document.getElementById('tokensButton') as HTMLButtonElement;
     tokenBtn.addEventListener('click', async () => {
-      tokens = await TokenManager.getTokens({ query: { code, state } });
+      tokens = await oidcClient.token.exchange(code, state);
 
       console.log(tokens);
 
+      const accessTokenValue = tokens && 'accessToken' in tokens ? tokens.accessToken : '';
       const tokenPreEl = document.getElementById('accessTokenContainer') as HTMLPreElement;
       tokenPreEl.innerHTML = `
         <pre
           data-testid="access-token"
           id="accessTokenValue"
           style="display: block; max-width: 400px; text-wrap: wrap; overflow-wrap: anywhere;"
-        >${tokens?.accessToken}</pre>
+        >${accessTokenValue}</pre>
       `;
     });
 
     const loginBtn = document.getElementById('logoutButton') as HTMLButtonElement;
     loginBtn.addEventListener('click', async () => {
-      await FRUser.logout({ logoutRedirectUri: `${window.location.origin}/` });
+      await oidcClient.user.logout();
 
-      //window.location.reload();
+      window.location.reload();
     });
   }
 

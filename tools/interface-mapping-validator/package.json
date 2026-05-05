@@ -15,11 +15,11 @@
   },
   "dependencies": {
     "ts-morph": "^28.0.0",
-    "tsx": "^4.20.0",
+    "tsx": "catalog:",
     "vitest": "catalog:vitest"
   },
   "devDependencies": {
-    "@forgerock/javascript-sdk": "4.9.0"
+    "@forgerock/javascript-sdk": "catalog:"
   },
   "nx": {
     "tags": ["scope:tool"]

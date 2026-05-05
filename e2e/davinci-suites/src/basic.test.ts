@@ -40,14 +40,8 @@ test('Test happy paths on test page', async ({ page }) => {
       return true;
     }
   });
-  const signoff = page.waitForResponse((response) => {
-    if (response.url().includes('/signoff') && response.status() === 302) {
-      return true;
-    }
-  });
   await logoutButton.click();
   await revokeCall;
-  await signoff;
   await expect(page.getByText('Username/Password Form')).toBeVisible();
 });
 test('ensure query params passed to start are sent off in authorize call', async ({ page }) => {

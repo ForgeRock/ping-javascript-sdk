@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@forgerock/device-client": "workspace:*",
-    "@forgerock/javascript-sdk": "4.7.0",
-    "effect": "^3.12.7"
+    "@forgerock/javascript-sdk": "catalog:",
+    "effect": "catalog:effect"
   },
   "devDependencies": {
-    "@effect/language-service": "^0.20.0"
+    "@effect/language-service": "catalog:effect"
   },
   "nx": {
     "tags": ["scope:e2e"]

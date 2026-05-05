@@ -7,9 +7,13 @@ packages:
   - 'tools/*'
   - 'scratchpad'
 catalog:
+  '@forgerock/javascript-sdk': '4.9.0'
   '@reduxjs/toolkit': '^2.8.2'
+  '@types/express': '5.0.6'
   immer: '^10.1.1'
   msw: '^2.5.1'
+  tslib: '^2.5.0'
+  tsx: '4.21.0'
 catalogs:
   effect:
     effect: '^3.20.0'

@@ -19,6 +19,9 @@
       "path": "../../packages/protect/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/oidc-client/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/davinci-client/tsconfig.lib.json"
     }
   ]
