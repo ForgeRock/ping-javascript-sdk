@@ -191,17 +191,41 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
      */
     .addCase(updateCollectorValues, (state, action) => {
       const collector = state.find((collector) => collector.id === action.payload.id);
+
       if (!collector) {
-        throw new Error('No collector found to update');
+        state.push({
+          category: 'UnknownCollector',
+          error: 'No collector found to update',
+          type: 'UnknownCollector',
+          id: action.payload.id,
+          name: action.payload.id,
+          output: {
+            key: action.payload.id,
+            label: action.payload.id,
+            type: 'UnknownCollector',
+          },
+        });
+        return;
       }
+
       if (collector.category === 'ActionCollector') {
-        throw new Error('ActionCollectors are read-only');
+        collector.error = 'ActionCollectors are read-only';
+        return;
       }
+
       if (collector.category === 'NoValueCollector') {
-        throw new Error('NoValueCollectors, like ReadOnlyCollectors, are read-only');
+        collector.error = 'NoValueCollectors, like ReadOnlyCollectors, are read-only';
+        return;
       }
+
+      if (collector.type === 'PollingCollector') {
+        collector.error = 'This collector type does not support value updates';
+        return;
+      }
+
       if (action.payload.value === undefined) {
-        throw new Error('Value argument cannot be undefined');
+        collector.error = 'Value argument cannot be undefined';
+        return;
       }
 
       if (
@@ -221,7 +245,8 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         }
 
         if (typeof action.payload.value !== 'string') {
-          throw new Error('Value argument must be a string');
+          collector.error = 'Value argument must be a string';
+          return;
         }
         collector.input.value = action.payload.value;
         return;
@@ -229,7 +254,8 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
 
       if (collector.category === 'MultiValueCollector') {
         if (typeof action.payload.value !== 'string' && !Array.isArray(action.payload.value)) {
-          throw new Error('MultiValueCollector does not accept an object');
+          collector.error = 'MultiValueCollector does not accept an object';
+          return;
         }
         if (Array.isArray(action.payload.value)) {
           collector.input.value = [...action.payload.value];
@@ -240,99 +266,115 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
 
       if (collector.type === 'DeviceAuthenticationCollector') {
-        const inputValue = action.payload.value;
-        if (typeof inputValue !== 'string') {
-          throw new Error('Value argument must be a string');
+        if (typeof action.payload.value !== 'string') {
+          collector.error = 'Value argument must be a string';
+          return;
         }
-
-        // Iterate through the options object and find option to update
-        const option = collector.output.options.find((option) => option.value === inputValue);
-
+        const option = collector.output.options.find(
+          (option) => option.value === action.payload.value,
+        );
         if (!option) {
-          throw new Error('No option found matching value to update');
+          collector.error = 'No option found matching value to update';
+          return;
         }
-
-        // Remap values back to DaVinci spec
         collector.input.value = {
           type: option.type,
           id: option.value,
           value: option.content,
         };
+        return;
       }
 
       if (collector.type === 'DeviceRegistrationCollector') {
-        const inputValue = action.payload.value;
-        if (typeof inputValue !== 'string') {
-          throw new Error('Value argument must be a string');
+        if (typeof action.payload.value !== 'string') {
+          collector.error = 'Value argument must be a string';
+          return;
         }
-
-        // Iterate through the options object and find option to update
-        const option = collector.output.options.find((option) => option.value === inputValue);
-
+        const option = collector.output.options.find(
+          (option) => option.value === action.payload.value,
+        );
         if (!option) {
-          throw new Error('No option found matching value to update');
+          collector.error = 'No option found matching value to update';
+          return;
         }
-
         collector.input.value = option.type;
+        return;
       }
 
       if (collector.type === 'PhoneNumberCollector') {
         if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+          collector.error = 'Index argument must be a string';
+          return;
         }
         if (typeof action.payload.value !== 'object') {
-          throw new Error('Value argument must be an object');
+          collector.error = 'Value argument must be an object';
+          return;
         }
         if (!('phoneNumber' in action.payload.value) || !('countryCode' in action.payload.value)) {
-          throw new Error('Value argument must contain a phoneNumber and countryCode property');
+          collector.error = 'Value argument must contain a phoneNumber and countryCode property';
+          return;
         }
         collector.input.value = action.payload.value;
+        return;
       }
 
       if (collector.type === 'PhoneNumberExtensionCollector') {
         if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+          collector.error = 'Index argument must be a string';
+          return;
         }
         if (typeof action.payload.value !== 'object') {
-          throw new Error('Value argument must be an object');
+          collector.error = 'Value argument must be an object';
+          return;
         }
         if (
           !('phoneNumber' in action.payload.value) ||
           !('countryCode' in action.payload.value) ||
           !('extension' in action.payload.value)
         ) {
-          throw new Error(
-            'Value argument must contain a phoneNumber, countryCode, and extension property',
-          );
+          collector.error =
+            'Value argument must contain a phoneNumber, countryCode, and extension property';
+          return;
         }
         collector.input.value = action.payload.value;
+        return;
       }
 
       if (collector.type === 'FidoRegistrationCollector') {
         if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+          collector.error = 'Index argument must be a string';
+          return;
         }
         if (typeof action.payload.value !== 'object') {
-          throw new Error('Value argument must be an object');
+          collector.error = 'Value argument must be an object';
+          return;
         }
         if (!('attestationValue' in action.payload.value)) {
-          throw new Error('Value argument must contain an attestationValue property');
+          collector.error = 'Value argument must contain an attestationValue property';
+          return;
         }
         collector.input.value = action.payload.value;
+        return;
       }
 
       if (collector.type === 'FidoAuthenticationCollector') {
         if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+          collector.error = 'Index argument must be a string';
+          return;
         }
         if (typeof action.payload.value !== 'object') {
-          throw new Error('Value argument must be an object');
+          collector.error = 'Value argument must be an object';
+          return;
         }
         if (!('assertionValue' in action.payload.value)) {
-          throw new Error('Value argument must contain an assertionValue property');
+          collector.error = 'Value argument must contain an assertionValue property';
+          return;
         }
         collector.input.value = action.payload.value;
+        return;
       }
+
+      collector.error = 'This collector type does not support value updates';
     })
     /**
      * Using the `pollCollectorValues` const (e.g. `'node/poll'`) to add the case
