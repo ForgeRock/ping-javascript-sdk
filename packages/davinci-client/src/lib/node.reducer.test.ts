@@ -383,7 +383,7 @@ describe('The node collector reducer', () => {
     expect(() => nodeCollectorReducer(state, action)).toThrowError('No collector found to update');
   });
 
-  it('should throw with no Action Collector', () => {
+  it('should set error on ActionCollector when update is attempted', () => {
     const action = {
       type: 'node/update',
       payload: {
@@ -423,8 +423,122 @@ describe('The node collector reducer', () => {
         },
       },
     ];
-    expect(() => nodeCollectorReducer(state, action)).toThrowError(
-      'ActionCollectors are read-only',
+    const result = nodeCollectorReducer(state, action);
+    const collector = result.find((c) => c.id === 'submit-1');
+    expect(collector?.error).toBe('ActionCollectors are read-only');
+  });
+
+  it('should set error on NoValueCollector when update is attempted', () => {
+    const state: QrCodeCollector[] = [
+      {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'QrCodeCollector',
+        id: 'qr-0',
+        name: 'qr',
+        output: {
+          key: 'qr',
+          label: 'QR Code',
+          type: 'QR_CODE',
+          src: 'data:image/png;base64,abc',
+        },
+      },
+    ];
+    const action = { type: 'node/update', payload: { id: 'qr-0', value: 'anything' } };
+    const result = nodeCollectorReducer(state, action);
+    expect(result.find((c) => c.id === 'qr-0')?.error).toBe(
+      'NoValueCollectors, like ReadOnlyCollectors, are read-only',
+    );
+  });
+
+  it('should set error on collector when value is undefined', () => {
+    const state: TextCollector[] = [
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'TextCollector',
+        id: 'username-0',
+        name: 'username',
+        input: { key: 'username', value: '', type: 'TEXT' },
+        output: { key: 'username', label: 'Username', type: 'TEXT', value: '' },
+      },
+    ];
+    const action = {
+      type: 'node/update',
+      payload: { id: 'username-0', value: undefined as unknown as string },
+    };
+    const result = nodeCollectorReducer(state, action);
+    expect(result.find((c) => c.id === 'username-0')?.error).toBe(
+      'Value argument cannot be undefined',
+    );
+  });
+
+  it('should set error on SingleValueCollector when value is not a string', () => {
+    const state: TextCollector[] = [
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'TextCollector',
+        id: 'username-0',
+        name: 'username',
+        input: { key: 'username', value: '', type: 'TEXT' },
+        output: { key: 'username', label: 'Username', type: 'TEXT', value: '' },
+      },
+    ];
+    const action = {
+      type: 'node/update',
+      payload: { id: 'username-0', value: 42 as unknown as string },
+    };
+    const result = nodeCollectorReducer(state, action);
+    expect(result.find((c) => c.id === 'username-0')?.error).toBe(
+      'Value argument must be a string',
+    );
+  });
+
+  it('should set error on MultiValueCollector when value is an object', () => {
+    const state: MultiSelectCollector[] = [
+      {
+        category: 'MultiValueCollector',
+        error: null,
+        type: 'MultiSelectCollector',
+        id: 'multi-0',
+        name: 'multi',
+        input: { key: 'multi', value: [], type: 'MULTI_SELECT', validation: null },
+        output: {
+          key: 'multi',
+          label: 'Multi',
+          type: 'MULTI_SELECT',
+          value: [],
+          options: [{ label: 'A', value: 'a' }],
+        },
+      },
+    ];
+    const action = {
+      type: 'node/update',
+      payload: { id: 'multi-0', value: { bad: true } as unknown as string },
+    };
+    const result = nodeCollectorReducer(state, action);
+    expect(result.find((c) => c.id === 'multi-0')?.error).toBe(
+      'MultiValueCollector does not accept an object',
+    );
+  });
+
+  it('should set error on PollingCollector when update is attempted', () => {
+    const state: PollingCollector[] = [
+      {
+        category: 'SingleValueAutoCollector',
+        error: null,
+        type: 'PollingCollector',
+        id: 'poll-0',
+        name: 'poll',
+        input: { key: 'poll', value: '', type: 'POLLING' },
+        output: { key: 'poll', type: 'POLLING', config: { pollInterval: 1000, pollRetries: 3 } },
+      },
+    ];
+    const action = { type: 'node/update', payload: { id: 'poll-0', value: 'anything' } };
+    const result = nodeCollectorReducer(state, action);
+    expect(result.find((c) => c.id === 'poll-0')?.error).toBe(
+      'This collector type does not support value updates',
     );
   });
 
