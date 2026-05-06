@@ -336,16 +336,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       return function (value: CollectorValueTypes, index?: number) {
-        try {
-          store.dispatch(nodeSlice.actions.update({ id, value, index }));
-          return null;
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          return {
-            type: 'internal_error',
-            error: { message: errorMessage, type: 'internal_error' },
-          };
-        }
+        store.dispatch(nodeSlice.actions.update({ id, value, index }));
+        return null;
       };
     },
 
