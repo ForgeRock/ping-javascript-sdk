@@ -352,7 +352,7 @@ describe('The node collector reducer', () => {
     ]);
   });
 
-  it('should throw with no collectors', () => {
+  it('should add an UnknownCollector with error when no matching collector is found', () => {
     const action = {
       type: 'node/update',
       payload: {
@@ -380,7 +380,10 @@ describe('The node collector reducer', () => {
         },
       },
     ];
-    expect(() => nodeCollectorReducer(state, action)).toThrowError('No collector found to update');
+    const result = nodeCollectorReducer(state, action);
+    const errorCollector = result.find((c) => c.id === 'submit-1');
+    expect(errorCollector?.error).toBe('No collector found to update');
+    expect(errorCollector?.category).toBe('UnknownCollector');
   });
 
   it('should set error on ActionCollector when update is attempted', () => {
