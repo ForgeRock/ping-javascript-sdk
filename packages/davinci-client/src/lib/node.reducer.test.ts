@@ -473,6 +473,25 @@ describe('The node collector reducer', () => {
     );
   });
 
+  it('should clear error on collector when a valid value is provided after an error', () => {
+    const state: TextCollector[] = [
+      {
+        category: 'SingleValueCollector',
+        error: 'Value argument must be a string',
+        type: 'TextCollector',
+        id: 'username-0',
+        name: 'username',
+        input: { key: 'username', value: '', type: 'TEXT' },
+        output: { key: 'username', label: 'Username', type: 'TEXT', value: '' },
+      },
+    ];
+    const action = { type: 'node/update', payload: { id: 'username-0', value: 'validString' } };
+    const result = nodeCollectorReducer(state, action);
+    const collector = result.find((c) => c.id === 'username-0') as TextCollector | undefined;
+    expect(collector?.error).toBeNull();
+    expect(collector?.input.value).toBe('validString');
+  });
+
   it('should set error on SingleValueCollector when value is not a string', () => {
     const state: TextCollector[] = [
       {

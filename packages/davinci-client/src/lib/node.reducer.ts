@@ -248,6 +248,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.error = 'Value argument must be a string';
           return;
         }
+        collector.error = null;
         collector.input.value = action.payload.value;
         return;
       }
@@ -257,6 +258,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.error = 'MultiValueCollector does not accept an object';
           return;
         }
+        collector.error = null;
         if (Array.isArray(action.payload.value)) {
           collector.input.value = [...action.payload.value];
         } else {
@@ -277,6 +279,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.error = 'No option found matching value to update';
           return;
         }
+        collector.error = null;
         collector.input.value = {
           type: option.type,
           id: option.value,
@@ -297,6 +300,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.error = 'No option found matching value to update';
           return;
         }
+        collector.error = null;
         collector.input.value = option.type;
         return;
       }
@@ -314,6 +318,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.error = 'Value argument must contain a phoneNumber and countryCode property';
           return;
         }
+        collector.error = null;
         collector.input.value = action.payload.value;
         return;
       }
@@ -336,6 +341,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
             'Value argument must contain a phoneNumber, countryCode, and extension property';
           return;
         }
+        collector.error = null;
         collector.input.value = action.payload.value;
         return;
       }
@@ -353,6 +359,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.error = 'Value argument must contain an attestationValue property';
           return;
         }
+        collector.error = null;
         collector.input.value = action.payload.value;
         return;
       }
@@ -370,6 +377,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           collector.error = 'Value argument must contain an assertionValue property';
           return;
         }
+        collector.error = null;
         collector.input.value = action.payload.value;
         return;
       }
