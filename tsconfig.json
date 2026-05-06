@@ -84,6 +84,9 @@
     },
     {
       "path": "./tools/api-report"
+    },
+    {
+      "path": "./e2e/bundle-check-app"
     }
   ]
 }
