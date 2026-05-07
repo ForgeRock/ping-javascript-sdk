@@ -97,6 +97,9 @@ importers:
       '@effect/cli':
         specifier: catalog:effect
         version: 0.69.2(@effect/platform@0.90.10(effect@3.21.0))(@effect/printer-ansi@0.45.0(@effect/typeclass@0.36.0(effect@3.21.0))(effect@3.21.0))(@effect/printer@0.45.0(@effect/typeclass@0.36.0(effect@3.21.0))(effect@3.21.0))(effect@3.21.0)
+      '@effect/language-service':
+        specifier: catalog:effect
+        version: 0.35.2
       '@effect/tsgo':
         specifier: ^0.5.1
         version: 0.5.1
