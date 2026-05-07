@@ -15,13 +15,16 @@
   ],
   "references": [
     {
-      "path": "../../packages/sdk-effects/logger/tsconfig.lib.json"
-    },
-    {
       "path": "../../packages/device-client/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/oidc-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/devtools-bridge/tsconfig.lib.json"
     },
     {
       "path": "../../packages/protect/tsconfig.lib.json"

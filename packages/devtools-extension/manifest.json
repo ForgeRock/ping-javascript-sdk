@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Ping DevTools",
+  "version": "0.1.0",
+  "description": "Debug ForgeRock AM and PingOne auth flows",
+  "permissions": ["storage", "clipboardWrite", "clipboardRead"],
+  "host_permissions": ["<all_urls>"],
+  "devtools_page": "devtools.html",
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content-script.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/relay.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Ping DevTools"
+  }
+}

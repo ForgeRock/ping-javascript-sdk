@@ -19,6 +19,9 @@
       "path": "../../packages/protect/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/devtools-bridge/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/davinci-client/tsconfig.lib.json"
     }
   ]

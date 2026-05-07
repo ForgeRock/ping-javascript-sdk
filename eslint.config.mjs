@@ -109,6 +109,14 @@ export default [
               sourceTag: 'scope:sdk-types',
               onlyDependOnLibsWithTags: [],
             },
+            {
+              sourceTag: 'scope:devtools-types',
+              onlyDependOnLibsWithTags: [],
+            },
+            {
+              sourceTag: 'scope:devtools-bridge',
+              onlyDependOnLibsWithTags: ['scope:devtools-types', 'scope:package'],
+            },
           ],
         },
       ],

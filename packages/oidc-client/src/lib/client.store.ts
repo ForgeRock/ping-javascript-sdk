@@ -73,16 +73,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   const store = createClientStore({ requestMiddleware, logger: log });
 
   if (!config?.serverConfig?.wellknown) {
-    return {
-      error: 'Requires a wellknown url initializing this factory.',
-      type: 'argument_error',
-    };
+    throw new Error('Requires a wellknown url initializing this factory.');
   }
   if (!config?.clientId) {
-    return {
-      error: 'Requires a clientId.',
-      type: 'argument_error',
-    };
+    throw new Error('Requires a clientId.');
   }
 
   const wellknownUrl = config.serverConfig.wellknown;
@@ -95,6 +89,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   }
 
   return {
+    subscribe: store.subscribe,
+    getState: store.getState,
     /**
      * An object containing methods for the creation, and background use, of the authorization URL
      */

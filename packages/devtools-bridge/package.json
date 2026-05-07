@@ -1,0 +1,48 @@
+{
+  "name": "@forgerock/devtools-bridge",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Opt-in Ping SDK adapter that emits AuthEvents to the DevTools extension",
+  "license": "MIT",
+  "author": "ForgeRock",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/devtools-bridge"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "pnpm nx nxBuild",
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest"
+  },
+  "dependencies": {
+    "@forgerock/devtools-types": "workspace:*",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@forgerock/davinci-client": "workspace:*"
+  },
+  "peerDependencies": {
+    "@forgerock/davinci-client": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@forgerock/davinci-client": { "optional": true }
+  },
+  "nx": {
+    "tags": ["scope:devtools-bridge"]
+  }
+}

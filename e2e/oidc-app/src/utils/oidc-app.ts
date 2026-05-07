@@ -6,6 +6,7 @@
  * of the MIT license. See the LICENSE file for details.
  *
  */
+import { attachOidcBridge } from '@forgerock/devtools-bridge';
 import { oidc } from '@forgerock/oidc-client';
 import type {
   AuthorizationError,
@@ -54,6 +55,7 @@ export async function oidcApp({ config, urlParams }) {
   if ('error' in oidcClient) {
     displayError(oidcClient);
   }
+  attachOidcBridge(oidcClient, config);
 
   document.getElementById('login-background').addEventListener('click', async () => {
     const authorizeOptions: GetAuthorizationUrlOptions =

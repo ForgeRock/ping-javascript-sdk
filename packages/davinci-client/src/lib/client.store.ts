@@ -535,6 +535,21 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
         return flowItem || nextItem || startItem;
       },
+      /**
+       * Returns the raw cached response data for a given requestId (cache key).
+       * Checks all three endpoints (flow, next, start) and returns the first with data.
+       */
+      getCache: (requestId: string): unknown => {
+        if (!requestId) return undefined;
+        const state = store.getState();
+        const flow = davinciApi.endpoints.flow.select(requestId)(state);
+        if (flow?.data !== undefined) return flow.data;
+        const next = davinciApi.endpoints.next.select(requestId)(state);
+        if (next?.data !== undefined) return next.data;
+        const start = davinciApi.endpoints.start.select(requestId)(state);
+        if (start?.data !== undefined) return start.data;
+        return undefined;
+      },
     },
   };
 }

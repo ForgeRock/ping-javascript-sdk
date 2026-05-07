@@ -11,6 +11,7 @@
     "serve": "pnpm nx nxServe"
   },
   "dependencies": {
+    "@forgerock/devtools-bridge": "workspace:*",
     "@forgerock/journey-client": "workspace:*",
     "@forgerock/oidc-client": "workspace:*",
     "@forgerock/protect": "workspace:*",

@@ -186,6 +186,8 @@ export function journey<ActionType extends ActionTypes = ActionTypes>(input: {
 // @public
 export interface JourneyClient {
     // (undocumented)
+    getState: () => unknown;
+    // (undocumented)
     next: (step: JourneyStep, options?: NextOptions) => Promise<JourneyResult>;
     // (undocumented)
     redirect: (step: JourneyStep) => Promise<void>;
@@ -193,6 +195,8 @@ export interface JourneyClient {
     resume: (url: string, options?: ResumeOptions) => Promise<JourneyResult>;
     // (undocumented)
     start: (options?: StartParam) => Promise<JourneyResult>;
+    // (undocumented)
+    subscribe: (listener: () => void) => () => void;
     // (undocumented)
     terminate: (options?: {
         query?: Record<string, string>;

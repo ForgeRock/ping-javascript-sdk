@@ -5,6 +5,9 @@
 .pnpm-store/*
 .npm/_logs
 
+# Elm
+elm-stuff/
+
 # Generated code
 logs/*
 tmp/

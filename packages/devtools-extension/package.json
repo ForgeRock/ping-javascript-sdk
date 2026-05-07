@@ -1,0 +1,30 @@
+{
+  "name": "@forgerock/devtools-extension",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Ping Auth DevTools Chrome Extension",
+  "license": "MIT",
+  "author": "ForgeRock",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/devtools-extension"
+  },
+  "type": "module",
+  "scripts": {
+    "postinstall": "elm-tooling install"
+  },
+  "dependencies": {
+    "@forgerock/devtools-types": "workspace:*",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.40",
+    "elm-tooling": "^1.15.1",
+    "esbuild": "^0.28.0",
+    "terser": "^5.47.1"
+  },
+  "nx": {
+    "tags": ["scope:devtools-extension"]
+  }
+}

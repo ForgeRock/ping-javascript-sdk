@@ -11,7 +11,7 @@ import { CombinedState } from '@reduxjs/toolkit/query';
 import { CustomLogger } from '@forgerock/sdk-logger';
 import { EnhancedStore } from '@reduxjs/toolkit';
 import { FetchArgs } from '@reduxjs/toolkit/query';
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
@@ -27,6 +27,7 @@ import { StoreEnhancer } from '@reduxjs/toolkit';
 import { ThunkDispatch } from '@reduxjs/toolkit';
 import { Tuple } from '@reduxjs/toolkit';
 import { UnknownAction } from '@reduxjs/toolkit';
+import { Unsubscribe } from '@reduxjs/toolkit';
 import { WellknownResponse } from '@forgerock/sdk-types';
 
 export { ActionTypes }
@@ -250,12 +251,39 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
     };
     storage?: Partial<StorageConfig>;
 }): Promise<{
-    error: string;
-    type: string;
-    authorize?: undefined;
-    token?: undefined;
-    user?: undefined;
-} | {
+    subscribe: (listener: () => void) => Unsubscribe;
+    getState: () => {
+        oidc: CombinedState<    {
+        authorizeFetch: MutationDefinition<    {
+        url: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
+        authorizeIframe: MutationDefinition<    {
+        url: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
+        endSession: MutationDefinition<    {
+        idToken: string;
+        endpoint: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
+        exchange: MutationDefinition<    {
+        code: string;
+        config: OidcConfig;
+        endpoint: string;
+        verifier?: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, TokenExchangeResponse, "oidc", unknown>;
+        revoke: MutationDefinition<    {
+        accessToken: string;
+        clientId?: string;
+        endpoint: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, object, "oidc", unknown>;
+        userInfo: MutationDefinition<    {
+        accessToken: string;
+        endpoint: string;
+        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, UserInfoResponse, "oidc", unknown>;
+        }, never, "oidc">;
+        wellknown: CombinedState<    {
+        configuration: QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellknownResponse, "wellknown", unknown>;
+        }, never, "wellknown">;
+    };
     authorize: {
         url: (options?: GetAuthorizationUrlOptions) => Promise<string | GenericError>;
         background: (options?: GetAuthorizationUrlOptions) => Promise<AuthorizationSuccess | AuthorizationError>;
@@ -269,8 +297,6 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
         info: () => Promise<GenericError | UserInfoResponse>;
         logout: () => Promise<GenericError | LogoutSuccessResult | LogoutErrorResult>;
     };
-    error?: undefined;
-    type?: undefined;
 }>;
 
 // @public (undocumented)

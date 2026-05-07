@@ -8,6 +8,7 @@ import './style.css';
 
 import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
+import { attachDevToolsBridge } from '@forgerock/devtools-bridge';
 import type {
   CustomLogger,
   DaVinciConfig,
@@ -334,15 +335,12 @@ const urlParams = new URLSearchParams(window.location.search);
     }
   }
 
-  /**
-   * Optionally subscribe to the store to listen for all store updates
-   * This is useful for debugging and logging
-   * It returns an unsubscribe function that you can call to stop listening
-   */
   davinciClient.subscribe(() => {
     const node = davinciClient.getNode();
     console.log('Event emitted from store:', node);
   });
+
+  attachDevToolsBridge(davinciClient, config);
 
   const qs = window.location.search;
   const searchParams = new URLSearchParams(qs);

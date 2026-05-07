@@ -7,6 +7,7 @@
 import './style.css';
 
 import { journey } from '@forgerock/journey-client';
+import { attachJourneyBridge } from '@forgerock/devtools-bridge';
 
 import type { JourneyClient, RequestMiddleware } from '@forgerock/journey-client/types';
 
@@ -65,6 +66,7 @@ if (searchParams.get('middleware') === 'true') {
   let journeyClient: JourneyClient;
   try {
     journeyClient = await journey({ config: config, requestMiddleware });
+    attachJourneyBridge(journeyClient, config);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Failed to initialize journey client:', message);

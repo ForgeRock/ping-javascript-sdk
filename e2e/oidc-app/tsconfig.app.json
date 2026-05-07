@@ -21,6 +21,9 @@
   "references": [
     {
       "path": "../../packages/oidc-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/devtools-bridge/tsconfig.lib.json"
     }
   ]
 }

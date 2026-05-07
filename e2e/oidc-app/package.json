@@ -9,6 +9,7 @@
     "serve": "pnpm nx nxServe"
   },
   "dependencies": {
+    "@forgerock/devtools-bridge": "workspace:*",
     "@forgerock/oidc-client": "workspace:*"
   },
   "nx": {
