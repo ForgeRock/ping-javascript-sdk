@@ -13,6 +13,53 @@ describe('isAuthRelated', () => {
     expect(isAuthRelated('https://example.com/api/users')).toBe(false);
     expect(isAuthRelated('https://cdn.example.com/logo.png')).toBe(false);
   });
+
+  it('matches new OIDC endpoint patterns', () => {
+    expect(isAuthRelated('https://auth.example.com/.well-known/openid-configuration')).toBe(true);
+    expect(isAuthRelated('https://auth.example.com/.well-known/oauth-authorization-server')).toBe(
+      true,
+    );
+    expect(isAuthRelated('https://auth.example.com/par')).toBe(true);
+    expect(isAuthRelated('https://auth.example.com/userinfo')).toBe(true);
+    expect(isAuthRelated('https://auth.example.com/revoke')).toBe(true);
+    expect(isAuthRelated('https://auth.example.com/introspect')).toBe(true);
+    expect(isAuthRelated('https://auth.example.com/jwks')).toBe(true);
+    expect(isAuthRelated('https://auth.example.com/token')).toBe(true);
+    expect(isAuthRelated('https://auth.example.com/logout')).toBe(true);
+  });
+
+  it('does not match JS module loads with auth-like filenames', () => {
+    // Vite dev server serves source files with paths like /@fs/.../authorize.request.js
+    expect(
+      isAuthRelated(
+        'http://localhost:8443/@fs/packages/oidc-client/dist/src/lib/authorize.request.types.js',
+      ),
+    ).toBe(false);
+    expect(
+      isAuthRelated(
+        'http://localhost:8443/@fs/packages/oidc-client/dist/src/lib/authorize.request.js',
+      ),
+    ).toBe(false);
+    expect(
+      isAuthRelated(
+        'http://localhost:8443/@fs/packages/sdk-effects/oidc/dist/src/lib/authorize.effects.js',
+      ),
+    ).toBe(false);
+    expect(
+      isAuthRelated('http://localhost:8443/@fs/packages/oidc-client/dist/src/lib/token.utils.js'),
+    ).toBe(false);
+    expect(isAuthRelated('https://cdn.example.com/assets/authorize-form.css')).toBe(false);
+  });
+
+  it('matches discovered endpoints via config even for non-standard paths', () => {
+    const config = {
+      issuer: 'https://auth.example.com',
+      tokenEndpoint: 'https://auth.example.com/custom/oauth/exchange',
+    };
+    expect(isAuthRelated('https://auth.example.com/custom/oauth/exchange', config)).toBe(true);
+    // Without config, this non-standard path doesn't match any regex
+    expect(isAuthRelated('https://auth.example.com/custom/oauth/exchange')).toBe(false);
+  });
 });
 
 describe('buildNetworkEvent', () => {
@@ -124,6 +171,26 @@ describe('buildNetworkEvent body capture', () => {
     if (event.data._tag !== 'network') throw new Error('not network');
     expect(event.data.requestBody).toBeUndefined();
     expect(event.data.responseBody).toBeUndefined();
+  });
+
+  it('parses form-urlencoded request body when content-type matches', () => {
+    const entry = {
+      request: {
+        url: 'https://auth.example.com/token',
+        method: 'POST',
+        headers: [{ name: 'content-type', value: 'application/x-www-form-urlencoded' }],
+        postData: { text: 'grant_type=authorization_code&code=abc123&client_id=myapp' },
+      },
+      response: { status: 200, headers: [] },
+      time: 50,
+    };
+    const event = buildNetworkEvent(entry, null);
+    if (event.data._tag !== 'network') throw new Error('not network');
+    expect(event.data.requestBody).toEqual({
+      grant_type: 'authorization_code',
+      code: 'abc123',
+      client_id: 'myapp',
+    });
   });
 
   it('returns undefined for empty body text', () => {

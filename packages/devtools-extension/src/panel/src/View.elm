@@ -346,4 +346,26 @@ viewToolbar model eventCount =
 
             Nothing ->
                 span [ class "no-flow" ] [ text "No active flow" ]
+        , viewConnectionStatus model.events
         ]
+
+
+viewConnectionStatus : List AuthEvent -> Html Msg
+viewConnectionStatus events =
+    let
+        hasSdkEvents =
+            List.any Helpers.isSdkNode events
+
+        hasOidcEvents =
+            List.any Helpers.hasOidcSemantics events
+    in
+    if hasSdkEvents then
+        span [ class "flow-chip" ]
+            [ span [ class "flow-chip-id", style "color" "#3FB950" ] [ text "SDK connected" ] ]
+
+    else if hasOidcEvents then
+        span [ class "flow-chip" ]
+            [ span [ class "flow-chip-id", style "color" "#58A6FF" ] [ text "OIDC detected" ] ]
+
+    else
+        text ""

@@ -1,6 +1,17 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["packages/*", "packages/sdk-effects/*"],
+  "entryPoints": [
+    "packages/davinci-client",
+    "packages/device-client",
+    "packages/devtools-bridge",
+    "packages/devtools-types",
+    "packages/journey-client",
+    "packages/oidc-client",
+    "packages/protect",
+    "packages/sdk-types",
+    "packages/sdk-utilities",
+    "packages/sdk-effects/*"
+  ],
   "entryPointStrategy": "packages",
   "out": "docs",
   "readme": "none",

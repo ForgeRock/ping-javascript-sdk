@@ -135,6 +135,61 @@ export const OidcDataSchema = Schema.Struct({
   errorMessage: Schema.optional(Schema.String),
 });
 
+export const OidcPkceSchema = Schema.Struct({
+  challengeMethod: Schema.String,
+  hasVerifier: Schema.Boolean,
+});
+
+export const OidcDpopSchema = Schema.Struct({
+  proofJwt: Schema.optional(Schema.String),
+  tokenType: Schema.optional(Schema.String),
+  nonce: Schema.optional(Schema.String),
+});
+
+export const OidcParSchema = Schema.Struct({
+  requestUri: Schema.optional(Schema.String),
+  expiresIn: Schema.optional(Schema.Number),
+});
+
+export const OidcTokensSchema = Schema.Struct({
+  accessToken: Schema.optional(Schema.Boolean),
+  refreshToken: Schema.optional(Schema.Boolean),
+  idToken: Schema.optional(Schema.Boolean),
+  tokenType: Schema.optional(Schema.String),
+  expiresIn: Schema.optional(Schema.Number),
+});
+
+export const OidcErrorSchema = Schema.Struct({
+  error: Schema.String,
+  errorDescription: Schema.optional(Schema.String),
+});
+
+export const OidcSemanticsSchema = Schema.Struct({
+  _tag: Schema.Literal('oidc-semantics'),
+  oidcPhase: Schema.Union(
+    Schema.Literal('discovery'),
+    Schema.Literal('authorize'),
+    Schema.Literal('par'),
+    Schema.Literal('token'),
+    Schema.Literal('userinfo'),
+    Schema.Literal('revocation'),
+    Schema.Literal('introspection'),
+    Schema.Literal('end-session'),
+    Schema.Literal('jwks'),
+  ),
+  grantType: Schema.optional(Schema.String),
+  pkce: Schema.optional(OidcPkceSchema),
+  dpop: Schema.optional(OidcDpopSchema),
+  par: Schema.optional(OidcParSchema),
+  state: Schema.optional(Schema.String),
+  nonce: Schema.optional(Schema.String),
+  clientId: Schema.optional(Schema.String),
+  tokens: Schema.optional(OidcTokensSchema),
+  error: Schema.optional(OidcErrorSchema),
+});
+
+export type OidcSemantics = Schema.Schema.Type<typeof OidcSemanticsSchema>;
+
 export const AuthEventSchema = Schema.Struct({
   id: Schema.String,
   timestamp: Schema.Number,
@@ -157,4 +212,5 @@ export const AuthEventSchema = Schema.Struct({
     OidcDataSchema,
   ),
   flags: AuthEventFlagsSchema,
+  oidcSemantics: Schema.optional(OidcSemanticsSchema),
 });

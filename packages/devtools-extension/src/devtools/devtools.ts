@@ -24,12 +24,23 @@ connect();
 chrome.devtools.panels.create('Ping DevTools', '', 'panel/panel.html', undefined);
 
 chrome.devtools.network.onRequestFinished.addListener((entry) => {
-  port?.postMessage({
-    type: 'NETWORK_EVENT',
-    payload: {
-      request: entry.request,
-      response: entry.response,
-      time: entry.time,
-    },
+  // getContent() is required to retrieve the response body — the HAR entry
+  // from onRequestFinished does NOT include content.text by default.
+  entry.getContent((body, _encoding) => {
+    const response = {
+      ...entry.response,
+      content: {
+        ...entry.response.content,
+        text: body ?? undefined,
+      },
+    };
+    port?.postMessage({
+      type: 'NETWORK_EVENT',
+      payload: {
+        request: entry.request,
+        response,
+        time: entry.time,
+      },
+    });
   });
 });

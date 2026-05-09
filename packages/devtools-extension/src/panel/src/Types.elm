@@ -12,10 +12,12 @@ module Types exposing
     , ImportMeta
     , InspectorTab(..)
     , JourneyData
+    , LearnLayout(..)
     , NetworkData
     , NodeData
     , NodeStatus(..)
     , OidcData
+    , OidcSemanticData
     , SdkAuthorization
     , SdkError
     , SessionData
@@ -84,6 +86,7 @@ type alias AuthEvent =
     , isAuthRelated : Bool
     , causedBy : Maybe String
     , data : EventData
+    , oidcSemantics : Maybe OidcSemanticData
     }
 
 
@@ -158,6 +161,21 @@ type alias SessionData =
     }
 
 
+type alias OidcSemanticData =
+    { oidcPhase : Maybe String
+    , grantType : Maybe String
+    , hasPkce : Bool
+    , hasDpop : Bool
+    , clientId : Maybe String
+    , stateParam : Maybe String
+    , hasTokens : Bool
+    , tokenType : Maybe String
+    , errorCode : Maybe String
+    , errorDescription : Maybe String
+    , parRequestUri : Maybe String
+    }
+
+
 type InspectorTab
     = DiagnosisTab
     | HeadersTab
@@ -167,6 +185,7 @@ type InspectorTab
     | CollectorsTab
     | SessionTab
     | ConfigTab
+    | OidcTab
 
 
 type FlowHealth
@@ -208,6 +227,20 @@ type CardId
     | ServerCard
     | SdkCard
     | FormCard
+    | ClientCard
+    | AuthServerCard
+    | TokenCard
+    | ResultCard
+    | ParCard
+    | CallbacksCard
+
+
+type LearnLayout
+    = DaVinciLayout
+    | JourneyLayout
+    | OidcCodeLayout
+    | OidcDpopLayout
+    | OidcParLayout
 
 
 type alias Vec2 =

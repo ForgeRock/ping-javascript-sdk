@@ -1,11 +1,21 @@
 import type { AuthEvent } from '@forgerock/devtools-types';
+import { decodeJwtPayload, findExpiredJwtsInHeaders } from '../shared/jwt-utils.js';
 
 export type Severity = 'error' | 'warning' | 'info';
+
+export type DiagnosisCategory =
+  | 'cors'
+  | 'token'
+  | 'flow-config'
+  | 'oidc'
+  | 'dpop'
+  | 'par'
+  | 'oidc-flow';
 
 export interface FlowIssue {
   id: string;
   severity: Severity;
-  category: 'cors' | 'token' | 'flow-config' | 'oidc';
+  category: DiagnosisCategory;
   title: string;
   description: string;
   steps: string[];
@@ -25,41 +35,6 @@ export interface DiagnosisResult {
   issues: FlowIssue[];
   annotatedEvents: Map<string, EventIssue[]>;
   flowHealth: 'healthy' | 'warning' | 'error';
-}
-
-// ─── JWT helpers ──────────────────────────────────────────────────────────────
-
-const JWT_PATTERN = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
-
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  const parts = token.split('.');
-  if (parts.length !== 3) return null;
-  try {
-    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(b64)) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-}
-
-function extractJwt(value: string): string | null {
-  const bearer = value.match(/^Bearer\s+([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/i);
-  if (bearer) return bearer[1];
-  if (JWT_PATTERN.test(value)) return value;
-  return null;
-}
-
-function findExpiredJwtsInHeaders(headers: Record<string, string>): string[] {
-  const expired: string[] = [];
-  for (const value of Object.values(headers)) {
-    const token = extractJwt(value);
-    if (!token) continue;
-    const payload = decodeJwtPayload(token);
-    if (payload && typeof payload['exp'] === 'number' && payload['exp'] * 1000 < Date.now()) {
-      expired.push(token);
-    }
-  }
-  return expired;
 }
 
 // ─── Deduplication helper ─────────────────────────────────────────────────────
@@ -390,6 +365,367 @@ function collectOidcIssues(events: readonly AuthEvent[]): IssueCandidate[] {
   return candidates;
 }
 
+// ─── OIDC Flow rules (network-first) ──────────────────────────────────────────
+
+function collectOidcFlowIssues(events: readonly AuthEvent[]): IssueCandidate[] {
+  const candidates: IssueCandidate[] = [];
+  const semanticEvents = events.filter((e) => e.oidcSemantics);
+
+  const authorizeEvents = semanticEvents.filter((e) => e.oidcSemantics?.oidcPhase === 'authorize');
+  const tokenEvents = semanticEvents.filter((e) => e.oidcSemantics?.oidcPhase === 'token');
+
+  // Flow-level checks: only warn if NO authorize event in the flow has PKCE
+  const anyAuthorizeHasPkce = authorizeEvents.some((e) => e.oidcSemantics?.pkce);
+  const anyAuthorizeHasPar = authorizeEvents.some((e) => e.oidcSemantics?.par);
+
+  if (authorizeEvents.length > 0 && !anyAuthorizeHasPkce && !anyAuthorizeHasPar) {
+    // Pick the most specific authorize event (has clientId, or first one)
+    const representative =
+      authorizeEvents.find((e) => e.oidcSemantics?.clientId) ?? authorizeEvents[0];
+    candidates.push({
+      dedupKey: `oidc:missing-pkce`,
+      eventId: representative.id,
+      issue: {
+        id: 'oidc:missing-pkce',
+        severity: 'warning',
+        category: 'oidc-flow',
+        title: 'Authorization request without PKCE',
+        description:
+          'The authorization request does not include a PKCE code_challenge. PKCE is recommended for all OAuth clients.',
+        steps: [
+          'Add code_challenge and code_challenge_method to the authorization request.',
+          'Use S256 as the code_challenge_method.',
+        ],
+      },
+    });
+  }
+
+  // Per-event checks that only apply to the "real" authorize request (one with clientId or query params)
+  for (const event of authorizeEvents) {
+    const sem = event.oidcSemantics!;
+    if (event.data._tag !== 'network') continue;
+    const url = event.data.url;
+
+    // Skip events that don't look like real authorize requests
+    // (no clientId detected and no query params with scope/response_type)
+    if (!sem.clientId && !url.includes('response_type=')) continue;
+
+    // Nonce missing with openid scope
+    if (url.includes('scope=') && url.includes('openid') && !sem.nonce) {
+      candidates.push({
+        dedupKey: `oidc:nonce-missing`,
+        eventId: event.id,
+        issue: {
+          id: 'oidc:nonce-missing',
+          severity: 'warning',
+          category: 'oidc-flow',
+          title: 'Missing nonce for OpenID Connect',
+          description:
+            'The authorization request includes the openid scope but no nonce parameter.',
+          steps: [
+            'Include a unique nonce value in the authorization request.',
+            'Verify the nonce in the returned id_token to prevent replay attacks.',
+          ],
+        },
+      });
+    }
+
+    // Implicit flow detection
+    if (url.includes('response_type=token') || url.includes('response_type=id_token')) {
+      candidates.push({
+        dedupKey: `oidc:implicit-flow`,
+        eventId: event.id,
+        issue: {
+          id: 'oidc:implicit-flow',
+          severity: 'warning',
+          category: 'oidc-flow',
+          title: 'Implicit flow detected',
+          description:
+            'The response_type includes "token" or "id_token", indicating the implicit flow. This is discouraged in favor of the authorization code flow with PKCE.',
+          steps: [
+            'Switch to response_type=code with PKCE.',
+            'The implicit flow exposes tokens in the URL fragment.',
+          ],
+        },
+      });
+    }
+  }
+
+  for (const event of tokenEvents) {
+    const sem = event.oidcSemantics!;
+
+    // Token request without code_verifier when authorize used PKCE
+    if (sem.grantType === 'authorization_code' && !sem.pkce?.hasVerifier) {
+      if (anyAuthorizeHasPkce) {
+        candidates.push({
+          dedupKey: `oidc:missing-pkce-verifier`,
+          eventId: event.id,
+          issue: {
+            id: 'oidc:missing-pkce-verifier',
+            severity: 'error',
+            category: 'oidc-flow',
+            title: 'Missing PKCE code_verifier',
+            description:
+              'The token request is missing code_verifier but the authorization request included code_challenge.',
+            steps: [
+              'Include the code_verifier in the token request body.',
+              'The code_verifier must match the code_challenge sent in the authorization request.',
+            ],
+          },
+        });
+      }
+    }
+  }
+
+  // Detect same auth code used multiple times
+  const codeUsage = new Map<string, string[]>();
+  for (const event of tokenEvents) {
+    if (
+      event.data._tag === 'network' &&
+      typeof event.data.requestBody === 'object' &&
+      event.data.requestBody !== null
+    ) {
+      const body = event.data.requestBody as Record<string, unknown>;
+      const code = body['code'];
+      if (typeof code === 'string') {
+        const existing = codeUsage.get(code) ?? [];
+        codeUsage.set(code, [...existing, event.id]);
+      }
+    }
+  }
+  for (const [code, eventIds] of codeUsage) {
+    if (eventIds.length > 1) {
+      candidates.push({
+        dedupKey: `oidc:expired-code:${code}`,
+        eventId: eventIds[1],
+        issue: {
+          id: 'oidc:expired-code',
+          severity: 'error',
+          category: 'oidc-flow',
+          title: 'Authorization code reused',
+          description:
+            'The same authorization code was used in multiple token requests. Authorization codes are single-use.',
+          steps: [
+            'Ensure the auth code is only used once.',
+            'Restart the flow to obtain a new authorization code.',
+          ],
+          relevantData: { code: code.slice(0, 16) + '...' },
+        },
+      });
+    }
+  }
+
+  return candidates;
+}
+
+// ─── DPoP rules ───────────────────────────────────────────────────────────────
+
+function collectDpopIssues(events: readonly AuthEvent[]): IssueCandidate[] {
+  const candidates: IssueCandidate[] = [];
+
+  for (const event of events) {
+    const sem = event.oidcSemantics;
+    if (!sem?.dpop) continue;
+
+    if (event.data._tag !== 'network') continue;
+    const { data } = event;
+
+    // Check DPoP proof structure
+    if (sem.dpop.proofJwt) {
+      const payload = decodeJwtPayload(sem.dpop.proofJwt);
+      if (payload) {
+        const requiredClaims = ['htm', 'htu', 'iat', 'jti'];
+        const missing = requiredClaims.filter((c) => !(c in payload));
+        if (missing.length > 0) {
+          candidates.push({
+            dedupKey: `dpop:invalid-structure:${event.id}`,
+            eventId: event.id,
+            issue: {
+              id: 'dpop:invalid-structure',
+              severity: 'error',
+              category: 'dpop',
+              title: 'DPoP proof missing required claims',
+              description: `The DPoP proof JWT is missing: ${missing.join(', ')}.`,
+              steps: [
+                'Include all required claims: htm, htu, iat, jti.',
+                'Add ath when using DPoP with resource requests.',
+              ],
+              relevantData: { 'missing-claims': missing.join(', ') },
+            },
+          });
+        }
+
+        // htm mismatch
+        if (typeof payload['htm'] === 'string' && payload['htm'] !== data.method) {
+          candidates.push({
+            dedupKey: `dpop:method-mismatch:${event.id}`,
+            eventId: event.id,
+            issue: {
+              id: 'dpop:method-mismatch',
+              severity: 'error',
+              category: 'dpop',
+              title: 'DPoP method mismatch',
+              description: `DPoP proof htm="${payload['htm']}" does not match actual method "${data.method}".`,
+              steps: ['The htm claim must match the HTTP method of the request.'],
+              relevantData: { htm: payload['htm'] as string, method: data.method },
+            },
+          });
+        }
+
+        // htu mismatch
+        if (typeof payload['htu'] === 'string') {
+          const htu = payload['htu'] as string;
+          const urlNoQuery = data.url.split('?')[0];
+          if (htu !== urlNoQuery && htu !== data.url) {
+            candidates.push({
+              dedupKey: `dpop:uri-mismatch:${event.id}`,
+              eventId: event.id,
+              issue: {
+                id: 'dpop:uri-mismatch',
+                severity: 'error',
+                category: 'dpop',
+                title: 'DPoP URI mismatch',
+                description: 'The DPoP proof htu does not match the request URL.',
+                steps: [
+                  'The htu claim must match the URL of the request (without query/fragment).',
+                ],
+                relevantData: { htu, url: urlNoQuery },
+              },
+            });
+          }
+        }
+      }
+    }
+
+    // DPoP nonce required error
+    if (sem.dpop.nonce && data.status === 400) {
+      const body = data.responseBody as Record<string, unknown> | null;
+      if (body && body['error'] === 'use_dpop_nonce') {
+        candidates.push({
+          dedupKey: `dpop:nonce-required:${event.id}`,
+          eventId: event.id,
+          issue: {
+            id: 'dpop:nonce-required',
+            severity: 'info',
+            category: 'dpop',
+            title: 'DPoP nonce required',
+            description:
+              'The server requires a DPoP nonce. The client should retry with the provided nonce.',
+            steps: [
+              'Include the DPoP-Nonce header value in the next DPoP proof.',
+              'This is expected behavior for server nonce enforcement.',
+            ],
+            relevantData: { nonce: sem.dpop.nonce },
+          },
+        });
+      }
+    }
+  }
+
+  // Check for token requests to DPoP servers missing DPoP header
+  const dpopServers = new Set<string>();
+  for (const event of events) {
+    if (event.oidcSemantics?.dpop?.tokenType?.toLowerCase() === 'dpop') {
+      if (event.data._tag === 'network') {
+        try {
+          dpopServers.add(new URL(event.data.url).origin);
+        } catch {
+          // ignore invalid URLs
+        }
+      }
+    }
+  }
+  for (const event of events) {
+    if (event.data._tag !== 'network') continue;
+    if (event.oidcSemantics?.oidcPhase !== 'token') continue;
+    if (event.data.requestHeaders['dpop']) continue;
+    try {
+      const origin = new URL(event.data.url).origin;
+      if (dpopServers.has(origin)) {
+        candidates.push({
+          dedupKey: `dpop:missing-proof:${event.id}`,
+          eventId: event.id,
+          issue: {
+            id: 'dpop:missing-proof',
+            severity: 'warning',
+            category: 'dpop',
+            title: 'Missing DPoP proof',
+            description:
+              'This token endpoint previously issued DPoP tokens but this request lacks a DPoP header.',
+            steps: ['Include a DPoP proof JWT in the DPoP header.'],
+          },
+        });
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return candidates;
+}
+
+// ─── PAR rules ────────────────────────────────────────────────────────────────
+
+function collectParIssues(events: readonly AuthEvent[]): IssueCandidate[] {
+  const candidates: IssueCandidate[] = [];
+
+  for (const event of events) {
+    const sem = event.oidcSemantics;
+    if (!sem) continue;
+
+    // PAR response missing request_uri
+    if (
+      sem.oidcPhase === 'par' &&
+      !sem.par?.requestUri &&
+      event.data._tag === 'network' &&
+      event.data.status < 400
+    ) {
+      candidates.push({
+        dedupKey: `par:missing-request-uri:${event.id}`,
+        eventId: event.id,
+        issue: {
+          id: 'par:missing-request-uri',
+          severity: 'error',
+          category: 'par',
+          title: 'PAR response missing request_uri',
+          description: 'The PAR endpoint returned a successful response but without a request_uri.',
+          steps: [
+            'Check the PAR endpoint configuration.',
+            'The response must include request_uri and expires_in.',
+          ],
+        },
+      });
+    }
+
+    // Authorize with both request_uri AND inline params
+    if (sem.oidcPhase === 'authorize' && sem.par?.requestUri && event.data._tag === 'network') {
+      const url = event.data.url;
+      const hasInlineParams =
+        url.includes('client_id=') || url.includes('redirect_uri=') || url.includes('scope=');
+      if (hasInlineParams) {
+        candidates.push({
+          dedupKey: `par:inline-params-with-request-uri:${event.id}`,
+          eventId: event.id,
+          issue: {
+            id: 'par:inline-params-with-request-uri',
+            severity: 'warning',
+            category: 'par',
+            title: 'Inline params with request_uri',
+            description:
+              'The authorization request includes both request_uri and inline parameters. Per RFC 9126, only request_uri and client_id should be present.',
+            steps: [
+              'Remove inline parameters (scope, redirect_uri, etc.) when using request_uri.',
+              'Only include request_uri and client_id in the authorization URL.',
+            ],
+          },
+        });
+      }
+    }
+  }
+
+  return candidates;
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 const SEVERITY_ORDER: Record<Severity, number> = { error: 0, warning: 1, info: 2 };
@@ -400,6 +736,9 @@ export function runFlowRules(events: readonly AuthEvent[]): FlowIssue[] {
     ...collectTokenIssues(events),
     ...collectFlowConfigIssues(events),
     ...collectOidcIssues(events),
+    ...collectOidcFlowIssues(events),
+    ...collectDpopIssues(events),
+    ...collectParIssues(events),
   ];
 
   return mergeByDedupKey(candidates).sort(

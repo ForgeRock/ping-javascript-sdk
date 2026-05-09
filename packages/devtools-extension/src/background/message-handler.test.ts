@@ -2,14 +2,16 @@ import { describe, it, expect, vi } from 'vitest';
 import { Effect, Ref, pipe } from 'effect';
 import { handleMessage } from './message-handler.js';
 import { EventStoreService, makeEmptyFlowState } from './event-store.service.js';
+import type { ExtendedFlowState } from './event-store.service.js';
 import type { AuthEvent, FlowState } from '@forgerock/devtools-types';
+import type { OidcConfig } from '../devtools/oidc-discovery.js';
 import { Layer } from 'effect';
 
 // A test-only Layer that replaces persist/rehydrate with no-ops (no chrome.storage)
 const TestStoreLive = Layer.effect(
   EventStoreService,
   pipe(
-    Ref.make<FlowState>(makeEmptyFlowState()),
+    Ref.make<ExtendedFlowState>(makeEmptyFlowState()),
     Effect.map((stateRef) => ({
       append: (event: AuthEvent) =>
         Ref.update(stateRef, (s) => ({
@@ -22,6 +24,10 @@ const TestStoreLive = Layer.effect(
       clear: () => Ref.set(stateRef, makeEmptyFlowState()),
       persist: () => Effect.void,
       rehydrate: () => Effect.void,
+      setOidcConfig: (config: OidcConfig) =>
+        Ref.update(stateRef, (s) => ({ ...s, oidcConfig: config })),
+      setLastOidcEventId: (id: string) =>
+        Ref.update(stateRef, (s) => ({ ...s, lastOidcEventId: id })),
     })),
   ),
 );

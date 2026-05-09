@@ -4,7 +4,8 @@ import type { FlowExport } from '@forgerock/devtools-types';
 import { redactFlowState } from '../export/redact.js';
 import { renderFlowMarkdown } from '../export/markdown.js';
 import { runDiagnosis } from '../background/diagnosis-engine.js';
-import { formatUnixTime, parseJwt } from './jwt.js';
+// jwt.ts is no longer used for DOM rendering — JWT decoding now happens
+// in Elm (JsonTree.elm). The jwt.ts module is kept for the test suite.
 
 declare const Elm: {
   Main: {
@@ -103,100 +104,6 @@ function initResizeHandles() {
   });
 }
 
-// ── JWT Decoder ───────────────────────────────────────────────────────────────
-
-function makeEl<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  classes: string[],
-  textContent?: string,
-): HTMLElementTagNameMap[K] {
-  const el = document.createElement(tag);
-  el.className = classes.join(' ');
-  if (textContent !== undefined) el.textContent = textContent;
-  return el;
-}
-
-function buildJwtValueNodes(key: string, val: unknown): Node[] {
-  const nodes: Node[] = [];
-  const isTimestamp = (key === 'exp' || key === 'iat' || key === 'nbf') && typeof val === 'number';
-
-  if (val === null) {
-    nodes.push(makeEl('span', ['jwt-v', 'jwt-v-null'], 'null'));
-  } else if (typeof val === 'boolean') {
-    nodes.push(makeEl('span', ['jwt-v', 'jwt-v-bool'], String(val)));
-  } else if (typeof val === 'number') {
-    nodes.push(makeEl('span', ['jwt-v', 'jwt-v-num'], String(val)));
-    if (isTimestamp) {
-      nodes.push(makeEl('span', ['jwt-v-date'], `(${formatUnixTime(val)})`));
-    }
-    if (key === 'exp' && val * 1000 < Date.now()) {
-      nodes.push(makeEl('span', ['jwt-expired'], '⚠ EXPIRED'));
-    }
-  } else if (typeof val === 'string') {
-    nodes.push(makeEl('span', ['jwt-v'], `"${val}"`));
-  } else {
-    nodes.push(makeEl('span', ['jwt-v'], JSON.stringify(val)));
-  }
-
-  return nodes;
-}
-
-function buildJwtSection(title: string, obj: Record<string, unknown>): DocumentFragment {
-  const frag = document.createDocumentFragment();
-
-  frag.appendChild(makeEl('div', ['jwt-section-hdr'], title));
-
-  for (const [k, v] of Object.entries(obj)) {
-    const row = makeEl('div', ['jwt-kv']);
-    row.appendChild(makeEl('span', ['jwt-k'], k));
-    for (const node of buildJwtValueNodes(k, v)) {
-      row.appendChild(node);
-    }
-    frag.appendChild(row);
-  }
-
-  return frag;
-}
-
-function buildJwtBody(jwt: string): HTMLElement {
-  const body = makeEl('div', ['jwt-body']);
-
-  try {
-    const { header, payload, signaturePreview } = parseJwt(jwt);
-
-    body.appendChild(buildJwtSection('Header', header));
-    body.appendChild(buildJwtSection('Claims', payload));
-    body.appendChild(makeEl('div', ['jwt-section-hdr'], 'Signature'));
-    body.appendChild(makeEl('span', ['jwt-sig'], `${signaturePreview} (not verified)`));
-  } catch (err) {
-    body.appendChild(makeEl('span', ['jwt-err'], `Could not decode JWT: ${String(err)}`));
-  }
-
-  return body;
-}
-
-function initJwtObserver(appRoot: HTMLElement) {
-  function processAll() {
-    appRoot.querySelectorAll<HTMLElement>('.jwt-pending[data-jwt]').forEach((el) => {
-      const jwt = el.getAttribute('data-jwt')!;
-      el.removeAttribute('data-jwt');
-      el.classList.remove('jwt-pending');
-      el.appendChild(buildJwtBody(jwt));
-    });
-  }
-
-  const observer = new MutationObserver(processAll);
-  observer.observe(appRoot, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['data-jwt'],
-  });
-
-  // Process any JWTs already in the DOM at init time
-  processAll();
-}
-
 // ── App init ──────────────────────────────────────────────────────────────────
 
 const app = Elm.Main.init({ node: document.getElementById('app'), flags: null });
@@ -223,9 +130,6 @@ function fallbackCopy(text: string): void {
 }
 
 const appRoot = document.getElementById('app');
-if (appRoot) {
-  initJwtObserver(appRoot);
-}
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'PANEL_EVENT') {

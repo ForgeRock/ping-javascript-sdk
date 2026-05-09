@@ -146,6 +146,19 @@ renderNetworkRow rowClass event =
                     else
                         text ""
 
+                oidcTag =
+                    case event.oidcSemantics of
+                        Just sem ->
+                            case sem.oidcPhase of
+                                Just phase ->
+                                    span [ class "tl-tag tag-oidc" ] [ text phase ]
+
+                                Nothing ->
+                                    text ""
+
+                        Nothing ->
+                            text ""
+
                 urlText =
                     Maybe.withDefault "—" net.url
             in
@@ -156,6 +169,7 @@ renderNetworkRow rowClass event =
                     [ text (Maybe.withDefault "" net.method) ]
                 , span [ class "tl-desc" ] [ text urlText ]
                 , corsTag
+                , oidcTag
                 , span [ class "tl-dur" ] [ text durationText ]
                 ]
 

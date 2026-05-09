@@ -16,58 +16,75 @@ import Update exposing (Msg(..))
 
 nodeStatusFromEvent : AuthEvent -> NodeStatus
 nodeStatusFromEvent event =
-    case event.data of
-        Oidc oidc ->
-            case oidc.status of
-                Just "success" ->
-                    Success
+    case event.oidcSemantics of
+        Just sem ->
+            if sem.errorCode /= Nothing then
+                StatusError
 
-                Just "error" ->
-                    StatusError
+            else if sem.hasTokens then
+                Success
+
+            else
+                Continue
+
+        Nothing ->
+            case event.data of
+                Oidc oidc ->
+                    case oidc.status of
+                        Just "success" ->
+                            Success
+
+                        Just "error" ->
+                            StatusError
+
+                        _ ->
+                            UnknownStatus
+
+                Journey journey ->
+                    case journey.stepType of
+                        Just "LoginSuccess" ->
+                            Success
+
+                        Just "LoginFailure" ->
+                            Failure
+
+                        Just "Step" ->
+                            Continue
+
+                        _ ->
+                            UnknownStatus
+
+                DaVinciNode node ->
+                    Maybe.withDefault UnknownStatus node.nodeStatus
 
                 _ ->
                     UnknownStatus
-
-        Journey journey ->
-            case journey.stepType of
-                Just "LoginSuccess" ->
-                    Success
-
-                Just "LoginFailure" ->
-                    Failure
-
-                Just "Step" ->
-                    Continue
-
-                _ ->
-                    UnknownStatus
-
-        DaVinciNode node ->
-            Maybe.withDefault UnknownStatus node.nodeStatus
-
-        _ ->
-            UnknownStatus
 
 
 nodeDisplayLabel : AuthEvent -> String
 nodeDisplayLabel event =
-    case event.data of
-        Oidc oidc ->
-            Maybe.withDefault "oidc" oidc.phase
+    case event.oidcSemantics of
+        Just sem ->
+            Maybe.withDefault "oidc" sem.oidcPhase
 
-        Journey journey ->
-            journey.stage
-                |> orMaybe journey.header
-                |> orMaybe journey.stepType
-                |> Maybe.withDefault "—"
+        Nothing ->
+            case event.data of
+                Oidc oidc ->
+                    Maybe.withDefault "oidc" oidc.phase
 
-        DaVinciNode node ->
-            node.nodeName
-                |> orMaybe node.eventName
-                |> Maybe.withDefault "—"
+                Journey journey ->
+                    journey.stage
+                        |> orMaybe journey.header
+                        |> orMaybe journey.stepType
+                        |> Maybe.withDefault "—"
 
-        _ ->
-            "—"
+                DaVinciNode node ->
+                    node.nodeName
+                        |> orMaybe node.eventName
+                        |> Maybe.withDefault "—"
+
+                _ ->
+                    "—"
 
 
 orMaybe : Maybe a -> Maybe a -> Maybe a

@@ -19,6 +19,7 @@ makeNetworkEvent id =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = Network (NetworkData (Just 200) (Just "https://x.com") (Just "GET") (Just 50) Nothing Nothing Nothing Nothing)
+    , oidcSemantics = Nothing
     }
 
 
@@ -34,6 +35,7 @@ makeSdkEvent id ts =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = DaVinciNode (NodeData (Just Continue) Nothing Nothing Nothing Nothing Nothing (Just "Username") Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing)
+    , oidcSemantics = Nothing
     }
 
 
@@ -49,6 +51,7 @@ makeJourneyEvent id ts =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = Journey (JourneyData (Just "Step") Nothing Nothing Nothing Nothing (Just "abc") Nothing Nothing Nothing Nothing Nothing)
+    , oidcSemantics = Nothing
     }
 
 
@@ -64,6 +67,7 @@ makeOidcEvent id ts =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = Oidc (OidcData (Just "authorize") (Just "success") Nothing Nothing Nothing)
+    , oidcSemantics = Nothing
     }
 
 
@@ -79,6 +83,7 @@ makeSessionEvent id =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = Session (SessionData (Just "token") (Just "old") (Just "new"))
+    , oidcSemantics = Nothing
     }
 
 
@@ -94,6 +99,7 @@ makeConfigEvent id =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = Config Nothing
+    , oidcSemantics = Nothing
     }
 
 

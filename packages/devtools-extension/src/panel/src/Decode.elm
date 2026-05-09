@@ -18,6 +18,7 @@ import Types
         , NodeData
         , NodeStatus(..)
         , OidcData
+        , OidcSemanticData
         , SdkAuthorization
         , SdkError
         , SessionData
@@ -191,6 +192,43 @@ decodeSessionData =
         |> optional "after" (JD.nullable JD.string) Nothing
 
 
+decodeOidcSemantics : JD.Decoder OidcSemanticData
+decodeOidcSemantics =
+    JD.succeed OidcSemanticData
+        |> optional "oidcPhase" (JD.nullable JD.string) Nothing
+        |> optional "grantType" (JD.nullable JD.string) Nothing
+        |> Json.Decode.Pipeline.custom
+            (JD.maybe (JD.field "pkce" JD.value)
+                |> JD.map (\v -> v /= Nothing)
+            )
+        |> Json.Decode.Pipeline.custom
+            (JD.maybe (JD.field "dpop" JD.value)
+                |> JD.map (\v -> v /= Nothing)
+            )
+        |> optional "clientId" (JD.nullable JD.string) Nothing
+        |> optional "state" (JD.nullable JD.string) Nothing
+        |> Json.Decode.Pipeline.custom
+            (JD.maybe (JD.field "tokens" JD.value)
+                |> JD.map (\v -> v /= Nothing)
+            )
+        |> Json.Decode.Pipeline.custom
+            (JD.maybe (JD.at [ "tokens", "tokenType" ] JD.string)
+                |> JD.map (\v -> v)
+            )
+        |> Json.Decode.Pipeline.custom
+            (JD.maybe (JD.at [ "error", "error" ] JD.string)
+                |> JD.map (\v -> v)
+            )
+        |> Json.Decode.Pipeline.custom
+            (JD.maybe (JD.at [ "error", "errorDescription" ] JD.string)
+                |> JD.map (\v -> v)
+            )
+        |> Json.Decode.Pipeline.custom
+            (JD.maybe (JD.at [ "par", "requestUri" ] JD.string)
+                |> JD.map (\v -> v)
+            )
+
+
 decodeEventData : EventKind -> JD.Decoder EventData
 decodeEventData kind =
     case kind of
@@ -242,6 +280,7 @@ decodeAuthEvent =
                                 |> Json.Decode.Pipeline.custom (JD.at [ "flags", "isAuthRelated" ] JD.bool)
                                 |> required "causedBy" (JD.nullable JD.string)
                                 |> Json.Decode.Pipeline.custom (decodeEventData kind)
+                                |> optional "oidcSemantics" (JD.nullable decodeOidcSemantics) Nothing
                         )
             )
 

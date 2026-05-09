@@ -26,6 +26,7 @@ makeSdkEvent id ts =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = DaVinciNode (NodeData (Just Continue) Nothing Nothing Nothing Nothing Nothing (Just "Username") Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing)
+    , oidcSemantics = Nothing
     }
 
 
@@ -41,6 +42,7 @@ makeNetworkEvent id =
     , isAuthRelated = True
     , causedBy = Nothing
     , data = Network (NetworkData (Just 200) (Just "https://x.com") (Just "GET") (Just 50) Nothing Nothing Nothing Nothing)
+    , oidcSemantics = Nothing
     }
 
 
@@ -664,6 +666,7 @@ selectEventTabTests =
                         , isAuthRelated = True
                         , causedBy = Nothing
                         , data = Config Nothing
+                        , oidcSemantics = Nothing
                         }
 
                     modelWithConfig =

@@ -7,7 +7,7 @@ import Html.Events exposing (onClick)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import JsonTree
-import Types exposing (AuthEvent, DiagnosisResult, EventData(..), EventIssue, EventKind(..), EventSource(..), InspectorTab(..), NetworkData, NodeData, NodeStatus(..), SdkAuthorization, SdkError, SessionData, Severity(..))
+import Types exposing (AuthEvent, DiagnosisResult, EventData(..), EventIssue, EventKind(..), EventSource(..), InspectorTab(..), NetworkData, NodeData, NodeStatus(..), OidcSemanticData, SdkAuthorization, SdkError, SessionData, Severity(..))
 import Update exposing (Msg(..))
 
 
@@ -59,6 +59,14 @@ viewTabs maybeEvent activeTab maybeDiagnosis =
                 Nothing ->
                     False
 
+        hasOidcSemantics =
+            case maybeEvent of
+                Just event ->
+                    event.oidcSemantics /= Nothing
+
+                Nothing ->
+                    False
+
         issues =
             eventIssues maybeEvent maybeDiagnosis
 
@@ -98,6 +106,12 @@ viewTabs maybeEvent activeTab maybeDiagnosis =
                )
             ++ (if isConfigEvent then
                     [ tabButton "Config" ConfigTab activeTab ]
+
+                else
+                    []
+               )
+            ++ (if hasOidcSemantics then
+                    [ tabButton "OIDC" OidcTab activeTab ]
 
                 else
                     []
@@ -224,6 +238,14 @@ viewContent maybeEvent activeTab maybeDiagnosis =
 
                 _ ->
                     div [ class "insp-empty" ] [ text "No config data for this event type." ]
+
+        ( Just event, OidcTab ) ->
+            case event.oidcSemantics of
+                Just sem ->
+                    div [] (viewOidcSemantics sem)
+
+                Nothing ->
+                    div [ class "insp-empty" ] [ text "No OIDC semantics for this event." ]
 
 
 viewSdkState : NodeData -> Html Msg
@@ -527,6 +549,111 @@ viewConfig maybeCfg =
 
         Just cfg ->
             [ JsonTree.view "SDK Config" cfg ]
+
+
+viewOidcSemantics : OidcSemanticData -> List (Html Msg)
+viewOidcSemantics sem =
+    let
+        phaseRow =
+            case sem.oidcPhase of
+                Just phase ->
+                    [ viewRow "Phase"
+                        (span [ class "kv-val kv-bold" ] [ text phase ])
+                    ]
+
+                Nothing ->
+                    []
+
+        grantRow =
+            case sem.grantType of
+                Just gt ->
+                    [ viewRow "Grant Type" (span [ class "kv-val" ] [ text gt ]) ]
+
+                Nothing ->
+                    []
+
+        clientRow =
+            case sem.clientId of
+                Just cid ->
+                    [ viewRow "Client ID" (span [ class "kv-val" ] [ text cid ]) ]
+
+                Nothing ->
+                    []
+
+        stateRow =
+            case sem.stateParam of
+                Just s ->
+                    [ viewRow "State" (span [ class "kv-val" ] [ text s ]) ]
+
+                Nothing ->
+                    []
+
+        pkceRow =
+            if sem.hasPkce then
+                [ viewRow "PKCE" (span [ class "kv-val kv-ok" ] [ text "Enabled" ]) ]
+
+            else
+                []
+
+        dpopRow =
+            if sem.hasDpop then
+                [ viewRow "DPoP" (span [ class "kv-val kv-ok" ] [ text "Proof attached" ]) ]
+
+            else
+                []
+
+        tokenRow =
+            if sem.hasTokens then
+                [ viewRow "Tokens"
+                    (span [ class "kv-val kv-ok" ]
+                        [ text
+                            (case sem.tokenType of
+                                Just tt ->
+                                    "Received (" ++ tt ++ ")"
+
+                                Nothing ->
+                                    "Received"
+                            )
+                        ]
+                    )
+                ]
+
+            else
+                []
+
+        parRow =
+            case sem.parRequestUri of
+                Just uri ->
+                    [ viewRow "PAR request_uri" (span [ class "kv-val" ] [ text uri ]) ]
+
+                Nothing ->
+                    []
+
+        errorRows =
+            case sem.errorCode of
+                Just code ->
+                    [ viewRow "Error" (span [ class "kv-val kv-err kv-bold" ] [ text code ]) ]
+                        ++ (case sem.errorDescription of
+                                Just desc ->
+                                    [ viewRow "Description" (span [ class "kv-val" ] [ text desc ]) ]
+
+                                Nothing ->
+                                    []
+                           )
+
+                Nothing ->
+                    []
+    in
+    [ div [ class "sect-hdr" ] [ text "OIDC Semantics" ] ]
+        ++ phaseRow
+        ++ grantRow
+        ++ clientRow
+        ++ stateRow
+        ++ pkceRow
+        ++ dpopRow
+        ++ tokenRow
+        ++ parRow
+        ++ errorRows
 
 
 viewEventIssue : EventIssue -> Html Msg

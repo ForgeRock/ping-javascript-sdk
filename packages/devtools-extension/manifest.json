@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Ping DevTools",
   "version": "0.1.0",
-  "description": "Debug ForgeRock AM and PingOne auth flows",
+  "description": "Debug OIDC/OAuth2 auth flows — works standalone or with the Ping SDK",
   "permissions": ["storage", "clipboardWrite", "clipboardRead"],
   "host_permissions": ["<all_urls>"],
   "devtools_page": "devtools.html",

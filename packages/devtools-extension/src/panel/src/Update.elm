@@ -101,6 +101,12 @@ update msg model =
                             else
                                 ConfigTab
 
+                        ( OidcTab, Just e ) ->
+                            if e.oidcSemantics == Nothing then
+                                HeadersTab
+                            else
+                                OidcTab
+
                         _ ->
                             model.activeTab
             in
@@ -555,3 +561,21 @@ cardIdToString cardId =
 
         FormCard ->
             "form"
+
+        ClientCard ->
+            "client"
+
+        AuthServerCard ->
+            "authserver"
+
+        TokenCard ->
+            "token"
+
+        ResultCard ->
+            "result"
+
+        ParCard ->
+            "par"
+
+        CallbacksCard ->
+            "callbacks"
