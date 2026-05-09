@@ -1,8 +1,12 @@
 module Types exposing
     ( AuthEvent
+    , CanvasState
+    , CardId(..)
     , DiagnosisResult
     , EventData(..)
     , EventIssue
+    , EventKind(..)
+    , EventSource(..)
     , FlowHealth(..)
     , FlowIssue
     , ImportMeta
@@ -10,15 +14,49 @@ module Types exposing
     , JourneyData
     , NetworkData
     , NodeData
+    , NodeStatus(..)
     , OidcData
     , SdkAuthorization
     , SdkError
     , SessionData
+    , Severity(..)
     , SnapshotMeta
+    , Vec2
     , ViewMode(..)
     )
 
 import Json.Decode as Decode
+
+
+type Severity
+    = SevError
+    | SevWarning
+    | SevInfo
+
+
+type NodeStatus
+    = Continue
+    | Success
+    | StatusError
+    | Failure
+    | UnknownStatus
+
+
+type EventKind
+    = NodeChange
+    | JourneyStep
+    | OidcState
+    | SdkConfig
+    | NetworkEvent
+    | SessionEvent
+    | OtherKind String
+
+
+type EventSource
+    = NetworkSource
+    | SdkSource
+    | SessionSource
+    | OtherSource String
 
 
 type alias SdkError =
@@ -38,8 +76,8 @@ type alias SdkAuthorization =
 type alias AuthEvent =
     { id : String
     , timestamp : Float
-    , eventType : String
-    , source : String
+    , kind : EventKind
+    , source : EventSource
     , flowId : Maybe String
     , isCors : Bool
     , isError : Bool
@@ -71,8 +109,8 @@ type alias NetworkData =
 
 
 type alias NodeData =
-    { nodeStatus : Maybe String
-    , previousStatus : Maybe String
+    { nodeStatus : Maybe NodeStatus
+    , previousStatus : Maybe NodeStatus
     , interactionId : Maybe String
     , interactionToken : Maybe String
     , nodeId : Maybe String
@@ -138,7 +176,7 @@ type FlowHealth
 
 
 type alias EventIssue =
-    { severity : String
+    { severity : Severity
     , title : String
     , description : String
     , steps : List String
@@ -148,7 +186,7 @@ type alias EventIssue =
 
 type alias FlowIssue =
     { id : String
-    , severity : String
+    , severity : Severity
     , category : String
     , title : String
     , description : String
@@ -165,9 +203,35 @@ type alias DiagnosisResult =
     }
 
 
+type CardId
+    = BrowserCard
+    | ServerCard
+    | SdkCard
+    | FormCard
+
+
+type alias Vec2 =
+    { x : Float, y : Float }
+
+
+type alias CanvasState =
+    { zoom : Float
+    , panX : Float
+    , panY : Float
+    , cardPositions : List ( String, Vec2 )
+    , expandedCard : Maybe CardId
+    , dragTarget : Maybe CardId
+    , dragStart : Maybe Vec2
+    , isPanning : Bool
+    , panStart : Maybe Vec2
+    , learnSelectedNodeId : Maybe String
+    }
+
+
 type ViewMode
     = TimelineMode
     | FlowMode
+    | LearnMode
 
 
 type alias ImportMeta =

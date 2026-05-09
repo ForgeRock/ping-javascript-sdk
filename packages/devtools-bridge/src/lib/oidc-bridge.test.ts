@@ -310,3 +310,217 @@ describe('attachOidcBridge', () => {
     expect(events).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Edge-case tests for pure function paths (extractOidcError, mutationToOidcData)
+// ---------------------------------------------------------------------------
+
+describe('extractOidcError (via integration)', () => {
+  beforeEach(() => {
+    (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'] = true;
+  });
+
+  afterEach(() => {
+    delete (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'];
+  });
+
+  it('extracts error_description from error.data', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+    client.trigger({
+      oidc: {
+        mutations: {
+          'req-1': rejectedMutation('exchange', {
+            data: { error: 'invalid_grant', error_description: 'Code expired' },
+          }),
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorCode?: string; errorMessage?: string };
+    expect(data.errorCode).toBe('invalid_grant');
+    expect(data.errorMessage).toBe('Code expired');
+  });
+
+  it('falls back to data.message when error_description is absent', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+    client.trigger({
+      oidc: {
+        mutations: {
+          'req-1': rejectedMutation('exchange', {
+            data: { message: 'Server error' },
+          }),
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorCode?: string; errorMessage?: string };
+    expect(data.errorCode).toBeUndefined();
+    expect(data.errorMessage).toBe('Server error');
+  });
+
+  it('falls back to top-level message when no data object', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+    client.trigger({
+      oidc: {
+        mutations: {
+          'req-1': rejectedMutation('exchange', { message: 'Top level error' }),
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorMessage?: string };
+    expect(data.errorMessage).toBe('Top level error');
+  });
+
+  it('extracts string error as errorMessage', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+    client.trigger({
+      oidc: {
+        mutations: {
+          'req-1': rejectedMutation('exchange', 'plain string error'),
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorMessage?: string; errorCode?: string };
+    expect(data.errorMessage).toBe('plain string error');
+    expect(data.errorCode).toBeUndefined();
+  });
+
+  it('returns empty error fields for null error', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+    client.trigger({
+      oidc: {
+        mutations: {
+          'req-1': rejectedMutation('exchange', null),
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorCode?: string; errorMessage?: string };
+    expect(data.errorCode).toBeUndefined();
+    expect(data.errorMessage).toBeUndefined();
+  });
+
+  it('returns empty error fields for undefined error', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+    client.trigger({
+      oidc: {
+        mutations: {
+          'req-1': { status: 'rejected', endpointName: 'exchange' },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorCode?: string; errorMessage?: string };
+    expect(data.errorCode).toBeUndefined();
+    expect(data.errorMessage).toBeUndefined();
+  });
+});
+
+describe('mutationToOidcData edge cases (via integration)', () => {
+  beforeEach(() => {
+    (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'] = true;
+  });
+
+  afterEach(() => {
+    delete (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'];
+  });
+
+  it('does not emit for mutation with undefined endpointName', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+    client.trigger({
+      oidc: {
+        mutations: {
+          'req-1': { status: 'fulfilled' },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    expect(events).toHaveLength(0);
+  });
+
+  it('trims stale requestIds from emitted set', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client);
+
+    // First trigger: add req-1
+    client.trigger({
+      oidc: { mutations: { 'req-1': fulfilledMutation('exchange') } },
+    });
+
+    // Second trigger: req-1 removed, req-2 added
+    client.trigger({
+      oidc: { mutations: { 'req-2': fulfilledMutation('revoke') } },
+    });
+
+    handle.detach();
+    stop();
+
+    const oidcEvents = events.filter((e) => e.detail.type === 'sdk:oidc-state');
+    expect(oidcEvents).toHaveLength(2);
+    expect((oidcEvents[0].detail.data as { phase: string }).phase).toBe('exchange');
+    expect((oidcEvents[1].detail.data as { phase: string }).phase).toBe('revoke');
+  });
+
+  it('passes undefined clientId when config has no clientId', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachOidcBridge(client, {});
+    client.trigger({
+      oidc: { mutations: { 'req-1': fulfilledMutation('exchange') } },
+    });
+
+    handle.detach();
+    stop();
+
+    const oidcEvent = events.find((e) => e.detail.type === 'sdk:oidc-state');
+    const data = oidcEvent?.detail.data as { clientId?: string };
+    expect(data.clientId).toBeUndefined();
+  });
+});

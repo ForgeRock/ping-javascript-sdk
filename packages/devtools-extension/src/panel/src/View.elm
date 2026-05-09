@@ -9,7 +9,7 @@ import Html.Events exposing (onClick, onInput)
 import Inspector
 import Model exposing (Model)
 import Timeline
-import Types exposing (AuthEvent, FlowHealth(..), FlowIssue, ImportMeta, SnapshotMeta, ViewMode(..))
+import Types exposing (AuthEvent, FlowHealth(..), FlowIssue, ImportMeta, Severity(..), SnapshotMeta, ViewMode(..))
 import Update exposing (Msg(..))
 
 
@@ -56,6 +56,12 @@ view model =
                         ]
                     , div [ class "inspector-panel" ]
                         [ Inspector.view selectedEvent model.activeTab model.diagnosis ]
+                    ]
+
+            LearnMode ->
+                div [ class "fv-view" ]
+                    [ div [ class "fv-detail fv-detail-empty" ]
+                        [ text "Learn view coming soon" ]
                     ]
         ]
 
@@ -239,11 +245,10 @@ viewFlowIssue issue =
     let
         ( issueClass, icon ) =
             case issue.severity of
-                "error"   -> ( "fh-issue fh-issue-error", "✕ " )
-                "warning" -> ( "fh-issue fh-issue-warning", "⚠ " )
-                _         -> ( "fh-issue fh-issue-info", "ℹ " )
+                SevError   -> ( "fh-issue fh-issue-error", "✕ " )
+                SevWarning -> ( "fh-issue fh-issue-warning", "⚠ " )
+                SevInfo    -> ( "fh-issue fh-issue-info", "ℹ " )
 
-        -- Clicking the issue jumps to the first related event
         firstEventId =
             List.head issue.relatedEventIds
     in
