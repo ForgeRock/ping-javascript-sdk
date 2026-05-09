@@ -2,21 +2,8 @@ import { ManagedRuntime, Effect } from 'effect';
 import { EventStoreLive, EventStoreService } from './event-store.service.js';
 import { handleMessage } from './message-handler.js';
 import { runDiagnosis } from './diagnosis-engine.js';
-import type { DiagnosisResult, FlowIssue, EventIssue } from './diagnosis-engine.js';
-
-interface SerializableDiagnosisResult {
-  issues: FlowIssue[];
-  annotatedEvents: Record<string, EventIssue[]>;
-  flowHealth: 'healthy' | 'warning' | 'error';
-}
-
-function serializeDiagnosis(diagnosis: DiagnosisResult): SerializableDiagnosisResult {
-  return {
-    issues: diagnosis.issues,
-    annotatedEvents: Object.fromEntries(diagnosis.annotatedEvents),
-    flowHealth: diagnosis.flowHealth,
-  };
-}
+import { serializeDiagnosis } from './serialize-diagnosis.js';
+import type { SerializableDiagnosisResult } from './serialize-diagnosis.js';
 
 const AppLayer = EventStoreLive;
 let runtime = ManagedRuntime.make(AppLayer);

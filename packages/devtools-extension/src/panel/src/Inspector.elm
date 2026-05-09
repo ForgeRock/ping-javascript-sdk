@@ -7,7 +7,7 @@ import Html.Events exposing (onClick)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import JsonTree
-import Types exposing (AuthEvent, DiagnosisResult, EventData(..), EventIssue, InspectorTab(..), NetworkData, NodeData, SessionData, SdkAuthorization, SdkError)
+import Types exposing (AuthEvent, DiagnosisResult, EventData(..), EventIssue, EventKind(..), EventSource(..), InspectorTab(..), NetworkData, NodeData, NodeStatus(..), SdkAuthorization, SdkError, SessionData, Severity(..))
 import Update exposing (Msg(..))
 
 
@@ -38,12 +38,7 @@ viewTabs maybeEvent activeTab maybeDiagnosis =
         isSdkEvent =
             case maybeEvent of
                 Just event ->
-                    case event.data of
-                        DaVinciNode _ ->
-                            True
-
-                        _ ->
-                            False
+                    event.kind == NodeChange
 
                 Nothing ->
                     False
@@ -51,12 +46,7 @@ viewTabs maybeEvent activeTab maybeDiagnosis =
         isSessionEvent =
             case maybeEvent of
                 Just event ->
-                    case event.data of
-                        Session _ ->
-                            True
-
-                        _ ->
-                            False
+                    event.source == SessionSource
 
                 Nothing ->
                     False
@@ -64,12 +54,7 @@ viewTabs maybeEvent activeTab maybeDiagnosis =
         isConfigEvent =
             case maybeEvent of
                 Just event ->
-                    case event.data of
-                        Config _ ->
-                            True
-
-                        _ ->
-                            False
+                    event.kind == SdkConfig
 
                 Nothing ->
                     False
@@ -81,7 +66,7 @@ viewTabs maybeEvent activeTab maybeDiagnosis =
             not (List.isEmpty issues)
 
         diagnosisTabLabel =
-            if List.any (\i -> i.severity == "error") issues then
+            if List.any (\i -> i.severity == SevError) issues then
                 "Diagnosis ●"
 
             else
@@ -251,6 +236,16 @@ viewSdkState node =
         )
 
 
+nodeStatusValClass : NodeStatus -> String
+nodeStatusValClass status =
+    case status of
+        StatusError -> "kv-val kv-bold kv-err"
+        Failure     -> "kv-val kv-bold kv-err"
+        Success     -> "kv-val kv-bold kv-ok"
+        Continue    -> "kv-val kv-bold kv-cont"
+        UnknownStatus -> "kv-val"
+
+
 viewNodeSection : NodeData -> List (Html Msg)
 viewNodeSection node =
     let
@@ -258,25 +253,20 @@ viewNodeSection node =
             case node.nodeStatus of
                 Just s ->
                     let
-                        valClass =
-                            case s of
-                                "error"    -> "kv-val kv-bold kv-err"
-                                "failure"  -> "kv-val kv-bold kv-err"
-                                "success"  -> "kv-val kv-bold kv-ok"
-                                "continue" -> "kv-val kv-bold kv-cont"
-                                _          -> "kv-val"
+                        label =
+                            Helpers.nodeStatusLabel s
 
                         arrow =
                             case node.previousStatus of
                                 Just prev ->
                                     span []
-                                        [ span [ class "kv-arrow" ] [ text (prev ++ " ") ]
+                                        [ span [ class "kv-arrow" ] [ text (Helpers.nodeStatusLabel prev ++ " ") ]
                                         , span [ class "kv-arrow" ] [ text "→ " ]
-                                        , span [ class valClass ] [ text s ]
+                                        , span [ class (nodeStatusValClass s) ] [ text label ]
                                         ]
 
                                 Nothing ->
-                                    span [ class valClass ] [ text s ]
+                                    span [ class (nodeStatusValClass s) ] [ text label ]
                     in
                     [ viewRow "Status" arrow ]
 
@@ -544,15 +534,15 @@ viewEventIssue issue =
     let
         severityClass =
             case issue.severity of
-                "error"   -> "diag-issue diag-issue-error"
-                "warning" -> "diag-issue diag-issue-warning"
-                _         -> "diag-issue diag-issue-info"
+                SevError   -> "diag-issue diag-issue-error"
+                SevWarning -> "diag-issue diag-issue-warning"
+                SevInfo    -> "diag-issue diag-issue-info"
 
         severityIcon =
             case issue.severity of
-                "error"   -> "✕ "
-                "warning" -> "⚠ "
-                _         -> "ℹ "
+                SevError   -> "✕ "
+                SevWarning -> "⚠ "
+                SevInfo    -> "ℹ "
 
         stepItems =
             List.indexedMap

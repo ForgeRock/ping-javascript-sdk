@@ -7,7 +7,7 @@ import Json.Decode as JD
 import Svg exposing (..)
 import Svg.Attributes as SA
 import Svg.Events
-import Types exposing (AuthEvent, CanvasState, CardId(..), EventData(..), NetworkData, NodeData)
+import Types exposing (AuthEvent, CanvasState, CardId(..), EventData(..), NetworkData, NodeData, SdkError)
 import Update exposing (Msg(..))
 
 
@@ -226,13 +226,66 @@ viewCanvas events canvas =
                 responseEvent =
                     List.head (List.reverse netEvents)
 
-                hasError =
+                -- Error attribution: where did the error originate?
+                sdkNodeError =
                     case maybeNode of
                         Just n ->
-                            n.isError
+                            case n.data of
+                                DaVinciNode nd ->
+                                    nd.sdkError
+
+                                _ ->
+                                    Nothing
+
+                        Nothing ->
+                            Nothing
+
+                sdkNodeStatus =
+                    case maybeNode of
+                        Just n ->
+                            case n.data of
+                                DaVinciNode nd ->
+                                    nd.nodeStatus
+
+                                _ ->
+                                    Nothing
+
+                        Nothing ->
+                            Nothing
+
+                serverHasError =
+                    case responseEvent of
+                        Just re ->
+                            case re.data of
+                                Network nd ->
+                                    case nd.status of
+                                        Just s ->
+                                            s >= 400
+
+                                        Nothing ->
+                                            False
+
+                                _ ->
+                                    False
 
                         Nothing ->
                             False
+
+                sdkHasError =
+                    sdkNodeError /= Nothing
+                        || sdkNodeStatus == Just Types.StatusError
+                        || sdkNodeStatus == Just Types.Failure
+
+                corsError =
+                    case maybeNode of
+                        Just n ->
+                            n.isCors
+
+                        Nothing ->
+                            False
+
+                anyError =
+                    serverHasError || sdkHasError || corsError
 
                 hasCollectors =
                     case maybeNode of
@@ -260,37 +313,22 @@ viewCanvas events canvas =
                         Nothing ->
                             "POST"
 
+                responseStatusCode =
+                    case responseEvent of
+                        Just re ->
+                            case re.data of
+                                Network nd ->
+                                    nd.status
+
+                                _ ->
+                                    Nothing
+
+                        Nothing ->
+                            Nothing
+
                 responseStatus =
-                    case responseEvent of
-                        Just re ->
-                            case re.data of
-                                Network nd ->
-                                    Maybe.map String.fromInt nd.status
-                                        |> Maybe.withDefault "—"
-
-                                _ ->
-                                    "—"
-
-                        Nothing ->
-                            "—"
-
-                serverHasError =
-                    case responseEvent of
-                        Just re ->
-                            case re.data of
-                                Network nd ->
-                                    case nd.status of
-                                        Just s ->
-                                            s >= 400
-
-                                        Nothing ->
-                                            False
-
-                                _ ->
-                                    False
-
-                        Nothing ->
-                            False
+                    Maybe.map String.fromInt responseStatusCode
+                        |> Maybe.withDefault "—"
 
                 noNetEvents =
                     List.isEmpty netEvents
@@ -326,7 +364,7 @@ viewCanvas events canvas =
                     ]
                     [ canvasDefs
                     , Svg.g [ SA.transform transform ]
-                        (renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMethod responseStatus maybeNode requestEvent responseEvent)
+                        (renderCards canvas serverHasError sdkHasError corsError hasCollectors noNetEvents requestMethod responseStatus maybeNode requestEvent responseEvent sdkNodeError)
                     ]
                 ]
 
@@ -351,9 +389,12 @@ canvasDefs =
         ]
 
 
-renderCards : CanvasState -> Bool -> Bool -> Bool -> Bool -> String -> String -> Maybe AuthEvent -> Maybe AuthEvent -> Maybe AuthEvent -> List (Svg Msg)
-renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMethod responseStatus maybeNode requestEvent responseEvent =
+renderCards : CanvasState -> Bool -> Bool -> Bool -> Bool -> Bool -> String -> String -> Maybe AuthEvent -> Maybe AuthEvent -> Maybe AuthEvent -> Maybe SdkError -> List (Svg Msg)
+renderCards canvas serverHasError sdkHasError corsError hasCollectors noNetEvents requestMethod responseStatus maybeNode requestEvent responseEvent sdkNodeError =
     let
+        anyError =
+            serverHasError || sdkHasError || corsError
+
         cardW =
             160
 
@@ -429,8 +470,10 @@ renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMeth
         fH =
             toFloat cardH
 
+        -- Card border colors: only the error SOURCE gets red,
+        -- downstream cards show propagated red (dimmer)
         browserBorder =
-            if hasError then
+            if corsError then
                 "#F85149"
 
             else
@@ -444,97 +487,158 @@ renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMeth
                 "#484F58"
 
         sdkBorder =
-            if hasError then
+            if sdkHasError && not serverHasError then
+                -- SDK is the error source (not just receiving a server error)
                 "#F85149"
+
+            else if serverHasError then
+                -- SDK received an error from server (propagated, not source)
+                "#b44a44"
 
             else
                 "#3FB950"
 
         formBorder =
-            if not hasCollectors then
+            if anyError then
+                "#484F58"
+
+            else if not hasCollectors then
                 "#484F58"
 
             else
                 "#A371F7"
 
         formOpacity =
-            if hasCollectors then
+            if hasCollectors && not anyError then
                 "1"
 
             else
                 "0.4"
 
         formDash =
-            if hasCollectors then
+            if hasCollectors && not anyError then
                 ""
 
             else
                 "4,4"
+
+        -- Arrow colors
+        requestArrowColor =
+            if corsError then
+                "#F85149"
+
+            else
+                "#58A6FF"
+
+        responseArrowColor =
+            if serverHasError then
+                "#F85149"
+
+            else
+                "#3FB950"
+
+        responseArrowLabel =
+            if serverHasError then
+                "✕ " ++ responseStatus
+
+            else
+                "← " ++ responseStatus
+
+        sdkContextLine =
+            if sdkHasError && not serverHasError then
+                "Error in SDK"
+
+            else if serverHasError then
+                "Received error"
+
+            else
+                "Processes response"
+
+        formContextLine =
+            if anyError then
+                "Skipped"
+
+            else if hasCollectors then
+                "Collects input"
+
+            else
+                "No collectors"
+
+        -- Error pulse: which card is the source?
+        pulseTarget =
+            if corsError then
+                Just ( bx, by )
+
+            else if serverHasError then
+                Just ( sx, sy )
+
+            else if sdkHasError then
+                Just ( sdx, sdy )
+
+            else
+                Nothing
     in
     [ -- Browser card
       renderCard BrowserCard bx by fW fH browserBorder "1" "" canvas.expandedCard
         (browserIcon (bx + 30) (by + 20))
         "BROWSER"
-        "User interaction"
+        (if corsError then "CORS blocked" else "Sends request")
     , expandedPanel BrowserCard bx (by + fH + 8) fW canvas.expandedCard
-        (browserDetail requestEvent)
+        (browserDetail requestEvent corsError)
 
     -- Arrow: Browser -> Server
-    , renderArrowLine (bx + fW) (by + fH / 2) sx (sy + fH / 2) (requestMethod ++ " ->")
+    , renderArrowLine (bx + fW) (by + fH / 2) sx (sy + fH / 2) (requestMethod ++ " →") requestArrowColor False
 
     -- Server card
     , renderCard ServerCard sx sy fW fH serverBorder "1" "" canvas.expandedCard
         (serverIcon (sx + 40) (sy + 15))
         "SERVER"
-        ("Response " ++ responseStatus)
+        (if serverHasError then "✕ " ++ responseStatus else responseStatus ++ " OK")
     , expandedPanel ServerCard sx (sy + fH + 8) fW canvas.expandedCard
-        (serverDetail responseEvent)
+        (serverDetail responseEvent serverHasError)
 
     -- Arrow: Server -> SDK
-    , renderArrowLine (sx + fW) (sy + fH / 2) sdx (sdy + fH / 2) ("-> " ++ responseStatus)
+    , renderArrowLine (sx + fW) (sy + fH / 2) sdx (sdy + fH / 2) responseArrowLabel responseArrowColor False
 
     -- SDK card
     , renderCard SdkCard sdx sdy fW fH sdkBorder "1" "" canvas.expandedCard
         (sdkIcon (sdx + 35) (sdy + 20))
         "SDK"
-        "Processes response"
+        sdkContextLine
     , expandedPanel SdkCard sdx (sdy + fH + 8) fW canvas.expandedCard
-        (sdkDetail maybeNode)
+        (sdkDetail maybeNode sdkNodeError serverHasError)
 
     -- Arrow: SDK -> Form
-    , renderArrowLine (sdx + fW) (sdy + fH / 2) fx (fy + fH / 2) "renders"
+    , renderArrowLine (sdx + fW) (sdy + fH / 2) fx (fy + fH / 2) "renders" "#484F58" True
 
     -- Form card
     , renderCard FormCard fx fy fW fH formBorder formOpacity formDash canvas.expandedCard
         (formIcon (fx + 35) (fy + 18))
         "FORM"
-        (if hasCollectors then
-            "Collects input"
-
-         else
-            "Skipped"
-        )
+        formContextLine
     , expandedPanel FormCard fx (fy + fH + 8) fW canvas.expandedCard
         (formDetail maybeNode)
-
-    -- Error pulse on source card when error
     ]
-        ++ (if hasError then
-                [ Svg.circle
-                    [ SA.cx (String.fromFloat (sdx + fW / 2))
-                    , SA.cy (String.fromFloat (sdy + fH / 2))
-                    , SA.r (String.fromFloat (fW / 2 + 8))
-                    , SA.fill "none"
-                    , SA.stroke "#F85149"
-                    , SA.strokeWidth "2"
-                    , SA.strokeOpacity "0.6"
-                    , SA.class "lv-pulse"
+        -- Error pulse ring on the SOURCE card
+        ++ (case pulseTarget of
+                Just ( px, py ) ->
+                    [ Svg.rect
+                        [ SA.x (String.fromFloat (px - 6))
+                        , SA.y (String.fromFloat (py - 6))
+                        , SA.width (String.fromFloat (fW + 12))
+                        , SA.height (String.fromFloat (fH + 12))
+                        , SA.rx "12"
+                        , SA.fill "none"
+                        , SA.stroke "#F85149"
+                        , SA.strokeWidth "2"
+                        , SA.strokeOpacity "0.6"
+                        , SA.class "lv-pulse"
+                        ]
+                        []
                     ]
-                    []
-                ]
 
-            else
-                []
+                Nothing ->
+                    []
            )
         ++ (if noNetEvents then
                 [ Svg.text_
@@ -614,8 +718,8 @@ renderCard cardId x y w h borderColor opacity dashArray expandedCard icon label 
         ]
 
 
-renderArrowLine : Float -> Float -> Float -> Float -> String -> Svg Msg
-renderArrowLine x1 y1 x2 y2 label =
+renderArrowLine : Float -> Float -> Float -> Float -> String -> String -> Bool -> Svg Msg
+renderArrowLine x1 y1 x2 y2 label color isDashed =
     let
         midX =
             (x1 + x2) / 2
@@ -625,22 +729,30 @@ renderArrowLine x1 y1 x2 y2 label =
     in
     Svg.g []
         [ Svg.line
-            [ SA.x1 (String.fromFloat x1)
-            , SA.y1 (String.fromFloat y1)
-            , SA.x2 (String.fromFloat x2)
-            , SA.y2 (String.fromFloat y2)
-            , SA.stroke "#484F58"
-            , SA.strokeWidth "1.5"
-            , SA.markerEnd "url(#lv-card-arrow)"
-            ]
+            ([ SA.x1 (String.fromFloat x1)
+             , SA.y1 (String.fromFloat y1)
+             , SA.x2 (String.fromFloat x2)
+             , SA.y2 (String.fromFloat y2)
+             , SA.stroke color
+             , SA.strokeWidth "1.5"
+             , SA.markerEnd "url(#lv-card-arrow)"
+             ]
+                ++ (if isDashed then
+                        [ SA.strokeDasharray "5 3" ]
+
+                    else
+                        []
+                   )
+            )
             []
         , Svg.text_
             [ SA.x (String.fromFloat midX)
             , SA.y (String.fromFloat midY)
             , SA.textAnchor "middle"
             , SA.fontSize "9"
-            , SA.fill "#8B949E"
+            , SA.fill color
             , SA.fontFamily "'Segoe UI', system-ui, sans-serif"
+            , SA.fontWeight "600"
             ]
             [ Svg.text label ]
         ]
@@ -657,7 +769,7 @@ expandedPanel cardId x y w expandedCard content =
             [ SA.x (String.fromFloat x)
             , SA.y (String.fromFloat y)
             , SA.width (String.fromFloat w)
-            , SA.height "80"
+            , SA.height "120"
             ]
             [ Html.div
                 [ Html.Attributes.style "font-family" "'Segoe UI', system-ui, sans-serif"
@@ -677,31 +789,43 @@ expandedPanel cardId x y w expandedCard content =
 
 detailRow : String -> String -> Html Msg
 detailRow label value =
+    detailRowColored label value "#e6edf3"
+
+
+detailRowColored : String -> String -> String -> Html Msg
+detailRowColored label value color =
     Html.div [ Html.Attributes.style "margin-bottom" "2px" ]
         [ Html.span [ Html.Attributes.style "color" "#484f58" ] [ Html.text (label ++ " ") ]
-        , Html.span [ Html.Attributes.style "color" "#e6edf3" ] [ Html.text value ]
+        , Html.span [ Html.Attributes.style "color" color, Html.Attributes.style "font-weight" "600" ] [ Html.text value ]
         ]
 
 
-browserDetail : Maybe AuthEvent -> List (Html Msg)
-browserDetail requestEvent =
-    case requestEvent of
-        Just re ->
-            case re.data of
-                Network nd ->
-                    [ detailRow "Method" (Maybe.withDefault "POST" nd.method)
-                    , detailRow "URL" (truncate_ 22 (Maybe.withDefault "—" nd.url))
-                    ]
+browserDetail : Maybe AuthEvent -> Bool -> List (Html Msg)
+browserDetail requestEvent corsError =
+    (if corsError then
+        [ detailRowColored "CORS" "Request blocked by browser" "#F85149" ]
 
-                _ ->
-                    [ Html.text "No request data" ]
+     else
+        []
+    )
+        ++ (case requestEvent of
+                Just re ->
+                    case re.data of
+                        Network nd ->
+                            [ detailRow "Method" (Maybe.withDefault "POST" nd.method)
+                            , detailRow "URL" (Maybe.withDefault "—" nd.url)
+                            ]
 
-        Nothing ->
-            [ Html.text "No request captured" ]
+                        _ ->
+                            [ Html.text "No request data" ]
+
+                Nothing ->
+                    [ Html.text "No request captured" ]
+           )
 
 
-serverDetail : Maybe AuthEvent -> List (Html Msg)
-serverDetail responseEvent =
+serverDetail : Maybe AuthEvent -> Bool -> List (Html Msg)
+serverDetail responseEvent isError =
     case responseEvent of
         Just re ->
             case re.data of
@@ -711,16 +835,27 @@ serverDetail responseEvent =
                             Maybe.map String.fromInt nd.status
                                 |> Maybe.withDefault "—"
 
+                        statusColor =
+                            if isError then
+                                "#F85149"
+
+                            else
+                                "#3FB950"
+
                         durationStr =
                             case nd.duration of
                                 Just d ->
-                                    String.fromFloat d ++ "ms"
+                                    String.fromInt (round d) ++ "ms"
 
                                 Nothing ->
                                     "—"
+
+                        urlStr =
+                            Maybe.withDefault "—" nd.url
                     in
-                    [ detailRow "Status" statusStr
+                    [ detailRowColored "Status" statusStr statusColor
                     , detailRow "Duration" durationStr
+                    , detailRow "URL" (truncateUrl urlStr)
                     ]
 
                 _ ->
@@ -730,32 +865,74 @@ serverDetail responseEvent =
             [ Html.text "No response captured" ]
 
 
-sdkDetail : Maybe AuthEvent -> List (Html Msg)
-sdkDetail maybeNode =
+sdkDetail : Maybe AuthEvent -> Maybe Types.SdkError -> Bool -> List (Html Msg)
+sdkDetail maybeNode sdkError serverErrored =
+    let
+        errorSection =
+            case sdkError of
+                Just err ->
+                    [ detailRowColored "Error" err.code "#F85149"
+                    , detailRow "Message" err.message
+                    , detailRow "Type" err.errorType
+                    ]
+
+                Nothing ->
+                    if serverErrored then
+                        [ detailRowColored "Note" "Server returned an error" "#d29922" ]
+
+                    else
+                        []
+    in
     case maybeNode of
         Just n ->
             case n.data of
                 DaVinciNode nd ->
                     let
-                        statusTransition =
-                            (Maybe.map (Helpers.nodeStatusLabel >> (\s -> s)) nd.previousStatus
+                        statusLabel =
+                            Maybe.map Helpers.nodeStatusLabel nd.nodeStatus
                                 |> Maybe.withDefault "—"
-                            )
-                                ++ " → "
-                                ++ (Maybe.map Helpers.nodeStatusLabel nd.nodeStatus
-                                        |> Maybe.withDefault "—"
-                                   )
 
-                        formName =
-                            Maybe.withDefault "—" nd.nodeName
+                        statusColor =
+                            case nd.nodeStatus of
+                                Just Types.StatusError ->
+                                    "#F85149"
 
-                        interactionId =
-                            Maybe.withDefault "—" nd.interactionId
+                                Just Types.Failure ->
+                                    "#F85149"
+
+                                Just Types.Success ->
+                                    "#3FB950"
+
+                                Just Types.Continue ->
+                                    "#58A6FF"
+
+                                _ ->
+                                    "#8b949e"
+
+                        transitionStr =
+                            case nd.previousStatus of
+                                Just prev ->
+                                    Helpers.nodeStatusLabel prev ++ " → " ++ statusLabel
+
+                                Nothing ->
+                                    statusLabel
                     in
-                    [ detailRow "Status" statusTransition
-                    , detailRow "Node" (truncate_ 18 formName)
-                    , detailRow "Interaction" (truncate_ 14 interactionId)
-                    ]
+                    [ detailRowColored "Status" transitionStr statusColor ]
+                        ++ (case nd.nodeName of
+                                Just name ->
+                                    [ detailRow "Node" name ]
+
+                                Nothing ->
+                                    []
+                           )
+                        ++ (case nd.interactionId of
+                                Just iid ->
+                                    [ detailRow "Interaction" (truncate_ 14 iid) ]
+
+                                Nothing ->
+                                    []
+                           )
+                        ++ errorSection
 
                 _ ->
                     [ Html.text "Not a DaVinci node" ]
@@ -1014,3 +1191,18 @@ truncate_ maxLen s =
 
     else
         String.left maxLen s ++ "…"
+
+
+truncateUrl : String -> String
+truncateUrl url =
+    let
+        stripped =
+            url
+                |> String.replace "https://" ""
+                |> String.replace "http://" ""
+    in
+    if String.length stripped > 28 then
+        String.left 28 stripped ++ "…"
+
+    else
+        stripped

@@ -373,3 +373,255 @@ describe('attachJourneyBridge', () => {
     expect(events).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Edge-case tests for pure function paths (stepPayloadToJourneyData, extractErrorMessage)
+// ---------------------------------------------------------------------------
+
+describe('stepPayloadToJourneyData (via integration)', () => {
+  beforeEach(() => {
+    (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'] = true;
+  });
+
+  afterEach(() => {
+    delete (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'];
+  });
+
+  it('preserves all optional journey fields in a Step', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': {
+            status: 'fulfilled',
+            data: {
+              authId: 'abc',
+              tokenId: 'tok-1',
+              realm: '/alpha',
+              stage: 'UsernamePassword',
+              header: 'Sign In',
+              description: 'Enter your credentials',
+              callbacks: [{ type: 'NameCallback' }, { type: 'PasswordCallback' }],
+            },
+          },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as {
+      tokenId?: string;
+      realm?: string;
+      description?: string;
+    };
+    expect(data.tokenId).toBe('tok-1');
+    expect(data.realm).toBe('/alpha');
+    expect(data.description).toBe('Enter your credentials');
+  });
+
+  it('does not include error fields for Step type', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': {
+            status: 'fulfilled',
+            data: {
+              authId: 'abc',
+              code: 110,
+              message: 'some message',
+              reason: 'some reason',
+            },
+          },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as {
+      stepType: string;
+      errorCode?: number;
+      errorMessage?: string;
+      errorReason?: string;
+    };
+    expect(data.stepType).toBe('Step');
+    expect(data.errorCode).toBeUndefined();
+    expect(data.errorMessage).toBeUndefined();
+    expect(data.errorReason).toBeUndefined();
+  });
+
+  it('does not emit for fulfilled mutation with unparseable data', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': {
+            status: 'fulfilled',
+            data: 'not-an-object',
+          },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    expect(events).toHaveLength(0);
+  });
+
+  it('trims stale requestIds from emitted set', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+
+    // First trigger: add req-1
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': { status: 'fulfilled', data: { authId: 'abc' } },
+        },
+      },
+    });
+
+    // Second trigger: req-1 removed from mutations, req-2 added
+    // req-1 should be trimmed from emittedRequests
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-2': { status: 'fulfilled', data: { successUrl: '/home' } },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    expect(events).toHaveLength(2);
+    expect(events[0].detail.type).toBe('sdk:journey-step');
+    expect(events[1].detail.type).toBe('sdk:journey-step');
+  });
+});
+
+describe('extractErrorMessage (via integration)', () => {
+  beforeEach(() => {
+    (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'] = true;
+  });
+
+  afterEach(() => {
+    delete (window as unknown as Record<string, unknown>)['__PING_DEVTOOLS_EXTENSION__'];
+  });
+
+  it('extracts string error directly', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': { status: 'rejected', error: 'Network timeout' },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorMessage?: string };
+    expect(data.errorMessage).toBe('Network timeout');
+  });
+
+  it('extracts error.message from object', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': { status: 'rejected', error: { message: 'Auth failed' } },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorMessage?: string };
+    expect(data.errorMessage).toBe('Auth failed');
+  });
+
+  it('falls back to "Unknown error" for null error', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': { status: 'rejected', error: null },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorMessage?: string };
+    expect(data.errorMessage).toBe('Unknown error');
+  });
+
+  it('falls back to "Unknown error" for undefined error', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': { status: 'rejected' },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorMessage?: string };
+    expect(data.errorMessage).toBe('Unknown error');
+  });
+
+  it('falls back to "Unknown error" for number error', () => {
+    const client = makeClient(emptyState());
+    const { events, stop } = captureDevtoolsEvents();
+
+    const handle = attachJourneyBridge(client);
+    client.trigger({
+      journeyReducer: {
+        mutations: {
+          'req-1': { status: 'rejected', error: 42 },
+        },
+      },
+    });
+
+    handle.detach();
+    stop();
+
+    const data = events[0].detail.data as { errorMessage?: string };
+    expect(data.errorMessage).toBe('Unknown error');
+  });
+});

@@ -109,8 +109,8 @@ subscriptions model =
                     Ok result ->
                         DiagnosisReceived result
 
-                    Err _ ->
-                        DecodeError "Failed to decode diagnosis result"
+                    Err err ->
+                        DecodeError ("Diagnosis decode failed: " ++ JD.errorToString err)
             )
         , receiveImportMeta
             (\raw ->
@@ -118,8 +118,8 @@ subscriptions model =
                     Ok meta ->
                         ImportMetaReceived meta
 
-                    Err _ ->
-                        ImportError "Failed to decode import metadata"
+                    Err err ->
+                        ImportError ("Import meta decode failed: " ++ JD.errorToString err)
             )
         , receiveImportError
             (\raw ->
@@ -127,8 +127,8 @@ subscriptions model =
                     Ok errMsg ->
                         ImportError errMsg
 
-                    Err _ ->
-                        ImportError "Unknown import error"
+                    Err err ->
+                        ImportError ("Unknown import error: " ++ JD.errorToString err)
             )
         , receiveSnapshots
             (\raw ->
@@ -136,8 +136,8 @@ subscriptions model =
                     Ok list ->
                         SnapshotsReceived list
 
-                    Err _ ->
-                        SnapshotsReceived []
+                    Err err ->
+                        DecodeError ("Snapshots decode failed: " ++ JD.errorToString err)
             )
         , playbackSub
         ]

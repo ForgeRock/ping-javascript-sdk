@@ -1,67 +1,17 @@
 module Helpers exposing
-    ( EventSource(..)
-    , EventType(..)
-    , eventSource
-    , eventType
-    , findEvent
+    ( findEvent
     , findEventInList
     , isSdkNode
     , methodClass
     , nodeColor
+    , nodeStatusLabel
     , sdkNodes
     , statusClass
     , truncateId
     )
 
 import Dict exposing (Dict)
-import Types exposing (AuthEvent, EventData(..))
-
-
-type EventType
-    = NodeChange
-    | JourneyStep
-    | OidcState
-    | SdkConfig
-    | NetworkEvent
-    | OtherEvent String
-
-
-type EventSource
-    = SessionSource
-    | OtherSource String
-
-
-eventType : AuthEvent -> EventType
-eventType event =
-    case event.eventType of
-        "sdk:node-change" ->
-            NodeChange
-
-        "sdk:journey-step" ->
-            JourneyStep
-
-        "sdk:oidc-state" ->
-            OidcState
-
-        "sdk:config" ->
-            SdkConfig
-
-        _ ->
-            if event.source == "network" then
-                NetworkEvent
-
-            else
-                OtherEvent event.eventType
-
-
-eventSource : AuthEvent -> EventSource
-eventSource event =
-    case event.source of
-        "session" ->
-            SessionSource
-
-        other ->
-            OtherSource other
+import Types exposing (AuthEvent, EventData(..), EventKind(..), NodeStatus(..))
 
 
 isSdkNode : AuthEvent -> Bool
@@ -140,32 +90,42 @@ methodClass maybeMethod =
                     "m-other"
 
 
-nodeColor : String -> String
+nodeColor : NodeStatus -> String
 nodeColor status =
     case status of
-        "continue" ->
+        Continue ->
             "#58A6FF"
 
-        "success" ->
+        Success ->
             "#3FB950"
 
-        "error" ->
+        StatusError ->
             "#F85149"
 
-        "failure" ->
+        Failure ->
             "#F85149"
 
-        "Step" ->
-            "#58A6FF"
-
-        "LoginSuccess" ->
-            "#3FB950"
-
-        "LoginFailure" ->
-            "#F85149"
-
-        _ ->
+        UnknownStatus ->
             "#484F58"
+
+
+nodeStatusLabel : NodeStatus -> String
+nodeStatusLabel status =
+    case status of
+        Continue ->
+            "continue"
+
+        Success ->
+            "success"
+
+        StatusError ->
+            "error"
+
+        Failure ->
+            "failure"
+
+        UnknownStatus ->
+            "unknown"
 
 
 truncateId : String -> String

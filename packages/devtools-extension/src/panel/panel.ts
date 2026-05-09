@@ -4,6 +4,7 @@ import type { FlowExport } from '@forgerock/devtools-types';
 import { redactFlowState } from '../export/redact.js';
 import { renderFlowMarkdown } from '../export/markdown.js';
 import { runDiagnosis } from '../background/diagnosis-engine.js';
+import { formatUnixTime, parseJwt } from './jwt.js';
 
 declare const Elm: {
   Main: {
@@ -104,14 +105,6 @@ function initResizeHandles() {
 
 // ── JWT Decoder ───────────────────────────────────────────────────────────────
 
-function formatUnixTime(seconds: number): string {
-  try {
-    return new Date(seconds * 1000).toISOString().replace('T', ' ').replace('Z', ' UTC');
-  } catch {
-    return String(seconds);
-  }
-}
-
 function makeEl<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   classes: string[],
@@ -165,27 +158,16 @@ function buildJwtSection(title: string, obj: Record<string, unknown>): DocumentF
   return frag;
 }
 
-function base64UrlDecode(s: string): string {
-  const b64 = s.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = b64 + '=='.slice((b64.length + 3) & 3);
-  return atob(padded);
-}
-
 function buildJwtBody(jwt: string): HTMLElement {
   const body = makeEl('div', ['jwt-body']);
 
   try {
-    const parts = jwt.split('.');
-    if (parts.length !== 3) throw new Error('Not a 3-part JWT');
-
-    const header = JSON.parse(base64UrlDecode(parts[0]!)) as Record<string, unknown>;
-    const payload = JSON.parse(base64UrlDecode(parts[1]!)) as Record<string, unknown>;
-    const sigPreview = parts[2]!.slice(0, 16) + '…';
+    const { header, payload, signaturePreview } = parseJwt(jwt);
 
     body.appendChild(buildJwtSection('Header', header));
     body.appendChild(buildJwtSection('Claims', payload));
     body.appendChild(makeEl('div', ['jwt-section-hdr'], 'Signature'));
-    body.appendChild(makeEl('span', ['jwt-sig'], `${sigPreview} (not verified)`));
+    body.appendChild(makeEl('span', ['jwt-sig'], `${signaturePreview} (not verified)`));
   } catch (err) {
     body.appendChild(makeEl('span', ['jwt-err'], `Could not decode JWT: ${String(err)}`));
   }

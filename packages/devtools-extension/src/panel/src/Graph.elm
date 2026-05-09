@@ -7,7 +7,7 @@ import Json.Decode as Decode
 import Svg exposing (..)
 import Svg.Attributes as SA
 import Svg.Events
-import Types exposing (AuthEvent, EventData(..))
+import Types exposing (AuthEvent, EventData(..), EventKind(..), NodeStatus(..))
 import Update exposing (Msg(..))
 
 
@@ -15,7 +15,7 @@ view : List AuthEvent -> Maybe String -> Maybe String -> Html Msg
 view events selectedId hoveredId =
     let
         sdkNodes =
-            List.filter (\e -> e.eventType == "sdk:node-change") events
+            List.filter (\e -> e.kind == NodeChange) events
 
         nodeSpacing =
             90
@@ -60,10 +60,10 @@ renderNode spacing selectedId hoveredId index event =
         ( status, maybeName, maybeCollectors ) =
             case event.data of
                 DaVinciNode node ->
-                    ( Maybe.withDefault "unknown" node.nodeStatus, node.nodeName, node.collectors )
+                    ( Maybe.withDefault UnknownStatus node.nodeStatus, node.nodeName, node.collectors )
 
                 _ ->
-                    ( "unknown", Nothing, Nothing )
+                    ( UnknownStatus, Nothing, Nothing )
 
         color =
             Helpers.nodeColor status
@@ -73,6 +73,9 @@ renderNode spacing selectedId hoveredId index event =
 
         isHovered =
             hoveredId == Just event.id
+
+        isHighlighted =
+            isSelected || isHovered
 
         connectorLine =
             if index > 0 then
@@ -84,7 +87,7 @@ renderNode spacing selectedId hoveredId index event =
                     , SA.stroke color
                     , SA.strokeWidth "1"
                     , SA.strokeOpacity
-                        (if isHovered || isSelected then
+                        (if isHighlighted then
                             "0.5"
 
                          else
@@ -134,10 +137,7 @@ renderNode spacing selectedId hoveredId index event =
                 []
 
         nodeFilterAttr =
-            if isSelected then
-                SA.filter "url(#glow-node)"
-
-            else if isHovered then
+            if isHighlighted then
                 SA.filter "url(#glow-node)"
 
             else
@@ -159,7 +159,7 @@ renderNode spacing selectedId hoveredId index event =
                 , SA.y (String.fromInt (cy_ + 4))
                 , SA.fontSize "12"
                 , SA.fill
-                    (if isHovered || isSelected then
+                    (if isHighlighted then
                         "#ffffff"
 
                      else
@@ -167,12 +167,12 @@ renderNode spacing selectedId hoveredId index event =
                     )
                 , SA.fontFamily "'Segoe UI', system-ui, sans-serif"
                 ]
-                [ Svg.text status ]
+                [ Svg.text (Helpers.nodeStatusLabel status) ]
 
         subLabel =
             let
                 subFill =
-                    if isHovered || isSelected then
+                    if isHighlighted then
                         "#c9d1d9"
 
                     else
@@ -210,7 +210,6 @@ renderNode spacing selectedId hoveredId index event =
                         Nothing ->
                             []
 
-        -- Invisible hit area for reliable mouse events
         hitArea =
             rect
                 [ SA.x "0"

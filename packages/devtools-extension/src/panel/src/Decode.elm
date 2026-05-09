@@ -1,130 +1,219 @@
 module Decode exposing (decodeAuthEvent, decodeDiagnosisResult, decodeImportMeta, decodeSnapshotMeta)
 
 import Json.Decode as JD
+import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Types
     exposing
         ( AuthEvent
         , DiagnosisResult
         , EventData(..)
         , EventIssue
+        , EventKind(..)
+        , EventSource(..)
         , FlowHealth(..)
         , FlowIssue
         , ImportMeta
         , JourneyData
         , NetworkData
         , NodeData
+        , NodeStatus(..)
         , OidcData
         , SdkAuthorization
         , SdkError
         , SessionData
+        , Severity(..)
         , SnapshotMeta
         )
 
 
+decodeSeverity : JD.Decoder Severity
+decodeSeverity =
+    JD.string
+        |> JD.andThen
+            (\s ->
+                case s of
+                    "error" ->
+                        JD.succeed SevError
+
+                    "warning" ->
+                        JD.succeed SevWarning
+
+                    _ ->
+                        JD.succeed SevInfo
+            )
+
+
+decodeNodeStatus : JD.Decoder NodeStatus
+decodeNodeStatus =
+    JD.string
+        |> JD.andThen
+            (\s ->
+                case s of
+                    "continue" ->
+                        JD.succeed Continue
+
+                    "success" ->
+                        JD.succeed Success
+
+                    "error" ->
+                        JD.succeed StatusError
+
+                    "failure" ->
+                        JD.succeed Failure
+
+                    _ ->
+                        JD.succeed UnknownStatus
+            )
+
+
+decodeEventKind : String -> String -> EventKind
+decodeEventKind eventTypeStr sourceStr =
+    case eventTypeStr of
+        "sdk:node-change" ->
+            NodeChange
+
+        "sdk:journey-step" ->
+            JourneyStep
+
+        "sdk:oidc-state" ->
+            OidcState
+
+        "sdk:config" ->
+            SdkConfig
+
+        _ ->
+            if sourceStr == "session" then
+                SessionEvent
+
+            else if sourceStr == "network" then
+                NetworkEvent
+
+            else
+                OtherKind eventTypeStr
+
+
+decodeEventSource : String -> EventSource
+decodeEventSource sourceStr =
+    case sourceStr of
+        "network" ->
+            NetworkSource
+
+        "sdk" ->
+            SdkSource
+
+        "session" ->
+            SessionSource
+
+        _ ->
+            OtherSource sourceStr
+
+
 decodeSdkError : JD.Decoder SdkError
 decodeSdkError =
-    JD.map4 SdkError
-        (JD.field "code" JD.string)
-        (JD.field "message" JD.string)
-        (JD.field "type" JD.string)
-        (JD.maybe (JD.field "internalHttpStatus" JD.int))
+    JD.succeed SdkError
+        |> required "code" JD.string
+        |> required "message" JD.string
+        |> required "type" JD.string
+        |> optional "internalHttpStatus" (JD.nullable JD.int) Nothing
 
 
 decodeSdkAuthorization : JD.Decoder SdkAuthorization
 decodeSdkAuthorization =
-    JD.map2 SdkAuthorization
-        (JD.maybe (JD.field "code" JD.string))
-        (JD.maybe (JD.field "state" JD.string))
+    JD.succeed SdkAuthorization
+        |> optional "code" (JD.nullable JD.string) Nothing
+        |> optional "state" (JD.nullable JD.string) Nothing
 
 
 decodeNetworkData : JD.Decoder NetworkData
 decodeNetworkData =
     JD.succeed NetworkData
-        |> andMap (JD.maybe (JD.field "status" JD.int))
-        |> andMap (JD.maybe (JD.field "url" JD.string))
-        |> andMap (JD.maybe (JD.field "method" JD.string))
-        |> andMap (JD.maybe (JD.field "duration" JD.float))
-        |> andMap (JD.maybe (JD.field "requestHeaders" JD.value))
-        |> andMap (JD.maybe (JD.field "responseHeaders" JD.value))
-        |> andMap (JD.maybe (JD.field "requestBody" JD.value))
-        |> andMap (JD.maybe (JD.field "responseBody" JD.value))
+        |> optional "status" (JD.nullable JD.int) Nothing
+        |> optional "url" (JD.nullable JD.string) Nothing
+        |> optional "method" (JD.nullable JD.string) Nothing
+        |> optional "duration" (JD.nullable JD.float) Nothing
+        |> optional "requestHeaders" (JD.nullable JD.value) Nothing
+        |> optional "responseHeaders" (JD.nullable JD.value) Nothing
+        |> optional "requestBody" (JD.nullable JD.value) Nothing
+        |> optional "responseBody" (JD.nullable JD.value) Nothing
 
 
 decodeNodeData : JD.Decoder NodeData
 decodeNodeData =
     JD.succeed NodeData
-        |> andMap (JD.maybe (JD.field "nodeStatus" JD.string))
-        |> andMap (JD.maybe (JD.field "previousStatus" JD.string))
-        |> andMap (JD.maybe (JD.field "interactionId" JD.string))
-        |> andMap (JD.maybe (JD.field "interactionToken" JD.string))
-        |> andMap (JD.maybe (JD.field "nodeId" JD.string))
-        |> andMap (JD.maybe (JD.field "requestId" JD.string))
-        |> andMap (JD.maybe (JD.field "nodeName" JD.string))
-        |> andMap (JD.maybe (JD.field "nodeDescription" JD.string))
-        |> andMap (JD.maybe (JD.field "eventName" JD.string))
-        |> andMap (JD.maybe (JD.field "httpStatus" JD.int))
-        |> andMap (JD.maybe (JD.field "error" decodeSdkError))
-        |> andMap (JD.maybe (JD.field "authorization" decodeSdkAuthorization))
-        |> andMap (JD.maybe (JD.field "session" JD.string))
-        |> andMap (JD.maybe (JD.field "collectors" (JD.list JD.value)))
-        |> andMap (JD.maybe (JD.field "responseBody" JD.value))
+        |> optional "nodeStatus" (JD.nullable decodeNodeStatus) Nothing
+        |> optional "previousStatus" (JD.nullable decodeNodeStatus) Nothing
+        |> optional "interactionId" (JD.nullable JD.string) Nothing
+        |> optional "interactionToken" (JD.nullable JD.string) Nothing
+        |> optional "nodeId" (JD.nullable JD.string) Nothing
+        |> optional "requestId" (JD.nullable JD.string) Nothing
+        |> optional "nodeName" (JD.nullable JD.string) Nothing
+        |> optional "nodeDescription" (JD.nullable JD.string) Nothing
+        |> optional "eventName" (JD.nullable JD.string) Nothing
+        |> optional "httpStatus" (JD.nullable JD.int) Nothing
+        |> optional "error" (JD.nullable decodeSdkError) Nothing
+        |> optional "authorization" (JD.nullable decodeSdkAuthorization) Nothing
+        |> optional "session" (JD.nullable JD.string) Nothing
+        |> optional "collectors" (JD.nullable (JD.list JD.value)) Nothing
+        |> optional "responseBody" (JD.nullable JD.value) Nothing
 
 
 decodeJourneyData : JD.Decoder JourneyData
 decodeJourneyData =
     JD.succeed JourneyData
-        |> andMap (JD.maybe (JD.field "stepType" JD.string))
-        |> andMap (JD.maybe (JD.field "stage" JD.string))
-        |> andMap (JD.maybe (JD.field "header" JD.string))
-        |> andMap (JD.maybe (JD.field "description" JD.string))
-        |> andMap (JD.maybe (JD.field "callbacks" (JD.list JD.value)))
-        |> andMap (JD.maybe (JD.field "authId" JD.string))
-        |> andMap (JD.maybe (JD.field "tokenId" JD.string))
-        |> andMap (JD.maybe (JD.field "successUrl" JD.string))
-        |> andMap (JD.maybe (JD.field "errorCode" JD.int))
-        |> andMap (JD.maybe (JD.field "errorMessage" JD.string))
-        |> andMap (JD.maybe (JD.field "errorReason" JD.string))
+        |> optional "stepType" (JD.nullable JD.string) Nothing
+        |> optional "stage" (JD.nullable JD.string) Nothing
+        |> optional "header" (JD.nullable JD.string) Nothing
+        |> optional "description" (JD.nullable JD.string) Nothing
+        |> optional "callbacks" (JD.nullable (JD.list JD.value)) Nothing
+        |> optional "authId" (JD.nullable JD.string) Nothing
+        |> optional "tokenId" (JD.nullable JD.string) Nothing
+        |> optional "successUrl" (JD.nullable JD.string) Nothing
+        |> optional "errorCode" (JD.nullable JD.int) Nothing
+        |> optional "errorMessage" (JD.nullable JD.string) Nothing
+        |> optional "errorReason" (JD.nullable JD.string) Nothing
 
 
 decodeOidcData : JD.Decoder OidcData
 decodeOidcData =
     JD.succeed OidcData
-        |> andMap (JD.maybe (JD.field "phase" JD.string))
-        |> andMap (JD.maybe (JD.field "status" JD.string))
-        |> andMap (JD.maybe (JD.field "clientId" JD.string))
-        |> andMap (JD.maybe (JD.field "errorCode" JD.string))
-        |> andMap (JD.maybe (JD.field "errorMessage" JD.string))
+        |> optional "phase" (JD.nullable JD.string) Nothing
+        |> optional "status" (JD.nullable JD.string) Nothing
+        |> optional "clientId" (JD.nullable JD.string) Nothing
+        |> optional "errorCode" (JD.nullable JD.string) Nothing
+        |> optional "errorMessage" (JD.nullable JD.string) Nothing
 
 
 decodeSessionData : JD.Decoder SessionData
 decodeSessionData =
     JD.succeed SessionData
-        |> andMap (JD.maybe (JD.field "key" JD.string))
-        |> andMap (JD.maybe (JD.field "before" JD.string))
-        |> andMap (JD.maybe (JD.field "after" JD.string))
+        |> optional "key" (JD.nullable JD.string) Nothing
+        |> optional "before" (JD.nullable JD.string) Nothing
+        |> optional "after" (JD.nullable JD.string) Nothing
 
 
-decodeEventData : String -> String -> JD.Decoder EventData
-decodeEventData eventTypeStr source =
-    case eventTypeStr of
-        "sdk:node-change" ->
+decodeEventData : EventKind -> JD.Decoder EventData
+decodeEventData kind =
+    case kind of
+        NodeChange ->
             JD.field "data" (JD.map DaVinciNode decodeNodeData)
 
-        "sdk:journey-step" ->
+        JourneyStep ->
             JD.field "data" (JD.map Journey decodeJourneyData)
 
-        "sdk:oidc-state" ->
+        OidcState ->
             JD.field "data" (JD.map Oidc decodeOidcData)
 
-        "sdk:config" ->
+        SdkConfig ->
             JD.map Config (JD.maybe (JD.at [ "data", "config" ] JD.value))
 
-        _ ->
-            if source == "session" then
-                JD.field "data" (JD.map Session decodeSessionData)
+        SessionEvent ->
+            JD.field "data" (JD.map Session decodeSessionData)
 
-            else
-                JD.field "data" (JD.map Network decodeNetworkData)
+        NetworkEvent ->
+            JD.field "data" (JD.map Network decodeNetworkData)
+
+        OtherKind _ ->
+            JD.field "data" (JD.map Network decodeNetworkData)
 
 
 decodeAuthEvent : JD.Decoder AuthEvent
@@ -134,25 +223,27 @@ decodeAuthEvent =
             (\eventTypeStr ->
                 JD.field "source" JD.string
                     |> JD.andThen
-                        (\source ->
+                        (\sourceStr ->
+                            let
+                                kind =
+                                    decodeEventKind eventTypeStr sourceStr
+
+                                source =
+                                    decodeEventSource sourceStr
+                            in
                             JD.succeed AuthEvent
-                                |> andMap (JD.field "id" JD.string)
-                                |> andMap (JD.field "timestamp" JD.float)
-                                |> andMap (JD.succeed eventTypeStr)
-                                |> andMap (JD.succeed source)
-                                |> andMap (JD.field "flowId" (JD.nullable JD.string))
-                                |> andMap (JD.at [ "flags", "isCors" ] JD.bool)
-                                |> andMap (JD.at [ "flags", "isError" ] JD.bool)
-                                |> andMap (JD.at [ "flags", "isAuthRelated" ] JD.bool)
-                                |> andMap (JD.field "causedBy" (JD.nullable JD.string))
-                                |> andMap (decodeEventData eventTypeStr source)
+                                |> required "id" JD.string
+                                |> required "timestamp" JD.float
+                                |> hardcoded kind
+                                |> hardcoded source
+                                |> required "flowId" (JD.nullable JD.string)
+                                |> Json.Decode.Pipeline.custom (JD.at [ "flags", "isCors" ] JD.bool)
+                                |> Json.Decode.Pipeline.custom (JD.at [ "flags", "isError" ] JD.bool)
+                                |> Json.Decode.Pipeline.custom (JD.at [ "flags", "isAuthRelated" ] JD.bool)
+                                |> required "causedBy" (JD.nullable JD.string)
+                                |> Json.Decode.Pipeline.custom (decodeEventData kind)
                         )
             )
-
-
-andMap : JD.Decoder a -> JD.Decoder (a -> b) -> JD.Decoder b
-andMap =
-    JD.map2 (|>)
 
 
 decodeRelevantData : JD.Decoder (Maybe (List ( String, String )))
@@ -165,25 +256,25 @@ decodeRelevantData =
 
 decodeEventIssue : JD.Decoder EventIssue
 decodeEventIssue =
-    JD.map5 EventIssue
-        (JD.field "severity" JD.string)
-        (JD.field "title" JD.string)
-        (JD.field "description" JD.string)
-        (JD.field "steps" (JD.list JD.string))
-        decodeRelevantData
+    JD.succeed EventIssue
+        |> required "severity" decodeSeverity
+        |> required "title" JD.string
+        |> required "description" JD.string
+        |> required "steps" (JD.list JD.string)
+        |> Json.Decode.Pipeline.custom decodeRelevantData
 
 
 decodeFlowIssue : JD.Decoder FlowIssue
 decodeFlowIssue =
-    JD.map8 FlowIssue
-        (JD.field "id" JD.string)
-        (JD.field "severity" JD.string)
-        (JD.field "category" JD.string)
-        (JD.field "title" JD.string)
-        (JD.field "description" JD.string)
-        (JD.field "steps" (JD.list JD.string))
-        (JD.field "relatedEventIds" (JD.list JD.string))
-        decodeRelevantData
+    JD.succeed FlowIssue
+        |> required "id" JD.string
+        |> required "severity" decodeSeverity
+        |> required "category" JD.string
+        |> required "title" JD.string
+        |> required "description" JD.string
+        |> required "steps" (JD.list JD.string)
+        |> required "relatedEventIds" (JD.list JD.string)
+        |> Json.Decode.Pipeline.custom decodeRelevantData
 
 
 decodeFlowHealth : JD.Decoder FlowHealth
@@ -205,26 +296,24 @@ decodeFlowHealth =
 
 decodeDiagnosisResult : JD.Decoder DiagnosisResult
 decodeDiagnosisResult =
-    JD.map3 DiagnosisResult
-        (JD.field "flowHealth" decodeFlowHealth)
-        (JD.field "issues" (JD.list decodeFlowIssue))
-        (JD.field "annotatedEvents"
-            (JD.keyValuePairs (JD.list decodeEventIssue))
-        )
+    JD.succeed DiagnosisResult
+        |> required "flowHealth" decodeFlowHealth
+        |> required "issues" (JD.list decodeFlowIssue)
+        |> required "annotatedEvents" (JD.keyValuePairs (JD.list decodeEventIssue))
 
 
 decodeImportMeta : JD.Decoder ImportMeta
 decodeImportMeta =
-    JD.map3 ImportMeta
-        (JD.field "flowId" (JD.nullable JD.string))
-        (JD.field "capturedAt" JD.string)
-        (JD.field "redacted" JD.bool)
+    JD.succeed ImportMeta
+        |> required "flowId" (JD.nullable JD.string)
+        |> required "capturedAt" JD.string
+        |> required "redacted" JD.bool
 
 
 decodeSnapshotMeta : JD.Decoder SnapshotMeta
 decodeSnapshotMeta =
-    JD.map4 SnapshotMeta
-        (JD.field "id" JD.string)
-        (JD.field "savedAt" JD.string)
-        (JD.field "flowId" (JD.nullable JD.string))
-        (JD.field "eventCount" JD.int)
+    JD.succeed SnapshotMeta
+        |> required "id" JD.string
+        |> required "savedAt" JD.string
+        |> required "flowId" (JD.nullable JD.string)
+        |> required "eventCount" JD.int

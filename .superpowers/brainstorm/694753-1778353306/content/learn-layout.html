@@ -1,0 +1,326 @@
+<h2>Learn Tab — Layout Direction</h2>
+<p class="subtitle">
+  How should the flow diagram be oriented? Consider that auth flows can have 3-15+ steps.
+</p>
+
+<div class="cards">
+  <div class="card" data-choice="horizontal" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #1a1a2e">
+      <svg width="100%" height="180" viewBox="0 0 500 180">
+        <!-- Horizontal flow: left to right -->
+        <defs>
+          <marker id="ah1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#30363d" />
+          </marker>
+        </defs>
+        <!-- Nodes -->
+        <circle cx="60" cy="60" r="24" fill="#58a6ff" opacity="0.9" />
+        <text x="60" y="64" text-anchor="middle" fill="white" font-size="10" font-weight="600">
+          Start
+        </text>
+        <text x="60" y="95" text-anchor="middle" fill="#8b949e" font-size="9">SDK Init</text>
+
+        <line
+          x1="84"
+          y1="60"
+          x2="146"
+          y2="60"
+          stroke="#30363d"
+          stroke-width="2"
+          marker-end="url(#ah1)"
+        />
+
+        <circle cx="170" cy="60" r="24" fill="#58a6ff" opacity="0.9" />
+        <text x="170" y="64" text-anchor="middle" fill="white" font-size="10" font-weight="600">
+          Node 1
+        </text>
+        <text x="170" y="95" text-anchor="middle" fill="#8b949e" font-size="9">Username</text>
+
+        <line
+          x1="194"
+          y1="60"
+          x2="256"
+          y2="60"
+          stroke="#30363d"
+          stroke-width="2"
+          marker-end="url(#ah1)"
+        />
+
+        <circle cx="280" cy="60" r="24" fill="#58a6ff" opacity="0.9" />
+        <text x="280" y="64" text-anchor="middle" fill="white" font-size="10" font-weight="600">
+          Node 2
+        </text>
+        <text x="280" y="95" text-anchor="middle" fill="#8b949e" font-size="9">Password</text>
+
+        <line
+          x1="304"
+          y1="60"
+          x2="366"
+          y2="60"
+          stroke="#30363d"
+          stroke-width="2"
+          marker-end="url(#ah1)"
+        />
+
+        <circle cx="390" cy="60" r="24" fill="#3fb950" opacity="0.9" />
+        <text x="390" y="64" text-anchor="middle" fill="white" font-size="10" font-weight="600">
+          Done
+        </text>
+        <text x="390" y="95" text-anchor="middle" fill="#8b949e" font-size="9">Success</text>
+
+        <!-- Detail preview below -->
+        <rect x="140" y="120" rx="4" width="200" height="50" fill="#161b22" stroke="#30363d" />
+        <text x="160" y="140" fill="#8b949e" font-size="9">▼ Detail panel appears below</text>
+        <text x="160" y="155" fill="#58a6ff" font-size="9">
+          POST /davinci/flow → 200 → collectors
+        </text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A. Horizontal (Left → Right)</h3>
+      <p>
+        Natural reading direction. Flow overview scrolls horizontally. Detail panel below selected
+        node. Works well with pan/zoom for long flows.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="vertical" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #1a1a2e">
+      <svg width="100%" height="180" viewBox="0 0 500 180">
+        <defs>
+          <marker id="ah2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#30363d" />
+          </marker>
+        </defs>
+        <!-- Vertical flow: top to bottom, with detail on the right -->
+        <circle cx="80" cy="30" r="18" fill="#58a6ff" opacity="0.9" />
+        <text x="80" y="34" text-anchor="middle" fill="white" font-size="9" font-weight="600">
+          Start
+        </text>
+
+        <line
+          x1="80"
+          y1="48"
+          x2="80"
+          y2="62"
+          stroke="#30363d"
+          stroke-width="2"
+          marker-end="url(#ah2)"
+        />
+
+        <circle cx="80" cy="80" r="18" fill="#58a6ff" opacity="0.9" />
+        <text x="80" y="84" text-anchor="middle" fill="white" font-size="9" font-weight="600">
+          Node 1
+        </text>
+
+        <line
+          x1="80"
+          y1="98"
+          x2="80"
+          y2="112"
+          stroke="#30363d"
+          stroke-width="2"
+          marker-end="url(#ah2)"
+        />
+
+        <circle cx="80" cy="130" r="18" fill="#58a6ff" opacity="0.9" />
+        <text x="80" y="134" text-anchor="middle" fill="white" font-size="9" font-weight="600">
+          Node 2
+        </text>
+
+        <line
+          x1="80"
+          y1="148"
+          x2="80"
+          y2="162"
+          stroke="#30363d"
+          stroke-width="2"
+          marker-end="url(#ah2)"
+        />
+
+        <circle cx="80" cy="174" r="14" fill="#3fb950" opacity="0.9" />
+        <text x="80" y="178" text-anchor="middle" fill="white" font-size="8" font-weight="600">
+          ✓
+        </text>
+
+        <!-- Detail panel to the right -->
+        <rect x="160" y="10" rx="4" width="300" height="160" fill="#161b22" stroke="#30363d" />
+        <text x="180" y="35" fill="#e6edf3" font-size="11" font-weight="600">
+          Node 1 — Username
+        </text>
+        <rect x="180" y="45" rx="3" width="260" height="30" fill="#0d1117" stroke="#30363d" />
+        <text x="195" y="64" fill="#58a6ff" font-size="9">POST</text>
+        <text x="220" y="64" fill="#8b949e" font-size="9">/davinci/connections/flow → 200</text>
+        <rect x="180" y="85" rx="3" width="260" height="30" fill="#0d1117" stroke="#30363d" />
+        <text x="195" y="104" fill="#3fb950" font-size="9">NODE</text>
+        <text x="225" y="104" fill="#8b949e" font-size="9">continue — 2 collectors</text>
+        <rect x="180" y="125" rx="3" width="260" height="30" fill="#0d1117" stroke="#30363d" />
+        <text x="195" y="144" fill="#ffa657" font-size="9">RESP</text>
+        <text x="225" y="144" fill="#8b949e" font-size="9">interactionId: abc-123...</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B. Vertical (Top → Bottom)</h3>
+      <p>
+        Like the existing Graph panel but expanded. Flow scrolls vertically. Detail panel to the
+        right of selected node. Familiar pattern from current UI.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="hybrid" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #1a1a2e">
+      <svg width="100%" height="180" viewBox="0 0 500 180">
+        <defs>
+          <marker id="ah3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#30363d" />
+          </marker>
+        </defs>
+        <!-- Top rail: horizontal overview -->
+        <rect x="10" y="5" rx="4" width="480" height="55" fill="#161b22" stroke="#30363d" />
+        <circle cx="60" cy="32" r="14" fill="#58a6ff" opacity="0.9" />
+        <text x="60" y="36" text-anchor="middle" fill="white" font-size="8">1</text>
+        <line
+          x1="74"
+          y1="32"
+          x2="146"
+          y2="32"
+          stroke="#30363d"
+          stroke-width="1.5"
+          marker-end="url(#ah3)"
+        />
+        <circle
+          cx="160"
+          cy="32"
+          r="14"
+          fill="#58a6ff"
+          opacity="0.9"
+          stroke="#e6edf3"
+          stroke-width="2"
+        />
+        <text x="160" y="36" text-anchor="middle" fill="white" font-size="8">2</text>
+        <line
+          x1="174"
+          y1="32"
+          x2="246"
+          y2="32"
+          stroke="#30363d"
+          stroke-width="1.5"
+          marker-end="url(#ah3)"
+        />
+        <circle cx="260" cy="32" r="14" fill="#58a6ff" opacity="0.9" />
+        <text x="260" y="36" text-anchor="middle" fill="white" font-size="8">3</text>
+        <line
+          x1="274"
+          y1="32"
+          x2="346"
+          y2="32"
+          stroke="#30363d"
+          stroke-width="1.5"
+          marker-end="url(#ah3)"
+        />
+        <circle cx="360" cy="32" r="14" fill="#3fb950" opacity="0.9" />
+        <text x="360" y="36" text-anchor="middle" fill="white" font-size="8">✓</text>
+
+        <!-- Expanded detail below: the lifecycle of selected node 2 -->
+        <rect x="10" y="70" rx="4" width="480" height="100" fill="#0d1117" stroke="#30363d" />
+        <text x="30" y="90" fill="#e6edf3" font-size="11" font-weight="600">Step 2 — Password</text>
+
+        <!-- Mini lifecycle: Request → Server → Response → Node → Collectors -->
+        <rect x="30" y="100" rx="8" width="56" height="28" fill="#161b22" stroke="#58a6ff" />
+        <text x="58" y="118" text-anchor="middle" fill="#58a6ff" font-size="8" font-weight="700">
+          REQUEST
+        </text>
+
+        <line
+          x1="86"
+          y1="114"
+          x2="108"
+          y2="114"
+          stroke="#30363d"
+          stroke-width="1.5"
+          marker-end="url(#ah3)"
+        />
+
+        <rect x="112" y="100" rx="8" width="56" height="28" fill="#161b22" stroke="#8b949e" />
+        <text x="140" y="112" text-anchor="middle" fill="#8b949e" font-size="7">☁</text>
+        <text x="140" y="122" text-anchor="middle" fill="#8b949e" font-size="7" font-weight="700">
+          SERVER
+        </text>
+
+        <line
+          x1="168"
+          y1="114"
+          x2="190"
+          y2="114"
+          stroke="#30363d"
+          stroke-width="1.5"
+          marker-end="url(#ah3)"
+        />
+
+        <rect x="194" y="100" rx="8" width="56" height="28" fill="#161b22" stroke="#3fb950" />
+        <text x="222" y="118" text-anchor="middle" fill="#3fb950" font-size="8" font-weight="700">
+          200 OK
+        </text>
+
+        <line
+          x1="250"
+          y1="114"
+          x2="272"
+          y2="114"
+          stroke="#30363d"
+          stroke-width="1.5"
+          marker-end="url(#ah3)"
+        />
+
+        <rect x="276" y="100" rx="8" width="56" height="28" fill="#161b22" stroke="#ffa657" />
+        <text x="304" y="118" text-anchor="middle" fill="#ffa657" font-size="8" font-weight="700">
+          NODE
+        </text>
+
+        <line
+          x1="332"
+          y1="114"
+          x2="354"
+          y2="114"
+          stroke="#30363d"
+          stroke-width="1.5"
+          marker-end="url(#ah3)"
+        />
+
+        <rect x="358" y="100" rx="8" width="70" height="28" fill="#161b22" stroke="#bc8cff" />
+        <text x="393" y="118" text-anchor="middle" fill="#bc8cff" font-size="8" font-weight="700">
+          COLLECTORS
+        </text>
+
+        <!-- Labels below lifecycle -->
+        <text x="58" y="145" text-anchor="middle" fill="#484f58" font-size="7">POST /flow</text>
+        <text x="140" y="145" text-anchor="middle" fill="#484f58" font-size="7">DaVinci</text>
+        <text x="222" y="145" text-anchor="middle" fill="#484f58" font-size="7">continue</text>
+        <text x="304" y="145" text-anchor="middle" fill="#484f58" font-size="7">Password</text>
+        <text x="393" y="145" text-anchor="middle" fill="#484f58" font-size="7">2 inputs</text>
+
+        <!-- Selection indicator -->
+        <line
+          x1="160"
+          y1="46"
+          x2="160"
+          y2="70"
+          stroke="#58a6ff"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+        />
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C. Hybrid — Rail Overview + Step Detail</h3>
+      <p>
+        Horizontal rail at the top (like existing FlowView) for the full flow overview. Below, an
+        expanded step-detail section shows the internal lifecycle: Request → Server → Response →
+        Node → Collectors. Click a node in the rail to drill in. Keeps context while showing detail.
+        The detail section is the draggable canvas.
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,530 @@
+<h2>Learn Tab — Error Visualization</h2>
+<p class="subtitle">
+  When a step fails, how should the lifecycle show it? Here's a scenario: Server returns 401
+  Unauthorized.
+</p>
+
+<div class="cards">
+  <div class="card" data-choice="break" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 32px 24px; background: #0d1117">
+      <svg width="100%" height="180" viewBox="0 0 520 180">
+        <defs>
+          <marker id="e1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#58a6ff" />
+          </marker>
+          <marker id="e2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#f85149" />
+          </marker>
+        </defs>
+
+        <text
+          x="260"
+          y="18"
+          text-anchor="middle"
+          fill="#e6edf3"
+          font-size="12"
+          font-weight="600"
+          font-family="system-ui"
+        >
+          Step 3 — Token Exchange (FAILED)
+        </text>
+
+        <!-- Browser card (normal) -->
+        <g transform="translate(20, 35)">
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#58a6ff"
+            stroke-width="1.5"
+          />
+          <rect x="0" y="0" width="68" height="12" rx="6" fill="#1c2d42" />
+          <rect x="0" y="6" width="68" height="6" fill="#1c2d42" />
+          <circle cx="9" cy="6" r="2" fill="#f85149" />
+          <circle cx="16" cy="6" r="2" fill="#d29922" />
+          <circle cx="23" cy="6" r="2" fill="#3fb950" />
+          <circle cx="34" cy="32" r="10" fill="none" stroke="#58a6ff" stroke-width="1" />
+          <ellipse cx="34" cy="32" rx="4" ry="10" fill="none" stroke="#58a6ff" stroke-width="0.7" />
+          <line x1="24" y1="32" x2="44" y2="32" stroke="#58a6ff" stroke-width="0.7" />
+        </g>
+        <text
+          x="54"
+          y="100"
+          text-anchor="middle"
+          fill="#58a6ff"
+          font-size="9"
+          font-weight="700"
+          font-family="system-ui"
+        >
+          BROWSER
+        </text>
+
+        <!-- Arrow: request -->
+        <line
+          x1="96"
+          y1="59"
+          x2="148"
+          y2="59"
+          stroke="#58a6ff"
+          stroke-width="2"
+          marker-end="url(#e1)"
+        />
+
+        <!-- Server card (normal) -->
+        <g transform="translate(156, 35)">
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#8b949e"
+            stroke-width="1.5"
+          />
+          <path
+            d="M 18 36 Q 8 36 8 28 Q 8 20 16 18 Q 16 10 26 10 Q 34 10 36 16 Q 36 12 42 12 Q 50 12 50 20 Q 56 22 56 28 Q 56 36 46 36 Z"
+            fill="#21262d"
+            stroke="#8b949e"
+            stroke-width="0.8"
+          />
+          <circle cx="23" cy="26" r="2" fill="#3fb950" />
+          <circle cx="33" cy="26" r="2" fill="#3fb950" />
+          <circle cx="43" cy="26" r="2" fill="#3fb950" />
+        </g>
+        <text
+          x="190"
+          y="100"
+          text-anchor="middle"
+          fill="#8b949e"
+          font-size="9"
+          font-weight="700"
+          font-family="system-ui"
+        >
+          SERVER
+        </text>
+
+        <!-- ERROR Arrow: response (red, with X break) -->
+        <line x1="232" y1="59" x2="260" y2="59" stroke="#f85149" stroke-width="2" />
+        <!-- Break symbol -->
+        <g transform="translate(265, 52)">
+          <line
+            x1="0"
+            y1="0"
+            x2="10"
+            y2="14"
+            stroke="#f85149"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+          <line
+            x1="10"
+            y1="0"
+            x2="0"
+            y2="14"
+            stroke="#f85149"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+        </g>
+        <line
+          x1="280"
+          y1="59"
+          x2="300"
+          y2="59"
+          stroke="#f85149"
+          stroke-width="2"
+          marker-end="url(#e2)"
+        />
+        <text
+          x="266"
+          y="78"
+          text-anchor="middle"
+          fill="#f85149"
+          font-size="8"
+          font-weight="700"
+          font-family="system-ui"
+        >
+          401
+        </text>
+
+        <!-- SDK card (error state — red border, pulsing) -->
+        <g transform="translate(308, 35)">
+          <rect
+            x="-3"
+            y="-3"
+            width="74"
+            height="54"
+            rx="8"
+            fill="none"
+            stroke="#f85149"
+            stroke-width="1.5"
+            opacity="0.4"
+          >
+            <animate
+              attributeName="opacity"
+              values="0.4;0.15;0.4"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+          </rect>
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#f85149"
+            stroke-width="1.5"
+          />
+          <rect x="0" y="0" width="68" height="12" rx="6" fill="rgba(248,81,73,0.15)" />
+          <rect x="0" y="6" width="68" height="6" fill="rgba(248,81,73,0.15)" />
+          <text x="34" y="34" text-anchor="middle" fill="#f85149" font-size="18">✕</text>
+        </g>
+        <text
+          x="342"
+          y="100"
+          text-anchor="middle"
+          fill="#f85149"
+          font-size="9"
+          font-weight="700"
+          font-family="system-ui"
+        >
+          ERROR
+        </text>
+        <text
+          x="342"
+          y="112"
+          text-anchor="middle"
+          fill="#f85149"
+          font-size="7"
+          font-family="'Cascadia Code',monospace"
+        >
+          Auth failed
+        </text>
+
+        <!-- No collector card — flow breaks here -->
+        <g transform="translate(414, 35)">
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#30363d"
+            stroke-width="1"
+            stroke-dasharray="4 3"
+            opacity="0.4"
+          />
+          <text x="34" y="30" text-anchor="middle" fill="#30363d" font-size="9">—</text>
+        </g>
+        <text
+          x="448"
+          y="100"
+          text-anchor="middle"
+          fill="#30363d"
+          font-size="9"
+          font-family="system-ui"
+        >
+          FORM
+        </text>
+        <text x="448" y="112" text-anchor="middle" fill="#30363d" font-size="7" font-style="italic">
+          skipped
+        </text>
+
+        <!-- Error banner below -->
+        <rect
+          x="20"
+          y="130"
+          rx="4"
+          width="480"
+          height="35"
+          fill="rgba(248,81,73,0.08)"
+          stroke="rgba(248,81,73,0.25)"
+        />
+        <rect x="20" y="130" width="3" height="35" rx="1" fill="#f85149" />
+        <text
+          x="38"
+          y="147"
+          fill="#f85149"
+          font-size="10"
+          font-weight="600"
+          font-family="system-ui"
+        >
+          ✕ Authentication Failed
+        </text>
+        <text x="38" y="160" fill="#8b949e" font-size="9" font-family="system-ui">
+          401 Unauthorized — Invalid credentials. Token exchange rejected by server.
+        </text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A. Broken Flow</h3>
+      <p>
+        The arrow between server and SDK shows a visible ✕ break. The SDK card turns red with a
+        pulsing ring. Downstream stages (collectors/form) are ghosted out with dashed borders and
+        "skipped" label. Error banner below explains what happened. The flow visually stops at the
+        failure point.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="highlight" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 32px 24px; background: #0d1117">
+      <svg width="100%" height="180" viewBox="0 0 520 180">
+        <defs>
+          <marker id="f1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#58a6ff" />
+          </marker>
+          <marker id="f2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#f85149" />
+          </marker>
+        </defs>
+
+        <text
+          x="260"
+          y="18"
+          text-anchor="middle"
+          fill="#e6edf3"
+          font-size="12"
+          font-weight="600"
+          font-family="system-ui"
+        >
+          Step 3 — Token Exchange
+        </text>
+
+        <!-- Browser card -->
+        <g transform="translate(20, 35)">
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#58a6ff"
+            stroke-width="1.5"
+          />
+          <rect x="0" y="0" width="68" height="12" rx="6" fill="#1c2d42" />
+          <rect x="0" y="6" width="68" height="6" fill="#1c2d42" />
+          <circle cx="9" cy="6" r="2" fill="#f85149" />
+          <circle cx="16" cy="6" r="2" fill="#d29922" />
+          <circle cx="23" cy="6" r="2" fill="#3fb950" />
+          <circle cx="34" cy="32" r="10" fill="none" stroke="#58a6ff" stroke-width="1" />
+          <ellipse cx="34" cy="32" rx="4" ry="10" fill="none" stroke="#58a6ff" stroke-width="0.7" />
+          <line x1="24" y1="32" x2="44" y2="32" stroke="#58a6ff" stroke-width="0.7" />
+        </g>
+        <text
+          x="54"
+          y="100"
+          text-anchor="middle"
+          fill="#58a6ff"
+          font-size="9"
+          font-weight="700"
+          font-family="system-ui"
+        >
+          BROWSER
+        </text>
+
+        <!-- Arrow -->
+        <line
+          x1="96"
+          y1="59"
+          x2="148"
+          y2="59"
+          stroke="#58a6ff"
+          stroke-width="2"
+          marker-end="url(#f1)"
+        />
+
+        <!-- Server card — highlighted red, this is where the problem is -->
+        <g transform="translate(156, 35)">
+          <!-- Red glow behind -->
+          <rect
+            x="-4"
+            y="-4"
+            width="76"
+            height="56"
+            rx="8"
+            fill="rgba(248,81,73,0.1)"
+            stroke="#f85149"
+            stroke-width="1"
+            opacity="0.6"
+          >
+            <animate
+              attributeName="opacity"
+              values="0.6;0.2;0.6"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+          </rect>
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#f85149"
+            stroke-width="2"
+          />
+          <path
+            d="M 18 36 Q 8 36 8 28 Q 8 20 16 18 Q 16 10 26 10 Q 34 10 36 16 Q 36 12 42 12 Q 50 12 50 20 Q 56 22 56 28 Q 56 36 46 36 Z"
+            fill="#21262d"
+            stroke="#f85149"
+            stroke-width="0.8"
+          />
+          <circle cx="23" cy="26" r="2" fill="#f85149" />
+          <circle cx="33" cy="26" r="2" fill="#f85149" />
+          <circle cx="43" cy="26" r="2" fill="#f85149" />
+          <!-- Error badge -->
+          <rect x="42" y="-6" rx="6" width="30" height="14" fill="#f85149" />
+          <text x="57" y="4" text-anchor="middle" fill="white" font-size="8" font-weight="700">
+            401
+          </text>
+        </g>
+        <text
+          x="190"
+          y="100"
+          text-anchor="middle"
+          fill="#f85149"
+          font-size="9"
+          font-weight="700"
+          font-family="system-ui"
+        >
+          SERVER
+        </text>
+        <text
+          x="190"
+          y="112"
+          text-anchor="middle"
+          fill="#f85149"
+          font-size="7"
+          font-family="'Cascadia Code',monospace"
+        >
+          401 Unauthorized
+        </text>
+
+        <!-- Arrow: red response -->
+        <line
+          x1="232"
+          y1="59"
+          x2="300"
+          y2="59"
+          stroke="#f85149"
+          stroke-width="2"
+          marker-end="url(#f2)"
+        />
+
+        <!-- SDK card (receives error) -->
+        <g transform="translate(308, 35)">
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#f85149"
+            stroke-width="1.5"
+          />
+          <rect x="0" y="0" width="68" height="12" rx="6" fill="rgba(248,81,73,0.12)" />
+          <rect x="0" y="6" width="68" height="6" fill="rgba(248,81,73,0.12)" />
+          <text x="26" y="34" fill="#f85149" font-size="14">⚙</text>
+          <text x="46" y="34" fill="#f85149" font-size="12">✕</text>
+        </g>
+        <text
+          x="342"
+          y="100"
+          text-anchor="middle"
+          fill="#f85149"
+          font-size="9"
+          font-weight="700"
+          font-family="system-ui"
+        >
+          SDK
+        </text>
+        <text
+          x="342"
+          y="112"
+          text-anchor="middle"
+          fill="#f85149"
+          font-size="7"
+          font-family="'Cascadia Code',monospace"
+        >
+          error
+        </text>
+
+        <!-- Collector ghosted -->
+        <g transform="translate(414, 35)">
+          <rect
+            x="0"
+            y="0"
+            width="68"
+            height="48"
+            rx="6"
+            fill="#161b22"
+            stroke="#30363d"
+            stroke-width="1"
+            stroke-dasharray="4 3"
+            opacity="0.4"
+          />
+          <text x="34" y="30" text-anchor="middle" fill="#30363d" font-size="9">—</text>
+        </g>
+        <text
+          x="448"
+          y="100"
+          text-anchor="middle"
+          fill="#30363d"
+          font-size="9"
+          font-family="system-ui"
+        >
+          FORM
+        </text>
+
+        <!-- Error detail card below -->
+        <rect
+          x="130"
+          y="125"
+          rx="6"
+          width="260"
+          height="48"
+          fill="rgba(248,81,73,0.06)"
+          stroke="rgba(248,81,73,0.3)"
+          stroke-width="1"
+        />
+        <rect x="130" y="125" width="3" height="48" rx="1" fill="#f85149" />
+        <text
+          x="148"
+          y="142"
+          fill="#f85149"
+          font-size="10"
+          font-weight="600"
+          font-family="system-ui"
+        >
+          ✕ 401 Unauthorized
+        </text>
+        <text x="148" y="156" fill="#8b949e" font-size="8" font-family="system-ui">
+          Invalid credentials — check username/password
+        </text>
+        <text x="148" y="168" fill="#484f58" font-size="7" font-family="'Cascadia Code',monospace">
+          POST /davinci/connections/…/flow • 123ms
+        </text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B. Source Highlight</h3>
+      <p>
+        The card where the error originated (SERVER) gets a red border, pulsing glow, and a "401"
+        badge. All downstream cards also turn red to show error propagation, but only the source
+        card pulses. Downstream form is ghosted. Error detail card below shows specifics anchored to
+        the source.
+      </p>
+    </div>
+  </div>
+</div>

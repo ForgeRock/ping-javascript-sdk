@@ -10,28 +10,45 @@ import Set exposing (Set)
 import Svg exposing (..)
 import Svg.Attributes as SA
 import Svg.Events
-import Types exposing (AuthEvent, EventData(..), JourneyData, NetworkData, NodeData, OidcData)
+import Types exposing (AuthEvent, EventData(..), JourneyData, NetworkData, NodeData, NodeStatus(..), OidcData)
 import Update exposing (Msg(..))
 
 
--- Unified status string for a node — works for DaVinci, Journey, and OIDC events.
-nodeStatusLabel : AuthEvent -> String
-nodeStatusLabel event =
+nodeStatusFromEvent : AuthEvent -> NodeStatus
+nodeStatusFromEvent event =
     case event.data of
         Oidc oidc ->
-            Maybe.withDefault "unknown" oidc.status
+            case oidc.status of
+                Just "success" ->
+                    Success
+
+                Just "error" ->
+                    StatusError
+
+                _ ->
+                    UnknownStatus
 
         Journey journey ->
-            Maybe.withDefault "Step" journey.stepType
+            case journey.stepType of
+                Just "LoginSuccess" ->
+                    Success
+
+                Just "LoginFailure" ->
+                    Failure
+
+                Just "Step" ->
+                    Continue
+
+                _ ->
+                    UnknownStatus
 
         DaVinciNode node ->
-            Maybe.withDefault "unknown" node.nodeStatus
+            Maybe.withDefault UnknownStatus node.nodeStatus
 
         _ ->
-            "unknown"
+            UnknownStatus
 
 
--- Unified display label for the rail node.
 nodeDisplayLabel : AuthEvent -> String
 nodeDisplayLabel event =
     case event.data of
@@ -159,7 +176,7 @@ renderRailNode selectedNodeId index event =
             44
 
         status =
-            nodeStatusLabel event
+            nodeStatusFromEvent event
 
         color =
             Helpers.nodeColor status
@@ -169,6 +186,9 @@ renderRailNode selectedNodeId index event =
 
         label =
             nodeDisplayLabel event
+
+        statusLabel =
+            Helpers.nodeStatusLabel status
 
         glowRing =
             if isSelected then
@@ -208,7 +228,7 @@ renderRailNode selectedNodeId index event =
                 ]
                 [ Svg.text (truncate_ 14 label) ]
 
-        statusLabel =
+        statusText =
             Svg.text_
                 [ SA.x (String.fromInt cx_)
                 , SA.y (String.fromInt (cy_ + nodeRadius + 26))
@@ -217,14 +237,14 @@ renderRailNode selectedNodeId index event =
                 , SA.fill color
                 , SA.fontFamily "'Segoe UI', system-ui, sans-serif"
                 ]
-                [ Svg.text status ]
+                [ Svg.text statusLabel ]
     in
     glowRing
         ++ [ Svg.g
                 [ Svg.Events.onClick (SelectFlowNode event.id)
                 , SA.style "cursor:pointer"
                 ]
-                [ nodeBg, nameLabel, statusLabel ]
+                [ nodeBg, nameLabel, statusText ]
            ]
 
 

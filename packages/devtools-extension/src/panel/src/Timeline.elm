@@ -4,18 +4,18 @@ import Helpers
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import Types exposing (AuthEvent, EventData(..))
+import Types exposing (AuthEvent, EventData(..), EventKind(..), EventSource(..), NodeStatus(..))
 import Update exposing (Msg(..))
 
 
-nodeStatusClass : String -> String
+nodeStatusClass : NodeStatus -> String
 nodeStatusClass status =
     case status of
-        "continue" -> "kv-cont"
-        "success"  -> "kv-ok"
-        "error"    -> "kv-err"
-        "failure"  -> "kv-err"
-        _          -> "st-nil"
+        Continue    -> "kv-cont"
+        Success     -> "kv-ok"
+        StatusError -> "kv-err"
+        Failure     -> "kv-err"
+        UnknownStatus -> "st-nil"
 
 
 view : List AuthEvent -> Maybe String -> Html Msg
@@ -33,20 +33,18 @@ renderRow selectedId event =
         rowClass =
             if isSelected then "tl-row sel" else "tl-row"
     in
-    case Helpers.eventType event of
-        Helpers.NodeChange ->
+    case event.kind of
+        NodeChange ->
             renderSdkRow rowClass event
 
-        Helpers.SdkConfig ->
+        SdkConfig ->
             renderConfigRow rowClass event
 
-        _ ->
-            case Helpers.eventSource event of
-                Helpers.SessionSource ->
-                    renderSessionRow rowClass event
+        SessionEvent ->
+            renderSessionRow rowClass event
 
-                _ ->
-                    renderNetworkRow rowClass event
+        _ ->
+            renderNetworkRow rowClass event
 
 
 renderConfigRow : String -> AuthEvent -> Html Msg
@@ -84,15 +82,18 @@ renderSdkRow rowClass event =
         DaVinciNode node ->
             let
                 status =
-                    Maybe.withDefault "unknown" node.nodeStatus
+                    Maybe.withDefault UnknownStatus node.nodeStatus
+
+                statusLabel =
+                    Helpers.nodeStatusLabel status
 
                 transitionLabel =
                     case node.previousStatus of
                         Just prev ->
-                            prev ++ " → " ++ status
+                            Helpers.nodeStatusLabel prev ++ " → " ++ statusLabel
 
                         Nothing ->
-                            status
+                            statusLabel
 
                 collectorTag =
                     case node.collectors of
