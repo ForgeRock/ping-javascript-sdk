@@ -3,6 +3,7 @@ module LearnView exposing (view)
 import Helpers
 import Html exposing (Html)
 import Html.Attributes exposing (..)
+import Json.Decode as JD
 import Svg exposing (..)
 import Svg.Attributes as SA
 import Svg.Events
@@ -298,8 +299,20 @@ viewCanvas events canvas =
                     [ SA.class "lv-canvas-svg"
                     , SA.width "100%"
                     , SA.height "100%"
-                    , Svg.Events.onMouseDown (LearnStartPan 0 0)
-                    , Svg.Events.onMouseUp LearnEndDrag
+                    , Svg.Events.on "mousedown"
+                        (JD.map2 LearnStartPan
+                            (JD.field "clientX" JD.float)
+                            (JD.field "clientY" JD.float)
+                        )
+                    , Svg.Events.on "mousemove"
+                        (JD.map2 LearnDrag
+                            (JD.field "clientX" JD.float)
+                            (JD.field "clientY" JD.float)
+                        )
+                    , Svg.Events.on "mouseup" (JD.succeed LearnEndDrag)
+                    , Svg.Events.on "mouseleave" (JD.succeed LearnEndDrag)
+                    , Svg.Events.on "wheel"
+                        (JD.map LearnZoom (JD.field "deltaY" JD.float))
                     ]
                     [ canvasDefs
                     , Svg.g [ SA.transform transform ]
@@ -522,6 +535,13 @@ renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMeth
            )
 
 
+cardDragDecoder : CardId -> JD.Decoder Msg
+cardDragDecoder cardId =
+    JD.map2 (LearnStartDrag cardId)
+        (JD.field "clientX" JD.float)
+        (JD.field "clientY" JD.float)
+
+
 renderCard : CardId -> Float -> Float -> Float -> Float -> String -> String -> String -> Maybe CardId -> Svg Msg -> String -> String -> Svg Msg
 renderCard cardId x y w h borderColor opacity dashArray expandedCard icon label contextLine =
     let
@@ -529,8 +549,9 @@ renderCard cardId x y w h borderColor opacity dashArray expandedCard icon label 
             expandedCard == Just cardId
     in
     Svg.g
-        [ Svg.Events.onClick (LearnExpandCard cardId)
-        , SA.style "cursor:pointer"
+        [ Svg.Events.on "mousedown" (cardDragDecoder cardId)
+        , Svg.Events.onClick (LearnExpandCard cardId)
+        , SA.style "cursor:grab"
         , SA.opacity opacity
         ]
         [ Svg.rect
