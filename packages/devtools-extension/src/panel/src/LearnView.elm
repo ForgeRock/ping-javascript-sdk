@@ -316,7 +316,7 @@ viewCanvas events canvas =
                     ]
                     [ canvasDefs
                     , Svg.g [ SA.transform transform ]
-                        (renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMethod responseStatus)
+                        (renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMethod responseStatus maybeNode requestEvent responseEvent)
                     ]
                 ]
 
@@ -341,8 +341,8 @@ canvasDefs =
         ]
 
 
-renderCards : CanvasState -> Bool -> Bool -> Bool -> Bool -> String -> String -> List (Svg Msg)
-renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMethod responseStatus =
+renderCards : CanvasState -> Bool -> Bool -> Bool -> Bool -> String -> String -> Maybe AuthEvent -> Maybe AuthEvent -> Maybe AuthEvent -> List (Svg Msg)
+renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMethod responseStatus maybeNode requestEvent responseEvent =
     let
         cardW =
             160
@@ -466,6 +466,8 @@ renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMeth
         (browserIcon (bx + 30) (by + 20))
         "BROWSER"
         "User interaction"
+    , expandedPanel BrowserCard bx (by + fH + 8) fW canvas.expandedCard
+        (browserDetail requestEvent)
 
     -- Arrow: Browser -> Server
     , renderArrowLine (bx + fW) (by + fH / 2) sx (sy + fH / 2) (requestMethod ++ " ->")
@@ -475,6 +477,8 @@ renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMeth
         (serverIcon (sx + 40) (sy + 15))
         "SERVER"
         ("Response " ++ responseStatus)
+    , expandedPanel ServerCard sx (sy + fH + 8) fW canvas.expandedCard
+        (serverDetail responseEvent)
 
     -- Arrow: Server -> SDK
     , renderArrowLine (sx + fW) (sy + fH / 2) sdx (sdy + fH / 2) ("-> " ++ responseStatus)
@@ -484,6 +488,8 @@ renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMeth
         (sdkIcon (sdx + 35) (sdy + 20))
         "SDK"
         "Processes response"
+    , expandedPanel SdkCard sdx (sdy + fH + 8) fW canvas.expandedCard
+        (sdkDetail maybeNode)
 
     -- Arrow: SDK -> Form
     , renderArrowLine (sdx + fW) (sdy + fH / 2) fx (fy + fH / 2) "renders"
@@ -498,6 +504,8 @@ renderCards canvas hasError serverHasError hasCollectors noNetEvents requestMeth
          else
             "Skipped"
         )
+    , expandedPanel FormCard fx (fy + fH + 8) fW canvas.expandedCard
+        (formDetail maybeNode)
 
     -- Error pulse on source card when error
     ]
@@ -626,6 +634,148 @@ renderArrowLine x1 y1 x2 y2 label =
             ]
             [ Svg.text label ]
         ]
+
+
+
+-- ── Expanded Panels ─────────────────────────────────────────────────────────
+
+
+expandedPanel : CardId -> Float -> Float -> Float -> Maybe CardId -> List (Html Msg) -> Svg Msg
+expandedPanel cardId x y w expandedCard content =
+    if expandedCard == Just cardId then
+        Svg.foreignObject
+            [ SA.x (String.fromFloat x)
+            , SA.y (String.fromFloat y)
+            , SA.width (String.fromFloat w)
+            , SA.height "80"
+            ]
+            [ Html.div
+                [ Html.Attributes.style "font-family" "'Segoe UI', system-ui, sans-serif"
+                , Html.Attributes.style "font-size" "10px"
+                , Html.Attributes.style "color" "#8b949e"
+                , Html.Attributes.style "background" "#161B22"
+                , Html.Attributes.style "border" "1px solid #30363d"
+                , Html.Attributes.style "border-radius" "6px"
+                , Html.Attributes.style "padding" "6px 8px"
+                ]
+                content
+            ]
+
+    else
+        Svg.g [] []
+
+
+detailRow : String -> String -> Html Msg
+detailRow label value =
+    Html.div [ Html.Attributes.style "margin-bottom" "2px" ]
+        [ Html.span [ Html.Attributes.style "color" "#484f58" ] [ Html.text (label ++ " ") ]
+        , Html.span [ Html.Attributes.style "color" "#e6edf3" ] [ Html.text value ]
+        ]
+
+
+browserDetail : Maybe AuthEvent -> List (Html Msg)
+browserDetail requestEvent =
+    case requestEvent of
+        Just re ->
+            case re.data of
+                Network nd ->
+                    [ detailRow "Method" (Maybe.withDefault "POST" nd.method)
+                    , detailRow "URL" (truncate_ 22 (Maybe.withDefault "—" nd.url))
+                    ]
+
+                _ ->
+                    [ Html.text "No request data" ]
+
+        Nothing ->
+            [ Html.text "No request captured" ]
+
+
+serverDetail : Maybe AuthEvent -> List (Html Msg)
+serverDetail responseEvent =
+    case responseEvent of
+        Just re ->
+            case re.data of
+                Network nd ->
+                    let
+                        statusStr =
+                            Maybe.map String.fromInt nd.status
+                                |> Maybe.withDefault "—"
+
+                        durationStr =
+                            case nd.duration of
+                                Just d ->
+                                    String.fromFloat d ++ "ms"
+
+                                Nothing ->
+                                    "—"
+                    in
+                    [ detailRow "Status" statusStr
+                    , detailRow "Duration" durationStr
+                    ]
+
+                _ ->
+                    [ Html.text "No response data" ]
+
+        Nothing ->
+            [ Html.text "No response captured" ]
+
+
+sdkDetail : Maybe AuthEvent -> List (Html Msg)
+sdkDetail maybeNode =
+    case maybeNode of
+        Just n ->
+            case n.data of
+                DaVinciNode nd ->
+                    let
+                        statusTransition =
+                            (Maybe.map (Helpers.nodeStatusLabel >> (\s -> s)) nd.previousStatus
+                                |> Maybe.withDefault "—"
+                            )
+                                ++ " → "
+                                ++ (Maybe.map Helpers.nodeStatusLabel nd.nodeStatus
+                                        |> Maybe.withDefault "—"
+                                   )
+
+                        formName =
+                            Maybe.withDefault "—" nd.nodeName
+
+                        interactionId =
+                            Maybe.withDefault "—" nd.interactionId
+                    in
+                    [ detailRow "Status" statusTransition
+                    , detailRow "Node" (truncate_ 18 formName)
+                    , detailRow "Interaction" (truncate_ 14 interactionId)
+                    ]
+
+                _ ->
+                    [ Html.text "Not a DaVinci node" ]
+
+        Nothing ->
+            [ Html.text "No node selected" ]
+
+
+formDetail : Maybe AuthEvent -> List (Html Msg)
+formDetail maybeNode =
+    case maybeNode of
+        Just n ->
+            case n.data of
+                DaVinciNode nd ->
+                    case nd.collectors of
+                        Just collectors ->
+                            if List.isEmpty collectors then
+                                [ Html.text "No collectors" ]
+
+                            else
+                                [ detailRow "Collectors" (String.fromInt (List.length collectors)) ]
+
+                        Nothing ->
+                            [ Html.text "No collectors" ]
+
+                _ ->
+                    [ Html.text "No form data" ]
+
+        Nothing ->
+            [ Html.text "No node selected" ]
 
 
 
