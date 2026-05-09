@@ -4,8 +4,7 @@
 
 Most auth debugging starts in the Network panel and stays there — copying tokens into jwt.io, cross-referencing timestamps, guessing which 400 was the CORS preflight and which was a bad grant. Ping DevTools replaces that with a single panel that captures both network traffic and SDK-level events, correlates them into flows, and runs an automated diagnosis engine that tells you _what went wrong and how to fix it_.
 
-<!-- TODO: add screenshot — Flow view with the Flow Health error banner visible -->
-<!-- ![Flow view with diagnosis banner](docs/images/flow-view.png) -->
+![Flow view with diagnosis banner and node rail](screenshots/Flow-Screen.png)
 
 ---
 
@@ -70,8 +69,7 @@ Ping DevTools gives you:
 - **Flow-level structure** — the Flow view shows the authentication flow as a sequence of nodes with detail cards, not a flat list of URLs.
 - **Playback** — step through the flow to see exactly what the SDK saw at each point.
 
-<!-- TODO: add screenshot — Timeline view showing network and SDK events interleaved -->
-<!-- ![Timeline with two-stream correlation](docs/images/timeline.png) -->
+![Timeline with two-stream correlation](screenshots/Timeline-Screen.png)
 
 ---
 
@@ -97,7 +95,8 @@ Host page
             │
       panel/Main.elm  (Elm 0.19)
         ├── Timeline view  — chronological event table with Inspector
-        └── Flow view      — node rail + detail card + health banner
+        ├── Flow view      — node rail + detail card + health banner
+        └── Learn view     — canvas-based request lifecycle visualization
 ```
 
 Network events follow a parallel path: `network-observer.ts` uses `chrome.devtools.network.onRequestFinished` to capture HAR entries, filters them against auth URL patterns, and sends them to the same service worker.
@@ -217,6 +216,14 @@ A chronological table of all captured events. Each row shows timestamp, event ty
 ### Flow
 
 A visual representation of the authentication flow as a sequence of SDK nodes. The node rail draws coloured circles for each node with arrows connecting them, status and node-name labels, and a glow effect on the selected node. Selecting a node opens a detail card with contextual information — collectors for DaVinci, callbacks for Journey steps, phase and error data for OIDC — plus any causally linked network requests with expandable request/response bodies. The Flow Health banner appears above the rail when the diagnosis engine detects issues.
+
+### Learn
+
+A canvas-based visualization that maps the request lifecycle across four stages: **Browser**, **Server**, **SDK**, and **Form**. Each stage is drawn as a labelled card with animated connector arrows showing the direction and outcome of each hop — method labels on outgoing edges, status codes on responses. Error states are highlighted with red borders and status annotations (e.g. `X 400`), making it immediately clear where a request failed and how the SDK interpreted the result.
+
+The Learn tab correlates network events with SDK state transitions to show the full round-trip: the browser sends a request, the server responds, the SDK processes the response into a node transition, and the form renders the result. When errors occur, you can see exactly which stage failed and how that failure propagated through the rest of the pipeline.
+
+![Learn tab showing request lifecycle with error highlighting](screenshots/Learn-Tab-Error-Screen.png)
 
 ---
 
