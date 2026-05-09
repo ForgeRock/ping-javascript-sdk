@@ -4,7 +4,7 @@ import Dict
 import Helpers
 import Model exposing (Model)
 import Set
-import Types exposing (AuthEvent, DiagnosisResult, FlowHealth(..), ImportMeta, InspectorTab(..), SnapshotMeta, ViewMode(..))
+import Types exposing (AuthEvent, CanvasState, CardId(..), DiagnosisResult, EventData(..), EventKind(..), EventSource(..), FlowHealth(..), ImportMeta, InspectorTab(..), SnapshotMeta, Vec2, ViewMode(..))
 
 
 type Msg
@@ -42,6 +42,16 @@ type Msg
     | SnapshotsReceived (List SnapshotMeta)
     | LoadSnapshot String
     | DeleteSnapshot String
+    | LearnSelectNode String
+    | LearnExpandCard CardId
+    | LearnCollapseCard
+    | LearnStartDrag CardId Float Float
+    | LearnDrag Float Float
+    | LearnEndDrag
+    | LearnStartPan Float Float
+    | LearnPan Float Float
+    | LearnEndPan
+    | LearnZoom Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -74,19 +84,19 @@ update msg model =
                 newTab =
                     case ( model.activeTab, selectedEvent ) of
                         ( CollectorsTab, Just e ) ->
-                            if Helpers.eventType e /= Helpers.NodeChange then
+                            if e.kind /= NodeChange then
                                 HeadersTab
                             else
                                 CollectorsTab
 
                         ( SessionTab, Just e ) ->
-                            if Helpers.eventSource e /= Helpers.SessionSource then
+                            if e.source /= SessionSource then
                                 HeadersTab
                             else
                                 SessionTab
 
                         ( ConfigTab, Just e ) ->
-                            if Helpers.eventType e /= Helpers.SdkConfig then
+                            if e.kind /= SdkConfig then
                                 HeadersTab
                             else
                                 ConfigTab
@@ -313,3 +323,235 @@ update msg model =
               }
             , Cmd.none
             )
+
+        LearnSelectNode nodeId ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            ( { model
+                | learnCanvas =
+                    { canvas
+                        | learnSelectedNodeId = Just nodeId
+                        , expandedCard = Nothing
+                        , cardPositions = []
+                    }
+              }
+            , Cmd.none
+            )
+
+        LearnExpandCard cardId ->
+            let
+                canvas =
+                    model.learnCanvas
+
+                newExpanded =
+                    if canvas.expandedCard == Just cardId then
+                        Nothing
+
+                    else
+                        Just cardId
+            in
+            ( { model | learnCanvas = { canvas | expandedCard = newExpanded } }
+            , Cmd.none
+            )
+
+        LearnCollapseCard ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            ( { model | learnCanvas = { canvas | expandedCard = Nothing } }
+            , Cmd.none
+            )
+
+        LearnStartDrag cardId mx my ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            ( { model
+                | learnCanvas =
+                    { canvas
+                        | dragTarget = Just cardId
+                        , dragStart = Just (Vec2 mx my)
+                    }
+              }
+            , Cmd.none
+            )
+
+        LearnDrag mx my ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            case canvas.dragTarget of
+                Just cardId ->
+                    case canvas.dragStart of
+                        Just start ->
+                            let
+                                dx =
+                                    (mx - start.x) / canvas.zoom
+
+                                dy =
+                                    (my - start.y) / canvas.zoom
+
+                                key =
+                                    cardIdToString cardId
+
+                                existing =
+                                    List.filter (\( k, _ ) -> k == key) canvas.cardPositions
+                                        |> List.head
+                                        |> Maybe.map Tuple.second
+                                        |> Maybe.withDefault (Vec2 0 0)
+
+                                newPos =
+                                    Vec2 (existing.x + dx) (existing.y + dy)
+
+                                newPositions =
+                                    ( key, newPos )
+                                        :: List.filter (\( k, _ ) -> k /= key) canvas.cardPositions
+                            in
+                            ( { model
+                                | learnCanvas =
+                                    { canvas
+                                        | cardPositions = newPositions
+                                        , dragStart = Just (Vec2 mx my)
+                                    }
+                              }
+                            , Cmd.none
+                            )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                Nothing ->
+                    if canvas.isPanning then
+                        case canvas.panStart of
+                            Just start ->
+                                let
+                                    dx =
+                                        mx - start.x
+
+                                    dy =
+                                        my - start.y
+                                in
+                                ( { model
+                                    | learnCanvas =
+                                        { canvas
+                                            | panX = canvas.panX + dx
+                                            , panY = canvas.panY + dy
+                                            , panStart = Just (Vec2 mx my)
+                                        }
+                                  }
+                                , Cmd.none
+                                )
+
+                            Nothing ->
+                                ( model, Cmd.none )
+
+                    else
+                        ( model, Cmd.none )
+
+        LearnEndDrag ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            ( { model
+                | learnCanvas =
+                    { canvas
+                        | dragTarget = Nothing
+                        , dragStart = Nothing
+                        , isPanning = False
+                        , panStart = Nothing
+                    }
+              }
+            , Cmd.none
+            )
+
+        LearnStartPan mx my ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            ( { model
+                | learnCanvas =
+                    { canvas
+                        | isPanning = True
+                        , panStart = Just (Vec2 mx my)
+                    }
+              }
+            , Cmd.none
+            )
+
+        LearnPan mx my ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            case canvas.panStart of
+                Just start ->
+                    let
+                        dx =
+                            mx - start.x
+
+                        dy =
+                            my - start.y
+                    in
+                    ( { model
+                        | learnCanvas =
+                            { canvas
+                                | panX = canvas.panX + dx
+                                , panY = canvas.panY + dy
+                                , panStart = Just (Vec2 mx my)
+                            }
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        LearnEndPan ->
+            let
+                canvas =
+                    model.learnCanvas
+            in
+            ( { model
+                | learnCanvas =
+                    { canvas
+                        | isPanning = False
+                        , panStart = Nothing
+                    }
+              }
+            , Cmd.none
+            )
+
+        LearnZoom delta ->
+            let
+                canvas =
+                    model.learnCanvas
+
+                newZoom =
+                    clamp 0.5 3.0 (canvas.zoom + delta * 0.001)
+            in
+            ( { model | learnCanvas = { canvas | zoom = newZoom } }
+            , Cmd.none
+            )
+
+
+cardIdToString : CardId -> String
+cardIdToString cardId =
+    case cardId of
+        BrowserCard ->
+            "browser"
+
+        ServerCard ->
+            "server"
+
+        SdkCard ->
+            "sdk"
+
+        FormCard ->
+            "form"

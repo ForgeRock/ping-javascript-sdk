@@ -3,6 +3,7 @@ module View exposing (view)
 import FlowView
 import Graph
 import Helpers
+import LearnView
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -59,10 +60,7 @@ view model =
                     ]
 
             LearnMode ->
-                div [ class "fv-view" ]
-                    [ div [ class "fv-detail fv-detail-empty" ]
-                        [ text "Learn view coming soon" ]
-                    ]
+                LearnView.view model.events model.learnCanvas
         ]
 
 
@@ -316,9 +314,23 @@ viewToolbar model eventCount =
                 )
             ]
             [ text "Flow" ]
+        , button
+            [ onClick (SwitchViewMode LearnMode)
+            , class
+                (if model.viewMode == LearnMode then
+                    "tb-btn tb-mode-btn active"
+
+                 else
+                    "tb-btn tb-mode-btn"
+                )
+            ]
+            [ text "Learn" ]
         , div [ class "tb-spacer" ] []
         , if model.viewMode == FlowMode then
             FlowView.viewPlaybackControls model.events model.playbackIndex model.isPlaying
+
+          else if model.viewMode == LearnMode then
+            text ""
 
           else if eventCount > 0 then
             span [ class "event-count" ] [ text (String.fromInt eventCount ++ " events") ]

@@ -2,7 +2,7 @@ module Model exposing (Model, init)
 
 import Dict exposing (Dict)
 import Set exposing (Set)
-import Types exposing (AuthEvent, DiagnosisResult, ImportMeta, InspectorTab(..), SnapshotMeta, ViewMode(..))
+import Types exposing (AuthEvent, CanvasState, DiagnosisResult, ImportMeta, InspectorTab(..), SnapshotMeta, ViewMode(..))
 
 
 type alias Model =
@@ -27,6 +27,7 @@ type alias Model =
     , hoveredNodeId : Maybe String
     , snapshotMenuOpen : Bool
     , snapshots : List SnapshotMeta
+    , learnCanvas : CanvasState
     }
 
 
@@ -53,6 +54,18 @@ init _ =
       , hoveredNodeId = Nothing
       , snapshotMenuOpen = False
       , snapshots = []
+      , learnCanvas =
+            { zoom = 1.0
+            , panX = 0.0
+            , panY = 0.0
+            , cardPositions = []
+            , expandedCard = Nothing
+            , dragTarget = Nothing
+            , dragStart = Nothing
+            , isPanning = False
+            , panStart = Nothing
+            , learnSelectedNodeId = Nothing
+            }
       }
     , Cmd.none
     )
