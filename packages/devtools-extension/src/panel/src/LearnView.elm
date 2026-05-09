@@ -206,9 +206,19 @@ viewCanvas events canvas =
                 maybeNode =
                     Helpers.findEventInList nodeId events
 
-                netEvents =
+                -- Primary: direct causedBy link
+                directNetEvents =
                     List.filter (\e -> e.causedBy == Just nodeId) events
                         |> List.sortBy .timestamp
+
+                -- Fallback: network events in the time window between this
+                -- node and the next node (when causedBy is missing)
+                netEvents =
+                    if not (List.isEmpty directNetEvents) then
+                        directNetEvents
+
+                    else
+                        inferNetworkEvents nodeId events
 
                 requestEvent =
                     List.head netEvents
@@ -891,6 +901,66 @@ formIcon x y =
         , Svg.rect [ SA.x (String.fromFloat (x + 25)), SA.y (String.fromFloat (y + 46)), SA.width "40", SA.height "10", SA.rx "2", SA.fill "#A371F7", SA.fillOpacity "0.3", SA.stroke "#A371F7", SA.strokeWidth "1" ] []
         ]
 
+
+
+-- ── Event correlation ────────────────────────────────────────────────────────
+
+
+{-| When no network events have a direct `causedBy` link to this node,
+infer them by time window: find all network events whose timestamp falls
+between this node's timestamp and the next SDK node's timestamp.
+-}
+inferNetworkEvents : String -> List AuthEvent -> List AuthEvent
+inferNetworkEvents nodeId events =
+    let
+        sdkNodes =
+            Helpers.sdkNodes events
+
+        nodeTimestamp =
+            sdkNodes
+                |> List.filter (\e -> e.id == nodeId)
+                |> List.head
+                |> Maybe.map .timestamp
+
+        nextNodeTimestamp =
+            case nodeTimestamp of
+                Nothing ->
+                    Nothing
+
+                Just ts ->
+                    sdkNodes
+                        |> List.filter (\e -> e.timestamp > ts)
+                        |> List.head
+                        |> Maybe.map .timestamp
+
+        isNetworkEvent e =
+            case e.data of
+                Network _ ->
+                    True
+
+                _ ->
+                    False
+    in
+    case nodeTimestamp of
+        Nothing ->
+            []
+
+        Just startTs ->
+            events
+                |> List.filter isNetworkEvent
+                |> List.filter
+                    (\e ->
+                        e.timestamp
+                            >= startTs
+                            && (case nextNodeTimestamp of
+                                    Just endTs ->
+                                        e.timestamp < endTs
+
+                                    Nothing ->
+                                        True
+                               )
+                    )
+                |> List.sortBy .timestamp
 
 
 -- ── Helpers ──────────────────────────────────────────────────────────────────
