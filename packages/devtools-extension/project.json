@@ -9,11 +9,11 @@
       "options": {
         "cwd": "packages/devtools-extension",
         "commands": [
-          "node_modules/.bin/esbuild src/devtools/devtools.ts --bundle --outfile=dist/devtools.js --format=esm --platform=browser",
-          "node_modules/.bin/esbuild src/panel/panel.ts --bundle --outfile=dist/panel/panel.js --format=esm --platform=browser",
-          "node_modules/.bin/esbuild src/background/service-worker.ts --bundle --outfile=dist/background/service-worker.js --format=esm --platform=browser --footer:js=\"export {}\"",
-          "node_modules/.bin/esbuild src/content/content-script.ts --bundle --outfile=dist/content/content-script.js --format=iife --platform=browser",
-          "node_modules/.bin/esbuild src/content/relay.ts --bundle --outfile=dist/content/relay.js --format=iife --platform=browser",
+          "node_modules/.bin/esbuild src/devtools/devtools.ts --bundle --minify --outfile=dist/devtools.js --format=esm --platform=browser",
+          "node_modules/.bin/esbuild src/panel/panel.ts --bundle --minify --outfile=dist/panel/panel.js --format=esm --platform=browser",
+          "node_modules/.bin/esbuild src/background/service-worker.ts --bundle --minify --outfile=dist/background/service-worker.js --format=esm --platform=browser --footer:js=\"export {}\"",
+          "node_modules/.bin/esbuild src/content/content-script.ts --bundle --minify --outfile=dist/content/content-script.js --format=iife --platform=browser",
+          "node_modules/.bin/esbuild src/content/relay.ts --bundle --minify --outfile=dist/content/relay.js --format=iife --platform=browser",
           "mkdir -p dist/panel && node_modules/.bin/elm make src/panel/Main.elm --output=dist/panel/elm.js --optimize",
           "node_modules/.bin/terser dist/panel/elm.js --compress 'pure_funcs=[\"F2\",\"F3\",\"F4\",\"F5\",\"F6\",\"F7\",\"F8\",\"F9\",\"A2\",\"A3\",\"A4\",\"A5\",\"A6\",\"A7\",\"A8\",\"A9\"],pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output dist/panel/elm.js",
           "cp manifest.json dist/manifest.json",
