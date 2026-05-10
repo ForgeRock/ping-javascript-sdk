@@ -19,6 +19,7 @@ import { isValidWellknownUrl } from '@forgerock/sdk-utilities';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { NameValue } from '@forgerock/sdk-types';
 import { PolicyKey } from '@forgerock/sdk-types';
+import { PolicyParams } from '@forgerock/sdk-types';
 import { PolicyRequirement } from '@forgerock/sdk-types';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { Step } from '@forgerock/sdk-types';
@@ -337,6 +338,8 @@ export class PingOneProtectInitializeCallback extends BaseCallback {
 }
 
 export { PolicyKey }
+
+export { PolicyParams }
 
 export { PolicyRequirement }
 

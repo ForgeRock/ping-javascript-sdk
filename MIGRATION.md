@@ -150,6 +150,37 @@ if ('error' in result) {
 
 ---
 
+## StepOptions → StartParam / NextOptions / ResumeOptions
+
+For the full type-level mapping see [`interface_mapping.md` § Authentication Flow](./interface_mapping.md#3-authentication-flow). The three implementation pain points that aren't obvious from the type table:
+
+**1. `tree` is no longer threaded through `next()`.**
+
+The legacy pattern merged `initOptions` and `nextOptions` and passed the combined object to both `start()` and `next()`, carrying `tree` through every call. In the new SDK, `next()` does not accept a journey name — it only takes `{ query? }`. Remove any options merging/forwarding from your `next()` wrapper.
+
+```typescript
+// Legacy — options object merged and threaded through every call
+const options = { ...initOptions, ...nextOptions };
+await FRAuth.next(prevStep, options); // tree still in options
+
+// New — next() has no journey param; don't merge options through
+await journeyClient.next(prevStep, { query: nextOptions?.query });
+```
+
+**2. A journey stack stored `StepOptions[]`; it now stores `StartParam[]`.**
+
+If you maintain a stack for switching between trees, the stored type changes from `StepOptions` to `StartParam` and the deduplication key changes from `tree` to `journey`:
+
+```typescript
+// Legacy
+if (options?.tree !== current[current.length - 1]?.tree) { ... }
+
+// New
+if (options?.journey !== current[current.length - 1]?.journey) { ... }
+```
+
+---
+
 ## Step Types
 
 | Legacy                            | New                                 | Notes                                                 |
@@ -159,6 +190,58 @@ if ('error' in result) {
 | `FRLoginFailure` (class instance) | `JourneyLoginFailure` (object type) | Use `result.type === 'LoginFailure'`                  |
 
 All step methods (`getCallbackOfType`, `getDescription`, `getHeader`, `getStage`, `getSessionToken`, etc.) remain identical.
+
+### Creating a JourneyStep for Tests and Stories
+
+The legacy SDK created step objects by instantiating `new FRStep(payload)`, `new FRLoginSuccess(payload)`, or `new FRLoginFailure(payload)`. The new SDK creates these internally — there are no classes to instantiate. Because all three types are plain objects, replace every `new FR*` call with an object literal typed against the corresponding interface:
+
+```typescript
+// Before
+import { FRStep, FRLoginSuccess, FRLoginFailure } from '@forgerock/javascript-sdk';
+const step = new FRStep(payload);
+const success = new FRLoginSuccess(payload);
+const failure = new FRLoginFailure(payload);
+
+// After
+import type {
+  JourneyStep,
+  JourneyLoginSuccess,
+  JourneyLoginFailure,
+} from '@forgerock/journey-client/types';
+import { StepType, createCallback } from '@forgerock/journey-client/types';
+
+const mockStep: JourneyStep = {
+  type: StepType.Step,
+  payload: rawPayload,
+  callbacks: rawPayload.callbacks?.map(createCallback) ?? [],
+  getCallbackOfType: (type) => {
+    throw new Error('not implemented');
+  },
+  getCallbacksOfType: (type) => [],
+  setCallbackValue: () => {},
+  getDescription: () => undefined,
+  getHeader: () => undefined,
+  getStage: () => undefined,
+};
+
+const mockSuccess: JourneyLoginSuccess = {
+  type: StepType.LoginSuccess,
+  payload: rawPayload,
+  getRealm: () => 'alpha',
+  getSessionToken: () => 'abc123',
+  getSuccessUrl: () => undefined,
+};
+
+const mockFailure: JourneyLoginFailure = {
+  type: StepType.LoginFailure,
+  payload: rawPayload,
+  getCode: () => 401,
+  getDetail: () => undefined,
+  getMessage: () => 'Login failure',
+  getReason: () => undefined,
+  getProcessedMessage: () => [],
+};
+```
 
 ---
 
