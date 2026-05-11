@@ -1,3 +1,4 @@
+// @vitest-environment node
 /*
  * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
@@ -204,10 +205,7 @@ describe('journey-client', () => {
     };
     const step = createJourneyStep(mockStepPayload);
     const assignMock = vi.fn();
-    const locationSpy = vi.spyOn(window, 'location', 'get').mockReturnValue({
-      ...window.location,
-      assign: assignMock,
-    });
+    vi.stubGlobal('window', { location: { assign: assignMock } });
     setupMockFetch();
 
     const client = await journey({ config: mockConfig });
@@ -216,7 +214,7 @@ describe('journey-client', () => {
     expect(mockStorageInstance.set).toHaveBeenCalledWith({ step: step.payload });
     expect(assignMock).toHaveBeenCalledWith('https://sso.com/redirect');
 
-    locationSpy.mockRestore();
+    vi.unstubAllGlobals();
   });
 
   describe('resume()', () => {

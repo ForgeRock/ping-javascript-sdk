@@ -8,9 +8,9 @@ import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
-import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
-import { authorizeµ } from './authorize.request.js';
+import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError } from './client.store.utils.js';
 import { oidcApi } from './oidc.api.js';
@@ -92,7 +92,21 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
 
   if (error || !data) {
     log.error(`Error fetching wellknown config. Please check the URL: ${wellknownUrl}`);
+    return {
+      error: `Failed to fetch well-known configuration from: ${wellknownUrl}`,
+      type: 'wellknown_error',
+    };
   }
+
+  if (data?.require_pushed_authorization_requests && config.par === false) {
+    return {
+      error:
+        'The authorization server requires Pushed Authorization Requests (PAR). Set config.par to true or omit it.',
+      type: 'argument_error',
+    };
+  }
+
+  const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
 
   return {
     /**
@@ -106,14 +120,6 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        * @returns {Promise<string | GenericError>} - Returns a promise that resolves to the authorization URL or an error.
        */
       url: async (options?: GetAuthorizationUrlOptions): Promise<string | GenericError> => {
-        const optionsWithDefaults = {
-          clientId: config.clientId,
-          redirectUri: config.redirectUri,
-          scope: config.scope || 'openid',
-          responseType: config.responseType || 'code',
-          ...options,
-        };
-
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -123,6 +129,45 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             type: 'wellknown_error',
           };
         }
+
+        if (useParFlow) {
+          const result = await Micro.runPromiseExit(
+            createParAuthorizeUrlµ(wellknown, config, log, store, options).pipe(
+              Micro.tapError((err) =>
+                Micro.sync(() =>
+                  log.error(`PAR authorize.url() failed [${err.type}]: ${err.error}`, err),
+                ),
+              ),
+            ),
+          );
+
+          if (exitIsSuccess(result)) {
+            return result.value;
+          } else if (exitIsFail(result)) {
+            const authErr = result.cause.error;
+            return {
+              error: authErr.error,
+              message: authErr.error_description,
+              type: authErr.type,
+            };
+          } else {
+            const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
+            return {
+              error: 'PAR authorization failure',
+              message:
+                defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
+              type: 'auth_error',
+            };
+          }
+        }
+
+        const optionsWithDefaults = {
+          clientId: config.clientId,
+          redirectUri: config.redirectUri,
+          scope: config.scope || 'openid',
+          responseType: config.responseType || 'code',
+          ...options,
+        };
 
         return createAuthorizeUrl(wellknown.authorization_endpoint, optionsWithDefaults);
       },
@@ -147,7 +192,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         const result = await Micro.runPromiseExit(
-          await authorizeµ(wellknown, config, log, store, options),
+          authorizeµ(wellknown, config, log, store, options, useParFlow),
         );
 
         if (exitIsSuccess(result)) {
@@ -155,9 +200,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'Authorization failure',
-            error_description: result.cause.message,
+            error_description:
+              defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
           };
         }
@@ -212,9 +259,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'Token Exchange failure',
-            message: result.cause.message,
+            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'exchange_error',
           };
         }
@@ -277,6 +325,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           log,
           store,
           authorizeOptions,
+          useParFlow,
         ).pipe(
           Micro.flatMap((response): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> => {
             return buildTokenExchangeµ({
@@ -311,9 +360,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'Background token renewal failed',
-            error_description: result.cause.message,
+            error_description:
+              defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
           };
         }
@@ -407,9 +458,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'Token revocation failure',
-            message: result.cause.message,
+            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
           };
         }
@@ -482,9 +534,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'User Info retrieval failure',
-            message: result.cause.message,
+            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
           };
         }
@@ -537,9 +590,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'Logout_Failure',
-            message: result.cause.message,
+            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
           };
         }

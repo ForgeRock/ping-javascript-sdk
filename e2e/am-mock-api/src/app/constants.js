@@ -9,6 +9,7 @@
  */
 
 export const authPaths = {
+  par: ['/am/oauth2/realms/root/par'],
   tokenExchange: [
     '/am/auth/tokenExchange',
     '/am/oauth2/realms/root/access_token',

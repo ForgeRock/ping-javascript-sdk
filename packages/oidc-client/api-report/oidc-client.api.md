@@ -123,6 +123,10 @@ oidc: CombinedState<    {
 authorizeFetch: MutationDefinition<    {
 url: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
+par: MutationDefinition<    {
+endpoint: string;
+body: URLSearchParams;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
 authorizeIframe: MutationDefinition<    {
 url: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
@@ -155,6 +159,10 @@ oidc: CombinedState<    {
 authorizeFetch: MutationDefinition<    {
 url: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
+par: MutationDefinition<    {
+endpoint: string;
+body: URLSearchParams;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
 authorizeIframe: MutationDefinition<    {
 url: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
@@ -281,6 +289,8 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
     // (undocumented)
     clientId: string;
     // (undocumented)
+    par?: boolean;
+    // (undocumented)
     redirectUri: string;
     // (undocumented)
     responseType?: ResponseType_2;
@@ -295,6 +305,14 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
 
 // @public (undocumented)
 export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
+
+// @public (undocumented)
+export interface PushAuthorizationResponse {
+    // (undocumented)
+    expires_in: number;
+    // (undocumented)
+    request_uri: string;
+}
 
 export { RequestMiddleware }
 

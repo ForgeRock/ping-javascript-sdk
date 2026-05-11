@@ -49,8 +49,11 @@ export async function oidcApp({ config, urlParams }) {
   const code = urlParams.get('code');
   const state = urlParams.get('state');
   const piflow = urlParams.get('piflow');
+  const par = urlParams.get('par') === 'true';
 
-  const oidcClient: OidcClient = await oidc({ config });
+  const oidcClient: OidcClient = await oidc({
+    config: { ...config, ...(par && { par: true }) },
+  });
   if ('error' in oidcClient) {
     displayError(oidcClient);
   }

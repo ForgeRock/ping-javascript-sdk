@@ -152,7 +152,7 @@ test('oidc client fails to initialize with bad wellknown', async ({ page }) => {
   await page.getByRole('button', { name: 'Login (Background)' }).click();
 
   await expect(page.locator('.error')).toContainText(
-    'Authorization endpoint not found in wellknown configuration',
+    'Failed to fetch well-known configuration from:',
   );
   await expect(page.locator('.error')).toContainText('wellknown_error');
 });

@@ -7,6 +7,7 @@ export * from './lib/client.types.js';
 export * from './lib/config.types.js';
 export * from './lib/authorize.request.types.js';
 export * from './lib/exchange.types.js';
+export type { PushAuthorizationResponse } from './lib/par.types.js';
 
 export type {
   GenericError,
