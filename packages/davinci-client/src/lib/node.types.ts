@@ -14,6 +14,7 @@ import type {
   IdpCollector,
   SubmitCollector,
   ActionCollector,
+  ValidatedBooleanCollector,
   SingleValueCollector,
   SingleSelectCollector,
   MultiSelectCollector,
@@ -39,6 +40,7 @@ export type Collectors =
   | PasswordCollector
   | ValidatedPasswordCollector
   | TextCollector
+  | ValidatedBooleanCollector
   | SingleSelectCollector
   | IdpCollector
   | SubmitCollector

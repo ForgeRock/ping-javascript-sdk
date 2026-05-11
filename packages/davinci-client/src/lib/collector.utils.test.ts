@@ -53,6 +53,7 @@ import type {
   PhoneNumberOutputValue,
   PhoneNumberExtensionOutputValue,
   RichTextCollector,
+  ValidatedBooleanCollector,
   ValidatedTextCollector,
 } from './collector.types.js';
 
@@ -1386,6 +1387,26 @@ describe('Return collector validator', () => {
     expect(result).toContain(
       'Invalid regular expression: /[invalid/: Unterminated character class',
     );
+  });
+
+  describe('ValidatedBooleanCollector', () => {
+    const booleanCollector = {
+      input: {
+        validation: [{ type: 'required', message: 'This field is required', rule: true }],
+      },
+    } as ValidatedBooleanCollector;
+
+    const booleanValidator = returnValidator(booleanCollector);
+
+    it('should return an error when value is false (unchecked)', () => {
+      const result = booleanValidator(false);
+      expect(result).toContain('This field is required');
+    });
+
+    it('should return no errors when value is true (checked)', () => {
+      const result = booleanValidator(true);
+      expect(result).toEqual([]);
+    });
   });
 });
 

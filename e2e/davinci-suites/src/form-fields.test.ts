@@ -53,6 +53,7 @@ test('Should render form fields', async ({ page }) => {
     'checkbox-field-key': ['option1 value', 'option2 value'],
     'dropdown-field-key': 'dropdown-option2-value',
     'radio-group-key': 'option2 value',
+    'single-checkbox-field': false,
     'combobox-field-key': ['option1 value', 'option3 value'],
     'phone-field': {
       phoneNumber: '1234567890',

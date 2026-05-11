@@ -20,6 +20,7 @@ import {
   returnIdpCollector,
   returnSubmitCollector,
   returnTextCollector,
+  returnValidatedBooleanCollector,
   returnSingleSelectCollector,
   returnMultiSelectCollector,
   returnReadOnlyCollector,
@@ -37,6 +38,7 @@ import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type {
   ActionCollector,
   MultiSelectCollector,
+  ValidatedBooleanCollector,
   SingleSelectCollector,
   FlowCollector,
   PasswordCollector,
@@ -82,6 +84,7 @@ export const updateCollectorValues = createAction<{
   value:
     | string
     | string[]
+    | boolean
     | PhoneNumberInputValue
     | PhoneNumberExtensionInputValue
     | FidoRegistrationInputValue
@@ -102,6 +105,7 @@ const initialCollectorValues: (
   | SubmitCollector
   | ActionCollector<'ActionCollector'>
   | SingleValueCollector<'SingleValueCollector'>
+  | ValidatedBooleanCollector
   | SingleSelectCollector
   | MultiSelectCollector
   | DeviceAuthenticationCollector
@@ -195,6 +199,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                   | PhoneNumberExtensionOutputValue;
                 return returnObjectValueCollector(field, idx, prefillData);
               }
+              case 'SINGLE_CHECKBOX': {
+                return returnValidatedBooleanCollector(field, idx);
+              }
               case 'TEXT': {
                 const str = data as string;
                 return returnTextCollector(field, idx, str);
@@ -262,6 +269,14 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         collector.category === 'ValidatedSingleValueCollector' ||
         collector.category === 'SingleValueAutoCollector'
       ) {
+        if (collector.type === 'ValidatedBooleanCollector') {
+          if (typeof action.payload.value !== 'boolean') {
+            throw new Error('Value argument must be a boolean');
+          }
+          collector.input.value = action.payload.value;
+          return;
+        }
+
         if (typeof action.payload.value !== 'string') {
           throw new Error('Value argument must be a string');
         }

@@ -21,6 +21,7 @@ import type {
 export type SingleValueCollectorTypes =
   | 'PasswordCollector'
   | 'ValidatedPasswordCollector'
+  | 'ValidatedBooleanCollector'
   | 'SingleValueCollector'
   | 'SingleSelectCollector'
   | 'SingleSelectObjectCollector'
@@ -50,7 +51,7 @@ export interface ValidationPhoneNumber {
   rule: boolean;
 }
 
-export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTypes> {
+export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTypes, V = string> {
   category: 'SingleValueCollector';
   error: string | null;
   type: T;
@@ -58,18 +59,21 @@ export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTyp
   name: string;
   input: {
     key: string;
-    value: string | number | boolean;
+    value: V;
     type: string;
   };
   output: {
     key: string;
     label: string;
     type: string;
-    value: string | number | boolean;
+    value: V;
   };
 }
 
-export interface ValidatedSingleValueCollectorWithValue<T extends SingleValueCollectorTypes> {
+export interface ValidatedSingleValueCollectorWithValue<
+  T extends SingleValueCollectorTypes,
+  V = string,
+> {
   category: 'ValidatedSingleValueCollector';
   error: string | null;
   type: T;
@@ -77,15 +81,15 @@ export interface ValidatedSingleValueCollectorWithValue<T extends SingleValueCol
   name: string;
   input: {
     key: string;
-    value: string | number | boolean;
     type: string;
     validation: (ValidationRequired | ValidationRegex)[];
+    value: V;
   };
   output: {
     key: string;
     label: string;
     type: string;
-    value: string | number | boolean;
+    value: V;
   };
 }
 
@@ -164,14 +168,16 @@ export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> =
           ? PasswordCollector
           : T extends 'ValidatedPasswordCollector'
             ? ValidatedPasswordCollector
-            : /**
-                 * At this point, we have not passed in a collector type
-                 * or we have explicitly passed in 'SingleValueCollector'
-                 * So we can return either a SingleValueCollector with value
-                 * or without a value.
-                 **/
-                | SingleValueCollectorWithValue<'SingleValueCollector'>
-                | SingleValueCollectorNoValue<'SingleValueCollector'>;
+            : T extends 'ValidatedBooleanCollector'
+              ? ValidatedBooleanCollector
+              : /**
+                   * At this point, we have not passed in a collector type
+                   * or we have explicitly passed in 'SingleValueCollector'
+                   * So we can return either a SingleValueCollector with value
+                   * or without a value.
+                   **/
+                  | SingleValueCollectorWithValue<'SingleValueCollector'>
+                  | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 /**
  * SINGLE-VALUE COLLECTOR TYPES
@@ -179,14 +185,6 @@ export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> =
 export type SingleValueCollector<T extends SingleValueCollectorTypes> =
   | SingleValueCollectorWithValue<T>
   | SingleValueCollectorNoValue<T>;
-
-export type SingleValueCollectors =
-  | PasswordCollector
-  | ValidatedPasswordCollector
-  | SingleSelectCollectorWithValue<'SingleSelectCollector'>
-  | SingleValueCollectorWithValue<'SingleValueCollector'>
-  | SingleValueCollectorWithValue<'TextCollector'>
-  | ValidatedSingleValueCollectorWithValue<'TextCollector'>;
 
 export interface PasswordCollector {
   category: 'SingleValueCollector';
@@ -229,6 +227,19 @@ export interface ValidatedPasswordCollector {
 export type TextCollector = SingleValueCollectorWithValue<'TextCollector'>;
 export type SingleSelectCollector = SingleSelectCollectorWithValue<'SingleSelectCollector'>;
 export type ValidatedTextCollector = ValidatedSingleValueCollectorWithValue<'TextCollector'>;
+export type ValidatedBooleanCollector = ValidatedSingleValueCollectorWithValue<
+  'ValidatedBooleanCollector',
+  boolean
+>;
+
+export type SingleValueCollectors =
+  | ValidatedPasswordCollector
+  | PasswordCollector
+  | SingleSelectCollector
+  | TextCollector
+  | ValidatedTextCollector
+  | ValidatedBooleanCollector
+  | SingleValueCollectorWithValue<'SingleValueCollector'>;
 
 /** *********************************************************************
  * MULTI-VALUE COLLECTORS

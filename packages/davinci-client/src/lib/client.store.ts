@@ -339,6 +339,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         value:
           | string
           | string[]
+          | boolean
           | PhoneNumberInputValue
           | PhoneNumberExtensionInputValue
           | FidoRegistrationInputValue
