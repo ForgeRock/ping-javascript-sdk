@@ -57,6 +57,7 @@ import type {
   Poller,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
+import { returnPasswordPolicyValidator } from './password-policy.rules.js';
 import type { ContinueNode, StartNode } from './node.types.js';
 
 /**
@@ -392,7 +393,16 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         return handleUpdateValidateError('Collector not found', 'state_error', log.error);
       }
 
+      if (collectorToUpdate.type === 'PasswordCollector') {
+        return handleUpdateValidateError(
+          'PasswordCollector cannot be validated; pass a ValidatedPasswordCollector',
+          'state_error',
+          log.error,
+        );
+      }
+
       if (
+        collectorToUpdate.type !== 'ValidatedPasswordCollector' &&
         collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
         collectorToUpdate.category !== 'ObjectValueCollector' &&
         collectorToUpdate.category !== 'MultiValueCollector' &&
@@ -405,12 +415,19 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         );
       }
 
-      if (!('validation' in collectorToUpdate.input)) {
+      if (
+        collectorToUpdate.type !== 'ValidatedPasswordCollector' &&
+        !('validation' in collectorToUpdate.input)
+      ) {
         return handleUpdateValidateError(
           'Collector has no validation rules',
           'state_error',
           log.error,
         );
+      }
+
+      if (collectorToUpdate.type === 'ValidatedPasswordCollector') {
+        return returnPasswordPolicyValidator(collectorToUpdate);
       }
 
       return returnValidator(collectorToUpdate);

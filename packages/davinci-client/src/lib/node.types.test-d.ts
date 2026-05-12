@@ -21,6 +21,7 @@ import {
   FlowCollector,
   MultiSelectCollector,
   PasswordCollector,
+  ValidatedPasswordCollector,
   ReadOnlyCollector,
   RichTextCollector,
   SingleSelectCollector,
@@ -226,6 +227,7 @@ describe('Node Types', () => {
       expectTypeOf<Collectors>().toMatchTypeOf<
         | TextCollector
         | PasswordCollector
+        | ValidatedPasswordCollector
         | FlowCollector
         | IdpCollector
         | SubmitCollector
@@ -267,7 +269,7 @@ describe('Node Types', () => {
           id: 'test',
           name: 'Test',
           input: { key: 'test', value: '', type: 'string' },
-          output: { key: 'test', label: 'Test', type: 'string' },
+          output: { key: 'test', label: 'Test', type: 'string', verify: false },
         },
       ];
 

@@ -237,13 +237,17 @@ const urlParams = new URLSearchParams(window.location.search);
           davinciClient.update(collector), // Returns an update function for this collector
           davinciClient.validate(collector), // Returns a validate function for this collector
         );
-      } else if (collector.type === 'PasswordCollector') {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        collector;
+      } else if (
+        collector.type === 'PasswordCollector' ||
+        collector.type === 'ValidatedPasswordCollector'
+      ) {
         passwordComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
           davinciClient.update(collector), // Returns an update function for this collector
+          collector.type === 'ValidatedPasswordCollector'
+            ? davinciClient.validate(collector)
+            : undefined,
         );
       } else if (collector.type === 'SubmitCollector') {
         submitButtonComponent(
