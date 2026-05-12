@@ -24,6 +24,22 @@ export const obj = {
           content: 'Welcome to Ping Identity',
         },
         {
+          type: 'LABEL',
+          content: 'I agree to the terms and conditions',
+          richContent: {
+            content: 'I agree to the {{link}}',
+            replacements: {
+              link: {
+                type: 'link',
+                value: 'terms and conditions',
+                href: 'https://example.com/terms',
+                target: '_blank',
+              },
+            },
+          },
+          key: 'terms-label',
+        },
+        {
           type: 'ERROR_DISPLAY',
         },
         {

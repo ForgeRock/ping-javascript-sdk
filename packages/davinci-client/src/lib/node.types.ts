@@ -19,6 +19,7 @@ import type {
   DeviceAuthenticationCollector,
   DeviceRegistrationCollector,
   ReadOnlyCollector,
+  RichTextCollector,
   ValidatedTextCollector,
   PhoneNumberCollector,
   ProtectCollector,
@@ -47,6 +48,7 @@ export type Collectors =
   | PhoneNumberCollector
   | PhoneNumberExtensionCollector
   | ReadOnlyCollector
+  | RichTextCollector
   | ValidatedTextCollector
   | ProtectCollector
   | PollingCollector

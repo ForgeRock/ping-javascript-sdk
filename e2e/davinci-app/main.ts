@@ -221,7 +221,7 @@ const urlParams = new URLSearchParams(window.location.search);
           davinciClient.update(collector), // Returns an update function for this collector
           submitForm,
         );
-      } else if (collector.type === 'ReadOnlyCollector') {
+      } else if (collector.type === 'ReadOnlyCollector' || collector.type === 'RichTextCollector') {
         labelComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
