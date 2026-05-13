@@ -19,7 +19,7 @@
     "vitest": "catalog:vitest"
   },
   "devDependencies": {
-    "@forgerock/javascript-sdk": "4.9.0"
+    "@forgerock/javascript-sdk": "4.9.1"
   },
   "nx": {
     "tags": ["scope:tool"]
