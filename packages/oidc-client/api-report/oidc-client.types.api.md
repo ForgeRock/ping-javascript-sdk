@@ -27,6 +27,7 @@ import { StoreEnhancer } from '@reduxjs/toolkit';
 import { ThunkDispatch } from '@reduxjs/toolkit';
 import { Tuple } from '@reduxjs/toolkit';
 import { UnknownAction } from '@reduxjs/toolkit';
+import { Unsubscribe } from '@reduxjs/toolkit';
 import { WellknownResponse } from '@forgerock/sdk-types';
 
 export { ActionTypes }
@@ -252,10 +253,12 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
 }): Promise<{
     error: string;
     type: string;
+    subscribe?: undefined;
     authorize?: undefined;
     token?: undefined;
     user?: undefined;
 } | {
+    subscribe: (listener: () => void) => Unsubscribe;
     authorize: {
         url: (options?: GetAuthorizationUrlOptions) => Promise<string | GenericError>;
         background: (options?: GetAuthorizationUrlOptions) => Promise<AuthorizationSuccess | AuthorizationError>;

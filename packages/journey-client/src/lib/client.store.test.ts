@@ -108,6 +108,7 @@ describe('journey-client', () => {
     expect(client.redirect).toBeInstanceOf(Function);
     expect(client.resume).toBeInstanceOf(Function);
     expect(client.terminate).toBeInstanceOf(Function);
+    expect(client.subscribe).toBeInstanceOf(Function);
   });
 
   test('journey_InvalidWellknownUrl_ThrowsError', async () => {

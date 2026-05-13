@@ -95,6 +95,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   }
 
   return {
+    // Pass store methods to the client
+    subscribe: store.subscribe,
+
     /**
      * An object containing methods for the creation, and background use, of the authorization URL
      */

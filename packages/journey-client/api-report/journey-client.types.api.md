@@ -182,6 +182,8 @@ export interface JourneyClient {
     // (undocumented)
     start: (options?: StartParam) => Promise<JourneyResult>;
     // (undocumented)
+    subscribe: (listener: () => void) => () => void;
+    // (undocumented)
     terminate: (options?: {
         query?: Record<string, string>;
     }) => Promise<void | GenericError>;
