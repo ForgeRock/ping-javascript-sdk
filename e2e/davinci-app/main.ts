@@ -177,7 +177,6 @@ const urlParams = new URLSearchParams(window.location.search);
     formEl.innerHTML = '';
 
     const clientInfo = davinciClient.getClient();
-    //const clientInfo = node.client;
 
     let formName = '';
 
@@ -191,11 +190,12 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const error = davinciClient.getError();
     if (error) {
-      formEl.appendChild(document.createElement('div')).setAttribute('id', 'error-div');
-      const errorDiv = formEl.querySelector('#error-div');
-      if (errorDiv && clientInfo?.status === 'continue') {
+      const errorDiv = document.createElement('div');
+      formEl.appendChild(errorDiv).setAttribute('id', 'error-div');
+      if (errorDiv && clientInfo?.status === 'error') {
+        errorDiv.style.color = 'red';
         errorDiv.innerHTML = `
-          <div>${davinciClient.getError()?.message}</div>
+          <p><strong>Error</strong>: ${davinciClient.getError()?.message}</p>
         `;
       }
     }
