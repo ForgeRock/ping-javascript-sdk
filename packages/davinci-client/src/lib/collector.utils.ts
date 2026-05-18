@@ -7,7 +7,7 @@
 /**
  * Import the required types
  */
-import { CollectorInputTypes, Validator } from './client.types.js';
+import { CollectorValueType, Validator } from './client.types.js';
 import type {
   ActionCollectors,
   ActionCollectorTypes,
@@ -995,16 +995,16 @@ export function returnAgreementCollector(field: AgreementField, idx: number): Ag
  * @param {ValidatedTextCollector | | ValidatedBooleanCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors} collector - The collector to which the value will be validated
  * @returns {function} - A "validator" function that validates the input value
  */
-export function returnValidator(
-  collector:
+export function returnValidator<
+  T extends
     | ValidatedTextCollector
     | ValidatedBooleanCollector
     | ObjectValueCollectors
     | MultiValueCollectors
     | AutoCollectors,
-): Validator {
+>(collector: T): Validator<T> {
   const rules = collector.input.validation;
-  return (value: CollectorInputTypes) => {
+  return (value: CollectorValueType<T>) => {
     return (
       rules?.reduce((acc, next) => {
         if (next.type === 'required') {

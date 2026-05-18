@@ -8,6 +8,7 @@ import { Array as Arr, Option, pipe } from 'effect';
 
 import type { ValidatedPasswordCollector } from './collector.types.js';
 import type { PasswordPolicy } from './davinci.types.js';
+import { Validator } from './client.types.js';
 
 /**
  * A single policy check: given the policy and a candidate value, produce zero or more
@@ -84,17 +85,18 @@ const passwordPolicyRules: readonly PasswordPolicyRule[] = [
  * native SDKs: length bounds, minimum unique characters, maximum repeated character occurrences,
  * and per-charset minimums. Returns `[]` when no policy is present on the collector.
  * @param {ValidatedPasswordCollector} collector - The collector whose output may carry a passwordPolicy.
- * @returns {(value: string) => string[]} - A validator that returns human-readable error strings.
+ * @returns {Validator<ValidatedPasswordCollector>} - A validator that returns human-readable error strings.
  */
 export function returnPasswordPolicyValidator(
   collector: ValidatedPasswordCollector,
-): (value: string) => string[] {
+): Validator<ValidatedPasswordCollector> {
   const policy = collector.input.validation;
-  return (value: string) =>
+  const validator: Validator<ValidatedPasswordCollector> = (value: string) =>
     policy
       ? pipe(
           passwordPolicyRules,
           Arr.flatMap((rule) => rule(policy, value)),
         )
       : [];
+  return validator;
 }

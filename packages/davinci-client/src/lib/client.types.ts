@@ -11,6 +11,12 @@ import type {
   FidoAuthenticationInputValue,
   PhoneNumberInputValue,
   PhoneNumberExtensionInputValue,
+  AutoCollectors,
+  MultiValueCollectors,
+  ObjectValueCollectors,
+  ValidatedTextCollector,
+  ValidatedBooleanCollector,
+  ValidatedPasswordCollector,
 } from './collector.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
@@ -97,7 +103,15 @@ export type Updater<T = unknown> = (
  * @param value - The current value of the collector to validate.
  * @returns An array of error message strings, or an error object. Returns an empty array when validation passes.
  */
-export type Validator = (value: CollectorInputTypes) =>
+export type Validator<
+  T =
+    | ValidatedTextCollector
+    | ValidatedBooleanCollector
+    | ValidatedPasswordCollector
+    | ObjectValueCollectors
+    | MultiValueCollectors
+    | AutoCollectors,
+> = (value: CollectorValueType<T>) =>
   | string[]
   | {
       error: {
