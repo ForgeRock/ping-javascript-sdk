@@ -40,6 +40,9 @@ import type {
   RichContentLink,
   CollectorRichContent,
   NoValueCollector,
+  SingleSelectCollectorWithValue,
+  ValidatedBooleanCollector,
+  ValidatedTextCollector,
 } from './collector.types.js';
 import type { PasswordPolicy } from './davinci.types.js';
 
@@ -87,9 +90,9 @@ describe('Collector Types', () => {
       expectTypeOf<PasswordCollector['input']>().not.toHaveProperty('validation');
     });
 
-    it('should validate SingleCollector structure', () => {
+    it('should validate SingleSelectCollector structure', () => {
       expectTypeOf<SingleSelectCollector>().toMatchTypeOf<
-        SingleValueCollectorWithValue<'SingleSelectCollector'>
+        SingleSelectCollectorWithValue<'SingleSelectCollector'>
       >();
       expectTypeOf<SingleSelectCollector>()
         .toHaveProperty('category')
@@ -413,7 +416,58 @@ describe('Collector Types', () => {
 
       expectTypeOf(tCollector).toMatchTypeOf<FlowCollector>();
     });
+    it('should correctly infer ValidatedBooleanCollector Type', () => {
+      const tCollector: InferSingleValueCollectorType<'ValidatedBooleanCollector'> = {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'ValidatedBooleanCollector',
+        id: 'boolean-0',
+        name: 'boolean',
+        input: {
+          key: 'boolean',
+          value: false,
+          type: 'boolean',
+          validation: [{ type: 'required', message: 'This field is required', rule: true }],
+        },
+        output: {
+          key: 'boolean',
+          label: 'Accept terms',
+          type: 'boolean',
+          value: false,
+        },
+      };
 
+      expectTypeOf(tCollector).toEqualTypeOf<ValidatedBooleanCollector>();
+    });
+    it('should correctly infer ValidatedTextCollector Type', () => {
+      const tCollector: InferSingleValueCollectorType<'ValidatedTextCollector'> = {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'TextCollector',
+        id: 'username-0',
+        name: 'username',
+        input: {
+          key: 'username',
+          value: '',
+          type: 'string',
+          validation: [
+            { type: 'required', message: 'This field is required', rule: true },
+            { type: 'regex', message: 'Invalid format', rule: '^[a-zA-Z0-9]+$' },
+          ],
+        },
+        output: {
+          key: 'username',
+          label: 'Username',
+          type: 'string',
+          value: '',
+        },
+      };
+
+      expectTypeOf(tCollector).toEqualTypeOf<ValidatedTextCollector>();
+    });
+  });
+
+  describe('ObjectValueCollector Types', () => {
     it('should correctly infer PhoneNumberCollector Type', () => {
       const tCollector: InferValueObjectCollectorType<'PhoneNumberCollector'> = {
         category: 'ObjectValueCollector',
@@ -437,9 +491,7 @@ describe('Collector Types', () => {
 
       expectTypeOf(tCollector).toEqualTypeOf<PhoneNumberCollector>();
     });
-  });
 
-  describe('ObjectValueCollector Types', () => {
     it('should correctly infer PhoneNumberExtensionCollector Type', () => {
       const tCollector: InferValueObjectCollectorType<'PhoneNumberExtensionCollector'> = {
         category: 'ObjectValueCollector',

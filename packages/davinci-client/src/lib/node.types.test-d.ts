@@ -24,6 +24,7 @@ import {
   ValidatedPasswordCollector,
   ReadOnlyCollector,
   RichTextCollector,
+  ValidatedBooleanCollector,
   SingleSelectCollector,
   SingleValueCollector,
   IdpCollector,
@@ -240,6 +241,7 @@ describe('Node Types', () => {
         | PhoneNumberExtensionCollector
         | ReadOnlyCollector
         | RichTextCollector
+        | ValidatedBooleanCollector
         | SingleSelectCollector
         | ValidatedTextCollector
         | ProtectCollector

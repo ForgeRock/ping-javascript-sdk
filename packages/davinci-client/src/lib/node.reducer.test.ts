@@ -23,6 +23,7 @@ import type {
   AgreementCollector,
   SubmitCollector,
   TextCollector,
+  ValidatedBooleanCollector,
 } from './collector.types.js';
 import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
 
@@ -1603,6 +1604,164 @@ describe('PASSWORD_VERIFY with password policy', () => {
     expect(result[0].type).toBe('PasswordCollector');
     expect((result[0] as PasswordCollector).output).not.toHaveProperty('passwordPolicy');
     expect((result[0] as PasswordCollector).input).not.toHaveProperty('validation');
+  });
+});
+
+describe('The node collector reducer with ValidatedBooleanCollector', () => {
+  it('should produce a ValidatedBooleanCollector from a SINGLE_CHECKBOX field', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: false,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'ValidatedBooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+          validation: [],
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+        },
+      } satisfies ValidatedBooleanCollector,
+    ]);
+  });
+
+  it('should include required validation when the field is required', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: true,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'ValidatedBooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+          validation: [{ type: 'required', message: 'Value cannot be empty', rule: true }],
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+        },
+      } satisfies ValidatedBooleanCollector,
+    ]);
+  });
+
+  it('should use the field validation errorMessage when provided', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: true,
+            validation: { errorMessage: 'You must accept the terms' },
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    const collector = result[0] as ValidatedBooleanCollector;
+    expect(collector.input.validation).toEqual([
+      { type: 'required', message: 'You must accept the terms', rule: true },
+    ]);
+  });
+
+  it('should handle collector updates (toggle to true)', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'accept-terms-0',
+        value: true,
+      },
+    };
+    const state: ValidatedBooleanCollector[] = [
+      {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'ValidatedBooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+          validation: [],
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+        },
+      },
+    ];
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'ValidatedBooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: true,
+          type: 'SINGLE_CHECKBOX',
+          validation: [],
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+        },
+      },
+    ]);
   });
 });
 

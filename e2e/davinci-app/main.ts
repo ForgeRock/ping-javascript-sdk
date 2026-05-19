@@ -35,6 +35,7 @@ import fidoComponent from './components/fido.js';
 import qrCodeComponent from './components/qr-code.js';
 import agreementComponent from './components/agreement.js';
 import pollingComponent from './components/polling.js';
+import booleanComponent from './components/boolean.js';
 
 const loggerFn = {
   error: () => {
@@ -298,6 +299,8 @@ const urlParams = new URLSearchParams(window.location.search);
         singleValueComponent(formEl, collector, davinciClient.update(collector));
       } else if (collector.type === 'MultiSelectCollector') {
         multiValueComponent(formEl, collector, davinciClient.update(collector));
+      } else if (collector.type === 'ValidatedBooleanCollector') {
+        booleanComponent(formEl, collector, davinciClient.update(collector));
       }
     });
 

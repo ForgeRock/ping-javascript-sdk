@@ -7,6 +7,7 @@
 /**
  * Import the required types
  */
+import { CollectorValueType, Validator } from './client.types.js';
 import type {
   ActionCollectors,
   ActionCollectorTypes,
@@ -17,6 +18,7 @@ import type {
   InferActionCollectorType,
   NoValueCollectorTypes,
   InferNoValueCollectorType,
+  ValidatedBooleanCollector,
   ValidatedSingleValueCollectorWithValue,
   ValidatedTextCollector,
   InferValueObjectCollectorType,
@@ -52,6 +54,7 @@ import type {
   ReadOnlyField,
   RedirectField,
   RichContentReplacement,
+  SingleCheckboxField,
   SingleSelectField,
   StandardField,
   ValidatedField,
@@ -158,7 +161,12 @@ export function returnSubmitCollector(field: StandardField, idx: number) {
  * @returns {SingleValueCollector} The constructed SingleValueCollector object.
  */
 export function returnSingleValueCollector<
-  Field extends StandardField | SingleSelectField | ValidatedField | PasswordField,
+  Field extends
+    | StandardField
+    | SingleSelectField
+    | ValidatedField
+    | PasswordField
+    | SingleCheckboxField,
   CollectorType extends SingleValueCollectorTypes = 'SingleValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType, data?: string) {
   let error = '';
@@ -245,10 +253,40 @@ export function returnSingleValueCollector<
         options: options,
       },
     } as InferSingleValueCollectorType<'SingleSelectCollector'>;
+  } else if (collectorType === 'ValidatedBooleanCollector') {
+    const validationArray = [];
+    if ('required' in field && field.required === true) {
+      validationArray.push({
+        type: 'required',
+        message:
+          ('validation' in field && field.validation?.errorMessage) || 'Value cannot be empty',
+        rule: true,
+      });
+    }
+
+    return {
+      category: 'ValidatedSingleValueCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: false,
+        type: field.type,
+        validation: validationArray,
+      },
+      output: {
+        key: field.key,
+        label: field.label,
+        type: field.type,
+        value: false,
+      },
+    } as InferSingleValueCollectorType<'ValidatedBooleanCollector'>;
   } else if ('validation' in field || 'required' in field) {
     const validationArray = [];
 
-    if ('validation' in field) {
+    if ('validation' in field && field.validation && 'regex' in field.validation) {
       validationArray.push({
         type: 'regex',
         message: field.validation?.errorMessage || '',
@@ -515,6 +553,16 @@ export function returnTextCollector(field: StandardField, idx: number, data: str
  */
 export function returnSingleSelectCollector(field: SingleSelectField, idx: number, data: string) {
   return returnSingleValueCollector(field, idx, 'SingleSelectCollector', data);
+}
+
+/**
+ * @function returnValidatedBooleanCollector - Creates a ValidatedBooleanCollector object based on the provided field and index.
+ * @param {SingleCheckboxField} field - The field object containing key, label, type, required, and validation.
+ * @param {number} idx - The index to be used in the id of the ValidatedBooleanCollector.
+ * @returns {ValidatedBooleanCollector} The constructed ValidatedBooleanCollector object.
+ */
+export function returnValidatedBooleanCollector(field: SingleCheckboxField, idx: number) {
+  return returnSingleValueCollector(field, idx, 'ValidatedBooleanCollector');
 }
 
 /**
@@ -944,14 +992,19 @@ export function returnAgreementCollector(field: AgreementField, idx: number): Ag
 
 /**
  * @function returnValidator - Creates a validator function based on the provided collector
- * @param {ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors} collector - The collector to which the value will be validated
+ * @param {ValidatedTextCollector | | ValidatedBooleanCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors} collector - The collector to which the value will be validated
  * @returns {function} - A "validator" function that validates the input value
  */
-export function returnValidator(
-  collector: ValidatedTextCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors,
-) {
+export function returnValidator<
+  T extends
+    | ValidatedTextCollector
+    | ValidatedBooleanCollector
+    | ObjectValueCollectors
+    | MultiValueCollectors
+    | AutoCollectors,
+>(collector: T): Validator<T> {
   const rules = collector.input.validation;
-  return (value: string | string[] | Record<string, unknown>) => {
+  return (value: CollectorValueType<T>) => {
     return (
       rules?.reduce((acc, next) => {
         if (next.type === 'required') {

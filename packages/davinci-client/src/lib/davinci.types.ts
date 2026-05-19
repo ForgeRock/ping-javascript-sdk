@@ -171,6 +171,17 @@ export type ValidatedField = {
   };
 };
 
+export type SingleCheckboxField = {
+  type: 'SINGLE_CHECKBOX';
+  inputType: 'BOOLEAN';
+  key: string;
+  label: string;
+  required: boolean;
+  validation?: {
+    errorMessage: string;
+  };
+};
+
 export type SingleSelectField = {
   inputType: 'SINGLE_SELECT';
   key: string;
@@ -323,6 +334,7 @@ export type SingleValueFields =
   | StandardField
   | PasswordField
   | ValidatedField
+  | SingleCheckboxField
   | SingleSelectField
   | ProtectField;
 

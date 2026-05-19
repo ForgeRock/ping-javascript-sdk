@@ -53,6 +53,7 @@ import type {
   PhoneNumberOutputValue,
   PhoneNumberExtensionOutputValue,
   RichTextCollector,
+  ValidatedBooleanCollector,
   ValidatedTextCollector,
 } from './collector.types.js';
 
@@ -1351,6 +1352,7 @@ describe('Return collector validator', () => {
     const result = validator('');
     expect(result).toContain('This field is required');
 
+    // @ts-expect-error - intentionally passing empty object to test required validation
     const objResult = objValidator({});
     expect(objResult).toContain('This field is required');
 
@@ -1386,6 +1388,26 @@ describe('Return collector validator', () => {
     expect(result).toContain(
       'Invalid regular expression: /[invalid/: Unterminated character class',
     );
+  });
+
+  describe('ValidatedBooleanCollector', () => {
+    const booleanCollector = {
+      input: {
+        validation: [{ type: 'required', message: 'This field is required', rule: true }],
+      },
+    } as ValidatedBooleanCollector;
+
+    const booleanValidator = returnValidator(booleanCollector);
+
+    it('should return an error when value is false (unchecked)', () => {
+      const result = booleanValidator(false);
+      expect(result).toContain('This field is required');
+    });
+
+    it('should return no errors when value is true (checked)', () => {
+      const result = booleanValidator(true);
+      expect(result).toEqual([]);
+    });
   });
 });
 
@@ -1654,6 +1676,7 @@ describe('returnPasswordPolicyValidator', () => {
       );
       const errors = validate('short');
       expect(errors).toHaveLength(1);
+      assert(Array.isArray(errors));
       expect(errors[0]).toContain('8');
       expect(errors[0]).toContain('20');
     });
@@ -1686,6 +1709,7 @@ describe('returnPasswordPolicyValidator', () => {
     it('should fail when the count of distinct characters is below the minimum', () => {
       const validate = returnPasswordPolicyValidator(makeCollector({ minUniqueCharacters: 5 }));
       const errors = validate('aaa111@@@');
+      assert(Array.isArray(errors));
       expect(errors).toHaveLength(1);
       expect(errors[0]).toContain('5');
     });
@@ -1700,6 +1724,7 @@ describe('returnPasswordPolicyValidator', () => {
     it('should fail based on total occurrences of any character, not only consecutive runs', () => {
       const validate = returnPasswordPolicyValidator(makeCollector({ maxRepeatedCharacters: 2 }));
       const errors = validate('aXaXaX');
+      assert(Array.isArray(errors));
       expect(errors).toHaveLength(1);
       expect(errors[0]).toContain('2');
     });
@@ -1717,6 +1742,7 @@ describe('returnPasswordPolicyValidator', () => {
       );
       const errors = validate('Password@1');
       expect(errors).toHaveLength(1);
+      assert(Array.isArray(errors));
       expect(errors[0]).toContain('2');
       expect(errors[0]).toContain('0123456789');
     });
@@ -1750,6 +1776,8 @@ describe('returnPasswordPolicyValidator', () => {
         minCharacters: { '0123456789': 1 },
       }),
     );
-    expect(validate('aaa').length).toBeGreaterThanOrEqual(3);
+    const result = validate('aaa');
+    assert(Array.isArray(result));
+    expect(result.length).toBeGreaterThanOrEqual(3);
   });
 });
