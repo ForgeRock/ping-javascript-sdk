@@ -10,7 +10,7 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type { GenericError } from '@forgerock/sdk-types';
 
 import type {
-  CollectorInputTypes,
+  CollectorValueTypes,
   InitFlow,
   InternalErrorResponse,
   Updater,
@@ -173,13 +173,13 @@ describe('Client Types', () => {
 
 describe('Updater', () => {
   it('should accept string, boolean, or object value and optional index', () => {
-    const updater: Updater = (value: CollectorInputTypes, index?: number) => {
+    const updater: Updater = (value: CollectorValueTypes, index?: number) => {
       return {
         error: { message: 'Invalid value', code: 'INVALID', type: 'state_error' },
         type: 'internal_error',
       };
     };
-    expectTypeOf(updater).parameter(0).toEqualTypeOf<CollectorInputTypes>();
+    expectTypeOf(updater).parameter(0).toEqualTypeOf<CollectorValueTypes>();
     expectTypeOf(updater).parameter(1).toBeNullable();
   });
 

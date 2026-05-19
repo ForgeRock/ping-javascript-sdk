@@ -100,3 +100,5 @@ GEMINI.md
 
 # Polaris
 .polaris-setup-progress.json
+.playwright-mcp
+.polaris/
