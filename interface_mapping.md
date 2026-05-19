@@ -105,7 +105,7 @@ Flat lookup table for AI context injection. Every legacy symbol → new import i
 | `ErrorCode`                        | Removed — use `GenericError.type` instead                                                         |
 | `FRAuth`                           | `import { journey } from '@forgerock/journey-client'` — factory returns `JourneyClient`           |
 | `FRCallback`                       | `import { BaseCallback } from '@forgerock/journey-client/types'`                                  |
-| `FRDevice`                         | `import { deviceClient } from '@forgerock/device-client'`                                         |
+| `FRDevice`                         | `import { Device } from '@forgerock/journey-client/device'`                                       |
 | `FRLoginFailure`                   | `import type { JourneyLoginFailure } from '@forgerock/journey-client/types'`                      |
 | `FRLoginSuccess`                   | `import type { JourneyLoginSuccess } from '@forgerock/journey-client/types'`                      |
 | `FRPolicy`                         | `import { Policy } from '@forgerock/journey-client/policy'`                                       |
@@ -178,7 +178,7 @@ The legacy SDK is a single package. The new SDK splits concerns across multiple 
 | `import { deviceClient } from '@forgerock/javascript-sdk'`                        | `import { deviceClient } from '@forgerock/device-client'`                                  | deviceClient                   |
 | `import { FRAuth } from '@forgerock/javascript-sdk'`                              | `import { journey } from '@forgerock/journey-client'`                                      | FRAuth                         |
 | `import { FRCallback } from '@forgerock/javascript-sdk'`                          | `import { BaseCallback } from '@forgerock/journey-client/types'`                           | FRCallback                     |
-| `import { FRDevice } from '@forgerock/javascript-sdk'`                            | `import { deviceClient } from '@forgerock/device-client'`                                  | FRDevice                       |
+| `import { FRDevice } from '@forgerock/javascript-sdk'`                            | `import { Device } from '@forgerock/journey-client/device'`                                | FRDevice                       |
 | `import type { FRLoginFailure } from '@forgerock/javascript-sdk'`                 | `import type { JourneyLoginFailure } from '@forgerock/journey-client/types'`               | FRLoginFailure                 |
 | `import type { FRLoginSuccess } from '@forgerock/javascript-sdk'`                 | `import type { JourneyLoginSuccess } from '@forgerock/journey-client/types'`               | FRLoginSuccess                 |
 | `import { FRPolicy } from '@forgerock/javascript-sdk'`                            | `import { Policy } from '@forgerock/journey-client/policy'`                                | FRPolicy                       |
@@ -955,10 +955,10 @@ if (type === WebAuthnStepType.Authentication) {
 
 ### FRDevice (Device Profile Collection)
 
-| Legacy API                                                 | New API                                                     | Return Type Change                                   | Behavioral Notes                         |
-| ---------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------- |
-| `import { FRDevice } from '@forgerock/javascript-sdk'`     | Device profile functionality via `@forgerock/device-client` | —                                                    | Class-based → factory function           |
-| `new FRDevice(config?).getProfile({ location, metadata })` | `deviceClient(config).profile.get(query)`                   | `DeviceProfileData` → `ProfileDevice[] \| { error }` | Returns error object instead of throwing |
+| Legacy API                                                 | New API                                                     | Return Type Change | Behavioral Notes                                                 |
+| ---------------------------------------------------------- | ----------------------------------------------------------- | ------------------ | ---------------------------------------------------------------- |
+| `import { FRDevice } from '@forgerock/javascript-sdk'`     | `import { Device } from '@forgerock/journey-client/device'` | —                  | Class renamed `FRDevice` → `Device`. **Subpath import required** |
+| `new FRDevice(config?).getProfile({ location, metadata })` | `new Device(config?).getProfile({ location, metadata })`    | Same               | Same signature and return type (`DeviceProfileData`)             |
 
 ### deviceClient (Device CRUD Operations)
 

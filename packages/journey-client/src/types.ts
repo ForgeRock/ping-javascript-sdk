@@ -12,17 +12,17 @@ export type {
   Step,
   Callback,
   CallbackType,
-  StepType,
   GenericError,
   PolicyRequirement,
   FailedPolicyRequirement,
   NameValue,
+  PolicyParams,
   StepDetail,
   AuthResponse,
   FailureDetail,
 } from '@forgerock/sdk-types';
 
-export { PolicyKey } from '@forgerock/sdk-types';
+export { PolicyKey, StepType } from '@forgerock/sdk-types';
 
 // Re-export local types
 export * from './lib/client.types.js';
