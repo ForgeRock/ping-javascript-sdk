@@ -17,7 +17,7 @@ test('Test Protect collector with Custom HTML component', async ({ page }) => {
 
   await expect(page.getByText('JS Protect - Custom HTML Form')).toBeVisible();
 
-  const requests = [];
+  const requests: string[] = [];
   page.on('request', (request) => {
     const method = request.method();
     const requestUrl = request.url();
@@ -54,7 +54,7 @@ test('Test Protect collector with P1 Forms component', async ({ page }) => {
 
   await expect(page.getByText('Example - Sign On')).toBeVisible();
 
-  const requests = [];
+  const requests: string[] = [];
   page.on('request', (request) => {
     const method = request.method();
     const requestUrl = request.url();

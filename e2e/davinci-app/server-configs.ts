@@ -77,4 +77,16 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
         'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
     },
   },
+  /**
+   * Polling
+   */
+  '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0': {
+    clientId: '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0',
+    redirectUri: window.location.origin + '/',
+    scope: 'openid profile email revoke',
+    serverConfig: {
+      wellknown:
+        'https://auth.pingone.ca/356a254c-cba3-4ade-be1a-860136e8df01/as/.well-known/openid-configuration',
+    },
+  },
 };
