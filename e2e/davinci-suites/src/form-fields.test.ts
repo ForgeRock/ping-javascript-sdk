@@ -51,9 +51,16 @@ test('Should render form fields', async ({ page }) => {
 
   // Single checkbox default value
   await expect(page.locator('#single-checkbox-field')).not.toBeChecked();
-  await expect(page.getByText('I agree to the Terms and Conditions')).toBeVisible();
 
-  // Toggle the single checkbox and assert that it is optional by the abscence of an error message
+  // Single checkbox rich text
+  await expect(page.getByText('I agree to the Terms and Conditions')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Terms and Conditions' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Terms and Conditions' })).toHaveAttribute(
+    'href',
+    'https://www.pingidentity.com',
+  );
+
+  // Toggle the single checkbox and assert that it is optional by the absence of an error message
   await page.locator('#single-checkbox-field').check();
   await expect(page.locator('#single-checkbox-field')).toBeChecked();
   await page.locator('#single-checkbox-field').uncheck();
@@ -90,7 +97,8 @@ test('Should render form fields', async ({ page }) => {
 });
 
 test('should render form validation fields', async ({ page }) => {
-  await page.goto('http://localhost:5829/?clientId=e4ef2896-8d90-4abd-bf0f-7b8034995927');
+  const { navigate } = asyncEvents(page);
+  await navigate('/?clientId=e4ef2896-8d90-4abd-bf0f-7b8034995927');
 
   await expect(page.getByText('Select Form Fields Test Form')).toBeVisible();
 

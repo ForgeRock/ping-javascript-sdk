@@ -1643,6 +1643,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: '',
         },
       } satisfies ValidatedBooleanCollector,
     ]);
@@ -1683,6 +1684,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: '',
         },
       } satisfies ValidatedBooleanCollector,
     ]);
@@ -1738,6 +1740,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: 'checkbox',
         },
       },
     ];
@@ -1759,8 +1762,74 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: 'checkbox',
         },
       },
+    ]);
+  });
+
+  it('should normalise richContent replacements from Record to RichContentLink[]', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: false,
+            appearance: 'checkbox',
+            richContent: {
+              content: 'I agree to the {{tos}}',
+              replacements: {
+                tos: {
+                  type: 'link',
+                  value: 'Terms of Service',
+                  href: 'https://example.com/tos',
+                  target: '_blank',
+                },
+              },
+            },
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'ValidatedBooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+          validation: [],
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+          richContent: {
+            content: 'I agree to the {{tos}}',
+            replacements: [
+              {
+                key: 'tos',
+                type: 'link',
+                value: 'Terms of Service',
+                href: 'https://example.com/tos',
+                target: '_blank',
+              },
+            ],
+          },
+        },
+      } satisfies ValidatedBooleanCollector,
     ]);
   });
 });

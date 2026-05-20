@@ -434,6 +434,7 @@ describe('Collector Types', () => {
           label: 'Accept terms',
           type: 'boolean',
           value: false,
+          appearance: 'CHECKBOX',
         },
       };
 

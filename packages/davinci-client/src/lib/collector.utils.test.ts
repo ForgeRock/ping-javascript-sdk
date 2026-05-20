@@ -26,6 +26,7 @@ import {
   returnQrCodeCollector,
   returnAgreementCollector,
   normalizeReplacements,
+  returnValidatedBooleanCollector,
 } from './collector.utils.js';
 import { returnPasswordPolicyValidator } from './password-policy.rules.js';
 import type {
@@ -43,6 +44,7 @@ import type {
   ReadOnlyField,
   RedirectField,
   RichContentReplacement,
+  SingleCheckboxField,
   StandardField,
   AgreementField,
 } from './davinci.types.js';
@@ -1779,5 +1781,55 @@ describe('returnPasswordPolicyValidator', () => {
     const result = validate('aaa');
     assert(Array.isArray(result));
     expect(result.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe('returnValidatedBooleanCollector', () => {
+  it('should include appearance on output', () => {
+    const field: SingleCheckboxField = {
+      type: 'SINGLE_CHECKBOX',
+      inputType: 'BOOLEAN',
+      key: 'accept-terms',
+      label: 'Accept Terms',
+      required: false,
+      appearance: 'checkbox',
+    };
+    const result = returnValidatedBooleanCollector(field, 0);
+    expect(result.output.appearance).toBe('checkbox');
+  });
+
+  it('should include richContent on output when field has richContent', () => {
+    const field: SingleCheckboxField = {
+      type: 'SINGLE_CHECKBOX',
+      inputType: 'BOOLEAN',
+      key: 'accept-terms',
+      label: 'Accept Terms',
+      required: false,
+      appearance: 'checkbox',
+      richContent: {
+        content: 'I agree to the {{link}}',
+        replacements: {
+          link: {
+            type: 'link',
+            value: 'terms and conditions',
+            href: 'https://example.com/terms',
+            target: '_blank',
+          },
+        },
+      },
+    };
+    const result = returnValidatedBooleanCollector(field, 0);
+    expect(result.output.richContent).toEqual({
+      content: 'I agree to the {{link}}',
+      replacements: [
+        {
+          key: 'link',
+          type: 'link',
+          value: 'terms and conditions',
+          href: 'https://example.com/terms',
+          target: '_blank',
+        },
+      ],
+    });
   });
 });

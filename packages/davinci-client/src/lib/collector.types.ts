@@ -93,6 +93,16 @@ export interface ValidatedSingleValueCollectorWithValue<
   };
 }
 
+export interface ValidatedBooleanCollector extends ValidatedSingleValueCollectorWithValue<
+  'ValidatedBooleanCollector',
+  boolean
+> {
+  output: ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>['output'] & {
+    appearance: string;
+    richContent?: CollectorRichContent;
+  };
+}
+
 export interface SingleSelectCollectorWithValue<T extends SingleValueCollectorTypes> {
   category: 'SingleValueCollector';
   error: string | null;
@@ -227,10 +237,6 @@ export interface ValidatedPasswordCollector {
 export type TextCollector = SingleValueCollectorWithValue<'TextCollector'>;
 export type SingleSelectCollector = SingleSelectCollectorWithValue<'SingleSelectCollector'>;
 export type ValidatedTextCollector = ValidatedSingleValueCollectorWithValue<'TextCollector'>;
-export type ValidatedBooleanCollector = ValidatedSingleValueCollectorWithValue<
-  'ValidatedBooleanCollector',
-  boolean
->;
 
 export type SingleValueCollectors =
   | ValidatedPasswordCollector

@@ -64,6 +64,27 @@ import type {
 } from './davinci.types.js';
 
 /**
+ * @function normalizeReplacements - Flattens the API's keyed
+ * `Record<string, RichContentReplacement>` into an array of `RichContentLink`
+ * with the original key carried on each entry. Hrefs are passed through
+ * unmodified — consumers are responsible for sanitizing before rendering.
+ *
+ * @param {Record<string, RichContentReplacement>} replacements - The replacements map from the API.
+ * @returns {RichContentLink[]} The flattened array of replacement entries.
+ */
+export function normalizeReplacements(
+  replacements: Record<string, RichContentReplacement>,
+): RichContentLink[] {
+  return Object.entries(replacements).map(([key, replacement]) => ({
+    key,
+    type: replacement.type,
+    value: replacement.value,
+    href: replacement.href,
+    ...(replacement.target && { target: replacement.target }),
+  }));
+}
+
+/**
  * @function returnActionCollector - Creates an ActionCollector object based on the provided field and index.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the ActionCollector.
@@ -263,6 +284,14 @@ export function returnSingleValueCollector<
       });
     }
 
+    const richContent =
+      'richContent' in field && field.richContent
+        ? {
+            content: field.richContent.content,
+            replacements: normalizeReplacements(field.richContent.replacements ?? {}),
+          }
+        : undefined;
+
     return {
       category: 'ValidatedSingleValueCollector',
       error: error || null,
@@ -280,6 +309,8 @@ export function returnSingleValueCollector<
         label: field.label,
         type: field.type,
         value: false,
+        appearance: ('appearance' in field && field.appearance) || '',
+        ...(richContent && { richContent }),
       },
     } as InferSingleValueCollectorType<'ValidatedBooleanCollector'>;
   } else if ('validation' in field || 'required' in field) {
@@ -560,8 +591,15 @@ export function returnSingleSelectCollector(field: SingleSelectField, idx: numbe
  * @param {number} idx - The index to be used in the id of the ValidatedBooleanCollector.
  * @returns {ValidatedBooleanCollector} The constructed ValidatedBooleanCollector object.
  */
-export function returnValidatedBooleanCollector(field: SingleCheckboxField, idx: number) {
-  return returnSingleValueCollector(field, idx, 'ValidatedBooleanCollector');
+export function returnValidatedBooleanCollector(
+  field: SingleCheckboxField,
+  idx: number,
+): ValidatedBooleanCollector {
+  return returnSingleValueCollector(
+    field,
+    idx,
+    'ValidatedBooleanCollector',
+  ) as ValidatedBooleanCollector;
 }
 
 /**
@@ -853,27 +891,6 @@ export function returnObjectValueCollector(
     'PhoneNumberCollector',
     prefillData as PhoneNumberOutputValue,
   );
-}
-
-/**
- * @function normalizeReplacements - Flattens the API's keyed
- * `Record<string, RichContentReplacement>` into an array of `RichContentLink`
- * with the original key carried on each entry. Hrefs are passed through
- * unmodified — consumers are responsible for sanitizing before rendering.
- *
- * @param {Record<string, RichContentReplacement>} replacements - The replacements map from the API.
- * @returns {RichContentLink[]} The flattened array of replacement entries.
- */
-export function normalizeReplacements(
-  replacements: Record<string, RichContentReplacement>,
-): RichContentLink[] {
-  return Object.entries(replacements).map(([key, replacement]) => ({
-    key,
-    type: replacement.type,
-    value: replacement.value,
-    href: replacement.href,
-    ...(replacement.target && { target: replacement.target }),
-  }));
 }
 
 /**

@@ -9,13 +9,14 @@ import type {
   Updater,
   Validator,
 } from '@forgerock/davinci-client/types';
-import { dotToCamelCase } from '../helper.js';
+import { dotToCamelCase, richContentInterpolation } from '../helper.js';
 
 /**
  * Creates a single checkbox and attaches it to the form
  * @param {HTMLFormElement} formEl - The form element to attach the checkbox to
  * @param {ValidatedBooleanCollector} collector - Contains the configuration
  * @param {Updater} updater - Function to call when selection changes
+ * @param {Validator} validator - Function to validate the input
  */
 export default function booleanComponent(
   formEl: HTMLFormElement,
@@ -36,13 +37,22 @@ export default function booleanComponent(
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.id = collectorKey;
-  checkbox.name = collectorKey || 'single-checkbox-field';
+  checkbox.name = collectorKey;
   checkbox.checked = collector.output.value;
   checkbox.value = 'checked';
 
   const label = document.createElement('label');
   label.htmlFor = checkbox.id;
-  label.textContent = collector.output.label;
+
+  const { richContent } = collector.output;
+  if (!richContent || richContent.replacements.length === 0) {
+    label.textContent = collector.output.label;
+  } else {
+    const pRichText = richContentInterpolation(richContent);
+    while (pRichText.firstChild) {
+      label.appendChild(pRichText.firstChild);
+    }
+  }
 
   // Add event listener to handle single-select behavior
   checkbox.addEventListener('change', (event) => {
@@ -50,20 +60,20 @@ export default function booleanComponent(
     const result = validator(checked);
     const errorEl = formEl?.querySelector(`.${collectorKey}-error`);
 
-    // Keep collector state aligned with the current UI value
-    const updateError = updater(checked);
-    if (updateError && 'error' in updateError) {
-      console.error(updateError.error.message);
-    }
-
     // Validate the input
     if (Array.isArray(result) && result.length && !errorEl) {
-      const errorEl = document.createElement('div');
-      errorEl.className = `${collectorKey}-error`;
-      errorEl.innerText = result.join(', ');
-      formEl?.querySelector(`#${collectorKey}`)?.after(errorEl);
+      const newErrorEl = document.createElement('div');
+      newErrorEl.className = `${collectorKey}-error`;
+      newErrorEl.innerText = result.join(', ');
+      formEl?.querySelector(`#${collectorKey}`)?.after(newErrorEl);
+    } else if (Array.isArray(result) && result.length) {
+      return;
     } else {
       formEl.querySelector(`.${collectorKey}-error`)?.remove();
+      const updateError = updater(checked);
+      if (updateError && 'error' in updateError) {
+        console.error(updateError.error.message);
+      }
     }
   });
 

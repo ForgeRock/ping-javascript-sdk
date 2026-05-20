@@ -394,14 +394,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "data" | "fulfilledTimeStamp"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -418,7 +418,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & {
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -435,14 +435,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "error"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -489,14 +489,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "data" | "fulfilledTimeStamp"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -513,7 +513,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & {
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -530,14 +530,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "error"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
+            error?: SerializedError | FetchBaseQueryError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -1683,6 +1683,8 @@ export type SingleCheckboxField = {
     label: string;
     required: boolean;
     errorMessage?: string;
+    appearance: string;
+    richContent?: RichContent;
 };
 
 // @public (undocumented)
@@ -1936,7 +1938,13 @@ index?: number;
 export type Updater<T = unknown> = (value: CollectorValueType<T>, index?: number) => InternalErrorResponse | null;
 
 // @public (undocumented)
-export type ValidatedBooleanCollector = ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>;
+export interface ValidatedBooleanCollector extends ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean> {
+    // (undocumented)
+    output: ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>['output'] & {
+        appearance: string;
+        richContent?: CollectorRichContent;
+    };
+}
 
 // @public (undocumented)
 export type ValidatedField = {

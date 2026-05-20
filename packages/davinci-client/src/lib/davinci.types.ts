@@ -178,6 +178,8 @@ export type SingleCheckboxField = {
   label: string;
   required: boolean;
   errorMessage?: string;
+  appearance: string;
+  richContent?: RichContent;
 };
 
 export type SingleSelectField = {
