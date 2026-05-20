@@ -8,7 +8,7 @@ packages:
   - 'scratchpad'
 catalog:
   '@reduxjs/toolkit': '^2.8.2'
-  immer: '^10.1.1'
+  immer: '^11.0.0'
   msw: '^2.5.1'
 catalogs:
   effect:
