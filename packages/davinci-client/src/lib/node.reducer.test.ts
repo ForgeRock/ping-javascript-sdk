@@ -1699,7 +1699,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
             key: 'accept-terms',
             label: 'Accept Terms',
             required: true,
-            validation: { errorMessage: 'You must accept the terms' },
+            errorMessage: 'You must accept the terms',
           },
         ],
         formData: {},

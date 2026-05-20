@@ -10,9 +10,9 @@ import { asyncEvents } from './utils/async-events.js';
 
 test('Should render form fields', async ({ page }) => {
   const { navigate } = asyncEvents(page);
-  await navigate('/?clientId=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
+  await navigate('/?clientId=e4ef2896-8d90-4abd-bf0f-7b8034995927');
 
-  await expect(page.getByText('Select Test Form')).toBeVisible();
+  await expect(page.getByText('Select Form Fields Test Form')).toBeVisible();
   await page.getByRole('button', { name: 'Form Fields' }).click();
 
   await expect(page.getByText('Form Fields Test')).toBeVisible();
@@ -34,6 +34,32 @@ test('Should render form fields', async ({ page }) => {
   await page.locator('#phone-number-input-1').fill('1234567890');
   await page.locator('#extension-input-1').fill('7890');
 
+  // Rich text should render a link
+  await expect(page.getByRole('link', { name: 'Ping Identity' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Ping Identity' })).toHaveAttribute(
+    'href',
+    'https://www.pingidentity.com',
+  );
+
+  // Agreement title and content should be visible
+  await expect(page.getByRole('heading', { name: 'Terms of Service Agreement' })).toBeVisible();
+  await expect(
+    page.getByText(
+      'This is example agreement text, you can edit this text in the agreements section.',
+    ),
+  ).toBeVisible();
+
+  // Single checkbox default value
+  await expect(page.locator('#single-checkbox-field')).not.toBeChecked();
+  await expect(page.getByText('I agree to the Terms and Conditions')).toBeVisible();
+
+  // Toggle the single checkbox and assert that it is optional by the abscence of an error message
+  await page.locator('#single-checkbox-field').check();
+  await expect(page.locator('#single-checkbox-field')).toBeChecked();
+  await page.locator('#single-checkbox-field').uncheck();
+  await expect(page.locator('#single-checkbox-field')).not.toBeChecked();
+  await expect(page.locator('.single-checkbox-field-error')).not.toBeAttached();
+
   await expect(page.getByRole('button', { name: 'Flow Button' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Flow Link' })).toBeVisible();
 
@@ -53,20 +79,20 @@ test('Should render form fields', async ({ page }) => {
     'checkbox-field-key': ['option1 value', 'option2 value'],
     'dropdown-field-key': 'dropdown-option2-value',
     'radio-group-key': 'option2 value',
-    'single-checkbox-field': false,
     'combobox-field-key': ['option1 value', 'option3 value'],
     'phone-field': {
       phoneNumber: '1234567890',
       countryCode: 'GB',
       extension: '7890', // Tests PhoneNumberExtensionCollector
     },
+    'single-checkbox-field': false,
   });
 });
 
 test('should render form validation fields', async ({ page }) => {
-  await page.goto('http://localhost:5829/?clientId=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
+  await page.goto('http://localhost:5829/?clientId=e4ef2896-8d90-4abd-bf0f-7b8034995927');
 
-  await expect(page.getByText('Select Test Form')).toBeVisible();
+  await expect(page.getByText('Select Form Fields Test Form')).toBeVisible();
 
   await page.getByRole('button', { name: 'Form Validation' }).click();
 
@@ -80,4 +106,9 @@ test('should render form validation fields', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Email Address' }).fill('abc@email.com');
   await expect(page.getByText('Not a valid email')).not.toBeVisible();
+
+  // Toggle the single checkbox to assert error message
+  await page.locator('#single-checkbox-field').check();
+  await page.locator('#single-checkbox-field').uncheck();
+  await expect(page.getByText('Select the checkbox to continue.')).toBeVisible();
 });

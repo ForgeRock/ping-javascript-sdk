@@ -258,8 +258,7 @@ export function returnSingleValueCollector<
     if ('required' in field && field.required === true) {
       validationArray.push({
         type: 'required',
-        message:
-          ('validation' in field && field.validation?.errorMessage) || 'Value cannot be empty',
+        message: ('errorMessage' in field && field.errorMessage) || 'Value cannot be empty',
         rule: true,
       });
     }

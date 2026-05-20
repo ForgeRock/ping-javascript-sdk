@@ -16,7 +16,7 @@ export default function textComponent(
   formEl: HTMLFormElement,
   collector: TextCollector | ValidatedTextCollector,
   updater: Updater<TextCollector | ValidatedTextCollector>,
-  validator: Validator,
+  validator: Validator<ValidatedTextCollector>,
 ) {
   const collectorKey = dotToCamelCase(collector.output.key);
   const label = document.createElement('label');

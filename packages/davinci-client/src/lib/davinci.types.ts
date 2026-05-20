@@ -177,9 +177,7 @@ export type SingleCheckboxField = {
   key: string;
   label: string;
   required: boolean;
-  validation?: {
-    errorMessage: string;
-  };
+  errorMessage?: string;
 };
 
 export type SingleSelectField = {

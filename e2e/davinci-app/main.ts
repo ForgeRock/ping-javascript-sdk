@@ -300,7 +300,12 @@ const urlParams = new URLSearchParams(window.location.search);
       } else if (collector.type === 'MultiSelectCollector') {
         multiValueComponent(formEl, collector, davinciClient.update(collector));
       } else if (collector.type === 'ValidatedBooleanCollector') {
-        booleanComponent(formEl, collector, davinciClient.update(collector));
+        booleanComponent(
+          formEl,
+          collector,
+          davinciClient.update(collector),
+          davinciClient.validate(collector),
+        );
       }
     });
 
