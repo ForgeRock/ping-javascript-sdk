@@ -139,8 +139,10 @@ export function createParAuthorizeUrlµ(
  * @param log - The CustomLogger used for debug and error trace.
  * @param store - The RTK client store providing the `oidcApi` endpoints.
  * @param options - Optional request-level overrides for the authorize call.
- * @param useParFlow - Computed default that selects PAR when either the
- *   server requires it or the caller opted in. Exposed for testability.
+ * @param useParFlow - Boolean resolved by the caller (e.g. `client.store`)
+ *   indicating whether to use the PAR flow. The caller owns the derivation
+ *   logic (`config.par ?? require_pushed_authorization_requests === true`);
+ *   this function simply routes on the resolved value.
  * @returns A `Micro` that resolves to an `AuthorizationSuccess` containing
  *   the `code` and `state`, or fails with a typed `AuthorizationError`.
  */
@@ -149,8 +151,8 @@ export function authorizeµ(
   config: OidcConfig,
   log: CustomLogger,
   store: ClientStore,
-  options?: GetAuthorizationUrlOptions,
-  useParFlow = config.par ?? wellknown?.require_pushed_authorization_requests === true,
+  options: GetAuthorizationUrlOptions | undefined,
+  useParFlow: boolean,
 ): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> {
   const parDispatchOptions: GetAuthorizationUrlOptions = {
     clientId: config.clientId,

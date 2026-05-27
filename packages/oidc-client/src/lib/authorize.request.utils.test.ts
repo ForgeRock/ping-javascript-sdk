@@ -419,28 +419,34 @@ it.effect('authorizeµ uses standard flow when useParFlow=false', () =>
   }),
 );
 
-it.effect('authorizeµ defaults to PAR when wellknown requires it and useParFlow not passed', () =>
-  Micro.gen(function* () {
-    const requestUri = 'urn:ietf:params:oauth:request_uri:required-par-test';
-    const authorizeResponse = { code: 'req-par-code', state: 'req-par-state' };
-    const wkRequiresPar: WellknownResponse = {
-      ...wellknownWithPar,
-      require_pushed_authorization_requests: true,
-    };
+it.effect(
+  'authorizeµ uses PAR flow when caller passes useParFlow=true (e.g. server requires PAR)',
+  () =>
+    Micro.gen(function* () {
+      const requestUri = 'urn:ietf:params:oauth:request_uri:required-par-test';
+      const authorizeResponse = { code: 'req-par-code', state: 'req-par-state' };
 
-    vi.stubGlobal('sessionStorage', sessionStorageStub);
-    vi.mocked(mockStore.dispatch)
-      .mockResolvedValueOnce({
-        data: { request_uri: requestUri, expires_in: 60 },
-      } as unknown as ReturnType<typeof mockStore.dispatch>)
-      .mockResolvedValueOnce({
-        data: authorizeResponse,
-      } as unknown as ReturnType<typeof mockStore.dispatch>);
+      vi.stubGlobal('sessionStorage', sessionStorageStub);
+      vi.mocked(mockStore.dispatch)
+        .mockResolvedValueOnce({
+          data: { request_uri: requestUri, expires_in: 60 },
+        } as unknown as ReturnType<typeof mockStore.dispatch>)
+        .mockResolvedValueOnce({
+          data: authorizeResponse,
+        } as unknown as ReturnType<typeof mockStore.dispatch>);
 
-    const result = yield* authorizeµ(wkRequiresPar, config, mockLog, mockStore);
-    expect(result).toStrictEqual(authorizeResponse);
-    expect(mockStore.dispatch).toHaveBeenCalledTimes(2);
-  }),
+      // useParFlow=true is what client.store derives when require_pushed_authorization_requests===true
+      const result = yield* authorizeµ(
+        wellknownWithPar,
+        config,
+        mockLog,
+        mockStore,
+        undefined,
+        true,
+      );
+      expect(result).toStrictEqual(authorizeResponse);
+      expect(mockStore.dispatch).toHaveBeenCalledTimes(2);
+    }),
 );
 
 it.effect(
