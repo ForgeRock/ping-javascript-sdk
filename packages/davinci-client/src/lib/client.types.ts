@@ -29,7 +29,7 @@ export interface InternalErrorResponse {
 
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
 
-export type CollectorInputTypes =
+export type CollectorValueTypes =
   | string
   | string[]
   | boolean
@@ -37,6 +37,7 @@ export type CollectorInputTypes =
   | PhoneNumberExtensionInputValue
   | FidoRegistrationInputValue
   | FidoAuthenticationInputValue;
+
 /**
  * Maps collector types to the specific value type they accept.
  * This enables type narrowing when using the update method with specific collector types.
@@ -49,39 +50,51 @@ export type CollectorInputTypes =
  * }
  * ```
  */
-export type CollectorValueType<T> = T extends { type: 'PasswordCollector' }
-  ? string
-  : T extends { type: 'ValidatedPasswordCollector' }
+export type CollectorValueType<T> =
+  // string input types
+  T extends
+    | { type: 'PasswordCollector' }
+    | { type: 'ValidatedPasswordCollector' }
+    | { type: 'SingleSelectCollector' }
+    | { type: 'DeviceRegistrationCollector' }
+    | { type: 'DeviceAuthenticationCollector' }
+    | { type: 'ProtectCollector' }
+    | { type: 'PollingCollector' }
     ? string
-    : T extends { type: 'TextCollector'; category: 'SingleValueCollector' }
+    : // TextCollector branches must remain compound — category is the only discriminant
+      T extends { type: 'TextCollector'; category: 'SingleValueCollector' }
       ? string
       : T extends { type: 'TextCollector'; category: 'ValidatedSingleValueCollector' }
         ? string
-        : T extends { type: 'ValidatedBooleanCollector' }
+        : // boolean input types
+          T extends { type: 'ValidatedBooleanCollector' }
           ? boolean
-          : T extends { type: 'SingleSelectCollector' }
-            ? string
-            : T extends { type: 'MultiSelectCollector' }
-              ? string[]
-              : T extends { type: 'DeviceRegistrationCollector' }
-                ? string
-                : T extends { type: 'DeviceAuthenticationCollector' }
-                  ? string
-                  : T extends { type: 'PhoneNumberCollector' }
-                    ? PhoneNumberInputValue
-                    : T extends { type: 'PhoneNumberExtensionCollector' }
-                      ? PhoneNumberExtensionInputValue
-                      : T extends { type: 'FidoRegistrationCollector' }
-                        ? FidoRegistrationInputValue
-                        : T extends { type: 'FidoAuthenticationCollector' }
-                          ? FidoAuthenticationInputValue
-                          : T extends { category: 'SingleValueCollector' }
-                            ? string
-                            : T extends { category: 'ValidatedSingleValueCollector' }
-                              ? string
-                              : T extends { category: 'MultiValueCollector' }
-                                ? string[]
-                                : CollectorInputTypes;
+          : // string[] input types
+            T extends { type: 'MultiSelectCollector' }
+            ? string[]
+            : // specialized input types
+              T extends { type: 'PhoneNumberCollector' }
+              ? PhoneNumberInputValue
+              : T extends { type: 'PhoneNumberExtensionCollector' }
+                ? PhoneNumberExtensionInputValue
+                : T extends { type: 'FidoRegistrationCollector' }
+                  ? FidoRegistrationInputValue
+                  : T extends { type: 'FidoAuthenticationCollector' }
+                    ? FidoAuthenticationInputValue
+                    : // category catch-alls
+                      T extends { category: 'SingleValueCollector' }
+                      ? string
+                      : T extends { category: 'ValidatedSingleValueCollector' }
+                        ? string
+                        : T extends { category: 'SingleValueAutoCollector' }
+                          ? string
+                          : T extends { category: 'MultiValueCollector' }
+                            ? string[]
+                            : T extends { category: 'ActionCollector' }
+                              ? never
+                              : T extends { category: 'NoValueCollector' }
+                                ? never
+                                : CollectorValueTypes;
 
 /**
  * A function type that updates a collector's value. Accepts values appropriate for the collector type.

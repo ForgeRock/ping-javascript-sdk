@@ -40,13 +40,9 @@ import type {
   SingleValueCollectors,
   MultiSelectCollector,
   ObjectValueCollectors,
-  PhoneNumberInputValue,
   AutoCollectors,
   PollingCollector,
   MultiValueCollectors,
-  FidoRegistrationInputValue,
-  FidoAuthenticationInputValue,
-  PhoneNumberExtensionInputValue,
 } from './collector.types.js';
 import type {
   InitFlow,
@@ -55,6 +51,7 @@ import type {
   Updater,
   Validator,
   Poller,
+  CollectorValueTypes,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { returnPasswordPolicyValidator } from './password-policy.rules.js';
@@ -335,17 +332,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
         );
       }
 
-      return function (
-        value:
-          | string
-          | string[]
-          | boolean
-          | PhoneNumberInputValue
-          | PhoneNumberExtensionInputValue
-          | FidoRegistrationInputValue
-          | FidoAuthenticationInputValue,
-        index?: number,
-      ) {
+      return function (value: CollectorValueTypes, index?: number) {
         try {
           store.dispatch(nodeSlice.actions.update({ id, value, index }));
           return null;

@@ -35,39 +35,9 @@ import {
   returnAgreementCollector,
 } from './collector.utils.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
-import type {
-  ActionCollector,
-  MultiSelectCollector,
-  ValidatedBooleanCollector,
-  SingleSelectCollector,
-  FlowCollector,
-  PasswordCollector,
-  ValidatedPasswordCollector,
-  SingleValueCollector,
-  IdpCollector,
-  SubmitCollector,
-  TextCollector,
-  ReadOnlyCollector,
-  RichTextCollector,
-  ValidatedTextCollector,
-  DeviceAuthenticationCollector,
-  DeviceRegistrationCollector,
-  PhoneNumberCollector,
-  PhoneNumberInputValue,
-  PhoneNumberOutputValue,
-  UnknownCollector,
-  ProtectCollector,
-  PollingCollector,
-  FidoRegistrationCollector,
-  FidoAuthenticationCollector,
-  FidoAuthenticationInputValue,
-  FidoRegistrationInputValue,
-  QrCodeCollector,
-  AgreementCollector,
-  PhoneNumberExtensionOutputValue,
-  PhoneNumberExtensionCollector,
-  PhoneNumberExtensionInputValue,
-} from './collector.types.js';
+import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
+import type { CollectorValueTypes } from './client.types.js';
+import type { Collectors } from './node.types.js';
 
 /**
  * @const nextCollectorValues - Action for setting the next collector values
@@ -81,14 +51,7 @@ export const nextCollectorValues = createAction<{
 }>('node/next');
 export const updateCollectorValues = createAction<{
   id: string;
-  value:
-    | string
-    | string[]
-    | boolean
-    | PhoneNumberInputValue
-    | PhoneNumberExtensionInputValue
-    | FidoRegistrationInputValue
-    | FidoAuthenticationInputValue;
+  value: CollectorValueTypes;
   index?: number;
 }>('node/update');
 export const pollCollectorValues = createAction('node/poll');
@@ -96,33 +59,7 @@ export const pollCollectorValues = createAction('node/poll');
 /**
  * @const initialCollectorValues - Initial state for the collector values
  */
-const initialCollectorValues: (
-  | FlowCollector
-  | PasswordCollector
-  | ValidatedPasswordCollector
-  | TextCollector
-  | IdpCollector
-  | SubmitCollector
-  | ActionCollector<'ActionCollector'>
-  | SingleValueCollector<'SingleValueCollector'>
-  | ValidatedBooleanCollector
-  | SingleSelectCollector
-  | MultiSelectCollector
-  | DeviceAuthenticationCollector
-  | DeviceRegistrationCollector
-  | PhoneNumberCollector
-  | PhoneNumberExtensionCollector
-  | ReadOnlyCollector
-  | RichTextCollector
-  | ValidatedTextCollector
-  | UnknownCollector
-  | ProtectCollector
-  | PollingCollector
-  | FidoRegistrationCollector
-  | FidoAuthenticationCollector
-  | QrCodeCollector
-  | AgreementCollector
-)[] = [];
+const initialCollectorValues: Collectors[] = [];
 
 /**
  * @const nodeCollectorReducer - Reducer for handling the collector values
@@ -297,13 +234,13 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
 
       if (collector.type === 'DeviceAuthenticationCollector') {
-        if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+        const inputValue = action.payload.value;
+        if (typeof inputValue !== 'string') {
+          throw new Error('Value argument must be a string');
         }
+
         // Iterate through the options object and find option to update
-        const option = collector.output.options.find(
-          (option) => option.value === action.payload.value,
-        );
+        const option = collector.output.options.find((option) => option.value === inputValue);
 
         if (!option) {
           throw new Error('No option found matching value to update');
@@ -318,14 +255,13 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
 
       if (collector.type === 'DeviceRegistrationCollector') {
-        if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+        const inputValue = action.payload.value;
+        if (typeof inputValue !== 'string') {
+          throw new Error('Value argument must be a string');
         }
 
         // Iterate through the options object and find option to update
-        const option = collector.output.options.find(
-          (option) => option.value === action.payload.value,
-        );
+        const option = collector.output.options.find((option) => option.value === inputValue);
 
         if (!option) {
           throw new Error('No option found matching value to update');
