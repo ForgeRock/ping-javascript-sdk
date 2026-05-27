@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -90,6 +90,16 @@ export interface ValidatedSingleValueCollectorWithValue<
     label: string;
     type: string;
     value: V;
+  };
+}
+
+export interface ValidatedBooleanCollector extends ValidatedSingleValueCollectorWithValue<
+  'ValidatedBooleanCollector',
+  boolean
+> {
+  output: ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>['output'] & {
+    appearance: string;
+    richContent?: CollectorRichContent;
   };
 }
 
@@ -227,10 +237,6 @@ export interface ValidatedPasswordCollector {
 export type TextCollector = SingleValueCollectorWithValue<'TextCollector'>;
 export type SingleSelectCollector = SingleSelectCollectorWithValue<'SingleSelectCollector'>;
 export type ValidatedTextCollector = ValidatedSingleValueCollectorWithValue<'TextCollector'>;
-export type ValidatedBooleanCollector = ValidatedSingleValueCollectorWithValue<
-  'ValidatedBooleanCollector',
-  boolean
->;
 
 export type SingleValueCollectors =
   | ValidatedPasswordCollector

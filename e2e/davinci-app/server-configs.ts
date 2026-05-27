@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -46,13 +46,16 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
         'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
     },
   },
-  '60de77d5-dd2c-41ef-8c40-f8bb2381a359': {
-    clientId: '60de77d5-dd2c-41ef-8c40-f8bb2381a359',
+  /**
+   * Form Fields
+   */
+  'e4ef2896-8d90-4abd-bf0f-7b8034995927': {
+    clientId: 'e4ef2896-8d90-4abd-bf0f-7b8034995927',
     redirectUri: window.location.origin + '/',
     scope: 'openid profile email name revoke',
     serverConfig: {
       wellknown:
-        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+        'https://auth.pingone.ca/356a254c-cba3-4ade-be1a-860136e8df01/as/.well-known/openid-configuration',
     },
   },
   /**
