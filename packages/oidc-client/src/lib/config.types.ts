@@ -16,6 +16,7 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
     timeout?: number;
   };
   responseType?: ResponseType;
+  par?: boolean;
 }
 
 export interface OauthTokens {

@@ -23,6 +23,7 @@ import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { TokenExchangeResponse } from './exchange.types.js';
 import type { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize.request.types.js';
 import type { UserInfoResponse } from './client.types.js';
+import type { PushAuthorizationResponse } from './par.types.js';
 
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
   requestMiddleware: RequestMiddleware<ActionType, Payload>[];
@@ -102,6 +103,79 @@ export const oidcApi = createApi({
         return response as { data: AuthorizeSuccessResponse };
       },
     }),
+    par: builder.mutation<PushAuthorizationResponse, { endpoint: string; body: URLSearchParams }>({
+      queryFn: async ({ endpoint, body }, api, _, baseQuery) => {
+        const { requestMiddleware, logger } = api.extra as Extras;
+
+        const request: FetchArgs = {
+          url: endpoint,
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          credentials: 'include',
+          body,
+        };
+
+        logger.debug('OIDC PAR API raw request', request);
+
+        const response = await initQuery(request, 'par')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => await baseQuery(req));
+
+        logger.debug('OIDC PAR API raw response', response);
+
+        if (response.error) {
+          const responseError = response.error;
+          let message: string;
+
+          if (
+            responseError.data &&
+            typeof responseError.data === 'object' &&
+            'error_description' in responseError.data &&
+            typeof responseError.data.error_description === 'string'
+          ) {
+            message = responseError.data.error_description;
+          } else {
+            message = `Failed to push authorization request: ${responseError.status}`;
+          }
+
+          logger.error('PAR API error', message);
+
+          response.error.data = {
+            error: 'PAR_ERROR',
+            error_description: message,
+            type: 'network_error',
+          };
+
+          return response;
+        }
+
+        const data = response.data;
+        if (
+          !data ||
+          typeof data !== 'object' ||
+          !('request_uri' in data) ||
+          typeof (data as Record<string, unknown>).request_uri !== 'string' ||
+          ((data as Record<string, unknown>).request_uri as string).length === 0
+        ) {
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: 'PAR_ERROR',
+              data: {
+                error: 'PAR_ERROR',
+                error_description: "PAR response missing required 'request_uri' field",
+                type: 'network_error',
+              },
+            } as FetchBaseQueryError,
+          };
+        }
+
+        return response as { data: PushAuthorizationResponse };
+      },
+    }),
     authorizeIframe: builder.mutation<AuthorizationSuccess, { url: string }>({
       queryFn: async ({ url }, api) => {
         const { requestMiddleware, logger } = api.extra as Extras;
@@ -144,7 +218,7 @@ export const oidcApi = createApi({
           });
 
         if ('error' in response) {
-          logger.error('Received authorization code', response);
+          logger.error('Error in authorizeIframe response', response);
           return {
             error: {
               status: 400,

@@ -23,6 +23,7 @@ export const actionTypes = {
 
   // OIDC
   authorize: 'AUTHORIZE',
+  par: 'PAR',
   tokenExchange: 'TOKEN_EXCHANGE',
   revoke: 'REVOKE',
   userInfo: 'USER_INFO',

@@ -49,6 +49,7 @@ import {
   MetadataMarketPlacePingOneEvaluation,
   newPiWellKnown,
   qrCodeCallbacksResponse,
+  parResponse,
 } from './responses.js';
 import initialRegResponse from './response.registration.js';
 import {
@@ -663,6 +664,16 @@ export default function (app) {
   });
 
   app.get('/callback', (req, res) => res.status(200).send('ok'));
+
+  app.post(authPaths.par, (req, res) => {
+    if (req.query.scenario === 'error') {
+      return res.status(400).json({
+        error: 'invalid_request',
+        error_description: 'Missing required PAR parameter',
+      });
+    }
+    res.status(201).json(parResponse);
+  });
 
   app.get('/am/.well-known/oidc-configuration', (req, res) => {
     res.send(wellKnownForgeRock);
