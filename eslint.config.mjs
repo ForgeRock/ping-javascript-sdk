@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -32,6 +32,48 @@ export default [
       '**/out-tsc',
       '**/test-output',
     ],
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.mjs', '**/*.cjs'],
+    ignores: [
+      '**/*.test.*',
+      '**/*.spec.*',
+      '**/vite.config.*',
+      '**/vitest.config.*',
+      '**/vitest.setup.*',
+      '**/eslint.config.*',
+    ],
+    plugins: {
+      'local-rules': {
+        rules: {
+          'ping-copyright': {
+            meta: {
+              type: 'suggestion',
+              messages: { missing: 'Missing Ping Identity copyright header.' },
+            },
+            create(context) {
+              return {
+                Program(node) {
+                  const src = context.getSourceCode();
+                  const comments = src.getAllComments();
+                  const first = comments[0];
+                  if (
+                    !first ||
+                    first.range[0] > 0 ||
+                    !/Copyright[\s\S]*Ping Identity/i.test(first.value)
+                  ) {
+                    context.report({ node, messageId: 'missing' });
+                  }
+                },
+              };
+            },
+          },
+        },
+      },
+    },
+    rules: {
+      'local-rules/ping-copyright': 'warn',
+    },
   },
   ...compat.extends('plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'),
   {
