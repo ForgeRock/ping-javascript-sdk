@@ -5,6 +5,20 @@ pre-commit:
     nx-check:
       run: pnpm nx affected -t typecheck lint build api-report --tui=false
       stage_fixed: true
+    format:
+      run: pnpm nx format:write
+      stage_fixed: true
+    syncpack:
+      glob: >-
+        {package.json,
+        pnpm-workspace.yaml,
+        packages/*/package.json,
+        packages/sdk-effects/*/package.json,
+        packages/utils/*/package.json,
+        e2e/*/package.json,
+        tools/*/package.json,
+        scratchpad/package.json}
+      run: pnpm syncpack:lint
     interface-mapping:
       glob: >-
         {tools/interface-mapping-validator/**/*.ts,
@@ -21,9 +35,6 @@ pre-commit:
          echo "Interface mapping is out of sync." &&
          echo "Run: pnpm mapping:generate" &&
          exit 1)
-    format:
-      run: pnpm nx format:write
-      stage_fixed: true
 commit-msg:
   commands:
     commitlint:

@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@forgerock/davinci-client": "workspace:*",
-    "@forgerock/javascript-sdk": "4.7.0",
+    "@forgerock/oidc-client": "workspace:*",
     "@forgerock/protect": "workspace:*",
     "@forgerock/sdk-logger": "workspace:*"
   },

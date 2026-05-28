@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/syncpack/schema.json",
+  "source": [
+    "package.json",
+    "packages/*/package.json",
+    "packages/sdk-effects/*/package.json",
+    "packages/utils/*/package.json",
+    "e2e/*/package.json",
+    "tools/*/package.json",
+    "scratchpad/package.json"
+  ]
+}
