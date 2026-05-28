@@ -133,6 +133,18 @@ describe('PingOne token get method', async () => {
     expect(tokens.error).toBe('No tokens found');
   });
 
+  it('exposes a subscribe method', async () => {
+    const oidcClient = await oidc({ config, storage: customStorageConfig });
+
+    if ('error' in oidcClient) {
+      throw new Error('Error creating OIDC Client');
+    }
+
+    expect(oidcClient.subscribe).toBeInstanceOf(Function);
+    const unsubscribe = oidcClient.subscribe(vi.fn());
+    expect(unsubscribe).toBeInstanceOf(Function);
+  });
+
   it('Get tokens', async () => {
     customStorage.set(
       storageKey,

@@ -36,6 +36,7 @@ export type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFail
 
 /** The journey client instance returned by the `journey()` function. */
 export interface JourneyClient {
+  subscribe: (listener: () => void) => () => void;
   start: (options?: StartParam) => Promise<JourneyResult>;
   next: (step: JourneyStep, options?: NextOptions) => Promise<JourneyResult>;
   redirect: (step: JourneyStep) => Promise<void>;
@@ -154,6 +155,8 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
   });
 
   const self: JourneyClient = {
+    subscribe: store.subscribe,
+
     start: async (options?: StartParam) => {
       const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
       if (!data) {

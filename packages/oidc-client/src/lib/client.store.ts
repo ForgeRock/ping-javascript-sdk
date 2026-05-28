@@ -109,6 +109,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
 
   return {
+    // Pass store methods to the client
+    subscribe: store.subscribe,
+
     /**
      * An object containing methods for the creation, and background use, of the authorization URL
      */
