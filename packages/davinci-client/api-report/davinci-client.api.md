@@ -7,20 +7,15 @@
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { ActionTypes } from '@forgerock/sdk-request-middleware';
 import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
-import { BaseQueryFn } from '@reduxjs/toolkit/query';
 import { CustomLogger } from '@forgerock/sdk-logger';
-import { FetchArgs } from '@reduxjs/toolkit/query';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
+import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
-import { MutationDefinition } from '@reduxjs/toolkit/query';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
-import { QueryDefinition } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import { RootState } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Unsubscribe } from '@reduxjs/toolkit';
 
@@ -361,33 +356,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         status: "success";
     } | null;
     cache: {
-        getLatestResponse: () => ((state: RootState<    {
-        flow: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
-        next: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
-        start: MutationDefinition<StartOptions<OutgoingQueryParams> | undefined, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
-        resume: QueryDefinition<    {
-        serverInfo: ContinueNode["server"];
-        continueToken: string;
-        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
-        poll: MutationDefinition<    {
-        endpoint: string;
-        interactionId: string;
-        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
-        }, never, "davinci">) => ({
-            requestId?: undefined;
-            status: QueryStatus.uninitialized;
-            data?: undefined;
-            error?: undefined;
-            endpointName?: string;
-            startedTimeStamp?: undefined;
-            fulfilledTimeStamp?: undefined;
-        } & {
-            status: QueryStatus.uninitialized;
-            isUninitialized: true;
-            isLoading: false;
-            isSuccess: false;
-            isError: false;
-        }) | ({
+        getLatestResponse: () => ({
             status: QueryStatus.fulfilled;
         } & Omit<{
             requestId: string;
@@ -412,23 +381,6 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isSuccess: true;
             isError: false;
         }) | ({
-            status: QueryStatus.pending;
-        } & {
-            requestId: string;
-            data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
-            endpointName: string;
-            startedTimeStamp: number;
-            fulfilledTimeStamp?: number;
-        } & {
-            data?: undefined;
-        } & {
-            status: QueryStatus.pending;
-            isUninitialized: false;
-            isLoading: true;
-            isSuccess: false;
-            isError: false;
-        }) | ({
             status: QueryStatus.rejected;
         } & Omit<{
             requestId: string;
@@ -450,39 +402,13 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isLoading: false;
             isSuccess: false;
             isError: true;
-        })) | {
+        }) | {
             error: {
                 message: string;
                 type: string;
             };
         };
-        getResponseWithId: (requestId: string) => ((state: RootState<    {
-        flow: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
-        next: MutationDefinition<any, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", any>;
-        start: MutationDefinition<StartOptions<OutgoingQueryParams> | undefined, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
-        resume: QueryDefinition<    {
-        serverInfo: ContinueNode["server"];
-        continueToken: string;
-        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
-        poll: MutationDefinition<    {
-        endpoint: string;
-        interactionId: string;
-        }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, unknown, "davinci", unknown>;
-        }, never, "davinci">) => ({
-            requestId?: undefined;
-            status: QueryStatus.uninitialized;
-            data?: undefined;
-            error?: undefined;
-            endpointName?: string;
-            startedTimeStamp?: undefined;
-            fulfilledTimeStamp?: undefined;
-        } & {
-            status: QueryStatus.uninitialized;
-            isUninitialized: true;
-            isLoading: false;
-            isSuccess: false;
-            isError: false;
-        }) | ({
+        getResponseWithId: (requestId: string) => ({
             status: QueryStatus.fulfilled;
         } & Omit<{
             requestId: string;
@@ -507,23 +433,6 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isSuccess: true;
             isError: false;
         }) | ({
-            status: QueryStatus.pending;
-        } & {
-            requestId: string;
-            data?: unknown;
-            error?: FetchBaseQueryError | SerializedError | undefined;
-            endpointName: string;
-            startedTimeStamp: number;
-            fulfilledTimeStamp?: number;
-        } & {
-            data?: undefined;
-        } & {
-            status: QueryStatus.pending;
-            isUninitialized: false;
-            isLoading: true;
-            isSuccess: false;
-            isError: false;
-        }) | ({
             status: QueryStatus.rejected;
         } & Omit<{
             requestId: string;
@@ -545,7 +454,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
             isLoading: false;
             isSuccess: false;
             isError: true;
-        })) | {
+        }) | {
             error: {
                 message: string;
                 type: string;

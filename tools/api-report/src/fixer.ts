@@ -46,6 +46,13 @@ export function resolveSourcePackage(sourceFilePath: string, workspaceRoot: stri
 }
 
 /**
+ * Escapes special regex characters in a string.
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Finds the module specifier for a symbol's import in a .d.ts file.
  * Given `import { ForgottenType } from '@forgerock/sdk-types'`, returns '@forgerock/sdk-types'.
  */
@@ -105,10 +112,6 @@ export function buildReExportStatement(
 ): string {
   const keyword = kind === 'type' ? 'export type' : 'export';
   return keyword + ' { ' + symbolName + " } from '" + sourcePackage + "';";
-}
-
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**

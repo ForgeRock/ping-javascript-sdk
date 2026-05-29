@@ -29,7 +29,7 @@ const config: PlaywrightTestConfig = {
           command: 'pnpm watch @forgerock/davinci-app',
           port: 5829,
           ignoreHTTPSErrors: true,
-          reuseExistingServer: !process.env.CI,
+          reuseExistingServer: true,
           cwd: workspaceRoot,
         }
       : undefined,
@@ -37,7 +37,7 @@ const config: PlaywrightTestConfig = {
       command: 'pnpm nx serve @forgerock/davinci-app',
       port: 5829,
       ignoreHTTPSErrors: true,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       cwd: workspaceRoot,
     },
   ].filter(Boolean),
