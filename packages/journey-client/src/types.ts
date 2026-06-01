@@ -13,6 +13,7 @@ export type {
   Callback,
   CallbackType,
   GenericError,
+  WellknownResponse,
   PolicyRequirement,
   FailedPolicyRequirement,
   NameValue,
