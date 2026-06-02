@@ -13,7 +13,7 @@ catalog:
   immer: '^10.1.1'
   msw: '^2.5.1'
   tslib: '^2.5.0'
-  tsx: '4.21.0'
+  tsx: '4.22.4'
 catalogs:
   effect:
     effect: '^3.20.0'
