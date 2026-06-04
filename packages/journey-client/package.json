@@ -39,6 +39,7 @@
     "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
+    "effect": "catalog:effect",
     "tslib": "catalog:"
   },
   "devDependencies": {

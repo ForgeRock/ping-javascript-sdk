@@ -216,7 +216,7 @@ export type JourneyLoginSuccess = AuthResponse & {
     getSuccessUrl: () => string | undefined;
 };
 
-// @public
+// @public (undocumented)
 export type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | GenericError;
 
 // @public

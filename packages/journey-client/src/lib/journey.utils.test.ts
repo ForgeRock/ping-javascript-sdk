@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { StepType } from '../types.js';
 import { type Step } from '../index.js';
 
-import { createJourneyObject, handleJourneyResponse } from './journey.utils.js';
+import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
 import type { JourneyLoginFailure } from './login-failure.utils.js';
 
 describe('createJourneyObject', () => {
@@ -63,34 +63,39 @@ describe('createJourneyObject', () => {
   });
 });
 
-describe('handleJourneyResponse', () => {
-  it('returns Step data when FetchBaseQueryError has numeric status and object body', () => {
+describe('parseJourneyResponse', () => {
+  it('returns right(Step) when FetchBaseQueryError has numeric status and object body', () => {
     const body = { code: 401, message: 'Access Denied', reason: 'Unauthorized' };
     const error = { status: 401, data: body };
 
-    const result = handleJourneyResponse(undefined, error);
+    const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result).toBe(body);
+    expect(result._tag).toBe('Right');
+    expect((result as { right: unknown }).right).toBe(body);
   });
 
-  it('returns GenericError when FetchBaseQueryError has numeric status but non-object body', () => {
+  it('returns left(GenericError) when FetchBaseQueryError has numeric status but non-object body', () => {
     const error = { status: 500, data: 'Internal Server Error' };
 
-    const result = handleJourneyResponse(undefined, error);
+    const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result).toMatchObject({ error: 'request_failed', type: 'unknown_error' });
+    expect(result._tag).toBe('Left');
+    expect((result as { left: unknown }).left).toMatchObject({
+      error: 'request_failed',
+      type: 'unknown_error',
+    });
   });
 
-  it('returns GenericError for FETCH_ERROR', () => {
+  it('returns left(GenericError) for FETCH_ERROR', () => {
     const error = { status: 'FETCH_ERROR' as const, error: 'Network error' };
 
-    const result = handleJourneyResponse(undefined, error);
+    const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result).toMatchObject({ error: 'request_failed', type: 'unknown_error' });
-    expect((result as { message: string }).message).toContain('Network error');
+    expect(result._tag).toBe('Left');
+    expect((result as { left: { message: string } }).left.message).toContain('Network error');
   });
 
-  it('returns GenericError for PARSING_ERROR', () => {
+  it('returns left(GenericError) for PARSING_ERROR', () => {
     const error = {
       status: 'PARSING_ERROR' as const,
       originalStatus: 200,
@@ -98,50 +103,59 @@ describe('handleJourneyResponse', () => {
       error: 'JSON parse error',
     };
 
-    const result = handleJourneyResponse(undefined, error);
+    const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result).toMatchObject({ error: 'request_failed', type: 'unknown_error' });
-    expect((result as { message: string }).message).toContain('JSON parse error');
+    expect(result._tag).toBe('Left');
+    expect((result as { left: { message: string } }).left.message).toContain('JSON parse error');
   });
 
-  it('returns GenericError for TIMEOUT_ERROR', () => {
+  it('returns left(GenericError) for TIMEOUT_ERROR', () => {
     const error = { status: 'TIMEOUT_ERROR' as const, error: 'Request timed out' };
 
-    const result = handleJourneyResponse(undefined, error);
+    const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result).toMatchObject({ error: 'request_failed', type: 'unknown_error' });
-    expect((result as { message: string }).message).toContain('Request timed out');
+    expect(result._tag).toBe('Left');
+    expect((result as { left: { message: string } }).left.message).toContain('Request timed out');
   });
 
-  it('returns GenericError for CUSTOM_ERROR', () => {
+  it('returns left(GenericError) for CUSTOM_ERROR', () => {
     const error = { status: 'CUSTOM_ERROR' as const, error: 'Custom error occurred' };
 
-    const result = handleJourneyResponse(undefined, error);
+    const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result).toMatchObject({ error: 'request_failed', type: 'unknown_error' });
-    expect((result as { message: string }).message).toContain('Custom error occurred');
+    expect(result._tag).toBe('Left');
+    expect((result as { left: { message: string } }).left.message).toContain(
+      'Custom error occurred',
+    );
   });
 
-  it('returns GenericError for SerializedError', () => {
+  it('returns left(GenericError) for SerializedError', () => {
     const error = { name: 'Error', message: 'Something went wrong', stack: '...' };
 
-    const result = handleJourneyResponse(undefined, error);
+    const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result).toMatchObject({ error: 'request_failed', type: 'unknown_error' });
-    expect((result as { message: string }).message).toContain('Something went wrong');
+    expect(result._tag).toBe('Left');
+    expect((result as { left: { message: string } }).left.message).toContain(
+      'Something went wrong',
+    );
   });
 
-  it('returns GenericError when no data and no error', () => {
-    const result = handleJourneyResponse(undefined, undefined);
+  it('returns left(GenericError) when no data and no error', () => {
+    const result = parseJourneyResponse({ data: undefined, error: undefined });
 
-    expect(result).toMatchObject({ error: 'no_response_data', type: 'unknown_error' });
+    expect(result._tag).toBe('Left');
+    expect((result as { left: unknown }).left).toMatchObject({
+      error: 'no_response_data',
+      type: 'unknown_error',
+    });
   });
 
-  it('returns data when no error and data is present', () => {
+  it('returns right(Step) when no error and data is present', () => {
     const data: Step = { authId: 'test-auth-id', callbacks: [] };
 
-    const result = handleJourneyResponse(data, undefined);
+    const result = parseJourneyResponse({ data, error: undefined });
 
-    expect(result).toBe(data);
+    expect(result._tag).toBe('Right');
+    expect((result as { right: unknown }).right).toBe(data);
   });
 });
