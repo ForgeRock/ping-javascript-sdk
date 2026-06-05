@@ -7,62 +7,87 @@
  *
  */
 
-/**
- * @interface RecognizeConfig - Interface for the Recognize module configuration parameters
- */
-export interface RecognizeConfig {
-  /**
-   * @property {string} customerName - the customer name from your PingOne tenant
-   */
-  customerName: string;
-  /**
-   * @property {string} imageEncryptionKey - the image encryption public key to encrypt the selfie image
-   */
-  imageEncryptionKey: string;
-  /**
-   * @property {string} imageEncryptionKeyId - the image encryption key id to identify which public key to use to encrypt the selfie image
-   */
-  imageEncryptionKeyId: string;
-  /**
-   * @property {string} transactionData - the transaction data to be sent to be signed by the PingOne Recognize API
-   */
-  transactionData: string;
-  /**
-   * @property {string} username - the username associated with the transaction
-   */
-  username: string;
-  /**
-   * @property {string} [webSocketUrl] - the websocket url for the PingOne Recognize SDK to connect to;
-   */
-  webSocketUrl: string;
+import type {
+  KeylessFinishedEventDetail,
+  KeylessFrameResultsEventDetail,
+  KeylessStepChangeEventDetail,
+  KeylessVideoFrameQualityEventDetail,
+  KeylessWebSocketCloseEventDetail,
+  KeylessWebSocketOpenEventDetail,
+} from './recognize-sdk/index.js';
+import type { RecognizeError, RecognizeErrorCode } from './errors.js';
+
+export type { RecognizeError, RecognizeErrorCode };
+
+/** @public */
+export type RecognizeSessionType = 'auth' | 'enroll';
+
+/** @public */
+export interface RecognizeWcFinishedEventDetail extends KeylessFinishedEventDetail {}
+
+/** @public */
+export type RecognizeWcEvent =
+  | { type: 'step-change'; detail: KeylessStepChangeEventDetail }
+  | { type: 'finished'; detail: RecognizeWcFinishedEventDetail }
+  | { type: 'error'; detail: RecognizeError }
+  | { type: 'frame-results'; detail: KeylessFrameResultsEventDetail }
+  | { type: 'video-frame-quality'; detail: KeylessVideoFrameQualityEventDetail }
+  | { type: 'ws-open'; detail: KeylessWebSocketOpenEventDetail }
+  | { type: 'ws-close'; detail: KeylessWebSocketCloseEventDetail };
+
+/** @public */
+export type RecognizeWcCompleteDetail = RecognizeWcFinishedEventDetail;
+
+/** @public */
+export interface RecognizeWcObserver {
+  next: (event: RecognizeWcEvent) => void;
+  error?: (err: RecognizeError) => void;
+  complete?: (detail: RecognizeWcCompleteDetail) => void;
 }
 
-/**
- * @interface Recognize - Interface for methods to interact with the PingOne Recognize SDK
- */
-export interface Recognize {
-  /**
-   * @async
-   * @method start - Method to initialize and start the PingOne Recognize SDK
-   * @returns {Promise<void | { error: string }>} - Returns an error if PingOne Recognize SDK failed to load
-   */
-  start: () => Promise<void | { error: string }>;
-  /**
-   * @async
-   * @method getData - Method to get the device data
-   * @returns {Promise<string | { error: string }>} - Returns the device data or an error if PingOne Recognize SDK failed to load
-   */
-  //   getData: () => Promise<string | { error: string }>;
-  /**
-   * @method pauseBehavioralData - Method to pause the behavioral data collection
-   * @returns {void | { error: string }} - Returns an error if PingOne Recognize SDK failed to load
-   * @description Pause the behavioral data collection only; device profile data will still be collected
-   */
-  //   pauseBehavioralData: () => void | { error: string };
-  /**
-   * @method resumeBehavioralData - Method to resume the behavioral data collection
-   * @returns {void | { error: string }} - Returns an error if PingOne Recognize SDK failed to load
-   * @description Resume the behavioral data collection
-   */
-  //   resumeBehavioralData: () => void | { error: string };
+/** @public */
+export type RecognizeWcUnsubscribe = () => void;
+
+/** @public */
+export type RecognizeWcInitOptions =
+  | { mode: 'mount'; container: HTMLElement; type: RecognizeSessionType; username: string }
+  | { mode: 'attach'; element: HTMLElement; username: string };
+
+/** @public */
+export interface RecognizeWcClient {
+  subscribe: (observer: RecognizeWcObserver) => RecognizeWcUnsubscribe;
+  init(options: RecognizeWcInitOptions): Promise<void | RecognizeError>;
+  dispose: () => void;
+}
+
+/** @public */
+export interface RecognizeWcConfig {
+  customer: string;
+  key: string;
+  keyID: string;
+  wsURL: string;
+  authorizationToken?: string;
+  disableSteps?: string[];
+  datadogEnv?: string;
+  datadogToken?: string;
+  disableDatadog?: boolean;
+  disableLogger?: boolean;
+  disablePoweredBy?: boolean;
+  enableCameraFlash?: boolean;
+  enableCameraInstructions?: boolean;
+  enableCameraInstructionsIcons?: boolean;
+  enableWasmPthreads?: boolean;
+  lang?: string;
+  localizationPacks?: unknown[];
+  localizationVariables?: unknown;
+  loggerLevel?: string;
+  operationID?: string;
+  seedEntropy?: boolean;
+  transactionData?: string;
+  theme?: unknown;
+  themeOptions?: unknown;
+  wasmBinaryURL?: string;
+  wasmDataURL?: string;
+  wasmScriptURL?: string;
+  wsTimeout?: number;
 }

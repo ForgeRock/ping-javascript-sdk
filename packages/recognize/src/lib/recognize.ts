@@ -8,63 +8,147 @@
  */
 
 import type { KeylessAuthElement, KeylessEnrollElement } from './recognize-sdk/index.js';
-import type { Recognize, RecognizeConfig } from './recognize.types.js';
+import { RecognizeErrorCode, createRecognizeError, mapWebError } from './errors.js';
+import type {
+  RecognizeError,
+  RecognizeWcClient,
+  RecognizeWcConfig,
+  RecognizeWcInitOptions,
+  RecognizeWcObserver,
+  RecognizeWcUnsubscribe,
+} from './recognize.types.js';
+
+type RootEl = KeylessAuthElement | KeylessEnrollElement;
+
+const CAMERA_ONLY_DISABLE_STEPS: string[] = [
+  'bootstrap',
+  'camera-instructions',
+  'done',
+  'error',
+  'microphone-permission',
+  'server-computation',
+  'stm-choice',
+  'stm-qrcode',
+];
 
 /**
- * @async
- * @function recognize - returns a set of methods to interact with the PingOne Recognize SDK
- * @param {RecognizeConfig} options - the configuration options for the PingOne Recognize SDK
- * @returns {Promise<Recognize>} - a set of methods to interact with the PingOne Recognize SDK
+ * @function recognize - Returns a client to interact with the PingOne Recognize SDK web components
+ * @param {RecognizeWcConfig} config - Configuration for the PingOne Recognize SDK
+ * @returns {RecognizeWcClient}
  */
-export function recognize(options: RecognizeConfig): Recognize {
-  let recognizeApiInitialized: boolean = false;
-  let recognizeElement: KeylessAuthElement | KeylessEnrollElement | null = null;
+export function recognize(config: RecognizeWcConfig): RecognizeWcClient {
+  const effectiveConfig: RecognizeWcConfig = { disableSteps: CAMERA_ONLY_DISABLE_STEPS, ...config };
+  let element: RootEl | null = null;
+  let abortController: AbortController | null = null;
+  const observers: Set<RecognizeWcObserver> = new Set();
 
-  return {
-    start: async (): Promise<void | { error: string }> => {
+  const dispatch = (type: string, detail: unknown): void => {
+    for (const observer of observers) {
+      observer.next({ type, detail } as Parameters<RecognizeWcObserver['next']>[0]);
+    }
+  };
+
+  const attachListeners = (el: RootEl): void => {
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    el.addEventListener('step-change', (e) => dispatch('step-change', (e as CustomEvent).detail), {
+      signal,
+    });
+    el.addEventListener(
+      'finished',
+      (e) => {
+        const detail = (e as CustomEvent).detail;
+        dispatch('finished', detail);
+        for (const observer of observers) observer.complete?.(detail);
+        observers.clear();
+      },
+      { signal },
+    );
+    el.addEventListener(
+      'error',
+      (e) => {
+        const event = e as ErrorEvent;
+        const reason = event.error?.message as string | undefined;
+        const err = createRecognizeError(mapWebError(reason), event.error);
+        for (const observer of observers) observer.error?.(err);
+        observers.clear();
+      },
+      { signal },
+    );
+    el.addEventListener(
+      'frame-results',
+      (e) => dispatch('frame-results', (e as CustomEvent).detail),
+      { signal },
+    );
+    el.addEventListener(
+      'video-frame-quality',
+      (e) => dispatch('video-frame-quality', (e as CustomEvent).detail),
+      { signal },
+    );
+    el.addEventListener('ws-open', (e) => dispatch('ws-open', (e as CustomEvent).detail), {
+      signal,
+    });
+    el.addEventListener('ws-close', (e) => dispatch('ws-close', (e as CustomEvent).detail), {
+      signal,
+    });
+  };
+
+  const applyConfig = (el: RootEl): void => {
+    const target = el as unknown as Record<string, unknown>;
+    for (const [k, v] of Object.entries(effectiveConfig)) {
+      if (v !== undefined) {
+        target[k === 'key' ? 'publicKey' : k] = v;
+      }
+    }
+  };
+
+  const client: RecognizeWcClient = {
+    subscribe: (observer: RecognizeWcObserver): RecognizeWcUnsubscribe => {
+      observers.add(observer);
+      return () => observers.delete(observer);
+    },
+
+    async init(options: RecognizeWcInitOptions): Promise<void | RecognizeError> {
+      if (element !== null) {
+        return createRecognizeError(RecognizeErrorCode.ALREADY_INITIALIZED);
+      }
+
       try {
-        /*
-         * Load the Ping Recognize SDK
-         * this automatically pollutes the window
-         * there are no exports of this module
-         */
         await import('./recognize-sdk/index.js' as string);
-        recognizeApiInitialized = true;
-      } catch (err) {
-        console.error('error loading ping recognize', err);
-        return { error: 'Failed to load PingOne Recognize SDK' };
+      } catch {
+        return createRecognizeError(RecognizeErrorCode.SDK_ERROR);
       }
 
-      try {
-        let element: KeylessAuthElement | KeylessEnrollElement | null;
-
-        element = document.querySelector('kl-auth, kl-enroll');
-        if (!element) throw new Error();
-
-        recognizeElement = element;
-      } catch (err) {
-        console.error('error finding kl-auth or kl-enroll element', err);
-        return { error: 'Failed to find kl-auth or kl-enroll element' };
+      if (options.mode === 'attach') {
+        const tag = (options.element as HTMLElement).tagName;
+        if (tag !== 'KL-AUTH' && tag !== 'KL-ENROLL') {
+          return createRecognizeError(RecognizeErrorCode.INVALID_ELEMENT);
+        }
+        element = options.element as RootEl;
+        element.username = options.username;
+        applyConfig(element);
+        attachListeners(element);
+      } else {
+        const tag = options.type === 'auth' ? 'kl-auth' : 'kl-enroll';
+        element = document.createElement(tag) as RootEl;
+        element.username = options.username;
+        applyConfig(element);
+        attachListeners(element);
+        options.container.appendChild(element);
       }
+    },
 
-      recognizeElement.customer = options.customerName;
-      recognizeElement.key = options.imageEncryptionKey;
-      recognizeElement.keyID = options.imageEncryptionKeyId;
-      recognizeElement.transactionData = options.transactionData;
-      recognizeElement.username = options.username;
-      recognizeElement.wsURL = options.webSocketUrl;
+    dispose: (): void => {
+      if (element === null) return;
 
-      recognizeElement.disableSteps = [
-        'bootstrap',
-        'camera-instructions',
-        'camera-permission',
-        'done',
-        'error',
-        'microphone-permission',
-        'server-computation',
-        'stm-choice',
-        'stm-qrcode',
-      ];
+      abortController?.abort();
+      abortController = null;
+      element.remove();
+      element = null;
+      observers.clear();
     },
   };
+
+  return client;
 }

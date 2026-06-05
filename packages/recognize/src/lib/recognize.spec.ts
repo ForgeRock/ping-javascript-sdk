@@ -4,12 +4,11 @@ describe('recognize', () => {
   it('should work', () => {
     expect(
       recognize({
-        customerName: 'abc',
-        imageEncryptionKey: 'key',
-        imageEncryptionKeyId: 'key-id',
+        customer: 'abc',
+        key: 'key',
+        keyID: 'key-id',
+        wsURL: 'ws://localhost',
         transactionData: 'data',
-        username: 'abc',
-        webSocketUrl: 'ws://localhost',
       }),
     ).toBeTruthy();
   });
