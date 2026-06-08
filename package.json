@@ -94,7 +94,7 @@
     "eslint-plugin-playwright": "^2.0.0",
     "eslint-plugin-prettier": "^5.2.3",
     "fast-check": "^4.0.0",
-    "jiti": "2.6.1",
+    "jiti": "2.7.0",
     "jsdom": "27.4.0",
     "jsonc-eslint-parser": "^2.1.0",
     "madge": "8.0.0",
