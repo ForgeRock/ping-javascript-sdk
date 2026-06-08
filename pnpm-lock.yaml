@@ -18,6 +18,9 @@ catalogs:
     immer:
       specifier: ^10.1.1
       version: 10.2.0
+    jose:
+      specifier: ^6.0.0
+      version: 6.2.3
     msw:
       specifier: ^2.5.1
       version: 2.12.1
@@ -547,6 +550,9 @@ importers:
       effect:
         specifier: catalog:effect
         version: 3.21.0
+      jose:
+        specifier: 'catalog:'
+        version: 6.2.3
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
@@ -5987,6 +5993,9 @@ packages:
 
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
+
+  jose@6.2.3:
+    resolution: {integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -14832,6 +14841,8 @@ snapshots:
   jiti@2.6.1: {}
 
   jju@1.4.0: {}
+
+  jose@6.2.3: {}
 
   js-tokens@4.0.0: {}
 

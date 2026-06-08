@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -23,41 +23,69 @@ function simulateIframeLoad(iframe: HTMLIFrameElement, href: string): void {
 
 describe('iFrameManager', () => {
   describe('getParamsByRedirect – input validation', () => {
-    it('throws synchronously when successParams is empty', () => {
+    it('rejects when successParams is empty (no resolveOnRedirectUri)', async () => {
       const manager = iFrameManager();
-      expect(() =>
+      await expect(
         manager.getParamsByRedirect({
           url: 'https://example.com',
           timeout: 1000,
           successParams: [],
           errorParams: ['error'],
         }),
-      ).toThrow('successParams and errorParams must be provided');
+      ).rejects.toEqual({
+        type: 'internal_error',
+        message: 'successParams and errorParams must be provided',
+      });
     });
 
-    it('throws synchronously when errorParams is empty', () => {
+    it('rejects when errorParams is empty (no resolveOnRedirectUri)', async () => {
       const manager = iFrameManager();
-      expect(() =>
+      await expect(
         manager.getParamsByRedirect({
           url: 'https://example.com',
           timeout: 1000,
           successParams: ['code'],
           errorParams: [],
         }),
-      ).toThrow('successParams and errorParams must be provided');
+      ).rejects.toEqual({
+        type: 'internal_error',
+        message: 'successParams and errorParams must be provided',
+      });
     });
 
-    it('throws synchronously when successParams or errorParams is undefined', () => {
+    it('rejects when errorParams is empty with resolveOnRedirectUri set', async () => {
       const manager = iFrameManager();
-      expect(() =>
+      await expect(
         manager.getParamsByRedirect({
           url: 'https://example.com',
           timeout: 1000,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          successParams: undefined as any,
-          errorParams: ['error'],
+          successParams: [],
+          errorParams: [],
+          resolveOnRedirectUri: 'https://app.example.com/callback',
         }),
-      ).toThrow('successParams and errorParams must be provided');
+      ).rejects.toEqual({
+        type: 'internal_error',
+        message: 'errorParams must be provided',
+      });
+    });
+
+    it('does not reject when successParams is empty but resolveOnRedirectUri is set', async () => {
+      const manager = iFrameManager();
+      // The promise should not reject immediately — it will eventually timeout
+      vi.useFakeTimers();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://example.com',
+        timeout: 100,
+        successParams: [],
+        errorParams: ['error'],
+        resolveOnRedirectUri: 'https://app.example.com/callback',
+      });
+      vi.advanceTimersByTime(100);
+      await expect(promise).rejects.toEqual({
+        type: 'internal_error',
+        message: 'iframe timed out',
+      });
+      vi.useRealTimers();
     });
   });
 
@@ -270,6 +298,156 @@ describe('iFrameManager', () => {
       await promise.catch(vi.fn());
 
       expect(document.querySelector('iframe')).toBeNull();
+    });
+  });
+
+  describe('getParamsByRedirect – includeHashParams', () => {
+    afterEach(() => {
+      document.body.replaceChildren();
+    });
+
+    it('includes hash fragment params when includeHashParams is true', async () => {
+      const manager = iFrameManager();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://example.com/start',
+        timeout: 5000,
+        successParams: ['id_token'],
+        errorParams: ['error'],
+        includeHashParams: true,
+      });
+
+      const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+      simulateIframeLoad(
+        iframe,
+        'https://app.example.com/callback#id_token=eyJhbGciOiJSUzI1NiJ9.test.sig&state=abc',
+      );
+
+      const result = await promise;
+      expect(result.id_token).toBe('eyJhbGciOiJSUzI1NiJ9.test.sig');
+      expect(result.state).toBe('abc');
+    });
+
+    it('detects error params in query string even when includeHashParams is true', async () => {
+      const manager = iFrameManager();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://example.com/start',
+        timeout: 5000,
+        successParams: ['id_token'],
+        errorParams: ['error'],
+        includeHashParams: true,
+      });
+
+      const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+      simulateIframeLoad(
+        iframe,
+        'https://app.example.com/callback?error=login_required&error_description=not+logged+in',
+      );
+
+      const result = await promise;
+      expect(result.error).toBe('login_required');
+    });
+
+    it('does not include hash params when includeHashParams is false', async () => {
+      const manager = iFrameManager();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://example.com/start',
+        timeout: 5000,
+        successParams: ['code'],
+        errorParams: ['error'],
+        includeHashParams: false,
+      });
+
+      const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+      // code is in the query string — resolves regardless of hash
+      simulateIframeLoad(iframe, 'https://app.example.com/callback?code=abc123#unrelated=ignored');
+
+      const result = await promise;
+      expect(result.code).toBe('abc123');
+      expect(result.unrelated).toBeUndefined();
+    });
+  });
+
+  describe('getParamsByRedirect – resolveOnRedirectUri', () => {
+    afterEach(() => {
+      document.body.replaceChildren();
+    });
+
+    it('resolves immediately when iframe lands on the redirect URI (exact match)', async () => {
+      const manager = iFrameManager();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://as.example.com/authorize',
+        timeout: 5000,
+        successParams: [],
+        errorParams: ['error'],
+        resolveOnRedirectUri: 'https://app.example.com/callback',
+      });
+
+      const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+      simulateIframeLoad(iframe, 'https://app.example.com/callback?state=abc123');
+
+      const result = await promise;
+      expect(result.state).toBe('abc123');
+    });
+
+    it('resolves with parsed query params on redirect URI landing', async () => {
+      const manager = iFrameManager();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://as.example.com/authorize',
+        timeout: 5000,
+        successParams: [],
+        errorParams: ['error'],
+        resolveOnRedirectUri: 'https://app.example.com/callback',
+      });
+
+      const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+      simulateIframeLoad(iframe, 'https://app.example.com/callback?state=xyz&session_state=foo');
+
+      const result = await promise;
+      expect(result).toEqual({ state: 'xyz', session_state: 'foo' });
+    });
+
+    it('does not resolve on a path that is a substring of the redirect URI', async () => {
+      vi.useFakeTimers();
+      const manager = iFrameManager();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://as.example.com/authorize',
+        timeout: 500,
+        successParams: [],
+        errorParams: ['error'],
+        resolveOnRedirectUri: 'https://app.example.com/callback',
+      });
+
+      const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+      // "/callbacks-leak" shares the prefix "/callback" — must NOT resolve
+      simulateIframeLoad(iframe, 'https://app.example.com/callbacks-leak?state=evil');
+
+      vi.advanceTimersByTime(500);
+      await expect(promise).rejects.toEqual({
+        type: 'internal_error',
+        message: 'iframe timed out',
+      });
+      vi.useRealTimers();
+    });
+
+    it('detects error params before checking redirect URI match', async () => {
+      const manager = iFrameManager();
+      const promise = manager.getParamsByRedirect({
+        url: 'https://as.example.com/authorize',
+        timeout: 5000,
+        successParams: [],
+        errorParams: ['error'],
+        resolveOnRedirectUri: 'https://app.example.com/callback',
+      });
+
+      const iframe = document.querySelector('iframe') as HTMLIFrameElement;
+      // Error lands on the redirect URI — error check fires first
+      simulateIframeLoad(
+        iframe,
+        'https://app.example.com/callback?error=login_required&error_description=no+session',
+      );
+
+      const result = await promise;
+      expect(result.error).toBe('login_required');
     });
   });
 });

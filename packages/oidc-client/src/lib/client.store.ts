@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -13,7 +13,10 @@ import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError } from './client.store.utils.js';
+import { isExpiryWithinThreshold } from './token.utils.js';
+import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
+import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
 import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
@@ -32,8 +35,8 @@ import type {
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
-import { isExpiryWithinThreshold } from './token.utils.js';
-import { logoutµ } from './logout.request.js';
+import { SessionCheckResponseType } from './session.types.js';
+import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 
 /**
  * @function oidc
@@ -598,6 +601,52 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             error: 'Logout_Failure',
             message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
+          };
+        }
+      },
+    },
+
+    /**
+     * An object containing methods for OIDC session management
+     */
+    session: {
+      /**
+       * @method check
+       * @description Checks whether the user has an active session at the authorization server
+       *              using a hidden iframe with prompt=none. Supports response_type=none (default)
+       *              and response_type=id_token.
+       * @param {SessionCheckOptions} options - Optional parameters for the session check.
+       * @returns {Promise<SessionCheckSuccess | GenericError>} - Never throws; returns a typed result.
+       */
+      check: async (options?: SessionCheckOptions): Promise<SessionCheckSuccess | GenericError> => {
+        const state = store.getState();
+        const wellknown = wellknownSelector(wellknownUrl, state);
+
+        if (!wellknown?.authorization_endpoint) {
+          return {
+            error: 'Wellknown missing authorization endpoint',
+            message: 'Authorization endpoint not found in wellknown configuration',
+            type: 'wellknown_error',
+          };
+        }
+
+        const micro =
+          options?.responseType === SessionCheckResponseType.IdToken
+            ? sessionCheckIdTokenµ(wellknown, config, store, storageClient, log, options)
+            : sessionCheckNoneµ(wellknown, config, store, storageClient, log, options);
+
+        const result = await Micro.runPromiseExit(micro);
+
+        if (exitIsSuccess(result)) {
+          return result.value;
+        } else if (exitIsFail(result)) {
+          return result.cause.error;
+        } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
+          return {
+            error: 'Session check failure',
+            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
+            type: 'unknown_error',
           };
         }
       },

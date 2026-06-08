@@ -128,6 +128,12 @@ par: MutationDefinition<    {
 endpoint: string;
 body: URLSearchParams;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
+sessionCheckIframe: MutationDefinition<    {
+url: string;
+responseType: SessionCheckResponseType;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+params: Record<string, string>;
+}, "oidc", unknown>;
 authorizeIframe: MutationDefinition<    {
 url: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
@@ -164,6 +170,12 @@ par: MutationDefinition<    {
 endpoint: string;
 body: URLSearchParams;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
+sessionCheckIframe: MutationDefinition<    {
+url: string;
+responseType: SessionCheckResponseType;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+params: Record<string, string>;
+}, "oidc", unknown>;
 authorizeIframe: MutationDefinition<    {
 url: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
@@ -265,6 +277,7 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
     authorize?: undefined;
     token?: undefined;
     user?: undefined;
+    session?: undefined;
 } | {
     subscribe: (listener: () => void) => Unsubscribe;
     authorize: {
@@ -279,6 +292,9 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
     user: {
         info: () => Promise<GenericError | UserInfoResponse>;
         logout: () => Promise<GenericError | LogoutSuccessResult | LogoutErrorResult>;
+    };
+    session: {
+        check: (options?: SessionCheckOptions) => Promise<SessionCheckSuccess | GenericError>;
     };
     error?: undefined;
     type?: undefined;
@@ -336,6 +352,28 @@ export type RevokeSuccessResult = {
 
 // @public (undocumented)
 export type RootState = ReturnType<ClientStore['getState']>;
+
+// @public
+export interface SessionCheckOptions {
+    redirectUri?: string;
+    responseType?: SessionCheckResponseType;
+    scope?: string;
+    subject?: string;
+}
+
+// @public (undocumented)
+export const SessionCheckResponseType: {
+    readonly IdToken: "id_token";
+    readonly None: "none";
+};
+
+// @public (undocumented)
+export type SessionCheckResponseType = (typeof SessionCheckResponseType)[keyof typeof SessionCheckResponseType];
+
+// @public (undocumented)
+export interface SessionCheckSuccess {
+    claims?: Record<string, unknown>;
+}
 
 export { StorageConfig }
 

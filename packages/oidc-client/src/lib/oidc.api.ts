@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -9,6 +9,8 @@ import {
   fetchBaseQuery,
   type FetchArgs,
   type FetchBaseQueryError,
+  type FetchBaseQueryMeta,
+  type QueryReturnValue,
 } from '@reduxjs/toolkit/query';
 import type { OidcConfig } from './config.types.js';
 import { transformError } from './oidc.api.utils.js';
@@ -24,6 +26,10 @@ import type { TokenExchangeResponse } from './exchange.types.js';
 import type { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize.request.types.js';
 import type { UserInfoResponse } from './client.types.js';
 import type { PushAuthorizationResponse } from './par.types.js';
+import type { GenericError } from '@forgerock/sdk-types';
+import { SessionCheckResponseType } from './session.types.js';
+
+const IFRAME_TIMEOUT_MS = 3000;
 
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
   requestMiddleware: RequestMiddleware<ActionType, Payload>[];
@@ -174,6 +180,96 @@ export const oidcApi = createApi({
         }
 
         return response as { data: PushAuthorizationResponse };
+      },
+    }),
+    sessionCheckIframe: builder.mutation<
+      { params: Record<string, string> },
+      { url: string; responseType: SessionCheckResponseType }
+    >({
+      queryFn: async ({ url, responseType }, api) => {
+        const { requestMiddleware, logger } = api.extra as Extras;
+        const isIdToken = responseType === SessionCheckResponseType.IdToken;
+        const errorParams = ['error', 'error_description'];
+
+        const request: FetchArgs = { url };
+
+        logger.debug('OIDC session check iframe request', request);
+
+        const response = await initQuery(request, 'authorize')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => {
+            try {
+              const timeout = req.timeout ?? IFRAME_TIMEOUT_MS;
+              const params = isIdToken
+                ? await iFrameManager().getParamsByRedirect({
+                    url: req.url,
+                    successParams: ['id_token'],
+                    errorParams,
+                    includeHashParams: true,
+                    timeout,
+                  })
+                : await iFrameManager().getParamsByRedirect({
+                    url: req.url,
+                    resolveOnRedirectUri: new URL(req.url).searchParams.get(
+                      'redirect_uri',
+                    ) as string,
+                    errorParams,
+                    successParams: [],
+                    timeout,
+                  });
+
+              if ('error' in params) {
+                return {
+                  error: {
+                    status: 400,
+                    statusText: 'SESSION_CHECK_ERROR',
+                    data: {
+                      error: params.error,
+                      message: params.error_description ?? 'An error occurred during session check',
+                      type: 'auth_error',
+                    } satisfies GenericError,
+                  },
+                };
+              }
+
+              return { data: { params } };
+            } catch (error) {
+              const isTimeout =
+                error instanceof Object &&
+                'message' in error &&
+                (error as { message: string }).message === 'iframe timed out';
+
+              return {
+                error: {
+                  status: 400,
+                  statusText: 'SESSION_CHECK_ERROR',
+                  data: {
+                    error: isTimeout ? 'iframe_timeout' : 'session_check_error',
+                    message: isTimeout
+                      ? 'Session check timed out waiting for iframe response'
+                      : 'An unexpected error occurred during session check',
+                    type: 'network_error',
+                  } satisfies GenericError,
+                },
+              };
+            }
+          });
+
+        if ('error' in response) {
+          logger.error('Error in session check iframe', response);
+          return response as QueryReturnValue<
+            { params: Record<string, string> },
+            FetchBaseQueryError,
+            FetchBaseQueryMeta
+          >;
+        }
+
+        logger.debug('OIDC session check iframe response', response);
+        return response as QueryReturnValue<
+          { params: Record<string, string> },
+          FetchBaseQueryError,
+          FetchBaseQueryMeta
+        >;
       },
     }),
     authorizeIframe: builder.mutation<AuthorizationSuccess, { url: string }>({
