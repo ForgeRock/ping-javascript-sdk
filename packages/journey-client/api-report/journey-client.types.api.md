@@ -24,6 +24,7 @@ import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { Step } from '@forgerock/sdk-types';
 import { StepDetail } from '@forgerock/sdk-types';
 import { StepType } from '@forgerock/sdk-types';
+import { WellknownResponse } from '@forgerock/sdk-types';
 
 export { ActionTypes }
 
@@ -215,7 +216,7 @@ export type JourneyLoginSuccess = AuthResponse & {
     getSuccessUrl: () => string | undefined;
 };
 
-// @public
+// @public (undocumented)
 export type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | GenericError;
 
 // @public
@@ -485,6 +486,8 @@ export class ValidatedCreateUsernameCallback extends BaseCallback {
     setName(name: string): void;
     setValidateOnly(value: boolean): void;
 }
+
+export { WellknownResponse }
 
 // (No @packageDocumentation comment for this package)
 

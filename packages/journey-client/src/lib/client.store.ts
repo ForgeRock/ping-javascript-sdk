@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025-2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -21,18 +21,15 @@ import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { createStorage } from '@forgerock/storage';
-import { createJourneyObject } from './journey.utils.js';
+import * as Either from 'effect/Either';
+import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
+import type { JourneyResult } from './journey.utils.js';
 import { wellknownApi } from './wellknown.api.js';
 
 import type { JourneyStep } from './step.utils.js';
 import type { JourneyClientConfig } from './config.types.js';
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import type { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
-import type { JourneyLoginFailure } from './login-failure.utils.js';
-import type { JourneyLoginSuccess } from './login-success.utils.js';
-
-/** Result type for journey client methods. */
-export type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | GenericError;
 
 /** The journey client instance returned by the `journey()` function. */
 export interface JourneyClient {
@@ -158,32 +155,22 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     subscribe: store.subscribe,
 
     start: async (options?: StartParam) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      if (!data) {
-        const error: GenericError = {
-          error: 'no_response_data',
-          message: 'No data received from server when starting journey',
-          type: 'unknown_error',
-        };
-        return error;
-      }
-      return createJourneyObject(data);
+      const response = await store.dispatch(journeyApi.endpoints.start.initiate(options));
+      return Either.match(parseJourneyResponse(response), {
+        onLeft: (err): JourneyResult => err,
+        onRight: (step): JourneyResult => createJourneyObject(step),
+      });
     },
 
     /**
      * Submits the current Step payload to the authentication API and retrieves the next JourneyStep in the journey.
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
-      const { data } = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      if (!data) {
-        const error: GenericError = {
-          error: 'no_response_data',
-          message: 'No data received from server when submitting step',
-          type: 'unknown_error',
-        };
-        return error;
-      }
-      return createJourneyObject(data);
+      const response = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
+      return Either.match(parseJourneyResponse(response), {
+        onLeft: (err): JourneyResult => err,
+        onRight: (step): JourneyResult => createJourneyObject(step),
+      });
     },
 
     // TODO: Remove the actual redirect from this method and just return the URL to the caller
