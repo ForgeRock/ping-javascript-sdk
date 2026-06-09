@@ -522,11 +522,18 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           return { error: { message: 'Cannot find current node', type: 'state_error' } };
         }
 
-        const flowItem = davinciApi.endpoints.flow.select(node.cache.key);
-        const nextItem = davinciApi.endpoints.next.select(node.cache.key);
-        const startItem = davinciApi.endpoints.start.select(node.cache.key);
+        const state = store.getState();
+        const key = node.cache.key;
 
-        return flowItem || nextItem || startItem;
+        const flowResult = davinciApi.endpoints.flow.select(key)(state);
+        const nextResult = davinciApi.endpoints.next.select(key)(state);
+        const startResult = davinciApi.endpoints.start.select(key)(state);
+
+        if (flowResult.data !== undefined) return flowResult;
+        if (nextResult.data !== undefined) return nextResult;
+        if (startResult.data !== undefined) return startResult;
+
+        return { error: { message: `No cache entry found for key: ${key}`, type: 'state_error' } };
       },
       getResponseWithId: (requestId: string) => {
         if (!requestId) {
@@ -534,11 +541,22 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           return { error: { message: 'Please provide the cache key', type: 'argument_error' } };
         }
 
-        const flowItem = davinciApi.endpoints.flow.select(requestId);
-        const nextItem = davinciApi.endpoints.next.select(requestId);
-        const startItem = davinciApi.endpoints.start.select(requestId);
+        const state = store.getState();
 
-        return flowItem || nextItem || startItem;
+        const flowResult = davinciApi.endpoints.flow.select(requestId)(state);
+        const nextResult = davinciApi.endpoints.next.select(requestId)(state);
+        const startResult = davinciApi.endpoints.start.select(requestId)(state);
+
+        if (flowResult.data !== undefined) return flowResult;
+        if (nextResult.data !== undefined) return nextResult;
+        if (startResult.data !== undefined) return startResult;
+
+        return {
+          error: {
+            message: `No cache entry found for request ID: ${requestId}`,
+            type: 'state_error',
+          },
+        };
       },
     },
   };

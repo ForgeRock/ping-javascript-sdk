@@ -92,4 +92,23 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
         'https://auth.pingone.ca/356a254c-cba3-4ade-be1a-860136e8df01/as/.well-known/openid-configuration',
     },
   },
+  /**
+   * ValidatedPasswordCollector / Password Policy
+   * Flow: Andy - MFA Device Registration/Authentication (PingOne Forms)
+   * Policy ID (acr_values): 769eecb92f8e66f88005a85e8b939a01
+   * Environment: 356a254c-cba3-4ade-be1a-860136e8df01
+   *
+   * New client created 2026-05-28 with:
+   * - http://localhost:5829 in Redirect URIs
+   * - http://localhost:5829 in CORS Allowed Origins
+   */
+  'fb456db5-2e08-46d3-adf0-05bf8d26ad60': {
+    clientId: 'fb456db5-2e08-46d3-adf0-05bf8d26ad60',
+    redirectUri: window.location.origin + '/',
+    scope: 'openid profile email revoke',
+    serverConfig: {
+      wellknown:
+        'https://auth.pingone.ca/356a254c-cba3-4ade-be1a-860136e8df01/as/.well-known/openid-configuration',
+    },
+  },
 };
