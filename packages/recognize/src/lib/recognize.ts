@@ -7,8 +7,18 @@
  *
  */
 
-import type { KeylessAuthElement, KeylessEnrollElement } from './recognize-sdk/index.js';
-import { RecognizeErrorCode, createRecognizeError, mapWebError } from './errors.js';
+import type {
+  KeylessAuthElement,
+  KeylessEnrollElement,
+  KeylessFinishedEvent,
+  KeylessFrameResultsEvent,
+  KeylessStepChangeEvent,
+  KeylessVideoFrameQualityEvent,
+  KeylessWebSocketCloseEvent,
+  KeylessWebSocketOpenEvent,
+} from './recognize-sdk/index.js';
+import { RecognizeErrorCode } from './defs/recognize-error-code.js';
+import { createRecognizeError } from './functions/create-recognize-error.js';
 import type {
   RecognizeError,
   RecognizeWcClient,
@@ -52,46 +62,54 @@ export function recognize(config: RecognizeWcConfig): RecognizeWcClient {
     abortController = new AbortController();
     const { signal } = abortController;
 
-    el.addEventListener('step-change', (e) => dispatch('step-change', (e as CustomEvent).detail), {
-      signal,
-    });
+    // @ts-expect-error — SDK event map not reflected on HTMLElement.addEventListener
+    el.addEventListener(
+      'step-change',
+      (e: KeylessStepChangeEvent) => dispatch('step-change', e.detail),
+      { signal },
+    );
+    // @ts-expect-error — SDK event map not reflected on HTMLElement.addEventListener
     el.addEventListener(
       'finished',
-      (e) => {
-        const detail = (e as CustomEvent).detail;
-        dispatch('finished', detail);
-        for (const observer of observers) observer.complete?.(detail);
+      (e: KeylessFinishedEvent) => {
+        for (const observer of observers) observer.complete?.(e.detail);
         observers.clear();
       },
       { signal },
     );
     el.addEventListener(
       'error',
-      (e) => {
-        const event = e as ErrorEvent;
-        const reason = event.error?.message as string | undefined;
-        const err = createRecognizeError(mapWebError(reason), event.error);
+      (e: ErrorEvent) => {
+        const err = createRecognizeError(e);
         for (const observer of observers) observer.error?.(err);
         observers.clear();
       },
       { signal },
     );
+    // @ts-expect-error — SDK event map not reflected on HTMLElement.addEventListener
     el.addEventListener(
       'frame-results',
-      (e) => dispatch('frame-results', (e as CustomEvent).detail),
+      (e: KeylessFrameResultsEvent) => dispatch('frame-results', e.detail),
       { signal },
     );
+    // @ts-expect-error — SDK event map not reflected on HTMLElement.addEventListener
     el.addEventListener(
       'video-frame-quality',
-      (e) => dispatch('video-frame-quality', (e as CustomEvent).detail),
+      (e: KeylessVideoFrameQualityEvent) => dispatch('video-frame-quality', e.detail),
       { signal },
     );
-    el.addEventListener('ws-open', (e) => dispatch('ws-open', (e as CustomEvent).detail), {
-      signal,
-    });
-    el.addEventListener('ws-close', (e) => dispatch('ws-close', (e as CustomEvent).detail), {
-      signal,
-    });
+    // @ts-expect-error — SDK event map not reflected on HTMLElement.addEventListener
+    el.addEventListener(
+      'ws-open',
+      (e: KeylessWebSocketOpenEvent) => dispatch('ws-open', e.detail),
+      { signal },
+    );
+    // @ts-expect-error — SDK event map not reflected on HTMLElement.addEventListener
+    el.addEventListener(
+      'ws-close',
+      (e: KeylessWebSocketCloseEvent) => dispatch('ws-close', e.detail),
+      { signal },
+    );
   };
 
   const applyConfig = (el: RootEl): void => {
@@ -142,7 +160,6 @@ export function recognize(config: RecognizeWcConfig): RecognizeWcClient {
     dispose: (): void => {
       if (element === null) return;
 
-      abortController?.abort();
       abortController = null;
       element.remove();
       element = null;

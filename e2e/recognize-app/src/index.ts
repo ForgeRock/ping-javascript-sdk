@@ -2,11 +2,11 @@ import './styles.css';
 import { recognize } from '@forgerock/recognize';
 
 const client = recognize({
-  customer: 'your-customer-id',
-  key: 'your-public-key',
-  keyID: 'your-key-id',
-  wsURL: 'wss://your-websocket-url',
-  transactionData: 'your-transaction-data',
+  customer: 'CUSTOMER_NAME',
+  key: 'IMAGE_ENCRYPTION_PUBLIC_KEY',
+  keyID: 'IMAGE_ENCRYPTION_KEY_ID',
+  wsURL: 'KEYLESS_AUTHENTICATION_SERVICE_URL',
+  transactionData: 'DATA_FROM_CUSTOMER_SERVER_TO_BE_SIGNED',
 });
 
 client.subscribe({
@@ -29,7 +29,7 @@ client.subscribe({
 const appEl = document.getElementById('app');
 if (appEl) {
   client
-    .init({ mode: 'mount', container: appEl, type: 'auth', username: 'eugenio' })
+    .init({ mode: 'mount', container: appEl, type: 'auth', username: 'USERNAME' })
     .then((err) => {
       if (err) console.error('[recognize] init error', err);
     });

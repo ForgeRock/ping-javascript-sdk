@@ -15,25 +15,44 @@ import type {
   KeylessWebSocketCloseEventDetail,
   KeylessWebSocketOpenEventDetail,
 } from './recognize-sdk/index.js';
-import type { RecognizeError, RecognizeErrorCode } from './errors.js';
+import type { RecognizeErrorCode } from './defs/recognize-error-code.js';
 
-export type { RecognizeError, RecognizeErrorCode };
+/** @public */
+export interface RecognizeError extends Error {
+  code: RecognizeErrorCode;
+  cause?: unknown;
+}
 
 /** @public */
 export type RecognizeSessionType = 'auth' | 'enroll';
 
 /** @public */
+export interface RecognizeWcStepChangeEventDetail extends KeylessStepChangeEventDetail {}
+
+/** @public */
 export interface RecognizeWcFinishedEventDetail extends KeylessFinishedEventDetail {}
 
 /** @public */
+export interface RecognizeWcFrameResultsEventDetail extends KeylessFrameResultsEventDetail {}
+
+/** @public */
+export interface RecognizeWcVideoFrameQualityEventDetail
+  extends KeylessVideoFrameQualityEventDetail {}
+
+/** @public */
+export interface RecognizeWcWebSocketOpenEventDetail extends KeylessWebSocketOpenEventDetail {}
+
+/** @public */
+export interface RecognizeWcWebSocketCloseEventDetail extends KeylessWebSocketCloseEventDetail {}
+
+/** @public */
 export type RecognizeWcEvent =
-  | { type: 'step-change'; detail: KeylessStepChangeEventDetail }
-  | { type: 'finished'; detail: RecognizeWcFinishedEventDetail }
+  | { type: 'step-change'; detail: RecognizeWcStepChangeEventDetail }
   | { type: 'error'; detail: RecognizeError }
-  | { type: 'frame-results'; detail: KeylessFrameResultsEventDetail }
-  | { type: 'video-frame-quality'; detail: KeylessVideoFrameQualityEventDetail }
-  | { type: 'ws-open'; detail: KeylessWebSocketOpenEventDetail }
-  | { type: 'ws-close'; detail: KeylessWebSocketCloseEventDetail };
+  | { type: 'frame-results'; detail: RecognizeWcFrameResultsEventDetail }
+  | { type: 'video-frame-quality'; detail: RecognizeWcVideoFrameQualityEventDetail }
+  | { type: 'ws-open'; detail: RecognizeWcWebSocketOpenEventDetail }
+  | { type: 'ws-close'; detail: RecognizeWcWebSocketCloseEventDetail };
 
 /** @public */
 export type RecognizeWcCompleteDetail = RecognizeWcFinishedEventDetail;
@@ -41,7 +60,7 @@ export type RecognizeWcCompleteDetail = RecognizeWcFinishedEventDetail;
 /** @public */
 export interface RecognizeWcObserver {
   next: (event: RecognizeWcEvent) => void;
-  error?: (err: RecognizeError) => void;
+  error?: (error: RecognizeError) => void;
   complete?: (detail: RecognizeWcCompleteDetail) => void;
 }
 
