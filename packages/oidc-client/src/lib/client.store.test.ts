@@ -734,9 +734,8 @@ describe('user.session()', async () => {
     customStorage.remove(storageKey);
   });
 
-  it('returns a GenericError when no tokens are stored (best-effort: dispatch is attempted)', async () => {
-    // No tokens in storage — best-effort: id_token_hint is omitted, dispatch still runs.
-    // In Vitest (no real DOM), the iframe manager cannot run and surfaces a session_check_error.
+  it('returns a GenericError when no tokens are stored', async () => {
+    // response_type=none requires a stored id_token; failing before dispatch.
     const oidcClient = await oidc({ config, storage: customStorageConfig });
     if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
 
@@ -745,8 +744,8 @@ describe('user.session()', async () => {
     if (!('error' in result)) {
       expect.fail('Expected SessionCheckError, got success');
     }
-    expect(result.error).toBe('session_check_error');
-    expect(result.type).toBe('network_error');
+    expect(result.error).toBe('no_id_token_hint');
+    expect(result.type).toBe('argument_error');
   });
 
   it('returns wellknown_error when authorization_endpoint is missing from the wellknown config', async () => {

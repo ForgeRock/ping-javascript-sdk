@@ -50,7 +50,7 @@ test.describe('user.session() tests', () => {
       }
     });
 
-    await page.getByRole('button', { name: 'Session Check (none)', exact: true }).click();
+    await page.getByRole('button', { name: 'Session Check (none, iframe)', exact: true }).click();
     await expect(page.locator('#session-check-result')).not.toBeEmpty();
     const resultText = await page.locator('#session-check-result').textContent();
     expect(resultText).not.toContain('"error"');
@@ -79,22 +79,22 @@ test.describe('user.session() tests', () => {
       }
     });
 
-    await page.getByRole('button', { name: 'Session Check (none)', exact: true }).click();
+    await page.getByRole('button', { name: 'Session Check (none, iframe)', exact: true }).click();
     await expect(page.locator('#session-check-result')).not.toBeEmpty();
     const resultText = await page.locator('#session-check-result').textContent();
     expect(resultText).toContain('"error": "login_required"');
   });
 
-  test('session check (none) fails when no session exists', async ({ page }) => {
+  test('session check (none) fails with no_id_token_hint when not logged in', async ({ page }) => {
     const { navigate } = asyncEvents(page);
-    // Navigate without logging in — no tokens in storage, no browser session
+    // Navigate without logging in — no tokens in storage means no id_token_hint to send
     await navigate('/ping-am/');
 
-    await page.getByRole('button', { name: 'Session Check (none)', exact: true }).click();
+    await page.getByRole('button', { name: 'Session Check (none, iframe)', exact: true }).click();
     await expect(page.locator('#session-check-result')).not.toBeEmpty();
     const resultText = await page.locator('#session-check-result').textContent();
-    // PingAM returns login_required or interaction_required when there is no session
-    expect(resultText).toMatch(/"error": "(login_required|interaction_required)"/);
+    // response_type=none requires a stored id_token; fails early before reaching the AS
+    expect(resultText).toContain('"error": "no_id_token_hint"');
   });
 
   test('session check (id_token) succeeds with valid JWT in hash', async ({ page }) => {
@@ -126,7 +126,7 @@ test.describe('user.session() tests', () => {
     await page.getByRole('button', { name: 'Session Check (id_token)' }).click();
     await expect(page.locator('#session-check-id-token-result')).not.toBeEmpty();
     const resultText = await page.locator('#session-check-id-token-result').textContent();
-    expect(resultText).toContain('"mode"');
+    expect(resultText).toContain('"responseType"');
     expect(resultText).toContain('"claims"');
     expect(resultText).not.toContain('"error"');
   });
@@ -183,7 +183,7 @@ test.describe('user.session() tests', () => {
       }
     });
 
-    await page.getByRole('button', { name: 'Session Check (none)', exact: true }).click();
+    await page.getByRole('button', { name: 'Session Check (none, iframe)', exact: true }).click();
     await expect(page.locator('#session-check-result')).not.toBeEmpty();
     const resultText = await page.locator('#session-check-result').textContent();
     expect(resultText).not.toContain('"error"');
@@ -221,6 +221,67 @@ test.describe('user.session() tests', () => {
     expect(resultText).toContain('"error": "nonce_mismatch"');
   });
 
+  test('session check (none, no redirect) succeeds after login', async ({ page }) => {
+    const { navigate } = asyncEvents(page);
+    await navigate('/ping-am/');
+
+    await loginPingAm(page, pingAmUsername, pingAmPassword);
+
+    await page.route('**/authorize**', async (route, request) => {
+      const url = new URL(request.url());
+      if (url.searchParams.get('prompt') === 'none' && !url.searchParams.has('redirect_uri')) {
+        await route.fulfill({ status: 204 });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await page.getByRole('button', { name: 'Session Check (none, no redirect)' }).click();
+    await expect(page.locator('#session-check-no-redirect-result')).not.toBeEmpty();
+    const resultText = await page.locator('#session-check-no-redirect-result').textContent();
+    expect(resultText).not.toContain('"error"');
+  });
+
+  test('session check (none, no redirect) fails with login_required', async ({ page }) => {
+    const { navigate } = asyncEvents(page);
+    await navigate('/ping-am/');
+
+    await loginPingAm(page, pingAmUsername, pingAmPassword);
+
+    await page.route('**/authorize**', async (route, request) => {
+      const url = new URL(request.url());
+      if (url.searchParams.get('prompt') === 'none' && !url.searchParams.has('redirect_uri')) {
+        await route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            error: 'login_required',
+            error_description: 'User not authenticated',
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await page.getByRole('button', { name: 'Session Check (none, no redirect)' }).click();
+    await expect(page.locator('#session-check-no-redirect-result')).not.toBeEmpty();
+    const resultText = await page.locator('#session-check-no-redirect-result').textContent();
+    expect(resultText).toContain('"error": "login_required"');
+  });
+
+  test('session check (none, no redirect) fails with no_id_token_hint when not logged in', async ({
+    page,
+  }) => {
+    const { navigate } = asyncEvents(page);
+    await navigate('/ping-am/');
+
+    await page.getByRole('button', { name: 'Session Check (none, no redirect)' }).click();
+    await expect(page.locator('#session-check-no-redirect-result')).not.toBeEmpty();
+    const resultText = await page.locator('#session-check-no-redirect-result').textContent();
+    expect(resultText).toContain('"error": "no_id_token_hint"');
+  });
+
   test('session check (none) fails with iframe_timeout when AS does not respond', async ({
     page,
   }) => {
@@ -239,7 +300,7 @@ test.describe('user.session() tests', () => {
       }
     });
 
-    await page.getByRole('button', { name: 'Session Check (none)', exact: true }).click();
+    await page.getByRole('button', { name: 'Session Check (none, iframe)', exact: true }).click();
     await expect(page.locator('#session-check-result')).not.toBeEmpty();
     const resultText = await page.locator('#session-check-result').textContent();
     expect(resultText).toContain('"error": "iframe_timeout"');

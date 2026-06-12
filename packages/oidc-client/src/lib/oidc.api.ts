@@ -192,7 +192,7 @@ export const oidcApi = createApi({
 
         const request: FetchArgs = { url };
 
-        logger.debug('OIDC session check iframe request', request);
+        logger.debug('OIDC session check iframe request', { responseType });
 
         const response = await initQuery(request, 'authorize')
           .applyMiddleware(requestMiddleware)
@@ -258,19 +258,58 @@ export const oidcApi = createApi({
 
         if ('error' in response) {
           logger.error('Error in session check iframe', response);
-          return response as QueryReturnValue<
-            { params: Record<string, string> },
-            FetchBaseQueryError,
-            FetchBaseQueryMeta
-          >;
+        } else {
+          logger.debug('OIDC session check iframe response received');
         }
 
-        logger.debug('OIDC session check iframe response', response);
         return response as QueryReturnValue<
           { params: Record<string, string> },
           FetchBaseQueryError,
           FetchBaseQueryMeta
         >;
+      },
+    }),
+    sessionCheckFetch: builder.mutation<{ status: 204 }, { url: string }>({
+      queryFn: async ({ url }, api, _, baseQuery) => {
+        const { requestMiddleware, logger } = api.extra as Extras;
+
+        const request: FetchArgs = {
+          url,
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+          },
+        };
+
+        logger.debug('OIDC session check fetch request');
+
+        const response = await initQuery(request, 'authorize')
+          .applyMiddleware(requestMiddleware)
+          .applyQuery(async (req: FetchArgs) => await baseQuery(req));
+
+        const responseError =
+          response.error ??
+          (response.meta?.response?.status !== 204 ? response.meta?.response : undefined);
+        if (responseError) {
+          const isClientError =
+            typeof responseError.status === 'number' && responseError.status < 500;
+          logger.error('Error in session check fetch', responseError);
+          return {
+            error: {
+              status: responseError.status ?? 'CUSTOM_ERROR',
+              statusText: 'SESSION_CHECK_ERROR',
+              data: {
+                error: isClientError ? 'login_required' : 'session_check_error',
+                message: isClientError ? 'The request requires login.' : 'Session check failed.',
+                type: isClientError ? 'auth_error' : 'network_error',
+              } satisfies GenericError,
+            } as FetchBaseQueryError,
+          };
+        }
+
+        logger.debug('OIDC session check fetch response received');
+        return { data: { status: 204 } };
       },
     }),
     authorizeIframe: builder.mutation<AuthorizationSuccess, { url: string }>({

@@ -27,4 +27,12 @@ export interface SessionCheckOptions {
   scope?: string;
 }
 
-export type SessionCheckSuccess = { mode: 'none' } | { mode: 'id_token'; claims: JWTPayload };
+export type SessionCheckSuccess = {
+  responseType: SessionCheckResponseType;
+  /**
+   * Decoded (not signature-verified) JWT payload from the session-check id_token.
+   * Claims are bound to this request via nonce and state validation.
+   * Do not use these claims for primary authentication or authorization decisions.
+   */
+  claims?: JWTPayload;
+};

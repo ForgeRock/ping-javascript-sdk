@@ -12,7 +12,8 @@ import * as sdkUtilities from '@forgerock/sdk-utilities';
 import {
   buildNoneUrl,
   buildIdTokenUrl,
-  dispatchSessionCheckµ,
+  dispatchSessionCheckIframeµ,
+  dispatchSessionCheckFetchµ,
   readStoredIdTokenµ,
   sessionCheckIdTokenµ,
   sessionCheckNoneµ,
@@ -89,11 +90,23 @@ function makeDispatchSetup(dispatchResult: unknown) {
   return { capturedArgs, store, dispatch };
 }
 
+function makeFetchDispatchSetup(dispatchResult: unknown) {
+  const sentinel = Symbol('fetch-dispatch-sentinel');
+  vi.spyOn(oidcApi.endpoints.sessionCheckFetch, 'initiate').mockImplementation(() => {
+    return sentinel as unknown as ReturnType<typeof oidcApi.endpoints.sessionCheckFetch.initiate>;
+  });
+
+  const dispatch = vi.fn().mockResolvedValue(dispatchResult);
+  const store: ClientStore = { dispatch } as unknown as ClientStore;
+
+  return { store, dispatch };
+}
+
 // ─── buildNoneUrl ─────────────────────────────────────────────────────────────
 
 describe('buildNoneUrl', () => {
   it('builds URL with expected params and no state', () => {
-    const url = buildNoneUrl(endpoint, config, storedTokens.idToken);
+    const url = buildNoneUrl(endpoint, config, storedTokens.idToken, redirectUri);
     const parsed = new URL(url);
 
     expect(parsed.searchParams.get('prompt')).toBe('none');
@@ -106,11 +119,20 @@ describe('buildNoneUrl', () => {
   });
 
   it('uses options.redirectUri when provided', () => {
-    const url = buildNoneUrl(endpoint, config, storedTokens.idToken, {
-      redirectUri: 'https://example.com/custom.html',
-    });
+    const url = buildNoneUrl(
+      endpoint,
+      config,
+      storedTokens.idToken,
+      'https://example.com/custom.html',
+    );
     const parsed = new URL(url);
     expect(parsed.searchParams.get('redirect_uri')).toBe('https://example.com/custom.html');
+  });
+
+  it('omits redirect_uri when neither config nor options provide one', () => {
+    const url = buildNoneUrl(endpoint, config, storedTokens.idToken, '');
+    const parsed = new URL(url);
+    expect(parsed.searchParams.has('redirect_uri')).toBe(false);
   });
 });
 
@@ -123,7 +145,7 @@ describe('buildIdTokenUrl', () => {
     vi.spyOn(sdkUtilities, 'createRandomString').mockReturnValue(knownNonce);
     vi.spyOn(sdkUtilities, 'createState').mockReturnValue(knownState);
 
-    const { url, nonce, state } = buildIdTokenUrl(endpoint, config, null);
+    const { url, nonce, state } = buildIdTokenUrl(endpoint, config, null, redirectUri);
     const parsed = new URL(url);
 
     expect(parsed.searchParams.get('response_type')).toBe('id_token');
@@ -136,49 +158,29 @@ describe('buildIdTokenUrl', () => {
   });
 
   it('includes id_token_hint when storedIdToken is present', () => {
-    const { url } = buildIdTokenUrl(endpoint, config, storedTokens.idToken);
+    const { url } = buildIdTokenUrl(endpoint, config, storedTokens.idToken, redirectUri);
     const parsed = new URL(url);
     expect(parsed.searchParams.get('id_token_hint')).toBe(storedTokens.idToken);
   });
 
   it('omits id_token_hint when storedIdToken is null', () => {
-    const { url } = buildIdTokenUrl(endpoint, config, null);
+    const { url } = buildIdTokenUrl(endpoint, config, null, redirectUri);
     const parsed = new URL(url);
     expect(parsed.searchParams.has('id_token_hint')).toBe(false);
   });
 
   it('uses options.scope when provided', () => {
-    const { url } = buildIdTokenUrl(endpoint, config, null, { scope: 'openid profile' });
+    const { url } = buildIdTokenUrl(endpoint, config, null, redirectUri, {
+      scope: 'openid profile',
+    });
     const parsed = new URL(url);
     expect(parsed.searchParams.get('scope')).toBe('openid profile');
   });
 });
 
-// ─── sessionCheckNoneµ ────────────────────────────────────────────────────────
+// ─── sessionCheckNoneµ (iframe path — with redirect_uri) ──────────────────────
 
-it.effect(
-  'sessionCheckNoneµ fails with missing_redirect_uri when no redirect URI is configured',
-  () =>
-    Micro.gen(function* () {
-      const dispatch = vi.fn();
-      const store: ClientStore = { dispatch } as unknown as ClientStore;
-      const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
-
-      const exit = yield* Micro.exit(
-        sessionCheckNoneµ(wellknown, configWithoutRedirectUri, store, makeStorageClient(null), log),
-      );
-
-      expect(Micro.exitIsFailure(exit)).toBe(true);
-      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-        return;
-      }
-      expect(exit.cause.error.error).toBe('missing_redirect_uri');
-      expect(exit.cause.error.type).toBe('argument_error');
-      expect(dispatch).not.toHaveBeenCalled();
-    }),
-);
-
-it.effect('sessionCheckNoneµ dispatches and succeeds when token is stored', () =>
+it.effect('sessionCheckNoneµ uses iframe path and succeeds when redirect_uri is configured', () =>
   Micro.gen(function* () {
     const { store, dispatch } = makeDispatchSetup({ data: { params: {} } });
 
@@ -191,7 +193,7 @@ it.effect('sessionCheckNoneµ dispatches and succeeds when token is stored', () 
   }),
 );
 
-it.effect('sessionCheckNoneµ dispatches and succeeds when storage is empty (best-effort)', () =>
+it.effect('sessionCheckNoneµ iframe path fails with no_id_token_hint when storage is empty', () =>
   Micro.gen(function* () {
     const { store, dispatch } = makeDispatchSetup({ data: { params: {} } });
 
@@ -199,9 +201,198 @@ it.effect('sessionCheckNoneµ dispatches and succeeds when storage is empty (bes
       sessionCheckNoneµ(wellknown, config, store, makeStorageClient(null), log),
     );
 
+    expect(Micro.exitIsFailure(exit)).toBe(true);
+    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+      return;
+    }
+    expect(exit.cause.error.error).toBe('no_id_token_hint');
+    expect(exit.cause.error.type).toBe('argument_error');
+    expect(dispatch).not.toHaveBeenCalled();
+  }),
+);
+
+// ─── sessionCheckNoneµ (fetch path — without redirect_uri) ───────────────────
+
+it.effect('sessionCheckNoneµ uses fetch path and succeeds when no redirect_uri is configured', () =>
+  Micro.gen(function* () {
+    const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
+    const { store, dispatch } = makeFetchDispatchSetup({ data: { status: 204 } });
+
+    const exit = yield* Micro.exit(
+      sessionCheckNoneµ(
+        wellknown,
+        configWithoutRedirectUri,
+        store,
+        makeStorageClient(storedTokens),
+        log,
+      ),
+    );
+
+    expect(Micro.exitIsSuccess(exit)).toBe(true);
+    if (!Micro.exitIsSuccess(exit)) {
+      return;
+    }
+    expect(exit.value).toStrictEqual({ responseType: 'none' });
+    expect(dispatch).toHaveBeenCalledOnce();
+  }),
+);
+
+it.effect('sessionCheckNoneµ fetch path fails with no_id_token_hint when storage is empty', () =>
+  Micro.gen(function* () {
+    const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
+    const { store, dispatch } = makeFetchDispatchSetup({ data: { status: 204 } });
+
+    const exit = yield* Micro.exit(
+      sessionCheckNoneµ(wellknown, configWithoutRedirectUri, store, makeStorageClient(null), log),
+    );
+
+    expect(Micro.exitIsFailure(exit)).toBe(true);
+    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+      return;
+    }
+    expect(exit.cause.error.error).toBe('no_id_token_hint');
+    expect(exit.cause.error.type).toBe('argument_error');
+    expect(dispatch).not.toHaveBeenCalled();
+  }),
+);
+
+it.effect('sessionCheckNoneµ fetch path fails with login_required when AM returns 400', () =>
+  Micro.gen(function* () {
+    const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
+    const errorData: GenericError = {
+      error: 'login_required',
+      message: 'The request requires login.',
+      type: 'auth_error',
+    };
+    const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
+
+    const exit = yield* Micro.exit(
+      sessionCheckNoneµ(
+        wellknown,
+        configWithoutRedirectUri,
+        store,
+        makeStorageClient(storedTokens),
+        log,
+      ),
+    );
+
+    expect(Micro.exitIsFailure(exit)).toBe(true);
+    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+      return;
+    }
+    expect(exit.cause.error.error).toBe('login_required');
+    expect(exit.cause.error.type).toBe('auth_error');
+  }),
+);
+
+// ─── dispatchSessionCheckFetchµ ───────────────────────────────────────────────
+
+it.effect('dispatchSessionCheckFetchµ succeeds when dispatch resolves with data', () =>
+  Micro.gen(function* () {
+    const { store, dispatch } = makeFetchDispatchSetup({ data: { status: 204 } });
+
+    const exit = yield* Micro.exit(
+      dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
+    );
+
     expect(Micro.exitIsSuccess(exit)).toBe(true);
     expect(dispatch).toHaveBeenCalledOnce();
   }),
+);
+
+it.effect(
+  'dispatchSessionCheckFetchµ fails with auth_error when dispatch resolves with an error result',
+  () =>
+    Micro.gen(function* () {
+      const errorData: GenericError = {
+        error: 'login_required',
+        message: 'The request requires login.',
+        type: 'auth_error',
+      };
+      const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
+
+      const exit = yield* Micro.exit(
+        dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
+      );
+
+      expect(Micro.exitIsFailure(exit)).toBe(true);
+      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+        return;
+      }
+      expect(exit.cause.error.error).toBe('login_required');
+      expect(exit.cause.error.type).toBe('auth_error');
+    }),
+);
+
+it.effect('dispatchSessionCheckFetchµ fails with network_error when dispatch rejects', () =>
+  Micro.gen(function* () {
+    vi.spyOn(oidcApi.endpoints.sessionCheckFetch, 'initiate').mockReturnValue(
+      Symbol('sentinel') as unknown as ReturnType<
+        typeof oidcApi.endpoints.sessionCheckFetch.initiate
+      >,
+    );
+    const dispatch = vi.fn().mockRejectedValue(new Error('network failure'));
+    const store: ClientStore = { dispatch } as unknown as ClientStore;
+
+    const exit = yield* Micro.exit(
+      dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
+    );
+
+    expect(Micro.exitIsFailure(exit)).toBe(true);
+    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+      return;
+    }
+    expect(exit.cause.error.type).toBe('network_error');
+    expect(exit.cause.error.error).toBe('dispatch_error');
+  }),
+);
+
+it.effect(
+  'dispatchSessionCheckFetchµ fails with network_error when queryFn receives a string-status error (e.g. FETCH_ERROR)',
+  () =>
+    Micro.gen(function* () {
+      const errorData: GenericError = {
+        error: 'session_check_error',
+        message: 'A network error occurred during session check',
+        type: 'network_error',
+      };
+      const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
+
+      const exit = yield* Micro.exit(
+        dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
+      );
+
+      expect(Micro.exitIsFailure(exit)).toBe(true);
+      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+        return;
+      }
+      expect(exit.cause.error.error).toBe('session_check_error');
+      expect(exit.cause.error.type).toBe('network_error');
+    }),
+);
+
+it.effect(
+  'dispatchSessionCheckFetchµ fails with network_error when queryFn receives an unexpected 2xx status',
+  () =>
+    Micro.gen(function* () {
+      const errorData: GenericError = {
+        error: 'session_check_error',
+        message: 'Unexpected response status: 200',
+        type: 'network_error',
+      };
+      const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
+
+      const exit = yield* Micro.exit(
+        dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
+      );
+
+      expect(Micro.exitIsFailure(exit)).toBe(true);
+      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+        return;
+      }
+      expect(exit.cause.error.error).toBe('session_check_error');
+      expect(exit.cause.error.type).toBe('network_error');
+    }),
 );
 
 // ─── sessionCheckIdTokenµ ─────────────────────────────────────────────────────
@@ -232,8 +423,9 @@ it.effect('sessionCheckIdTokenµ returns claims on valid JWT', () =>
     if (!Micro.exitIsSuccess(exit)) {
       return;
     }
-    expect(exit.value.mode).toBe('id_token');
-    if (exit.value.mode !== 'id_token') {
+    expect(exit.value.responseType).toBe('id_token');
+    expect(exit.value.claims).toBeDefined();
+    if (!exit.value.claims) {
       return;
     }
     expect(exit.value.claims['nonce']).toBe(knownNonce);
@@ -281,6 +473,33 @@ it.effect('sessionCheckIdTokenµ fails with no_id_token when iframe returns no i
   }),
 );
 
+it.effect(
+  'sessionCheckIdTokenµ fails with missing_redirect_uri when no redirect_uri is configured',
+  () =>
+    Micro.gen(function* () {
+      const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
+      const { store, dispatch } = makeDispatchSetup({ data: { params: {} } });
+
+      const exit = yield* Micro.exit(
+        sessionCheckIdTokenµ(
+          wellknown,
+          configWithoutRedirectUri,
+          store,
+          makeStorageClient(storedTokens),
+          log,
+        ),
+      );
+
+      expect(Micro.exitIsFailure(exit)).toBe(true);
+      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
+        return;
+      }
+      expect(exit.cause.error.error).toBe('missing_redirect_uri');
+      expect(exit.cause.error.type).toBe('argument_error');
+      expect(dispatch).not.toHaveBeenCalled();
+    }),
+);
+
 // ─── readStoredIdTokenµ ───────────────────────────────────────────────────────
 
 it.effect('readStoredIdTokenµ returns idToken string when tokens are stored', () =>
@@ -314,10 +533,10 @@ it.effect('readStoredIdTokenµ fails with argument_error when storageClient.get 
   }),
 );
 
-// ─── dispatchSessionCheckµ ────────────────────────────────────────────────────
+// ─── dispatchSessionCheckIframeµ ────────────────────────────────────────────────────
 
 it.effect(
-  'dispatchSessionCheckµ succeeds and returns params when dispatch resolves with data',
+  'dispatchSessionCheckIframeµ succeeds and returns params when dispatch resolves with data',
   () =>
     Micro.gen(function* () {
       const params = { state: 'ok' };
@@ -329,7 +548,7 @@ it.effect(
         >,
       );
 
-      const result = yield* dispatchSessionCheckµ(
+      const result = yield* dispatchSessionCheckIframeµ(
         store,
         'https://example.com/authorize?prompt=none',
         'none',
@@ -339,7 +558,7 @@ it.effect(
 );
 
 it.effect(
-  'dispatchSessionCheckµ fails with auth_error when dispatch resolves with an error result',
+  'dispatchSessionCheckIframeµ fails with auth_error when dispatch resolves with an error result',
   () =>
     Micro.gen(function* () {
       const errorData: GenericError = {
@@ -356,7 +575,7 @@ it.effect(
       );
 
       const exit = yield* Micro.exit(
-        dispatchSessionCheckµ(store, 'https://example.com/authorize?prompt=none', 'none'),
+        dispatchSessionCheckIframeµ(store, 'https://example.com/authorize?prompt=none', 'none'),
       );
       expect(Micro.exitIsFailure(exit)).toBe(true);
       if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
@@ -367,7 +586,7 @@ it.effect(
     }),
 );
 
-it.effect('dispatchSessionCheckµ fails with network_error when dispatch rejects', () =>
+it.effect('dispatchSessionCheckIframeµ fails with network_error when dispatch rejects', () =>
   Micro.gen(function* () {
     const dispatch = vi.fn().mockRejectedValue(new Error('network failure'));
     const store: ClientStore = { dispatch } as unknown as ClientStore;
@@ -378,7 +597,7 @@ it.effect('dispatchSessionCheckµ fails with network_error when dispatch rejects
     );
 
     const exit = yield* Micro.exit(
-      dispatchSessionCheckµ(store, 'https://example.com/authorize?prompt=none', 'none'),
+      dispatchSessionCheckIframeµ(store, 'https://example.com/authorize?prompt=none', 'none'),
     );
     expect(Micro.exitIsFailure(exit)).toBe(true);
     if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {

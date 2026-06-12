@@ -21,7 +21,14 @@ let tokenIndex = 0;
 
 function displayError(error: unknown) {
   const errorEl = document.createElement('div');
-  errorEl.innerHTML = `<p><strong>Error:</strong> <span class="error">${JSON.stringify(error, null, 2)}</span></p>`;
+  const p = document.createElement('p');
+  const strong = document.createElement('strong');
+  strong.textContent = 'Error:';
+  const span = document.createElement('span');
+  span.className = 'error';
+  span.textContent = JSON.stringify(error, null, 2);
+  p.append(strong, document.createTextNode(' '), span);
+  errorEl.appendChild(p);
   document.body.appendChild(errorEl);
 }
 
@@ -53,7 +60,14 @@ function displayTokenResponse(
     }
 
     const tokenInfoEl = document.createElement('div');
-    tokenInfoEl.innerHTML = `<p><strong>Access Token:</strong> <span id="accessToken-${tokenIndex}">${response.accessToken}</span></p>`;
+    const tokenP = document.createElement('p');
+    const tokenStrong = document.createElement('strong');
+    tokenStrong.textContent = 'Access Token:';
+    const tokenSpan = document.createElement('span');
+    tokenSpan.id = `accessToken-${tokenIndex}`;
+    tokenSpan.textContent = response.accessToken;
+    tokenP.append(tokenStrong, document.createTextNode(' '), tokenSpan);
+    tokenInfoEl.appendChild(tokenP);
     appEl?.appendChild(tokenInfoEl);
     tokenIndex++;
   }
@@ -162,7 +176,14 @@ export async function oidcApp({
 
       const appEl = document.getElementById('app');
       const userInfoEl = document.createElement('div');
-      userInfoEl.innerHTML = `<p><strong>User Info:</strong> <span id="userInfo">${JSON.stringify(userInfo, null, 2)}</span></p>`;
+      const userInfoP = document.createElement('p');
+      const userInfoStrong = document.createElement('strong');
+      userInfoStrong.textContent = 'User Info:';
+      const userInfoSpan = document.createElement('span');
+      userInfoSpan.id = 'userInfo';
+      userInfoSpan.textContent = JSON.stringify(userInfo, null, 2);
+      userInfoP.append(userInfoStrong, document.createTextNode(' '), userInfoSpan);
+      userInfoEl.appendChild(userInfoP);
       appEl?.appendChild(userInfoEl);
     }
   });
@@ -178,7 +199,9 @@ export async function oidcApp({
     } else {
       const appEl = document.getElementById('app');
       const revokeEl = document.createElement('div');
-      revokeEl.innerHTML = `<p>Token successfully revoked</p>`;
+      const revokeP = document.createElement('p');
+      revokeP.textContent = 'Token successfully revoked';
+      revokeEl.appendChild(revokeP);
       appEl?.appendChild(revokeEl);
     }
   });
@@ -218,7 +241,30 @@ export async function oidcApp({
     const result = await oidcClient.user?.session();
     const appEl = document.getElementById('app');
     const el = document.createElement('div');
-    el.innerHTML = `<p><strong>Session Check (none):</strong></p><pre id="session-check-result">${JSON.stringify(result, null, 2)}</pre>`;
+    const title = document.createElement('p');
+    const titleStrong = document.createElement('strong');
+    titleStrong.textContent = 'Session Check (none, iframe):';
+    title.appendChild(titleStrong);
+    const pre = document.createElement('pre');
+    pre.id = 'session-check-result';
+    pre.textContent = JSON.stringify(result, null, 2);
+    el.append(title, pre);
+    appEl?.appendChild(el);
+  });
+
+  document.getElementById('session-check-no-redirect-btn')?.addEventListener('click', async () => {
+    const options: SessionCheckOptions = { redirectUri: '' };
+    const result = await oidcClient.user?.session(options);
+    const appEl = document.getElementById('app');
+    const el = document.createElement('div');
+    const title = document.createElement('p');
+    const titleStrong = document.createElement('strong');
+    titleStrong.textContent = 'Session Check (none, no redirect):';
+    title.appendChild(titleStrong);
+    const pre = document.createElement('pre');
+    pre.id = 'session-check-no-redirect-result';
+    pre.textContent = JSON.stringify(result, null, 2);
+    el.append(title, pre);
     appEl?.appendChild(el);
   });
 
@@ -227,7 +273,14 @@ export async function oidcApp({
     const result = await oidcClient.user?.session(options);
     const appEl = document.getElementById('app');
     const el = document.createElement('div');
-    el.innerHTML = `<p><strong>Session Check (id_token):</strong></p><pre id="session-check-id-token-result">${JSON.stringify(result, null, 2)}</pre>`;
+    const title = document.createElement('p');
+    const titleStrong = document.createElement('strong');
+    titleStrong.textContent = 'Session Check (id_token):';
+    title.appendChild(titleStrong);
+    const pre = document.createElement('pre');
+    pre.id = 'session-check-id-token-result';
+    pre.textContent = JSON.stringify(result, null, 2);
+    el.append(title, pre);
     appEl?.appendChild(el);
   });
 

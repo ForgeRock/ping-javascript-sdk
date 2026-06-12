@@ -135,6 +135,11 @@ responseType: SessionCheckResponseType;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
 params: Record<string, string>;
 }, "oidc", unknown>;
+sessionCheckFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+status: 204;
+}, "oidc", unknown>;
 authorizeIframe: MutationDefinition<    {
 url: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
@@ -176,6 +181,11 @@ url: string;
 responseType: SessionCheckResponseType;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
 params: Record<string, string>;
+}, "oidc", unknown>;
+sessionCheckFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+status: 204;
 }, "oidc", unknown>;
 authorizeIframe: MutationDefinition<    {
 url: string;
@@ -364,10 +374,8 @@ export type SessionCheckResponseType = 'id_token' | 'none';
 
 // @public (undocumented)
 export type SessionCheckSuccess = {
-    mode: 'none';
-} | {
-    mode: 'id_token';
-    claims: JWTPayload;
+    responseType: SessionCheckResponseType;
+    claims?: JWTPayload;
 };
 
 export { StorageConfig }

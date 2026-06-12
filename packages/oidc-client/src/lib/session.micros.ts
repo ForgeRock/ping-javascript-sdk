@@ -36,7 +36,7 @@ export const readStoredIdTokenµ = (
 
 // ─── Dispatch ────────────────────────────────────────────────────────────────
 
-export const dispatchSessionCheckµ = (
+export const dispatchSessionCheckIframeµ = (
   store: ClientStore,
   url: string,
   responseType: 'id_token' | 'none',
@@ -62,6 +62,33 @@ export const dispatchSessionCheckµ = (
       }
       const { params } = (result as { data: { params: Record<string, string> } }).data;
       return Micro.succeed(params);
+    }),
+  );
+
+export const dispatchSessionCheckFetchµ = (
+  store: ClientStore,
+  url: string,
+): Micro.Micro<void, GenericError, never> =>
+  Micro.tryPromise({
+    try: () => store.dispatch(oidcApi.endpoints.sessionCheckFetch.initiate({ url })),
+    catch: (err): GenericError => ({
+      error: 'dispatch_error',
+      message: err instanceof Error ? err.message : 'Failed to dispatch session check',
+      type: 'network_error',
+    }),
+  }).pipe(
+    Micro.flatMap((result) => {
+      if ('error' in result && result.error) {
+        const errData = result.error as {
+          data?: { error?: string; message?: string; type?: string };
+        };
+        return Micro.fail<GenericError>({
+          error: errData.data?.error ?? 'login_required',
+          message: errData.data?.message ?? 'The request requires login.',
+          type: (errData.data?.type as GenericError['type']) ?? 'auth_error',
+        });
+      }
+      return Micro.void;
     }),
   );
 
@@ -125,16 +152,17 @@ export const validateSessionCheckResponseµ = (
 export const buildNoneUrl = (
   endpoint: string,
   config: OidcConfig,
-  storedIdToken: string | null,
+  storedIdToken: string,
+  redirectUri: string,
   options?: SessionCheckOptions,
 ): string => {
   const params = new URLSearchParams({
     prompt: 'none',
     response_type: 'none',
     client_id: config.clientId,
-    redirect_uri: options?.redirectUri ?? config.redirectUri,
     scope: options?.scope ?? 'openid',
-    ...(storedIdToken ? { id_token_hint: storedIdToken } : {}),
+    ...(redirectUri ? { redirect_uri: redirectUri } : {}),
+    id_token_hint: storedIdToken,
   });
   return `${endpoint}?${params.toString()}`;
 };
@@ -143,6 +171,7 @@ export const buildIdTokenUrl = (
   endpoint: string,
   config: OidcConfig,
   storedIdToken: string | null,
+  redirectUri: string,
   options?: SessionCheckOptions,
 ): { url: string; nonce: string; state: string } => {
   const nonce = createRandomString(32);
@@ -151,7 +180,7 @@ export const buildIdTokenUrl = (
     prompt: 'none',
     response_type: 'id_token',
     client_id: config.clientId,
-    redirect_uri: options?.redirectUri ?? config.redirectUri,
+    redirect_uri: redirectUri,
     scope: options?.scope ?? 'openid',
     nonce,
     state,
@@ -170,25 +199,33 @@ export const sessionCheckNoneµ = (
   log: CustomLogger,
   options?: SessionCheckOptions,
 ): Micro.Micro<SessionCheckSuccess, GenericError, never> => {
-  const redirectUri = options?.redirectUri ?? config.redirectUri;
-  // none mode resolves by recognising when the iframe lands on the redirect URI.
-  // An empty redirect_uri means the iframe never matches and silently times out instead of failing fast.
-  if (!redirectUri) {
-    return Micro.fail<GenericError>({
-      error: 'missing_redirect_uri',
-      message: 'redirect_uri is required for session check',
-      type: 'argument_error',
-    });
-  }
-
   return readStoredIdTokenµ(storageClient).pipe(
     Micro.flatMap((storedIdToken) => {
-      const url = buildNoneUrl(wellknown.authorization_endpoint, config, storedIdToken, options);
-      log.debug('Session check (none) URL built');
-      return dispatchSessionCheckµ(store, url, 'none');
+      if (!storedIdToken) {
+        return Micro.fail<GenericError>({
+          error: 'no_id_token_hint',
+          message: 'response_type=none requires a stored id_token; authenticate first',
+          type: 'argument_error',
+        });
+      }
+
+      const redirectUri = options?.redirectUri ?? config.redirectUri;
+      const url = buildNoneUrl(
+        wellknown.authorization_endpoint,
+        config,
+        storedIdToken,
+        redirectUri,
+        options,
+      );
+
+      // iframe path: AM redirects back to redirect_uri; resolve on landing
+      // fetch path: no redirect_uri, AM returns 204 (valid) or 400 (invalid)
+      return redirectUri
+        ? dispatchSessionCheckIframeµ(store, url, 'none')
+        : dispatchSessionCheckFetchµ(store, url);
     }),
-    Micro.tap(() => Micro.sync(() => log.debug('Session check (none) completed successfully'))),
-    Micro.map((): SessionCheckSuccess => ({ mode: 'none' })),
+    Micro.tap(() => log.debug('Session check (none) completed successfully')),
+    Micro.map((): SessionCheckSuccess => ({ responseType: 'none' })),
   );
 };
 
@@ -202,22 +239,32 @@ export const sessionCheckIdTokenµ = (
   log: CustomLogger,
   options?: SessionCheckOptions,
 ): Micro.Micro<SessionCheckSuccess, GenericError, never> => {
+  const redirectUri = options?.redirectUri ?? config.redirectUri;
+
+  if (!redirectUri) {
+    return Micro.fail<GenericError>({
+      error: 'missing_redirect_uri',
+      message: 'redirect_uri is required for session check with response_type=id_token',
+      type: 'argument_error',
+    });
+  }
+
   return readStoredIdTokenµ(storageClient).pipe(
     Micro.flatMap((storedIdToken) => {
       const { url, nonce, state } = buildIdTokenUrl(
         wellknown.authorization_endpoint,
         config,
         storedIdToken,
+        redirectUri,
         options,
       );
-      log.debug('Session check (id_token) URL built');
-      return dispatchSessionCheckµ(store, url, 'id_token').pipe(
+      return dispatchSessionCheckIframeµ(store, url, 'id_token').pipe(
         Micro.flatMap((iframeParams) =>
           validateSessionCheckResponseµ(iframeParams, state, nonce, options?.subject),
         ),
       );
     }),
-    Micro.tap(() => Micro.sync(() => log.debug('Session check (id_token) completed successfully'))),
-    Micro.map((claims): SessionCheckSuccess => ({ mode: 'id_token', claims })),
+    Micro.tap(() => log.debug('Session check (id_token) completed successfully')),
+    Micro.map((claims): SessionCheckSuccess => ({ responseType: 'id_token', claims })),
   );
 };
