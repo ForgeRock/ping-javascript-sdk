@@ -1096,7 +1096,7 @@ export declare interface KeylessWebSocketOpenEventDetail {
 }
 
 /** @internal */
-declare class RootElement extends AracnaBaseElement {
+declare class RootElement extends AracnaBaseElement<RootElementEventMap> {
     appearanceController: KeylessAppearanceController;
     localizationController: KeylessLocalizationController;
     loggerController: KeylessLoggerController;

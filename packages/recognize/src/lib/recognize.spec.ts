@@ -191,8 +191,7 @@ describe('recognize — error observer', () => {
     await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
     const el = container.querySelector('kl-auth')!;
 
-    const event = new ErrorEvent('error', { error: new Error('raw') });
-    Object.defineProperty(event, 'reason', { value: 'MEDIA_STREAM_NOT_ALLOWED' });
+    const event = new ErrorEvent('error', { error: new Error('MEDIA_STREAM_NOT_ALLOWED') });
     el.dispatchEvent(event);
 
     const receivedError = errorFn.mock.calls[0][0];

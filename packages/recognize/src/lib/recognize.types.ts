@@ -7,7 +7,10 @@
  *
  */
 
+import type { RecognizeError } from './classes/recognize-error.js';
 import type {
+  KeylessAuthElement,
+  KeylessEnrollElement,
   KeylessFinishedEventDetail,
   KeylessFrameResultsEventDetail,
   KeylessStepChangeEventDetail,
@@ -15,13 +18,9 @@ import type {
   KeylessWebSocketCloseEventDetail,
   KeylessWebSocketOpenEventDetail,
 } from './recognize-sdk/index.js';
-import type { RecognizeErrorCode } from './defs/recognize-error-code.js';
 
 /** @public */
-export interface RecognizeError extends Error {
-  code: RecognizeErrorCode;
-  cause?: Error;
-}
+export type RecognizeRootElement = KeylessAuthElement | KeylessEnrollElement;
 
 /** @public */
 export type RecognizeSessionType = 'auth' | 'enroll';
@@ -33,8 +32,7 @@ export interface RecognizeWcStepChangeEventDetail extends KeylessStepChangeEvent
 export interface RecognizeWcFrameResultsEventDetail extends KeylessFrameResultsEventDetail {}
 
 /** @public */
-export interface RecognizeWcVideoFrameQualityEventDetail
-  extends KeylessVideoFrameQualityEventDetail {}
+export interface RecognizeWcVideoFrameQualityEventDetail extends KeylessVideoFrameQualityEventDetail {}
 
 /** @public */
 export interface RecognizeWcWebSocketOpenEventDetail extends KeylessWebSocketOpenEventDetail {}

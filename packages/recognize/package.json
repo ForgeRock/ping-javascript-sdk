@@ -17,6 +17,9 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
+  "devDependencies": {
+    "@aracna/web-components": "^1.1.18"
+  },
   "nx": {
     "tags": ["scope:package"],
     "targets": {

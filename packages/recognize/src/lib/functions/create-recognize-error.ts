@@ -7,33 +7,28 @@
  *
  */
 
+import { RecognizeError } from '../classes/recognize-error.js';
 import { RecognizeErrorCode } from '../defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from '../defs/recognize-sdk-to-recognize-proxy-error-map.js';
-import type { RecognizeError } from '../recognize.types.js';
 
 /** @public */
 export const createRecognizeError = (
   codeOrSdkError: RecognizeErrorCode | ErrorEvent,
   cause?: Error,
 ): RecognizeError => {
-  let code: RecognizeErrorCode;
-  let errorCause: Error | undefined;
-
   if (codeOrSdkError instanceof ErrorEvent) {
-    const reason = (codeOrSdkError as ErrorEvent & { reason?: string }).reason;
-    code =
-      (reason && RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[reason]) ||
-      RecognizeErrorCode.SDK_ERROR;
-    errorCause = codeOrSdkError.error instanceof Error ? codeOrSdkError.error : undefined;
+    if (codeOrSdkError.error instanceof Error) {
+      let code: RecognizeErrorCode;
+
+      code =
+        RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[codeOrSdkError.error.message] ||
+        RecognizeErrorCode.SDK_ERROR;
+
+      return new RecognizeError(code, codeOrSdkError.error);
+    }
   } else {
-    code = codeOrSdkError;
-    errorCause = cause;
+    return new RecognizeError(codeOrSdkError, cause);
   }
 
-  const error: RecognizeError = Object.assign(new Error(code), {
-    name: 'RecognizeError',
-    code,
-    cause: errorCause,
-  });
-  return error;
+  return new RecognizeError(RecognizeErrorCode.SDK_ERROR, cause);
 };
