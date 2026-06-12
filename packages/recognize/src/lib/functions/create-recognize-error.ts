@@ -14,25 +14,26 @@ import type { RecognizeError } from '../recognize.types.js';
 /** @public */
 export const createRecognizeError = (
   codeOrSdkError: RecognizeErrorCode | ErrorEvent,
-  cause?: unknown,
+  cause?: Error,
 ): RecognizeError => {
   let code: RecognizeErrorCode;
-  let errorCause: unknown;
+  let errorCause: Error | undefined;
 
   if (codeOrSdkError instanceof ErrorEvent) {
     const reason = (codeOrSdkError as ErrorEvent & { reason?: string }).reason;
     code =
       (reason && RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[reason]) ||
       RecognizeErrorCode.SDK_ERROR;
-    errorCause = codeOrSdkError.error;
+    errorCause = codeOrSdkError.error instanceof Error ? codeOrSdkError.error : undefined;
   } else {
     code = codeOrSdkError;
     errorCause = cause;
   }
 
-  const error = new Error(code) as RecognizeError;
-  error.name = 'RecognizeError';
-  error.code = code;
-  if (errorCause !== undefined) error.cause = errorCause;
+  const error: RecognizeError = Object.assign(new Error(code), {
+    name: 'RecognizeError',
+    code,
+    cause: errorCause,
+  });
   return error;
 };

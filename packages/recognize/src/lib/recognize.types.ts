@@ -20,7 +20,7 @@ import type { RecognizeErrorCode } from './defs/recognize-error-code.js';
 /** @public */
 export interface RecognizeError extends Error {
   code: RecognizeErrorCode;
-  cause?: unknown;
+  cause?: Error;
 }
 
 /** @public */
