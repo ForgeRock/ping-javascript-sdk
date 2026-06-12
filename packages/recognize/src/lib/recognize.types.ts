@@ -30,9 +30,6 @@ export type RecognizeSessionType = 'auth' | 'enroll';
 export interface RecognizeWcStepChangeEventDetail extends KeylessStepChangeEventDetail {}
 
 /** @public */
-export interface RecognizeWcFinishedEventDetail extends KeylessFinishedEventDetail {}
-
-/** @public */
 export interface RecognizeWcFrameResultsEventDetail extends KeylessFrameResultsEventDetail {}
 
 /** @public */
@@ -55,7 +52,7 @@ export type RecognizeWcEvent =
   | { type: 'ws-close'; detail: RecognizeWcWebSocketCloseEventDetail };
 
 /** @public */
-export type RecognizeWcCompleteDetail = RecognizeWcFinishedEventDetail;
+export interface RecognizeWcCompleteDetail extends KeylessFinishedEventDetail {}
 
 /** @public */
 export interface RecognizeWcObserver {
