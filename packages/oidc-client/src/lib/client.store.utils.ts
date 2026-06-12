@@ -8,6 +8,8 @@ import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-midd
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 
 import { configureStore, type SerializedError } from '@reduxjs/toolkit';
+import { Micro } from 'effect';
+import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi } from './wellknown.api.js';
 
@@ -80,6 +82,26 @@ export function createLogoutError(
     } as const;
   }
   return null;
+}
+
+export async function runMicroExit<T, E>(
+  micro: Micro.Micro<T, E>,
+  defectError: string,
+  defectType: GenericError['type'],
+): Promise<T | E | GenericError> {
+  const result = await Micro.runPromiseExit(micro);
+  if (exitIsSuccess(result)) {
+    return result.value;
+  }
+  if (exitIsFail(result)) {
+    return result.cause.error;
+  }
+  const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
+  return {
+    error: defectError,
+    message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
+    type: defectType,
+  };
 }
 
 export function createTokenError(type: 'no_tokens' | 'no_access_token' | 'no_id_token') {

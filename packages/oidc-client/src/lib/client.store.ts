@@ -12,7 +12,7 @@ import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
-import { createClientStore, createTokenError } from './client.store.utils.js';
+import { createClientStore, createTokenError, runMicroExit } from './client.store.utils.js';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
@@ -35,7 +35,6 @@ import type {
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
-import { SessionCheckResponseType } from './session.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 
 /**
@@ -258,20 +257,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           }),
         );
 
-        const result = await Micro.runPromiseExit(getTokensµ);
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-          return {
-            error: 'Token Exchange failure',
-            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-            type: 'exchange_error',
-          };
-        }
+        return runMicroExit(getTokensµ, 'Token Exchange failure', 'exchange_error');
       },
 
       /**
@@ -457,20 +443,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           ),
         );
 
-        const result = await Micro.runPromiseExit(revokeµ);
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-          return {
-            error: 'Token revocation failure',
-            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-            type: 'auth_error',
-          };
-        }
+        return runMicroExit(revokeµ, 'Token revocation failure', 'auth_error');
       },
     },
 
@@ -533,20 +506,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           }),
         );
 
-        const result = await Micro.runPromiseExit(info);
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-          return {
-            error: 'User Info retrieval failure',
-            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-            type: 'auth_error',
-          };
-        }
+        return runMicroExit(info, 'User Info retrieval failure', 'auth_error');
       },
 
       /**
@@ -587,38 +547,24 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           return createTokenError('no_id_token');
         }
 
-        const result = await Micro.runPromiseExit(
+        return runMicroExit(
           logoutµ({ tokens, config, wellknown, store, storageClient }),
+          'Logout_Failure',
+          'auth_error',
         );
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-          return {
-            error: 'Logout_Failure',
-            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-            type: 'auth_error',
-          };
-        }
       },
-    },
 
-    /**
-     * An object containing methods for OIDC session management
-     */
-    session: {
       /**
-       * @method check
+       * @method session
        * @description Checks whether the user has an active session at the authorization server
        *              using a hidden iframe with prompt=none. Supports response_type=none (default)
        *              and response_type=id_token.
        * @param {SessionCheckOptions} options - Optional parameters for the session check.
        * @returns {Promise<SessionCheckSuccess | GenericError>} - Never throws; returns a typed result.
        */
-      check: async (options?: SessionCheckOptions): Promise<SessionCheckSuccess | GenericError> => {
+      session: async (
+        options?: SessionCheckOptions,
+      ): Promise<SessionCheckSuccess | GenericError> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -631,24 +577,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         const micro =
-          options?.responseType === SessionCheckResponseType.IdToken
+          options?.responseType === 'id_token'
             ? sessionCheckIdTokenµ(wellknown, config, store, storageClient, log, options)
             : sessionCheckNoneµ(wellknown, config, store, storageClient, log, options);
 
-        const result = await Micro.runPromiseExit(micro);
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-          return {
-            error: 'Session check failure',
-            message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-            type: 'unknown_error',
-          };
-        }
+        return runMicroExit(micro, 'Session check failure', 'unknown_error');
       },
     },
   };

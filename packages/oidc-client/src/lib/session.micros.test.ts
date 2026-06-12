@@ -19,7 +19,6 @@ import {
   validateSessionCheckResponseµ,
 } from './session.micros.js';
 import { oidcApi } from './oidc.api.js';
-import { SessionCheckResponseType } from './session.types.js';
 
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { OidcConfig } from './config.types.js';
@@ -28,6 +27,7 @@ import type { ClientStore } from './client.types.js';
 import type { StorageClient } from '@forgerock/storage';
 import type { OauthTokens } from './config.types.js';
 import type { GenericError } from '@forgerock/sdk-types';
+import type { JWTPayload } from 'jose';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -96,8 +96,8 @@ describe('buildNoneUrl', () => {
     const url = buildNoneUrl(endpoint, config, storedTokens.idToken);
     const parsed = new URL(url);
 
-    expect(parsed.searchParams.get('prompt')).toBe(SessionCheckResponseType.None);
-    expect(parsed.searchParams.get('response_type')).toBe(SessionCheckResponseType.None);
+    expect(parsed.searchParams.get('prompt')).toBe('none');
+    expect(parsed.searchParams.get('response_type')).toBe('none');
     expect(parsed.searchParams.get('client_id')).toBe(clientId);
     expect(parsed.searchParams.get('redirect_uri')).toBe(redirectUri);
     expect(parsed.searchParams.get('id_token_hint')).toBe(storedTokens.idToken);
@@ -126,7 +126,7 @@ describe('buildIdTokenUrl', () => {
     const { url, nonce, state } = buildIdTokenUrl(endpoint, config, null);
     const parsed = new URL(url);
 
-    expect(parsed.searchParams.get('response_type')).toBe(SessionCheckResponseType.IdToken);
+    expect(parsed.searchParams.get('response_type')).toBe('id_token');
     expect(parsed.searchParams.get('nonce')).toBe(knownNonce);
     expect(parsed.searchParams.get('state')).toBe(knownState);
     expect(parsed.searchParams.get('scope')).toBe('openid');
@@ -232,8 +232,11 @@ it.effect('sessionCheckIdTokenµ returns claims on valid JWT', () =>
     if (!Micro.exitIsSuccess(exit)) {
       return;
     }
-    expect(exit.value.claims).toBeDefined();
-    expect((exit.value.claims as Record<string, unknown>).nonce).toBe(knownNonce);
+    expect(exit.value.mode).toBe('id_token');
+    if (exit.value.mode !== 'id_token') {
+      return;
+    }
+    expect(exit.value.claims['nonce']).toBe(knownNonce);
   }),
 );
 
@@ -329,7 +332,7 @@ it.effect(
       const result = yield* dispatchSessionCheckµ(
         store,
         'https://example.com/authorize?prompt=none',
-        SessionCheckResponseType.None,
+        'none',
       );
       expect(result).toStrictEqual(params);
     }),
@@ -353,11 +356,7 @@ it.effect(
       );
 
       const exit = yield* Micro.exit(
-        dispatchSessionCheckµ(
-          store,
-          'https://example.com/authorize?prompt=none',
-          SessionCheckResponseType.None,
-        ),
+        dispatchSessionCheckµ(store, 'https://example.com/authorize?prompt=none', 'none'),
       );
       expect(Micro.exitIsFailure(exit)).toBe(true);
       if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
@@ -379,11 +378,7 @@ it.effect('dispatchSessionCheckµ fails with network_error when dispatch rejects
     );
 
     const exit = yield* Micro.exit(
-      dispatchSessionCheckµ(
-        store,
-        'https://example.com/authorize?prompt=none',
-        SessionCheckResponseType.None,
-      ),
+      dispatchSessionCheckµ(store, 'https://example.com/authorize?prompt=none', 'none'),
     );
     expect(Micro.exitIsFailure(exit)).toBe(true);
     if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
@@ -396,7 +391,7 @@ it.effect('dispatchSessionCheckµ fails with network_error when dispatch rejects
 
 // ─── validateSessionCheckResponseµ ───────────────────────────────────────────
 
-function makeJwtWithClaims(claims: Record<string, unknown>): string {
+function makeJwtWithClaims(claims: JWTPayload): string {
   const payload = btoa(JSON.stringify(claims))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')

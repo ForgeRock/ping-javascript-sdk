@@ -29,7 +29,7 @@ function makeFakeJwt(payload: Record<string, unknown>): string {
   return `${header}.${body}.fakesignature`;
 }
 
-test.describe('session.check() tests', () => {
+test.describe('user.session() tests', () => {
   test('session check (none) succeeds after login', async ({ page }) => {
     const { navigate } = asyncEvents(page);
     await navigate('/ping-am/');
@@ -126,6 +126,7 @@ test.describe('session.check() tests', () => {
     await page.getByRole('button', { name: 'Session Check (id_token)' }).click();
     await expect(page.locator('#session-check-id-token-result')).not.toBeEmpty();
     const resultText = await page.locator('#session-check-id-token-result').textContent();
+    expect(resultText).toContain('"mode"');
     expect(resultText).toContain('"claims"');
     expect(resultText).not.toContain('"error"');
   });

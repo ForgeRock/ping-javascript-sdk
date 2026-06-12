@@ -27,7 +27,7 @@ import type { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize
 import type { UserInfoResponse } from './client.types.js';
 import type { PushAuthorizationResponse } from './par.types.js';
 import type { GenericError } from '@forgerock/sdk-types';
-import { SessionCheckResponseType } from './session.types.js';
+import type { SessionCheckResponseType } from './session.types.js';
 
 const IFRAME_TIMEOUT_MS = 3000;
 
@@ -188,7 +188,6 @@ export const oidcApi = createApi({
     >({
       queryFn: async ({ url, responseType }, api) => {
         const { requestMiddleware, logger } = api.extra as Extras;
-        const isIdToken = responseType === SessionCheckResponseType.IdToken;
         const errorParams = ['error', 'error_description'];
 
         const request: FetchArgs = { url };
@@ -200,23 +199,25 @@ export const oidcApi = createApi({
           .applyQuery(async (req: FetchArgs) => {
             try {
               const timeout = req.timeout ?? IFRAME_TIMEOUT_MS;
-              const params = isIdToken
-                ? await iFrameManager().getParamsByRedirect({
-                    url: req.url,
-                    successParams: ['id_token'],
-                    errorParams,
-                    includeHashParams: true,
-                    timeout,
-                  })
-                : await iFrameManager().getParamsByRedirect({
-                    url: req.url,
-                    resolveOnRedirectUri: new URL(req.url).searchParams.get(
-                      'redirect_uri',
-                    ) as string,
-                    errorParams,
-                    successParams: [],
-                    timeout,
-                  });
+              const iframeOptions =
+                responseType === 'id_token'
+                  ? {
+                      url: req.url,
+                      successParams: ['id_token'],
+                      errorParams,
+                      includeHashParams: true,
+                      timeout,
+                    }
+                  : {
+                      url: req.url,
+                      resolveOnRedirectUri: new URL(req.url).searchParams.get(
+                        'redirect_uri',
+                      ) as string,
+                      errorParams,
+                      successParams: [],
+                      timeout,
+                    };
+              const params = await iFrameManager().getParamsByRedirect(iframeOptions);
 
               if ('error' in params) {
                 return {

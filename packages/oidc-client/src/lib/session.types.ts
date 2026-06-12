@@ -5,17 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-// Both a const object (for runtime value access: SessionCheckResponseType.IdToken) and a type
-// (for annotations: param: SessionCheckResponseType) are declared under the same name.
-// This is the TypeScript const-object + union-type pattern — a tree-shakeable alternative to enums
-// that preserves the string literals ('id_token' | 'none') in the compiled output.
-export const SessionCheckResponseType = {
-  IdToken: 'id_token',
-  None: 'none',
-} as const;
+import type { JWTPayload } from 'jose';
 
-export type SessionCheckResponseType =
-  (typeof SessionCheckResponseType)[keyof typeof SessionCheckResponseType];
+export type SessionCheckResponseType = 'id_token' | 'none';
 
 /**
  * Both modes send id_token_hint if a stored token is available; the AS falls back to the browser
@@ -25,7 +17,7 @@ export type SessionCheckResponseType =
  * - none mode: returns no claims. Success is detected by the iframe landing on the redirect URI.
  */
 export interface SessionCheckOptions {
-  /** The response type for the session check. Default: SessionCheckResponseType.None */
+  /** The response type for the session check. Defaults to 'none'. */
   responseType?: SessionCheckResponseType;
   /** Overrides OidcConfig.redirectUri for the session check request. */
   redirectUri?: string;
@@ -35,7 +27,4 @@ export interface SessionCheckOptions {
   scope?: string;
 }
 
-export interface SessionCheckSuccess {
-  /** Decoded id_token payload. Present only in id_token mode. */
-  claims?: Record<string, unknown>;
-}
+export type SessionCheckSuccess = { mode: 'none' } | { mode: 'id_token'; claims: JWTPayload };

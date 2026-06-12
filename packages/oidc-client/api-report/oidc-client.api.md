@@ -15,6 +15,7 @@ import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { JWTPayload } from 'jose';
 import { logger } from '@forgerock/sdk-logger';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { LogMessage } from '@forgerock/sdk-logger';
@@ -277,7 +278,6 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
     authorize?: undefined;
     token?: undefined;
     user?: undefined;
-    session?: undefined;
 } | {
     subscribe: (listener: () => void) => Unsubscribe;
     authorize: {
@@ -292,9 +292,7 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
     user: {
         info: () => Promise<GenericError | UserInfoResponse>;
         logout: () => Promise<GenericError | LogoutSuccessResult | LogoutErrorResult>;
-    };
-    session: {
-        check: (options?: SessionCheckOptions) => Promise<SessionCheckSuccess | GenericError>;
+        session: (options?: SessionCheckOptions) => Promise<SessionCheckSuccess | GenericError>;
     };
     error?: undefined;
     type?: undefined;
@@ -362,18 +360,15 @@ export interface SessionCheckOptions {
 }
 
 // @public (undocumented)
-export const SessionCheckResponseType: {
-    readonly IdToken: "id_token";
-    readonly None: "none";
+export type SessionCheckResponseType = 'id_token' | 'none';
+
+// @public (undocumented)
+export type SessionCheckSuccess = {
+    mode: 'none';
+} | {
+    mode: 'id_token';
+    claims: JWTPayload;
 };
-
-// @public (undocumented)
-export type SessionCheckResponseType = (typeof SessionCheckResponseType)[keyof typeof SessionCheckResponseType];
-
-// @public (undocumented)
-export interface SessionCheckSuccess {
-    claims?: Record<string, unknown>;
-}
 
 export { StorageConfig }
 

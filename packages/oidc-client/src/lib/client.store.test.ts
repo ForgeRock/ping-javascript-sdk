@@ -719,7 +719,7 @@ describe('authorize.url() with PAR enabled on non-pi.flow server', async () => {
   });
 });
 
-describe('session.check()', async () => {
+describe('user.session()', async () => {
   const config: OidcConfig = {
     clientId: '123456789',
     redirectUri: 'https://example.com/callback.html',
@@ -740,7 +740,7 @@ describe('session.check()', async () => {
     const oidcClient = await oidc({ config, storage: customStorageConfig });
     if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
 
-    const result = await oidcClient.session.check();
+    const result = await oidcClient.user.session();
 
     if (!('error' in result)) {
       expect.fail('Expected SessionCheckError, got success');

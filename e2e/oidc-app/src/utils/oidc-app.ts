@@ -215,7 +215,7 @@ export async function oidcApp({
   });
 
   document.getElementById('session-check-btn')?.addEventListener('click', async () => {
-    const result = await oidcClient.session?.check();
+    const result = await oidcClient.user?.session();
     const appEl = document.getElementById('app');
     const el = document.createElement('div');
     el.innerHTML = `<p><strong>Session Check (none):</strong></p><pre id="session-check-result">${JSON.stringify(result, null, 2)}</pre>`;
@@ -224,7 +224,7 @@ export async function oidcApp({
 
   document.getElementById('session-check-id-token-btn')?.addEventListener('click', async () => {
     const options: SessionCheckOptions = { responseType: 'id_token' };
-    const result = await oidcClient.session?.check(options);
+    const result = await oidcClient.user?.session(options);
     const appEl = document.getElementById('app');
     const el = document.createElement('div');
     el.innerHTML = `<p><strong>Session Check (id_token):</strong></p><pre id="session-check-id-token-result">${JSON.stringify(result, null, 2)}</pre>`;
