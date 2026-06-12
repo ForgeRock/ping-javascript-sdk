@@ -129,7 +129,9 @@ export function recognize(config: RecognizeWcConfig): RecognizeWcClient {
 
     async init(options: RecognizeWcInitOptions): Promise<void | RecognizeError> {
       if (element !== null) {
-        return createRecognizeError(RecognizeErrorCode.ALREADY_INITIALIZED);
+        throw new Error(
+          'recognize: init() called more than once — call dispose() before re-initializing',
+        );
       }
 
       try {
@@ -141,7 +143,9 @@ export function recognize(config: RecognizeWcConfig): RecognizeWcClient {
       if (options.mode === 'attach') {
         const tag = (options.element as HTMLElement).tagName;
         if (tag !== 'KL-AUTH' && tag !== 'KL-ENROLL') {
-          return createRecognizeError(RecognizeErrorCode.INVALID_ELEMENT);
+          throw new Error(
+            `recognize: invalid element <${tag.toLowerCase()}> — options.element must be a <kl-auth> or <kl-enroll> custom element`,
+          );
         }
         element = options.element as RootEl;
         element.username = options.username;
