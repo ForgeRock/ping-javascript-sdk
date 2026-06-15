@@ -8,7 +8,6 @@
  */
 
 import type { RecognizeError } from './classes/recognize-error.js';
-export type { RecognizeError };
 import type {
   KeylessAuthElement,
   KeylessEnrollElement,
@@ -20,6 +19,8 @@ import type {
   KeylessWebSocketOpenEventDetail,
 } from './recognize-sdk/index.js';
 
+export type { RecognizeError };
+
 /** @public */
 export type RecognizeRootElement = KeylessAuthElement | KeylessEnrollElement;
 
@@ -27,19 +28,19 @@ export type RecognizeRootElement = KeylessAuthElement | KeylessEnrollElement;
 export type RecognizeSessionType = 'auth' | 'enroll';
 
 /** @public */
-export interface RecognizeWcStepChangeEventDetail extends KeylessStepChangeEventDetail {}
+export type RecognizeWcStepChangeEventDetail = KeylessStepChangeEventDetail;
 
 /** @public */
-export interface RecognizeWcFrameResultsEventDetail extends KeylessFrameResultsEventDetail {}
+export type RecognizeWcFrameResultsEventDetail = KeylessFrameResultsEventDetail;
 
 /** @public */
-export interface RecognizeWcVideoFrameQualityEventDetail extends KeylessVideoFrameQualityEventDetail {}
+export type RecognizeWcVideoFrameQualityEventDetail = KeylessVideoFrameQualityEventDetail;
 
 /** @public */
-export interface RecognizeWcWebSocketOpenEventDetail extends KeylessWebSocketOpenEventDetail {}
+export type RecognizeWcWebSocketOpenEventDetail = KeylessWebSocketOpenEventDetail;
 
 /** @public */
-export interface RecognizeWcWebSocketCloseEventDetail extends KeylessWebSocketCloseEventDetail {}
+export type RecognizeWcWebSocketCloseEventDetail = KeylessWebSocketCloseEventDetail;
 
 /** @public */
 export type RecognizeWcEvent =
@@ -51,7 +52,7 @@ export type RecognizeWcEvent =
   | { type: 'ws-close'; detail: RecognizeWcWebSocketCloseEventDetail };
 
 /** @public */
-export interface RecognizeWcCompleteDetail extends KeylessFinishedEventDetail {}
+export type RecognizeWcCompleteDetail = KeylessFinishedEventDetail;
 
 /** @public */
 export interface RecognizeWcObserver {
