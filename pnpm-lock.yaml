@@ -595,6 +595,9 @@ importers:
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
+      effect:
+        specifier: catalog:effect
+        version: 3.21.0
 
   scratchpad:
     dependencies:

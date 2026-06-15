@@ -40,7 +40,8 @@
     "test:watch": "pnpm nx nxTest --watch"
   },
   "dependencies": {
-    "@forgerock/sdk-types": "workspace:*"
+    "@forgerock/sdk-types": "workspace:*",
+    "effect": "catalog:effect"
   },
   "nx": {
     "tags": ["scope:sdk-utilities"]

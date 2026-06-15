@@ -12,7 +12,8 @@ import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
-import { createClientStore, createTokenError, runMicroExit } from './client.store.utils.js';
+import { createClientStore, createTokenError } from './client.store.utils.js';
+import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
@@ -257,7 +258,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           }),
         );
 
-        return runMicroExit(getTokensµ, 'Token Exchange failure', 'exchange_error');
+        const result = await Micro.runPromiseExit(getTokensµ);
+        return handleMicroExit(result, 'Token Exchange failure', 'exchange_error');
       },
 
       /**
@@ -443,7 +445,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           ),
         );
 
-        return runMicroExit(revokeµ, 'Token revocation failure', 'auth_error');
+        const result = await Micro.runPromiseExit(revokeµ);
+        return handleMicroExit(result, 'Token revocation failure', 'auth_error');
       },
     },
 
@@ -506,7 +509,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           }),
         );
 
-        return runMicroExit(info, 'User Info retrieval failure', 'auth_error');
+        const result = await Micro.runPromiseExit(info);
+        return handleMicroExit(result, 'User Info retrieval failure', 'auth_error');
       },
 
       /**
@@ -547,11 +551,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           return createTokenError('no_id_token');
         }
 
-        return runMicroExit(
+        const result = await Micro.runPromiseExit(
           logoutµ({ tokens, config, wellknown, store, storageClient }),
-          'Logout_Failure',
-          'auth_error',
         );
+        return handleMicroExit(result, 'Logout_Failure', 'auth_error');
       },
 
       /**
@@ -581,7 +584,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             ? sessionCheckIdTokenµ(wellknown, config, store, storageClient, log, options)
             : sessionCheckNoneµ(wellknown, config, store, storageClient, log, options);
 
-        return runMicroExit(micro, 'Session check failure', 'unknown_error');
+        const result = await Micro.runPromiseExit(micro);
+        return handleMicroExit(result, 'Session check failure', 'unknown_error');
       },
     },
   };
