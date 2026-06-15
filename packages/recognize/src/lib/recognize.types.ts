@@ -8,6 +8,7 @@
  */
 
 import type { RecognizeError } from './classes/recognize-error.js';
+export type { RecognizeError };
 import type {
   KeylessAuthElement,
   KeylessEnrollElement,
