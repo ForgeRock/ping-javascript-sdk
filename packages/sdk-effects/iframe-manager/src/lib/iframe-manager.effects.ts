@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -16,6 +16,10 @@ export interface GetParamsFromIFrameOptions {
   successParams: string[];
   /** Array of query parameter keys indicating an error occurred. */
   errorParams: string[];
+  /** When true, merges URL fragment (hash) params into search params before resolution. Use for response_type=id_token. */
+  includeHashParams?: boolean;
+  /** When set, resolves immediately upon navigating to a URL matching this redirect URI (origin + pathname). Use for response_type=none. */
+  resolveOnRedirectUri?: string;
 }
 
 export type ResolvedParams = Record<string, string>;
@@ -44,6 +48,18 @@ function searchParamsToRecord(params: URLSearchParams): ResolvedParams {
   return result;
 }
 
+// Compares origin + pathname rather than string prefix to avoid substring/trailing-slash false matches
+// (e.g. "/callback" vs "/callbacks-leak") and to ignore appended query/hash params.
+function isRedirectUriMatch(currentHref: string, redirectUri: string): boolean {
+  try {
+    const current = new URL(currentHref);
+    const target = new URL(redirectUri);
+    return current.origin === target.origin && current.pathname === target.pathname;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Initializes the Iframe Manager effect.
  * @returns An object containing the API for managing iframe requests.
@@ -63,16 +79,24 @@ export function iFrameManager() {
    */
   return {
     getParamsByRedirect: (options: GetParamsFromIFrameOptions): Promise<ResolvedParams> => {
-      const { url, timeout, successParams, errorParams } = options;
+      const { url, timeout, successParams, errorParams, includeHashParams, resolveOnRedirectUri } =
+        options;
 
-      if (
-        !successParams ||
-        !errorParams ||
-        successParams.length === 0 ||
-        errorParams.length === 0
-      ) {
-        const error = new Error('successParams and errorParams must be provided');
-        throw error;
+      // Without resolveOnRedirectUri, both arrays are required — successParams detects success,
+      // errorParams detects errors; if either is missing one outcome is undetectable.
+      if (!resolveOnRedirectUri && (!successParams?.length || !errorParams?.length)) {
+        return Promise.reject({
+          type: 'internal_error',
+          message: 'successParams and errorParams must be provided',
+        });
+      }
+      // With resolveOnRedirectUri (response_type=none), success is detected via URI landing so
+      // successParams:[] is intentional — but errorParams is still required since errors arrive as query params.
+      if (resolveOnRedirectUri && !errorParams?.length) {
+        return Promise.reject({
+          type: 'internal_error',
+          message: 'errorParams must be provided',
+        });
       }
 
       return new Promise<ResolvedParams>((resolve, reject) => {
@@ -109,26 +133,42 @@ export function iFrameManager() {
                 return; // Wait for actual navigation
               }
 
-              const redirectUrl = new URL(currentIframeHref);
-              const searchParams = redirectUrl.searchParams;
-              const parsedParams = searchParamsToRecord(searchParams);
+              const { searchParams, hash } = new URL(currentIframeHref);
+              // hash is the raw URL fragment including '#' (e.g. "#id_token=eyJ...&state=abc").
+              // For response_type=id_token, the token arrives in the fragment instead of the query string.
+              // slice(1) strips the leading '#', then new URLSearchParams parses "key=value&key=value"
+              // exactly like a query string — merging both sets into one URLSearchParams for uniform scanning.
+              const redirectParams = includeHashParams
+                ? new URLSearchParams([...searchParams, ...new URLSearchParams(hash.slice(1))])
+                : searchParams;
+              const parsedParams = searchParamsToRecord(redirectParams);
 
               // 1. Check for Error Parameters
-              if (hasErrorParams(searchParams, errorParams)) {
+              if (hasErrorParams(redirectParams, errorParams)) {
+                cleanup();
+                resolve(parsedParams);
+                return;
+              }
+
+              // 2. resolveOnRedirectUri mode: resolve as soon as the iframe lands on the redirect URI
+              if (
+                resolveOnRedirectUri &&
+                isRedirectUriMatch(currentIframeHref, resolveOnRedirectUri)
+              ) {
                 cleanup();
                 resolve(parsedParams); // Resolve with all parsed params for context
                 return;
               }
 
-              // 2. Check for Success Parameters
-              if (hasSomeSuccessParams(searchParams, successParams)) {
+              // 3. Check for Success Parameters
+              if (hasSomeSuccessParams(redirectParams, successParams)) {
                 cleanup();
                 resolve(parsedParams); // Resolve with all parsed params
                 return;
               }
 
               /*
-               * 3. Neither Error nor Success: Intermediate Redirect?
+               * 4. Neither Error nor Success: Intermediate Redirect?
                * If neither error nor all required success params are found,
                * assume it's an intermediate step in the redirect flow.
                * Do nothing, let the timeout eventually handle non-resolving states

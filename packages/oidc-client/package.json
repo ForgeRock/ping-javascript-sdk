@@ -35,7 +35,8 @@
     "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
-    "effect": "catalog:effect"
+    "effect": "catalog:effect",
+    "jose": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:effect",

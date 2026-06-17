@@ -8,6 +8,7 @@
  */
 
 export * from './lib/error/index.js';
+export * from './lib/micro.utils.js';
 export * from './lib/oidc/index.js';
 export * from './lib/strings/index.js';
 export * from './lib/url/index.js';

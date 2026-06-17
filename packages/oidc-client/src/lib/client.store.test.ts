@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -716,5 +716,60 @@ describe('authorize.url() with PAR enabled on non-pi.flow server', async () => {
     expect(parsed.searchParams.has('scope')).toBe(false);
     expect(parsed.searchParams.has('code_challenge')).toBe(false);
     expect(parsed.searchParams.has('redirect_uri')).toBe(false);
+  });
+});
+
+describe('user.session()', async () => {
+  const config: OidcConfig = {
+    clientId: '123456789',
+    redirectUri: 'https://example.com/callback.html',
+    scope: 'openid profile',
+    serverConfig: {
+      wellknown: 'https://api.example.com/wellknown',
+    },
+    responseType: 'code',
+  };
+
+  beforeEach(() => {
+    customStorage.remove(storageKey);
+  });
+
+  it('returns a GenericError when no tokens are stored', async () => {
+    // response_type=none requires a stored id_token; failing before dispatch.
+    const oidcClient = await oidc({ config, storage: customStorageConfig });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const result = await oidcClient.user.session();
+
+    if (!('error' in result)) {
+      expect.fail('Expected SessionCheckError, got success');
+    }
+    expect(result.error).toBe('no_id_token_hint');
+    expect(result.type).toBe('argument_error');
+  });
+
+  it('returns wellknown_error when authorization_endpoint is missing from the wellknown config', async () => {
+    // When authorization_endpoint is missing, initWellknownQuery validates and returns an error,
+    // so oidc() itself returns a wellknown_error at factory initialization time.
+    server.use(
+      http.get('*/wellknown', async () =>
+        HttpResponse.json({
+          issuer: 'https://api.example.com/as/issuer',
+          // authorization_endpoint deliberately omitted — causes wellknown validation to fail
+          token_endpoint: 'https://api.example.com/as/token',
+          userinfo_endpoint: 'https://api.example.com/as/userinfo',
+          introspection_endpoint: 'https://api.example.com/as/introspect',
+          revocation_endpoint: 'https://api.example.com/as/revoke',
+        }),
+      ),
+    );
+
+    const result = await oidc({ config, storage: customStorageConfig });
+
+    // The factory itself surfaces a wellknown_error when the wellknown response is invalid
+    if (!('error' in result)) {
+      expect.fail('Expected wellknown_error, got client');
+    }
+    expect(result.type).toBe('wellknown_error');
   });
 });

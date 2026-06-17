@@ -180,6 +180,59 @@ Logs out the user by revoking tokens and clearing the storage. Uses the end sess
 const logoutResponse = await oidcClient.user.logout();
 ```
 
+#### `user.session(options?)`
+
+Checks whether the user has an active session at the AS without prompting for login (`prompt=none`).
+
+- **Parameters**: `SessionCheckOptions` (optional)
+- **Returns**: `Promise<SessionCheckSuccess | GenericError>`
+
+```js
+const session = await oidcClient.user.session();
+if ('error' in session) {
+  // No active session
+}
+```
+
+##### `responseType: 'none'` (default)
+
+Use when you only need to know if a session is alive — no claims are returned.
+
+Requires a stored `id_token` to send as `id_token_hint`. Fails immediately with `no_id_token_hint` if storage is empty.
+
+How the check runs depends on `redirectUri`:
+
+- **With `redirectUri`** (iframe): a hidden iframe loads the authorization URL. The AS redirects to `redirectUri` on success or appends error params on failure. The `redirectUri` must be same-origin — the browser blocks cross-origin iframe content access.
+- **Without `redirectUri`** (fetch): a plain GET to the authorization endpoint — no iframe. The AS returns `204` on success or `400` on failure. Use this when no same-origin callback page is available.
+
+Returns `{ responseType: 'none' }` on success.
+
+##### `responseType: 'id_token'`
+
+Use when you need the user's claims back from the session. The AS issues a fresh `id_token` whose decoded claims are returned on success.
+
+Always uses the iframe path — `redirectUri` is required. A stored `id_token` is sent as `id_token_hint` if available but is not required.
+
+`state` and `nonce` are validated before claims are returned. If `subject` is provided, the `sub` claim must also match — otherwise any active session's claims are returned.
+
+```js
+const session = await oidcClient.user.session({
+  responseType: 'id_token',
+  subject: knownUserId, // optional — omit to get claims for whoever is logged in
+});
+if (!('error' in session)) {
+  console.log(session.claims); // JWTPayload
+}
+```
+
+Returns `{ responseType: 'id_token', claims: JWTPayload }` on success.
+
+##### PingOne compatibility note
+
+PingOne SaaS does not support `response_type=none`. Its authorization server only accepts `code`, `token`, and `id_token` as response types — `none` is not listed as an option in the [PingOne application configuration](https://docs.pingidentity.com/pingone/applications/p1_edit_application_oidc.html), the [PingOne response types reference](https://docs.pingidentity.com/pingone/applications/p1_responsetypes.html), the [PingOne Platform API reference](https://developer.pingidentity.com/pingone-api/auth/openid-connect-oauth-2.html), or the [PingOne support for response_mode options](https://developer.pingidentity.com/pingone-api/auth/auth-config-options/browserless-authentication-flow-options.html#pingone-support-for-response_mode-options).
+
+Use `responseType: 'id_token'` when connecting to PingOne.
+
 ## Usage Examples
 
 ### Redirect-Based Login (`authorize.url()`)
