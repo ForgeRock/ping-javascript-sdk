@@ -37,6 +37,7 @@ import { PropertyDeclarations } from 'lit';
 import { QueryDeclarations } from '@aracna/web-components';
 import { ReactiveController } from 'lit';
 import { ReactiveControllerHost } from 'lit';
+import { setKeylessGetVideoMediaDevicesArgs } from '@keyless/sdk-web';
 import { TemplateResult } from 'lit';
 import { Theme } from '@aracna/core';
 
@@ -434,6 +435,8 @@ export declare enum KeylessElementSlug {
     POWERED_BY = "powered-by",
     ROOT = "root",
     SHADED_ICON = "shaded-icon",
+    SHADED_ICON_DONE = "shaded-icon-done",
+    SHADED_ICON_ERROR = "shaded-icon-error",
     SPINNER = "spinner",
     TEXT = "text"
 }
@@ -603,7 +606,6 @@ export declare class KeylessShadedIconElement extends AracnaBaseElement {
      * Properties
      */
     /** */
-    src: string;
     theme?: Theme;
     protected _themeOptions?: KeylessThemeOptions;
     variant: KeylessShadedIconVariant;
@@ -716,6 +718,7 @@ export declare interface KeylessThemeOptionsColorsValue {
     secondary: string;
     onSecondary: string;
     error: string;
+    onError: string;
     secondaryContainer: string;
     onSecondaryContainer: string;
     surface: string;
@@ -1236,5 +1239,7 @@ declare interface RootElementEventMap extends AracnaBaseElementEventMap {
 
 /** @public */
 export declare function setKeylessCreateMediaStreamArgs(element: RootElement, args: CreateKeylessMediaStreamArgs): void | Error;
+
+export { setKeylessGetVideoMediaDevicesArgs }
 
 export { }

@@ -7,116 +7,138 @@
  *
  */
 
-import type { RecognizeError } from './classes/recognize-error.js';
+import { RecognizeError } from './classes/recognize-error.js';
 import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
 import { RecognizeErrorCode } from './defs/recognize-error-code.js';
-import { createRecognizeError } from './functions/create-recognize-error.js';
+import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
 import type { KeylessFinishedEvent } from './recognize-sdk/index.js';
 import type {
-  RecognizeRootElement,
-  RecognizeWcClient,
-  RecognizeWcConfig,
-  RecognizeWcInitOptions,
-  RecognizeWcObserver,
-  RecognizeWcUnsubscribe,
+  RecognizeWebComponent,
+  RecognizeWebComponentClient,
+  RecognizeWebComponentConfiguration,
+  RecognizeWebComponentEvent,
+  RecognizeWebComponentInitOptions,
+  RecognizeWebComponentObserver,
+  RecognizeWebComponentUnsubscribe,
 } from './recognize.types.js';
 
 /**
  * @function recognize - Returns a client to interact with the PingOne Recognize SDK web components
- * @param {RecognizeWcConfig} config - Configuration for the PingOne Recognize SDK
- * @returns {RecognizeWcClient}
+ * @param {RecognizeWebComponentConfiguration} configuration - Configuration for the PingOne Recognize SDK
+ * @returns {RecognizeWebComponentClient}
  */
-export function recognize(config: RecognizeWcConfig): RecognizeWcClient {
-  const effectiveConfig: RecognizeWcConfig = { disableSteps: CAMERA_ONLY_DISABLE_STEPS, ...config };
-  const observers: Set<RecognizeWcObserver> = new Set();
+export function recognize(
+  configuration: RecognizeWebComponentConfiguration,
+): RecognizeWebComponentClient {
+  const config: RecognizeWebComponentConfiguration = {
+    disableSteps: CAMERA_ONLY_DISABLE_STEPS,
+    ...configuration,
+  };
+  const observers: Set<RecognizeWebComponentObserver> = new Set();
 
-  let element: RecognizeRootElement | null = null;
-  let abortController: AbortController | null = null;
+  let element: RecognizeWebComponent | null = null;
+  let aborter: AbortController | null = null;
 
-  const dispatch = (type: string, detail: unknown): void => {
+  const dispatch = (type: RecognizeWebComponentEvent['type'], detail: any): void => {
     for (const observer of observers) {
-      observer.next({ type, detail } as Parameters<RecognizeWcObserver['next']>[0]);
+      observer.next({ type, detail });
     }
   };
 
-  const attachListeners = (el: RecognizeRootElement): void => {
-    abortController = new AbortController();
-    const { signal } = abortController;
+  const addEventListeners = (element: RecognizeWebComponent): void => {
+    aborter = new AbortController();
 
-    const onEvent = (type: string) => {
+    const onEvent = (type: RecognizeWebComponentEvent['type']) => {
       return (event: CustomEvent) => dispatch(type, event.detail);
     };
 
     const onFinished = (event: KeylessFinishedEvent) => {
-      for (const observer of observers) observer.complete?.(event.detail);
+      for (const observer of observers) {
+        observer.complete?.(event.detail);
+      }
+
       observers.clear();
     };
 
     const onError = (e: ErrorEvent) => {
-      const err = createRecognizeError(e);
-      for (const observer of observers) observer.error?.(err);
+      const code: RecognizeErrorCode =
+        RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[e.error.message] ?? RecognizeErrorCode.SDK_ERROR;
+
+      const error: RecognizeError = new RecognizeError(code, { cause: e.error });
+
+      for (const observer of observers) {
+        observer.error?.(error);
+      }
+
       observers.clear();
     };
 
-    el.addEventListener('error', onError, { signal });
-    el.addEventListener('finished', onFinished, { signal });
-    el.addEventListener('step-change', onEvent('step-change'), { signal });
-    el.addEventListener('frame-results', onEvent('frame-results'), { signal });
-    el.addEventListener('video-frame-quality', onEvent('video-frame-quality'), { signal });
-    el.addEventListener('ws-open', onEvent('ws-open'), { signal });
-    el.addEventListener('ws-close', onEvent('ws-close'), { signal });
+    const options: AddEventListenerOptions = { signal: aborter.signal };
+
+    element.addEventListener('begin-stream', onEvent('begin-stream'), options);
+    element.addEventListener('error', onError, options);
+    element.addEventListener('finished', onFinished, options);
+    element.addEventListener('step-change', onEvent('step-change'), options);
+    element.addEventListener('frame-results', onEvent('frame-results'), options);
+    element.addEventListener('stop-stream', onEvent('stop-stream'), options);
+    element.addEventListener('video-frame-quality', onEvent('video-frame-quality'), options);
+    element.addEventListener('ws-open', onEvent('ws-open'), options);
+    element.addEventListener('ws-close', onEvent('ws-close'), options);
   };
 
-  const applyConfig = (el: RecognizeRootElement): void => {
-    const target = el as unknown as Record<string, unknown>;
-    for (const [k, v] of Object.entries(effectiveConfig)) {
-      if (v !== undefined) {
-        target[k === 'key' ? 'publicKey' : k] = v;
+  const setAttributes = (element: RecognizeWebComponent): void => {
+    for (const [k, v] of Object.entries(config)) {
+      if (k === 'key') {
+        element.publicKey = v;
+      } else {
+        element[k as keyof RecognizeWebComponentConfiguration] = v;
       }
     }
   };
 
-  const client: RecognizeWcClient = {
-    subscribe: (observer: RecognizeWcObserver): RecognizeWcUnsubscribe => {
+  const client: RecognizeWebComponentClient = {
+    subscribe: (observer: RecognizeWebComponentObserver): RecognizeWebComponentUnsubscribe => {
       observers.add(observer);
       return () => observers.delete(observer);
     },
 
-    async init(options: RecognizeWcInitOptions): Promise<void | RecognizeError> {
+    async init(options: RecognizeWebComponentInitOptions): Promise<void> {
       if (element !== null) {
-        throw new Error(
-          'recognize: init() called more than once — call dispose() before re-initializing',
-        );
+        throw new RecognizeError(RecognizeErrorCode.SDK_ERROR, {
+          cause: 'init() called more than once — call dispose() before re-initializing',
+        });
       }
 
       try {
-        await import('./recognize-sdk/index.js' as string);
-      } catch {
-        return createRecognizeError(RecognizeErrorCode.SDK_ERROR);
+        await import('./recognize-sdk/index.js');
+      } catch (error: unknown) {
+        throw new RecognizeError(RecognizeErrorCode.SDK_WEB_ASSEMBLY_IMPORT_FAILED, {
+          cause: error,
+        });
       }
 
       if (options.mode === 'attach') {
-        const tag = options.element.tagName;
+        const tag: string = options.element.tagName;
 
         if (tag !== 'KL-AUTH' && tag !== 'KL-ENROLL') {
-          throw new Error(
-            `recognize: invalid element <${tag.toLowerCase()}> — options.element must be a <kl-auth> or <kl-enroll> custom element`,
-          );
+          throw new RecognizeError(RecognizeErrorCode.SDK_ERROR, {
+            cause: `invalid element <${tag.toLowerCase()}> — options.element must be a <kl-auth> or <kl-enroll> custom element`,
+          });
         }
 
-        element = options.element as RecognizeRootElement;
+        element = options.element as RecognizeWebComponent;
         element.username = options.username;
 
-        applyConfig(element);
-        attachListeners(element);
+        setAttributes(element);
+        addEventListeners(element);
       } else {
-        const tag = options.type === 'auth' ? 'kl-auth' : 'kl-enroll';
+        const tag: 'kl-auth' | 'kl-enroll' = options.type === 'auth' ? 'kl-auth' : 'kl-enroll';
 
-        element = document.createElement(tag) as RecognizeRootElement;
+        element = document.createElement(tag);
         element.username = options.username;
 
-        applyConfig(element);
-        attachListeners(element);
+        setAttributes(element);
+        addEventListeners(element);
 
         options.container.appendChild(element);
       }
@@ -125,12 +147,16 @@ export function recognize(config: RecognizeWcConfig): RecognizeWcClient {
     dispose: (): void => {
       if (element === null) return;
 
-      abortController = null;
+      aborter = null;
+
       element.remove();
       element = null;
+
       observers.clear();
     },
   };
 
   return client;
 }
+
+export { RecognizeError };

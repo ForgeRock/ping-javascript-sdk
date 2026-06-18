@@ -1,18 +1,18 @@
-export { recognize } from './lib/recognize.js';
+export { recognize, RecognizeError } from './lib/recognize.js';
 export { RecognizeErrorCode } from './lib/defs/recognize-error-code.js';
-export type { RecognizeError } from './lib/recognize.types.js';
 export type {
   RecognizeSessionType,
-  RecognizeWcClient,
-  RecognizeWcCompleteDetail,
-  RecognizeWcConfig,
-  RecognizeWcEvent,
-  RecognizeWcFrameResultsEventDetail,
-  RecognizeWcInitOptions,
-  RecognizeWcObserver,
-  RecognizeWcStepChangeEventDetail,
-  RecognizeWcUnsubscribe,
-  RecognizeWcVideoFrameQualityEventDetail,
-  RecognizeWcWebSocketCloseEventDetail,
-  RecognizeWcWebSocketOpenEventDetail,
+  RecognizeWebComponent,
+  RecognizeWebComponentClient,
+  RecognizeWebComponentCompleteData,
+  RecognizeWebComponentConfiguration,
+  RecognizeWebComponentEvent,
+  RecognizeWebComponentFrameResultsEventDetail,
+  RecognizeWebComponentInitOptions,
+  RecognizeWebComponentObserver,
+  RecognizeWebComponentStepChangeEventDetail,
+  RecognizeWebComponentUnsubscribe,
+  RecognizeWebComponentVideoFrameQualityEventDetail,
+  RecognizeWebComponentWebSocketCloseEventDetail,
+  RecognizeWebComponentWebSocketOpenEventDetail,
 } from './lib/recognize.types.js';

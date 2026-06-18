@@ -11,15 +11,17 @@
 
 import { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import { recognize } from './recognize.js';
+import { RecognizeWebComponentConfiguration } from './recognize.types.js';
 
 vi.mock('./recognize-sdk/index.js', () => ({}));
 
-const CONFIG = {
+const CONFIG: RecognizeWebComponentConfiguration = {
+  authorizationToken: 'USER_AUTHORIZATION_FROM_CUSTOMER',
   customer: 'CUSTOMER_NAME',
   key: 'IMAGE_ENCRYPTION_PUBLIC_KEY',
   keyID: 'IMAGE_ENCRYPTION_KEY_ID',
-  wsURL: 'ws://localhost',
   transactionData: 'DATA_FROM_CUSTOMER_SERVER_TO_BE_SIGNED',
+  wsURL: 'ws://localhost',
 };
 
 describe('recognize — subscribe / unsubscribe', () => {
@@ -63,9 +65,18 @@ describe('recognize — init', () => {
 
     await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
 
-    await expect(
-      client.init({ mode: 'mount', container, type: 'auth', username: 'user' }),
-    ).rejects.toThrow('init() called more than once');
+    try {
+      await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      if (e instanceof Error) {
+        expect(e.message).toBe('SDK_ERROR');
+        expect(e.cause).toBe(
+          'init() called more than once — call dispose() before re-initializing',
+        );
+      }
+    }
 
     client.dispose();
   });
@@ -98,9 +109,18 @@ describe('recognize — init', () => {
     const client = recognize(CONFIG);
     const div = document.createElement('div');
 
-    await expect(client.init({ mode: 'attach', element: div, username: 'user' })).rejects.toThrow(
-      'invalid element <div>',
-    );
+    try {
+      await client.init({ mode: 'attach', element: div, username: 'user' });
+    } catch (e: unknown) {
+      expect(e).toBeInstanceOf(Error);
+
+      if (e instanceof Error) {
+        expect(e.message).toBe('SDK_ERROR');
+        expect(e.cause).toBe(
+          'invalid element <div> — options.element must be a <kl-auth> or <kl-enroll> custom element',
+        );
+      }
+    }
   });
 
   it('attaches to an existing kl-auth element in attach mode', async () => {

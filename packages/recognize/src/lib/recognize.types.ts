@@ -19,91 +19,106 @@ import type {
   KeylessWebSocketOpenEventDetail,
 } from './recognize-sdk/index.js';
 
-export type { RecognizeError };
-
-/** @public */
-export type RecognizeRootElement = KeylessAuthElement | KeylessEnrollElement;
+declare global {
+  interface HTMLElementTagNameMap {
+    'kl-auth': KeylessAuthElement;
+    'kl-enroll': KeylessEnrollElement;
+  }
+}
 
 /** @public */
 export type RecognizeSessionType = 'auth' | 'enroll';
 
+/**
+ * Events
+ */
+/** */
 /** @public */
-export type RecognizeWcStepChangeEventDetail = KeylessStepChangeEventDetail;
+export type RecognizeWebComponentFrameResultsEventDetail = KeylessFrameResultsEventDetail;
 
 /** @public */
-export type RecognizeWcFrameResultsEventDetail = KeylessFrameResultsEventDetail;
+export type RecognizeWebComponentStepChangeEventDetail = KeylessStepChangeEventDetail;
 
 /** @public */
-export type RecognizeWcVideoFrameQualityEventDetail = KeylessVideoFrameQualityEventDetail;
+export type RecognizeWebComponentVideoFrameQualityEventDetail = KeylessVideoFrameQualityEventDetail;
 
 /** @public */
-export type RecognizeWcWebSocketOpenEventDetail = KeylessWebSocketOpenEventDetail;
+export type RecognizeWebComponentWebSocketCloseEventDetail = KeylessWebSocketCloseEventDetail;
 
 /** @public */
-export type RecognizeWcWebSocketCloseEventDetail = KeylessWebSocketCloseEventDetail;
+export type RecognizeWebComponentWebSocketOpenEventDetail = KeylessWebSocketOpenEventDetail;
+
+/**
+ * Web Components Client
+ */
+/** */
 
 /** @public */
-export type RecognizeWcEvent =
-  | { type: 'step-change'; detail: RecognizeWcStepChangeEventDetail }
-  | { type: 'error'; detail: RecognizeError }
-  | { type: 'frame-results'; detail: RecognizeWcFrameResultsEventDetail }
-  | { type: 'video-frame-quality'; detail: RecognizeWcVideoFrameQualityEventDetail }
-  | { type: 'ws-open'; detail: RecognizeWcWebSocketOpenEventDetail }
-  | { type: 'ws-close'; detail: RecognizeWcWebSocketCloseEventDetail };
-
-/** @public */
-export type RecognizeWcCompleteDetail = KeylessFinishedEventDetail;
-
-/** @public */
-export interface RecognizeWcObserver {
-  next: (event: RecognizeWcEvent) => void;
-  error?: (error: RecognizeError) => void;
-  complete?: (detail: RecognizeWcCompleteDetail) => void;
-}
-
-/** @public */
-export type RecognizeWcUnsubscribe = () => void;
-
-/** @public */
-export type RecognizeWcInitOptions =
-  | { mode: 'mount'; container: HTMLElement; type: RecognizeSessionType; username: string }
-  | { mode: 'attach'; element: HTMLElement; username: string };
-
-/** @public */
-export interface RecognizeWcClient {
-  subscribe: (observer: RecognizeWcObserver) => RecognizeWcUnsubscribe;
-  init(options: RecognizeWcInitOptions): Promise<void | RecognizeError>;
+export interface RecognizeWebComponentClient {
+  subscribe: (observer: RecognizeWebComponentObserver) => RecognizeWebComponentUnsubscribe;
+  init(options: RecognizeWebComponentInitOptions): Promise<void | RecognizeError>;
   dispose: () => void;
 }
 
 /** @public */
-export interface RecognizeWcConfig {
-  customer: string;
-  key: string;
-  keyID: string;
-  wsURL: string;
+export type RecognizeWebComponentCompleteData = KeylessFinishedEventDetail;
+
+/** @public */
+export interface RecognizeWebComponentConfiguration {
   authorizationToken?: string;
-  disableSteps?: string[];
+  customer: string;
   datadogEnv?: string;
   datadogToken?: string;
   disableDatadog?: boolean;
   disableLogger?: boolean;
   disablePoweredBy?: boolean;
+  disableSteps?: string[];
   enableCameraFlash?: boolean;
   enableCameraInstructions?: boolean;
   enableCameraInstructionsIcons?: boolean;
   enableWasmPthreads?: boolean;
+  key: string;
+  keyID: string;
   lang?: string;
   localizationPacks?: unknown[];
   localizationVariables?: unknown;
   loggerLevel?: string;
   operationID?: string;
   seedEntropy?: boolean;
-  transactionData?: string;
   theme?: unknown;
   themeOptions?: unknown;
+  transactionData?: string;
   wasmBinaryURL?: string;
   wasmDataURL?: string;
   wasmScriptURL?: string;
   wsTimeout?: number;
+  wsURL: string;
 }
+
+/** @public */
+export type RecognizeWebComponent = KeylessAuthElement | KeylessEnrollElement;
+
+/** @public */
+export type RecognizeWebComponentEvent =
+  | { type: 'begin-stream'; detail: void }
+  | { type: 'frame-results'; detail: RecognizeWebComponentFrameResultsEventDetail }
+  | { type: 'step-change'; detail: RecognizeWebComponentStepChangeEventDetail }
+  | { type: 'stop-stream'; detail: void }
+  | { type: 'video-frame-quality'; detail: RecognizeWebComponentVideoFrameQualityEventDetail }
+  | { type: 'ws-close'; detail: RecognizeWebComponentWebSocketCloseEventDetail }
+  | { type: 'ws-open'; detail: RecognizeWebComponentWebSocketOpenEventDetail };
+
+/** @public */
+export type RecognizeWebComponentInitOptions =
+  | { mode: 'mount'; container: HTMLElement; type: RecognizeSessionType; username: string }
+  | { mode: 'attach'; element: HTMLElement; username: string };
+
+/** @public */
+export interface RecognizeWebComponentObserver {
+  next: (event: RecognizeWebComponentEvent) => void;
+  error?: (error: RecognizeError) => void;
+  complete?: (data: RecognizeWebComponentCompleteData) => void;
+}
+
+/** @public */
+export type RecognizeWebComponentUnsubscribe = () => void;
