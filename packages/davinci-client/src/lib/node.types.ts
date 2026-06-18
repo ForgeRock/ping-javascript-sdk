@@ -14,6 +14,7 @@ import type {
   IdpCollector,
   SubmitCollector,
   ActionCollector,
+  BooleanCollector,
   ValidatedBooleanCollector,
   SingleValueCollector,
   SingleSelectCollector,
@@ -30,7 +31,6 @@ import type {
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   QrCodeCollector,
-  AgreementCollector,
   PhoneNumberExtensionCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
@@ -40,6 +40,7 @@ export type Collectors =
   | PasswordCollector
   | ValidatedPasswordCollector
   | TextCollector
+  | BooleanCollector
   | ValidatedBooleanCollector
   | SingleSelectCollector
   | IdpCollector
@@ -59,7 +60,6 @@ export type Collectors =
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
   | QrCodeCollector
-  | AgreementCollector
   | UnknownCollector;
 
 export interface CollectorErrors {

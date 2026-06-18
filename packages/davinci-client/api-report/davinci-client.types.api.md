@@ -72,29 +72,12 @@ export interface ActionCollectorWithUrl<T extends ActionCollectorTypes> {
 export { ActionTypes }
 
 // @public (undocumented)
-export interface AgreementCollector extends NoValueCollectorBase<'AgreementCollector'> {
-    // (undocumented)
-    output: {
-        key: string;
-        label: string;
-        type: string;
-        titleEnabled: boolean;
-        title: string;
-        agreement: {
-            id: string;
-            useDynamicAgreement: boolean;
-        };
-        enabled: boolean;
-    };
-}
-
-// @public (undocumented)
 export type AgreementField = {
     type: 'AGREEMENT';
     key: string;
     content: string;
     titleEnabled: boolean;
-    title: string;
+    title?: string;
     agreement: {
         id: string;
         useDynamicAgreement: boolean;
@@ -163,6 +146,15 @@ export type AutoCollectors = ProtectCollector | FidoRegistrationCollector | Fido
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
 
 // @public (undocumented)
+export interface BooleanCollector extends SingleValueCollectorWithValue<'BooleanCollector', boolean> {
+    // (undocumented)
+    output: SingleValueCollectorWithValue<'BooleanCollector', boolean>['output'] & {
+        appearance: string;
+        richContent?: CollectorRichContent;
+    };
+}
+
+// @public (undocumented)
 export interface CollectorErrors {
     // (undocumented)
     code: string;
@@ -181,7 +173,7 @@ export interface CollectorRichContent {
 }
 
 // @public (undocumented)
-export type Collectors = FlowCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | AgreementCollector | UnknownCollector;
+export type Collectors = FlowCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | UnknownCollector;
 
 // @public
 export type CollectorValueType<T> = T extends {
@@ -205,6 +197,8 @@ export type CollectorValueType<T> = T extends {
     type: 'TextCollector';
     category: 'ValidatedSingleValueCollector';
 } ? string : T extends {
+    type: 'BooleanCollector';
+} | {
     type: 'ValidatedBooleanCollector';
 } ? boolean : T extends {
     type: 'MultiSelectCollector';
@@ -230,7 +224,7 @@ export type CollectorValueType<T> = T extends {
     category: 'NoValueCollector';
 } ? never : CollectorValueTypes;
 
-// @public (undocumented)
+// @public
 export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue;
 
 // @public (undocumented)
@@ -289,13 +283,11 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     resume: (input: {
         continueToken: string;
     }) => Promise<InternalErrorResponse | NodeStates>;
-    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | StartNode | ErrorNode | FailureNode | SuccessNode>;
+    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
     getClient: () => {
-        status: "start";
-    } | {
         action: string;
         collectors: Collectors[];
         description?: string;
@@ -309,6 +301,8 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         status: "error";
     } | {
         status: "failure";
+    } | {
+        status: "start";
     } | {
         authorization?: {
             code?: string;
@@ -319,7 +313,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     getCollectors: () => Collectors[];
     getError: () => DaVinciError | null;
     getErrorCollectors: () => CollectorErrors[];
-    getNode: () => ContinueNode | StartNode | ErrorNode | FailureNode | SuccessNode;
+    getNode: () => ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
     getServer: () => {
         _links?: Links;
         id?: string;
@@ -328,8 +322,6 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         href?: string;
         eventName?: string;
         status: "continue";
-    } | {
-        status: "start";
     } | {
         _links?: Links;
         eventName?: string;
@@ -345,6 +337,8 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         interactionId?: string;
         interactionToken?: string;
         status: "failure";
+    } | {
+        status: "start";
     } | {
         _links?: Links;
         eventName?: string;
@@ -962,10 +956,10 @@ export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'Pr
 export type InferMultiValueCollectorType<T extends MultiValueCollectorTypes> = T extends 'MultiSelectCollector' ? MultiValueCollectorWithValue<'MultiSelectCollector'> : MultiValueCollectorWithValue<'MultiValueCollector'> | MultiValueCollectorNoValue<'MultiValueCollector'>;
 
 // @public
-export type InferNoValueCollectorType<T extends NoValueCollectorTypes> = T extends 'ReadOnlyCollector' ? ReadOnlyCollector : T extends 'RichTextCollector' ? RichTextCollector : T extends 'QrCodeCollector' ? QrCodeCollector : T extends 'AgreementCollector' ? AgreementCollector : NoValueCollectorBase<'NoValueCollector'>;
+export type InferNoValueCollectorType<T extends NoValueCollectorTypes> = T extends 'ReadOnlyCollector' ? ReadOnlyCollector : T extends 'RichTextCollector' ? RichTextCollector : T extends 'QrCodeCollector' ? QrCodeCollector : NoValueCollectorBase<'NoValueCollector'>;
 
 // @public
-export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> = T extends 'TextCollector' ? TextCollector : T extends 'SingleSelectCollector' ? SingleSelectCollector : T extends 'ValidatedTextCollector' ? ValidatedTextCollector : T extends 'PasswordCollector' ? PasswordCollector : T extends 'ValidatedPasswordCollector' ? ValidatedPasswordCollector : T extends 'ValidatedBooleanCollector' ? ValidatedBooleanCollector : SingleValueCollectorWithValue<'SingleValueCollector'> | SingleValueCollectorNoValue<'SingleValueCollector'>;
+export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> = T extends 'TextCollector' ? TextCollector : T extends 'SingleSelectCollector' ? SingleSelectCollector : T extends 'ValidatedTextCollector' ? ValidatedTextCollector : T extends 'PasswordCollector' ? PasswordCollector : T extends 'ValidatedPasswordCollector' ? ValidatedPasswordCollector : T extends 'BooleanCollector' ? BooleanCollector : T extends 'ValidatedBooleanCollector' ? ValidatedBooleanCollector : SingleValueCollectorWithValue<'SingleValueCollector'> | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 // @public (undocumented)
 export type InferValueObjectCollectorType<T extends ObjectValueCollectorTypes> = T extends 'DeviceAuthenticationCollector' ? DeviceAuthenticationCollector : T extends 'DeviceRegistrationCollector' ? DeviceRegistrationCollector : T extends 'PhoneNumberCollector' ? PhoneNumberCollector : T extends 'PhoneNumberExtensionCollector' ? PhoneNumberExtensionCollector : ObjectOptionsCollectorWithObjectValue<'ObjectValueCollector'> | ObjectOptionsCollectorWithStringValue<'ObjectValueCollector'>;
@@ -1134,10 +1128,10 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
 }
 
 // @public (undocumented)
-export type NoValueCollectors = NoValueCollectorBase<'NoValueCollector'> | ReadOnlyCollector | RichTextCollector | QrCodeCollector | AgreementCollector;
+export type NoValueCollectors = NoValueCollectorBase<'NoValueCollector'> | ReadOnlyCollector | RichTextCollector | QrCodeCollector;
 
 // @public
-export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'RichTextCollector' | 'NoValueCollector' | 'QrCodeCollector' | 'AgreementCollector';
+export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'RichTextCollector' | 'NoValueCollector' | 'QrCodeCollector';
 
 // @public
 export interface OAuthDetails {
@@ -1507,6 +1501,7 @@ export interface ReadOnlyCollector extends NoValueCollectorBase<'ReadOnlyCollect
     // (undocumented)
     output: NoValueCollectorBase<'ReadOnlyCollector'>['output'] & {
         content: string;
+        title?: string;
     };
 }
 
@@ -1585,7 +1580,7 @@ export type SingleCheckboxField = {
     inputType: 'BOOLEAN';
     key: string;
     label: string;
-    required: boolean;
+    required?: boolean;
     errorMessage?: string;
     appearance: string;
     richContent?: RichContent;
@@ -1698,10 +1693,10 @@ export interface SingleValueCollectorNoValue<T extends SingleValueCollectorTypes
 }
 
 // @public (undocumented)
-export type SingleValueCollectors = ValidatedPasswordCollector | PasswordCollector | SingleSelectCollector | TextCollector | ValidatedTextCollector | ValidatedBooleanCollector | SingleValueCollectorWithValue<'SingleValueCollector'>;
+export type SingleValueCollectors = PasswordCollector | ValidatedPasswordCollector | SingleSelectCollector | TextCollector | ValidatedTextCollector | BooleanCollector | ValidatedBooleanCollector | SingleValueCollectorWithValue<'SingleValueCollector'>;
 
 // @public
-export type SingleValueCollectorTypes = 'PasswordCollector' | 'ValidatedPasswordCollector' | 'ValidatedBooleanCollector' | 'SingleValueCollector' | 'SingleSelectCollector' | 'SingleSelectObjectCollector' | 'TextCollector' | 'ValidatedTextCollector';
+export type SingleValueCollectorTypes = 'PasswordCollector' | 'ValidatedPasswordCollector' | 'BooleanCollector' | 'ValidatedBooleanCollector' | 'SingleValueCollector' | 'SingleSelectCollector' | 'SingleSelectObjectCollector' | 'TextCollector' | 'ValidatedTextCollector';
 
 // @public (undocumented)
 export interface SingleValueCollectorWithValue<T extends SingleValueCollectorTypes, V = string> {
@@ -1850,6 +1845,9 @@ export interface ValidatedBooleanCollector extends ValidatedSingleValueCollector
     };
 }
 
+// @public
+export type ValidatedCollectors = ValidatedTextCollector | ValidatedBooleanCollector | ValidatedPasswordCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors;
+
 // @public (undocumented)
 export type ValidatedField = {
     type: 'TEXT';
@@ -1952,7 +1950,7 @@ export interface ValidationRequired {
 }
 
 // @public
-export type Validator<T = ValidatedTextCollector | ValidatedBooleanCollector | ValidatedPasswordCollector | ObjectValueCollectors | MultiValueCollectors | AutoCollectors> = (value: CollectorValueType<T>) => string[] | {
+export type Validator<T extends ValidatedCollectors = ValidatedCollectors> = (value: CollectorValueType<T>) => string[] | {
     error: {
         message: string;
         type: string;

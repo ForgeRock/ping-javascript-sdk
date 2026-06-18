@@ -29,6 +29,9 @@ export interface InternalErrorResponse {
 
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
 
+/**
+ * Allowed value types accepted by collector updaters
+ */
 export type CollectorValueTypes =
   | string
   | string[]
@@ -67,7 +70,7 @@ export type CollectorValueType<T> =
       : T extends { type: 'TextCollector'; category: 'ValidatedSingleValueCollector' }
         ? string
         : // boolean input types
-          T extends { type: 'ValidatedBooleanCollector' }
+          T extends { type: 'BooleanCollector' } | { type: 'ValidatedBooleanCollector' }
           ? boolean
           : // string[] input types
             T extends { type: 'MultiSelectCollector' }
@@ -82,6 +85,7 @@ export type CollectorValueType<T> =
                   : T extends { type: 'FidoAuthenticationCollector' }
                     ? FidoAuthenticationInputValue
                     : // category catch-alls
+                      // fallbacks for collectors that don't match on `type`
                       T extends { category: 'SingleValueCollector' }
                       ? string
                       : T extends { category: 'ValidatedSingleValueCollector' }
@@ -111,20 +115,25 @@ export type Updater<T = unknown> = (
 ) => InternalErrorResponse | null;
 
 /**
+ * Collectors which can be validated
+ */
+export type ValidatedCollectors =
+  | ValidatedTextCollector
+  | ValidatedBooleanCollector
+  | ValidatedPasswordCollector
+  | ObjectValueCollectors
+  | MultiValueCollectors
+  | AutoCollectors;
+
+/**
  * Validates a collector's current value and returns any validation errors.
  *
  * @param value - The current value of the collector to validate.
  * @returns An array of error message strings, or an error object. Returns an empty array when validation passes.
  */
-export type Validator<
-  T =
-    | ValidatedTextCollector
-    | ValidatedBooleanCollector
-    | ValidatedPasswordCollector
-    | ObjectValueCollectors
-    | MultiValueCollectors
-    | AutoCollectors,
-> = (value: CollectorValueType<T>) =>
+export type Validator<T extends ValidatedCollectors = ValidatedCollectors> = (
+  value: CollectorValueType<T>,
+) =>
   | string[]
   | {
       error: {

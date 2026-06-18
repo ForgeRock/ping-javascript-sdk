@@ -20,9 +20,10 @@ import type {
   PollingCollector,
   ProtectCollector,
   QrCodeCollector,
-  AgreementCollector,
+  ReadOnlyCollector,
   SubmitCollector,
   TextCollector,
+  BooleanCollector,
   ValidatedBooleanCollector,
 } from './collector.types.js';
 import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
@@ -484,22 +485,17 @@ describe('The node collector reducer', () => {
       {
         category: 'NoValueCollector',
         error: null,
-        type: 'AgreementCollector',
+        type: 'ReadOnlyCollector',
         id: 'agreement-field-0',
         name: 'agreement-field-0',
         output: {
           key: 'agreement-field-0',
           label: 'Please accept the terms and conditions',
           type: 'AGREEMENT',
-          titleEnabled: true,
+          content: 'Please accept the terms and conditions',
           title: 'Terms and Conditions',
-          agreement: {
-            id: 'agreement-123',
-            useDynamicAgreement: false,
-          },
-          enabled: true,
         },
-      } satisfies AgreementCollector,
+      } satisfies ReadOnlyCollector,
     ]);
   });
 });
@@ -1618,7 +1614,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
             inputType: 'BOOLEAN',
             key: 'accept-terms',
             label: 'Accept Terms',
-            required: false,
+            required: true,
           },
         ],
         formData: {},
@@ -1636,7 +1632,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           key: 'accept-terms',
           value: false,
           type: 'SINGLE_CHECKBOX',
-          validation: [],
+          validation: [{ type: 'required', message: 'Value cannot be empty', rule: true }],
         },
         output: {
           key: 'accept-terms',
@@ -1778,7 +1774,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
             inputType: 'BOOLEAN',
             key: 'accept-terms',
             label: 'Accept Terms',
-            required: false,
+            required: true,
             appearance: 'checkbox',
             richContent: {
               content: 'I agree to the {{tos}}',
@@ -1808,7 +1804,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           key: 'accept-terms',
           value: false,
           type: 'SINGLE_CHECKBOX',
-          validation: [],
+          validation: [{ type: 'required', message: 'Value cannot be empty', rule: true }],
         },
         output: {
           key: 'accept-terms',
@@ -1830,6 +1826,203 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           },
         },
       } satisfies ValidatedBooleanCollector,
+    ]);
+  });
+});
+
+describe('The node collector reducer with BooleanCollector', () => {
+  it('should produce a BooleanCollector from a non-required SINGLE_CHECKBOX field', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: false,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: '',
+        },
+      } satisfies BooleanCollector,
+    ]);
+  });
+
+  it('should produce a BooleanCollector when field.required is absent', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: '',
+        },
+      } satisfies BooleanCollector,
+    ]);
+  });
+
+  it('should handle collector updates (toggle to true)', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'accept-terms-0',
+        value: true,
+      },
+    };
+    const state: BooleanCollector[] = [
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+        },
+      },
+    ];
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: true,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+        },
+      },
+    ]);
+  });
+
+  it('should normalise richContent replacements from Record to RichContentLink[]', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: false,
+            appearance: 'checkbox',
+            richContent: {
+              content: 'I agree to the {{tos}}',
+              replacements: {
+                tos: {
+                  type: 'link',
+                  value: 'Terms of Service',
+                  href: 'https://example.com/tos',
+                  target: '_blank',
+                },
+              },
+            },
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+          richContent: {
+            content: 'I agree to the {{tos}}',
+            replacements: [
+              {
+                key: 'tos',
+                type: 'link',
+                value: 'Terms of Service',
+                href: 'https://example.com/tos',
+                target: '_blank',
+              },
+            ],
+          },
+        },
+      } satisfies BooleanCollector,
     ]);
   });
 });

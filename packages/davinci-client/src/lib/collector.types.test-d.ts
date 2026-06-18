@@ -28,7 +28,6 @@ import type {
   ReadOnlyCollector,
   RichTextCollector,
   QrCodeCollector,
-  AgreementCollector,
   PhoneNumberCollector,
   PhoneNumberExtensionCollector,
   ObjectValueCollectorWithObjectValue,
@@ -630,28 +629,23 @@ describe('Collector Types', () => {
       expectTypeOf(tCollector).toEqualTypeOf<QrCodeCollector>();
     });
 
-    it('should correctly infer AgreementCollector Type', () => {
-      const tCollector: InferNoValueCollectorType<'AgreementCollector'> = {
+    it('should correctly infer ReadOnlyCollector Type for AGREEMENT fields', () => {
+      const tCollector: InferNoValueCollectorType<'ReadOnlyCollector'> = {
         category: 'NoValueCollector',
         error: null,
-        type: 'AgreementCollector',
+        type: 'ReadOnlyCollector',
         id: 'agreement-0',
         name: 'agreement-0',
         output: {
           key: 'agreement-0',
           label: 'Please accept the terms and conditions',
           type: 'AGREEMENT',
-          titleEnabled: true,
+          content: 'Please accept the terms and conditions',
           title: 'Terms and Conditions',
-          agreement: {
-            id: 'agreement-123',
-            useDynamicAgreement: false,
-          },
-          enabled: true,
         },
       };
 
-      expectTypeOf(tCollector).toEqualTypeOf<AgreementCollector>();
+      expectTypeOf(tCollector).toEqualTypeOf<ReadOnlyCollector>();
     });
   });
 

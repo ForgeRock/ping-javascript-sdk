@@ -35,10 +35,10 @@ import type {
   ReadOnlyCollector,
   RichTextCollector,
   RichContentLink,
-  AgreementCollector,
   PhoneNumberExtensionOutputValue,
   PasswordCollector,
   ValidatedPasswordCollector,
+  BooleanCollector,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
@@ -274,6 +274,35 @@ export function returnSingleValueCollector<
         options: options,
       },
     } as InferSingleValueCollectorType<'SingleSelectCollector'>;
+  } else if (collectorType === 'BooleanCollector') {
+    const richContent =
+      'richContent' in field && field.richContent
+        ? {
+            content: field.richContent.content,
+            replacements: normalizeReplacements(field.richContent.replacements ?? {}),
+          }
+        : undefined;
+
+    return {
+      category: 'SingleValueCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: false,
+        type: field.type,
+      },
+      output: {
+        key: field.key,
+        label: field.label,
+        type: field.type,
+        value: false,
+        appearance: ('appearance' in field && field.appearance) || '',
+        ...(richContent && { richContent }),
+      },
+    } as InferSingleValueCollectorType<'BooleanCollector'>;
   } else if (collectorType === 'ValidatedBooleanCollector') {
     const validationArray = [];
     if ('required' in field && field.required === true) {
@@ -583,6 +612,16 @@ export function returnTextCollector(field: StandardField, idx: number, data: str
  */
 export function returnSingleSelectCollector(field: SingleSelectField, idx: number, data: string) {
   return returnSingleValueCollector(field, idx, 'SingleSelectCollector', data);
+}
+
+/**
+ * @function returnBooleanCollector - Creates a BooleanCollector (no validation).
+ * @param {SingleCheckboxField} field - The field object containing key, label, type.
+ * @param {number} idx - The index to be used in the id of the BooleanCollector.
+ * @returns {BooleanCollector} The constructed BooleanCollector object.
+ */
+export function returnBooleanCollector(field: SingleCheckboxField, idx: number): BooleanCollector {
+  return returnSingleValueCollector(field, idx, 'BooleanCollector') as BooleanCollector;
 }
 
 /**
@@ -936,10 +975,10 @@ export function returnNoValueCollector<
  * @returns {ReadOnlyCollector | RichTextCollector} The constructed collector.
  */
 export function returnReadOnlyCollector(
-  field: ReadOnlyField,
+  field: ReadOnlyField | AgreementField,
   idx: number,
 ): ReadOnlyCollector | RichTextCollector {
-  if (field.richContent) {
+  if (field.type === 'LABEL' && field.richContent) {
     const base = returnNoValueCollector(field, idx, 'RichTextCollector');
     return {
       ...base,
@@ -960,6 +999,7 @@ export function returnReadOnlyCollector(
     output: {
       ...base.output,
       content: field.content,
+      ...(field.type === 'AGREEMENT' && field.titleEnabled && { title: field.title ?? '' }),
     },
   };
 }
@@ -979,29 +1019,6 @@ export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCo
       ...base.output,
       label: field.fallbackText || '',
       src: field.content || '',
-    },
-  };
-}
-
-/**
- * @function returnAgreementCollector - Creates an AgreementCollector object based on the provided field and index.
- * @param {AgreementField} field - The field object containing key, label, type, and agreement details.
- * @param {number} idx - The index to be used in the id of the AgreementCollector.
- * @returns {AgreementCollector} The constructed AgreementCollector object.
- */
-export function returnAgreementCollector(field: AgreementField, idx: number): AgreementCollector {
-  const base = returnNoValueCollector(field, idx, 'AgreementCollector');
-  return {
-    ...base,
-    output: {
-      ...base.output,
-      titleEnabled: field.titleEnabled,
-      title: field.title,
-      agreement: {
-        id: field.agreement?.id ?? '',
-        useDynamicAgreement: field.agreement?.useDynamicAgreement ?? false,
-      },
-      enabled: field.enabled ?? false,
     },
   };
 }
