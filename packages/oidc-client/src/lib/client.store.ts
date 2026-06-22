@@ -65,7 +65,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   };
   storage?: Partial<StorageConfig>;
 }) {
-  const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
+  const log = loggerFn({
+    level: logger?.level ?? config.log ?? 'error',
+    custom: logger?.custom,
+  });
   const oauthThreshold = config.oauthThreshold || 30 * 1000; // Default to 30 seconds
   const storageClient = createStorage<OauthTokens>({
     type: storage?.type || 'localStorage',
@@ -172,6 +175,13 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           redirectUri: config.redirectUri,
           scope: config.scope || 'openid',
           responseType: config.responseType || 'code',
+          ...(config.loginHint !== undefined && { loginHint: config.loginHint }),
+          ...(config.nonce !== undefined && { nonce: config.nonce }),
+          ...(config.display !== undefined && { display: config.display }),
+          ...(config.prompt !== undefined && { prompt: config.prompt }),
+          ...(config.uiLocales !== undefined && { uiLocales: config.uiLocales }),
+          ...(config.acrValues !== undefined && { acrValues: config.acrValues }),
+          ...(config.query !== undefined && { query: config.query }),
           ...options,
         };
 

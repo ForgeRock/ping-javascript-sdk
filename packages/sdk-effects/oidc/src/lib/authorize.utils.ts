@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -29,6 +29,11 @@ export function buildAuthorizeParams(
 
   if (options.responseMode) params.set('response_mode', options.responseMode);
   if (options.prompt) params.set('prompt', options.prompt);
+  if (options.loginHint) params.set('login_hint', options.loginHint);
+  if (options.nonce) params.set('nonce', options.nonce);
+  if (options.display) params.set('display', options.display);
+  if (options.uiLocales) params.set('ui_locales', options.uiLocales);
+  if (options.acrValues) params.set('acr_values', options.acrValues);
 
   return params;
 }

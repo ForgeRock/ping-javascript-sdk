@@ -5,7 +5,6 @@
 ```ts
 
 import { ActionTypes } from '@forgerock/sdk-request-middleware';
-import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
 import { BaseQueryFn } from '@reduxjs/toolkit/query';
 import { CombinedState } from '@reduxjs/toolkit/query';
 import { CustomLogger } from '@forgerock/sdk-logger';
@@ -20,6 +19,7 @@ import { logger } from '@forgerock/sdk-logger';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { LogMessage } from '@forgerock/sdk-logger';
 import { MutationDefinition } from '@reduxjs/toolkit/query';
+import { OidcConfig } from '@forgerock/sdk-types';
 import { QueryDefinition } from '@reduxjs/toolkit/query';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { ResponseType as ResponseType_2 } from '@forgerock/sdk-types';
@@ -146,6 +146,7 @@ url: string;
 endSession: MutationDefinition<    {
 idToken: string;
 endpoint: string;
+signOutRedirectUri?: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
 exchange: MutationDefinition<    {
 code: string;
@@ -193,6 +194,7 @@ url: string;
 endSession: MutationDefinition<    {
 idToken: string;
 endpoint: string;
+signOutRedirectUri?: string;
 }, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
 exchange: MutationDefinition<    {
 code: string;
@@ -311,24 +313,7 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
 // @public (undocumented)
 export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 
-// @public (undocumented)
-export interface OidcConfig extends AsyncLegacyConfigOptions {
-    // (undocumented)
-    clientId: string;
-    // (undocumented)
-    par?: boolean;
-    // (undocumented)
-    redirectUri: string;
-    // (undocumented)
-    responseType?: ResponseType_2;
-    // (undocumented)
-    scope: string;
-    // (undocumented)
-    serverConfig: {
-        wellknown: string;
-        timeout?: number;
-    };
-}
+export { OidcConfig }
 
 // @public (undocumented)
 export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;

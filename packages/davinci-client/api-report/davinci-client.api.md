@@ -6,8 +6,8 @@
 
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { ActionTypes } from '@forgerock/sdk-request-middleware';
-import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
 import { CustomLogger } from '@forgerock/sdk-logger';
+import type { DaVinciConfig } from '@forgerock/sdk-types';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
@@ -283,7 +283,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     resume: (input: {
         continueToken: string;
     }) => Promise<InternalErrorResponse | NodeStates>;
-    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode>;
+    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
@@ -313,7 +313,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     getCollectors: () => Collectors[];
     getError: () => DaVinciError | null;
     getErrorCollectors: () => CollectorErrors[];
-    getNode: () => ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
+    getNode: () => ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode;
     getServer: () => {
         _links?: Links;
         id?: string;
@@ -500,11 +500,7 @@ export type DaVinciCacheEntry = {
 // @public (undocumented)
 export type DavinciClient = Awaited<ReturnType<typeof davinci>>;
 
-// @public (undocumented)
-export interface DaVinciConfig extends AsyncLegacyConfigOptions {
-    // (undocumented)
-    responseType?: string;
-}
+export { DaVinciConfig }
 
 // @public (undocumented)
 export interface DaVinciError extends Omit<GenericError, 'error'> {

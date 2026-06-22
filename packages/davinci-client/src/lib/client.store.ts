@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -77,7 +77,10 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     custom?: CustomLogger;
   };
 }) {
-  const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
+  const log = loggerFn({
+    level: logger?.level ?? config.log ?? 'error',
+    custom: logger?.custom,
+  });
   const store = createClientStore({ requestMiddleware, logger: log });
   const serverInfo = createStorage<ContinueNode['server']>({
     type: 'localStorage',

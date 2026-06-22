@@ -8,6 +8,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { davinci } from './client.store.js';
+import { makeDavinciConfig } from '@forgerock/sdk-utilities';
 import type { DaVinciConfig } from './config.types.js';
 
 // ---------------------------------------------------------------------------
@@ -179,5 +180,61 @@ describe('davinci client — cache', () => {
 
       expect(result).toHaveProperty('error.type', 'state_error');
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('unified JSON config entry', () => {
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', makeStorageStub());
+    vi.stubGlobal('sessionStorage', makeStorageStub());
+    mockFetchImplementation();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('accepts unified JSON config and initializes successfully', async () => {
+    const unifiedConfig = {
+      oidc: {
+        clientId: '123456789',
+        discoveryEndpoint: TEST_WELLKNOWN_URL,
+        scopes: ['openid', 'profile'],
+        redirectUri: 'https://example.com/callback',
+      },
+    };
+
+    const client = await davinci({ config: makeDavinciConfig(unifiedConfig) });
+    expect(client).toHaveProperty('flow');
+    expect(client).toHaveProperty('subscribe');
+  });
+
+  it('throws when unified JSON config has missing required field', async () => {
+    const invalidConfig = {
+      oidc: {
+        // clientId missing
+        discoveryEndpoint: TEST_WELLKNOWN_URL,
+        scopes: ['openid'],
+        redirectUri: 'https://example.com/callback',
+      },
+    };
+
+    expect(() => makeDavinciConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
+  });
+
+  it('throws when unified JSON config has wrong field type', async () => {
+    const invalidConfig = {
+      oidc: {
+        clientId: '123',
+        discoveryEndpoint: TEST_WELLKNOWN_URL,
+        scopes: 'openid', // should be array
+        redirectUri: 'https://example.com/callback',
+      },
+    };
+
+    expect(() => makeDavinciConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
   });
 });

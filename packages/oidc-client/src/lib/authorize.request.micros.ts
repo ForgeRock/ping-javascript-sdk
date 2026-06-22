@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -17,8 +17,8 @@ import {
   hasPushRequestUri,
   isFetchBaseQueryError,
   toDispatchError,
-  type PromptValue,
 } from './authorize.request.utils.js';
+import type { AuthPromptValue } from '@forgerock/sdk-utilities';
 
 import { oidcApi } from './oidc.api.js';
 
@@ -91,7 +91,7 @@ export const buildParBodyµ = (
   parBodyOptions: OptionalAuthorizeOptions,
   challenge: string,
   state: string,
-  prompt?: PromptValue,
+  prompt?: AuthPromptValue,
 ): Micro.Micro<URLSearchParams, AuthorizationError, never> => {
   return Micro.try({
     try: () =>
@@ -216,7 +216,7 @@ export const buildParSlimUrlµ = (
   authorizationEndpoint: string,
   clientId: string,
   requestUri: string,
-  prompt?: PromptValue,
+  prompt?: AuthPromptValue,
 ): Micro.Micro<string, AuthorizationError, never> => {
   return Micro.try({
     try: () => buildParAuthorizeUrl({ authorizationEndpoint, clientId, requestUri, prompt }),

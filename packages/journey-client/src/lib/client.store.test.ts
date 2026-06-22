@@ -1,6 +1,6 @@
 // @vitest-environment node
 /*
- * Copyright (c) 2025-2026 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -9,6 +9,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import { journey } from './client.store.js';
+import { makeJourneyConfig } from '@forgerock/sdk-utilities';
 import { createJourneyStep } from './step.utils.js';
 
 import { callbackType, type GenericError, type Step, type WellknownResponse } from '../index.js';
@@ -557,6 +558,48 @@ describe('journey-client', () => {
 
       const request = mockFetch.mock.calls[1][0] as Request;
       expect(request.url).toBe('https://test.com/am/json/realms/root/realms/alpha/authenticate');
+    });
+  });
+
+  describe('unified JSON config entry', () => {
+    test('accepts unified JSON config and initializes successfully', async () => {
+      setupMockFetch();
+
+      const unifiedConfig = {
+        oidc: {
+          clientId: 'ignored-by-journey',
+          discoveryEndpoint: mockWellknownUrl,
+          scopes: ['openid'],
+          redirectUri: 'https://example.com/callback',
+        },
+      };
+
+      const client = await journey({ config: makeJourneyConfig(unifiedConfig) });
+      expect(client).toHaveProperty('start');
+      expect(client).toHaveProperty('next');
+    });
+
+    test('throws when unified JSON config has missing required field', async () => {
+      const invalidConfig = {
+        oidc: {
+          // discoveryEndpoint missing — required even for journey
+        },
+      };
+
+      expect(() => makeJourneyConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
+    });
+
+    test('throws when unified JSON config has wrong field type', async () => {
+      const invalidConfig = {
+        oidc: {
+          clientId: '123',
+          discoveryEndpoint: mockWellknownUrl,
+          scopes: 'openid', // should be array
+          redirectUri: 'https://example.com/callback',
+        },
+      };
+
+      expect(() => makeJourneyConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
     });
   });
 });
