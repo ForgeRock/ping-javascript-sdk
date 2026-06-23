@@ -145,7 +145,7 @@ export type AgreementField = {
   key: string;
   content: string;
   titleEnabled: boolean;
-  title: string;
+  title?: string;
   agreement: {
     id: string;
     useDynamicAgreement: boolean;
@@ -176,7 +176,7 @@ export type SingleCheckboxField = {
   inputType: 'BOOLEAN';
   key: string;
   label: string;
-  required: boolean;
+  required?: boolean;
   errorMessage?: string;
   appearance: string;
   richContent?: RichContent;

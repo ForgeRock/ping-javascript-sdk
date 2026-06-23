@@ -20,6 +20,7 @@ import {
   returnIdpCollector,
   returnSubmitCollector,
   returnTextCollector,
+  returnBooleanCollector,
   returnValidatedBooleanCollector,
   returnSingleSelectCollector,
   returnMultiSelectCollector,
@@ -32,7 +33,6 @@ import {
   returnFidoRegistrationCollector,
   returnFidoAuthenticationCollector,
   returnQrCodeCollector,
-  returnAgreementCollector,
 } from './collector.utils.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
@@ -81,16 +81,12 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
              * Some collectors may not have the same properties as others;
              * LABEL field types are one of them, so let's catch them first.
              */
-            if (field.type === 'LABEL') {
+            if (field.type === 'LABEL' || field.type === 'AGREEMENT') {
               return returnReadOnlyCollector(field, idx);
             }
 
             if (field.type === 'QR_CODE') {
               return returnQrCodeCollector(field, idx);
-            }
-
-            if (field.type === 'AGREEMENT') {
-              return returnAgreementCollector(field, idx);
             }
 
             // *Some* collectors may have default or existing data to display
@@ -137,7 +133,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 return returnObjectValueCollector(field, idx, prefillData);
               }
               case 'SINGLE_CHECKBOX': {
-                return returnValidatedBooleanCollector(field, idx);
+                return field.required === true
+                  ? returnValidatedBooleanCollector(field, idx)
+                  : returnBooleanCollector(field, idx);
               }
               case 'TEXT': {
                 const str = data as string;
@@ -206,7 +204,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         collector.category === 'ValidatedSingleValueCollector' ||
         collector.category === 'SingleValueAutoCollector'
       ) {
-        if (collector.type === 'ValidatedBooleanCollector') {
+        if (
+          collector.type === 'BooleanCollector' ||
+          collector.type === 'ValidatedBooleanCollector'
+        ) {
           if (typeof action.payload.value !== 'boolean') {
             throw new Error('Value argument must be a boolean');
           }

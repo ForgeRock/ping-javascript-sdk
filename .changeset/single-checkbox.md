@@ -2,7 +2,7 @@
 '@forgerock/davinci-client': minor
 ---
 
-Adds support for the SINGLE_CHECKBOX field. A new ValidatedBooleanCollector interface was introduced including validation support for required checkboxes and updater support for booleans.
+Adds support for the SINGLE_CHECKBOX field. A new ValidatedBooleanCollector interface was introduced including validation support for required checkboxes and updater support for booleans. A BooleanCollector was also added for parity in the case that no validation is required.
 
 **Type improvements**
 

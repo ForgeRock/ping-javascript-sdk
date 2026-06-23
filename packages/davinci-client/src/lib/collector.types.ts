@@ -21,6 +21,7 @@ import type {
 export type SingleValueCollectorTypes =
   | 'PasswordCollector'
   | 'ValidatedPasswordCollector'
+  | 'BooleanCollector'
   | 'ValidatedBooleanCollector'
   | 'SingleValueCollector'
   | 'SingleSelectCollector'
@@ -90,16 +91,6 @@ export interface ValidatedSingleValueCollectorWithValue<
     label: string;
     type: string;
     value: V;
-  };
-}
-
-export interface ValidatedBooleanCollector extends ValidatedSingleValueCollectorWithValue<
-  'ValidatedBooleanCollector',
-  boolean
-> {
-  output: ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>['output'] & {
-    appearance: string;
-    richContent?: CollectorRichContent;
   };
 }
 
@@ -178,16 +169,18 @@ export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> =
           ? PasswordCollector
           : T extends 'ValidatedPasswordCollector'
             ? ValidatedPasswordCollector
-            : T extends 'ValidatedBooleanCollector'
-              ? ValidatedBooleanCollector
-              : /**
-                   * At this point, we have not passed in a collector type
-                   * or we have explicitly passed in 'SingleValueCollector'
-                   * So we can return either a SingleValueCollector with value
-                   * or without a value.
-                   **/
-                  | SingleValueCollectorWithValue<'SingleValueCollector'>
-                  | SingleValueCollectorNoValue<'SingleValueCollector'>;
+            : T extends 'BooleanCollector'
+              ? BooleanCollector
+              : T extends 'ValidatedBooleanCollector'
+                ? ValidatedBooleanCollector
+                : /**
+                     * At this point, we have not passed in a collector type
+                     * or we have explicitly passed in 'SingleValueCollector'
+                     * So we can return either a SingleValueCollector with value
+                     * or without a value.
+                     **/
+                    | SingleValueCollectorWithValue<'SingleValueCollector'>
+                    | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 /**
  * SINGLE-VALUE COLLECTOR TYPES
@@ -234,16 +227,38 @@ export interface ValidatedPasswordCollector {
     verify: boolean;
   };
 }
+
+export interface BooleanCollector extends SingleValueCollectorWithValue<
+  'BooleanCollector',
+  boolean
+> {
+  output: SingleValueCollectorWithValue<'BooleanCollector', boolean>['output'] & {
+    appearance: string;
+    richContent?: CollectorRichContent;
+  };
+}
+
+export interface ValidatedBooleanCollector extends ValidatedSingleValueCollectorWithValue<
+  'ValidatedBooleanCollector',
+  boolean
+> {
+  output: ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>['output'] & {
+    appearance: string;
+    richContent?: CollectorRichContent;
+  };
+}
+
 export type TextCollector = SingleValueCollectorWithValue<'TextCollector'>;
 export type SingleSelectCollector = SingleSelectCollectorWithValue<'SingleSelectCollector'>;
 export type ValidatedTextCollector = ValidatedSingleValueCollectorWithValue<'TextCollector'>;
 
 export type SingleValueCollectors =
-  | ValidatedPasswordCollector
   | PasswordCollector
+  | ValidatedPasswordCollector
   | SingleSelectCollector
   | TextCollector
   | ValidatedTextCollector
+  | BooleanCollector
   | ValidatedBooleanCollector
   | SingleValueCollectorWithValue<'SingleValueCollector'>;
 
@@ -585,8 +600,7 @@ export type NoValueCollectorTypes =
   | 'ReadOnlyCollector'
   | 'RichTextCollector'
   | 'NoValueCollector'
-  | 'QrCodeCollector'
-  | 'AgreementCollector';
+  | 'QrCodeCollector';
 
 export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   category: 'NoValueCollector';
@@ -643,6 +657,7 @@ export interface QrCodeCollector extends NoValueCollectorBase<'QrCodeCollector'>
 export interface ReadOnlyCollector extends NoValueCollectorBase<'ReadOnlyCollector'> {
   output: NoValueCollectorBase<'ReadOnlyCollector'>['output'] & {
     content: string;
+    title?: string;
   };
 }
 
@@ -660,21 +675,6 @@ export interface RichTextCollector extends NoValueCollectorBase<'RichTextCollect
   };
 }
 
-export interface AgreementCollector extends NoValueCollectorBase<'AgreementCollector'> {
-  output: {
-    key: string;
-    label: string;
-    type: string;
-    titleEnabled: boolean;
-    title: string;
-    agreement: {
-      id: string;
-      useDynamicAgreement: boolean;
-    };
-    enabled: boolean;
-  };
-}
-
 /**
  * Type to help infer the collector based on the collector type
  * Used specifically in the returnNoValueCollector wrapper function.
@@ -689,16 +689,13 @@ export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
       ? RichTextCollector
       : T extends 'QrCodeCollector'
         ? QrCodeCollector
-        : T extends 'AgreementCollector'
-          ? AgreementCollector
-          : NoValueCollectorBase<'NoValueCollector'>;
+        : NoValueCollectorBase<'NoValueCollector'>;
 
 export type NoValueCollectors =
   | NoValueCollectorBase<'NoValueCollector'>
   | ReadOnlyCollector
   | RichTextCollector
-  | QrCodeCollector
-  | AgreementCollector;
+  | QrCodeCollector;
 
 export type NoValueCollector<T extends NoValueCollectorTypes> = InferNoValueCollectorType<T>;
 

@@ -16,7 +16,7 @@ import type {
   SuccessNode,
 } from './node.types.js';
 import type { ErrorDetail, Links } from './davinci.types.js';
-import {
+import type {
   ActionCollector,
   FlowCollector,
   MultiSelectCollector,
@@ -24,6 +24,7 @@ import {
   ValidatedPasswordCollector,
   ReadOnlyCollector,
   RichTextCollector,
+  BooleanCollector,
   ValidatedBooleanCollector,
   SingleSelectCollector,
   SingleValueCollector,
@@ -41,7 +42,6 @@ import {
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   QrCodeCollector,
-  AgreementCollector,
 } from './collector.types.js';
 // ErrorDetail and Links are used as part of the DaVinciError and server._links types respectively
 
@@ -241,6 +241,7 @@ describe('Node Types', () => {
         | PhoneNumberExtensionCollector
         | ReadOnlyCollector
         | RichTextCollector
+        | BooleanCollector
         | ValidatedBooleanCollector
         | SingleSelectCollector
         | ValidatedTextCollector
@@ -249,7 +250,6 @@ describe('Node Types', () => {
         | FidoRegistrationCollector
         | FidoAuthenticationCollector
         | QrCodeCollector
-        | AgreementCollector
         | UnknownCollector
       >();
 

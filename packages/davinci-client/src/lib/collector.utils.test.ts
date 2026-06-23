@@ -24,8 +24,8 @@ import {
   returnSingleValueAutoCollector,
   returnObjectValueAutoCollector,
   returnQrCodeCollector,
-  returnAgreementCollector,
   normalizeReplacements,
+  returnBooleanCollector,
   returnValidatedBooleanCollector,
 } from './collector.utils.js';
 import { returnPasswordPolicyValidator } from './password-policy.rules.js';
@@ -49,6 +49,7 @@ import type {
   AgreementField,
 } from './davinci.types.js';
 import type {
+  BooleanCollector,
   MultiSelectCollector,
   PhoneNumberCollector,
   PhoneNumberExtensionCollector,
@@ -1095,8 +1096,8 @@ describe('returnQrCodeCollector', () => {
   });
 });
 
-describe('returnAgreementCollector', () => {
-  it('should return a valid AgreementCollector with all fields', () => {
+describe('returnReadOnlyCollector with AGREEMENT field', () => {
+  it('should return a valid ReadOnlyCollector with content and title', () => {
     const mockField: AgreementField = {
       type: 'AGREEMENT',
       key: 'agreement-field',
@@ -1109,31 +1110,56 @@ describe('returnAgreementCollector', () => {
       },
       enabled: true,
     };
-    const result = returnAgreementCollector(mockField, 0);
+    const result = returnReadOnlyCollector(mockField, 0);
     expect(result).toEqual({
       category: 'NoValueCollector',
       error: null,
-      type: 'AgreementCollector',
+      type: 'ReadOnlyCollector',
       id: 'agreement-field-0',
       name: 'agreement-field-0',
       output: {
         key: 'agreement-field-0',
         label: 'Please accept the terms and conditions',
         type: 'AGREEMENT',
-        titleEnabled: true,
+        content: 'Please accept the terms and conditions',
         title: 'Terms and Conditions',
-        agreement: {
-          id: 'agreement-123',
-          useDynamicAgreement: false,
-        },
-        enabled: true,
       },
     });
   });
 
+  it('should return a ReadOnlyCollector with no title when title is disabled', () => {
+    const mockField: AgreementField = {
+      type: 'AGREEMENT',
+      key: 'agreement-field',
+      content: 'Please accept the terms and conditions',
+      titleEnabled: false,
+      title: 'Sample Title',
+      agreement: {
+        id: 'agreement-123',
+        useDynamicAgreement: false,
+      },
+      enabled: true,
+    };
+    const result = returnReadOnlyCollector(mockField, 0);
+    expect(result).toEqual({
+      category: 'NoValueCollector',
+      error: null,
+      type: 'ReadOnlyCollector',
+      id: 'agreement-field-0',
+      name: 'agreement-field-0',
+      output: {
+        key: 'agreement-field-0',
+        label: 'Please accept the terms and conditions',
+        type: 'AGREEMENT',
+        content: 'Please accept the terms and conditions',
+      },
+    });
+    expect(result.output).not.toHaveProperty('title');
+  });
+
   it('should set error when content is missing', () => {
     const mockField = { type: 'AGREEMENT', key: 'agreement-field' } as unknown as AgreementField;
-    const result = returnAgreementCollector(mockField, 0);
+    const result = returnReadOnlyCollector(mockField, 0);
     expect(result.error).toContain('Content is not found');
   });
 });
@@ -1831,5 +1857,86 @@ describe('returnValidatedBooleanCollector', () => {
         },
       ],
     });
+  });
+});
+
+describe('returnBooleanCollector', () => {
+  it('should produce a BooleanCollector with SingleValueCollector category', () => {
+    const field: SingleCheckboxField = {
+      type: 'SINGLE_CHECKBOX',
+      inputType: 'BOOLEAN',
+      key: 'newsletter',
+      label: 'Subscribe to newsletter',
+      required: false,
+      appearance: 'checkbox',
+    };
+    const result = returnBooleanCollector(field, 0);
+    expect(result satisfies BooleanCollector).toEqual({
+      category: 'SingleValueCollector',
+      type: 'BooleanCollector',
+      error: null,
+      id: 'newsletter-0',
+      name: 'newsletter',
+      input: {
+        key: 'newsletter',
+        value: false,
+        type: 'SINGLE_CHECKBOX',
+      },
+      output: {
+        key: 'newsletter',
+        label: 'Subscribe to newsletter',
+        type: 'SINGLE_CHECKBOX',
+        value: false,
+        appearance: 'checkbox',
+      },
+    });
+  });
+
+  it('should include richContent on output when field has richContent', () => {
+    const field: SingleCheckboxField = {
+      type: 'SINGLE_CHECKBOX',
+      inputType: 'BOOLEAN',
+      key: 'accept-terms',
+      label: 'Accept Terms',
+      required: false,
+      appearance: 'checkbox',
+      richContent: {
+        content: 'I agree to the {{link}}',
+        replacements: {
+          link: {
+            type: 'link',
+            value: 'terms and conditions',
+            href: 'https://example.com/terms',
+            target: '_blank',
+          },
+        },
+      },
+    };
+    const result = returnBooleanCollector(field, 0);
+    expect(result.output.richContent).toEqual({
+      content: 'I agree to the {{link}}',
+      replacements: [
+        {
+          key: 'link',
+          type: 'link',
+          value: 'terms and conditions',
+          href: 'https://example.com/terms',
+          target: '_blank',
+        },
+      ],
+    });
+  });
+
+  it('should omit richContent from output when field has no richContent', () => {
+    const field: SingleCheckboxField = {
+      type: 'SINGLE_CHECKBOX',
+      inputType: 'BOOLEAN',
+      key: 'accept-terms',
+      label: 'Accept Terms',
+      required: false,
+      appearance: 'checkbox',
+    };
+    const result = returnBooleanCollector(field, 0);
+    expect(result.output).not.toHaveProperty('richContent');
   });
 });

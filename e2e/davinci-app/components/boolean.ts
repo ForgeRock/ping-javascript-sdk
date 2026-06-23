@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import type {
+  BooleanCollector,
   ValidatedBooleanCollector,
   Updater,
   Validator,
@@ -14,15 +15,15 @@ import { dotToCamelCase, richContentInterpolation } from '../helper.js';
 /**
  * Creates a single checkbox and attaches it to the form
  * @param {HTMLFormElement} formEl - The form element to attach the checkbox to
- * @param {ValidatedBooleanCollector} collector - Contains the configuration
+ * @param {BooleanCollector | ValidatedBooleanCollector} collector - Contains the configuration
  * @param {Updater} updater - Function to call when selection changes
  * @param {Validator} validator - Function to validate the input
  */
 export default function booleanComponent(
   formEl: HTMLFormElement,
-  collector: ValidatedBooleanCollector,
-  updater: Updater<ValidatedBooleanCollector>,
-  validator: Validator<ValidatedBooleanCollector>,
+  collector: BooleanCollector | ValidatedBooleanCollector,
+  updater: Updater<BooleanCollector | ValidatedBooleanCollector>,
+  validator?: Validator<ValidatedBooleanCollector>,
 ) {
   const collectorKey = dotToCamelCase(collector.output.key);
 
@@ -57,7 +58,16 @@ export default function booleanComponent(
   // Add event listener to handle single-select behavior
   checkbox.addEventListener('change', (event) => {
     const checked = (event.target as HTMLInputElement).checked;
-    const result = validator(checked);
+
+    if (collector.type === 'BooleanCollector') {
+      const updateError = updater(checked);
+      if (updateError && 'error' in updateError) {
+        console.error(updateError.error.message);
+      }
+      return;
+    }
+
+    const result = validator && validator(checked);
     const errorEl = formEl?.querySelector(`.${collectorKey}-error`);
 
     // Validate the input
