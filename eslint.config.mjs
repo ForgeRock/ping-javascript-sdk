@@ -12,6 +12,7 @@ import packageJson from 'eslint-plugin-package-json';
 import typescriptEslintEslintPlugin from '@typescript-eslint/eslint-plugin';
 import nxEslintPlugin from '@nx/eslint-plugin';
 import eslintPluginImport from 'eslint-plugin-import';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import typescriptEslintParser from '@typescript-eslint/parser';
 
 const compat = new FlatCompat({
@@ -39,6 +40,38 @@ export default [
       '@typescript-eslint': typescriptEslintEslintPlugin,
       '@nx': nxEslintPlugin,
       import: eslintPluginImport,
+      'simple-import-sort': simpleImportSort,
+    },
+  },
+  {
+    rules: {
+      'simple-import-sort/imports': [
+        'warn',
+        {
+          groups: [
+            // value imports from packages
+            ['^\\u0000[^.$]', '^[^.$]'],
+            // value imports from relative paths
+            ['^\\u0000\\.', '^\\.'],
+            // type-only imports from packages
+            ['^[^.$].*\\u0000$'],
+            // type-only imports from relative paths
+            ['^(\\.).*\\u0000$'],
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
+        {
+          prefer: 'type-imports',
+          fixStyle: 'separate-type-imports',
+        },
+      ],
     },
   },
   {
