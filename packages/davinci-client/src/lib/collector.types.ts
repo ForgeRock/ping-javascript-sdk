@@ -600,7 +600,8 @@ export type NoValueCollectorTypes =
   | 'ReadOnlyCollector'
   | 'RichTextCollector'
   | 'NoValueCollector'
-  | 'QrCodeCollector';
+  | 'QrCodeCollector'
+  | 'ImageCollector';
 
 export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   category: 'NoValueCollector';
@@ -651,6 +652,19 @@ export interface QrCodeCollector extends NoValueCollectorBase<'QrCodeCollector'>
 }
 
 /**
+ * @interface ImageCollector - Display-only collector for IMAGE fields. Extends the
+ * generic `NoValueCollectorBase` with the image URL (`src`), `alt` text, and an optional
+ * hyperlink URL (`href`).
+ */
+export interface ImageCollector extends NoValueCollectorBase<'ImageCollector'> {
+  output: NoValueCollectorBase<'ImageCollector'>['output'] & {
+    src: string;
+    alt: string;
+    href?: string;
+  };
+}
+
+/**
  * @interface ReadOnlyCollector - Display-only collector for plain LABEL fields.
  * Extends `NoValueCollectorBase` with the plain-text `content` from the field.
  */
@@ -689,13 +703,16 @@ export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
       ? RichTextCollector
       : T extends 'QrCodeCollector'
         ? QrCodeCollector
-        : NoValueCollectorBase<'NoValueCollector'>;
+        : T extends 'ImageCollector'
+          ? ImageCollector
+          : NoValueCollectorBase<'NoValueCollector'>;
 
 export type NoValueCollectors =
   | NoValueCollectorBase<'NoValueCollector'>
   | ReadOnlyCollector
   | RichTextCollector
-  | QrCodeCollector;
+  | QrCodeCollector
+  | ImageCollector;
 
 export type NoValueCollector<T extends NoValueCollectorTypes> = InferNoValueCollectorType<T>;
 

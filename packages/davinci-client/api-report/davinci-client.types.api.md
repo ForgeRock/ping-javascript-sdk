@@ -173,7 +173,7 @@ export interface CollectorRichContent {
 }
 
 // @public (undocumented)
-export type Collectors = FlowCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | UnknownCollector;
+export type Collectors = FlowCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | ImageCollector | UnknownCollector;
 
 // @public
 export type CollectorValueType<T> = T extends {
@@ -942,6 +942,25 @@ export type GetClient = StartNode['client'] | ContinueNode['client'] | ErrorNode
 // @public (undocumented)
 export type IdpCollector = ActionCollectorWithUrl<'IdpCollector'>;
 
+// @public
+export interface ImageCollector extends NoValueCollectorBase<'ImageCollector'> {
+    // (undocumented)
+    output: NoValueCollectorBase<'ImageCollector'>['output'] & {
+        src: string;
+        alt: string;
+        href?: string;
+    };
+}
+
+// @public (undocumented)
+export type ImageField = {
+    type: 'IMAGE';
+    key: string;
+    description: string;
+    imageUrl: string;
+    hyperlinkUrl?: string;
+};
+
 // @public (undocumented)
 export type InferActionCollectorType<T extends ActionCollectorTypes> = T extends 'IdpCollector' ? IdpCollector : T extends 'SubmitCollector' ? SubmitCollector : T extends 'FlowCollector' ? FlowCollector : ActionCollectorWithUrl<'ActionCollector'> | ActionCollectorNoUrl<'ActionCollector'>;
 
@@ -952,7 +971,7 @@ export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'Pr
 export type InferMultiValueCollectorType<T extends MultiValueCollectorTypes> = T extends 'MultiSelectCollector' ? MultiValueCollectorWithValue<'MultiSelectCollector'> : MultiValueCollectorWithValue<'MultiValueCollector'> | MultiValueCollectorNoValue<'MultiValueCollector'>;
 
 // @public
-export type InferNoValueCollectorType<T extends NoValueCollectorTypes> = T extends 'ReadOnlyCollector' ? ReadOnlyCollector : T extends 'RichTextCollector' ? RichTextCollector : T extends 'QrCodeCollector' ? QrCodeCollector : NoValueCollectorBase<'NoValueCollector'>;
+export type InferNoValueCollectorType<T extends NoValueCollectorTypes> = T extends 'ReadOnlyCollector' ? ReadOnlyCollector : T extends 'RichTextCollector' ? RichTextCollector : T extends 'QrCodeCollector' ? QrCodeCollector : T extends 'ImageCollector' ? ImageCollector : NoValueCollectorBase<'NoValueCollector'>;
 
 // @public
 export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> = T extends 'TextCollector' ? TextCollector : T extends 'SingleSelectCollector' ? SingleSelectCollector : T extends 'ValidatedTextCollector' ? ValidatedTextCollector : T extends 'PasswordCollector' ? PasswordCollector : T extends 'ValidatedPasswordCollector' ? ValidatedPasswordCollector : T extends 'BooleanCollector' ? BooleanCollector : T extends 'ValidatedBooleanCollector' ? ValidatedBooleanCollector : SingleValueCollectorWithValue<'SingleValueCollector'> | SingleValueCollectorNoValue<'SingleValueCollector'>;
@@ -1124,10 +1143,10 @@ export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
 }
 
 // @public (undocumented)
-export type NoValueCollectors = NoValueCollectorBase<'NoValueCollector'> | ReadOnlyCollector | RichTextCollector | QrCodeCollector;
+export type NoValueCollectors = NoValueCollectorBase<'NoValueCollector'> | ReadOnlyCollector | RichTextCollector | QrCodeCollector | ImageCollector;
 
 // @public
-export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'RichTextCollector' | 'NoValueCollector' | 'QrCodeCollector';
+export type NoValueCollectorTypes = 'ReadOnlyCollector' | 'RichTextCollector' | 'NoValueCollector' | 'QrCodeCollector' | 'ImageCollector';
 
 // @public
 export interface OAuthDetails {
@@ -1510,7 +1529,7 @@ export type ReadOnlyField = {
 };
 
 // @public (undocumented)
-export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField;
+export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
 
 // @public (undocumented)
 export type RedirectField = {

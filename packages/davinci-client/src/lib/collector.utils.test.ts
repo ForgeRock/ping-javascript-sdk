@@ -23,6 +23,7 @@ import {
   returnObjectValueCollector,
   returnSingleValueAutoCollector,
   returnObjectValueAutoCollector,
+  returnImageCollector,
   returnQrCodeCollector,
   normalizeReplacements,
   returnBooleanCollector,
@@ -33,6 +34,7 @@ import type {
   DaVinciField,
   DeviceAuthenticationField,
   DeviceRegistrationField,
+  ImageField,
   PasswordField,
   FidoAuthenticationField,
   FidoRegistrationField,
@@ -1093,6 +1095,117 @@ describe('returnQrCodeCollector', () => {
     const mockField = { type: 'QR_CODE' } as unknown as QrCodeField;
     const result = returnQrCodeCollector(mockField, 0);
     expect(result.error).toContain('Content is not found');
+  });
+});
+
+describe('returnImageCollector', () => {
+  // (a) Full payload — all five SDK contract fields present
+  it('should return a fully-populated ImageCollector when all contract fields are present', () => {
+    const mockField: ImageField = {
+      type: 'IMAGE',
+      key: 'heroImage',
+      imageUrl: 'https://cdn.example.com/image.png',
+      description: 'Alt text',
+      hyperlinkUrl: 'https://example.com/install',
+    };
+    const result = returnImageCollector(mockField, 1);
+    expect(result).toEqual({
+      category: 'NoValueCollector',
+      error: null,
+      type: 'ImageCollector',
+      id: 'heroImage-1',
+      name: 'heroImage-1',
+      output: {
+        key: 'heroImage-1',
+        label: 'Alt text',
+        type: 'IMAGE',
+        src: 'https://cdn.example.com/image.png',
+        alt: 'Alt text',
+        href: 'https://example.com/install',
+      },
+    });
+  });
+
+  // (b) Minimal payload — no hyperlinkUrl
+  it('should omit href when hyperlinkUrl is absent', () => {
+    const mockField: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: 'Alt text',
+      imageUrl: 'https://example.com/test-image.png',
+    };
+    const result = returnImageCollector(mockField, 0);
+    expect(result.error).toBeNull();
+    expect(result.output.src).toBe('https://example.com/test-image.png');
+    expect(result.output.alt).toBe('Alt text');
+    expect(result.output.label).toBe('Alt text');
+    expect(result.output).not.toHaveProperty('href');
+  });
+
+  // (c) hyperlinkUrl present — href emitted; absent — omitted
+  it('should emit href when hyperlinkUrl is set and omit it when absent', () => {
+    const withHyperlink: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: 'Alt text',
+      imageUrl: 'https://example.com/test-image.png',
+      hyperlinkUrl: 'https://example.com/click-target',
+    };
+    const resultWith = returnImageCollector(withHyperlink, 0);
+    expect(resultWith.output.href).toBe('https://example.com/click-target');
+
+    const withoutHyperlink: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: 'Alt text',
+      imageUrl: 'https://example.com/test-image.png',
+    };
+    const resultWithout = returnImageCollector(withoutHyperlink, 0);
+    expect(resultWithout.output).not.toHaveProperty('href');
+  });
+
+  // (d) alt passes through verbatim as alt and label
+  it('should pass alt through verbatim as alt and label', () => {
+    const mockField: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: 'Friendly alt text',
+      imageUrl: 'https://example.com/test-image.png',
+    };
+    const result = returnImageCollector(mockField, 0);
+    expect(result.output.alt).toBe('Friendly alt text');
+    expect(result.output.label).toBe('Friendly alt text');
+  });
+
+  // (e) imageUrl absent — src defaults to empty string
+  it('should default src to empty string when imageUrl is absent', () => {
+    const mockField: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: 'Alt text',
+      imageUrl: '',
+    };
+    const result = returnImageCollector(mockField, 0);
+    expect(result.output.src).toBe('');
+  });
+
+  // (f) output.label mirrors alt
+  it('should set output.label to alt when present, empty string when absent', () => {
+    const withAlt: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: 'Alt text',
+      imageUrl: 'https://example.com/test-image.png',
+    };
+    expect(returnImageCollector(withAlt, 0).output.label).toBe('Alt text');
+
+    const withoutAlt: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: '',
+      imageUrl: 'https://example.com/test-image.png',
+    };
+    expect(returnImageCollector(withoutAlt, 0).output.label).toBe('');
   });
 });
 

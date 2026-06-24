@@ -31,6 +31,7 @@ import type {
   AutoCollectors,
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
+  ImageCollector,
   QrCodeCollector,
   ReadOnlyCollector,
   RichTextCollector,
@@ -45,6 +46,7 @@ import type {
   DeviceRegistrationField,
   FidoAuthenticationField,
   FidoRegistrationField,
+  ImageField,
   MultiSelectField,
   PasswordField,
   PhoneNumberField,
@@ -959,7 +961,7 @@ export function returnNoValueCollector<
     name: `${field.key || field.type}-${idx}`,
     output: {
       key: `${field.key || field.type}-${idx}`,
-      label: field.content,
+      label: 'content' in field ? field.content : '',
       type: field.type,
     },
   } as InferNoValueCollectorType<CollectorType>;
@@ -1019,6 +1021,33 @@ export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCo
       ...base.output,
       label: field.fallbackText || '',
       src: field.content || '',
+    },
+  };
+}
+
+/**
+ * @function returnImageCollector - Creates an ImageCollector object for displaying IMAGE fields.
+ *
+ * Composes on top of `returnNoValueCollector` for `category`, `id`, `name`, and base
+ * `output.{key, type}`. Overrides `output.label` and `output.alt` with `field.description`
+ * (IMAGE has no wire `label` property).
+ *
+ * @param {ImageField} field - The IMAGE field from the API response.
+ * @param {number} idx - The index used in the collector `id`/`name`.
+ * @returns {ImageCollector} The constructed ImageCollector object.
+ */
+export function returnImageCollector(field: ImageField, idx: number): ImageCollector {
+  const base = returnNoValueCollector(field, idx, 'ImageCollector');
+
+  return {
+    ...base,
+    error: null,
+    output: {
+      ...base.output,
+      label: field.description,
+      src: field.imageUrl,
+      alt: field.description,
+      ...(field.hyperlinkUrl ? { href: field.hyperlinkUrl } : {}),
     },
   };
 }

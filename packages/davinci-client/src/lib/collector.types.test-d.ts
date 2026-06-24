@@ -28,6 +28,7 @@ import type {
   ReadOnlyCollector,
   RichTextCollector,
   QrCodeCollector,
+  ImageCollector,
   PhoneNumberCollector,
   PhoneNumberExtensionCollector,
   ObjectValueCollectorWithObjectValue,
@@ -646,6 +647,43 @@ describe('Collector Types', () => {
       };
 
       expectTypeOf(tCollector).toEqualTypeOf<ReadOnlyCollector>();
+    });
+
+    it('should correctly infer ImageCollector Type', () => {
+      const tCollector: InferNoValueCollectorType<'ImageCollector'> = {
+        category: 'NoValueCollector',
+        type: 'ImageCollector',
+        name: 'ImageCollector',
+        id: '1',
+        error: null,
+        output: {
+          key: 'image1',
+          label: 'A hero image',
+          type: 'IMAGE',
+          src: 'https://example.com/image.png',
+          alt: 'A hero image',
+          href: 'https://example.com',
+        },
+      };
+      expectTypeOf(tCollector).toEqualTypeOf<ImageCollector>();
+    });
+
+    it('should correctly infer ImageCollector Type without optional href', () => {
+      const tCollector: InferNoValueCollectorType<'ImageCollector'> = {
+        category: 'NoValueCollector',
+        type: 'ImageCollector',
+        name: 'ImageCollector',
+        id: '1',
+        error: null,
+        output: {
+          key: 'image1',
+          label: 'A hero image',
+          type: 'IMAGE',
+          src: 'https://example.com/image.png',
+          alt: 'A hero image',
+        },
+      };
+      expectTypeOf(tCollector).toEqualTypeOf<ImageCollector>();
     });
   });
 

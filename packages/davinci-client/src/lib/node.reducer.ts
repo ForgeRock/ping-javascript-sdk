@@ -33,6 +33,7 @@ import {
   returnFidoRegistrationCollector,
   returnFidoAuthenticationCollector,
   returnQrCodeCollector,
+  returnImageCollector,
 } from './collector.utils.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
@@ -87,6 +88,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
 
             if (field.type === 'QR_CODE') {
               return returnQrCodeCollector(field, idx);
+            }
+
+            if (field.type === 'IMAGE') {
+              return returnImageCollector(field, idx);
             }
 
             // *Some* collectors may have default or existing data to display
