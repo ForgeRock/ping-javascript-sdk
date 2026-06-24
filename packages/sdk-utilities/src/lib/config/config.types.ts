@@ -61,4 +61,7 @@ export type Parser<A> = (input: Readonly<Record<string, unknown>>) => ParseResul
 /** Parses a single field value (already extracted from its parent record) into `A`. */
 export type FieldParser<A> = (value: unknown, fieldPath: string) => ParseResult<A>;
 
+/** Partial record with exactly one optional key — the return type of `parsedProp`. */
+export type ParsedProp<K extends string, V> = { [P in K]?: V };
+
 export type { LogLevel, JourneyClientConfig, DaVinciConfig } from '@forgerock/sdk-types';

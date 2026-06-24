@@ -13,7 +13,7 @@ import {
   AUTH_PROMPT_VALUES,
   LOG_LEVEL_UPPERCASE_VALUES,
 } from '@forgerock/sdk-types';
-import type { LogLevel, AuthDisplayValue, AuthPromptValue } from '@forgerock/sdk-types';
+import type { LogLevel } from '@forgerock/sdk-types';
 
 import type {
   UnifiedSdkConfig,
@@ -23,9 +23,10 @@ import type {
   JourneyClientConfig,
   DaVinciConfig,
   ConfigValidationError,
-  FieldParser,
-  Parser,
   ParseResult,
+  Parser,
+  FieldParser,
+  ParsedProp,
 } from './config.types.js';
 
 /* ------------------------------------------------------------------ *
@@ -33,6 +34,10 @@ import type {
  * ------------------------------------------------------------------ */
 
 interface ClientOidcBlock extends UnifiedOidcConfig {
+  // Full set of fields the client flow (oidc/davinci) requires. `discoveryEndpoint` is
+  // inherited as required `string` — every flow needs it, so it is proven non-empty upstream
+  // by `parseOidcSection`. The three below are optional in the unified schema and narrowed to
+  // required here by `parseClientSdkConfig`.
   clientId: string;
   redirectUri: string;
   scopes: string[];
@@ -45,9 +50,6 @@ interface ClientSdkConfig extends UnifiedSdkConfig {
 interface JourneySdkConfig extends UnifiedSdkConfig {
   oidc: UnifiedOidcConfig;
 }
-
-/** Partial record with exactly one optional key — the return type of `parsedProp`. */
-type ParsedProp<K extends string, V> = { [P in K]?: V };
 
 /* ------------------------------------------------------------------ *
  * Shared helpers
@@ -109,14 +111,8 @@ const requiredNonEmptyString: FieldParser<string> = (value, fieldPath) => {
     : Either.left([{ field: fieldPath, message: `Expected string, got ${typeName(value)}` }]);
 };
 
-/** Required, non-empty array of strings — treats absent or `[]` as missing. */
-const requiredNonEmptyStringArray: FieldParser<string[]> = (value, fieldPath) => {
-  if (isAbsent(value) || (Array.isArray(value) && value.length === 0)) {
-    return Either.left([{ field: fieldPath, message: 'Required field is missing' }]);
-  }
-  if (!Array.isArray(value)) {
-    return Either.left([{ field: fieldPath, message: `Expected array, got ${typeName(value)}` }]);
-  }
+/** Parse each element of an array as a string, accumulating one error per non-string element. */
+function parseStringElements(value: readonly unknown[], fieldPath: string): ParseResult<string[]> {
   const parsed: string[] = [];
   const errors: ConfigValidationError[] = [];
   value.forEach((item, index) => {
@@ -130,6 +126,17 @@ const requiredNonEmptyStringArray: FieldParser<string[]> = (value, fieldPath) =>
     }
   });
   return errors.length > 0 ? Either.left(errors) : Either.right(parsed);
+}
+
+/** Required, non-empty array of strings — treats absent or `[]` as missing. */
+const requiredNonEmptyStringArray: FieldParser<string[]> = (value, fieldPath) => {
+  if (isAbsent(value) || (Array.isArray(value) && value.length === 0)) {
+    return Either.left([{ field: fieldPath, message: 'Required field is missing' }]);
+  }
+  if (!Array.isArray(value)) {
+    return Either.left([{ field: fieldPath, message: `Expected array, got ${typeName(value)}` }]);
+  }
+  return parseStringElements(value, fieldPath);
 };
 
 const optionalString: FieldParser<string | undefined> = (value, fieldPath) => {
@@ -159,19 +166,7 @@ const optionalStringArray: FieldParser<string[] | undefined> = (value, fieldPath
   if (!Array.isArray(value)) {
     return Either.left([{ field: fieldPath, message: `Expected array, got ${typeName(value)}` }]);
   }
-  const parsed: string[] = [];
-  const errors: ConfigValidationError[] = [];
-  value.forEach((item, index) => {
-    if (typeof item === 'string') {
-      parsed.push(item);
-    } else {
-      errors.push({
-        field: `${fieldPath}[${index}]`,
-        message: `Expected string, got ${typeName(item)}`,
-      });
-    }
-  });
-  return errors.length > 0 ? Either.left(errors) : Either.right(parsed);
+  return parseStringElements(value, fieldPath);
 };
 
 /** Optional `Record<string, string>` — builds a fresh record, erroring on non-string values. */
@@ -222,84 +217,33 @@ function optionalLiteralUnion<const Members extends readonly string[]>(
 }
 
 /* ------------------------------------------------------------------ *
- * Per-property parsers (each owns its field path + constraint)
- * ------------------------------------------------------------------ */
-
-export const parseDiscoveryEndpoint = (value: unknown): ParseResult<string> =>
-  requiredNonEmptyString(value, 'oidc.discoveryEndpoint');
-
-export const parseClientId = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'oidc.clientId');
-
-export const parseRedirectUri = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'oidc.redirectUri');
-
-export const parseScopes = (value: unknown): ParseResult<string[] | undefined> =>
-  optionalStringArray(value, 'oidc.scopes');
-
-export const parseSignOutRedirectUri = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'oidc.signOutRedirectUri');
-
-export const parseRefreshThreshold = (value: unknown): ParseResult<number | undefined> =>
-  finiteNonNegativeNumber(value, 'oidc.refreshThreshold');
-
-export const parseLoginHint = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'oidc.loginHint');
-
-export const parseNonce = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'oidc.nonce');
-
-export const parseDisplay = (value: unknown): ParseResult<AuthDisplayValue | undefined> =>
-  optionalLiteralUnion(AUTH_DISPLAY_VALUES)(value, 'oidc.display');
-
-export const parsePrompt = (value: unknown): ParseResult<AuthPromptValue | undefined> =>
-  optionalLiteralUnion(AUTH_PROMPT_VALUES)(value, 'oidc.prompt');
-
-export const parseUiLocales = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'oidc.uiLocales');
-
-export const parseAcrValues = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'oidc.acrValues');
-
-export const parseAdditionalParameters = (
-  value: unknown,
-): ParseResult<Record<string, string> | undefined> =>
-  optionalStringRecord(value, 'oidc.additionalParameters');
-
-export const parseTimeout = (value: unknown): ParseResult<number | undefined> =>
-  finiteNonNegativeNumber(value, 'timeout');
-
-export const parseLog = (value: unknown): ParseResult<Uppercase<LogLevel> | undefined> =>
-  optionalLiteralUnion(LOG_LEVEL_UPPERCASE_VALUES)(value, 'log');
-
-export const parseServerUrl = (value: unknown): ParseResult<string> =>
-  requiredString(value, 'journey.serverUrl');
-
-export const parseRealm = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'journey.realm');
-
-export const parseCookieName = (value: unknown): ParseResult<string | undefined> =>
-  optionalString(value, 'journey.cookieName');
-
-/* ------------------------------------------------------------------ *
  * Section parsers — compose property parsers, build typed objects cast-free
  * ------------------------------------------------------------------ */
 
-/** Parse the `oidc` block. Each property parser carries its own `oidc.`-prefixed path. */
+/** Parse the `oidc` block. */
 export const parseOidcSection: Parser<UnifiedOidcConfig> = (input) => {
-  const discoveryEndpoint = parseDiscoveryEndpoint(input['discoveryEndpoint']);
-  const clientId = parseClientId(input['clientId']);
-  const redirectUri = parseRedirectUri(input['redirectUri']);
-  const scopes = parseScopes(input['scopes']);
-  const signOutRedirectUri = parseSignOutRedirectUri(input['signOutRedirectUri']);
-  const refreshThreshold = parseRefreshThreshold(input['refreshThreshold']);
-  const loginHint = parseLoginHint(input['loginHint']);
-  const nonce = parseNonce(input['nonce']);
-  const display = parseDisplay(input['display']);
-  const prompt = parsePrompt(input['prompt']);
-  const uiLocales = parseUiLocales(input['uiLocales']);
-  const acrValues = parseAcrValues(input['acrValues']);
-  const additionalParameters = parseAdditionalParameters(input['additionalParameters']);
+  const discoveryEndpoint = requiredNonEmptyString(
+    input['discoveryEndpoint'],
+    'oidc.discoveryEndpoint',
+  );
+  const clientId = optionalString(input['clientId'], 'oidc.clientId');
+  const redirectUri = optionalString(input['redirectUri'], 'oidc.redirectUri');
+  const scopes = optionalStringArray(input['scopes'], 'oidc.scopes');
+  const signOutRedirectUri = optionalString(input['signOutRedirectUri'], 'oidc.signOutRedirectUri');
+  const refreshThreshold = finiteNonNegativeNumber(
+    input['refreshThreshold'],
+    'oidc.refreshThreshold',
+  );
+  const loginHint = optionalString(input['loginHint'], 'oidc.loginHint');
+  const nonce = optionalString(input['nonce'], 'oidc.nonce');
+  const display = optionalLiteralUnion(AUTH_DISPLAY_VALUES)(input['display'], 'oidc.display');
+  const prompt = optionalLiteralUnion(AUTH_PROMPT_VALUES)(input['prompt'], 'oidc.prompt');
+  const uiLocales = optionalString(input['uiLocales'], 'oidc.uiLocales');
+  const acrValues = optionalString(input['acrValues'], 'oidc.acrValues');
+  const additionalParameters = optionalStringRecord(
+    input['additionalParameters'],
+    'oidc.additionalParameters',
+  );
 
   const errors = collectErrors([
     discoveryEndpoint,
@@ -338,9 +282,9 @@ export const parseOidcSection: Parser<UnifiedOidcConfig> = (input) => {
 
 /** Parse the `journey` block. `serverUrl` required; `realm`/`cookieName` optional. */
 export const parseJourneySection: Parser<UnifiedJourneyConfig> = (input) => {
-  const serverUrl = parseServerUrl(input['serverUrl']);
-  const realm = parseRealm(input['realm']);
-  const cookieName = parseCookieName(input['cookieName']);
+  const serverUrl = requiredString(input['serverUrl'], 'journey.serverUrl');
+  const realm = optionalString(input['realm'], 'journey.realm');
+  const cookieName = optionalString(input['cookieName'], 'journey.cookieName');
 
   const errors = collectErrors([serverUrl, realm, cookieName]);
   if (errors.length > 0) return Either.left(errors);
@@ -371,8 +315,8 @@ function parseOptionalSection<A>(
 
 /** Parse a full unified SDK config from an already-typed record. Unknown fields are ignored. */
 export const parseUnifiedSdkConfig: Parser<UnifiedSdkConfig> = (input) => {
-  const timeout = parseTimeout(input['timeout']);
-  const log = parseLog(input['log']);
+  const timeout = finiteNonNegativeNumber(input['timeout'], 'timeout');
+  const log = optionalLiteralUnion(LOG_LEVEL_UPPERCASE_VALUES)(input['log'], 'log');
   const journey = parseOptionalSection(input['journey'], 'journey', parseJourneySection);
   const oidc = parseOptionalSection(input['oidc'], 'oidc', parseOidcSection);
 
@@ -393,22 +337,21 @@ export const parseUnifiedSdkConfig: Parser<UnifiedSdkConfig> = (input) => {
  * ------------------------------------------------------------------ */
 
 /**
- * Require the client-flow fields (`discoveryEndpoint`, `clientId`, `redirectUri`,
- * `scopes`) and return a `ClientSdkConfig` whose `oidc` block has them guaranteed
- * present — so downstream transforms read them without any runtime guard. Errors
- * accumulate per field.
+ * Require the client-flow fields (`clientId`, `redirectUri`, `scopes`) and return a
+ * `ClientSdkConfig` whose `oidc` block has them guaranteed present — so downstream
+ * transforms read them without any runtime guard. `discoveryEndpoint` is already proven
+ * non-empty by `parseOidcSection`, so it is not re-checked here. Errors accumulate per field.
  */
 function parseClientSdkConfig(config: UnifiedSdkConfig): ParseResult<ClientSdkConfig> {
   if (!config.oidc) {
     return Either.left([{ field: 'oidc', message: 'Required block is missing' }]);
   }
   const oidc = config.oidc;
-  // All four are required and non-optional, so `Either.all` (first-error) is enough — the
+  // All three are required and non-optional, so `Either.all` (first-error) is enough — the
   // struct form keeps field/value paired by key. Section parsers collect errors across many
   // optional fields instead, so they accumulate via `collectErrors`.
   return Either.map(
     Either.all({
-      discoveryEndpoint: requiredNonEmptyString(oidc.discoveryEndpoint, 'oidc.discoveryEndpoint'),
       clientId: requiredNonEmptyString(oidc.clientId, 'oidc.clientId'),
       redirectUri: requiredNonEmptyString(oidc.redirectUri, 'oidc.redirectUri'),
       scopes: requiredNonEmptyStringArray(oidc.scopes, 'oidc.scopes'),
@@ -418,21 +361,14 @@ function parseClientSdkConfig(config: UnifiedSdkConfig): ParseResult<ClientSdkCo
 }
 
 /**
- * Require only `discoveryEndpoint` (Journey derives all server config from it) and
- * return a `JourneySdkConfig` whose `oidc` block is guaranteed present.
+ * Narrow to a `JourneySdkConfig` by proving the `oidc` block is present. Journey derives
+ * all server config from `oidc.discoveryEndpoint`, which `parseOidcSection` already proved
+ * non-empty — so no further field check is needed beyond the block's presence.
  */
 function parseJourneySdkConfig(config: UnifiedSdkConfig): ParseResult<JourneySdkConfig> {
-  if (!config.oidc) {
-    return Either.left([{ field: 'oidc', message: 'Required block is missing' }]);
-  }
-  const oidc = config.oidc;
-  return Either.map(
-    requiredNonEmptyString(oidc.discoveryEndpoint, 'oidc.discoveryEndpoint'),
-    (discoveryEndpoint): JourneySdkConfig => ({
-      ...config,
-      oidc: { ...oidc, discoveryEndpoint },
-    }),
-  );
+  return config.oidc
+    ? Either.right({ ...config, oidc: config.oidc })
+    : Either.left([{ field: 'oidc', message: 'Required block is missing' }]);
 }
 
 /* ------------------------------------------------------------------ *

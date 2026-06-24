@@ -11,14 +11,6 @@ import {
   parseToOidcConfig,
   parseToJourneyConfig,
   parseToDavinciConfig,
-  parseRefreshThreshold,
-  parseDisplay,
-  parsePrompt,
-  parseLog,
-  parseScopes,
-  parseDiscoveryEndpoint,
-  parseServerUrl,
-  parseTimeout,
   collectErrors,
   parseOidcSection,
   parseUnifiedSdkConfig,
@@ -115,44 +107,6 @@ describe('parseUnifiedSdkConfig', () => {
     expect(errors.length).toBeGreaterThanOrEqual(2);
     expect(errors.some((e) => e.field === 'timeout')).toBe(true);
     expect(errors.some((e) => e.field === 'oidc.discoveryEndpoint')).toBe(true);
-  });
-});
-
-describe('parseServerUrl', () => {
-  it('parseServerUrl_String_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseServerUrl('https://example.com/am'))).toBe(
-      'https://example.com/am',
-    );
-  });
-
-  it('parseServerUrl_Absent_ReturnsRequiredError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseServerUrl(undefined)));
-    expect(errors[0]?.field).toBe('journey.serverUrl');
-  });
-
-  it('parseServerUrl_WrongType_ReturnsTypeError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseServerUrl(123)));
-    expect(errors[0]?.field).toBe('journey.serverUrl');
-  });
-});
-
-describe('parseTimeout', () => {
-  it('parseTimeout_FiniteNonNegative_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseTimeout(5000))).toBe(5000);
-  });
-
-  it('parseTimeout_Absent_ReturnsUndefined', () => {
-    expect(Either.getOrThrow(parseTimeout(undefined))).toBeUndefined();
-  });
-
-  it('parseTimeout_Negative_ReturnsError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseTimeout(-5)));
-    expect(errors[0]?.field).toBe('timeout');
-  });
-
-  it('parseTimeout_NotNumber_ReturnsError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseTimeout('thirty')));
-    expect(errors[0]?.field).toBe('timeout');
   });
 });
 
@@ -561,111 +515,6 @@ describe('makeDavinciConfig', () => {
         },
       }),
     ).toThrow('Invalid unified SDK config');
-  });
-});
-
-describe('parseRefreshThreshold', () => {
-  it('parseRefreshThreshold_FiniteNonNegative_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseRefreshThreshold(60))).toBe(60);
-  });
-
-  it('parseRefreshThreshold_Zero_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseRefreshThreshold(0))).toBe(0);
-  });
-
-  it('parseRefreshThreshold_Absent_ReturnsUndefined', () => {
-    expect(Either.getOrThrow(parseRefreshThreshold(undefined))).toBeUndefined();
-  });
-
-  it('parseRefreshThreshold_NaN_ReturnsError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseRefreshThreshold(NaN)));
-    expect(errors[0]?.field).toBe('oidc.refreshThreshold');
-  });
-
-  it('parseRefreshThreshold_Infinity_ReturnsError', () => {
-    expect(Either.isLeft(parseRefreshThreshold(Infinity))).toBe(true);
-  });
-
-  it('parseRefreshThreshold_Negative_ReturnsError', () => {
-    expect(Either.isLeft(parseRefreshThreshold(-1))).toBe(true);
-  });
-
-  it('parseRefreshThreshold_NotNumber_ReturnsError', () => {
-    expect(Either.isLeft(parseRefreshThreshold('sixty'))).toBe(true);
-  });
-});
-
-describe('parseDisplay', () => {
-  it('parseDisplay_ValidMember_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseDisplay('page'))).toBe('page');
-  });
-
-  it('parseDisplay_Absent_ReturnsUndefined', () => {
-    expect(Either.getOrThrow(parseDisplay(undefined))).toBeUndefined();
-  });
-
-  it('parseDisplay_InvalidMember_ReturnsError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseDisplay('fullscreen')));
-    expect(errors[0]?.field).toBe('oidc.display');
-  });
-});
-
-describe('parsePrompt', () => {
-  it('parsePrompt_ValidMember_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parsePrompt('login'))).toBe('login');
-  });
-
-  it('parsePrompt_InvalidMember_ReturnsError', () => {
-    expect(Either.isLeft(parsePrompt('always'))).toBe(true);
-  });
-});
-
-describe('parseLog', () => {
-  it('parseLog_ValidUppercase_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseLog('DEBUG'))).toBe('DEBUG');
-  });
-
-  it('parseLog_Lowercase_ReturnsError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseLog('debug')));
-    expect(errors[0]?.field).toBe('log');
-  });
-
-  it('parseLog_UnknownValue_ReturnsError', () => {
-    expect(Either.isLeft(parseLog('VERBOSE'))).toBe(true);
-  });
-});
-
-describe('parseScopes', () => {
-  it('parseScopes_AllStrings_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseScopes(['openid', 'profile']))).toEqual(['openid', 'profile']);
-  });
-
-  it('parseScopes_NonArray_ReturnsError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseScopes('openid profile')));
-    expect(errors[0]?.field).toBe('oidc.scopes');
-  });
-
-  it('parseScopes_ContainsNonString_ReturnsIndexedError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseScopes(['openid', 42])));
-    expect(errors.some((e) => e.field === 'oidc.scopes[1]')).toBe(true);
-  });
-});
-
-describe('parseDiscoveryEndpoint', () => {
-  it('parseDiscoveryEndpoint_String_ReturnsSuccess', () => {
-    expect(Either.getOrThrow(parseDiscoveryEndpoint('https://example.com'))).toBe(
-      'https://example.com',
-    );
-  });
-
-  it('parseDiscoveryEndpoint_Absent_ReturnsRequiredError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseDiscoveryEndpoint(undefined)));
-    expect(errors[0]?.field).toBe('oidc.discoveryEndpoint');
-  });
-
-  it('parseDiscoveryEndpoint_EmptyString_ReturnsRequiredError', () => {
-    const errors = Either.getOrThrow(Either.flip(parseDiscoveryEndpoint('')));
-    expect(errors[0]?.field).toBe('oidc.discoveryEndpoint');
   });
 });
 
