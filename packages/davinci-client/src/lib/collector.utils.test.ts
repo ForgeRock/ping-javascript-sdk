@@ -932,6 +932,23 @@ describe('No Value Collectors', () => {
         },
       });
     });
+
+    it('should not set a content error for IMAGE fields', () => {
+      const imageField: ImageField = {
+        type: 'IMAGE',
+        key: 'image',
+        imageUrl: 'https://example.com/image.png',
+        description: 'Alt text',
+      };
+      const result = returnNoValueCollector(imageField, 0, 'ImageCollector');
+      expect(result.error).toBeNull();
+    });
+
+    it('should set a content error for non-IMAGE fields missing content', () => {
+      const field = { type: 'LABEL', key: 'label' } as unknown as ReadOnlyField;
+      const result = returnNoValueCollector(field, 0, 'NoValueCollector');
+      expect(result.error).toBe('Content is not found in the field object. ');
+    });
   });
 
   describe('returnReadOnlyCollector', () => {
@@ -1177,8 +1194,8 @@ describe('returnImageCollector', () => {
     expect(result.output.label).toBe('Friendly alt text');
   });
 
-  // (e) imageUrl absent — src defaults to empty string
-  it('should default src to empty string when imageUrl is absent', () => {
+  // (e) imageUrl empty — src defaults to empty string, error is set
+  it('should default src to empty string and set an error when imageUrl is empty', () => {
     const mockField: ImageField = {
       type: 'IMAGE',
       key: 'image',
@@ -1187,6 +1204,46 @@ describe('returnImageCollector', () => {
     };
     const result = returnImageCollector(mockField, 0);
     expect(result.output.src).toBe('');
+    expect(result.error).toBe('ImageUrl is not found in the field object. ');
+  });
+
+  // (e2) description empty — label/alt default to empty string, error is set
+  it('should set an error when description is empty', () => {
+    const mockField: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: '',
+      imageUrl: 'https://example.com/image.png',
+    };
+    const result = returnImageCollector(mockField, 0);
+    expect(result.error).toBe('Description is not found in the field object. ');
+  });
+
+  // (e3) both imageUrl and description empty — error lists both
+  it('should set an error for both missing fields when both are empty', () => {
+    const mockField: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: '',
+      imageUrl: '',
+    };
+    const result = returnImageCollector(mockField, 0);
+    expect(result.error).toBe(
+      'ImageUrl is not found in the field object. Description is not found in the field object. ',
+    );
+  });
+
+  // (e4) imageUrl present — src passes through verbatim
+  it('should pass imageUrl through as src', () => {
+    const mockField: ImageField = {
+      type: 'IMAGE',
+      key: 'image',
+      description: 'Alt text',
+      imageUrl: 'https://example.com/image.png',
+    };
+    const result = returnImageCollector(mockField, 0);
+    expect(result.output.src).toBe('https://example.com/image.png');
+    expect(result.error).toBeNull();
   });
 
   // (f) output.label mirrors alt

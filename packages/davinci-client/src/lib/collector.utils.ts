@@ -946,7 +946,7 @@ export function returnNoValueCollector<
   CollectorType extends NoValueCollectorTypes = 'NoValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
-  if (!('content' in field)) {
+  if (field.type !== 'IMAGE' && !('content' in field)) {
     error = `${error}Content is not found in the field object. `;
   }
   if (!('type' in field)) {
@@ -1038,15 +1038,22 @@ export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCo
  */
 export function returnImageCollector(field: ImageField, idx: number): ImageCollector {
   const base = returnNoValueCollector(field, idx, 'ImageCollector');
+  let error = base.error || '';
+  if (!field.imageUrl) {
+    error = `${error}ImageUrl is not found in the field object. `;
+  }
+  if (!field.description) {
+    error = `${error}Description is not found in the field object. `;
+  }
 
   return {
     ...base,
-    error: null,
+    error: error || null,
     output: {
       ...base.output,
-      label: field.description,
-      src: field.imageUrl,
-      alt: field.description,
+      label: field.description || '',
+      src: field.imageUrl || '',
+      alt: field.description || '',
       ...(field.hyperlinkUrl ? { href: field.hyperlinkUrl } : {}),
     },
   };
