@@ -8,6 +8,7 @@
  */
 
 import { expect, test } from '@playwright/test';
+
 import { password, username } from './utils/demo-user.js';
 
 test.describe('Test basic login flow with Ping Protect', () => {

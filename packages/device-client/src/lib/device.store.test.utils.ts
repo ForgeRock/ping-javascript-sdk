@@ -8,12 +8,12 @@
 import { http, HttpResponse } from 'msw';
 
 import {
-  MOCK_PUSH_DEVICES,
   MOCK_BINDING_DEVICES,
-  MOCK_OATH_DEVICES,
   MOCK_DELETED_OATH_DEVICE,
-  MOCK_WEBAUTHN_DEVICES,
   MOCK_DEVICE_PROFILE_SUCCESS,
+  MOCK_OATH_DEVICES,
+  MOCK_PUSH_DEVICES,
+  MOCK_WEBAUTHN_DEVICES,
 } from './mock-data/device.store.mock.js';
 
 // Create mock service worker handlers

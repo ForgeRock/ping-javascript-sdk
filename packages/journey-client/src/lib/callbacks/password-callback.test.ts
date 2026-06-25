@@ -6,11 +6,11 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import { describe, it, expect } from 'vitest';
-
-import type { Callback } from '@forgerock/sdk-types';
+import { describe, expect, it } from 'vitest';
 
 import { PasswordCallback } from './password-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('PasswordCallback', () => {
   const payload: Callback = {

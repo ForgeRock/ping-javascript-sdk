@@ -6,8 +6,9 @@
  */
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
-import { createClientStore } from './client.store.utils.js';
-import { oidc } from './client.store.js';
+
+import type { oidc } from './client.store.js';
+import type { createClientStore } from './client.store.utils.js';
 
 export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 

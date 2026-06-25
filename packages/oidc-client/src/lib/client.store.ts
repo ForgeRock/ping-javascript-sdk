@@ -6,25 +6,26 @@
  */
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
-import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError } from './client.store.utils.js';
-import { handleMicroExit } from '@forgerock/sdk-utilities';
-import { isExpiryWithinThreshold } from './token.utils.js';
+import { buildTokenExchangeµ } from './exchange.request.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
-import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
+import { sessionCheckIdTokenµ, sessionCheckNoneµ } from './session.micros.js';
+import { isExpiryWithinThreshold } from './token.utils.js';
 import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
+import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { StorageConfig } from '@forgerock/storage';
 
+import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type {
   GetTokensOptions,
   LogoutErrorResult,
@@ -34,7 +35,6 @@ import type {
   UserInfoResponse,
 } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 

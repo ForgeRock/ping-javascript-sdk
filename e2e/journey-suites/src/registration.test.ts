@@ -6,6 +6,7 @@
  */
 
 import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
 import { password } from './utils/demo-user.js';
 

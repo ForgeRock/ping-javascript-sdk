@@ -17,19 +17,19 @@ import {
   hasPushRequestUri,
   isFetchBaseQueryError,
   toDispatchError,
-  type PromptValue,
 } from './authorize.request.utils.js';
-
 import { oidcApi } from './oidc.api.js';
 
+import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';
 import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';
+
 import type {
   AuthorizationError,
   AuthorizationSuccess,
   OptionalAuthorizeOptions,
 } from './authorize.request.types.js';
+import type { PromptValue } from './authorize.request.utils.js';
 import type { ClientStore } from './client.types.js';
 import type { OidcConfig } from './config.types.js';
 

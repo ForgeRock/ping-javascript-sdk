@@ -5,8 +5,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { describe, expectTypeOf, it } from 'vitest';
-import type { DaVinciConfig, InternalDaVinciConfig } from './config.types.js';
+
 import type { AsyncLegacyConfigOptions, WellknownResponse } from '@forgerock/sdk-types';
+
+import type { DaVinciConfig, InternalDaVinciConfig } from './config.types.js';
 
 describe('Config Types', () => {
   describe('DaVinciConfig', () => {

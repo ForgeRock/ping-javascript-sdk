@@ -10,9 +10,9 @@ import { describe, it } from 'vitest';
 import type { GenericError } from '@forgerock/sdk-types';
 
 import type { JourneyClient } from './client.types.js';
-import type { JourneyStep } from './step.utils.js';
-import type { JourneyLoginSuccess } from './login-success.utils.js';
 import type { JourneyLoginFailure } from './login-failure.utils.js';
+import type { JourneyLoginSuccess } from './login-success.utils.js';
+import type { JourneyStep } from './step.utils.js';
 
 /**
  * Resolves to `true` if `U` is a member of union `T`, `false` otherwise.

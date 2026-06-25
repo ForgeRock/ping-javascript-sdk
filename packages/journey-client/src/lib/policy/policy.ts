@@ -6,9 +6,9 @@
 
 import { PolicyKey } from '@forgerock/sdk-types';
 
-import type { FailedPolicyRequirement, PolicyRequirement, Step } from '@forgerock/sdk-types';
-
 import { defaultMessageCreator } from './message-creator.js';
+
+import type { FailedPolicyRequirement, PolicyRequirement, Step } from '@forgerock/sdk-types';
 
 import type { MessageCreator, ProcessedPropertyError } from './interfaces.js';
 

@@ -4,9 +4,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';
 import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type { WellknownResponse, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+
 import type { AuthorizationError, OptionalAuthorizeOptions } from './authorize.request.types.js';
 import type { OidcConfig } from './config.types.js';
 

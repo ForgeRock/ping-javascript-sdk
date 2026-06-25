@@ -10,7 +10,9 @@
 
 import { PolicyKey } from '@forgerock/sdk-types';
 
-import { Policy, MessageCreator } from './policy.js';
+import { Policy } from './policy.js';
+
+import type { MessageCreator } from './policy.js';
 
 describe('The IDM error handling', () => {
   const property = 'userName';

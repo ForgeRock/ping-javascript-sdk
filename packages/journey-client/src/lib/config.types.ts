@@ -6,6 +6,7 @@
  */
 
 import type { AsyncLegacyConfigOptions, GenericError } from '@forgerock/sdk-types';
+
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
 /**

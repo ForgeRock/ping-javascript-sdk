@@ -9,7 +9,7 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import { vi, describe, it, expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { PingOneProtectEvaluationCallback } from './ping-protect-evaluation-callback.js';
 

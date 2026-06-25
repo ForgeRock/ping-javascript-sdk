@@ -10,9 +10,9 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import type { Callback } from '@forgerock/sdk-types';
-
 import { BaseCallback } from './base-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('BaseCallback', () => {
   it('reads/writes basic properties', () => {

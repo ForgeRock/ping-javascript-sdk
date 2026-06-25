@@ -4,23 +4,26 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { type ConfigOptions } from '@forgerock/javascript-sdk';
 import { configureStore } from '@reduxjs/toolkit';
+
+import { handleError } from './device.store.utils.js';
 import { deviceService } from './services/index.js';
+
+import type { ConfigOptions } from '@forgerock/javascript-sdk';
+
+import type { BoundDeviceQuery, Device, GetBoundDevicesQuery } from './types/bound-device.types.js';
 import type { OathDevice, RetrieveOathQuery } from './types/oath.types.js';
+import type {
+  GetProfileDevices,
+  ProfileDevice,
+  ProfileDevicesQuery,
+} from './types/profile-device.types.js';
 import type { DeleteDeviceQuery, PushDevice, PushDeviceQuery } from './types/push-device.types.js';
 import type {
   UpdatedWebAuthnDevice,
   WebAuthnDevice,
   WebAuthnQuery,
 } from './types/webauthn.types.js';
-import type { BoundDeviceQuery, Device, GetBoundDevicesQuery } from './types/bound-device.types.js';
-import type {
-  GetProfileDevices,
-  ProfileDevice,
-  ProfileDevicesQuery,
-} from './types/profile-device.types.js';
-import { handleError } from './device.store.utils.js';
 
 /**
  * @function deviceClient

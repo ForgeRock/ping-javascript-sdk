@@ -10,9 +10,9 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import type { Callback } from '@forgerock/sdk-types';
-
 import { AttributeInputCallback } from './attribute-input-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('AttributeInputCallback', () => {
   const payload: Callback = {

@@ -8,7 +8,8 @@
  */
 
 import { protect } from './protect.js';
-import { ProtectConfig, Protect } from './protect.types.js';
+
+import type { Protect, ProtectConfig } from './protect.types.js';
 
 const config: ProtectConfig = {
   envId: '12345',

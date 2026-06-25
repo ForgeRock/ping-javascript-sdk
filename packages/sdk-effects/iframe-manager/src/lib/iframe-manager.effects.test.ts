@@ -6,6 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { iFrameManager } from './iframe-manager.effects.js';
 
 /**

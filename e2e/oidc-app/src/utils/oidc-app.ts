@@ -7,6 +7,7 @@
  *
  */
 import { oidc } from '@forgerock/oidc-client';
+
 import type {
   AuthorizationError,
   GenericError,

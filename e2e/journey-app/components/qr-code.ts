@@ -5,7 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { QRCode } from '@forgerock/journey-client/qr-code';
-import type { JourneyStep, ConfirmationCallback } from '@forgerock/journey-client/types';
+
+import type { ConfirmationCallback, JourneyStep } from '@forgerock/journey-client/types';
 
 export function renderQRCodeStep(journeyEl: HTMLDivElement, step: JourneyStep): boolean {
   if (!QRCode.isQRCodeStep(step)) {

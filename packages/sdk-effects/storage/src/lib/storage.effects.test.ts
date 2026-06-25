@@ -4,9 +4,13 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createStorage, type StorageConfig } from './storage.effects.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { createStorage } from './storage.effects.js';
+
 import type { CustomStorageObject, GenericError } from '@forgerock/sdk-types';
+
+import type { StorageConfig } from './storage.effects.js';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};

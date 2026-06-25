@@ -7,11 +7,8 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import type { Callback } from '@forgerock/sdk-types';
-
-import { BaseCallback } from './base-callback.js';
-
 import { AttributeInputCallback } from './attribute-input-callback.js';
+import { BaseCallback } from './base-callback.js';
 import { ChoiceCallback } from './choice-callback.js';
 import { ConfirmationCallback } from './confirmation-callback.js';
 import { DeviceProfileCallback } from './device-profile-callback.js';
@@ -33,6 +30,8 @@ import { TextInputCallback } from './text-input-callback.js';
 import { TextOutputCallback } from './text-output-callback.js';
 import { ValidatedCreatePasswordCallback } from './validated-create-password-callback.js';
 import { ValidatedCreateUsernameCallback } from './validated-create-username-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 export type CallbackFactory = (callback: Callback) => BaseCallback;
 

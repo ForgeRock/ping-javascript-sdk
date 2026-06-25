@@ -5,12 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { describe, expectTypeOf, it } from 'vitest';
+
+import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
+
 import type {
+  InternalJourneyClientConfig,
   JourneyClientConfig,
   JourneyServerConfig,
-  InternalJourneyClientConfig,
 } from './config.types.js';
-import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
 describe('Config Types', () => {

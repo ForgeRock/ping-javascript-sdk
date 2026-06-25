@@ -5,8 +5,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import { isGenericError } from './error.utils.js';
+
 import type { GenericError } from '@forgerock/sdk-types';
 
 describe('isGenericError', () => {

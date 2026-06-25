@@ -4,61 +4,63 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
+  normalizeReplacements,
   returnActionCollector,
+  returnBooleanCollector,
   returnFlowCollector,
   returnIdpCollector,
-  returnSubmitCollector,
-  returnSingleValueCollector,
-  returnPasswordCollector,
-  returnValidatedPasswordCollector,
-  returnTextCollector,
-  returnSingleSelectCollector,
   returnMultiSelectCollector,
-  returnValidator,
-  returnReadOnlyCollector,
   returnNoValueCollector,
   returnObjectSelectCollector,
-  returnObjectValueCollector,
-  returnSingleValueAutoCollector,
   returnObjectValueAutoCollector,
+  returnObjectValueCollector,
+  returnPasswordCollector,
   returnQrCodeCollector,
-  normalizeReplacements,
-  returnBooleanCollector,
+  returnReadOnlyCollector,
+  returnSingleSelectCollector,
+  returnSingleValueAutoCollector,
+  returnSingleValueCollector,
+  returnSubmitCollector,
+  returnTextCollector,
   returnValidatedBooleanCollector,
+  returnValidatedPasswordCollector,
+  returnValidator,
 } from './collector.utils.js';
 import { returnPasswordPolicyValidator } from './password-policy.rules.js';
-import type {
-  DaVinciField,
-  DeviceAuthenticationField,
-  DeviceRegistrationField,
-  PasswordField,
-  FidoAuthenticationField,
-  FidoRegistrationField,
-  PhoneNumberExtensionField,
-  PhoneNumberField,
-  ProtectField,
-  QrCodeField,
-  PollingField,
-  ReadOnlyField,
-  RedirectField,
-  RichContentReplacement,
-  SingleCheckboxField,
-  StandardField,
-  AgreementField,
-} from './davinci.types.js';
+
 import type {
   BooleanCollector,
   MultiSelectCollector,
   PhoneNumberCollector,
   PhoneNumberExtensionCollector,
-  PhoneNumberOutputValue,
   PhoneNumberExtensionOutputValue,
+  PhoneNumberOutputValue,
   RichTextCollector,
   ValidatedBooleanCollector,
   ValidatedTextCollector,
 } from './collector.types.js';
+import type {
+  AgreementField,
+  DaVinciField,
+  DeviceAuthenticationField,
+  DeviceRegistrationField,
+  FidoAuthenticationField,
+  FidoRegistrationField,
+  PasswordField,
+  PhoneNumberExtensionField,
+  PhoneNumberField,
+  PollingField,
+  ProtectField,
+  QrCodeField,
+  ReadOnlyField,
+  RedirectField,
+  RichContentReplacement,
+  SingleCheckboxField,
+  StandardField,
+} from './davinci.types.js';
 
 describe('Action Collectors', () => {
   describe('returnFlowCollector', () => {

@@ -5,31 +5,32 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { logger as loggerFn, LogLevel, CustomLogger } from '@forgerock/sdk-logger';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { callbackType } from '@forgerock/sdk-types';
 import {
+  createWellknownError,
   isGenericError,
   isValidWellknownUrl,
-  createWellknownError,
 } from '@forgerock/sdk-utilities';
-
-import type { GenericError } from '@forgerock/sdk-types';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { Step } from '@forgerock/sdk-types';
+import { createStorage } from '@forgerock/storage';
+import * as Either from 'effect/Either';
 
 import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
-import { createStorage } from '@forgerock/storage';
-import * as Either from 'effect/Either';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
-import type { JourneyResult } from './journey.utils.js';
 import { wellknownApi } from './wellknown.api.js';
 
-import type { JourneyStep } from './step.utils.js';
-import type { JourneyClientConfig } from './config.types.js';
+import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { GenericError } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
+
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
-import type { NextOptions, StartParam, ResumeOptions } from './interfaces.js';
+import type { JourneyClientConfig } from './config.types.js';
+import type { NextOptions, ResumeOptions, StartParam } from './interfaces.js';
+import type { JourneyResult } from './journey.utils.js';
+import type { JourneyStep } from './step.utils.js';
 
 /** The journey client instance returned by the `journey()` function. */
 export interface JourneyClient {

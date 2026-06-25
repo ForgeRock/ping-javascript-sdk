@@ -6,43 +6,44 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expectTypeOf, it } from 'vitest';
+
 import type {
-  DaVinciError,
+  ActionCollector,
+  BooleanCollector,
+  DeviceAuthenticationCollector,
+  DeviceRegistrationCollector,
+  FidoAuthenticationCollector,
+  FidoRegistrationCollector,
+  FlowCollector,
+  IdpCollector,
+  MultiSelectCollector,
+  PasswordCollector,
+  PhoneNumberCollector,
+  PhoneNumberExtensionCollector,
+  PollingCollector,
+  ProtectCollector,
+  QrCodeCollector,
+  ReadOnlyCollector,
+  RichTextCollector,
+  SingleSelectCollector,
+  SingleValueCollector,
+  SubmitCollector,
+  TextCollector,
+  UnknownCollector,
+  ValidatedBooleanCollector,
+  ValidatedPasswordCollector,
+  ValidatedTextCollector,
+} from './collector.types.js';
+import type { ErrorDetail, Links } from './davinci.types.js';
+import type {
   Collectors,
   ContinueNode,
+  DaVinciError,
   ErrorNode,
   FailureNode,
   StartNode,
   SuccessNode,
 } from './node.types.js';
-import type { ErrorDetail, Links } from './davinci.types.js';
-import type {
-  ActionCollector,
-  FlowCollector,
-  MultiSelectCollector,
-  PasswordCollector,
-  ValidatedPasswordCollector,
-  ReadOnlyCollector,
-  RichTextCollector,
-  BooleanCollector,
-  ValidatedBooleanCollector,
-  SingleSelectCollector,
-  SingleValueCollector,
-  IdpCollector,
-  SubmitCollector,
-  TextCollector,
-  ValidatedTextCollector,
-  DeviceRegistrationCollector,
-  DeviceAuthenticationCollector,
-  PhoneNumberCollector,
-  PhoneNumberExtensionCollector,
-  UnknownCollector,
-  ProtectCollector,
-  PollingCollector,
-  FidoRegistrationCollector,
-  FidoAuthenticationCollector,
-  QrCodeCollector,
-} from './collector.types.js';
 // ErrorDetail and Links are used as part of the DaVinciError and server._links types respectively
 
 describe('Node Types', () => {

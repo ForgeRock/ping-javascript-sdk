@@ -8,8 +8,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { RecoveryCodes } from './recovery-codes.js';
 import { createJourneyStep } from '../step.utils.js';
+import { RecoveryCodes } from './recovery-codes.js';
 import {
   displayRecoveryCodesResponse,
   expectedDeviceName,

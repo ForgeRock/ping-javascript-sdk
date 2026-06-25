@@ -4,13 +4,14 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { dotToCamelCase } from '../helper.js';
+
 import type {
   PasswordCollector,
-  ValidatedPasswordCollector,
   Updater,
+  ValidatedPasswordCollector,
   Validator,
 } from '@forgerock/davinci-client/types';
-import { dotToCamelCase } from '../helper.js';
 
 const UPPERCASE_RE = /^[A-Z]+$/;
 const LOWERCASE_RE = /^[a-z]+$/;

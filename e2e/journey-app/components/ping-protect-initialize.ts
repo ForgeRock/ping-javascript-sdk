@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { protect } from '@forgerock/protect';
+
 import type { PingOneProtectInitializeCallback } from '@forgerock/journey-client/types';
 
 // Global storage for protect instance to be used by evaluation component

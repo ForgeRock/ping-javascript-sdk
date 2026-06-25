@@ -4,9 +4,13 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Schema } from 'effect';
-import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from '../schemas/authorize.schema.js';
-import { SuccessResponseRedirect } from '../schemas/return-success-response-redirect.schema.js';
+import type { Schema } from 'effect';
+
+import type {
+  DavinciAuthorizeHeaders,
+  DavinciAuthorizeQuery,
+} from '../schemas/authorize.schema.js';
+import type { SuccessResponseRedirect } from '../schemas/return-success-response-redirect.schema.js';
 
 type QueryTypes = Schema.Schema.Type<typeof DavinciAuthorizeQuery> | null;
 

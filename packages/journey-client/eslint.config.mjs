@@ -9,6 +9,7 @@ export default [
         'warn',
         {
           ignoredFiles: ['{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}'],
+          ignoredDependencies: ['vitest', 'vitest-canvas-mock'],
         },
       ],
     },

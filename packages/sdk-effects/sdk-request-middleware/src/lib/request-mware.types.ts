@@ -5,14 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import {
+import type {
   FetchArgs,
   FetchBaseQueryError,
   FetchBaseQueryMeta,
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
 
-import { ActionTypes } from './request-mware.derived.js';
+import type { ActionTypes } from './request-mware.derived.js';
 
 export type RequestMiddleware<Type extends ActionTypes = ActionTypes, Payload = unknown> = (
   req: ModifiedFetchArgs,

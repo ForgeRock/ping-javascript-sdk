@@ -10,9 +10,10 @@
 /**
  * @jest-environment jsdom
  */
-import { expect, describe, it } from 'vitest';
 import * as crypto from 'crypto';
 import { TextEncoder } from 'util';
+import { describe, expect, it } from 'vitest';
+
 import { createChallenge, createVerifier } from './pkce.utils.js';
 
 declare let window: unknown;

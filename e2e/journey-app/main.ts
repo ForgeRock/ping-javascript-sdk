@@ -4,19 +4,18 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import './style.css';
-
 import { journey } from '@forgerock/journey-client';
 
-import type { JourneyClient, RequestMiddleware } from '@forgerock/journey-client/types';
-
+import './style.css';
 import { renderCallbacks } from './callback-map.js';
 import { renderDeleteDevicesSection } from './components/delete-device.js';
 import { renderQRCodeStep } from './components/qr-code.js';
 import { renderRecoveryCodesStep } from './components/recovery-codes.js';
-import { deleteWebAuthnDevice } from './services/delete-webauthn-device.js';
 import { handleWebAuthnStep } from './components/webauthn-step.js';
 import { serverConfigs } from './server-configs.js';
+import { deleteWebAuthnDevice } from './services/delete-webauthn-device.js';
+
+import type { JourneyClient, RequestMiddleware } from '@forgerock/journey-client/types';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);

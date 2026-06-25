@@ -4,15 +4,17 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { it, expect, describe } from '@effect/vitest';
-import { Micro } from 'effect';
-import { deepStrictEqual } from 'node:assert';
-import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
-import { logoutµ } from './logout.request.js';
-import { createStorage } from '@forgerock/storage';
-import { createClientStore } from './client.store.utils.js';
+import { describe, expect, it } from '@effect/vitest';
 import { logger as loggerFn } from '@forgerock/sdk-logger';
+import { createStorage } from '@forgerock/storage';
+import { Micro } from 'effect';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { deepStrictEqual } from 'node:assert';
+
+import { createClientStore } from './client.store.utils.js';
+import { logoutµ } from './logout.request.js';
+
 import type { OauthTokens, OidcConfig } from './config.types.js';
 
 const server = setupServer(

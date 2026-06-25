@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { diff } from './differ.js';
-import type { LegacyExport, NewSdkExport, MarkdownExtractionResult } from './types.js';
+import { describe, expect, it } from 'vitest';
+
 import { SECTIONS } from './config.js';
+import { diff } from './differ.js';
+
+import type { LegacyExport, MarkdownExtractionResult, NewSdkExport } from './types.js';
 
 // ---------------------------------------------------------------------------
 // Test data helpers

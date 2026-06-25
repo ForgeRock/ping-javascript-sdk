@@ -8,7 +8,8 @@
  */
 
 import { getEndpointPath, getRealmUrlPath } from './am-url.utils.js';
-import { GetEndpointPathParams } from './am-url.types.js';
+
+import type { GetEndpointPathParams } from './am-url.types.js';
 
 describe('The URL utility functions', () => {
   it('getRealmUrlPath creates the correct paths', () => {

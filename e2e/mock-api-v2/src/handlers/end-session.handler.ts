@@ -4,10 +4,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, Console } from 'effect';
 import { HttpApiBuilder, HttpServerRequest } from '@effect/platform';
-import { MockApi } from '../spec.js';
+import { Console, Effect } from 'effect';
+
 import { SessionStorage } from '../services/session.service.js';
+import { MockApi } from '../spec.js';
 
 export const EndSessionHandlerMock = HttpApiBuilder.group(
   MockApi,

@@ -6,23 +6,24 @@
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expectTypeOf, it } from 'vitest';
+
+import type { NodeStates } from './lib/client.types.js';
+import type { DaVinciError } from './lib/node.types.js';
+import type * as Types from './types.js';
 import type {
-  StartNode,
+  ActionCollector,
   ContinueNode,
   ErrorNode,
-  SuccessNode,
   FailureNode,
-  ActionCollector,
-  SingleValueCollector,
   FlowCollector,
-  PasswordCollector,
-  TextCollector,
   IdpCollector,
+  PasswordCollector,
+  SingleValueCollector,
+  StartNode,
   SubmitCollector,
+  SuccessNode,
+  TextCollector,
 } from './types.js';
-import type * as Types from './types.js';
-import { DaVinciError } from './lib/node.types.js';
-import { NodeStates } from './lib/client.types.js';
 
 describe('Type exports', () => {
   it('should validate all types are exported', () => {

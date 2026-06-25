@@ -4,10 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, Match, Schema } from 'effect';
-
 import { HttpApiError } from '@effect/platform';
-import { CapabilitiesRequestBody } from '../schemas/capabilities/capabilities.request.schema.js';
+import { Effect, Match } from 'effect';
+
+import type { Schema } from 'effect';
+
+import type { CapabilitiesRequestBody } from '../schemas/capabilities/capabilities.request.schema.js';
 
 type PingRequestData = Schema.Schema.Type<typeof CapabilitiesRequestBody>;
 /**

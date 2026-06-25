@@ -1,3 +1,5 @@
+import { PROTECTED_PREFIXES, SECTIONS } from './config.js';
+
 import type {
   Finding,
   FindingAction,
@@ -7,7 +9,6 @@ import type {
   MarkdownExtractionResult,
   NewSdkExport,
 } from './types.js';
-import { PROTECTED_PREFIXES, SECTIONS } from './config.js';
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -5,8 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
-import type { MicroExit } from 'effect/Micro';
+
 import type { GenericError } from '@forgerock/sdk-types';
+import type { MicroExit } from 'effect/Micro';
 
 export function handleMicroExit<T, E>(
   result: MicroExit<T, E>,

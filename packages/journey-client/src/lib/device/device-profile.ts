@@ -8,10 +8,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { reduceToObject, reduceToString } from '@forgerock/sdk-utilities';
 import { logger as loggerFn } from '@forgerock/sdk-logger';
-
-import type { LogLevel } from '@forgerock/sdk-logger';
+import { reduceToObject, reduceToString } from '@forgerock/sdk-utilities';
 
 import {
   browserProps,
@@ -23,6 +21,8 @@ import {
   hardwareProps,
   platformProps,
 } from './defaults.js';
+
+import type { LogLevel } from '@forgerock/sdk-logger';
 
 import type {
   BaseProfileConfig,

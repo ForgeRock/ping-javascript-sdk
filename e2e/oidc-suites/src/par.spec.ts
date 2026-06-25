@@ -6,9 +6,10 @@
  * of the MIT license. See the LICENSE file for details.
  *
  */
-import { test, expect } from '@playwright/test';
-import { pingAmUsername, pingAmPassword } from './utils/demo-users.js';
+import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
+import { pingAmPassword, pingAmUsername } from './utils/demo-users.js';
 
 async function loginJourney(page, username: string, password: string) {
   await page.getByLabel('User Name').fill(username);

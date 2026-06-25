@@ -4,17 +4,18 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, pipe } from 'effect';
-import { MockApi } from '../spec.js';
 import {
   HttpApiBuilder,
   HttpApiError,
   HttpServerRequest,
   HttpServerResponse,
 } from '@effect/platform';
-import { responseMap } from '../responses/index.js';
+import { Effect, pipe } from 'effect';
+
 import { validator } from '../helpers/match.js';
+import { responseMap } from '../responses/index.js';
 import { returnSuccessResponseRedirect } from '../responses/return-success-redirect.js';
+import { MockApi } from '../spec.js';
 
 const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (handlers) =>
   handlers.handle('capabilities', ({ payload }) =>

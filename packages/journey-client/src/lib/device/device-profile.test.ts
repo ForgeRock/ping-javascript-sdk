@@ -7,9 +7,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { vi, expect, describe, it, afterEach, beforeEach, type MockInstance } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Device } from './device-profile.js';
+
+import type { MockInstance } from 'vitest';
 
 // Patch window.crypto.getRandomValues to return Uint32Array for compatibility
 Object.defineProperty(window, 'crypto', {

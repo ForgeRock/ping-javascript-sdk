@@ -9,11 +9,11 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import { describe, expect, it, beforeAll } from 'vitest';
-
-import type { Callback } from '@forgerock/sdk-types';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import { ReCaptchaEnterpriseCallback } from './recaptcha-enterprise-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 const recaptchaCallback: Callback = {
   type: callbackType.ReCaptchaEnterpriseCallback,

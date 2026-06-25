@@ -10,10 +10,10 @@
 
 import { parseCredentials, parsePubKeyArray } from './helpers.js';
 import {
-  allowCredentials70,
-  allowMultipleCredentials70,
   acceptableCredentials653,
   acceptableMultipleCredentials653,
+  allowCredentials70,
+  allowMultipleCredentials70,
   pubKeyCredParamsStr,
 } from './helpers.mock.data.js';
 

@@ -11,7 +11,7 @@
 
 import type { Callback, CustomPathConfig } from './am-callback.types.js';
 import type { LegacyRequestMiddleware } from './legacy-mware.types.js';
-import { CustomStorageObject } from './tokens.types.js';
+import type { CustomStorageObject } from './tokens.types.js';
 
 /**
  * Configuration settings for connecting to a server.

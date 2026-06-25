@@ -6,6 +6,7 @@
  */
 import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+
 import {
   transformAssertion,
   transformAuthenticationOptions,
@@ -14,6 +15,7 @@ import {
 } from './fido.utils.js';
 
 import type { GenericError } from '@forgerock/sdk-types';
+
 import type {
   FidoAuthenticationInputValue,
   FidoRegistrationInputValue,

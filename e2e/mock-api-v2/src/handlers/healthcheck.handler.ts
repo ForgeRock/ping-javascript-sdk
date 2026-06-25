@@ -1,6 +1,7 @@
 import { HttpApiBuilder } from '@effect/platform';
-import { MockApi } from '../spec.js';
 import { Effect } from 'effect';
+
+import { MockApi } from '../spec.js';
 
 const HealthCheckLive = HttpApiBuilder.group(MockApi, 'Healthcheck', (handlers) =>
   handlers.handle('HealthCheck', () =>

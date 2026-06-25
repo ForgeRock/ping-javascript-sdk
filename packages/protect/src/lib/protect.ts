@@ -7,7 +7,7 @@
  *
  */
 
-import { Protect, ProtectConfig, SignalsInitializationOptions } from './protect.types.js';
+import type { Protect, ProtectConfig, SignalsInitializationOptions } from './protect.types.js';
 
 // Add Signals SDK namespace to the window object
 declare global {

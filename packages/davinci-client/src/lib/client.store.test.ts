@@ -8,6 +8,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { davinci } from './client.store.js';
+
 import type { DaVinciConfig } from './config.types.js';
 
 // ---------------------------------------------------------------------------

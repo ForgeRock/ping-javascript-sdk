@@ -1,23 +1,24 @@
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { extractLegacyExports } from './extractors/legacy.js';
-import { extractNewSdkExports } from './extractors/new-sdk.js';
-import { extractDocumentedMappings } from './extractors/markdown.js';
-import { diff } from './differ.js';
-import { applyFixes } from './fixer.js';
-import { formatReport } from './reporter.js';
-import { generateSections } from './generator.js';
-import { replaceSections, replaceMigrationDependencies } from './writer.js';
-import { SYMBOL_MAP, PACKAGE_MAP } from './mapping-config.js';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import {
-  LEGACY_SDK_INDEX_PATH,
-  INTERFACE_MAPPING_PATH,
-  NEW_SDK_PACKAGES,
   CLIENT_PACKAGES,
+  INTERFACE_MAPPING_PATH,
+  LEGACY_SDK_INDEX_PATH,
+  NEW_SDK_PACKAGES,
 } from './config.js';
+import { diff } from './differ.js';
+import { extractLegacyExports } from './extractors/legacy.js';
+import { extractDocumentedMappings } from './extractors/markdown.js';
+import { extractNewSdkExports } from './extractors/new-sdk.js';
+import { applyFixes } from './fixer.js';
+import { generateSections } from './generator.js';
+import { PACKAGE_MAP, SYMBOL_MAP } from './mapping-config.js';
+import { formatReport } from './reporter.js';
 import { validateClientImportsOnly } from './validate-client-imports.js';
+import { replaceMigrationDependencies, replaceSections } from './writer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

@@ -5,8 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
-import { username, password } from './utils/demo-user.js';
+import { password, username } from './utils/demo-user.js';
 
 test('Test Protect collector with Custom HTML component', async ({ page }) => {
   const davinciFlow = 'ea02bcbfb2112e051c94ee9b08083d2d';

@@ -4,23 +4,27 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { it, expect } from '@effect/vitest';
-import { Micro } from 'effect';
-import { vi, afterEach } from 'vitest';
+import { expect, it } from '@effect/vitest';
 import * as sdkOidc from '@forgerock/sdk-oidc';
-import { createParAuthorizeUrlµ, authorizeµ } from './authorize.request.js';
+import { Micro } from 'effect';
+import { afterEach, vi } from 'vitest';
+
+import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import {
-  toAuthorizationError,
-  isFetchBaseQueryError,
-  toDispatchError,
-  isStringRecord,
-  hasPushRequestUri,
   buildAuthorizeOptions,
   buildParAuthorizeUrl,
+  hasPushRequestUri,
+  isFetchBaseQueryError,
+  isStringRecord,
+  toAuthorizationError,
+  toDispatchError,
 } from './authorize.request.utils.js';
-import type { OidcConfig } from './config.types.js';
+
+import type { CustomLogger } from '@forgerock/sdk-logger';
 import type { WellknownResponse } from '@forgerock/sdk-types';
+
 import type { ClientStore } from './client.types.js';
+import type { OidcConfig } from './config.types.js';
 
 const clientId = '123456789';
 const redirectUri = 'https://example.com/callback.html';
@@ -60,7 +64,7 @@ const mockLog = {
   error: vi.fn(),
   info: vi.fn(),
   warn: vi.fn(),
-} as unknown as import('@forgerock/sdk-logger').CustomLogger;
+} as unknown as CustomLogger;
 
 const sessionStorageStub = { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() };
 

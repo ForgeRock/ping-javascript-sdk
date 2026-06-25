@@ -10,9 +10,9 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import type { Callback } from '@forgerock/sdk-types';
-
 import { ValidatedCreatePasswordCallback } from './validated-create-password-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('ValidatedCreatePasswordCallback', () => {
   const payload: Callback = {

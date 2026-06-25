@@ -1,5 +1,8 @@
-import { test, expect, CDPSession } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
+
+import type { CDPSession } from '@playwright/test';
 
 const username = 'JSFidoUser@user.com';
 const password = 'FakePassword#123';

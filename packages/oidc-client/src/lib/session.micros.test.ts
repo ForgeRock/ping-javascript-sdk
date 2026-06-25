@@ -4,31 +4,32 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { it, expect } from '@effect/vitest';
-import { Micro } from 'effect';
-import { vi, afterEach, describe } from 'vitest';
+import { expect, it } from '@effect/vitest';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 import * as sdkUtilities from '@forgerock/sdk-utilities';
+import { Micro } from 'effect';
+import { afterEach, describe, vi } from 'vitest';
 
+import { oidcApi } from './oidc.api.js';
 import {
-  buildNoneUrl,
   buildIdTokenUrl,
-  dispatchSessionCheckIframeµ,
+  buildNoneUrl,
   dispatchSessionCheckFetchµ,
+  dispatchSessionCheckIframeµ,
   readStoredIdTokenµ,
   sessionCheckIdTokenµ,
   sessionCheckNoneµ,
   validateSessionCheckResponseµ,
 } from './session.micros.js';
-import { oidcApi } from './oidc.api.js';
 
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-import type { OidcConfig } from './config.types.js';
 import type { WellknownResponse } from '@forgerock/sdk-types';
-import type { ClientStore } from './client.types.js';
-import type { StorageClient } from '@forgerock/storage';
-import type { OauthTokens } from './config.types.js';
 import type { GenericError } from '@forgerock/sdk-types';
+import type { StorageClient } from '@forgerock/storage';
 import type { JWTPayload } from 'jose';
+
+import type { ClientStore } from './client.types.js';
+import type { OidcConfig } from './config.types.js';
+import type { OauthTokens } from './config.types.js';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 

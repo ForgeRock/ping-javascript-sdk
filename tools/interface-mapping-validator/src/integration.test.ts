@@ -1,22 +1,24 @@
-import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { extractLegacyExports } from './extractors/legacy.js';
-import { extractNewSdkExports } from './extractors/new-sdk.js';
-import { extractDocumentedMappings } from './extractors/markdown.js';
+import { fileURLToPath } from 'node:url';
+import { beforeAll, describe, expect, it } from 'vitest';
+
+import { INTERFACE_MAPPING_PATH, LEGACY_SDK_INDEX_PATH, NEW_SDK_PACKAGES } from './config.js';
 import { diff } from './differ.js';
-import { formatReport } from './reporter.js';
+import { extractLegacyExports } from './extractors/legacy.js';
+import { extractDocumentedMappings } from './extractors/markdown.js';
+import { extractNewSdkExports } from './extractors/new-sdk.js';
 import { generateSections } from './generator.js';
+import { PACKAGE_MAP, SYMBOL_MAP } from './mapping-config.js';
+import { formatReport } from './reporter.js';
 import { replaceSections } from './writer.js';
-import { SYMBOL_MAP, PACKAGE_MAP } from './mapping-config.js';
+
 import type {
-  LegacyExport,
-  NewSdkExport,
-  MarkdownExtractionResult,
   GeneratedSections,
+  LegacyExport,
+  MarkdownExtractionResult,
+  NewSdkExport,
 } from './types.js';
-import { LEGACY_SDK_INDEX_PATH, INTERFACE_MAPPING_PATH, NEW_SDK_PACKAGES } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

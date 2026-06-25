@@ -4,29 +4,27 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import {
-  createApi,
-  fetchBaseQuery,
-  type FetchArgs,
-  type FetchBaseQueryError,
-  type FetchBaseQueryMeta,
-  type QueryReturnValue,
-} from '@reduxjs/toolkit/query';
-import type { OidcConfig } from './config.types.js';
-import { transformError } from './oidc.api.utils.js';
 import { iFrameManager } from '@forgerock/iframe-manager';
-import {
-  initQuery,
-  type ActionTypes,
-  type RequestMiddleware,
-} from '@forgerock/sdk-request-middleware';
+import { initQuery } from '@forgerock/sdk-request-middleware';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+
+import { transformError } from './oidc.api.utils.js';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
-import type { TokenExchangeResponse } from './exchange.types.js';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { GenericError } from '@forgerock/sdk-types';
+import type {
+  FetchArgs,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  QueryReturnValue,
+} from '@reduxjs/toolkit/query';
+
 import type { AuthorizationSuccess, AuthorizeSuccessResponse } from './authorize.request.types.js';
 import type { UserInfoResponse } from './client.types.js';
+import type { OidcConfig } from './config.types.js';
+import type { TokenExchangeResponse } from './exchange.types.js';
 import type { PushAuthorizationResponse } from './par.types.js';
-import type { GenericError } from '@forgerock/sdk-types';
 import type { SessionCheckResponseType } from './session.types.js';
 
 const IFRAME_TIMEOUT_MS = 3000;

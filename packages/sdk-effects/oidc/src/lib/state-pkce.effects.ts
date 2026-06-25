@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { createVerifier, createState } from '@forgerock/sdk-utilities';
+import { createState, createVerifier } from '@forgerock/sdk-utilities';
 
 import type {
   GenerateAndStoreAuthUrlValues,
