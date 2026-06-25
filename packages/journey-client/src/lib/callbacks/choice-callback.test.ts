@@ -6,11 +6,11 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import { describe, it, expect } from 'vitest';
-
-import type { Callback } from '@forgerock/sdk-types';
+import { describe, expect, it } from 'vitest';
 
 import { ChoiceCallback } from './choice-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('ChoiceCallback', () => {
   const payload: Callback = {

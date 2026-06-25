@@ -1,5 +1,6 @@
-import type { Finding } from './types.js';
 import { PROTECTED_PREFIXES } from './config.js';
+
+import type { Finding } from './types.js';
 
 /**
  * Find the section heading marker in the lines array for a given section name.

@@ -8,11 +8,11 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { QRCode } from './qr-code.js';
-import { otpQRCodeStep, pushQRCodeStep } from './qr-code.mock.data.js';
 import { createJourneyStep } from '../step.utils.js';
 // import WebAuthn step as it's similar in structure for testing non-QR Code steps
 import { webAuthnRegJSCallback70 } from '../webauthn/webauthn.mock.data.js';
+import { QRCode } from './qr-code.js';
+import { otpQRCodeStep, pushQRCodeStep } from './qr-code.mock.data.js';
 
 describe('Class for managing QR Codes', () => {
   it('should return true for step containing OTP QR Code callbacks', () => {

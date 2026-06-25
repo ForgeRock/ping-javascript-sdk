@@ -4,34 +4,34 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { GenericError } from '@forgerock/sdk-types';
+import type { GenericError } from '@forgerock/sdk-types';
 
 import type {
-  FlowCollector,
-  PasswordCollector,
-  ValidatedPasswordCollector,
-  TextCollector,
-  IdpCollector,
-  SubmitCollector,
   ActionCollector,
   BooleanCollector,
-  ValidatedBooleanCollector,
-  SingleValueCollector,
-  SingleSelectCollector,
-  MultiSelectCollector,
   DeviceAuthenticationCollector,
   DeviceRegistrationCollector,
+  FidoAuthenticationCollector,
+  FidoRegistrationCollector,
+  FlowCollector,
+  IdpCollector,
+  MultiSelectCollector,
+  PasswordCollector,
+  PhoneNumberCollector,
+  PhoneNumberExtensionCollector,
+  PollingCollector,
+  ProtectCollector,
+  QrCodeCollector,
   ReadOnlyCollector,
   RichTextCollector,
-  ValidatedTextCollector,
-  PhoneNumberCollector,
-  ProtectCollector,
-  PollingCollector,
+  SingleSelectCollector,
+  SingleValueCollector,
+  SubmitCollector,
+  TextCollector,
   UnknownCollector,
-  FidoRegistrationCollector,
-  FidoAuthenticationCollector,
-  QrCodeCollector,
-  PhoneNumberExtensionCollector,
+  ValidatedBooleanCollector,
+  ValidatedPasswordCollector,
+  ValidatedTextCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
 

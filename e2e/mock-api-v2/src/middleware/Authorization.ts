@@ -1,5 +1,5 @@
-import { Unauthorized } from '@effect/platform/HttpApiError';
 import { HttpApiMiddleware, HttpApiSecurity, OpenApi } from '@effect/platform';
+import { Unauthorized } from '@effect/platform/HttpApiError';
 import { Brand, Context, Effect, Layer, Redacted } from 'effect';
 
 type BearerTokenValue = string & Brand.Brand<'BearerToken'>;

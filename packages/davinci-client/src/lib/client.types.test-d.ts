@@ -15,7 +15,7 @@ import type {
   InternalErrorResponse,
   Updater,
 } from './client.types.js';
-import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
+import type { ContinueNode, ErrorNode, FailureNode, StartNode, SuccessNode } from './node.types.js';
 
 describe('Client Types', () => {
   it('should allow function returning error', async () => {

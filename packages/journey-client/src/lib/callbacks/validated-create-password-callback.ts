@@ -4,9 +4,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
-
 import { BaseCallback } from './base-callback.js';
+
+import type { Callback, PolicyRequirement } from '@forgerock/sdk-types';
 
 /**
  * Represents a callback used to collect a valid platform password.

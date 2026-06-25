@@ -10,9 +10,9 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import type { Callback } from '@forgerock/sdk-types';
-
 import { ValidatedCreateUsernameCallback } from './validated-create-username-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('ValidatedCreateUsernameCallback', () => {
   const payload: Callback = {

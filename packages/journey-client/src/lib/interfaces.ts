@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { JourneyStep } from './step.types.js';
+import type { JourneyStep } from './step.types.js';
 
 export interface StartParam {
   journey: string;

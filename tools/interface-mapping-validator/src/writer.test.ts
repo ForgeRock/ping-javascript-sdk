@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { replaceSections, replaceMigrationDependencies } from './writer.js';
+import { describe, expect, it } from 'vitest';
+
+import { replaceMigrationDependencies, replaceSections } from './writer.js';
 
 // ---------------------------------------------------------------------------
 // Test fixture

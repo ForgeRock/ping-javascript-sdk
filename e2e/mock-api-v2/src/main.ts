@@ -4,27 +4,28 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Layer } from 'effect';
-import { NodeHttpServer, NodeRuntime } from '@effect/platform-node';
-import { MockApi } from './spec.js';
+import { NodeSdk } from '@effect/opentelemetry';
 import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, HttpServer } from '@effect/platform';
+import { NodeHttpServer, NodeRuntime } from '@effect/platform-node';
+import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
+import { Layer } from 'effect';
 import { createServer } from 'node:http';
-import { HealthCheckLive } from './handlers/healthcheck.handler.js';
-import { OpenidConfigMock } from './handlers/open-id-configuration.handler.js';
-import { IncrementStepIndexMock } from './middleware/CookieMiddleware.js';
+
 import { AuthorizeHandlerMock } from './handlers/authorize.handler.js';
 import { CapabilitiesHandlerMock } from './handlers/capabilities.handler.js';
-import { TokensMock } from './services/tokens.service.js';
+import { EndSessionHandlerMock } from './handlers/end-session.handler.js';
+import { HealthCheckLive } from './handlers/healthcheck.handler.js';
+import { OpenidConfigMock } from './handlers/open-id-configuration.handler.js';
+import { RevokeTokenHandler } from './handlers/revoke.handler.js';
 import { TokensHandler } from './handlers/token.handler.js';
 import { UserInfoMockHandler } from './handlers/userinfo.handler.js';
-import { UserInfoMockService } from './services/userinfo.service.js';
 import { AuthorizationMock } from './middleware/Authorization.js';
+import { IncrementStepIndexMock } from './middleware/CookieMiddleware.js';
 import { SessionMiddlewareMock } from './middleware/Session.js';
 import { SessionStorage } from './services/session.service.js';
-import { NodeSdk } from '@effect/opentelemetry';
-import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
-import { EndSessionHandlerMock } from './handlers/end-session.handler.js';
-import { RevokeTokenHandler } from './handlers/revoke.handler.js';
+import { TokensMock } from './services/tokens.service.js';
+import { UserInfoMockService } from './services/userinfo.service.js';
+import { MockApi } from './spec.js';
 
 const Services = [
   Layer.provide(TokensMock),

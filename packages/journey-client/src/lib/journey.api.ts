@@ -5,12 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { initQuery, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import { REQUESTED_WITH, getEndpointPath, stringify, resolve } from '@forgerock/sdk-utilities';
+import { initQuery } from '@forgerock/sdk-request-middleware';
+import { getEndpointPath, REQUESTED_WITH, resolve, stringify } from '@forgerock/sdk-utilities';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
-import type { Step } from '@forgerock/sdk-types';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { Step } from '@forgerock/sdk-types';
 import type {
   BaseQueryApi,
   BaseQueryFn,
@@ -20,10 +21,9 @@ import type {
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
 
-import { JourneyStep } from './step.types.js';
-
 import type { InternalJourneyClientConfig } from './config.types.js';
-import { NextOptions, StartParam } from './interfaces.js';
+import type { NextOptions, StartParam } from './interfaces.js';
+import type { JourneyStep } from './step.types.js';
 
 /**
  * Minimal state type for accessing journey config from RTK Query endpoints.

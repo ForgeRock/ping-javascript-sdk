@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { CustomLogger, LogLevel, LogMessage } from './logger.types.js';
+import type { CustomLogger, LogLevel, LogMessage } from './logger.types.js';
 
 export function logger(config: { level: LogLevel; custom?: CustomLogger }) {
   let logLevel: LogLevel = config.level || 'info';

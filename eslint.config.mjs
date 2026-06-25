@@ -5,15 +5,15 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import nxEslintPlugin from '@nx/eslint-plugin';
+import typescriptEslintEslintPlugin from '@typescript-eslint/eslint-plugin';
+import typescriptEslintParser from '@typescript-eslint/parser';
+import eslintPluginImport from 'eslint-plugin-import';
+import packageJson from 'eslint-plugin-package-json';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import js from '@eslint/js';
-import packageJson from 'eslint-plugin-package-json';
-import typescriptEslintEslintPlugin from '@typescript-eslint/eslint-plugin';
-import nxEslintPlugin from '@nx/eslint-plugin';
-import eslintPluginImport from 'eslint-plugin-import';
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
-import typescriptEslintParser from '@typescript-eslint/parser';
 
 const compat = new FlatCompat({
   baseDirectory: dirname(fileURLToPath(import.meta.url)),
@@ -46,7 +46,7 @@ export default [
   {
     rules: {
       'simple-import-sort/imports': [
-        'warn',
+        'error',
         {
           groups: [
             // value imports from packages
@@ -66,12 +66,13 @@ export default [
     files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
     rules: {
       '@typescript-eslint/consistent-type-imports': [
-        'warn',
+        'error',
         {
           prefer: 'type-imports',
           fixStyle: 'separate-type-imports',
         },
       ],
+      'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     },
   },
   {

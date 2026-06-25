@@ -4,9 +4,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { Callback } from '@forgerock/sdk-types';
-
 import { TextOutputCallback } from './text-output-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 /**
  * Represents a callback used to display a message.

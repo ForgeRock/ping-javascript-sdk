@@ -6,9 +6,9 @@
  */
 import { Array as Arr, Option, pipe } from 'effect';
 
+import type { Validator } from './client.types.js';
 import type { ValidatedPasswordCollector } from './collector.types.js';
 import type { PasswordPolicy } from './davinci.types.js';
-import { Validator } from './client.types.js';
 
 /**
  * A single policy check: given the policy and a candidate value, produce zero or more

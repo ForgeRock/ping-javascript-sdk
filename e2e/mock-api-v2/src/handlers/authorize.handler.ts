@@ -4,10 +4,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, pipe } from 'effect';
-import { MockApi } from '../spec.js';
 import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platform';
+import { Effect, pipe } from 'effect';
+
 import { getFirstElementAndRespond } from '../services/mock-env-helpers/index.js';
+import { MockApi } from '../spec.js';
 
 const AuthorizeHandlerMock = HttpApiBuilder.group(MockApi, 'Authorization', (handlers) =>
   handlers.handle('authorize', ({ urlParams }) =>

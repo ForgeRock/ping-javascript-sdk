@@ -4,8 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { PlaywrightTestConfig } from '@playwright/test';
 import { workspaceRoot } from '@nx/devkit';
+
+import type { PlaywrightTestConfig } from '@playwright/test';
 
 // For CI, you may want to set BASE_URL to the deployed application.
 const baseURL = process.env['BASE_URL'] || 'http://localhost:5829';

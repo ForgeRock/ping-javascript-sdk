@@ -6,8 +6,9 @@
  */
 
 import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
-import { username, password } from './utils/demo-user.js';
+import { password, username } from './utils/demo-user.js';
 
 // Skipping test until AM Mock API is available that supports custom paths
 test.skip('Test happy paths on test page', async ({ page }) => {

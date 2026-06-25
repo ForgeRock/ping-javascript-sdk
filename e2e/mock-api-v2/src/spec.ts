@@ -4,31 +4,31 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Schema } from 'effect';
 import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup, OpenApi } from '@effect/platform';
-import { openIdConfigurationResponseSchema } from './schemas/open-id-configuration/open-id-configuration-response.schema.js';
-import { TokenResponseBody } from './schemas/token/token.schema.js';
-import { UserInfoSchema } from './schemas/userinfo/userinfo.schema.js';
+import { Schema } from 'effect';
+
+import { addStepCookie } from './addStepCookie.openapi.js';
 import { Authorization } from './middleware/Authorization.js';
+import { IncrementStepIndex } from './middleware/CookieMiddleware.js';
 import { SessionMiddleware } from './middleware/Session.js';
+import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from './schemas/authorize.schema.js';
+import { CapabilitiesHeaders } from './schemas/capabilities/capabilities.headers.schema.js';
+import { CapabilitiesPathParams } from './schemas/capabilities/capabilities.path.schema.js';
+import { CapabilitiesRequestBody } from './schemas/capabilities/capabilities.request.schema.js';
+import { CapabilitiesResponse } from './schemas/capabilities/capabilities.response.schema.js';
 import {
-  EndSessionQuery,
   EndSessionHeaders,
   EndSessionPath,
+  EndSessionQuery,
 } from './schemas/end-session.schema.js';
+import { openIdConfigurationResponseSchema } from './schemas/open-id-configuration/open-id-configuration-response.schema.js';
 import {
   RevokePath,
   RevokeRequestBody,
   RevokeResponseBody,
 } from './schemas/revoke/revoke.schema.js';
-
-import { CapabilitiesHeaders } from './schemas/capabilities/capabilities.headers.schema.js';
-import { CapabilitiesResponse } from './schemas/capabilities/capabilities.response.schema.js';
-import { DavinciAuthorizeHeaders, DavinciAuthorizeQuery } from './schemas/authorize.schema.js';
-import { CapabilitiesPathParams } from './schemas/capabilities/capabilities.path.schema.js';
-import { CapabilitiesRequestBody } from './schemas/capabilities/capabilities.request.schema.js';
-import { addStepCookie } from './addStepCookie.openapi.js';
-import { IncrementStepIndex } from './middleware/CookieMiddleware.js';
+import { TokenResponseBody } from './schemas/token/token.schema.js';
+import { UserInfoSchema } from './schemas/userinfo/userinfo.schema.js';
 
 const MockApi = HttpApi.make('MyApi')
   .annotate(OpenApi.Title, 'PingOne OIDC and OAuth2 Mock API')

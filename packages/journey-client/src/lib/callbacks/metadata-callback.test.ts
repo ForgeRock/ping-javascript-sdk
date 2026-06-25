@@ -6,11 +6,11 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import { describe, it, expect } from 'vitest';
-
-import type { Callback } from '@forgerock/sdk-types';
+import { describe, expect, it } from 'vitest';
 
 import { MetadataCallback } from './metadata-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('MetadataCallback', () => {
   it('should allow getting the data', () => {

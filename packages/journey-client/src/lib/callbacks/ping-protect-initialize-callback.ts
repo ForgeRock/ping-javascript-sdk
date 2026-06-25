@@ -4,9 +4,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { Callback } from '@forgerock/sdk-types';
-
 import { BaseCallback } from './base-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 /**
  * @class - Represents a callback used to initialize and start device and behavioral data collection.

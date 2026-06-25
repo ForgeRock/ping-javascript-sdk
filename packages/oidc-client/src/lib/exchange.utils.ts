@@ -4,17 +4,17 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { SerializedError } from '@reduxjs/toolkit';
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
 import { Micro } from 'effect';
 
-import { getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
+import type { SerializedError } from '@reduxjs/toolkit';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
+import type { OidcConfig } from './config.types.js';
 import type { TokenExchangeResponse, TokenRequestOptions } from './exchange.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
-import type { OidcConfig } from './config.types.js';
 
 export function createValuesµ(
   code: string,

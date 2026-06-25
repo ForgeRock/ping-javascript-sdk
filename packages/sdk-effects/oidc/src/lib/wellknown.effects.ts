@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { WellknownResponse, GenericError } from '@forgerock/sdk-types';
+import type { GenericError, WellknownResponse } from '@forgerock/sdk-types';
 
 /**
  * Structural types compatible with RTK Query's shapes.

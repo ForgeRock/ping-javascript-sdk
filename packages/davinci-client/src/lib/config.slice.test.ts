@@ -4,7 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import { configSlice } from './config.slice.js';
 
 describe('The config slice reducers', () => {

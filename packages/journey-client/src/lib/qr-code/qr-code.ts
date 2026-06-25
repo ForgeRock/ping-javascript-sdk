@@ -10,9 +10,8 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import { TextOutputCallback } from '../callbacks/text-output-callback.js';
-import { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
-
+import type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 import type { JourneyStep } from '../step.utils.js';
 
 export type QRCodeData = {

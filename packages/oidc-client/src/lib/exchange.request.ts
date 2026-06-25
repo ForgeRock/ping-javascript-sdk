@@ -6,14 +6,14 @@
  */
 import { Micro } from 'effect';
 
-import { logger } from '@forgerock/sdk-logger';
-
 import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
 import { oidcApi } from './oidc.api.js';
 
+import type { logger } from '@forgerock/sdk-logger';
+import type { StorageConfig } from '@forgerock/storage';
+
 import type { ClientStore } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type { StorageConfig } from '@forgerock/storage';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 
 interface BuildTokenExchangeµParams {

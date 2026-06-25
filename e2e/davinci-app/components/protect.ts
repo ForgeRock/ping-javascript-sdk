@@ -6,8 +6,8 @@
  */
 import type {
   TextCollector,
-  ValidatedTextCollector,
   Updater,
+  ValidatedTextCollector,
 } from '@forgerock/davinci-client/types';
 
 export default function protectComponent(

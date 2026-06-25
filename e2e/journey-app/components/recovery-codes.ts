@@ -5,7 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { RecoveryCodes } from '@forgerock/journey-client/recovery-codes';
-import type { JourneyStep, ConfirmationCallback } from '@forgerock/journey-client/types';
+
+import type { ConfirmationCallback, JourneyStep } from '@forgerock/journey-client/types';
 
 export function renderRecoveryCodesStep(journeyEl: HTMLDivElement, step: JourneyStep): boolean {
   if (!RecoveryCodes.isDisplayStep(step)) {

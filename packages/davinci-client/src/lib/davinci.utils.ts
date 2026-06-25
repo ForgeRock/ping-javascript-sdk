@@ -7,12 +7,17 @@
 /**
  * Import the used types
  */
-import type { Dispatch } from '@reduxjs/toolkit';
-
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-
 import { nodeSlice } from './node.slice.js';
 
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { Dispatch } from '@reduxjs/toolkit';
+
+import type {
+  DeviceValue,
+  FidoAuthenticationInputValue,
+  FidoRegistrationInputValue,
+  PhoneNumberInputValue,
+} from './collector.types.js';
 import type {
   DaVinciCacheEntry,
   DavinciErrorResponse,
@@ -22,12 +27,6 @@ import type {
   DaVinciSuccessResponse,
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
-import {
-  DeviceValue,
-  FidoAuthenticationInputValue,
-  FidoRegistrationInputValue,
-  PhoneNumberInputValue,
-} from './collector.types.js';
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions
  * @param {ContinueNode} node - The node to transform into a DaVinciRequest

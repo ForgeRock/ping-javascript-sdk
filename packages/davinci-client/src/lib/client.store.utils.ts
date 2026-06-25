@@ -6,17 +6,17 @@
  */
 import { configureStore } from '@reduxjs/toolkit';
 
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import { configSlice } from './config.slice.js';
+import { davinciApi } from './davinci.api.js';
+import { nodeSlice } from './node.slice.js';
+import { wellknownApi } from './wellknown.api.js';
+
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError } from '@forgerock/sdk-types';
 
-import type { ErrorNode, ContinueNode, StartNode, SuccessNode } from '../types.js';
+import type { ContinueNode, ErrorNode, StartNode, SuccessNode } from '../types.js';
 import type { InternalErrorResponse } from './client.types.js';
-
-import { configSlice } from './config.slice.js';
-import { nodeSlice } from './node.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { wellknownApi } from './wellknown.api.js';
 
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,

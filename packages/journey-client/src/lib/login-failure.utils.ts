@@ -5,9 +5,9 @@
  */
 import { StepType } from '@forgerock/sdk-types';
 
-import type { Step, AuthResponse, FailureDetail } from '@forgerock/sdk-types';
-
 import { Policy } from './policy/policy.js';
+
+import type { AuthResponse, FailureDetail, Step } from '@forgerock/sdk-types';
 
 import type { MessageCreator, ProcessedPropertyError } from './policy/interfaces.js';
 

@@ -36,17 +36,25 @@ export {
 // Re-export the davinci function so DavinciClient type alias can be resolved
 export { davinci } from './lib/client.store.js';
 
-import { davinci } from './lib/client.store.js';
+import type { davinci } from './lib/client.store.js';
 
 export type DavinciClient = Awaited<ReturnType<typeof davinci>>;
+
+import type {
+  ContinueNode,
+  ErrorNode,
+  FailureNode,
+  StartNode,
+  SuccessNode,
+} from './lib/node.types.js';
 
 /**
  * The client property of any node state.
  * Represents the parsed client-facing state from a DaVinci flow node.
  */
 export type GetClient =
-  | import('./lib/node.types.js').StartNode['client']
-  | import('./lib/node.types.js').ContinueNode['client']
-  | import('./lib/node.types.js').ErrorNode['client']
-  | import('./lib/node.types.js').SuccessNode['client']
-  | import('./lib/node.types.js').FailureNode['client'];
+  | StartNode['client']
+  | ContinueNode['client']
+  | ErrorNode['client']
+  | SuccessNode['client']
+  | FailureNode['client'];

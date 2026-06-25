@@ -6,7 +6,7 @@
 
 import { StepType } from '@forgerock/sdk-types';
 
-import type { Step, AuthResponse } from '@forgerock/sdk-types';
+import type { AuthResponse, Step } from '@forgerock/sdk-types';
 
 type JourneyLoginSuccess = AuthResponse & {
   type: StepType.LoginSuccess;

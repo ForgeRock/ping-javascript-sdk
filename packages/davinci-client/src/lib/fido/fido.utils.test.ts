@@ -4,7 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
   transformAssertion,
   transformAuthenticationOptions,
@@ -12,8 +13,8 @@ import {
   transformRegistrationOptions,
 } from './fido.utils';
 
-import type { FidoAuthenticationOptions, FidoRegistrationOptions } from '../davinci.types';
 import type { FidoAuthenticationInputValue, FidoRegistrationInputValue } from '../collector.types';
+import type { FidoAuthenticationOptions, FidoRegistrationOptions } from '../davinci.types';
 
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
   const binaryString = atob(base64);

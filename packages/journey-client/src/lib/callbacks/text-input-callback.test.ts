@@ -10,9 +10,9 @@
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import type { Callback } from '@forgerock/sdk-types';
-
 import { TextInputCallback } from './text-input-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('TextInputCallback', () => {
   const payload: Callback = {

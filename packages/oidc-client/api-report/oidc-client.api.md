@@ -16,7 +16,7 @@ import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { JWTPayload } from 'jose';
-import { logger } from '@forgerock/sdk-logger';
+import type { logger } from '@forgerock/sdk-logger';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { LogMessage } from '@forgerock/sdk-logger';
 import { MutationDefinition } from '@reduxjs/toolkit/query';

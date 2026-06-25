@@ -4,14 +4,17 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Context, Effect, Layer, Schema } from 'effect';
 import { HttpApiError } from '@effect/platform';
-import { tokenResponseBody } from '../responses/token/token.js';
-import { TokenResponseBody } from '../schemas/token/token.schema.js';
-import { revokeResponseBody } from '../responses/revoke/revoke.js';
-import { RevokeResponseBody } from '../schemas/revoke/revoke.schema.js';
+import { Context, Effect, Layer } from 'effect';
 
-import { HeaderTypes } from '../types/index.js';
+import { revokeResponseBody } from '../responses/revoke/revoke.js';
+import { tokenResponseBody } from '../responses/token/token.js';
+
+import type { Schema } from 'effect';
+
+import type { RevokeResponseBody } from '../schemas/revoke/revoke.schema.js';
+import type { TokenResponseBody } from '../schemas/token/token.schema.js';
+import type { HeaderTypes } from '../types/index.js';
 
 type TokensResponseBody = Schema.Schema.Type<typeof TokenResponseBody>;
 type RevokeTokenResponseBody = Schema.Schema.Type<typeof RevokeResponseBody>;

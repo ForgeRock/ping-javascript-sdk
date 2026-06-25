@@ -1,19 +1,22 @@
 import { deviceClient } from '@forgerock/device-client';
-import type { ConfigOptions, DeviceClient } from '@forgerock/device-client/types';
 import {
   CallbackType,
   Config,
   FRAuth,
-  FRLoginFailure,
-  FRLoginSuccess,
-  FRStep,
-  NameCallback,
-  PasswordCallback,
   SessionManager,
   TokenManager,
   UserManager,
 } from '@forgerock/javascript-sdk';
 import { Console, Effect } from 'effect';
+
+import type { ConfigOptions, DeviceClient } from '@forgerock/device-client/types';
+import type {
+  FRLoginFailure,
+  FRLoginSuccess,
+  FRStep,
+  NameCallback,
+  PasswordCallback,
+} from '@forgerock/javascript-sdk';
 
 const logout = Effect.ignore(
   Effect.tryPromise({

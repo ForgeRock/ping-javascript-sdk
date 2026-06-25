@@ -6,12 +6,12 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
+import { NameCallback } from './callbacks/name-callback.js';
+import { createJourneyStep } from './step.utils.js';
 
 import type { Step } from '@forgerock/sdk-types';
-
-import { createJourneyStep } from './step.utils.js';
-import { NameCallback } from './callbacks/name-callback.js';
 
 describe('fr-step.ts', () => {
   const stepPayload: Step = {

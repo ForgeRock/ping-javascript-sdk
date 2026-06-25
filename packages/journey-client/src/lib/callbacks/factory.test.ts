@@ -6,18 +6,15 @@
  */
 
 import { callbackType } from '@forgerock/sdk-types';
-import { describe, it, expect } from 'vitest';
-
-import type { Callback } from '@forgerock/sdk-types';
-
-import { createCallback } from './factory.js';
-import { BaseCallback } from './base-callback.js';
+import { describe, expect, it } from 'vitest';
 
 // Import all callback classes to check against
 import { AttributeInputCallback } from './attribute-input-callback.js';
+import { BaseCallback } from './base-callback.js';
 import { ChoiceCallback } from './choice-callback.js';
 import { ConfirmationCallback } from './confirmation-callback.js';
 import { DeviceProfileCallback } from './device-profile-callback.js';
+import { createCallback } from './factory.js';
 import { HiddenValueCallback } from './hidden-value-callback.js';
 import { KbaCreateCallback } from './kba-create-callback.js';
 import { MetadataCallback } from './metadata-callback.js';
@@ -36,6 +33,8 @@ import { TextInputCallback } from './text-input-callback.js';
 import { TextOutputCallback } from './text-output-callback.js';
 import { ValidatedCreatePasswordCallback } from './validated-create-password-callback.js';
 import { ValidatedCreateUsernameCallback } from './validated-create-username-callback.js';
+
+import type { Callback } from '@forgerock/sdk-types';
 
 describe('Callback Factory', () => {
   const testCases = [

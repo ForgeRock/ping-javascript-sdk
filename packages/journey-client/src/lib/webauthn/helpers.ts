@@ -14,6 +14,7 @@
  * These are private utility functions for HttpClient
  */
 import { WebAuthnOutcomeType } from './enums.js';
+
 import type { ParsedCredential } from './interfaces.js';
 
 function ensureArray(arr: RegExpMatchArray | null): string[] {

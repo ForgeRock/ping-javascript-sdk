@@ -5,15 +5,15 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { type CallbackType, type Callback, type Step } from '@forgerock/sdk-types';
-
 import { StepType } from '@forgerock/sdk-types';
 
 import { createCallback } from './callbacks/factory.js';
 
+import type { Callback, CallbackType, Step } from '@forgerock/sdk-types';
+
 import type { BaseCallback } from './callbacks/base-callback.js';
-import type { JourneyStep } from './step.types.js';
 import type { CallbackFactory } from './callbacks/factory.js';
+import type { JourneyStep } from './step.types.js';
 
 function getCallbacksOfType<T extends BaseCallback>(
   callbacks: BaseCallback[],

@@ -8,7 +8,8 @@
  */
 
 import { Console, Effect } from 'effect';
-import { getUser, LoginAndGetClient, handleError, handleSuccess } from '../utils/index.js';
+
+import { getUser, handleError, handleSuccess, LoginAndGetClient } from '../utils/index.js';
 
 const deviceProfiling = Effect.gen(function* () {
   const client = yield* LoginAndGetClient;

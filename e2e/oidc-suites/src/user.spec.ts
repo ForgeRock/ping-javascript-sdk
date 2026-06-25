@@ -6,14 +6,15 @@
  * of the MIT license. See the LICENSE file for details.
  *
  */
-import { test, expect } from '@playwright/test';
-import {
-  pingAmUsername,
-  pingAmPassword,
-  pingOneUsername,
-  pingOnePassword,
-} from './utils/demo-users.js';
+import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
+import {
+  pingAmPassword,
+  pingAmUsername,
+  pingOnePassword,
+  pingOneUsername,
+} from './utils/demo-users.js';
 
 test.describe('User tests', () => {
   test('get user info from PingAM', async ({ page }) => {

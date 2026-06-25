@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { expect, type Page } from '@playwright/test';
+
 import { asyncEvents } from './async-events.js';
 
 export async function loginPingAm(page: Page, username: string, password: string) {

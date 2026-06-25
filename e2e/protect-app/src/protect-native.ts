@@ -7,22 +7,26 @@
  *
  */
 
-import './style.css';
-import { protect } from '@forgerock/protect';
-import type { Protect } from '@forgerock/protect/types';
 import {
   CallbackType,
   Config,
   FRAuth,
-  FRStep,
   FRUser,
+  TokenManager,
+  UserManager,
+} from '@forgerock/javascript-sdk';
+import { protect } from '@forgerock/protect';
+
+import './style.css';
+
+import type {
+  FRStep,
   NameCallback,
   PasswordCallback,
   PingOneProtectEvaluationCallback,
   PingOneProtectInitializeCallback,
-  TokenManager,
-  UserManager,
 } from '@forgerock/javascript-sdk';
+import type { Protect } from '@forgerock/protect/types';
 
 const protectAPI: Protect = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
 const FATAL = 'Fatal';

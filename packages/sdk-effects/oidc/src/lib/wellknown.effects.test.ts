@@ -5,8 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { describe, it, expect } from 'vitest';
-import { isValidWellknownResponse, initWellknownQuery } from './wellknown.effects.js';
+import { describe, expect, it } from 'vitest';
+
+import { initWellknownQuery, isValidWellknownResponse } from './wellknown.effects.js';
 
 import type { WellknownResponse } from '@forgerock/sdk-types';
 

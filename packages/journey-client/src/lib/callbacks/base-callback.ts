@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { CallbackType, Callback, NameValue } from '@forgerock/sdk-types';
+import type { Callback, CallbackType, NameValue } from '@forgerock/sdk-types';
 
 /**
  * Base class for authentication tree callback wrappers.

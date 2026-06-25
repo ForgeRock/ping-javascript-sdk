@@ -1,5 +1,6 @@
 import { Project } from 'ts-morph';
-import type { LegacyExport, ExportKind } from '../types.js';
+
+import type { ExportKind, LegacyExport } from '../types.js';
 
 /**
  * Extracts all named exports from the legacy SDK's index file using static analysis.

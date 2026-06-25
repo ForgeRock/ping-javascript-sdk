@@ -14,29 +14,30 @@ import { createAction, createReducer } from '@reduxjs/toolkit';
  */
 import {
   returnActionCollector,
-  returnFlowCollector,
-  returnPasswordCollector,
-  returnValidatedPasswordCollector,
-  returnIdpCollector,
-  returnSubmitCollector,
-  returnTextCollector,
   returnBooleanCollector,
-  returnValidatedBooleanCollector,
-  returnSingleSelectCollector,
+  returnFidoAuthenticationCollector,
+  returnFidoRegistrationCollector,
+  returnFlowCollector,
+  returnIdpCollector,
   returnMultiSelectCollector,
-  returnReadOnlyCollector,
   returnObjectSelectCollector,
   returnObjectValueCollector,
-  returnProtectCollector,
+  returnPasswordCollector,
   returnPollingCollector,
-  returnUnknownCollector,
-  returnFidoRegistrationCollector,
-  returnFidoAuthenticationCollector,
+  returnProtectCollector,
   returnQrCodeCollector,
+  returnReadOnlyCollector,
+  returnSingleSelectCollector,
+  returnSubmitCollector,
+  returnTextCollector,
+  returnUnknownCollector,
+  returnValidatedBooleanCollector,
+  returnValidatedPasswordCollector,
 } from './collector.utils.js';
-import type { DaVinciField, UnknownField } from './davinci.types.js';
-import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
+
 import type { CollectorValueTypes } from './client.types.js';
+import type { PhoneNumberExtensionOutputValue, PhoneNumberOutputValue } from './collector.types.js';
+import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type { Collectors } from './node.types.js';
 
 /**

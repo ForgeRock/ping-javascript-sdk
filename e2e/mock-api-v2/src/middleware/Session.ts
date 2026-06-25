@@ -1,6 +1,9 @@
 import { HttpApiError, HttpApiMiddleware, HttpServerRequest } from '@effect/platform';
-import { SessionData, SessionStorage } from '../services/session.service.js';
 import { Context, Effect, Layer } from 'effect';
+
+import { SessionStorage } from '../services/session.service.js';
+
+import type { SessionData } from '../services/session.service.js';
 
 class Session extends Context.Tag('Session')<Session, SessionData>() {}
 

@@ -4,20 +4,19 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
-
 import { createRandomString, createState } from '@forgerock/sdk-utilities';
+import { Micro } from 'effect';
+import { decodeJwt } from 'jose/jwt/decode';
 
 import { oidcApi } from './oidc.api.js';
-
-import { decodeJwt } from 'jose/jwt/decode';
-import type { JWTPayload } from 'jose';
 
 import type { CustomLogger } from '@forgerock/sdk-logger';
 import type { GenericError, WellknownResponse } from '@forgerock/sdk-types';
 import type { StorageClient } from '@forgerock/storage';
-import type { OauthTokens, OidcConfig } from './config.types.js';
+import type { JWTPayload } from 'jose';
+
 import type { ClientStore } from './client.types.js';
+import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 
 // ─── Storage read ─────────────────────────────────────────────────────────────

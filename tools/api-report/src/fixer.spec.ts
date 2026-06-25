@@ -1,12 +1,13 @@
 import { resolve } from 'node:path';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import {
-  parseForgottenExportMessage,
-  resolveSourcePackage,
+  buildReExportStatement,
   determineExportKind,
   findImportModuleForSymbol,
-  buildReExportStatement,
   insertReExport,
+  parseForgottenExportMessage,
+  resolveSourcePackage,
 } from './fixer.js';
 
 describe('parseForgottenExportMessage', () => {
