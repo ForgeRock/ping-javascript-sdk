@@ -10,6 +10,7 @@ import { setupServer } from 'msw/node';
 import { it, expect, describe, vi, beforeEach, afterEach, afterAll, beforeAll } from 'vitest';
 
 import { oidc } from './client.store.js';
+import { makeOidcConfig } from '@forgerock/sdk-utilities';
 
 import type { OidcConfig } from './config.types.js';
 
@@ -716,6 +717,85 @@ describe('authorize.url() with PAR enabled on non-pi.flow server', async () => {
     expect(parsed.searchParams.has('scope')).toBe(false);
     expect(parsed.searchParams.has('code_challenge')).toBe(false);
     expect(parsed.searchParams.has('redirect_uri')).toBe(false);
+  });
+});
+
+describe('unified JSON config entry', () => {
+  it('accepts unified JSON config and initializes successfully', async () => {
+    const unifiedConfig = {
+      oidc: {
+        clientId: '123456789',
+        discoveryEndpoint: 'https://api.example.com/wellknown',
+        scopes: ['openid', 'profile'],
+        redirectUri: 'https://example.com/callback.html',
+      },
+    };
+
+    const client = await oidc({
+      config: makeOidcConfig(unifiedConfig),
+      storage: customStorageConfig,
+    });
+    expect(client).not.toHaveProperty('error');
+    expect(client).toHaveProperty('authorize');
+    expect(client).toHaveProperty('token');
+  });
+
+  it('rejects Promise when unified JSON config has missing required fields', async () => {
+    const invalidConfig = {
+      oidc: {
+        // clientId missing
+        discoveryEndpoint: 'https://api.example.com/wellknown',
+        scopes: ['openid'],
+        redirectUri: 'https://example.com/callback.html',
+      },
+    };
+
+    expect(() => makeOidcConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
+  });
+
+  it('rejects Promise when unified JSON config has wrong field type', async () => {
+    const invalidConfig = {
+      oidc: {
+        clientId: '123456789',
+        discoveryEndpoint: 'https://api.example.com/wellknown',
+        scopes: 'openid', // deliberately wrong type to test runtime validation
+        redirectUri: 'https://example.com/callback.html',
+      },
+    };
+
+    expect(() => makeOidcConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
+  });
+
+  it('surfaces authorize params from unified JSON config in authorize URL', async () => {
+    const unifiedConfig = {
+      oidc: {
+        clientId: '123456789',
+        discoveryEndpoint: 'https://api.example.com/wellknown',
+        scopes: ['openid', 'profile'],
+        redirectUri: 'https://example.com/callback.html',
+        loginHint: 'user@example.com',
+        nonce: 'my-nonce',
+        acrValues: 'Level3',
+        additionalParameters: { max_age: '3600' },
+      },
+    };
+
+    const client = await oidc({
+      config: makeOidcConfig(unifiedConfig),
+      storage: customStorageConfig,
+    });
+
+    if ('error' in client) throw new Error('Error creating OIDC client');
+
+    const url = await client.authorize.url();
+
+    if (typeof url !== 'string') expect.fail(`Expected string URL, got: ${JSON.stringify(url)}`);
+
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get('login_hint')).toBe('user@example.com');
+    expect(parsed.searchParams.get('nonce')).toBe('my-nonce');
+    expect(parsed.searchParams.get('acr_values')).toBe('Level3');
+    expect(parsed.searchParams.get('max_age')).toBe('3600');
   });
 });
 

@@ -396,12 +396,18 @@ export const oidcApi = createApi({
         return { data: response.data } as { data: AuthorizationSuccess };
       },
     }),
-    endSession: builder.mutation<null, { idToken: string; endpoint: string }>({
-      queryFn: async ({ idToken, endpoint }, api, _, baseQuery) => {
+    endSession: builder.mutation<
+      null,
+      { idToken: string; endpoint: string; signOutRedirectUri?: string }
+    >({
+      queryFn: async ({ idToken, endpoint, signOutRedirectUri }, api, _, baseQuery) => {
         const { requestMiddleware, logger } = api.extra as Extras;
 
         const url = new URL(endpoint);
         url.searchParams.append('id_token_hint', idToken);
+        if (signOutRedirectUri) {
+          url.searchParams.append('post_logout_redirect_uri', signOutRedirectUri);
+        }
 
         const request: FetchArgs = {
           url: url.toString(),

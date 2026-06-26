@@ -1,23 +1,10 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { AsyncLegacyConfigOptions, ResponseType } from '@forgerock/sdk-types';
-
-export interface OidcConfig extends AsyncLegacyConfigOptions {
-  // Redundant properties are redeclared to define as required
-  clientId: string;
-  redirectUri: string;
-  scope: string;
-  serverConfig: {
-    wellknown: string;
-    timeout?: number;
-  };
-  responseType?: ResponseType;
-  par?: boolean;
-}
+export type { OidcConfig } from '@forgerock/sdk-types';
 
 export interface OauthTokens {
   accessToken: string;

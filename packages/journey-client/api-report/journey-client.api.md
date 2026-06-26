@@ -5,7 +5,6 @@
 ```ts
 
 import { ActionTypes } from '@forgerock/sdk-request-middleware';
-import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
 import { AuthResponse } from '@forgerock/sdk-types';
 import { Callback } from '@forgerock/sdk-types';
 import { CallbackType } from '@forgerock/sdk-types';
@@ -16,6 +15,8 @@ import { FailedPolicyRequirement } from '@forgerock/sdk-types';
 import { FailureDetail } from '@forgerock/sdk-types';
 import { GenericError } from '@forgerock/sdk-types';
 import { isValidWellknownUrl } from '@forgerock/sdk-utilities';
+import { JourneyClientConfig } from '@forgerock/sdk-types';
+import { JourneyServerConfig } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { NameValue } from '@forgerock/sdk-types';
 import { PolicyKey } from '@forgerock/sdk-types';
@@ -203,11 +204,7 @@ export interface JourneyClient {
     }) => Promise<void | GenericError>;
 }
 
-// @public
-export interface JourneyClientConfig extends AsyncLegacyConfigOptions {
-    // (undocumented)
-    serverConfig: JourneyServerConfig;
-}
+export { JourneyClientConfig }
 
 // @public (undocumented)
 export type JourneyLoginFailure = AuthResponse & {
@@ -232,11 +229,7 @@ export type JourneyLoginSuccess = AuthResponse & {
 // @public (undocumented)
 export type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | GenericError;
 
-// @public
-export interface JourneyServerConfig {
-    timeout?: number;
-    wellknown: string;
-}
+export { JourneyServerConfig }
 
 // @public (undocumented)
 export type JourneyStep = AuthResponse & {
