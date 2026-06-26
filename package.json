@@ -130,12 +130,8 @@
   "pnpm": {
     "overrides": {
       "rollup": "^4.59.0",
-      "undici@^7": "^7.28.0",
       "picomatch@>=4": "^4.0.4",
       "picomatch@<3": "^2.3.2",
-      "fast-uri@^3": "^3.1.2",
-      "ws@^8": "^8.21.0",
-      "postcss": "^8.5.15",
       "qs": "^6.15.3",
       "@opentelemetry/core": "^2.8.0"
     }
