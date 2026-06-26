@@ -35,6 +35,7 @@ import readOnlyComponent from './components/read-only.js';
 import objectValueComponent from './components/object-value.js';
 import fidoComponent from './components/fido.js';
 import qrCodeComponent from './components/qr-code.js';
+import formImageComponent from './components/form-image.js';
 import pollingComponent from './components/polling.js';
 import booleanComponent from './components/boolean.js';
 
@@ -232,6 +233,8 @@ const urlParams = new URLSearchParams(window.location.search);
         );
       } else if (collector.type === 'QrCodeCollector') {
         qrCodeComponent(formEl, collector);
+      } else if (collector.type === 'ImageCollector') {
+        formImageComponent(formEl, collector);
       } else if (collector.type === 'TextCollector') {
         textComponent(
           formEl, // You can ignore this; it's just for rendering

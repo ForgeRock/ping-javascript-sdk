@@ -31,6 +31,7 @@ import type {
   AutoCollectors,
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
+  ImageCollector,
   QrCodeCollector,
   ReadOnlyCollector,
   RichTextCollector,
@@ -45,6 +46,7 @@ import type {
   DeviceRegistrationField,
   FidoAuthenticationField,
   FidoRegistrationField,
+  ImageField,
   MultiSelectField,
   PasswordField,
   PhoneNumberField,
@@ -944,7 +946,7 @@ export function returnNoValueCollector<
   CollectorType extends NoValueCollectorTypes = 'NoValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
-  if (!('content' in field)) {
+  if (field.type !== 'IMAGE' && !('content' in field)) {
     error = `${error}Content is not found in the field object. `;
   }
   if (!('type' in field)) {
@@ -959,7 +961,7 @@ export function returnNoValueCollector<
     name: `${field.key || field.type}-${idx}`,
     output: {
       key: `${field.key || field.type}-${idx}`,
-      label: field.content,
+      label: 'content' in field ? field.content : '',
       type: field.type,
     },
   } as InferNoValueCollectorType<CollectorType>;
@@ -1019,6 +1021,40 @@ export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCo
       ...base.output,
       label: field.fallbackText || '',
       src: field.content || '',
+    },
+  };
+}
+
+/**
+ * @function returnImageCollector - Creates an ImageCollector object for displaying IMAGE fields.
+ *
+ * Composes on top of `returnNoValueCollector` for `category`, `id`, `name`, and base
+ * `output.{key, type}`. Overrides `output.label` and `output.alt` with `field.description`
+ * (IMAGE has no wire `label` property).
+ *
+ * @param {ImageField} field - The IMAGE field from the API response.
+ * @param {number} idx - The index used in the collector `id`/`name`.
+ * @returns {ImageCollector} The constructed ImageCollector object.
+ */
+export function returnImageCollector(field: ImageField, idx: number): ImageCollector {
+  const base = returnNoValueCollector(field, idx, 'ImageCollector');
+  let error = base.error || '';
+  if (!field.imageUrl) {
+    error = `${error}ImageUrl is not found in the field object. `;
+  }
+  if (!field.description) {
+    error = `${error}Description is not found in the field object. `;
+  }
+
+  return {
+    ...base,
+    error: error || null,
+    output: {
+      ...base.output,
+      label: field.description || '',
+      src: field.imageUrl || '',
+      alt: field.description || '',
+      ...(field.hyperlinkUrl ? { href: field.hyperlinkUrl } : {}),
     },
   };
 }

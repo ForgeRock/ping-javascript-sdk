@@ -140,6 +140,16 @@ export type QrCodeField = {
   fallbackText?: string;
 };
 
+export type ImageField = {
+  type: 'IMAGE';
+  key: string;
+  description: string;
+  imageUrl: string;
+
+  // Optional properties
+  hyperlinkUrl?: string;
+};
+
 export type AgreementField = {
   type: 'AGREEMENT';
   key: string;
@@ -328,7 +338,7 @@ export type ComplexValueFields =
   | FidoAuthenticationField
   | PollingField;
 export type MultiValueFields = MultiSelectField;
-export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField;
+export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
 export type RedirectFields = RedirectField;
 export type SingleValueFields =
   | StandardField

@@ -21,6 +21,7 @@ import type {
   ProtectCollector,
   QrCodeCollector,
   ReadOnlyCollector,
+  ImageCollector,
   SubmitCollector,
   TextCollector,
   BooleanCollector,
@@ -427,6 +428,35 @@ describe('The node collector reducer', () => {
     );
   });
 
+  it('should throw NoValueCollectors are read-only on update', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'image-0',
+        value: 'attempted-update',
+      },
+    };
+    const state: ImageCollector[] = [
+      {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'ImageCollector',
+        id: 'image-0',
+        name: 'image-0',
+        output: {
+          key: 'image-0',
+          label: 'Alt text',
+          type: 'IMAGE',
+          src: 'https://example.com/test-image.png',
+          alt: 'Alt text',
+        },
+      },
+    ];
+    expect(() => nodeCollectorReducer(state, action)).toThrowError(
+      'NoValueCollectors, like ReadOnlyCollectors, are read-only',
+    );
+  });
+
   it('should handle QR_CODE field type', () => {
     const action = {
       type: 'node/next',
@@ -496,6 +526,42 @@ describe('The node collector reducer', () => {
           title: 'Terms and Conditions',
         },
       } satisfies ReadOnlyCollector,
+    ]);
+  });
+
+  it('should handle IMAGE field type', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'IMAGE',
+            key: 'image-field',
+            imageUrl: 'https://example.com/test-image.png',
+            description: 'Test image alt text',
+            hyperlinkUrl: 'https://example.com/click-target',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'ImageCollector',
+        id: 'image-field-0',
+        name: 'image-field-0',
+        output: {
+          key: 'image-field-0',
+          label: 'Test image alt text',
+          type: 'IMAGE',
+          src: 'https://example.com/test-image.png',
+          alt: 'Test image alt text',
+          href: 'https://example.com/click-target',
+        },
+      } satisfies ImageCollector,
     ]);
   });
 });
