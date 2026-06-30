@@ -1,5 +1,11 @@
 # @forgerock/device-client
 
+## 2.1.0
+
+### Patch Changes
+
+- [#564](https://github.com/ForgeRock/ping-javascript-sdk/pull/564) [`15d5af3`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d5af32310174296ae1513c95168c5e8336d668) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Update interfaces and types that are missing from exports
+
 ## 2.0.0
 
 ### Major Changes
