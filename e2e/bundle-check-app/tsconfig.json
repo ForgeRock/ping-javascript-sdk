@@ -1,0 +1,33 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    {
+      "path": "../../packages/protect"
+    },
+    {
+      "path": "../../packages/oidc-client"
+    },
+    {
+      "path": "../../packages/journey-client"
+    },
+    {
+      "path": "../../packages/device-client"
+    },
+    {
+      "path": "../../packages/davinci-client"
+    }
+  ]
+}
