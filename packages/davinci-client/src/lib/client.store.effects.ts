@@ -6,6 +6,7 @@
  */
 
 import { Micro } from 'effect';
+import * as Either from 'effect/Either';
 import { SerializedError } from '@reduxjs/toolkit/react';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 
@@ -15,7 +16,7 @@ import type { ClientStore, RootState } from './client.store.utils.js';
 import type { PollingStatus, InternalErrorResponse } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
 
-import { createInternalError, isInternalError } from './client.store.utils.js';
+import { createInternalError } from './client.store.utils.js';
 import { davinciApi } from './davinci.api.js';
 import { nodeSlice } from './node.slice.js';
 
@@ -92,38 +93,31 @@ export function getPollingModeµ(
 export function buildChallengeEndpoint(
   selfHref: string,
   challenge: string,
-): string | InternalErrorResponse {
-  try {
-    const url = new URL(selfHref);
-    const envId = url.pathname.split('/')[1];
+): Either.Either<string, InternalErrorResponse> {
+  const parseError = createInternalError(
+    'Failed to construct challenge polling endpoint. Requires host and environment ID.',
+    'parse_error',
+  );
 
-    if (!url.origin || !envId) {
-      return createInternalError(
-        'Failed to construct challenge polling endpoint. Requires host and environment ID.',
-        'parse_error',
-      );
-    }
-
-    return `${url.origin}/${envId}/davinci/user/credentials/challenge/${challenge}/status`;
-  } catch {
-    return createInternalError(
-      'Failed to construct challenge polling endpoint. Requires host and environment ID.',
-      'parse_error',
-    );
-  }
+  return Either.try({ try: () => new URL(selfHref), catch: () => parseError }).pipe(
+    Either.flatMap((url) => {
+      const envId = url.pathname.split('/')[1];
+      return url.origin && envId
+        ? Either.right(
+            `${url.origin}/${envId}/davinci/user/credentials/challenge/${challenge}/status`,
+          )
+        : Either.left(parseError);
+    }),
+  );
 }
 
-/**
- * Lifts a selector result with { error, state } shape into a Micro.
- * Succeeds with state when error is null, fails with InternalErrorResponse otherwise.
- */
-function fromSelectorµ<T>(result: {
+function fromSelector<T>(result: {
   error: { message: string } | null;
   state: T;
-}): Micro.Micro<NonNullable<T>, InternalErrorResponse> {
+}): Either.Either<NonNullable<T>, InternalErrorResponse> {
   return result.error
-    ? Micro.fail(createInternalError(result.error.message, 'state_error'))
-    : Micro.succeed(result.state as NonNullable<T>);
+    ? Either.left(createInternalError(result.error.message, 'state_error'))
+    : Either.right(result.state as NonNullable<T>);
 }
 
 /**
@@ -140,7 +134,7 @@ export function validatePollingPrerequisitesµ(
     );
   }
 
-  return fromSelectorµ(nodeSlice.selectors.selectContinueServer(rootState)).pipe(
+  return Micro.fromEither(fromSelector(nodeSlice.selectors.selectContinueServer(rootState))).pipe(
     Micro.filterOrFail(
       (server) => !!server.interactionId,
       () =>
@@ -150,81 +144,85 @@ export function validatePollingPrerequisitesµ(
         ),
     ),
     Micro.flatMap((server) =>
-      fromSelectorµ(nodeSlice.selectors.selectSelfLink(rootState)).pipe(
+      Micro.fromEither(fromSelector(nodeSlice.selectors.selectSelfLink(rootState))).pipe(
         Micro.map((selfLink) => ({ server, selfLink })),
       ),
     ),
-    Micro.flatMap(({ server, selfLink }) => {
-      const endpoint = buildChallengeEndpoint(selfLink, challenge);
-      return typeof endpoint === 'string'
-        ? Micro.succeed({
-            interactionId: server.interactionId!,
-            challengeEndpoint: endpoint,
-          })
-        : Micro.fail(endpoint);
-    }),
+    Micro.flatMap(({ server, selfLink }) =>
+      Either.match(buildChallengeEndpoint(selfLink, challenge), {
+        onLeft: Micro.fail,
+        onRight: (challengeEndpoint) =>
+          Micro.succeed({ interactionId: server.interactionId as string, challengeEndpoint }),
+      }),
+    ),
   );
 }
 
-/**
- * Pure predicate: determines if challenge polling should continue.
- * Returns true when the challenge has not yet completed and no error occurred.
- */
+type PollClassification =
+  | { _tag: 'expired' }
+  | { _tag: 'error' }
+  | { _tag: 'internalError'; error: InternalErrorResponse }
+  | { _tag: 'complete'; status: PollingStatus }
+  | { _tag: 'pending' };
+
+export function classifyPollResponse(response: PollDispatchResult): PollClassification {
+  const { data, error } = response;
+
+  if (error) {
+    if ('status' in error) {
+      const errorDetails = isRecord(error.data) ? error.data : undefined;
+      if (error.status === 400 && errorDetails?.['serviceName'] === 'challengeExpired') {
+        return { _tag: 'expired' };
+      }
+      return { _tag: 'error' };
+    }
+
+    const message =
+      'message' in error && error.message
+        ? error.message
+        : 'An unknown error occurred while challenge polling';
+    return { _tag: 'internalError', error: createInternalError(message, 'unknown_error') };
+  }
+
+  if (!isRecord(data)) return { _tag: 'error' };
+
+  if (data['isChallengeComplete'] === true) {
+    const status = data['status'];
+    return status ? { _tag: 'complete', status: status as PollingStatus } : { _tag: 'error' };
+  }
+
+  return { _tag: 'pending' };
+}
+
 export function isChallengeStillPending(response: PollDispatchResult): boolean {
-  if (response.error) return false;
-
-  const data = isRecord(response.data) ? response.data : undefined;
-  if (data?.['isChallengeComplete']) return false;
-
-  return true;
+  return classifyPollResponse(response)._tag === 'pending';
 }
 
 export function interpretChallengeResponse(
   response: PollDispatchResult,
   log: ReturnType<typeof loggerFn>,
-): PollingStatus | InternalErrorResponse {
-  const { data, error } = response;
+): Either.Either<PollingStatus, InternalErrorResponse> {
+  const classification = classifyPollResponse(response);
 
-  if (error) {
-    // FetchBaseQueryError — has status field
-    if ('status' in error) {
-      const errorDetails = isRecord(error.data) ? error.data : undefined;
-      const serviceName = errorDetails?.['serviceName'];
-
-      // Expired challenge is an expected polling outcome, not a failure
-      if (error.status === 400 && serviceName === 'challengeExpired') {
-        log.debug('Challenge expired for polling');
-        return 'expired';
-      }
-
-      // Other HTTP errors are also expected outcomes (e.g. bad challenge returning 400 with code 4019)
+  switch (classification._tag) {
+    case 'expired':
+      log.debug('Challenge expired for polling');
+      return Either.right('expired');
+    case 'error':
       log.debug('Unknown error occurred during polling');
-      return 'error';
+      return Either.right('error');
+    case 'internalError':
+      return Either.left(classification.error);
+    case 'complete':
+      return Either.right(classification.status);
+    case 'pending':
+      log.debug('Challenge polling timed out');
+      return Either.right('timedOut');
+    default: {
+      const exhaustive: never = classification;
+      throw new Error(`Unhandled poll classification: ${JSON.stringify(exhaustive)}`);
     }
-
-    // SerializedError — has message field
-    const message =
-      'message' in error && error.message
-        ? error.message
-        : 'An unknown error occurred while challenge polling';
-
-    return createInternalError(message, 'unknown_error');
   }
-
-  if (!isRecord(data)) {
-    log.debug('Unable to parse polling response');
-    return 'error';
-  }
-
-  // Challenge completed — extract status
-  if (data['isChallengeComplete'] === true) {
-    const pollStatus = data['status'];
-    return pollStatus ? (pollStatus as PollingStatus) : 'error';
-  }
-
-  // If we reach here, Micro.repeat exhausted its schedule without the challenge completing
-  log.debug('Challenge polling timed out');
-  return 'timedOut';
 }
 
 /**
@@ -262,10 +260,7 @@ function challengePollingµ({
       times: maxRetries - 1,
       schedule: Micro.scheduleSpaced(pollInterval),
     }),
-    Micro.map((response) => interpretChallengeResponse(response, log)),
-    Micro.flatMap((result) =>
-      isInternalError(result) ? Micro.fail(result) : Micro.succeed(result),
-    ),
+    Micro.flatMap((response) => Micro.fromEither(interpretChallengeResponse(response, log))),
   );
 }
 

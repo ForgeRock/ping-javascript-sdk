@@ -8,7 +8,12 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { logger } from '@forgerock/sdk-logger';
 
-import { handleResponse, transformSubmitRequest, transformActionRequest } from './davinci.utils.js';
+import {
+  handleResponse,
+  classifyResponse,
+  transformSubmitRequest,
+  transformActionRequest,
+} from './davinci.utils.js';
 
 import type { ContinueNode } from './node.types.d.ts';
 import { next0 } from './mock-data/davinci.next.mock.js';
@@ -252,6 +257,173 @@ describe('transformActionRequest', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// classifyResponse
+// ---------------------------------------------------------------------------
+
+describe('classifyResponse', () => {
+  it('classifies a next response as _tag: next', () => {
+    const cacheEntry = {
+      data: next0,
+      error: undefined,
+      requestId: '123',
+      status: 'fulfilled',
+      isError: false,
+      isSuccess: true,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 200);
+
+    expect(result).toMatchObject({ _tag: 'next' });
+  });
+
+  it('classifies a success response as _tag: success', () => {
+    const cacheEntry = {
+      data: success0,
+      error: undefined,
+      requestId: '123',
+      status: 'fulfilled',
+      isError: false,
+      isSuccess: true,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 200);
+
+    expect(result).toMatchObject({ _tag: 'success' });
+  });
+
+  it('classifies a recoverable 4XX error as _tag: error with logMessage', () => {
+    const cacheEntry = {
+      data: undefined,
+      error: { data: error0a, status: 400 },
+      requestId: '123',
+      status: 'rejected',
+      isError: true,
+      isSuccess: false,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 400);
+
+    expect(result).toMatchObject({
+      _tag: 'error',
+      logMessage: 'Response with this error type should be recoverable',
+    });
+  });
+
+  it('classifies a 5XX error as _tag: failure with logMessage', () => {
+    const cacheEntry = {
+      data: undefined,
+      error: { data: {}, status: 500 },
+      requestId: '123',
+      status: 'rejected',
+      isError: true,
+      isSuccess: false,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 500);
+
+    expect(result).toMatchObject({
+      _tag: 'failure',
+      logMessage: 'Response of 5XX indicates unrecoverable failure',
+    });
+  });
+
+  it('classifies a timeout error (code 1999) as _tag: failure with logMessage', () => {
+    const cacheEntry = {
+      data: undefined,
+      error: { data: error3, status: 400 },
+      requestId: '123',
+      status: 'rejected',
+      isError: true,
+      isSuccess: false,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 400);
+
+    expect(result).toMatchObject({ _tag: 'failure', logMessage: 'Error is a client-side timeout' });
+  });
+
+  it('classifies a pingOneAuthenticationConnector failure as _tag: failure with logMessage', () => {
+    const cacheEntry = {
+      data: undefined,
+      error: {
+        data: {
+          connectorId: 'pingOneAuthenticationConnector',
+          capabilityName: 'returnSuccessResponseRedirect',
+        },
+        status: 400,
+      },
+      requestId: '123',
+      status: 'rejected',
+      isError: true,
+      isSuccess: false,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 400);
+
+    expect(result).toMatchObject({
+      _tag: 'failure',
+      logMessage: 'Error is a PingOne Authentication Connector unrecoverable failure',
+    });
+  });
+
+  it('classifies a FETCH_ERROR as _tag: failure with logMessage', () => {
+    const cacheEntry = {
+      data: undefined,
+      error: { data: {}, status: 'FETCH_ERROR' },
+      requestId: '123',
+      status: 'rejected',
+      isError: true,
+      isSuccess: false,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 0);
+
+    expect(result).toMatchObject({
+      _tag: 'failure',
+      logMessage:
+        'Response with FETCH_ERROR indicates configuration failure. Please ensure a correct Client ID for your OAuth application.',
+    });
+  });
+
+  it('classifies a 2XX response with error property as _tag: failure with logMessage', () => {
+    const cacheEntry = {
+      data: { error: { code: 'unknown', status: 400 } },
+      error: undefined,
+      requestId: '123',
+      status: 'fulfilled',
+      isError: false,
+      isSuccess: true,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 200);
+
+    expect(result).toMatchObject({
+      _tag: 'failure',
+      logMessage: 'Response with `isSuccess` but `error` property indicates unrecoverable failure',
+    });
+  });
+
+  it('classifies a 2XX response with status:failure as _tag: failure with logMessage', () => {
+    const cacheEntry = {
+      data: { status: 'failure' },
+      error: undefined,
+      requestId: '123',
+      status: 'fulfilled',
+      isError: false,
+      isSuccess: true,
+    } as DaVinciCacheEntry;
+
+    const result = classifyResponse(cacheEntry, 200);
+
+    expect(result).toMatchObject({
+      _tag: 'failure',
+      logMessage:
+        'Response with `isSuccess` and `status` of "failure" indicates unrecoverable failure',
+    });
+  });
+});
+
 describe('handleResponse', () => {
   it('should handle a next response', () => {
     const cacheEntry = {
@@ -424,5 +596,30 @@ describe('handleResponse', () => {
 
     const [action] = dispatch.mock.calls[0];
     expect(action.type).toBe('node/failure');
+  });
+
+  it('logs the classification-specific message via logger', () => {
+    const cacheEntry = {
+      data: undefined,
+      error: { data: {}, status: 500 },
+      requestId: '123',
+      status: 'rejected',
+      isError: true,
+      isSuccess: false,
+    } as DaVinciCacheEntry;
+    const dispatch = vi.fn();
+    const mockLogger: ReturnType<typeof logger> = {
+      changeLevel: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+    };
+
+    handleResponse(cacheEntry, dispatch, 500, mockLogger);
+
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Response of 5XX indicates unrecoverable failure',
+    );
   });
 });

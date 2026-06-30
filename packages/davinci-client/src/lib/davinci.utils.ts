@@ -8,6 +8,7 @@
  * Import the used types
  */
 import type { Dispatch } from '@reduxjs/toolkit';
+import * as Either from 'effect/Either';
 
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 
@@ -114,161 +115,202 @@ export function transformActionRequest(
   };
 }
 
+type ResponseClassification =
+  | { _tag: 'failure'; data: unknown; requestId: string; httpStatus: number; logMessage: string }
+  | {
+      _tag: 'error';
+      data: DavinciErrorResponse;
+      requestId: string;
+      httpStatus: number;
+      logMessage: string;
+    }
+  | { _tag: 'success'; data: DaVinciSuccessResponse; requestId: string; httpStatus: number }
+  | { _tag: 'poll'; requestId: string }
+  | { _tag: 'next'; data: DaVinciNextResponse; requestId: string; httpStatus: number };
+
+function classifyError(
+  error: NonNullable<DaVinciCacheEntry['error']>,
+  requestId: string,
+): ResponseClassification {
+  if (error.status >= 500) {
+    return {
+      _tag: 'failure',
+      data: error.data,
+      requestId,
+      httpStatus: error.status,
+      logMessage: 'Response of 5XX indicates unrecoverable failure',
+    };
+  }
+
+  if (error.status === 'FETCH_ERROR') {
+    return {
+      _tag: 'failure',
+      data: {
+        code: error.status,
+        message: 'Fetch Error: Please ensure a correct Client ID for your OAuth application.',
+      },
+      requestId,
+      httpStatus: 0,
+      logMessage:
+        'Response with FETCH_ERROR indicates configuration failure. Please ensure a correct Client ID for your OAuth application.',
+    };
+  }
+
+  const data = error.data as DavinciErrorResponse;
+
+  if (data.code === 1999 || data.code === 'requestTimedOut') {
+    return {
+      _tag: 'failure',
+      data,
+      requestId,
+      httpStatus: error.status,
+      logMessage: 'Error is a client-side timeout',
+    };
+  }
+
+  if (
+    data.connectorId === 'pingOneAuthenticationConnector' &&
+    (data.capabilityName === 'returnSuccessResponseRedirect' ||
+      data.capabilityName === 'setSession')
+  ) {
+    return {
+      _tag: 'failure',
+      data,
+      requestId,
+      httpStatus: error.status,
+      logMessage: 'Error is a PingOne Authentication Connector unrecoverable failure',
+    };
+  }
+
+  return {
+    _tag: 'error',
+    data,
+    requestId,
+    httpStatus: error.status,
+    logMessage: 'Response with this error type should be recoverable',
+  };
+}
+
+function classifySuccess(
+  data: NonNullable<DaVinciCacheEntry['data']>,
+  requestId: string,
+  httpStatus: number,
+): ResponseClassification {
+  if ('error' in data) {
+    return {
+      _tag: 'failure',
+      data: (data as DaVinciFailureResponse).error,
+      requestId,
+      httpStatus,
+      logMessage: 'Response with `isSuccess` but `error` property indicates unrecoverable failure',
+    };
+  }
+
+  if ('status' in data && (data as { status: string }).status.toLowerCase() === 'failure') {
+    return {
+      _tag: 'failure',
+      data: (data as DaVinciFailureResponse).error,
+      requestId,
+      httpStatus,
+      logMessage:
+        'Response with `isSuccess` and `status` of "failure" indicates unrecoverable failure',
+    };
+  }
+
+  if ('session' in data || 'authorizeResponse' in data) {
+    return { _tag: 'success', data: data as DaVinciSuccessResponse, requestId, httpStatus };
+  }
+
+  if (
+    'eventName' in data &&
+    ['rewindStateToLastRenderedUI', 'rewindStateToSpecificRenderedUI'].includes(
+      (data as { eventName: string }).eventName,
+    )
+  ) {
+    return { _tag: 'poll', requestId };
+  }
+
+  if ('_links' in data && 'next' in (data as { _links: object })._links) {
+    return { _tag: 'next', data: data as DaVinciNextResponse, requestId, httpStatus };
+  }
+
+  return {
+    _tag: 'failure',
+    data,
+    requestId,
+    httpStatus,
+    logMessage: 'Response type is unknown and therefore an unrecoverable failure',
+  };
+}
+
+export function classifyResponse(
+  cacheEntry: DaVinciCacheEntry,
+  httpStatus: number,
+): ResponseClassification {
+  // requestId is typed as string | undefined by RTK; empty string produces a no-op cache key rather than crashing
+  const requestId = cacheEntry.requestId ?? '';
+  return Either.match(
+    cacheEntry.isError ? Either.left(cacheEntry.error) : Either.right(cacheEntry.data),
+    {
+      onLeft: (error) => classifyError(error, requestId),
+      onRight: (data) => classifySuccess(data, requestId, httpStatus),
+    },
+  );
+}
+
 export function handleResponse(
   cacheEntry: DaVinciCacheEntry,
   dispatch: Dispatch,
   status: number,
   logger: ReturnType<typeof loggerFn>,
 ) {
-  /**
-   * 5XX errors are treated as unrecoverable failures
-   */
-  if (cacheEntry.isError && cacheEntry.error.status >= 500) {
-    logger.error('Response of 5XX indicates unrecoverable failure');
-    const data = cacheEntry.error.data as unknown;
-    const requestId = cacheEntry.requestId;
-    dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: cacheEntry.error.status }));
+  const classification = classifyResponse(cacheEntry, status);
 
-    return; // Filter out 5XX's
-  }
-
-  /**
-   * Check for 4XX errors that are unrecoverable
-   */
-  if (cacheEntry.isError && cacheEntry.error.status >= 400 && cacheEntry.error.status < 500) {
-    const data = cacheEntry.error.data as DavinciErrorResponse;
-    const requestId = cacheEntry.requestId;
-
-    // Filter out client-side "timeout" related unrecoverable failures
-    if (data.code === 1999 || data.code === 'requestTimedOut') {
-      logger.error('Error is a client-side timeout');
-      dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: cacheEntry.error.status }));
-
-      return; // Filter out timeouts
-    }
-
-    // Filter our "PingOne Authentication Connector" unrecoverable failures
-    if (
-      data.connectorId === 'pingOneAuthenticationConnector' &&
-      (data.capabilityName === 'returnSuccessResponseRedirect' ||
-        data.capabilityName === 'setSession')
-    ) {
-      logger.error('Error is a PingOne Authentication Connector unrecoverable failure');
-      dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: cacheEntry.error.status }));
-
-      return;
-    }
-
-    logger.debug('Response with this error type should be recoverable');
-    // If we're still here, we have a 4XX failure that should be recoverable
-    dispatch(nodeSlice.actions.error({ data, requestId, httpStatus: cacheEntry.error.status }));
-
-    return;
-  }
-
-  /**
-   * Check for 3XX errors that result in CORS errors, reported as FETCH_ERROR
-   */
-  if (cacheEntry.isError && cacheEntry.error.status === 'FETCH_ERROR') {
-    logger.error(
-      'Response with FETCH_ERROR indicates configuration failure. Please ensure a correct Client ID for your OAuth application.',
-    );
-    const data = {
-      code: cacheEntry.error.status,
-      message: 'Fetch Error: Please ensure a correct Client ID for your OAuth application.',
-    };
-    const requestId = cacheEntry.requestId;
-    dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: cacheEntry.error.status }));
-
-    return;
-  }
-
-  /**
-   * If the response's HTTP status is a success (2XX), but the DaVinci API has returned an error,
-   * we need to handle this as a failure or return as unknown.
-   */
-  if (cacheEntry.isSuccess && 'error' in cacheEntry.data) {
-    logger.error('Response with `isSuccess` but `error` property indicates unrecoverable failure');
-    const data = cacheEntry.data as DaVinciFailureResponse;
-    const requestId = cacheEntry.requestId;
-    dispatch(
-      nodeSlice.actions.failure({
-        data: data.error,
-        requestId,
-        httpStatus: status,
-      }),
-    );
-
-    return; // Filter out 2XX errors
-  }
-
-  /**
-   * If the response's HTTP status is a success (2XX), but the DaVinci API has returned an error,
-   * we need to handle this as a failure or return as unknown.
-   */
-  if (cacheEntry.isSuccess && 'status' in cacheEntry.data) {
-    const status = cacheEntry.data.status.toLowerCase();
-
-    if (status === 'failure') {
-      logger.error(
-        'Response with `isSuccess` and `status` of "failure" indicates unrecoverable failure',
-      );
-      const data = cacheEntry.data as DaVinciFailureResponse;
-      const requestId = cacheEntry.requestId;
+  switch (classification._tag) {
+    case 'failure':
+      logger.error(classification.logMessage);
       dispatch(
         nodeSlice.actions.failure({
-          data: data.error,
-          requestId,
-          httpStatus: status,
+          data: classification.data,
+          requestId: classification.requestId,
+          httpStatus: classification.httpStatus,
         }),
       );
-
-      return; // Filter out 2XX errors with 'failure' status
-    } else {
-      // Do nothing
-    }
-  }
-
-  /**
-   * If we've made it here, we have a successful response and do not have an error property.
-   * Parse for state of the flow and dispatch appropriate action.
-   */
-  if (cacheEntry.isSuccess) {
-    const requestId = cacheEntry.requestId;
-
-    const hasNextUrl = () => {
-      const data = cacheEntry.data;
-
-      if ('_links' in data) {
-        if ('next' in data._links) {
-          if ('href' in data._links.next) {
-            return true;
-          }
-        }
-      }
-      return false;
-    };
-
-    const isContinuePollingEvent = () => {
-      const data = cacheEntry.data;
-      return (
-        'eventName' in data &&
-        ['rewindStateToLastRenderedUI', 'rewindStateToSpecificRenderedUI'].includes(data.eventName)
+      break;
+    case 'error':
+      logger.debug(classification.logMessage);
+      dispatch(
+        nodeSlice.actions.error({
+          data: classification.data,
+          requestId: classification.requestId,
+          httpStatus: classification.httpStatus,
+        }),
       );
-    };
-
-    if ('session' in cacheEntry.data || 'authorizeResponse' in cacheEntry.data) {
-      const data = cacheEntry.data as DaVinciSuccessResponse;
-      dispatch(nodeSlice.actions.success({ data, requestId, httpStatus: status }));
-    } else if (isContinuePollingEvent()) {
-      dispatch(nodeSlice.actions.poll({ requestId }));
-    } else if (hasNextUrl()) {
-      const data = cacheEntry.data as DaVinciNextResponse;
-      dispatch(nodeSlice.actions.next({ data, requestId, httpStatus: status }));
-    } else {
-      // If we got here, the response type is unknown and therefore an unrecoverable failure
-      const data = cacheEntry.data as DaVinciFailureResponse;
-      dispatch(nodeSlice.actions.failure({ data, requestId, httpStatus: status }));
+      break;
+    case 'success':
+      dispatch(
+        nodeSlice.actions.success({
+          data: classification.data,
+          requestId: classification.requestId,
+          httpStatus: classification.httpStatus,
+        }),
+      );
+      break;
+    case 'poll':
+      dispatch(nodeSlice.actions.poll({ requestId: classification.requestId }));
+      break;
+    case 'next':
+      dispatch(
+        nodeSlice.actions.next({
+          data: classification.data,
+          requestId: classification.requestId,
+          httpStatus: classification.httpStatus,
+        }),
+      );
+      break;
+    default: {
+      const exhaustive: never = classification;
+      throw new Error(`Unhandled response classification: ${JSON.stringify(exhaustive)}`);
     }
   }
 }
