@@ -167,6 +167,23 @@ export default [
     },
   },
   {
+    files: ['e2e/*-suites/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@playwright/test',
+              message:
+                'Import from @forgerock/e2e-shared/coverage-fixture instead for automatic V8 coverage collection.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     ignores: ['**/*.md', 'dist/*', '**/**/tsconfig.spec.vitest-temp.json'],
   },
   packageJson.configs.recommended,
