@@ -21,14 +21,10 @@ import { CreateKeylessMediaStreamArgs } from '@keyless/sdk-web';
 import { CSSResultGroup } from 'lit';
 import { FormControlChangeEvent } from '@aracna/web-components';
 import { IResult } from '@ua-parser-js/pro-enterprise';
-import type { KeylessBiometricFilters } from '@keyless/sdk-web';
 import { KeylessMediaDevice } from '@keyless/sdk-web';
-import { KeylessSessionType } from '@keyless/sdk-web';
 import { KeylessVideoFrameQuality } from '@keyless/sdk-web';
 import { KeylessVideoFrameQualityFilter } from '@keyless/sdk-web';
-import { KeylessWebSocketCloseEvent as KeylessWebSocketCloseEvent_2 } from '@keyless/sdk-web';
-import { KeylessWebSocketMessageEvent } from '@keyless/sdk-web';
-import { KeylessWebSocketOpenEvent as KeylessWebSocketOpenEvent_2 } from '@keyless/sdk-web';
+import { KeylessVideoFrameQualitySource } from '@keyless/sdk-web';
 import { LocalizationPack } from '@aracna/core';
 import { LocalizationVariables } from '@aracna/core';
 import { LoggerLevel } from '@aracna/core';
@@ -95,11 +91,6 @@ export declare interface KeylessAuthElementAttributes extends RootElementAttribu
 
 /** @public */
 export declare interface KeylessAuthElementEventMap extends RootElementEventMap {
-}
-
-/** @public */
-export declare class KeylessBeginStreamEvent extends CustomEvent<{}> {
-    constructor();
 }
 
 /** @public */
@@ -185,7 +176,6 @@ export declare class KeylessCameraCornersElement extends AracnaBaseElement {
 
 /** @public */
 export declare interface KeylessCameraCornersElementAttributes extends AracnaBaseElementAttributes {
-    'corner-size'?: number;
     'disable-animation'?: boolean;
     'has-frame-results'?: boolean;
     'has-triggered-biometric-filters'?: any[];
@@ -246,6 +236,12 @@ export declare interface KeylessCameraFlashOverlayElementEventMap extends Aracna
 }
 
 /** @public */
+export declare interface KeylessCameraInstruction {
+    icon: string;
+    text: string;
+}
+
+/** @public */
 export declare class KeylessCameraInstructionsElement extends AracnaBaseElement {
     appearanceController: KeylessAppearanceController;
     localizationController: KeylessLocalizationController;
@@ -254,10 +250,12 @@ export declare class KeylessCameraInstructionsElement extends AracnaBaseElement 
      */
     /** */
     enableIcons: boolean;
+    items: KeylessCameraInstruction[];
     localizationPacks?: LocalizationPack[];
     localizationVariables?: LocalizationVariables;
     theme?: Theme;
     protected _themeOptions?: KeylessThemeOptions;
+    constructor();
     render(): TemplateResult<1>;
     get slug(): any;
     get themeOptions(): KeylessThemeOptions | undefined;
@@ -354,19 +352,44 @@ export declare interface KeylessCameraSelectElementEventMap extends KeylessCamer
 }
 
 /** @public */
+export declare class KeylessCameraTipElement extends AracnaBaseElement {
+    appearanceController: KeylessAppearanceController;
+    localizationController: KeylessLocalizationController;
+    /**
+     * Properties
+     */
+    /** */
+    filters: KeylessVideoFrameQualityFilter[];
+    state: KeylessCameraTipState;
+    theme?: Theme;
+    protected _themeOptions?: KeylessThemeOptions;
+    constructor();
+    render(): TemplateResult<1> | typeof nothing;
+    get textPath(): string | undefined;
+    get styleHTML(): TemplateResult;
+    get themeOptions(): KeylessThemeOptions | undefined;
+    set themeOptions(options: KeylessThemeOptions | undefined);
+    static properties: PropertyDeclarations;
+    static styles: CSSResultGroup;
+}
+
+/** @public */
+export declare type KeylessCameraTipState = 'boot' | 'stream';
+
+/** @public */
 export declare class KeylessCompleteEvent extends CustomEvent<{}> {
     constructor();
 }
 
 /** @public */
 export declare enum KeylessComponentsError {
+    SLUG_UNSUPPORTED = "SLUG_UNSUPPORTED",
     QUEUE_UNSET = "QUEUE_UNSET",
-    SYMBOL_UNSET = "SYMBOL_UNSET",
-    NONCANCELABLE = "NONCANCELABLE"
+    SYMBOL_UNSET = "SYMBOL_UNSET"
 }
 
 /** @public */
-export declare type KeylessComponentsStep = 'bootstrap' | 'done' | 'error' | 'camera-permission' | 'camera-selection' | 'camera-instructions' | 'camera-stream-boot' | 'camera-stream' | 'server-computation' | 'stm-choice' | 'stm-qrcode' | 'microphone-permission';
+export declare type KeylessComponentsStep = 'bootstrap' | 'done' | 'error' | 'camera-permission' | 'camera-selection' | 'camera-instructions' | 'camera-stream-boot' | 'camera-stream' | 'server-computation' | 'stm-choice' | 'stm-qrcode';
 
 /** @public */
 export declare type KeylessDependencyDeclarations = (typeof HTMLElement)[];
@@ -403,6 +426,7 @@ export declare class KeylessDialogElement extends AracnaDialogElement {
     get styleHTML(): TemplateResult;
     get themeOptions(): KeylessThemeOptions | undefined;
     set themeOptions(options: KeylessThemeOptions | undefined);
+    static properties: PropertyDeclarations;
     static queries: QueryDeclarations;
     static styles: CSSResultGroup;
 }
@@ -423,7 +447,6 @@ export declare enum KeylessElementSlug {
     AUTH_DIALOG = "auth-dialog",
     BUTTON = "button",
     CAMERA = "camera",
-    CAMERA_BACKDROP = "camera-backdrop",
     CAMERA_BIOMETRIC = "camera-biometric",
     CAMERA_FLASH_OVERLAY = "camera-flash-overlay",
     CAMERA_CORNERS = "camera-corners",
@@ -500,32 +523,6 @@ export declare interface KeylessFaceScanElementEventMap extends AracnaBaseElemen
 }
 
 /** @public */
-export declare class KeylessFinishedEvent extends CustomEvent<KeylessFinishedEventDetail> {
-    constructor(customer: string, type: KeylessSessionType, username: string, seedEntropy?: Uint8Array<ArrayBuffer>, transactionJWT?: string);
-}
-
-/** @public */
-export declare interface KeylessFinishedEventDetail {
-    customer: string;
-    seedEntropy?: Uint8Array<ArrayBuffer>;
-    source: KeylessSessionSource;
-    transactionJWT?: string;
-    type: KeylessSessionType;
-    username: string;
-}
-
-/** @public */
-export declare class KeylessFrameResultsEvent extends CustomEvent<KeylessFrameResultsEventDetail> {
-    constructor(filters: any, timestamp: Date);
-}
-
-/** @public */
-export declare interface KeylessFrameResultsEventDetail {
-    filters: KeylessBiometricFilters;
-    timestamp: Date;
-}
-
-/** @public */
 export declare class KeylessLocalizationController implements ReactiveController {
     private host;
     constructor(host: ReactiveControllerHost & Element_3);
@@ -583,6 +580,7 @@ export declare class KeylessQrCodeElement extends AracnaQrCodeElement {
     render(): TemplateResult<1>;
     get themeOptions(): KeylessThemeOptions | undefined;
     set themeOptions(options: KeylessThemeOptions | undefined);
+    static properties: PropertyDeclarations;
     static styles: CSSResultGroup;
 }
 
@@ -621,10 +619,9 @@ export declare class KeylessShadedIconElement extends AracnaBaseElement {
 
 /** @public */
 export declare interface KeylessShadedIconElementAttributes extends AracnaBaseElementAttributes {
-    src?: string;
     theme?: Theme;
     'theme-options'?: KeylessThemeOptions;
-    variant?: 'primary' | 'error';
+    variant?: KeylessShadedIconVariant;
 }
 
 /** @public */
@@ -681,8 +678,15 @@ export declare class KeylessStepController implements ReactiveController {
 }
 
 /** @public */
-export declare class KeylessStopStreamEvent extends CustomEvent<{}> {
-    constructor();
+export declare class KeylessSuccessEvent extends CustomEvent<KeylessSuccessEventDetail> {
+    constructor(jwt?: string, seedEntropy?: string);
+}
+
+/** @public */
+export declare interface KeylessSuccessEventDetail {
+    jwt?: string;
+    seedEntropy?: string;
+    source: KeylessSessionSource;
 }
 
 /** @public */
@@ -734,6 +738,7 @@ export declare interface KeylessThemeOptionsElements {
     cameraCorners: KeylessThemeOptionsElementsCameraCorners;
     cameraInstructions: KeylessThemeOptionsElementsCameraInstructions;
     cameraSelect: KeylessThemeOptionsElementsCameraSelect;
+    cameraTip: KeylessThemeOptionsElementsCameraTip;
     dialog: KeylessThemeOptionsElementsDialog;
     poweredBy: KeylessThemeOptionsElementsPoweredBy;
     qrcode: KeylessThemeOptionsElementsQrcode;
@@ -892,6 +897,16 @@ export declare interface KeylessThemeOptionsElementsCameraSelectOption {
 }
 
 /** @public */
+export declare interface KeylessThemeOptionsElementsCameraTip {
+    backdropFilter: string;
+    borderRadius: string;
+    fontSize: string;
+    fontWeight: string;
+    height: string;
+    padding: string;
+}
+
+/** @public */
 export declare interface KeylessThemeOptionsElementsDialog {
     host: KeylessThemeOptionsElementsDialogHost;
 }
@@ -1027,12 +1042,6 @@ export declare interface KeylessThemeOptionsElementsRootCameraBiometric {
 
 /** @public */
 export declare interface KeylessThemeOptionsElementsRootCameraTip {
-    backdropFilter: string;
-    borderRadius: string;
-    fontSize: string;
-    fontWeight: string;
-    height: string;
-    padding: string;
     top: string;
 }
 
@@ -1068,34 +1077,14 @@ export declare interface KeylessThemeOptionsElementsRootTexts {
 
 /** @public */
 export declare class KeylessVideoFrameQualityEvent extends CustomEvent<KeylessVideoFrameQualityEventDetail> {
-    constructor(filters: KeylessVideoFrameQualityFilter[], timestamp: number);
+    constructor(filters: KeylessVideoFrameQualityFilter[], source: KeylessVideoFrameQualitySource, timestamp: number);
 }
 
 /** @public */
 export declare interface KeylessVideoFrameQualityEventDetail {
     filters: KeylessVideoFrameQualityFilter[];
+    source: KeylessVideoFrameQualitySource;
     timestamp: Date;
-}
-
-/** @public */
-export declare class KeylessWebSocketCloseEvent extends CustomEvent<KeylessWebSocketCloseEventDetail> {
-    constructor(event: KeylessWebSocketCloseEvent_2);
-}
-
-/** @public */
-export declare interface KeylessWebSocketCloseEventDetail {
-    code: number;
-    reason: string;
-}
-
-/** @public */
-export declare class KeylessWebSocketOpenEvent extends CustomEvent<KeylessWebSocketOpenEventDetail> {
-    constructor(event: KeylessWebSocketOpenEvent_2);
-}
-
-/** @public */
-export declare interface KeylessWebSocketOpenEventDetail {
-    event: KeylessWebSocketOpenEvent_2;
 }
 
 /** @internal */
@@ -1111,6 +1100,7 @@ declare class RootElement extends AracnaBaseElement<RootElementEventMap> {
     aspectRatio?: number | string;
     authorizationToken?: string;
     cameraAspectRatio?: number | string;
+    cameraInstructions?: KeylessCameraInstruction[];
     customer: string;
     datadogEnv?: string;
     datadogToken?: string;
@@ -1125,14 +1115,12 @@ declare class RootElement extends AracnaBaseElement<RootElementEventMap> {
     enableDatadogPII?: boolean;
     enableSwitchToMobile?: boolean;
     enableWasmPthreads?: boolean;
-    key: string;
-    keyID: string;
     localizationPacks?: LocalizationPack[];
     localizationVariables?: LocalizationVariables;
     loggerLevel?: LoggerLevel;
     operationID?: string;
-    publicKey: string;
     seedEntropy?: boolean;
+    serviceURL: string;
     switchToMobileBaseURL?: string;
     protected _theme?: Theme;
     protected _themeOptions?: KeylessThemeOptions;
@@ -1140,26 +1128,22 @@ declare class RootElement extends AracnaBaseElement<RootElementEventMap> {
     protected _username: string;
     wasmBinaryURL?: string;
     wasmDataURL?: string;
-    /**
-     * @deprecated The `wasmFileURL` property is deprecated and will be removed in a future release. Please use `wasmBinaryURL` instead.
-     */
-    wasmFileURL?: string;
     wasmScriptURL?: string;
-    wsTimeout?: number;
-    wsURL: string;
     /**
      * State
      */
     /** */
+    cancelable: boolean;
     error?: Error;
     hasMultipleVideoMediaDevices: boolean;
-    serverFrameResults?: KeylessWebSocketMessageEvent;
+    recoverable: boolean;
     protected _step: KeylessComponentsStep;
     switchToMobileUrlCopied: boolean;
     videoFrameQuality?: KeylessVideoFrameQuality;
     constructor();
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void;
     connectedCallback(): void;
+    disconnectedCallback(): void;
     render(): TemplateResult<1>;
     get numericSize(): number;
     get slug(): KeylessElementSlug;
@@ -1198,15 +1182,13 @@ declare interface RootElementAttributes extends AracnaBaseElementAttributes {
     'enable-datadog-pii'?: boolean;
     'enable-switch-to-mobile'?: boolean;
     'enable-wasm-pthreads'?: boolean;
-    key?: string;
-    'key-id': string;
     lang?: string;
     'localization-packs'?: LocalizationPack[];
     'localization-variables'?: LocalizationVariables;
     'logger-level'?: LoggerLevel;
     'operation-id'?: string;
-    'public-key'?: string;
     'seed-entropy'?: boolean;
+    'service-url': string;
     'switch-to-mobile-base-url'?: string;
     theme?: Theme;
     'theme-options'?: KeylessThemeOptions;
@@ -1214,27 +1196,16 @@ declare interface RootElementAttributes extends AracnaBaseElementAttributes {
     username: string;
     'wasm-binary-url'?: string;
     'wasm-data-url'?: string;
-    /**
-     * @deprecated The `wasm-file-url` attribute is deprecated and will be removed in a future release. Please use `wasm-binary-url` instead.
-     */
-    'wasm-file-url'?: string;
     'wasm-script-url'?: string;
-    'ws-timeout'?: number;
-    'ws-url': string;
 }
 
 /** @internal */
 declare interface RootElementEventMap extends AracnaBaseElementEventMap {
-    'begin-stream': KeylessBeginStreamEvent;
     close: Event;
     error: _;
-    finished: KeylessFinishedEvent;
-    'frame-results': KeylessFrameResultsEvent;
     'step-change': KeylessStepChangeEvent;
-    'stop-stream': KeylessStopStreamEvent;
+    success: KeylessSuccessEvent;
     'video-frame-quality': KeylessVideoFrameQualityEvent;
-    'ws-close': KeylessWebSocketCloseEvent;
-    'ws-open': KeylessWebSocketOpenEvent;
 }
 
 /** @public */

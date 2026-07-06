@@ -7,12 +7,9 @@ export type {
   RecognizeWebComponentCompleteData,
   RecognizeWebComponentConfiguration,
   RecognizeWebComponentEvent,
-  RecognizeWebComponentFrameResultsEventDetail,
   RecognizeWebComponentInitOptions,
   RecognizeWebComponentObserver,
   RecognizeWebComponentStepChangeEventDetail,
   RecognizeWebComponentUnsubscribe,
   RecognizeWebComponentVideoFrameQualityEventDetail,
-  RecognizeWebComponentWebSocketCloseEventDetail,
-  RecognizeWebComponentWebSocketOpenEventDetail,
 } from './lib/recognize.types.js';

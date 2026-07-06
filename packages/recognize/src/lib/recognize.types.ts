@@ -11,12 +11,9 @@ import type { RecognizeError } from './classes/recognize-error.js';
 import type {
   KeylessAuthElement,
   KeylessEnrollElement,
-  KeylessFinishedEventDetail,
-  KeylessFrameResultsEventDetail,
   KeylessStepChangeEventDetail,
+  KeylessSuccessEventDetail,
   KeylessVideoFrameQualityEventDetail,
-  KeylessWebSocketCloseEventDetail,
-  KeylessWebSocketOpenEventDetail,
 } from './recognize-sdk/index.js';
 
 declare global {
@@ -34,19 +31,10 @@ export type RecognizeSessionType = 'auth' | 'enroll';
  */
 /** */
 /** @public */
-export type RecognizeWebComponentFrameResultsEventDetail = KeylessFrameResultsEventDetail;
-
-/** @public */
 export type RecognizeWebComponentStepChangeEventDetail = KeylessStepChangeEventDetail;
 
 /** @public */
 export type RecognizeWebComponentVideoFrameQualityEventDetail = KeylessVideoFrameQualityEventDetail;
-
-/** @public */
-export type RecognizeWebComponentWebSocketCloseEventDetail = KeylessWebSocketCloseEventDetail;
-
-/** @public */
-export type RecognizeWebComponentWebSocketOpenEventDetail = KeylessWebSocketOpenEventDetail;
 
 /**
  * Web Components Client
@@ -61,7 +49,7 @@ export interface RecognizeWebComponentClient {
 }
 
 /** @public */
-export type RecognizeWebComponentCompleteData = KeylessFinishedEventDetail;
+export type RecognizeWebComponentCompleteData = KeylessSuccessEventDetail;
 
 /** @public */
 export interface RecognizeWebComponentConfiguration {
@@ -77,22 +65,19 @@ export interface RecognizeWebComponentConfiguration {
   enableCameraInstructions?: boolean;
   enableCameraInstructionsIcons?: boolean;
   enableWasmPthreads?: boolean;
-  key: string;
-  keyID: string;
   lang?: string;
   localizationPacks?: unknown[];
   localizationVariables?: unknown;
   loggerLevel?: string;
   operationID?: string;
   seedEntropy?: boolean;
+  serviceURL: string;
   theme?: unknown;
   themeOptions?: unknown;
   transactionData?: string;
   wasmBinaryURL?: string;
   wasmDataURL?: string;
   wasmScriptURL?: string;
-  wsTimeout?: number;
-  wsURL: string;
 }
 
 /** @public */
@@ -100,13 +85,8 @@ export type RecognizeWebComponent = KeylessAuthElement | KeylessEnrollElement;
 
 /** @public */
 export type RecognizeWebComponentEvent =
-  | { type: 'begin-stream'; detail: void }
-  | { type: 'frame-results'; detail: RecognizeWebComponentFrameResultsEventDetail }
   | { type: 'step-change'; detail: RecognizeWebComponentStepChangeEventDetail }
-  | { type: 'stop-stream'; detail: void }
-  | { type: 'video-frame-quality'; detail: RecognizeWebComponentVideoFrameQualityEventDetail }
-  | { type: 'ws-close'; detail: RecognizeWebComponentWebSocketCloseEventDetail }
-  | { type: 'ws-open'; detail: RecognizeWebComponentWebSocketOpenEventDetail };
+  | { type: 'video-frame-quality'; detail: RecognizeWebComponentVideoFrameQualityEventDetail };
 
 /** @public */
 export type RecognizeWebComponentInitOptions =

@@ -11,7 +11,7 @@ import { RecognizeError } from './classes/recognize-error.js';
 import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
 import { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
-import type { KeylessFinishedEvent } from './recognize-sdk/index.js';
+import type { KeylessSuccessEvent } from './recognize-sdk/index.js';
 import type {
   RecognizeWebComponent,
   RecognizeWebComponentClient,
@@ -52,7 +52,7 @@ export function recognize(
       return (event: CustomEvent) => dispatch(type, event.detail);
     };
 
-    const onFinished = (event: KeylessFinishedEvent) => {
+    const onSuccess = (event: KeylessSuccessEvent) => {
       for (const observer of observers) {
         observer.complete?.(event.detail);
       }
@@ -75,24 +75,15 @@ export function recognize(
 
     const options: AddEventListenerOptions = { signal: aborter.signal };
 
-    element.addEventListener('begin-stream', onEvent('begin-stream'), options);
     element.addEventListener('error', onError, options);
-    element.addEventListener('finished', onFinished, options);
     element.addEventListener('step-change', onEvent('step-change'), options);
-    element.addEventListener('frame-results', onEvent('frame-results'), options);
-    element.addEventListener('stop-stream', onEvent('stop-stream'), options);
+    element.addEventListener('success', onSuccess, options);
     element.addEventListener('video-frame-quality', onEvent('video-frame-quality'), options);
-    element.addEventListener('ws-open', onEvent('ws-open'), options);
-    element.addEventListener('ws-close', onEvent('ws-close'), options);
   };
 
   const setAttributes = (element: RecognizeWebComponent): void => {
     for (const [k, v] of Object.entries(config)) {
-      if (k === 'key') {
-        element.publicKey = v;
-      } else {
-        element[k as keyof RecognizeWebComponentConfiguration] = v;
-      }
+      element[k as keyof RecognizeWebComponentConfiguration] = v;
     }
   };
 

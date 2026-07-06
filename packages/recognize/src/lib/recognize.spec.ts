@@ -18,10 +18,8 @@ vi.mock('./recognize-sdk/index.js', () => ({}));
 const CONFIG: RecognizeWebComponentConfiguration = {
   authorizationToken: 'USER_AUTHORIZATION_FROM_CUSTOMER',
   customer: 'CUSTOMER_NAME',
-  key: 'IMAGE_ENCRYPTION_PUBLIC_KEY',
-  keyID: 'IMAGE_ENCRYPTION_KEY_ID',
+  serviceURL: 'https://localhost',
   transactionData: 'DATA_FROM_CUSTOMER_SERVER_TO_BE_SIGNED',
-  wsURL: 'ws://localhost',
 };
 
 describe('recognize — subscribe / unsubscribe', () => {

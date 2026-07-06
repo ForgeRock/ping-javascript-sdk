@@ -4,10 +4,8 @@ import './styles.css';
 const client = recognize({
   authorizationToken: 'USER_AUTHORIZATION_FROM_CUSTOMER',
   customer: 'CUSTOMER_NAME',
-  key: 'IMAGE_ENCRYPTION_PUBLIC_KEY',
-  keyID: 'IMAGE_ENCRYPTION_KEY_ID',
+  serviceURL: 'KEYLESS_SERVICE_URL',
   transactionData: 'DATA_FROM_CUSTOMER_SERVER_TO_BE_SIGNED',
-  wsURL: 'KEYLESS_AUTHENTICATION_SERVICE_URL',
 });
 
 client.subscribe({
