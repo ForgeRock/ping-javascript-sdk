@@ -73,11 +73,31 @@ export async function handleWebAuthnStep(
 
     // hasPasskeyAutocompleteValues reflects the AM admin's decision to emit username+webauthn
     // autocomplete values on the NameCallback — the signal that this step is a passkey-autofill
-    // step. Only then do we decorate the username input.
+    // step. Only then do we decorate the username input and render the passkey button.
     if (isConditionalSupported && WebAuthn.hasPasskeyAutocompleteValues(step)) {
       journeyEl.querySelectorAll('input[type="text"]').forEach((input) => {
         input.setAttribute('autocomplete', 'username webauthn');
       });
+
+      // Render the passkey authentication button if AM has enabled it.
+      if (WebAuthn.hasAuthenticationButton(step)) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Sign in with a passkey';
+        button.addEventListener('click', () => {
+          // Cancel the background conditional request and force a modal prompt by overriding
+          // mediation to 'optional' — the server requested 'conditional' (silent) mediation.
+          controller.abort();
+          void WebAuthn.authenticate(step, undefined, 'optional')
+            .then(() => submitForm())
+            .catch(() => {
+              setError(
+                'WebAuthn failed or was cancelled. Please try again or use a different method.',
+              );
+            });
+        });
+        journeyEl.appendChild(button);
+      }
     }
 
     return { callbacksRendered: true, didSubmit: false };

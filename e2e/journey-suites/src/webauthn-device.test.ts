@@ -12,6 +12,32 @@ import { username, password } from './utils/demo-user.js';
 
 const WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM = 'webauthnCredentialId';
 
+/**
+ * Cleanup: deletes only the single credential this run registered, via the journey-app's own
+ * delete flow. Run from `afterEach` so a failed step can't leave the credential behind — orphans
+ * otherwise accumulate past the browser's allowCredentials cap and break auth for later runs.
+ * Deletes just this run's credential (never bulk-deletes) since the account is shared.
+ * Logs in fresh because the test may have logged out or failed mid-auth.
+ */
+async function cleanUpRegisteredDevice(page: Page, cdp: CDPSession, authenticatorId: string) {
+  const { credentials } = await cdp.send('WebAuthn.getCredentials', { authenticatorId });
+  const credentialId = credentials[0]?.credentialId;
+  if (!credentialId) {
+    return;
+  }
+
+  const base64Url = credentialId.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/u, '');
+  const { clickButton, navigate } = asyncEvents(page);
+  await navigate(
+    `/?clientId=tenant&journey=Login&${WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM}=${base64Url}`,
+  );
+  await page.getByLabel('User Name').fill(username);
+  await page.getByLabel('Password').fill(password);
+  await clickButton('Submit', '/authenticate');
+  await page.getByRole('button', { name: 'Delete Webauthn Device' }).click();
+  await expect(page.locator('#deviceStatus')).toContainText('Deleted WebAuthn device');
+}
+
 test.use({ browserName: 'chromium' });
 
 test.describe('WebAuthn register, authenticate, and delete device', () => {
@@ -34,7 +60,8 @@ test.describe('WebAuthn register, authenticate, and delete device', () => {
     authenticatorId = response.authenticatorId;
   });
 
-  test.afterEach(async () => {
+  test.afterEach(async ({ page }) => {
+    await cleanUpRegisteredDevice(page, cdp, authenticatorId);
     await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
     await cdp.send('WebAuthn.disable');
   });
@@ -97,14 +124,6 @@ test.describe('WebAuthn register, authenticate, and delete device', () => {
       await clickButton('Submit', '/authenticate');
       await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
     });
-
-    await test.step('Delete the registered WebAuthn device through the journey-app integration', async () => {
-      await page.getByRole('button', { name: 'Delete Webauthn Device' }).click();
-
-      const deviceStatus = page.locator('#deviceStatus');
-      await expect(deviceStatus).toContainText('Deleted WebAuthn device');
-      await expect(deviceStatus).toContainText(`credential id ${registeredCredentialId} for user`);
-    });
   });
 });
 
@@ -129,7 +148,8 @@ test.describe('WebAuthn conditional autofill (passkey)', () => {
     authenticatorId = response.authenticatorId;
   });
 
-  test.afterEach(async () => {
+  test.afterEach(async ({ page }) => {
+    await cleanUpRegisteredDevice(page, cdp, authenticatorId);
     await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
     await cdp.send('WebAuthn.disable');
   });
@@ -221,6 +241,29 @@ test.describe('WebAuthn conditional autofill (passkey)', () => {
     });
   });
 
+  // 001: no autocomplete values, default mediation, button enabled
+  // AM set manualButtonEnabled but did not emit autocomplete values. The manual button only
+  // renders inside the conditional path — which is not entered without autocomplete values.
+  // This asserts that button alone is insufficient to reach the passkey path.
+  test('button only (001) — manual button does NOT appear despite AM enabling it, falls back to traditional WebAuthn', async ({
+    page,
+  }) => {
+    const { clickButton, navigate } = asyncEvents(page);
+    await test.step('Register', async () => {
+      await registerPasskey(page, navigate, clickButton);
+    });
+    await test.step('Authenticate', async () => {
+      await page.context().clearCookies();
+      await navigate('/?clientId=tenant&journey=TEST_AutofillPasskeyWebAuthn_button');
+
+      await expect(page.locator('input[autocomplete="username webauthn"]')).toHaveCount(0);
+      // Key assertion: AM enabled manualButtonEnabled but the button does not appear because
+      // autocomplete values were absent and the conditional path was never entered.
+      await expect(page.getByRole('button', { name: 'Sign in with a passkey' })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
+    });
+  });
+
   // 110: autocomplete values, conditional mediation, no button
   // Both signals for passkey autofill are present. Silent authentication, no manual button.
   test('autocomplete + conditional (110) — silent passkey auth, no manual button', async ({
@@ -242,6 +285,103 @@ test.describe('WebAuthn conditional autofill (passkey)', () => {
 
       await expect(page.locator('input[autocomplete="username webauthn"]')).toBeVisible();
       await expect(page.getByRole('button', { name: 'Sign in with a passkey' })).toHaveCount(0);
+    });
+  });
+
+  // 101: autocomplete values, default mediation, button "enabled" in journey config
+  // AM only sets manualButtonEnabled: true when mediation is conditional — the two are coupled.
+  // With default mediation this journey sends manualButtonEnabled: false, so the button never
+  // appears even though autocomplete values are present and the conditional path is entered.
+  test('autocomplete + button (101) — autofill input present, manual button absent because AM sends manualButtonEnabled: false without conditional mediation', async ({
+    page,
+  }) => {
+    const { clickButton, navigate } = asyncEvents(page);
+    await test.step('Register', async () => {
+      await registerPasskey(page, navigate, clickButton);
+    });
+    await test.step('Authenticate', async () => {
+      await page.context().clearCookies();
+      // Hold the fired conditional request open so the rendered autofill UI can be asserted.
+      await setPresenceSimulation(false);
+      await navigate('/?clientId=tenant&journey=TEST_AutofillPasskeyWebAuthn_autocomplete_button');
+
+      await expect(page.locator('input[autocomplete="username webauthn"]')).toBeVisible();
+      // No button: AM does not set manualButtonEnabled: true without conditional mediation.
+      await expect(page.getByRole('button', { name: 'Sign in with a passkey' })).toHaveCount(0);
+    });
+  });
+
+  // 011: no autocomplete values, conditional mediation, button enabled
+  // No autocomplete signal means the conditional path is never entered — button does not appear.
+  test('conditional + button (011) — manual button does NOT appear, falls back to traditional WebAuthn', async ({
+    page,
+  }) => {
+    const { clickButton, navigate } = asyncEvents(page);
+    await test.step('Register', async () => {
+      await registerPasskey(page, navigate, clickButton);
+    });
+    await test.step('Authenticate', async () => {
+      await page.context().clearCookies();
+      await navigate('/?clientId=tenant&journey=TEST_AutofillPasskeyWebAuthn_conditional_button');
+
+      await expect(page.locator('input[autocomplete="username webauthn"]')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Sign in with a passkey' })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
+    });
+  });
+
+  // 111: autocomplete values, conditional mediation, button enabled — the full passkey experience.
+  // All three signals present, so the step offers two distinct ways to authenticate. We cover both.
+
+  // 111a: silent autofill via the username field. The conditional request runs in the background
+  // and the virtual authenticator resolves it without the user touching the manual button.
+  test('all enabled (111a) — autofill input and manual button both render, silent passkey auth via username field', async ({
+    page,
+  }) => {
+    const { clickButton, navigate } = asyncEvents(page);
+    await test.step('Register', async () => {
+      await registerPasskey(page, navigate, clickButton);
+    });
+    await test.step('Authenticate', async () => {
+      await page.context().clearCookies();
+      // Hold the fired conditional request open so the rendered autofill UI can be asserted.
+      // Silent completion depends on real autofill-dropdown interaction that the virtual
+      // authenticator cannot drive deterministically, so we assert the rendered UI only.
+      await setPresenceSimulation(false);
+      await navigate(
+        '/?clientId=tenant&journey=TEST_AutofillPasskeyWebAuthn_autocomplete_conditional_button',
+      );
+
+      await expect(page.locator('input[autocomplete="username webauthn"]')).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Sign in with a passkey' })).toBeVisible();
+    });
+  });
+
+  // 111b: explicit authentication via the "Sign in with a passkey" button. Clicking it aborts the
+  // background conditional request and forces a modal prompt (mediationOverride: 'optional'),
+  // which the virtual authenticator resolves — exercising the manual button path end to end.
+  test('all enabled (111b) — clicking "Sign in with a passkey" authenticates via a forced modal prompt', async ({
+    page,
+  }) => {
+    const { clickButton, navigate } = asyncEvents(page);
+    await test.step('Register', async () => {
+      await registerPasskey(page, navigate, clickButton);
+    });
+    await test.step('Authenticate via the manual button', async () => {
+      await page.context().clearCookies();
+      // Hold the background conditional request open so it cannot silently log in before the
+      // manual button is clicked; the button aborts it and fires the forced modal request.
+      await setPresenceSimulation(false);
+      await navigate(
+        '/?clientId=tenant&journey=TEST_AutofillPasskeyWebAuthn_autocomplete_conditional_button',
+      );
+
+      await expect(page.getByRole('button', { name: 'Sign in with a passkey' })).toBeVisible();
+
+      // Re-enable presence so the forced modal request the button fires resolves.
+      await setPresenceSimulation(true);
+      await clickButton('Sign in with a passkey', '/authenticate');
+      await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
     });
   });
 });

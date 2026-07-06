@@ -92,7 +92,7 @@ export enum UserVerificationType {
 
 // @public
 export abstract class WebAuthn {
-    static authenticate(step: JourneyStep, signal?: AbortSignal): Promise<JourneyStep>;
+    static authenticate(step: JourneyStep, signal?: AbortSignal, mediationOverride?: CredentialMediationRequirement): Promise<JourneyStep>;
     static createAuthenticationPublicKey(metadata: WebAuthnAuthenticationMetadata): PublicKeyCredentialRequestOptions;
     static createRegistrationPublicKey(metadata: WebAuthnRegistrationMetadata): PublicKeyCredentialCreationOptions;
     static getAuthenticationCredential(options: PublicKeyCredentialRequestOptions, mediation?: CredentialMediationRequirement, signal?: AbortSignal): Promise<PublicKeyCredential | null>;
@@ -104,6 +104,7 @@ export abstract class WebAuthn {
     static getRegistrationOutcome(credential: PublicKeyCredential | null): OutcomeWithName<string, AttestationType, PublicKeyCredential>;
     static getTextOutputCallback(step: JourneyStep): TextOutputCallback | undefined;
     static getWebAuthnStepType(step: JourneyStep): WebAuthnStepType;
+    static hasAuthenticationButton(step: JourneyStep): boolean;
     static hasPasskeyAutocompleteValues(step: JourneyStep): boolean;
     static isConditionalMediationSupported(): Promise<boolean>;
     static register<T extends string = ''>(step: JourneyStep, deviceName?: T): Promise<JourneyStep>;
@@ -117,6 +118,8 @@ export interface WebAuthnAuthenticationMetadata {
     allowCredentials?: string;
     // (undocumented)
     challenge: string;
+    // (undocumented)
+    manualButtonEnabled?: boolean;
     // (undocumented)
     mediation?: CredentialMediationRequirement;
     // (undocumented)

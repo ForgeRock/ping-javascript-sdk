@@ -92,6 +92,23 @@ describe('Test FRWebAuthn class with 7.0 "Usernameless"', () => {
   });
 });
 
+describe('WebAuthn.hasAuthenticationButton', () => {
+  it('returns true when manualButtonEnabled is true in metadata', () => {
+    const step = createJourneyStep(webAuthnAuthMetaCallbackWithPasskeyAutofill as Step);
+    expect(WebAuthn.hasAuthenticationButton(step)).toBe(true);
+  });
+
+  it('returns false when manualButtonEnabled is false in metadata', () => {
+    const step = createJourneyStep(webAuthnAuthMetaCallbackWithoutPasskeyAutofill as Step);
+    expect(WebAuthn.hasAuthenticationButton(step)).toBe(false);
+  });
+
+  it('returns false when there is no WebAuthn metadata callback', () => {
+    const step = createJourneyStep(webAuthnAuthJSCallback70 as Step);
+    expect(WebAuthn.hasAuthenticationButton(step)).toBe(false);
+  });
+});
+
 describe('WebAuthn.hasPasskeyAutocompleteValues', () => {
   it('returns true when a NameCallback has both "username" and "webauthn" autocomplete values', () => {
     const step = createJourneyStep(webAuthnAuthMetaCallbackWithPasskeyAutofill as Step);

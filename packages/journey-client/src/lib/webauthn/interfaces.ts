@@ -85,6 +85,7 @@ export interface WebAuthnAuthenticationMetadata {
   timeout: number;
   userVerification: UserVerificationType;
   supportsJsonResponse?: boolean;
+  manualButtonEnabled?: boolean;
 }
 
 export interface WebAuthnCallbacks {

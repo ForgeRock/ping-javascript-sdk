@@ -138,6 +138,24 @@ export abstract class WebAuthn {
   }
 
   /**
+   * Determines if the step has a manual authentication button enabled.
+   *
+   * When true, the consumer should render a button that triggers WebAuthn authentication
+   * explicitly, rather than relying solely on passkey autofill.
+   *
+   * @param step The step to evaluate
+   * @return Whether the manual authentication button is enabled
+   */
+  public static hasAuthenticationButton(step: JourneyStep): boolean {
+    const metadataCallback = this.getMetadataCallback(step);
+    if (!metadataCallback) {
+      return false;
+    }
+    const meta = metadataCallback.getOutputValue('data') as WebAuthnAuthenticationMetadata;
+    return meta?.manualButtonEnabled === true;
+  }
+
+  /**
    * Returns true if the step contains a NameCallback with both "username" and "webauthn"
    * autocomplete values.
    *
@@ -160,9 +178,16 @@ export abstract class WebAuthn {
    *
    * @param step The step that contains WebAuthn authentication data
    * @param signal Optional AbortSignal passed through to `navigator.credentials.get()`
+   * @param mediationOverride Optional mediation that overrides the value from the step metadata.
+   *   Use this to force a modal (non-conditional) prompt from a manual "Sign in with a passkey"
+   *   button even when the server requested conditional mediation.
    * @return The populated step
    */
-  public static async authenticate(step: JourneyStep, signal?: AbortSignal): Promise<JourneyStep> {
+  public static async authenticate(
+    step: JourneyStep,
+    signal?: AbortSignal,
+    mediationOverride?: CredentialMediationRequirement,
+  ): Promise<JourneyStep> {
     const { hiddenCallback, metadataCallback, textOutputCallback } = this.getCallbacks(step);
     if (hiddenCallback && (metadataCallback || textOutputCallback)) {
       let outcome: ReturnType<typeof this.getAuthenticationOutcome>;
@@ -173,7 +198,7 @@ export abstract class WebAuthn {
         let publicKey: PublicKeyCredentialRequestOptions;
         if (metadataCallback) {
           const meta = metadataCallback.getOutputValue('data') as WebAuthnAuthenticationMetadata;
-          mediation = meta.mediation;
+          mediation = mediationOverride ?? meta.mediation;
           publicKey = this.createAuthenticationPublicKey(meta);
 
           if (mediation === 'conditional') {
