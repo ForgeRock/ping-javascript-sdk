@@ -21,10 +21,6 @@ export default function textComponent(
   input.id = collectorKey;
   input.name = collectorKey;
 
-  if (callback.getType() === 'NameCallback') {
-    input.setAttribute('autocomplete', 'webauthn');
-  }
-
   journeyEl?.appendChild(label);
   journeyEl?.appendChild(input);
 

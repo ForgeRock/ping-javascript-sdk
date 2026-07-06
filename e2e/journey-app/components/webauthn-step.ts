@@ -57,42 +57,29 @@ export async function handleWebAuthnStep(
   const webAuthnStep = WebAuthn.getWebAuthnStepType(step);
 
   if (webAuthnStep === WebAuthnStepType.Authentication) {
-    // For conditional mediation, we need an input with `autocomplete="webauthn"` to exist.
     renderCallbacks(journeyEl, callbacks, submitForm);
-
-    const conditionalInput = journeyEl.querySelector(
-      'input[autocomplete="webauthn"]',
-    ) as HTMLInputElement | null;
-    conditionalInput?.focus();
 
     const isConditionalSupported = await WebAuthn.isConditionalMediationSupported();
 
-    const metadataCallback = WebAuthn.getMetadataCallback(step);
-    const meta = metadataCallback?.getData<{
-      mediation?: CredentialMediationRequirement;
-      conditional?: boolean;
-    }>();
-    const isConditionalMediation = meta?.mediation === 'conditional' || meta?.conditional === true;
+    // Fire WebAuthn without awaiting so handleWebAuthnStep returns and main.ts can render the
+    // Submit button (traditional login stays available in every case). The SDK decides silent
+    // (conditional mediation) vs. modal popup internally from meta.mediation — the app doesn't.
+    const controller = new AbortController();
+    void WebAuthn.authenticate(step, controller.signal)
+      .then(() => submitForm())
+      .catch(() => {
+        setError('WebAuthn failed or was cancelled. Please try again or use a different method.');
+      });
 
-    if (isConditionalSupported && conditionalInput && isConditionalMediation) {
-      const controller = new AbortController();
-      void WebAuthn.authenticate(step, controller.signal)
-        .then(() => submitForm())
-        .catch(() => {
-          setError('WebAuthn failed or was cancelled. Please try again or use a different method.');
-        });
-
-      return { callbacksRendered: true, didSubmit: false };
+    // hasPasskeyAutocompleteValues reflects the AM admin's decision to emit username+webauthn
+    // autocomplete values on the NameCallback — the signal that this step is a passkey-autofill
+    // step. Only then do we decorate the username input.
+    if (isConditionalSupported && WebAuthn.hasPasskeyAutocompleteValues(step)) {
+      journeyEl.querySelectorAll('input[type="text"]').forEach((input) => {
+        input.setAttribute('autocomplete', 'username webauthn');
+      });
     }
 
-    // Fallback to the traditional (prompted) WebAuthn flow.
-    const webAuthnSuccess = await webauthnComponent(journeyEl, step, 0);
-    if (webAuthnSuccess) {
-      submitForm();
-      return { callbacksRendered: true, didSubmit: true };
-    }
-
-    setError('WebAuthn failed or was cancelled. Please try again or use a different method.');
     return { callbacksRendered: true, didSubmit: false };
   }
 

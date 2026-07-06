@@ -30,6 +30,7 @@ import type {
   WebAuthnTextOutputRegistration,
 } from './interfaces.js';
 import type { MetadataCallback } from '../callbacks/metadata-callback.js';
+import type { NameCallback } from '../callbacks/name-callback.js';
 import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 
 // <clientdata>::<attestation>::<publickeyCredential>::<DeviceName>
@@ -82,8 +83,8 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  *   If you don't provide one, the SDK will create one.
  * - If conditional mediation is requested but not supported by the browser,
  *   `authenticate()` throws a `NotSupportedError` and sets the hidden WebAuthn outcome to `unsupported`.
- * - To enable passkey autofill, add `autocomplete="webauthn"` to your username field:
- *   `<input type="text" name="username" autocomplete="webauthn" />`
+ * - To enable passkey autofill, add `autocomplete="username webauthn"` to your username field:
+ *   `<input type="text" name="username" autocomplete="username webauthn" />`
  */
 export abstract class WebAuthn {
   private static conditionalAbortController?: AbortController;
@@ -134,6 +135,24 @@ export abstract class WebAuthn {
       typeof PublicKeyCredential.isConditionalMediationAvailable === 'function' &&
       (await PublicKeyCredential.isConditionalMediationAvailable())
     );
+  }
+
+  /**
+   * Returns true if the step contains a NameCallback with both "username" and "webauthn"
+   * autocomplete values.
+   *
+   * @param step The step to evaluate
+   * @return Whether the step has passkey autocomplete values
+   */
+  public static hasPasskeyAutocompleteValues(step: JourneyStep): boolean {
+    const nameCallbacks = step.getCallbacksOfType<NameCallback>(callbackType.NameCallback);
+    if (!nameCallbacks.length) {
+      return false;
+    }
+    return nameCallbacks.some((cb: NameCallback) => {
+      const values = cb.getOutputByName<string[]>('autocompleteValues', []);
+      return values.includes('username') && values.includes('webauthn');
+    });
   }
 
   /**

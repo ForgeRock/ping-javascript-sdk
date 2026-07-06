@@ -441,6 +441,93 @@ export const webAuthnRegMetaCallbackJsonResponse = {
   ],
 };
 
+export const webAuthnAuthMetaCallbackWithPasskeyAutofill = {
+  authId: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 ... ',
+  callbacks: [
+    {
+      type: callbackType.NameCallback,
+      output: [
+        { name: 'prompt', value: 'User Name' },
+        { name: 'autocompleteValues', value: ['username', 'webauthn'] },
+      ],
+      input: [{ name: 'IDToken1', value: '' }],
+    },
+    {
+      type: callbackType.MetadataCallback,
+      output: [
+        {
+          name: 'data',
+          value: {
+            _action: 'webauthn_authentication',
+            challenge: 'tbon5Eo3gdE0KPRkoT8H9ek59OoL1/q4iUQSlzV2zhI=',
+            allowCredentials: '',
+            _allowCredentials: [],
+            timeout: '60000',
+            userVerification: 'preferred',
+            conditional: true,
+            mediation: 'conditional',
+            relyingPartyId: 'rpId: "localhost",',
+            _relyingPartyId: 'localhost',
+            _type: 'WebAuthn',
+            supportsJsonResponse: true,
+          },
+        },
+      ],
+    },
+    {
+      type: callbackType.HiddenValueCallback,
+      output: [
+        { name: 'value', value: 'false' },
+        { name: 'id', value: 'webAuthnOutcome' },
+      ],
+      input: [{ name: 'IDToken4', value: 'webAuthnOutcome' }],
+    },
+  ],
+};
+
+export const webAuthnAuthMetaCallbackWithoutPasskeyAutofill = {
+  authId: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 ... ',
+  callbacks: [
+    {
+      type: callbackType.NameCallback,
+      output: [
+        { name: 'prompt', value: 'User Name' },
+        { name: 'autocompleteValues', value: ['username'] },
+      ],
+      input: [{ name: 'IDToken1', value: '' }],
+    },
+    {
+      type: callbackType.MetadataCallback,
+      output: [
+        {
+          name: 'data',
+          value: {
+            _action: 'webauthn_authentication',
+            challenge: 'tbon5Eo3gdE0KPRkoT8H9ek59OoL1/q4iUQSlzV2zhI=',
+            allowCredentials: '',
+            _allowCredentials: [],
+            timeout: '60000',
+            userVerification: 'preferred',
+            mediation: 'conditional',
+            relyingPartyId: 'rpId: "localhost",',
+            _relyingPartyId: 'localhost',
+            _type: 'WebAuthn',
+            supportsJsonResponse: true,
+          },
+        },
+      ],
+    },
+    {
+      type: callbackType.HiddenValueCallback,
+      output: [
+        { name: 'value', value: 'false' },
+        { name: 'id', value: 'webAuthnOutcome' },
+      ],
+      input: [{ name: 'IDToken4', value: 'webAuthnOutcome' }],
+    },
+  ],
+};
+
 export const webAuthnAuthJSCallback70StoredUsername = {
   authId: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 ... ',
   callbacks: [
