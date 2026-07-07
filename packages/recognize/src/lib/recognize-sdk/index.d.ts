@@ -40,7 +40,7 @@ import { Theme } from '@aracna/core';
 /** @public */
 declare class _ extends ErrorEvent {
     reason?: string;
-    constructor(type: string, eventInitDict?: ErrorEventInit, reason?: string);
+    constructor(eventInitDict?: ErrorEventInit, reason?: string);
 }
 
 /** @public */
@@ -540,6 +540,11 @@ export declare class KeylessLoggerController implements ReactiveController {
 }
 
 /** @public */
+export declare class KeylessNonCancelableEvent extends CustomEvent<{}> {
+    constructor();
+}
+
+/** @public */
 export declare class KeylessPoweredByElement extends AracnaBaseElement {
     appearanceController: KeylessAppearanceController;
     /**
@@ -592,6 +597,28 @@ export declare interface KeylessQrCodeElementAttributes extends AracnaQrCodeElem
 
 /** @public */
 export declare interface KeylessQrCodeElementEventMap extends AracnaQrCodeElementEventMap {
+}
+
+/** @public */
+export declare class KeylessRecognitionFailureEvent extends CustomEvent<KeylessRecognitionFailureEventDetail> {
+    constructor(filters: KeylessVideoFrameQualityFilter[], reason: string);
+}
+
+/** @public */
+export declare interface KeylessRecognitionFailureEventDetail {
+    filters: KeylessVideoFrameQualityFilter[];
+    reason: string;
+}
+
+/** @public */
+export declare class KeylessRecognitionStartEvent extends CustomEvent<{}> {
+    constructor();
+}
+
+/** @public */
+export declare class KeylessRecoverableErrorEvent extends ErrorEvent {
+    reason?: string;
+    constructor(eventInitDict?: ErrorEventInit, reason?: string);
 }
 
 /** @public */
@@ -1144,6 +1171,7 @@ declare class RootElement extends AracnaBaseElement<RootElementEventMap> {
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void;
     connectedCallback(): void;
     disconnectedCallback(): void;
+    dispose(): Promise<void | Error>;
     render(): TemplateResult<1>;
     get numericSize(): number;
     get slug(): KeylessElementSlug;
@@ -1203,6 +1231,10 @@ declare interface RootElementAttributes extends AracnaBaseElementAttributes {
 declare interface RootElementEventMap extends AracnaBaseElementEventMap {
     close: Event;
     error: _;
+    'non-cancelable': KeylessNonCancelableEvent;
+    'recognition-failure': KeylessRecognitionFailureEvent;
+    'recognition-start': KeylessRecognitionStartEvent;
+    'recoverable-error': KeylessRecoverableErrorEvent;
     'step-change': KeylessStepChangeEvent;
     success: KeylessSuccessEvent;
     'video-frame-quality': KeylessVideoFrameQualityEvent;
