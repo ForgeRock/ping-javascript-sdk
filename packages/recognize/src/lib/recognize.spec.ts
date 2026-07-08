@@ -14,7 +14,7 @@ import { recognize } from './recognize.js';
 import { RecognizeWebComponentConfiguration } from './recognize.types.js';
 
 vi.mock('./recognize-sdk/index.js', () => ({
-  KeylessRecoverableErrorEvent: ErrorEvent,
+  KeylessRecoverableErrorEvent: class extends ErrorEvent {},
 }));
 
 const CONFIG: RecognizeWebComponentConfiguration = {
