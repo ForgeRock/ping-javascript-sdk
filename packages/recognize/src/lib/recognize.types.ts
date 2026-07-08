@@ -10,6 +10,7 @@
 import type { RecognizeError } from './classes/recognize-error.js';
 import type {
   KeylessAuthElement,
+  KeylessCameraInstruction,
   KeylessEnrollElement,
   KeylessStepChangeEventDetail,
   KeylessSuccessEventDetail,
@@ -53,7 +54,10 @@ export type RecognizeWebComponentCompleteData = KeylessSuccessEventDetail;
 
 /** @public */
 export interface RecognizeWebComponentConfiguration {
+  aspectRatio?: string;
   authorizationToken?: string;
+  cameraAspectRatio?: string;
+  cameraInstructions?: KeylessCameraInstruction[];
   customer: string;
   datadogEnv?: string;
   datadogToken?: string;
@@ -64,6 +68,7 @@ export interface RecognizeWebComponentConfiguration {
   enableCameraFlash?: boolean;
   enableCameraInstructions?: boolean;
   enableCameraInstructionsIcons?: boolean;
+  enableDatadogPII?: boolean;
   enableWasmPthreads?: boolean;
   lang?: string;
   localizationPacks?: unknown[];
@@ -86,6 +91,7 @@ export type RecognizeWebComponent = KeylessAuthElement | KeylessEnrollElement;
 /** @public */
 export type RecognizeWebComponentEvent =
   | { type: 'non-cancelable' }
+  | { type: 'recognition-start' }
   | { type: 'step-change'; detail: RecognizeWebComponentStepChangeEventDetail }
   | { type: 'video-frame-quality'; detail: RecognizeWebComponentVideoFrameQualityEventDetail };
 

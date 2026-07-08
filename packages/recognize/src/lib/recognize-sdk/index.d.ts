@@ -382,7 +382,7 @@ export declare class KeylessCompleteEvent extends CustomEvent<{}> {
 }
 
 /** @public */
-export declare enum KeylessComponentsError {
+export declare enum KeylessComponentsErrorCode {
     SLUG_UNSUPPORTED = "SLUG_UNSUPPORTED",
     QUEUE_UNSET = "QUEUE_UNSET",
     SYMBOL_UNSET = "SYMBOL_UNSET"

@@ -13,7 +13,9 @@ import { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import { recognize } from './recognize.js';
 import { RecognizeWebComponentConfiguration } from './recognize.types.js';
 
-vi.mock('./recognize-sdk/index.js', () => ({}));
+vi.mock('./recognize-sdk/index.js', () => ({
+  KeylessRecoverableErrorEvent: ErrorEvent,
+}));
 
 const CONFIG: RecognizeWebComponentConfiguration = {
   authorizationToken: 'USER_AUTHORIZATION_FROM_CUSTOMER',

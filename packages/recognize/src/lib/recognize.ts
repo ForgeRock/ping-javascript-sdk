@@ -11,7 +11,7 @@ import { RecognizeError } from './classes/recognize-error.js';
 import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
 import { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
-import type { KeylessSuccessEvent } from './recognize-sdk/index.js';
+import type { KeylessRecognitionFailureEvent, KeylessSuccessEvent } from './recognize-sdk/index.js';
 import { KeylessRecoverableErrorEvent } from './recognize-sdk/index.js';
 import type {
   RecognizeWebComponent,
@@ -46,14 +46,42 @@ export function recognize(
     }
   };
 
-  const addEventListeners = (el: RecognizeWebComponent): void => {
+  const addEventListeners = (element: RecognizeWebComponent): void => {
     aborter = new AbortController();
 
     const onEvent = (type: RecognizeWebComponentEvent['type']) => {
       return (event: CustomEvent) => dispatch(type, event.detail);
     };
 
-    const onSuccess = (event: KeylessSuccessEvent) => {
+    const onError = (event: ErrorEvent): void => {
+      if (event instanceof KeylessRecoverableErrorEvent) {
+        element?.dispose();
+      }
+
+      const code: RecognizeErrorCode =
+        RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[event.error?.message] ??
+        RecognizeErrorCode.SDK_ERROR;
+
+      const error: RecognizeError = new RecognizeError(code, { cause: event.error });
+
+      for (const observer of observers) {
+        observer.error?.(error);
+      }
+
+      observers.clear();
+    };
+
+    const onRecognitionFailure = (event: KeylessRecognitionFailureEvent): void => {
+      return onError(
+        new KeylessRecoverableErrorEvent({
+          error: new Error('SERVER_RECOGNITION_FAILED', { cause: event.detail }),
+        }),
+      );
+    };
+
+    const onRecoverableError = (event: KeylessRecoverableErrorEvent): void => onError(event);
+
+    const onSuccess = (event: KeylessSuccessEvent): void => {
       for (const observer of observers) {
         observer.complete?.(event.detail);
       }
@@ -61,54 +89,16 @@ export function recognize(
       observers.clear();
     };
 
-    const onError = (e: ErrorEvent) => {
-      const recoverable = e instanceof KeylessRecoverableErrorEvent;
-
-      if (recoverable) {
-        console.log('%c[recognize] recoverable-error → calling element.dispose()', 'color: orange; font-weight: bold');
-        element?.dispose();
-      }
-
-      const code: RecognizeErrorCode =
-        RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[e.error?.message] ??
-        RecognizeErrorCode.SDK_ERROR;
-
-      const error: RecognizeError = new RecognizeError(code, { cause: e.error });
-      // error.recoverable = recoverable;
-
-      for (const observer of observers) {
-        observer.error?.(error);
-      }
-
-      observers.clear();
-    };
-
-    const onRecoverableError = (e: KeylessRecoverableErrorEvent) => onError(e);
-
-    const onRecognitionFailure = (e: CustomEvent) => {
-      const error: RecognizeError = new RecognizeError(
-        RecognizeErrorCode.SERVER_RECOGNITION_FAILED,
-        {
-          cause: e.detail,
-        },
-      );
-
-      for (const observer of observers) {
-        observer.error?.(error);
-      }
-
-      observers.clear();
-    };
-
     const options: AddEventListenerOptions = { signal: aborter.signal };
 
-    el.addEventListener('error', onError, options);
-    el.addEventListener('recoverable-error', onRecoverableError, options);
-    el.addEventListener('recognition-failure', onRecognitionFailure, options);
-    el.addEventListener('non-cancelable', onEvent('non-cancelable'), options);
-    el.addEventListener('step-change', onEvent('step-change'), options);
-    el.addEventListener('success', onSuccess, options);
-    el.addEventListener('video-frame-quality', onEvent('video-frame-quality'), options);
+    element.addEventListener('error', onError, options);
+    element.addEventListener('non-cancelable', onEvent('non-cancelable'), options);
+    element.addEventListener('recognition-failure', onRecognitionFailure, options);
+    element.addEventListener('recognition-start', onEvent('recognition-start'), options);
+    element.addEventListener('recoverable-error', onRecoverableError, options);
+    element.addEventListener('step-change', onEvent('step-change'), options);
+    element.addEventListener('success', onSuccess, options);
+    element.addEventListener('video-frame-quality', onEvent('video-frame-quality'), options);
   };
 
   const setAttributes = (element: RecognizeWebComponent): void => {
