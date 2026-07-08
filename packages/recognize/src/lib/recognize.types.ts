@@ -85,6 +85,7 @@ export type RecognizeWebComponent = KeylessAuthElement | KeylessEnrollElement;
 
 /** @public */
 export type RecognizeWebComponentEvent =
+  | { type: 'non-cancelable' }
   | { type: 'step-change'; detail: RecognizeWebComponentStepChangeEventDetail }
   | { type: 'video-frame-quality'; detail: RecognizeWebComponentVideoFrameQualityEventDetail };
 
