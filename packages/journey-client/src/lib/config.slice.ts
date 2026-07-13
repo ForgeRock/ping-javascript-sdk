@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -16,7 +16,13 @@ import { convertWellknown } from './wellknown.utils.js';
  * to internal server config via {@link convertWellknown}.
  */
 export interface ResolvedConfig {
+  type: 'wellknown';
   wellknownResponse: WellknownResponse;
+}
+
+interface BaseConfig {
+  type: 'baseUrl';
+  baseUrl: string;
 }
 
 const initialState: InternalJourneyClientConfig = {
@@ -35,13 +41,17 @@ export const configSlice = createSlice({
   name: 'config',
   initialState,
   reducers: {
-    set(state, action: PayloadAction<ResolvedConfig>) {
-      const wellknown = convertWellknown(action.payload.wellknownResponse);
-      if ('error' in wellknown) {
-        state.error = wellknown;
+    set(state, action: PayloadAction<ResolvedConfig | BaseConfig>) {
+      if (action.payload.type === 'baseUrl') {
+        state.serverConfig.baseUrl = action.payload.baseUrl;
       } else {
-        state.serverConfig = wellknown;
-        state.error = undefined;
+        const config = convertWellknown(action.payload.wellknownResponse);
+        if ('error' in config) {
+          state.error = config;
+        } else {
+          state.serverConfig = config;
+          state.error = undefined;
+        }
       }
     },
   },

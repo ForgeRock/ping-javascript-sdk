@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -28,6 +28,7 @@ describe('journey-client config.slice', () => {
   describe('configSlice_ValidAmWellknown_SetsResolvedServerConfig', () => {
     it('should derive baseUrl and paths from a standard AM well-known response', () => {
       const payload: ResolvedConfig = {
+        type: 'wellknown',
         wellknownResponse: createMockWellknown(),
       };
 
@@ -47,6 +48,7 @@ describe('journey-client config.slice', () => {
   describe('configSlice_NonAmIssuer_SetsError', () => {
     it('should set a GenericError when the issuer is not a ForgeRock AM issuer', () => {
       const payload: ResolvedConfig = {
+        type: 'wellknown',
         wellknownResponse: createMockWellknown({
           issuer: 'https://auth.pingone.com/env-id/as',
           authorization_endpoint: 'https://auth.pingone.com/env-id/as/authorize',
@@ -64,6 +66,7 @@ describe('journey-client config.slice', () => {
   describe('configSlice_MissingAuthEndpoint_SetsError', () => {
     it('should set a GenericError when authorization_endpoint is empty', () => {
       const payload: ResolvedConfig = {
+        type: 'wellknown',
         wellknownResponse: createMockWellknown({
           authorization_endpoint: '',
         }),
