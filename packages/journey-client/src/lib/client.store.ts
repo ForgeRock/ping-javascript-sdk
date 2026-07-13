@@ -115,30 +115,43 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
 
   const store = createJourneyStore({ requestMiddleware, logger: log });
 
-  const { wellknown } = config.serverConfig;
+  if ('baseUrl' in config.serverConfig) {
+    const { baseUrl } = config.serverConfig;
 
-  if (!isValidWellknownUrl(wellknown)) {
-    const message = `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost) and end with /.well-known/openid-configuration.`;
-    log.error(message);
-    throw new Error(message);
+    // Check for `baseUrl` to support non-AIC, Platform Login edge cases
+    // Warn of the use of `baseUrl`. This is used only in advanced use cases, and is not recommended for "normal consumer use".
+    log.warn(
+      'Wellknown configuration is disabled due to the presence of `serverConfig.baseUrl`. It is recommended that you remove `baseUrl` and just use the `wellknown` property.',
+    );
+
+    store.dispatch(configSlice.actions.set({ type: 'baseUrl', baseUrl }));
+  } else {
+    const { wellknown } = config.serverConfig;
+    // This is the normal use case for using the Wellknown endpoint for proper configuration.
+    if (!isValidWellknownUrl(wellknown)) {
+      const message = `Invalid wellknown URL: ${wellknown}. URL must use HTTPS (or HTTP for localhost) and end with /.well-known/openid-configuration.`;
+      log.error(message);
+      throw new Error(message);
+    }
+
+    const { data: wellknownResponse, error: fetchError } = await store.dispatch(
+      wellknownApi.endpoints.configuration.initiate(wellknown),
+    );
+
+    if (fetchError || !wellknownResponse) {
+      const error = createWellknownError(fetchError);
+      const message = `${error.error}: ${error.message}`;
+      log.error(message);
+      throw new Error(message);
+    }
+
+    store.dispatch(
+      configSlice.actions.set({
+        type: 'wellknown',
+        wellknownResponse: wellknownResponse,
+      }),
+    );
   }
-
-  const { data: wellknownResponse, error: fetchError } = await store.dispatch(
-    wellknownApi.endpoints.configuration.initiate(wellknown),
-  );
-
-  if (fetchError || !wellknownResponse) {
-    const error = createWellknownError(fetchError);
-    const message = `${error.error}: ${error.message}`;
-    log.error(message);
-    throw new Error(message);
-  }
-
-  store.dispatch(
-    configSlice.actions.set({
-      wellknownResponse: wellknownResponse,
-    }),
-  );
 
   const configError = store.getState().config.error;
 

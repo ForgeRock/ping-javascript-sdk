@@ -17,6 +17,7 @@ import { GenericError } from '@forgerock/sdk-types';
 import { isValidWellknownUrl } from '@forgerock/sdk-utilities';
 import { JourneyClientConfig } from '@forgerock/sdk-types';
 import { JourneyServerConfig } from '@forgerock/sdk-types';
+import { LegacyServerConfig } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { NameValue } from '@forgerock/sdk-types';
 import { PolicyKey } from '@forgerock/sdk-types';
@@ -95,9 +96,6 @@ export class ConfirmationCallback extends BaseCallback {
 
 // @public (undocumented)
 export function createCallback(callback: Callback): BaseCallback;
-
-// @public (undocumented)
-export function createJourneyStep(payload: Step, callbackFactory?: CallbackFactory): JourneyStep;
 
 export { createWellknownError }
 
@@ -258,6 +256,8 @@ export class KbaCreateCallback extends BaseCallback {
     setAnswer(answer: string): void;
     setQuestion(question: string): void;
 }
+
+export { LegacyServerConfig }
 
 export { LogLevel }
 
