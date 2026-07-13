@@ -22,6 +22,8 @@
     "circular-dep-check": "madge --circular .",
     "clean": "shx rm -rf ./{coverage,dist,docs,node_modules,tmp}/ ./{packages,e2e}/*/{dist,node_modules}/ ./e2e/node_modules/ && git clean -fX -e \"!.env*,nx-cloud.env\"",
     "commit": "git cz",
+    "copyright:check": "node tools/copyright/sync-header-years.mjs --check",
+    "copyright:sync": "node tools/copyright/sync-header-years.mjs --fix",
     "commitlint": "commitlint --edit",
     "create-package": "nx g @nx/js:library",
     "format": "pnpm nx format:write",
