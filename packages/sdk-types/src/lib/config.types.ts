@@ -39,6 +39,11 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
   log?: LogLevel;
 }
 
+export interface LegacyServerConfig {
+  baseUrl: string;
+  timeout?: number;
+}
+
 export interface JourneyServerConfig {
   wellknown: string;
   timeout?: number;
@@ -53,7 +58,7 @@ export interface JourneyServerConfig {
  * journey-client — a warning is logged when they are provided.
  */
 export interface JourneyClientConfig extends AsyncLegacyConfigOptions {
-  serverConfig: JourneyServerConfig;
+  serverConfig: JourneyServerConfig | LegacyServerConfig;
   log?: LogLevel;
 }
 
