@@ -71,10 +71,16 @@ export async function handleWebAuthnStep(
         setError('WebAuthn failed or was cancelled. Please try again or use a different method.');
       });
 
-    // hasPasskeyAutocompleteValues reflects the AM admin's decision to emit username+webauthn
-    // autocomplete values on the NameCallback — the signal that this step is a passkey-autofill
-    // step. Only then do we decorate the username input and render the passkey button.
-    if (isConditionalSupported && WebAuthn.hasPasskeyAutocompleteValues(step)) {
+    // The NameCallback carries autocomplete values when AM has passkey autofill configured.
+    // Decorate the username input and render the passkey button only when both "username" and
+    // "webauthn" are present — the signal that this step is a passkey-autofill step.
+    const hasPasskeyAutocompleteValues = step
+      .getCallbacksOfType<BaseCallback>('NameCallback')
+      .some((cb) => {
+        const values = cb.getOutputByName<string[]>('autocompleteValues', []);
+        return values.includes('username') && values.includes('webauthn');
+      });
+    if (isConditionalSupported && hasPasskeyAutocompleteValues) {
       journeyEl.querySelectorAll('input[type="text"]').forEach((input) => {
         input.setAttribute('autocomplete', 'username webauthn');
       });

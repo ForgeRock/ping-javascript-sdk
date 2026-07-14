@@ -23,8 +23,8 @@ import {
   webAuthnAuthJSCallback70StoredUsername,
   webAuthnRegMetaCallback70StoredUsername,
   webAuthnAuthMetaCallback70StoredUsername,
-  webAuthnAuthMetaCallbackWithPasskeyAutofill,
-  webAuthnAuthMetaCallbackWithoutPasskeyAutofill,
+  webAuthnAuthMetaCallbackWithButton,
+  webAuthnAuthMetaCallbackWithoutButton,
 } from './webauthn.mock.data.js';
 import { createJourneyStep } from '../step.utils.js';
 
@@ -94,34 +94,17 @@ describe('Test FRWebAuthn class with 7.0 "Usernameless"', () => {
 
 describe('WebAuthn.hasAuthenticationButton', () => {
   it('returns true when manualButtonEnabled is true in metadata', () => {
-    const step = createJourneyStep(webAuthnAuthMetaCallbackWithPasskeyAutofill as Step);
+    const step = createJourneyStep(webAuthnAuthMetaCallbackWithButton as Step);
     expect(WebAuthn.hasAuthenticationButton(step)).toBe(true);
   });
 
   it('returns false when manualButtonEnabled is false in metadata', () => {
-    const step = createJourneyStep(webAuthnAuthMetaCallbackWithoutPasskeyAutofill as Step);
+    const step = createJourneyStep(webAuthnAuthMetaCallbackWithoutButton as Step);
     expect(WebAuthn.hasAuthenticationButton(step)).toBe(false);
   });
 
   it('returns false when there is no WebAuthn metadata callback', () => {
     const step = createJourneyStep(webAuthnAuthJSCallback70 as Step);
     expect(WebAuthn.hasAuthenticationButton(step)).toBe(false);
-  });
-});
-
-describe('WebAuthn.hasPasskeyAutocompleteValues', () => {
-  it('returns true when a NameCallback has both "username" and "webauthn" autocomplete values', () => {
-    const step = createJourneyStep(webAuthnAuthMetaCallbackWithPasskeyAutofill as Step);
-    expect(WebAuthn.hasPasskeyAutocompleteValues(step)).toBe(true);
-  });
-
-  it('returns false when a NameCallback is missing the "webauthn" autocomplete value', () => {
-    const step = createJourneyStep(webAuthnAuthMetaCallbackWithoutPasskeyAutofill as Step);
-    expect(WebAuthn.hasPasskeyAutocompleteValues(step)).toBe(false);
-  });
-
-  it('returns false when there is no NameCallback in the step', () => {
-    const step = createJourneyStep(webAuthnAuthMetaCallback70 as Step);
-    expect(WebAuthn.hasPasskeyAutocompleteValues(step)).toBe(false);
   });
 });

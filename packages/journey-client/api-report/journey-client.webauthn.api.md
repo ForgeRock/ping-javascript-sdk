@@ -105,7 +105,6 @@ export abstract class WebAuthn {
     static getTextOutputCallback(step: JourneyStep): TextOutputCallback | undefined;
     static getWebAuthnStepType(step: JourneyStep): WebAuthnStepType;
     static hasAuthenticationButton(step: JourneyStep): boolean;
-    static hasPasskeyAutocompleteValues(step: JourneyStep): boolean;
     static isConditionalMediationSupported(): Promise<boolean>;
     static register<T extends string = ''>(step: JourneyStep, deviceName?: T): Promise<JourneyStep>;
 }

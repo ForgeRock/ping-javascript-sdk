@@ -12,32 +12,6 @@ import { username, password } from './utils/demo-user.js';
 
 const WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM = 'webauthnCredentialId';
 
-/**
- * Cleanup: deletes only the single credential this run registered, via the journey-app's own
- * delete flow. Run from `afterEach` so a failed step can't leave the credential behind — orphans
- * otherwise accumulate past the browser's allowCredentials cap and break auth for later runs.
- * Deletes just this run's credential (never bulk-deletes) since the account is shared.
- * Logs in fresh because the test may have logged out or failed mid-auth.
- */
-async function cleanUpRegisteredDevice(page: Page, cdp: CDPSession, authenticatorId: string) {
-  const { credentials } = await cdp.send('WebAuthn.getCredentials', { authenticatorId });
-  const credentialId = credentials[0]?.credentialId;
-  if (!credentialId) {
-    return;
-  }
-
-  const base64Url = credentialId.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/u, '');
-  const { clickButton, navigate } = asyncEvents(page);
-  await navigate(
-    `/?clientId=tenant&journey=Login&${WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM}=${base64Url}`,
-  );
-  await page.getByLabel('User Name').fill(username);
-  await page.getByLabel('Password').fill(password);
-  await clickButton('Submit', '/authenticate');
-  await page.getByRole('button', { name: 'Delete Webauthn Device' }).click();
-  await expect(page.locator('#deviceStatus')).toContainText('Deleted WebAuthn device');
-}
-
 test.use({ browserName: 'chromium' });
 
 test.describe('WebAuthn register, authenticate, and delete device', () => {
@@ -60,8 +34,7 @@ test.describe('WebAuthn register, authenticate, and delete device', () => {
     authenticatorId = response.authenticatorId;
   });
 
-  test.afterEach(async ({ page }) => {
-    await cleanUpRegisteredDevice(page, cdp, authenticatorId);
+  test.afterEach(async () => {
     await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
     await cdp.send('WebAuthn.disable');
   });
@@ -124,6 +97,14 @@ test.describe('WebAuthn register, authenticate, and delete device', () => {
       await clickButton('Submit', '/authenticate');
       await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
     });
+
+    await test.step('Delete the registered WebAuthn device through the journey-app integration', async () => {
+      await page.getByRole('button', { name: 'Delete Webauthn Device' }).click();
+
+      const deviceStatus = page.locator('#deviceStatus');
+      await expect(deviceStatus).toContainText('Deleted WebAuthn device');
+      await expect(deviceStatus).toContainText(`credential id ${registeredCredentialId} for user`);
+    });
   });
 });
 
@@ -148,8 +129,7 @@ test.describe('WebAuthn conditional autofill (passkey)', () => {
     authenticatorId = response.authenticatorId;
   });
 
-  test.afterEach(async ({ page }) => {
-    await cleanUpRegisteredDevice(page, cdp, authenticatorId);
+  test.afterEach(async () => {
     await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
     await cdp.send('WebAuthn.disable');
   });

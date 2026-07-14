@@ -441,17 +441,9 @@ export const webAuthnRegMetaCallbackJsonResponse = {
   ],
 };
 
-export const webAuthnAuthMetaCallbackWithPasskeyAutofill = {
+export const webAuthnAuthMetaCallbackWithButton = {
   authId: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 ... ',
   callbacks: [
-    {
-      type: callbackType.NameCallback,
-      output: [
-        { name: 'prompt', value: 'User Name' },
-        { name: 'autocompleteValues', value: ['username', 'webauthn'] },
-      ],
-      input: [{ name: 'IDToken1', value: '' }],
-    },
     {
       type: callbackType.MetadataCallback,
       output: [
@@ -464,7 +456,6 @@ export const webAuthnAuthMetaCallbackWithPasskeyAutofill = {
             _allowCredentials: [],
             timeout: '60000',
             userVerification: 'preferred',
-            conditional: true,
             mediation: 'conditional',
             manualButtonEnabled: true,
             relyingPartyId: 'rpId: "localhost",',
@@ -486,17 +477,9 @@ export const webAuthnAuthMetaCallbackWithPasskeyAutofill = {
   ],
 };
 
-export const webAuthnAuthMetaCallbackWithoutPasskeyAutofill = {
+export const webAuthnAuthMetaCallbackWithoutButton = {
   authId: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 ... ',
   callbacks: [
-    {
-      type: callbackType.NameCallback,
-      output: [
-        { name: 'prompt', value: 'User Name' },
-        { name: 'autocompleteValues', value: ['username'] },
-      ],
-      input: [{ name: 'IDToken1', value: '' }],
-    },
     {
       type: callbackType.MetadataCallback,
       output: [
