@@ -27,6 +27,7 @@
     "@forgerock/protect-app",
     "@forgerock/protect-suites",
     "@forgerock/journey-app",
-    "@forgerock/journey-suites"
+    "@forgerock/journey-suites",
+    "@forgerock/recognize-app"
   ]
 }

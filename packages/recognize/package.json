@@ -1,7 +1,15 @@
 {
   "name": "@forgerock/recognize",
   "version": "0.0.1",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
+    "directory": "packages/recognize"
+  },
+  "description": "Facial recognition client for the Ping JavaScript SDK",
+  "license": "MIT",
+  "author": "ForgeRock",
+  "sideEffects": ["dist/src/lib/recognize-sdk/index.js"],
   "type": "module",
   "exports": {
     ".": {
@@ -14,11 +22,18 @@
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
-  "dependencies": {
-    "tslib": "^2.3.0"
+  "files": ["dist"],
+  "scripts": {
+    "lint": "pnpm nx nxLint",
+    "test": "pnpm nx nxTest",
+    "test:watch": "pnpm nx nxTest --watch"
   },
+  "dependencies": {},
   "devDependencies": {
     "@aracna/web-components": "^1.1.18"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "nx": {
     "tags": ["scope:package"],
