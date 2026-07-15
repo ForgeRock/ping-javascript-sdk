@@ -11,6 +11,7 @@ import {
   isGenericError,
   isValidWellknownUrl,
   createWellknownError,
+  getEndpointPath,
 } from '@forgerock/sdk-utilities';
 import type { GenericError } from '@forgerock/sdk-types';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
@@ -93,7 +94,6 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     'oauthThreshold',
     'platformHeader',
     'prefix',
-    'realmPath',
     'redirectUri',
     'scope',
     'tokenStore',
@@ -124,7 +124,20 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
       'Wellknown configuration is disabled due to the presence of `serverConfig.baseUrl`. It is recommended that you remove `baseUrl` and just use the `wellknown` property.',
     );
 
-    store.dispatch(configSlice.actions.set({ type: 'baseUrl', baseUrl }));
+    // resolve() treats the base URL as a directory: it drops the last path segment for relative
+    // paths. A trailing slash ensures the full context path is preserved (e.g. /am/json/...).
+    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
+    store.dispatch(
+      configSlice.actions.set({
+        type: 'baseUrl',
+        baseUrl: normalizedBaseUrl,
+        paths: {
+          authenticate: getEndpointPath({ endpoint: 'authenticate', realmPath: config.realmPath }),
+          sessions: getEndpointPath({ endpoint: 'sessions', realmPath: config.realmPath }),
+        },
+      }),
+    );
   } else {
     const { wellknown } = config.serverConfig;
     // This is the normal use case for using the Wellknown endpoint for proper configuration.
