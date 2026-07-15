@@ -23,6 +23,10 @@ export interface ResolvedConfig {
 interface BaseConfig {
   type: 'baseUrl';
   baseUrl: string;
+  paths: {
+    authenticate: string;
+    sessions: string;
+  };
 }
 
 const initialState: InternalJourneyClientConfig = {
@@ -43,7 +47,8 @@ export const configSlice = createSlice({
   reducers: {
     set(state, action: PayloadAction<ResolvedConfig | BaseConfig>) {
       if (action.payload.type === 'baseUrl') {
-        state.serverConfig.baseUrl = action.payload.baseUrl;
+        const { baseUrl, paths } = action.payload;
+        state.serverConfig = { baseUrl, paths };
       } else {
         const config = convertWellknown(action.payload.wellknownResponse);
         if ('error' in config) {
