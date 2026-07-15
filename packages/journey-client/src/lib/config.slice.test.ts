@@ -63,6 +63,31 @@ describe('journey-client config.slice', () => {
     });
   });
 
+  describe('configSlice_BaseUrlPayload_StoresVerbatim', () => {
+    it('should store baseUrl and paths exactly as dispatched', () => {
+      const state = configSlice.reducer(
+        undefined,
+        configSlice.actions.set({
+          type: 'baseUrl',
+          baseUrl: 'https://am.example.com/am/',
+          paths: {
+            authenticate: 'json/realms/root/realms/alpha/authenticate',
+            sessions: 'json/realms/root/realms/alpha/sessions/',
+          },
+        }),
+      );
+
+      expect(state.serverConfig).toEqual({
+        baseUrl: 'https://am.example.com/am/',
+        paths: {
+          authenticate: 'json/realms/root/realms/alpha/authenticate',
+          sessions: 'json/realms/root/realms/alpha/sessions/',
+        },
+      });
+      expect(state.error).toBeUndefined();
+    });
+  });
+
   describe('configSlice_MissingAuthEndpoint_SetsError', () => {
     it('should set a GenericError when authorization_endpoint is empty', () => {
       const payload: ResolvedConfig = {
