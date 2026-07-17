@@ -8,7 +8,11 @@
 import type { GenericError } from '@forgerock/sdk-types';
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
-export type { JourneyServerConfig, JourneyClientConfig } from '@forgerock/sdk-types';
+export type {
+  JourneyServerConfig,
+  JourneyClientConfig,
+  LegacyServerConfig,
+} from '@forgerock/sdk-types';
 
 /**
  * Internal configuration after wellknown discovery and path resolution.

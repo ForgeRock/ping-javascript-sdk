@@ -561,6 +561,112 @@ describe('journey-client', () => {
     });
   });
 
+  describe('baseUrl mode', () => {
+    const baseUrl = 'https://am.example.com/am';
+    const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
+
+    function setupBaseUrlFetch() {
+      mockFetch.mockImplementation((input: RequestInfo | URL) => {
+        const url = getUrlFromInput(input);
+        if (url.includes('/authenticate')) {
+          return Promise.resolve(new Response(JSON.stringify(mockStepResponse)));
+        }
+        if (url.includes('/sessions')) {
+          return Promise.resolve(new Response(null, { status: 200 }));
+        }
+        return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+      });
+    }
+
+    test('journey_BaseUrl_NoRealmPath_UsesRootAuthenticate', async () => {
+      setupBaseUrlFetch();
+
+      const client = await journey({
+        config: { serverConfig: { baseUrl } },
+      });
+      await client.start();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe('https://am.example.com/am/json/realms/root/authenticate');
+    });
+
+    test('journey_BaseUrl_WithRealmPath_UsesRealmAuthenticate', async () => {
+      setupBaseUrlFetch();
+
+      const client = await journey({
+        config: { serverConfig: { baseUrl }, realmPath: 'alpha' },
+      });
+      await client.start();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe(
+        'https://am.example.com/am/json/realms/root/realms/alpha/authenticate',
+      );
+    });
+
+    test('journey_BaseUrl_TrailingSlashInput_NormalizesCorrectly', async () => {
+      setupBaseUrlFetch();
+
+      const client = await journey({
+        config: { serverConfig: { baseUrl: `${baseUrl}/` } },
+      });
+      await client.start();
+
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe('https://am.example.com/am/json/realms/root/authenticate');
+    });
+
+    test('journey_BaseUrl_Terminate_UsesRootSessionsUrl', async () => {
+      setupBaseUrlFetch();
+
+      const client = await journey({
+        config: { serverConfig: { baseUrl } },
+      });
+      await client.terminate();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe(
+        'https://am.example.com/am/json/realms/root/sessions/?_action=logout',
+      );
+    });
+
+    test('journey_BaseUrl_WithRealmPath_Terminate_UsesRealmSessionsUrl', async () => {
+      setupBaseUrlFetch();
+
+      const client = await journey({
+        config: { serverConfig: { baseUrl }, realmPath: 'alpha' },
+      });
+      await client.terminate();
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      const request = mockFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe(
+        'https://am.example.com/am/json/realms/root/realms/alpha/sessions/?_action=logout',
+      );
+    });
+
+    test('journey_BaseUrl_WithRealmPath_DoesNotWarn', async () => {
+      setupBaseUrlFetch();
+      const customLogger = {
+        error: vi.fn(),
+        warn: vi.fn(),
+        info: vi.fn(),
+        debug: vi.fn(),
+      };
+
+      await journey({
+        config: { serverConfig: { baseUrl }, realmPath: 'alpha' },
+        logger: { level: 'warn', custom: customLogger },
+      });
+
+      const warnCalls = customLogger.warn.mock.calls.map((c) => c[0] as string);
+      expect(warnCalls.find((msg) => msg.includes('realmPath'))).toBeUndefined();
+    });
+  });
+
   describe('unified JSON config entry', () => {
     test('accepts unified JSON config and initializes successfully', async () => {
       setupMockFetch();

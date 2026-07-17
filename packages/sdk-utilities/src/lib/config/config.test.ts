@@ -235,14 +235,16 @@ describe('parseToJourneyConfig', () => {
 
   it('parseToJourneyConfig_MinimalConfig_MapsWellknown', () => {
     const data = Either.getOrThrow(parseToJourneyConfig({ oidc: minimalOidc }));
-    expect(data.serverConfig.wellknown).toBe(
+    expect(data.serverConfig).toHaveProperty(
+      'wellknown',
       'https://example.com/.well-known/openid-configuration',
     );
   });
 
   it('parseToJourneyConfig_JourneyOnlyConfig_MapsWellknown', () => {
     const data = Either.getOrThrow(parseToJourneyConfig(journeyOnlyConfig));
-    expect(data.serverConfig.wellknown).toBe(
+    expect(data.serverConfig).toHaveProperty(
+      'wellknown',
       'https://example.com/.well-known/openid-configuration',
     );
   });
@@ -463,7 +465,8 @@ describe('makeOidcConfig', () => {
 describe('makeJourneyConfig', () => {
   it('makeJourneyConfig_ValidConfig_ReturnsMappedJourneyConfig', () => {
     const result = makeJourneyConfig(fullConfig);
-    expect(result.serverConfig.wellknown).toBe(
+    expect(result.serverConfig).toHaveProperty(
+      'wellknown',
       'https://example.com/.well-known/openid-configuration',
     );
     expect(result.realmPath).toBe('alpha');
