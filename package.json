@@ -140,7 +140,8 @@
       "brace-expansion@<2": "~1.1.15",
       "brace-expansion@>=2 <3": "~2.1.1",
       "brace-expansion@>=3 <4": "~3.0.2",
-      "brace-expansion@>=4": "~5.0.7"
+      "brace-expansion@>=4": "~5.0.7",
+      "ws": "^8.21.1"
     }
   }
 }
