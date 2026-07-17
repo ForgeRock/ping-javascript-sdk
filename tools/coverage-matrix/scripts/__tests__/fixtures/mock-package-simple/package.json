@@ -1,0 +1,10 @@
+{
+  "name": "@forgerock/mock-simple",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./feature": "./dist/src/lib/feature/index.js",
+    "./package.json": "./package.json",
+    "./types": "./dist/src/types.d.ts"
+  }
+}

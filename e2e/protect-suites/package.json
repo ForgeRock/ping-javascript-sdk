@@ -17,5 +17,8 @@
   "main": "src/index.js",
   "nx": {
     "implicitDependencies": ["@forgerock/protect-app"]
+  },
+  "dependencies": {
+    "@forgerock/e2e-shared": "workspace:*"
   }
 }
