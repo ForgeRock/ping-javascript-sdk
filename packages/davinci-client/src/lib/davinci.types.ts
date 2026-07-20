@@ -327,6 +327,12 @@ export type PollingField = {
   challenge?: string;
 };
 
+export type MetadataField = {
+  type: 'METADATA';
+  key: string;
+  payload: Record<string, unknown>;
+};
+
 export type UnknownField = Record<string, unknown>;
 
 export type ComplexValueFields =
@@ -336,7 +342,8 @@ export type ComplexValueFields =
   | PhoneNumberExtensionField
   | FidoRegistrationField
   | FidoAuthenticationField
-  | PollingField;
+  | PollingField
+  | MetadataField;
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
 export type RedirectFields = RedirectField;

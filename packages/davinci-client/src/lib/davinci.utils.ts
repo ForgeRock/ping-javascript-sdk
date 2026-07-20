@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -22,12 +22,8 @@ import type {
   DaVinciSuccessResponse,
 } from './davinci.types.js';
 import type { ContinueNode } from './node.types.js';
-import {
-  DeviceValue,
-  FidoAuthenticationInputValue,
-  FidoRegistrationInputValue,
-  PhoneNumberInputValue,
-} from './collector.types.js';
+import { DaVinciRequestValueTypes } from './client.types.js';
+
 /**
  * @function transformSubmitRequest - Transforms a NextNode into a DaVinciRequest for form submissions
  * @param {ContinueNode} node - The node to transform into a DaVinciRequest
@@ -50,15 +46,7 @@ export function transformSubmitRequest(
   );
 
   const formData = collectors?.reduce<{
-    [key: string]:
-      | string
-      | number
-      | boolean
-      | (string | number | boolean)[]
-      | DeviceValue
-      | PhoneNumberInputValue
-      | FidoRegistrationInputValue
-      | FidoAuthenticationInputValue;
+    [key: string]: DaVinciRequestValueTypes;
   }>((acc, collector) => {
     acc[collector.input.key] = collector.input.value;
     return acc;
@@ -100,7 +88,26 @@ export function transformActionRequest(
   action: string,
   logger: ReturnType<typeof loggerFn>,
 ): DaVinciRequest {
+  // Filter out ActionCollectors as they do not collect values
+  const collectors = node.client?.collectors?.filter(
+    (collector) =>
+      collector.category === 'MultiValueCollector' ||
+      collector.category === 'SingleValueCollector' ||
+      collector.category === 'ValidatedSingleValueCollector' ||
+      collector.category === 'ObjectValueCollector' ||
+      collector.category === 'SingleValueAutoCollector' ||
+      collector.category === 'ObjectValueAutoCollector',
+  );
+
+  const formData = collectors?.reduce<{
+    [key: string]: DaVinciRequestValueTypes | Record<string, unknown>;
+  }>((acc, collector) => {
+    acc[collector.input.key] = collector.input.value;
+    return acc;
+  }, {});
+
   logger.debug('Transforming action request', { node, action });
+
   return {
     id: node.server.id || '',
     eventName: node.server.eventName || '',
@@ -108,7 +115,8 @@ export function transformActionRequest(
     parameters: {
       eventType: 'action',
       data: {
-        actionKey: action,
+        actionKey: action || node.client?.action || '',
+        ...(Object.keys(formData ?? {}).length && { formData: formData }),
       },
     },
   };

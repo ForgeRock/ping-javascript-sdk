@@ -93,7 +93,7 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
     },
   },
   /**
-   * Polling
+   * AutoCollectors: Polling, Metadata
    */
   '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0': {
     clientId: '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0',

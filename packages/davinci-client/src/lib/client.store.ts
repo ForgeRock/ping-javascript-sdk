@@ -52,6 +52,7 @@ import type {
   Validator,
   Poller,
   CollectorValueTypes,
+  MetadataError,
 } from './client.types.js';
 import { returnValidator } from './collector.utils.js';
 import { returnPasswordPolicyValidator } from './password-policy.rules.js';
@@ -452,6 +453,18 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           'An unexpected error occurred during poll operation',
           'unknown_error',
         );
+      };
+    },
+
+    /**
+     * @method getMetadataError - Constructs a structured error object from a code and message.
+     * @param {MetadataError} errorDetails - An error code and description.
+     * @returns {MetadataError} The structured error object.
+     */
+    getMetadataError: (errorDetails: MetadataError): MetadataError => {
+      return {
+        code: errorDetails.code,
+        message: errorDetails.message,
       };
     },
 
