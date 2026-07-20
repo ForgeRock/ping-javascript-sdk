@@ -26,6 +26,9 @@ export * from './lib/collector.types.js';
 // Fido types
 export type { FidoClient } from './lib/fido/fido.js';
 
+// Utility types
+export * from './lib/utils/utils.types.js';
+
 // Node slice and reducer exports needed to resolve DavinciClient
 export {
   updateCollectorValues,
