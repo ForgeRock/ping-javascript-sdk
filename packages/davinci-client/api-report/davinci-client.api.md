@@ -289,6 +289,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
+    getMetadataError: (errorDetails: MetadataError) => MetadataError;
     getClient: () => {
         status: "start";
     } | {

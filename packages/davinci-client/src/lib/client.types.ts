@@ -28,6 +28,11 @@ export interface InternalErrorResponse {
   type: 'internal_error';
 }
 
+export interface MetadataError {
+  code: string;
+  message: string;
+}
+
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
 
 /**
