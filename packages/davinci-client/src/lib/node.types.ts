@@ -8,6 +8,7 @@ import { GenericError } from '@forgerock/sdk-types';
 
 import type {
   FlowCollector,
+  MetadataCollector,
   PasswordCollector,
   ValidatedPasswordCollector,
   TextCollector,
@@ -38,6 +39,7 @@ import type { Links } from './davinci.types.js';
 
 export type Collectors =
   | FlowCollector
+  | MetadataCollector
   | PasswordCollector
   | ValidatedPasswordCollector
   | TextCollector

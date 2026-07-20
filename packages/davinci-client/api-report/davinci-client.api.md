@@ -140,7 +140,7 @@ export interface AutoCollector<C extends AutoCollectorCategories, T extends Auto
 export type AutoCollectorCategories = 'SingleValueAutoCollector' | 'ObjectValueAutoCollector';
 
 // @public (undocumented)
-export type AutoCollectors = ProtectCollector | FidoRegistrationCollector | FidoAuthenticationCollector | PollingCollector | SingleValueAutoCollector | ObjectValueAutoCollector;
+export type AutoCollectors = ProtectCollector | FidoRegistrationCollector | FidoAuthenticationCollector | MetadataCollector | PollingCollector | SingleValueAutoCollector | ObjectValueAutoCollector;
 
 // @public (undocumented)
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
@@ -173,7 +173,7 @@ export interface CollectorRichContent {
 }
 
 // @public (undocumented)
-export type Collectors = FlowCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | ImageCollector | UnknownCollector;
+export type Collectors = FlowCollector | MetadataCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | ImageCollector | UnknownCollector;
 
 // @public
 export type CollectorValueType<T> = T extends {
@@ -211,6 +211,8 @@ export type CollectorValueType<T> = T extends {
 } ? FidoRegistrationInputValue : T extends {
     type: 'FidoAuthenticationCollector';
 } ? FidoAuthenticationInputValue : T extends {
+    type: 'MetadataCollector';
+} ? Record<string, unknown> | MetadataError : T extends {
     category: 'SingleValueCollector';
 } ? string : T extends {
     category: 'ValidatedSingleValueCollector';
@@ -225,10 +227,10 @@ export type CollectorValueType<T> = T extends {
 } ? never : CollectorValueTypes;
 
 // @public
-export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue;
+export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
 
 // @public (undocumented)
-export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField;
+export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField | MetadataField;
 
 // @public (undocumented)
 export interface ContinueNode {
@@ -283,7 +285,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     resume: (input: {
         continueToken: string;
     }) => Promise<InternalErrorResponse | NodeStates>;
-    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
+    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
@@ -294,26 +296,26 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         name?: string;
         status: "continue";
     } | {
+        status: "start";
+    } | {
         action: string;
         collectors: Collectors[];
         description?: string;
         name?: string;
         status: "error";
     } | {
-        status: "failure";
-    } | {
-        status: "start";
-    } | {
         authorization?: {
             code?: string;
             state?: string;
         };
         status: "success";
+    } | {
+        status: "failure";
     } | null;
     getCollectors: () => Collectors[];
     getError: () => DaVinciError | null;
     getErrorCollectors: () => CollectorErrors[];
-    getNode: () => ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode;
+    getNode: () => ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
     getServer: () => {
         _links?: Links;
         id?: string;
@@ -323,6 +325,8 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         eventName?: string;
         status: "continue";
     } | {
+        status: "start";
+    } | {
         _links?: Links;
         eventName?: string;
         id?: string;
@@ -332,22 +336,20 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     } | {
         _links?: Links;
         eventName?: string;
-        href?: string;
-        id?: string;
-        interactionId?: string;
-        interactionToken?: string;
-        status: "failure";
-    } | {
-        status: "start";
-    } | {
-        _links?: Links;
-        eventName?: string;
         id?: string;
         interactionId?: string;
         interactionToken?: string;
         href?: string;
         session?: string;
         status: "success";
+    } | {
+        _links?: Links;
+        eventName?: string;
+        href?: string;
+        id?: string;
+        interactionId?: string;
+        interactionToken?: string;
+        status: "failure";
     } | null;
     cache: {
         getLatestResponse: () => ({
@@ -635,6 +637,9 @@ export interface DaVinciRequest {
         };
     };
 }
+
+// @public
+export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
 
 // @public (undocumented)
 export interface DaVinciSuccessResponse extends DaVinciBaseResponse {
@@ -968,7 +973,7 @@ export type ImageField = {
 export type InferActionCollectorType<T extends ActionCollectorTypes> = T extends 'IdpCollector' ? IdpCollector : T extends 'SubmitCollector' ? SubmitCollector : T extends 'FlowCollector' ? FlowCollector : ActionCollectorWithUrl<'ActionCollector'> | ActionCollectorNoUrl<'ActionCollector'>;
 
 // @public
-export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'ProtectCollector' ? ProtectCollector : T extends 'PollingCollector' ? PollingCollector : T extends 'FidoRegistrationCollector' ? FidoRegistrationCollector : T extends 'FidoAuthenticationCollector' ? FidoAuthenticationCollector : T extends 'ObjectValueAutoCollector' ? ObjectValueAutoCollector : SingleValueAutoCollector;
+export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'ProtectCollector' ? ProtectCollector : T extends 'PollingCollector' ? PollingCollector : T extends 'FidoRegistrationCollector' ? FidoRegistrationCollector : T extends 'FidoAuthenticationCollector' ? FidoAuthenticationCollector : T extends 'MetadataCollector' ? MetadataCollector : T extends 'ObjectValueAutoCollector' ? ObjectValueAutoCollector : SingleValueAutoCollector;
 
 // @public
 export type InferMultiValueCollectorType<T extends MultiValueCollectorTypes> = T extends 'MultiSelectCollector' ? MultiValueCollectorWithValue<'MultiSelectCollector'> : MultiValueCollectorWithValue<'MultiValueCollector'> | MultiValueCollectorNoValue<'MultiValueCollector'>;
@@ -1004,6 +1009,27 @@ export interface Links {
 }
 
 export { LogLevel }
+
+// @public (undocumented)
+export type MetadataCollector = AutoCollector<'ObjectValueAutoCollector', 'MetadataCollector', MetadataCollectorInputValue, Record<string, unknown>>;
+
+// @public (undocumented)
+export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
+
+// @public
+export interface MetadataError {
+    // (undocumented)
+    code: string;
+    // (undocumented)
+    message: string;
+}
+
+// @public (undocumented)
+export type MetadataField = {
+    type: 'METADATA';
+    key: string;
+    payload: Record<string, unknown>;
+};
 
 // @public (undocumented)
 export type MultiSelectCollector = MultiValueCollectorWithValue<'MultiSelectCollector'>;
@@ -1222,7 +1248,7 @@ export interface ObjectOptionsCollectorWithStringValue<T extends ObjectValueColl
 export type ObjectValueAutoCollector = AutoCollector<'ObjectValueAutoCollector', 'ObjectValueAutoCollector', Record<string, unknown>>;
 
 // @public (undocumented)
-export type ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector' | 'FidoRegistrationCollector' | 'FidoAuthenticationCollector';
+export type ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector' | 'FidoRegistrationCollector' | 'FidoAuthenticationCollector' | 'MetadataCollector';
 
 // @public (undocumented)
 export type ObjectValueCollector<T extends ObjectValueCollectorTypes> = ObjectOptionsCollectorWithObjectValue<T> | ObjectOptionsCollectorWithStringValue<T> | ObjectValueCollectorWithObjectValue<T>;

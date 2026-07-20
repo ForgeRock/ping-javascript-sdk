@@ -12,6 +12,7 @@ import type {
   DeviceRegistrationCollector,
   FidoAuthenticationCollector,
   FidoRegistrationCollector,
+  MetadataCollector,
   MultiSelectCollector,
   PasswordCollector,
   ValidatedPasswordCollector,
@@ -2179,5 +2180,88 @@ describe('The node collector reducer with FidoAuthenticationFieldValue', () => {
         },
       },
     ]);
+  });
+});
+
+describe('The node collector reducer with MetadataField', () => {
+  it('should create a MetadataCollector from a METADATA field', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'METADATA',
+            key: 'metadata-key',
+            payload: { sessionToken: 'abc123' },
+          },
+        ],
+        formData: {},
+      },
+    };
+
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result[0]).toEqual({
+      category: 'ObjectValueAutoCollector',
+      error: null,
+      type: 'MetadataCollector',
+      id: 'metadata-key-0',
+      name: 'metadata-key',
+      input: {
+        key: 'metadata-key',
+        value: {},
+        type: 'METADATA',
+        validation: null,
+      },
+      output: {
+        key: 'metadata-key',
+        type: 'METADATA',
+        config: { sessionToken: 'abc123' },
+      },
+    } satisfies MetadataCollector);
+  });
+
+  it('should update a MetadataCollector input value', () => {
+    const state: MetadataCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'MetadataCollector',
+        id: 'metadata-key-0',
+        name: 'metadata-key',
+        input: { key: 'metadata-key', value: {}, type: 'METADATA', validation: null },
+        output: {
+          key: 'metadata-key',
+          type: 'METADATA',
+          config: { sessionToken: 'abc123' },
+        },
+      },
+    ];
+
+    const action = {
+      type: 'node/update',
+      payload: { id: 'metadata-key-0', value: { result: 'ok' } },
+    };
+    const result = nodeCollectorReducer(state, action);
+    expect((result[0] as MetadataCollector).input.value).toEqual({ result: 'ok' });
+  });
+
+  it('should throw when updating a MetadataCollector with a non-object value', () => {
+    const state: MetadataCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'MetadataCollector',
+        id: 'metadata-key-0',
+        name: 'metadata-key',
+        input: { key: 'metadata-key', value: {}, type: 'METADATA', validation: null },
+        output: { key: 'metadata-key', type: 'METADATA', config: {} },
+      },
+    ];
+
+    const action = {
+      type: 'node/update',
+      payload: { id: 'metadata-key-0', value: 'not-an-object' },
+    };
+    expect(() => nodeCollectorReducer(state, action)).toThrow('Value argument must be an object');
   });
 });

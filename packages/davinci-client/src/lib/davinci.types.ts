@@ -13,6 +13,13 @@ import type {
   FetchBaseQueryMeta,
   MutationResultSelectorResult,
 } from '@reduxjs/toolkit/query';
+import {
+  DeviceValue,
+  PhoneNumberInputValue,
+  FidoRegistrationInputValue,
+  FidoAuthenticationInputValue,
+  MetadataError,
+} from './collector.types.js';
 
 export interface DaVinciRequest {
   id: string;
@@ -26,6 +33,20 @@ export interface DaVinciRequest {
     };
   };
 }
+
+/**
+ * Allowed value types for DaVinci formData request bodies. This differs from `CollectorValueTypes` because input values may be transformed for DaVinci.
+ */
+export type DaVinciRequestValueTypes =
+  | string
+  | number
+  | boolean
+  | (string | number | boolean)[]
+  | DeviceValue
+  | PhoneNumberInputValue
+  | FidoRegistrationInputValue
+  | FidoAuthenticationInputValue
+  | MetadataError;
 
 /**
  * Base Response for DaVinci API
@@ -327,6 +348,12 @@ export type PollingField = {
   challenge?: string;
 };
 
+export type MetadataField = {
+  type: 'METADATA';
+  key: string;
+  payload: Record<string, unknown>;
+};
+
 export type UnknownField = Record<string, unknown>;
 
 export type ComplexValueFields =
@@ -336,7 +363,8 @@ export type ComplexValueFields =
   | PhoneNumberExtensionField
   | FidoRegistrationField
   | FidoAuthenticationField
-  | PollingField;
+  | PollingField
+  | MetadataField;
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
 export type RedirectFields = RedirectField;
