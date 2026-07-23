@@ -7,7 +7,7 @@
  *
  */
 
-import type { RecognizeError } from './classes/recognize-error.js';
+import type { RecognizeError } from './functions/recognize-error.js';
 import type {
   KeylessAuthElement,
   KeylessCameraInstruction,
@@ -45,7 +45,7 @@ export type RecognizeWebComponentVideoFrameQualityEventDetail = KeylessVideoFram
 /** @public */
 export interface RecognizeWebComponentClient {
   subscribe: (observer: RecognizeWebComponentObserver) => RecognizeWebComponentUnsubscribe;
-  init(options: RecognizeWebComponentInitOptions): Promise<void | RecognizeError>;
+  init(options: RecognizeWebComponentInitOptions): Promise<RecognizeError | void>;
   dispose: () => void;
 }
 

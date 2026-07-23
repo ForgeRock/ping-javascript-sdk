@@ -58,25 +58,19 @@ describe('recognize — subscribe / unsubscribe', () => {
 });
 
 describe('recognize — init', () => {
-  it('throws if init is called twice without dispose', async () => {
+  it('returns an error if init is called twice without dispose', async () => {
     const client = recognize(CONFIG);
     const container = document.createElement('div');
     document.body.appendChild(container);
 
     await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
 
-    try {
-      await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
+    const result = await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
 
-      if (e instanceof Error) {
-        expect(e.message).toBe('SDK_ERROR');
-        expect(e.cause).toBe(
-          'init() called more than once — call dispose() before re-initializing',
-        );
-      }
-    }
+    expect(result).toBeDefined();
+    expect(result?.name).toBe('RecognizeError');
+    expect(result?.message).toBe('SDK_ERROR');
+    expect(result?.cause).toBe('init() called more than once — call dispose() before re-initializing');
 
     client.dispose();
   });
@@ -105,22 +99,18 @@ describe('recognize — init', () => {
     client.dispose();
   });
 
-  it('throws for attach mode with an unsupported element', async () => {
+  it('returns an error for attach mode with an unsupported element', async () => {
     const client = recognize(CONFIG);
     const div = document.createElement('div');
 
-    try {
-      await client.init({ mode: 'attach', element: div, username: 'user' });
-    } catch (e: unknown) {
-      expect(e).toBeInstanceOf(Error);
+    const result = await client.init({ mode: 'attach', element: div, username: 'user' });
 
-      if (e instanceof Error) {
-        expect(e.message).toBe('SDK_ERROR');
-        expect(e.cause).toBe(
-          'invalid element <div> — options.element must be a <kl-auth> or <kl-enroll> custom element',
-        );
-      }
-    }
+    expect(result).toBeDefined();
+    expect(result?.name).toBe('RecognizeError');
+    expect(result?.message).toBe('SDK_ERROR');
+    expect(result?.cause).toBe(
+      'invalid element <div> — options.element must be a <kl-auth> or <kl-enroll> custom element',
+    );
   });
 
   it('attaches to an existing kl-auth element in attach mode', async () => {
@@ -171,9 +161,8 @@ describe('recognize — dispose', () => {
     await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
     client.dispose();
 
-    await expect(
-      client.init({ mode: 'mount', container, type: 'auth', username: 'user' }),
-    ).resolves.not.toThrow();
+    const result = await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
+    expect(result).toBeUndefined();
 
     client.dispose();
   });

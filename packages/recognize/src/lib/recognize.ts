@@ -7,7 +7,7 @@
  *
  */
 
-import { RecognizeError } from './classes/recognize-error.js';
+import { createInternalError, RecognizeError } from './functions/recognize-error.js';
 import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
 import { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
@@ -62,7 +62,7 @@ export function recognize(
         RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[event.error?.message] ??
         RecognizeErrorCode.SDK_ERROR;
 
-      const error: RecognizeError = new RecognizeError(code, { cause: event.error });
+      const error: RecognizeError = createInternalError(code, { cause: event.error });
 
       for (const observer of observers) {
         observer.error?.(error);
@@ -113,9 +113,9 @@ export function recognize(
       return () => observers.delete(observer);
     },
 
-    async init(options: RecognizeWebComponentInitOptions): Promise<void> {
+    async init(options: RecognizeWebComponentInitOptions): Promise<RecognizeError | void> {
       if (element !== null) {
-        throw new RecognizeError(RecognizeErrorCode.SDK_ERROR, {
+        return createInternalError(RecognizeErrorCode.SDK_ERROR, {
           cause: 'init() called more than once — call dispose() before re-initializing',
         });
       }
@@ -123,7 +123,7 @@ export function recognize(
       try {
         await import('./recognize-sdk/index.js');
       } catch (error: unknown) {
-        throw new RecognizeError(RecognizeErrorCode.SDK_WEB_ASSEMBLY_IMPORT_FAILED, {
+        return createInternalError(RecognizeErrorCode.SDK_WEB_ASSEMBLY_IMPORT_FAILED, {
           cause: error,
         });
       }
@@ -132,7 +132,7 @@ export function recognize(
         const tag: string = options.element.tagName;
 
         if (tag !== 'KL-AUTH' && tag !== 'KL-ENROLL') {
-          throw new RecognizeError(RecognizeErrorCode.SDK_ERROR, {
+          return createInternalError(RecognizeErrorCode.SDK_ERROR, {
             cause: `invalid element <${tag.toLowerCase()}> — options.element must be a <kl-auth> or <kl-enroll> custom element`,
           });
         }
@@ -170,4 +170,3 @@ export function recognize(
   return client;
 }
 
-export { RecognizeError };
