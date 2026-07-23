@@ -24,7 +24,7 @@ export * from './lib/node.types.js';
 export * from './lib/collector.types.js';
 
 // Fido types
-export type { FidoClient } from './lib/fido/fido.js';
+export * from './lib/fido/fido.types.js';
 
 // Utility types
 export * from './lib/utils/utils.types.js';

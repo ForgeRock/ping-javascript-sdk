@@ -12,6 +12,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
+import type { LogLevel as LogLevel_2 } from '@forgerock/sdk-types';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
@@ -208,9 +209,9 @@ export type CollectorValueType<T> = T extends {
     type: 'PhoneNumberExtensionCollector';
 } ? PhoneNumberExtensionInputValue : T extends {
     type: 'FidoRegistrationCollector';
-} ? FidoRegistrationInputValue : T extends {
+} ? FidoRegistrationInputValue | GenericError : T extends {
     type: 'FidoAuthenticationCollector';
-} ? FidoAuthenticationInputValue : T extends {
+} ? FidoAuthenticationInputValue | GenericError : T extends {
     type: 'MetadataCollector';
 } ? Record<string, unknown> | MetadataError : T extends {
     category: 'SingleValueCollector';
@@ -227,7 +228,7 @@ export type CollectorValueType<T> = T extends {
 } ? never : CollectorValueTypes;
 
 // @public
-export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
+export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
 
 // @public (undocumented)
 export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField | MetadataField;
@@ -298,8 +299,6 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         description?: string;
         name?: string;
         status: "continue";
-    } | {
-        status: "start";
     } | {
         action: string;
         collectors: Collectors[];
@@ -644,7 +643,7 @@ export interface DaVinciRequest {
 }
 
 // @public
-export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
+export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
 
 // @public (undocumented)
 export interface DaVinciSuccessResponse extends DaVinciBaseResponse {
@@ -840,7 +839,7 @@ export interface FailureNode {
 }
 
 // @public (undocumented)
-export type FidoAuthenticationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoAuthenticationCollector', FidoAuthenticationInputValue, FidoAuthenticationOutputValue>;
+export type FidoAuthenticationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoAuthenticationCollector', FidoAuthenticationInputValue | GenericError, FidoAuthenticationOutputValue>;
 
 // @public (undocumented)
 export type FidoAuthenticationField = {
@@ -888,7 +887,19 @@ export interface FidoClient {
 }
 
 // @public (undocumented)
-export type FidoRegistrationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoRegistrationCollector', FidoRegistrationInputValue, FidoRegistrationOutputValue>;
+export interface FidoClientConfig {
+    // (undocumented)
+    logger?: {
+        level?: LogLevel_2;
+        custom?: CustomLogger;
+    };
+}
+
+// @public
+export type FidoErrorCode = 'NotAllowedError' | 'AbortError' | 'InvalidStateError' | 'NotSupportedError' | 'SecurityError' | 'TimeoutError' | 'UnknownError';
+
+// @public (undocumented)
+export type FidoRegistrationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoRegistrationCollector', FidoRegistrationInputValue | GenericError, FidoRegistrationOutputValue>;
 
 // @public (undocumented)
 export type FidoRegistrationField = {
