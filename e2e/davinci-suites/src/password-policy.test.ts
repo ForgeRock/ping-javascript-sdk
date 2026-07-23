@@ -78,7 +78,7 @@ test.describe('ValidatedPasswordCollector — password policy (Example - Registr
       try {
         await deleteTestUser(page, email);
       } catch (err) {
-        console.error(`[cleanup] Failed to delete test user ${email}:`, err);
+        throw new Error(`[cleanup] Failed to delete test user ${email}: ${JSON.stringify(err)}`);
       }
     }
   });
@@ -146,26 +146,17 @@ test.describe('ValidatedPasswordCollector — password policy (Example - Registr
     await page.locator('#userPassword').fill(password);
 
     // Submit the form by calling submit() on the form element
-    await page.locator('form').evaluate((form: HTMLFormElement) => form.submit());
+    await page.getByRole('button', { name: 'Submit' }).click({ timeout: 10000 });
 
     // Wait for the page to navigate to the next step
-    // The heading should change from "Example - Registration 1" to something else
-    await page.waitForFunction(
-      () => {
-        const heading = document.querySelector('h2');
-        return heading && !heading.textContent?.includes('Example - Registration');
-      },
-      { timeout: 10000 },
-    );
-
-    // Verify we've moved to the next step
-    const heading = page.locator('h2').first();
-    await expect(heading).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Example - Registration' })).not.toBeVisible();
 
     // If the flow shows a "Continue" button, click through to complete it
     const continueBtn = page.getByRole('button', { name: 'Continue' });
     if (await continueBtn.isVisible()) {
       await continueBtn.click();
     }
+
+    await expect(page.getByRole('heading', { name: 'Complete' })).toBeVisible();
   });
 });

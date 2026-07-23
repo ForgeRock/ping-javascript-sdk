@@ -28,6 +28,7 @@ import type {
   BooleanCollector,
   ValidatedBooleanCollector,
 } from './collector.types.js';
+import type { GenericError } from '@forgerock/sdk-types';
 import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
 
 describe('The node collector reducer', () => {
@@ -1266,6 +1267,85 @@ describe('The node collector reducer with ProtectFieldValue', () => {
 });
 
 describe('The node collector reducer with FidoRegistrationFieldValue', () => {
+  it('should store a GenericError on collector.error when a FIDO error is passed as value', () => {
+    const fidoError: GenericError = {
+      code: 'NotAllowedError',
+      error: 'registration_error',
+      message: 'FIDO registration failed: NotAllowedError',
+      type: 'fido_error',
+    };
+    const publicKeyCredentialCreationOptions: FidoRegistrationOptions = {
+      rp: { name: 'Example RP', id: 'example.com' },
+      user: { id: [1], displayName: 'Test User', name: 'testuser' },
+      challenge: [1, 2, 3, 4],
+      pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+      timeout: 60000,
+      authenticatorSelection: {
+        residentKey: 'required',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
+      attestation: 'none',
+      extensions: { credProps: true, hmacCreateSecret: true },
+    };
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'fido2-registration-0',
+        value: fidoError,
+      },
+    };
+    const state: FidoRegistrationCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoRegistrationCollector',
+        id: 'fido2-registration-0',
+        name: 'fido2-registration',
+        input: {
+          key: 'fido2-registration',
+          value: {},
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-registration',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialCreationOptions,
+            action: 'REGISTER',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ];
+
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoRegistrationCollector',
+        id: 'fido2-registration-0',
+        name: 'fido2-registration',
+        input: {
+          key: 'fido2-registration',
+          value: fidoError,
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-registration',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialCreationOptions,
+            action: 'REGISTER',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ]);
+  });
+
   it('should handle collector updates ', () => {
     // todo: declare inputValue type as FidoRegistrationInputValue
     const mockInputValue = {
@@ -2095,6 +2175,78 @@ describe('The node collector reducer with BooleanCollector', () => {
 });
 
 describe('The node collector reducer with FidoAuthenticationFieldValue', () => {
+  it('should store a GenericError on collector.error when a FIDO error is passed as value', () => {
+    const fidoError: GenericError = {
+      code: 'TimeoutError',
+      error: 'authentication_error',
+      message: 'FIDO authentication failed: TimeoutError',
+      type: 'fido_error',
+    };
+    const publicKeyCredentialRequestOptions: FidoAuthenticationOptions = {
+      challenge: [1, 2, 3, 4],
+      timeout: 60000,
+      rpId: 'example.com',
+      allowCredentials: [{ type: 'public-key', id: [1, 2, 3, 4] }],
+      userVerification: 'preferred',
+    };
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'fido2-authentication-0',
+        value: fidoError,
+      },
+    };
+    const state: FidoAuthenticationCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoAuthenticationCollector',
+        id: 'fido2-authentication-0',
+        name: 'fido2-authentication',
+        input: {
+          key: 'fido2-authentication',
+          value: {},
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-authentication',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialRequestOptions,
+            action: 'AUTHENTICATE',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ];
+
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoAuthenticationCollector',
+        id: 'fido2-authentication-0',
+        name: 'fido2-authentication',
+        input: {
+          key: 'fido2-authentication',
+          value: fidoError,
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-authentication',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialRequestOptions,
+            action: 'AUTHENTICATE',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ]);
+  });
+
   it('should handle collector updates ', () => {
     // todo: declare inputValue type as FidoAuthenticationInputValue
     const mockInputValue = {

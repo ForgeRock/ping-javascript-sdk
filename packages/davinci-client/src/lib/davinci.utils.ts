@@ -88,26 +88,7 @@ export function transformActionRequest(
   action: string,
   logger: ReturnType<typeof loggerFn>,
 ): DaVinciRequest {
-  // Filter out ActionCollectors as they do not collect values
-  const collectors = node.client?.collectors?.filter(
-    (collector) =>
-      collector.category === 'MultiValueCollector' ||
-      collector.category === 'SingleValueCollector' ||
-      collector.category === 'ValidatedSingleValueCollector' ||
-      collector.category === 'ObjectValueCollector' ||
-      collector.category === 'SingleValueAutoCollector' ||
-      collector.category === 'ObjectValueAutoCollector',
-  );
-
-  const formData = collectors?.reduce<{
-    [key: string]: DaVinciRequestValueTypes | Record<string, unknown>;
-  }>((acc, collector) => {
-    acc[collector.input.key] = collector.input.value;
-    return acc;
-  }, {});
-
   logger.debug('Transforming action request', { node, action });
-
   return {
     id: node.server.id || '',
     eventName: node.server.eventName || '',
@@ -116,7 +97,7 @@ export function transformActionRequest(
       eventType: 'action',
       data: {
         actionKey: action || node.client?.action || '',
-        ...(Object.keys(formData ?? {}).length && { formData: formData }),
+        formData: {},
       },
     },
   };

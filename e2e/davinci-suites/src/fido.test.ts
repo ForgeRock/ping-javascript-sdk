@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
 import { test, expect, CDPSession } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 
@@ -10,6 +16,7 @@ test.use({ browserName: 'chromium' }); // ensure CDP/WebAuthn is available
 
 test.beforeEach(async ({ context, page }) => {
   cdp = await context.newCDPSession(page);
+  await expect(cdp).toBeDefined();
   await cdp.send('WebAuthn.enable');
 
   // A "platform" authenticator (aka internal) with UV+RK enabled is the usual default for passkeys.
@@ -27,8 +34,10 @@ test.beforeEach(async ({ context, page }) => {
 });
 
 test.afterEach(async () => {
-  await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
-  await cdp.send('WebAuthn.disable');
+  if (authenticatorId) {
+    await cdp?.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
+  }
+  await cdp?.send('WebAuthn.disable');
 });
 
 test.describe('FIDO/WebAuthn Tests', () => {
@@ -47,6 +56,10 @@ test.describe('FIDO/WebAuthn Tests', () => {
     await page.getByLabel('Username').fill(username);
     await page.getByLabel('Password').fill(password);
     await page.getByRole('button', { name: 'Sign On' }).click();
+
+    if (!cdp || !authenticatorId) {
+      throw new Error('Missing virtual authenticator');
+    }
 
     // Register WebAuthn credential
     const { credentials: initialCredentials } = await cdp.send('WebAuthn.getCredentials', {
@@ -102,6 +115,13 @@ test.describe('FIDO/WebAuthn Tests', () => {
     await page.getByLabel('Username').fill(username);
     await page.getByLabel('Password').fill(password);
     await page.getByRole('button', { name: 'Sign On' }).click();
+
+    await expect(cdp).toBeDefined;
+    await expect(authenticatorId).toBeDefined();
+
+    if (!cdp || !authenticatorId) {
+      throw new Error('Missing virtual authenticator');
+    }
 
     // Register WebAuthn credential
     const { credentials: initialCredentials } = await cdp.send('WebAuthn.getCredentials', {

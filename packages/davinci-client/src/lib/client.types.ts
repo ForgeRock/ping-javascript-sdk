@@ -46,7 +46,8 @@ export type CollectorValueTypes =
   | PhoneNumberExtensionInputValue
   | FidoRegistrationInputValue
   | FidoAuthenticationInputValue
-  | MetadataError;
+  | MetadataError
+  | GenericError;
 
 /**
  * Allowed value types for DaVinci formData request bodies. This differs from `CollectorValueTypes` because input values may be transformed for DaVinci.
@@ -60,7 +61,8 @@ export type DaVinciRequestValueTypes =
   | PhoneNumberInputValue
   | FidoRegistrationInputValue
   | FidoAuthenticationInputValue
-  | MetadataError;
+  | MetadataError
+  | GenericError;
 
 /**
  * Maps collector types to the specific value type they accept.
@@ -102,9 +104,9 @@ export type CollectorValueType<T> =
               : T extends { type: 'PhoneNumberExtensionCollector' }
                 ? PhoneNumberExtensionInputValue
                 : T extends { type: 'FidoRegistrationCollector' }
-                  ? FidoRegistrationInputValue
+                  ? FidoRegistrationInputValue | GenericError
                   : T extends { type: 'FidoAuthenticationCollector' }
-                    ? FidoAuthenticationInputValue
+                    ? FidoAuthenticationInputValue | GenericError
                     : T extends { type: 'MetadataCollector' }
                       ? Record<string, unknown> | MetadataError
                       : // category catch-alls

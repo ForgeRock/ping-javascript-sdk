@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { GenericError } from '@forgerock/sdk-types';
 import type {
   FidoAuthenticationOptions,
   FidoRegistrationOptions,
@@ -843,13 +844,13 @@ export type ProtectCollector = AutoCollector<
 export type FidoRegistrationCollector = AutoCollector<
   'ObjectValueAutoCollector',
   'FidoRegistrationCollector',
-  FidoRegistrationInputValue,
+  FidoRegistrationInputValue | GenericError,
   FidoRegistrationOutputValue
 >;
 export type FidoAuthenticationCollector = AutoCollector<
   'ObjectValueAutoCollector',
   'FidoAuthenticationCollector',
-  FidoAuthenticationInputValue,
+  FidoAuthenticationInputValue | GenericError,
   FidoAuthenticationOutputValue
 >;
 export type MetadataCollector = AutoCollector<

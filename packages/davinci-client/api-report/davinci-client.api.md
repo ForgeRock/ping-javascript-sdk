@@ -12,6 +12,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
+import type { LogLevel as LogLevel_2 } from '@forgerock/sdk-types';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
@@ -208,9 +209,9 @@ export type CollectorValueType<T> = T extends {
     type: 'PhoneNumberExtensionCollector';
 } ? PhoneNumberExtensionInputValue : T extends {
     type: 'FidoRegistrationCollector';
-} ? FidoRegistrationInputValue : T extends {
+} ? FidoRegistrationInputValue | GenericError : T extends {
     type: 'FidoAuthenticationCollector';
-} ? FidoAuthenticationInputValue : T extends {
+} ? FidoAuthenticationInputValue | GenericError : T extends {
     type: 'MetadataCollector';
 } ? Record<string, unknown> | MetadataError : T extends {
     category: 'SingleValueCollector';
@@ -227,7 +228,7 @@ export type CollectorValueType<T> = T extends {
 } ? never : CollectorValueTypes;
 
 // @public
-export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
+export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
 
 // @public (undocumented)
 export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField | MetadataField;
@@ -285,19 +286,19 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     resume: (input: {
         continueToken: string;
     }) => Promise<InternalErrorResponse | NodeStates>;
-    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | StartNode | ErrorNode | FailureNode | SuccessNode>;
+    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
     getMetadataError: (errorDetails: MetadataError) => MetadataError;
     getClient: () => {
+        status: "start";
+    } | {
         action: string;
         collectors: Collectors[];
         description?: string;
         name?: string;
         status: "continue";
-    } | {
-        status: "start";
     } | {
         action: string;
         collectors: Collectors[];
@@ -305,18 +306,18 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         name?: string;
         status: "error";
     } | {
-        status: "failure";
-    } | {
         authorization?: {
             code?: string;
             state?: string;
         };
         status: "success";
+    } | {
+        status: "failure";
     } | null;
     getCollectors: () => Collectors[];
     getError: () => DaVinciError | null;
     getErrorCollectors: () => CollectorErrors[];
-    getNode: () => ContinueNode | StartNode | ErrorNode | FailureNode | SuccessNode;
+    getNode: () => ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
     getServer: () => {
         _links?: Links;
         id?: string;
@@ -337,20 +338,20 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     } | {
         _links?: Links;
         eventName?: string;
-        href?: string;
-        id?: string;
-        interactionId?: string;
-        interactionToken?: string;
-        status: "failure";
-    } | {
-        _links?: Links;
-        eventName?: string;
         id?: string;
         interactionId?: string;
         interactionToken?: string;
         href?: string;
         session?: string;
         status: "success";
+    } | {
+        _links?: Links;
+        eventName?: string;
+        href?: string;
+        id?: string;
+        interactionId?: string;
+        interactionToken?: string;
+        status: "failure";
     } | null;
     cache: {
         getLatestResponse: () => ({
@@ -640,7 +641,7 @@ export interface DaVinciRequest {
 }
 
 // @public
-export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
+export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
 
 // @public (undocumented)
 export interface DaVinciSuccessResponse extends DaVinciBaseResponse {
@@ -836,10 +837,10 @@ export interface FailureNode {
 }
 
 // @public
-export function fido(): FidoClient;
+export function fido(config?: FidoClientConfig): FidoClient;
 
 // @public (undocumented)
-export type FidoAuthenticationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoAuthenticationCollector', FidoAuthenticationInputValue, FidoAuthenticationOutputValue>;
+export type FidoAuthenticationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoAuthenticationCollector', FidoAuthenticationInputValue | GenericError, FidoAuthenticationOutputValue>;
 
 // @public (undocumented)
 export type FidoAuthenticationField = {
@@ -887,7 +888,19 @@ export interface FidoClient {
 }
 
 // @public (undocumented)
-export type FidoRegistrationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoRegistrationCollector', FidoRegistrationInputValue, FidoRegistrationOutputValue>;
+export interface FidoClientConfig {
+    // (undocumented)
+    logger?: {
+        level?: LogLevel_2;
+        custom?: CustomLogger;
+    };
+}
+
+// @public
+export type FidoErrorCode = 'NotAllowedError' | 'AbortError' | 'InvalidStateError' | 'NotSupportedError' | 'SecurityError' | 'TimeoutError' | 'UnknownError';
+
+// @public (undocumented)
+export type FidoRegistrationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoRegistrationCollector', FidoRegistrationInputValue | GenericError, FidoRegistrationOutputValue>;
 
 // @public (undocumented)
 export type FidoRegistrationField = {
