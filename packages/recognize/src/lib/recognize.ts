@@ -7,11 +7,16 @@
  *
  */
 
-import { createInternalError, RecognizeError } from './functions/recognize-error.js';
 import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
 import { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
-import type { KeylessRecognitionFailureEvent, KeylessSuccessEvent } from './recognize-sdk/index.js';
+import { createInternalError, RecognizeError } from './functions/recognize-error.js';
+import type {
+  KeylessRecognitionFailureEvent,
+  KeylessStepChangeEvent,
+  KeylessSuccessEvent,
+  KeylessVideoFrameQualityEvent,
+} from './recognize-sdk/index.js';
 import { KeylessRecoverableErrorEvent } from './recognize-sdk/index.js';
 import type {
   RecognizeWebComponent,
@@ -40,18 +45,14 @@ export function recognize(
   let element: RecognizeWebComponent | null = null;
   let aborter: AbortController | null = null;
 
-  const dispatch = (type: RecognizeWebComponentEvent['type'], detail: any): void => {
+  const dispatch = (event: RecognizeWebComponentEvent): void => {
     for (const observer of observers) {
-      observer.next({ type, detail });
+      observer.next(event);
     }
   };
 
   const addEventListeners = (element: RecognizeWebComponent): void => {
     aborter = new AbortController();
-
-    const onEvent = (type: RecognizeWebComponentEvent['type']) => {
-      return (event: CustomEvent) => dispatch(type, event.detail);
-    };
 
     const onError = (event: ErrorEvent): void => {
       if (event instanceof KeylessRecoverableErrorEvent) {
@@ -92,13 +93,26 @@ export function recognize(
     const options: AddEventListenerOptions = { signal: aborter.signal };
 
     element.addEventListener('error', onError, options);
-    element.addEventListener('non-cancelable', onEvent('non-cancelable'), options);
+    element.addEventListener('non-cancelable', () => dispatch({ type: 'non-cancelable' }), options);
     element.addEventListener('recognition-failure', onRecognitionFailure, options);
-    element.addEventListener('recognition-start', onEvent('recognition-start'), options);
+    element.addEventListener(
+      'recognition-start',
+      () => dispatch({ type: 'recognition-start' }),
+      options,
+    );
     element.addEventListener('recoverable-error', onRecoverableError, options);
-    element.addEventListener('step-change', onEvent('step-change'), options);
+    element.addEventListener(
+      'step-change',
+      (e: KeylessStepChangeEvent) => dispatch({ type: 'step-change', detail: e.detail }),
+      options,
+    );
     element.addEventListener('success', onSuccess, options);
-    element.addEventListener('video-frame-quality', onEvent('video-frame-quality'), options);
+    element.addEventListener(
+      'video-frame-quality',
+      (e: KeylessVideoFrameQualityEvent) =>
+        dispatch({ type: 'video-frame-quality', detail: e.detail }),
+      options,
+    );
   };
 
   const setAttributes = (element: RecognizeWebComponent): void => {
@@ -169,4 +183,3 @@ export function recognize(
 
   return client;
 }
-
