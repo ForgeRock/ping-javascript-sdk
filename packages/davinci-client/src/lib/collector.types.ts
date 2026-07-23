@@ -806,7 +806,8 @@ export type SingleValueAutoCollectorTypes =
 export type ObjectValueAutoCollectorTypes =
   | 'ObjectValueAutoCollector'
   | 'FidoRegistrationCollector'
-  | 'FidoAuthenticationCollector';
+  | 'FidoAuthenticationCollector'
+  | 'MetadataCollector';
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
 
 export interface AutoCollector<
@@ -851,6 +852,12 @@ export type FidoAuthenticationCollector = AutoCollector<
   FidoAuthenticationInputValue,
   FidoAuthenticationOutputValue
 >;
+export type MetadataCollector = AutoCollector<
+  'ObjectValueAutoCollector',
+  'MetadataCollector',
+  Record<string, unknown>,
+  Record<string, unknown>
+>;
 export type PollingCollector = AutoCollector<
   'SingleValueAutoCollector',
   'PollingCollector',
@@ -872,6 +879,7 @@ export type AutoCollectors =
   | ProtectCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
+  | MetadataCollector
   | PollingCollector
   | SingleValueAutoCollector
   | ObjectValueAutoCollector;
@@ -891,10 +899,12 @@ export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'Pr
       ? FidoRegistrationCollector
       : T extends 'FidoAuthenticationCollector'
         ? FidoAuthenticationCollector
-        : T extends 'ObjectValueAutoCollector'
-          ? ObjectValueAutoCollector
-          : /**
-             * At this point, we have not passed in a collector type
-             * so we can return a SingleValueAutoCollector
-             **/
-            SingleValueAutoCollector;
+        : T extends 'MetadataCollector'
+          ? MetadataCollector
+          : T extends 'ObjectValueAutoCollector'
+            ? ObjectValueAutoCollector
+            : /**
+               * At this point, we have not passed in a collector type
+               * so we can return a SingleValueAutoCollector
+               **/
+              SingleValueAutoCollector;

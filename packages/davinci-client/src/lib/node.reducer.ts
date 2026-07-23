@@ -15,6 +15,7 @@ import { createAction, createReducer } from '@reduxjs/toolkit';
 import {
   returnActionCollector,
   returnFlowCollector,
+  returnMetadataCollector,
   returnPasswordCollector,
   returnValidatedPasswordCollector,
   returnIdpCollector,
@@ -169,6 +170,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 }
                 break;
               }
+              case 'METADATA': {
+                return returnMetadataCollector(field, idx);
+              }
               default:
               // Default is handled below
             }
@@ -200,6 +204,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       if (collector.category === 'NoValueCollector') {
         throw new Error('NoValueCollectors, like ReadOnlyCollectors, are read-only');
       }
+
       if (action.payload.value === undefined) {
         throw new Error('Value argument cannot be undefined');
       }
@@ -332,6 +337,17 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
           throw new Error('Value argument must contain an assertionValue property');
         }
         collector.input.value = action.payload.value;
+      }
+
+      if (collector.type === 'MetadataCollector') {
+        if (
+          typeof action.payload.value !== 'object' ||
+          action.payload.value === null ||
+          Array.isArray(action.payload.value)
+        ) {
+          throw new Error('Value argument must be an object');
+        }
+        collector.input.value = action.payload.value as Record<string, unknown>;
       }
     })
     /**
