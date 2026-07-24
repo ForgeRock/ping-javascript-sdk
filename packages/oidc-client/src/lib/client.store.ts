@@ -16,9 +16,8 @@ import { handleExit } from '@forgerock/sdk-utilities';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
-import { sessionCheckIdTokenµ, sessionCheckNoneµ } from './session.micros.js';
-import { isExpiryWithinThreshold } from './token.utils.js';
-import { wellknownApi, wellknownSelector } from './wellknown.api.js';
+import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
+import { wellknownApi, wellknownSelector } from '@forgerock/sdk-wellknown';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';

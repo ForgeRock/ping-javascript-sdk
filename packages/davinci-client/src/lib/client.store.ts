@@ -25,10 +25,7 @@ import { pollingµ, getPollingModeµ, type PollingMode } from './client.store.ef
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { nodeSlice } from './node.slice.js';
-import { returnPasswordPolicyValidator } from './password-policy.rules.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';

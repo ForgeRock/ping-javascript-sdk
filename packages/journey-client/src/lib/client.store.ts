@@ -22,7 +22,8 @@ import { journeyApi } from './journey.api.js';
 import { createStorage } from '@forgerock/storage';
 import * as Result from 'effect/Result';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
-import { wellknownApi } from './wellknown.api.js';
+import type { JourneyResult } from './journey.utils.js';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';

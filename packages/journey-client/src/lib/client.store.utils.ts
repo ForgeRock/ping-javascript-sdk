@@ -9,7 +9,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
