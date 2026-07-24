@@ -168,6 +168,7 @@ export function recognize(
     dispose: (): void => {
       if (element === null) return;
 
+      aborter?.abort();
       aborter = null;
 
       element.remove();
