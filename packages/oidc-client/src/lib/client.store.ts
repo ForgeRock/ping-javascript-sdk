@@ -17,7 +17,7 @@ import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import { wellknownApi, wellknownSelector } from './wellknown.api.js';
+import { wellknownApi, wellknownSelector } from '@forgerock/sdk-wellknown';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
