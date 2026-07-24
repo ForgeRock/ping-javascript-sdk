@@ -448,6 +448,9 @@ importers:
       '@forgerock/sdk-utilities':
         specifier: workspace:*
         version: link:../sdk-utilities
+      '@forgerock/sdk-wellknown':
+        specifier: workspace:*
+        version: link:../sdk-effects/wellknown
       '@forgerock/storage':
         specifier: workspace:*
         version: link:../sdk-effects/storage
@@ -498,6 +501,9 @@ importers:
       '@forgerock/sdk-utilities':
         specifier: workspace:*
         version: link:../sdk-utilities
+      '@forgerock/sdk-wellknown':
+        specifier: workspace:*
+        version: link:../sdk-effects/wellknown
       '@forgerock/storage':
         specifier: workspace:*
         version: link:../sdk-effects/storage
@@ -544,6 +550,9 @@ importers:
       '@forgerock/sdk-utilities':
         specifier: workspace:*
         version: link:../sdk-utilities
+      '@forgerock/sdk-wellknown':
+        specifier: workspace:*
+        version: link:../sdk-effects/wellknown
       '@forgerock/storage':
         specifier: workspace:*
         version: link:../sdk-effects/storage
@@ -604,6 +613,18 @@ importers:
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../../sdk-types
+
+  packages/sdk-effects/wellknown:
+    dependencies:
+      '@forgerock/sdk-oidc':
+        specifier: workspace:*
+        version: link:../oidc
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../../sdk-types
+      '@reduxjs/toolkit':
+        specifier: 'catalog:'
+        version: 2.10.1
 
   packages/sdk-types: {}
 

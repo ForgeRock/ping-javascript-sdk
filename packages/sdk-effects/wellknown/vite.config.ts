@@ -1,0 +1,43 @@
+import { defineConfig } from 'vite';
+
+export default defineConfig(() => ({
+  root: __dirname,
+  cacheDir: '../../../node_modules/.vite/packages/effects/wellknown',
+  plugins: [],
+  test: {
+    watch: false,
+    globals: true,
+    environment: 'node',
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    reporters: ['default'],
+    coverage: {
+      include: ['src/**/*.{js,ts}'],
+      exclude: [
+        'src/**/*.mock.{js,ts}',
+        'src/**/*.data.{js,ts}',
+        'src/**/*.test.{js,ts}',
+        'coverage/**',
+        'dist/**',
+        '**/node_modules/**',
+        '**/[.]**',
+        'packages/*/test?(s)/**',
+        '**/*.d.ts',
+        '**/virtual:*',
+        '**/__x00__*',
+        '**/ *',
+        'cypress/**',
+        'test?(s)/**',
+        'test?(-*).?(c|m)[jt]s?(x)',
+        '**/*{.,-}{test,spec,bench,benchmark}?(-d).?(c|m)[jt]s?(x)',
+        '**/__tests__/**',
+        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+        '**/vitest.{workspace,projects}.[jt]s?(on)',
+        '**/.{eslint,mocha,prettier}rc.{?(c|m)js,yml}',
+      ],
+      reporter: ['text', 'html', 'json'],
+      enabled: Boolean(process.env['CI']),
+      reportsDirectory: './coverage',
+      provider: 'v8' as const,
+    },
+  },
+}));
