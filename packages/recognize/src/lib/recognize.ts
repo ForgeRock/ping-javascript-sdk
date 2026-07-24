@@ -11,6 +11,7 @@ import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
 import { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
 import { createInternalError, RecognizeError } from './functions/recognize-error.js';
+import { setAttributes } from './functions/set-attributes.js';
 import type {
   KeylessRecognitionFailureEvent,
   KeylessStepChangeEvent,
@@ -115,11 +116,6 @@ export function recognize(
     );
   };
 
-  const setAttributes = (element: RecognizeWebComponent): void => {
-    for (const [k, v] of Object.entries(config)) {
-      element[k as keyof RecognizeWebComponentConfiguration] = v;
-    }
-  };
 
   const client: RecognizeWebComponentClient = {
     subscribe: (observer: RecognizeWebComponentObserver): RecognizeWebComponentUnsubscribe => {
@@ -154,7 +150,7 @@ export function recognize(
         element = options.element as RecognizeWebComponent;
         element.username = options.username;
 
-        setAttributes(element);
+        setAttributes(element, config);
         addEventListeners(element);
       } else {
         const tag: 'kl-auth' | 'kl-enroll' = options.type === 'auth' ? 'kl-auth' : 'kl-enroll';
@@ -162,7 +158,7 @@ export function recognize(
         element = document.createElement(tag);
         element.username = options.username;
 
-        setAttributes(element);
+        setAttributes(element, config);
         addEventListeners(element);
 
         options.container.appendChild(element);
