@@ -7,7 +7,7 @@
  *
  */
 
-import type { RecognizeError } from './functions/recognize-error.js';
+import type { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import type {
   KeylessAuthElement,
   KeylessCameraInstruction,
@@ -23,6 +23,26 @@ declare global {
     'kl-enroll': KeylessEnrollElement;
   }
 }
+
+/** @public */
+export interface CreateRecognizeErrorOptions {
+  cause?: unknown;
+}
+
+/** @public */
+export interface RecognizeError {
+  error: {
+    cause?: unknown;
+    code: RecognizeErrorCodeValue;
+    message: RecognizeErrorCodeKey;
+  };
+}
+
+/** @public */
+export type RecognizeErrorCodeKey = keyof typeof RecognizeErrorCode;
+
+/** @public */
+export type RecognizeErrorCodeValue = (typeof RecognizeErrorCode)[RecognizeErrorCodeKey];
 
 /** @public */
 export type RecognizeSessionType = 'auth' | 'enroll';

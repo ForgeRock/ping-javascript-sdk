@@ -50,5 +50,3 @@ export const RecognizeErrorCode = {
   SECURITY_DEVICE_NOT_GENUINE: 6001,
 } as const;
 
-/** @public */
-export type RecognizeErrorCode = (typeof RecognizeErrorCode)[keyof typeof RecognizeErrorCode];

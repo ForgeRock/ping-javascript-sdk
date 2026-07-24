@@ -7,9 +7,10 @@
  *
  */
 
+import type { RecognizeErrorCodeValue } from '../recognize.types.js';
 import { RecognizeErrorCode } from './recognize-error-code.js';
 
-export const RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP: Record<string, RecognizeErrorCode> =
+export const RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP: Record<string, RecognizeErrorCodeValue> =
   Object.freeze({
     FRAME_RESULTS_SET_UNSET: RecognizeErrorCode.SDK_ERROR,
     OPTIONS_UNSET: RecognizeErrorCode.SDK_ERROR,
