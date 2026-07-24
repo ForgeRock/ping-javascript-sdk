@@ -86,6 +86,9 @@
       "path": "./tools/api-report"
     },
     {
+      "path": "./packages/sdk-effects/wellknown"
+    },
+    {
       "path": "./packages/recognize"
     },
     {
