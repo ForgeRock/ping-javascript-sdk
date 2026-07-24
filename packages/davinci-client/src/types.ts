@@ -1,4 +1,4 @@
-/* Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+/* Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -24,7 +24,7 @@ export * from './lib/node.types.js';
 export * from './lib/collector.types.js';
 
 // Fido types
-export type { FidoClient } from './lib/fido/fido.js';
+export * from './lib/fido/fido.types.js';
 
 // Node slice and reducer exports needed to resolve DavinciClient
 export {

@@ -36,8 +36,14 @@ import {
   returnQrCodeCollector,
   returnImageCollector,
 } from './collector.utils.js';
+import type { GenericError } from '@forgerock/sdk-types';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
-import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
+import type {
+  FidoRegistrationInputValue,
+  FidoAuthenticationInputValue,
+  PhoneNumberOutputValue,
+  PhoneNumberExtensionOutputValue,
+} from './collector.types.js';
 import type { CollectorValueTypes } from './client.types.js';
 import type { Collectors } from './node.types.js';
 
@@ -320,10 +326,12 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         if (typeof action.payload.value !== 'object') {
           throw new Error('Value argument must be an object');
         }
-        if (!('attestationValue' in action.payload.value)) {
+        const isFidoError =
+          'type' in action.payload.value && action.payload.value.type === 'fido_error';
+        if (!isFidoError && !('attestationValue' in action.payload.value)) {
           throw new Error('Value argument must contain an attestationValue property');
         }
-        collector.input.value = action.payload.value;
+        collector.input.value = action.payload.value as FidoRegistrationInputValue | GenericError;
       }
 
       if (collector.type === 'FidoAuthenticationCollector') {
@@ -333,10 +341,12 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         if (typeof action.payload.value !== 'object') {
           throw new Error('Value argument must be an object');
         }
-        if (!('assertionValue' in action.payload.value)) {
+        const isFidoError =
+          'type' in action.payload.value && action.payload.value.type === 'fido_error';
+        if (!isFidoError && !('assertionValue' in action.payload.value)) {
           throw new Error('Value argument must contain an assertionValue property');
         }
-        collector.input.value = action.payload.value;
+        collector.input.value = action.payload.value as FidoAuthenticationInputValue | GenericError;
       }
 
       if (collector.type === 'MetadataCollector') {
