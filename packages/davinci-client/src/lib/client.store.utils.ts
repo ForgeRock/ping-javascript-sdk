@@ -29,7 +29,7 @@ import type {
 import { configSlice } from './config.slice.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
