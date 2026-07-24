@@ -9,7 +9,7 @@ import { logger as loggerFn } from '@forgerock/sdk-logger';
 
 import { configureStore, type SerializedError } from '@reduxjs/toolkit';
 import { oidcApi } from './oidc.api.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { GenericError } from '@forgerock/sdk-types';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';

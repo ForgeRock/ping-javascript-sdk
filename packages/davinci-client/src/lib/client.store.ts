@@ -25,7 +25,7 @@ import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 /**
