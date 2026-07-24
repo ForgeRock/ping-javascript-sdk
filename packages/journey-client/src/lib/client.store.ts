@@ -23,7 +23,7 @@ import { createStorage } from '@forgerock/storage';
 import * as Either from 'effect/Either';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
 import type { JourneyResult } from './journey.utils.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { JourneyStep } from './step.utils.js';
 import type { JourneyClientConfig } from './config.types.js';
