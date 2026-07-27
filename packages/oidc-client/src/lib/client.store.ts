@@ -11,7 +11,7 @@ import { Cause, Effect, Exit, Option } from 'effect';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
-import { createClientStore, createTokenError } from './client.store.utils.js';
+import { createClientStore, createTokenError, injectIntoStore } from './client.store.utils.js';
 import { handleExit } from '@forgerock/sdk-utilities';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
@@ -20,7 +20,7 @@ import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
 import { wellknownApi, wellknownSelector } from '@forgerock/sdk-wellknown';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { GenericError, GetAuthorizationUrlOptions, SdkStore } from '@forgerock/sdk-types';
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { StorageConfig } from '@forgerock/storage';
 
@@ -50,20 +50,23 @@ import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.j
  * @param {Partial<StorageConfig>} param.storage - optional storage configuration for persisting OIDC tokens.
  * @returns {ReturnType<typeof oidc>} - Returns an object with methods for authorization, token exchange, user info retrieval, and logout.
  */
-export async function oidc<ActionType extends ActionTypes = ActionTypes>({
-  config,
-  requestMiddleware,
-  logger,
-  storage,
-}: {
-  config: OidcConfig;
-  requestMiddleware?: RequestMiddleware<ActionType>[];
-  logger?: {
-    level: LogLevel;
-    custom?: CustomLogger;
-  };
-  storage?: Partial<StorageConfig>;
-}) {
+export async function oidc<ActionType extends ActionTypes = ActionTypes>(
+  {
+    config,
+    requestMiddleware,
+    logger,
+    storage,
+  }: {
+    config: OidcConfig;
+    requestMiddleware?: RequestMiddleware<ActionType>[];
+    logger?: {
+      level: LogLevel;
+      custom?: CustomLogger;
+    };
+    storage?: Partial<StorageConfig>;
+  },
+  sharedStore?: SdkStore,
+) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
@@ -75,7 +78,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
     prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
-  const store = createClientStore({ requestMiddleware, logger: log });
+  const store = sharedStore
+    ? injectIntoStore(sharedStore)
+    : createClientStore({ requestMiddleware, logger: log });
 
   if (!config?.serverConfig?.wellknown) {
     return {
