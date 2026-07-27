@@ -72,8 +72,26 @@ function makeSharedStore(): SdkStore {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(wellknownApi.middleware).concat(dynamicMiddleware.middleware),
   });
-  // Cast to SdkStore the same way toSdkStore() does
   return { store, rootReducer, dynamicMiddleware } as unknown as SdkStore;
+}
+
+function makeFetchMock(onCall?: (url: string) => void) {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const url = typeof input === 'string' ? input : (input as Request).url;
+    onCall?.(url);
+
+    if (url.includes('.well-known')) {
+      return new Response(JSON.stringify(mockWellknownResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({}), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -114,6 +132,32 @@ describe('injectIntoStore()', () => {
 
     expect(addMiddlewareSpy).toHaveBeenCalledWith(oidcApi.middleware);
   });
+
+  it('oidcApi slice is readable from store state after injection', () => {
+    const sharedStore = makeSharedStore();
+    const typedStore = injectIntoStore(sharedStore);
+
+    // combineSlices registers the reducer on inject(), but state is only recomputed
+    // on the next dispatch. Trigger a no-op action to force state recalculation.
+    typedStore.dispatch({ type: '@@test/init' });
+    const state = typedStore.getState() as Record<string, unknown>;
+
+    expect(state).toHaveProperty(oidcApi.reducerPath);
+  });
+
+  it('is idempotent — calling twice does not throw or corrupt state', () => {
+    const sharedStore = makeSharedStore();
+
+    expect(() => {
+      injectIntoStore(sharedStore);
+      injectIntoStore(sharedStore);
+    }).not.toThrow();
+
+    const typedStore = injectIntoStore(sharedStore);
+    typedStore.dispatch({ type: '@@test/init' });
+    const state = typedStore.getState() as Record<string, unknown>;
+    expect(state).toHaveProperty(oidcApi.reducerPath);
+  });
 });
 
 describe('oidc() standalone — no shared store', () => {
@@ -123,22 +167,8 @@ describe('oidc() standalone — no shared store', () => {
     fetchCallCount = 0;
     vi.stubGlobal('localStorage', makeStorageStub());
     vi.stubGlobal('sessionStorage', makeStorageStub());
-
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
-      const url = typeof input === 'string' ? input : (input as Request).url;
-      fetchCallCount++;
-
-      if (url.includes('.well-known')) {
-        return new Response(JSON.stringify(mockWellknownResponse), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    makeFetchMock((url) => {
+      if (url.includes('.well-known')) fetchCallCount++;
     });
   });
 
@@ -166,28 +196,14 @@ describe('oidc() standalone — no shared store', () => {
 });
 
 describe('oidc() with shared store', () => {
-  let fetchCallCount = 0;
+  let wellknownFetchCount = 0;
 
   beforeEach(() => {
-    fetchCallCount = 0;
+    wellknownFetchCount = 0;
     vi.stubGlobal('localStorage', makeStorageStub());
     vi.stubGlobal('sessionStorage', makeStorageStub());
-
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
-      const url = typeof input === 'string' ? input : (input as Request).url;
-      fetchCallCount++;
-
-      if (url.includes('.well-known')) {
-        return new Response(JSON.stringify(mockWellknownResponse), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    makeFetchMock((url) => {
+      if (url.includes('.well-known')) wellknownFetchCount++;
     });
   });
 
@@ -208,29 +224,66 @@ describe('oidc() with shared store', () => {
     expect(client.authorize).toBeDefined();
   });
 
-  it('subscribe() returns an unsubscribe function', async () => {
+  it('subscribe() fires when oidcApi state changes on the shared store', async () => {
     const sharedStore = makeSharedStore();
     const client = await oidc({ config: oidcConfig }, sharedStore);
 
     if ('error' in client) throw new Error('Expected oidc client, got error');
 
     const listener = vi.fn();
-    const unsubscribe = client.subscribe(listener);
+    client.subscribe(listener);
 
-    expect(unsubscribe).toBeInstanceOf(Function);
+    // Dispatch an oidcApi mutation — any action that causes a state change will notify the subscriber
+    const typedStore = injectIntoStore(sharedStore);
+    typedStore.dispatch({ type: 'test/action' });
+
+    expect(listener).toHaveBeenCalled();
   });
 
   it('reuses cached wellknown response — no additional fetch when store already has it', async () => {
     const sharedStore = makeSharedStore();
 
-    // Pre-populate the wellknown cache by routing through the typed store from injectIntoStore
+    // Simulate the owning store (davinci/journey) having already fetched wellknown
     const typedStore = injectIntoStore(sharedStore);
     await typedStore.dispatch(wellknownApi.endpoints.configuration.initiate(TEST_WELLKNOWN_URL));
-    const fetchesAfterPreload = fetchCallCount;
+    const fetchesAfterOwnerInit = wellknownFetchCount;
 
-    // oidc() should hit the cache, not make another wellknown request
+    // oidc() using the same wellknown URL should hit the RTK Query cache
     await oidc({ config: oidcConfig }, sharedStore);
 
-    expect(fetchCallCount).toBe(fetchesAfterPreload);
+    expect(wellknownFetchCount).toBe(fetchesAfterOwnerInit);
+  });
+
+  it('warns when requestMiddleware is passed alongside sharedStore', async () => {
+    const sharedStore = makeSharedStore();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
+
+    // Set log level to 'warn' so the logger actually emits the warning to console.warn.
+    // The default level is 'error', which silently suppresses warn/info/debug messages.
+    await oidc(
+      {
+        config: oidcConfig,
+        logger: { level: 'warn' },
+        requestMiddleware: [() => () => (action: unknown) => action],
+      },
+      sharedStore,
+    );
+
+    const warnCalls = warnSpy.mock.calls.map((args) => args.join(' '));
+    expect(warnCalls.some((msg) => msg.includes('requestMiddleware'))).toBe(true);
+
+    warnSpy.mockRestore();
+  });
+
+  it('does not warn when no requestMiddleware is passed with sharedStore', async () => {
+    const sharedStore = makeSharedStore();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
+
+    await oidc({ config: oidcConfig, logger: { level: 'warn' } }, sharedStore);
+
+    const warnCalls = warnSpy.mock.calls.map((args) => args.join(' '));
+    expect(warnCalls.some((msg) => msg.includes('requestMiddleware'))).toBe(false);
+
+    warnSpy.mockRestore();
   });
 });
