@@ -29,7 +29,9 @@
     "test": "pnpm nx nxTest",
     "test:watch": "pnpm nx nxTest --watch"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@aracna/core": "^1.5.0"
+  },
   "devDependencies": {
     "@aracna/web-components": "^1.1.18"
   },

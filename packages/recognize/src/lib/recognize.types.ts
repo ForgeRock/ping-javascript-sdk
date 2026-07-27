@@ -7,6 +7,8 @@
  *
  */
 
+import type { LocalizationPack, LocalizationVariables, LoggerLevel, Theme } from '@aracna/core';
+
 import type { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import type {
   KeylessAuthElement,
@@ -14,6 +16,7 @@ import type {
   KeylessEnrollElement,
   KeylessStepChangeEventDetail,
   KeylessSuccessEventDetail,
+  KeylessThemeOptions,
   KeylessVideoFrameQualityEventDetail,
 } from './recognize-sdk/index.js';
 
@@ -91,14 +94,14 @@ export interface RecognizeWebComponentConfiguration {
   enableDatadogPII?: boolean;
   enableWasmPthreads?: boolean;
   lang?: string;
-  localizationPacks?: unknown[];
-  localizationVariables?: unknown;
-  loggerLevel?: string;
+  localizationPacks?: LocalizationPack[];
+  localizationVariables?: LocalizationVariables;
+  loggerLevel?: LoggerLevel;
   operationID?: string;
   seedEntropy?: boolean;
   serviceURL: string;
-  theme?: unknown;
-  themeOptions?: unknown;
+  theme?: Theme;
+  themeOptions?: KeylessThemeOptions;
   transactionData?: string;
   wasmBinaryURL?: string;
   wasmDataURL?: string;
