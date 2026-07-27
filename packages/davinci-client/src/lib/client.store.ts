@@ -19,6 +19,7 @@ import {
   handleUpdateValidateError,
   isValidCollectorCategory,
   resolveCollectorUpdateValue,
+  toSdkStore,
   type RootState,
 } from './client.store.utils.js';
 import { pollingµ, getPollingModeµ } from './client.store.effects.js';
@@ -28,6 +29,7 @@ import { configSlice } from './config.slice.js';
 import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-types';
 /**
  * Import the DaVinciRequest types
  */
@@ -83,7 +85,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
-  const store = createClientStore({ requestMiddleware, logger: log });
+  const injectable = createClientStore({ requestMiddleware, logger: log });
+  const store = injectable.store;
   const serverInfo = createStorage<ContinueNode['server']>({
     type: 'localStorage',
     name: 'serverInfo',
@@ -115,6 +118,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   store.dispatch(configSlice.actions.set({ ...config, wellknownResponse: openIdResponse }));
 
   return {
+    // Opaque store handle — pass to oidc() to share this store
+    store: toSdkStore(injectable) as SdkStore,
     // Pass store methods to the client
     subscribe: store.subscribe,
 
