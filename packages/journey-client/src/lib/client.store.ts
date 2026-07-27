@@ -13,10 +13,11 @@ import {
   isGenericError,
   isValidWellknownUrl,
 } from '@forgerock/sdk-utilities';
-import { createStorage } from '@forgerock/storage';
-import * as Either from 'effect/Either';
+import type { GenericError, SdkStore } from '@forgerock/sdk-types';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { Step } from '@forgerock/sdk-types';
 
-import { createJourneyStore } from './client.store.utils.js';
+import { createJourneyStore, toSdkStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { createStorage } from '@forgerock/storage';
@@ -38,6 +39,7 @@ import type { JourneyStep } from './step.utils.js';
 
 /** The journey client instance returned by the `journey()` function. */
 export interface JourneyClient {
+  store: SdkStore;
   subscribe: (listener: () => void) => () => void;
   start: (options?: StartParam) => Promise<JourneyResult>;
   next: (step: JourneyStep, options?: NextOptions) => Promise<JourneyResult>;
@@ -118,7 +120,8 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     );
   }
 
-  const store = createJourneyStore({ requestMiddleware, logger: log });
+  const injectable = createJourneyStore({ requestMiddleware, logger: log });
+  const store = injectable.store;
 
   if ('baseUrl' in config.serverConfig) {
     const { baseUrl } = config.serverConfig;
@@ -185,6 +188,7 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
   });
 
   const self: JourneyClient = {
+    store: toSdkStore(injectable) as SdkStore,
     subscribe: store.subscribe,
 
     start: async (options?: StartParam) => {

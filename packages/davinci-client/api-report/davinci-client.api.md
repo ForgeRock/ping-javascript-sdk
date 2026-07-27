@@ -9,13 +9,13 @@ import { CustomLogger } from '@forgerock/sdk-logger';
 import type { DaVinciConfig } from '@forgerock/sdk-types';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
-import type { GenericError } from '@forgerock/sdk-types';
+import { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
-import { makeDavinciConfig } from '@forgerock/sdk-utilities';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-types';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Unsubscribe } from '@reduxjs/toolkit';
 
@@ -397,6 +397,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     custom?: CustomLogger;
   };
 }): Promise<{
+  store: SdkStore;
   subscribe: (listener: () => void) => Unsubscribe;
   externalIdp: () => () => Promise<void | InternalErrorResponse>;
   flow: (action: DaVinciAction) => InitFlow;
@@ -404,7 +405,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
   resume: (input: { continueToken: string }) => Promise<InternalErrorResponse | NodeStates>;
   start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(
     options?: StartOptions<QueryParams> | undefined,
-  ) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
+  ) => Promise<StartNode | ErrorNode | FailureNode | ContinueNode | SuccessNode>;
   update: <T extends UpdatableCollectors>(collector: T) => Updater<T>;
   validate: (
     collector:
@@ -416,11 +417,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
   pollStatus: (collector: PollingCollector) => Poller;
   getClient: () =>
     | {
-        action: string;
-        collectors: Collectors[];
-        description?: string;
-        name?: string;
-        status: 'continue';
+        status: 'start';
       }
     | {
         action: string;
@@ -433,7 +430,11 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         status: 'failure';
       }
     | {
-        status: 'start';
+        action: string;
+        collectors: Collectors[];
+        description?: string;
+        name?: string;
+        status: 'continue';
       }
     | {
         authorization?: {
@@ -446,16 +447,10 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
   getCollectors: () => Collectors[];
   getError: () => DaVinciError | null;
   getErrorCollectors: () => CollectorErrors[];
-  getNode: () => ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode;
+  getNode: () => StartNode | ErrorNode | FailureNode | ContinueNode | SuccessNode;
   getServer: () =>
     | {
-        _links?: Links;
-        id?: string;
-        interactionId?: string;
-        interactionToken?: string;
-        href?: string;
-        eventName?: string;
-        status: 'continue';
+        status: 'start';
       }
     | {
         _links?: Links;
@@ -475,7 +470,13 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         status: 'failure';
       }
     | {
-        status: 'start';
+        _links?: Links;
+        id?: string;
+        interactionId?: string;
+        interactionToken?: string;
+        href?: string;
+        eventName?: string;
+        status: 'continue';
       }
     | {
         _links?: Links;
@@ -1304,8 +1305,6 @@ export interface Links {
 }
 
 export { LogLevel };
-
-export { makeDavinciConfig };
 
 // @public (undocumented)
 export type MetadataCollector = AutoCollector<
