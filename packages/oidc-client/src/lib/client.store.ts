@@ -78,6 +78,12 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>(
     prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
+  if (sharedStore && requestMiddleware?.length) {
+    log.warn(
+      '`requestMiddleware` is ignored when a `sharedStore` is provided. ' +
+        'Pass request middleware to the davinci() or journey() factory that owns the store.',
+    );
+  }
   const store = sharedStore
     ? injectIntoStore(sharedStore)
     : createClientStore({ requestMiddleware, logger: log });
