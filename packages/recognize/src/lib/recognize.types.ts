@@ -13,6 +13,7 @@ import type { RecognizeErrorCode } from './defs/recognize-error-code.js';
 import type {
   KeylessAuthElement,
   KeylessCameraInstruction,
+  KeylessComponentsStep,
   KeylessEnrollElement,
   KeylessStepChangeEventDetail,
   KeylessSuccessEventDetail,
@@ -77,9 +78,9 @@ export type RecognizeWebComponentCompleteData = KeylessSuccessEventDetail;
 
 /** @public */
 export interface RecognizeWebComponentConfiguration {
-  aspectRatio?: string;
+  aspectRatio?: number | string;
   authorizationToken?: string;
-  cameraAspectRatio?: string;
+  cameraAspectRatio?: number | string;
   cameraInstructions?: KeylessCameraInstruction[];
   customer: string;
   datadogEnv?: string;
@@ -87,7 +88,7 @@ export interface RecognizeWebComponentConfiguration {
   disableDatadog?: boolean;
   disableLogger?: boolean;
   disablePoweredBy?: boolean;
-  disableSteps?: string[];
+  disableSteps?: KeylessComponentsStep[];
   enableCameraFlash?: boolean;
   enableCameraInstructions?: boolean;
   enableCameraInstructionsIcons?: boolean;
