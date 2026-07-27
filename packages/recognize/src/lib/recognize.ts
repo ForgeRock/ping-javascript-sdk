@@ -93,29 +93,26 @@ export function recognize(
       observers.clear();
     };
 
+    const onNonCancelable = (): void => dispatch({ type: 'non-cancelable' });
+
+    const onRecognitionStart = (): void => dispatch({ type: 'recognition-start' });
+
+    const onStepChange = (event: KeylessStepChangeEvent): void =>
+      dispatch({ type: 'step-change', detail: event.detail });
+
+    const onVideoFrameQuality = (event: KeylessVideoFrameQualityEvent): void =>
+      dispatch({ type: 'video-frame-quality', detail: event.detail });
+
     const options: AddEventListenerOptions = { signal: aborter.signal };
 
     element.addEventListener('error', onError, options);
-    element.addEventListener('non-cancelable', () => dispatch({ type: 'non-cancelable' }), options);
+    element.addEventListener('non-cancelable', onNonCancelable, options);
     element.addEventListener('recognition-failure', onRecognitionFailure, options);
-    element.addEventListener(
-      'recognition-start',
-      () => dispatch({ type: 'recognition-start' }),
-      options,
-    );
+    element.addEventListener('recognition-start', onRecognitionStart, options);
     element.addEventListener('recoverable-error', onRecoverableError, options);
-    element.addEventListener(
-      'step-change',
-      (e: KeylessStepChangeEvent) => dispatch({ type: 'step-change', detail: e.detail }),
-      options,
-    );
+    element.addEventListener('step-change', onStepChange, options);
     element.addEventListener('success', onSuccess, options);
-    element.addEventListener(
-      'video-frame-quality',
-      (e: KeylessVideoFrameQualityEvent) =>
-        dispatch({ type: 'video-frame-quality', detail: e.detail }),
-      options,
-    );
+    element.addEventListener('video-frame-quality', onVideoFrameQuality, options);
   };
 
   const client: RecognizeWebComponentClient = {
