@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { configureStore } from '@reduxjs/toolkit';
+import { combineSlices, configureStore, createDynamicMiddleware } from '@reduxjs/toolkit';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
@@ -18,20 +18,48 @@ import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { wellknownApi } from '@forgerock/sdk-wellknown';
 
+/**
+ * Root reducer built with combineSlices to support lazy injection.
+ * External slices (e.g. oidcApi) can be injected via rootReducer.inject().
+ */
+export const rootReducer = combineSlices(
+  configSlice,
+  nodeSlice,
+  davinciApi,
+  wellknownApi,
+).withLazyLoadedSlices();
+
+export type RootState = ReturnType<typeof rootReducer>;
+
+export interface RootStateWithNode<
+  T extends ErrorNode | ContinueNode | StartNode | SuccessNode,
+> extends RootState {
+  node: T;
+}
+
+/**
+ * Internal store shape that carries the root reducer and dynamic middleware
+ * so that oidc-client can inject its reducers and middleware at init time.
+ *
+ * Consumers only ever see the opaque SdkStore type.
+ */
+export interface InjectableStore {
+  readonly store: ReturnType<typeof configureStore<RootState>>;
+  readonly rootReducer: typeof rootReducer;
+  readonly dynamicMiddleware: ReturnType<typeof createDynamicMiddleware>;
+}
+
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
   logger,
 }: {
   requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
   logger?: ReturnType<typeof loggerFn>;
-}) {
-  return configureStore({
-    reducer: {
-      config: configSlice.reducer,
-      node: nodeSlice.reducer,
-      [davinciApi.reducerPath]: davinciApi.reducer,
-      [wellknownApi.reducerPath]: wellknownApi.reducer,
-    },
+}): InjectableStore {
+  const dynamicMiddleware = createDynamicMiddleware();
+
+  const store = configureStore({
+    reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: {
@@ -46,9 +74,19 @@ export function createClientStore<ActionType extends ActionTypes>({
         },
       })
         .concat(davinciApi.middleware)
-        .concat(wellknownApi.middleware),
+        .concat(wellknownApi.middleware)
+        .concat(dynamicMiddleware.middleware),
   });
+
+  return { store, rootReducer, dynamicMiddleware };
 }
+
+export type ClientStore = typeof createClientStore;
+
+/** The inner Redux store type — used by effects that need dispatch/getState. */
+export type DavinciStore = InjectableStore['store'];
+
+export type AppDispatch = ReturnType<DavinciStore['dispatch']>;
 
 export function handleUpdateValidateError(
   message: string,
@@ -66,18 +104,6 @@ export function handleUpdateValidateError(
     };
   };
 }
-
-export type ClientStore = typeof createClientStore;
-
-export type RootState = ReturnType<ReturnType<ClientStore>['getState']>;
-
-export interface RootStateWithNode<
-  T extends ErrorNode | ContinueNode | StartNode | SuccessNode,
-> extends RootState {
-  node: T;
-}
-
-export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;
 
 /**
  * @function createInternalError
@@ -103,4 +129,14 @@ export function isInternalError(value: unknown): value is InternalErrorResponse 
     'type' in value &&
     (value as Record<string, unknown>)['type'] === 'internal_error'
   );
+}
+
+/** Cast InjectableStore to the opaque SdkStore for public API exposure. */
+export function toSdkStore(injectable: InjectableStore): object {
+  return injectable as unknown as object;
+}
+
+/** Recover the InjectableStore from an opaque SdkStore handle. */
+export function fromSdkStore(sdkStore: object): InjectableStore {
+  return sdkStore as unknown as InjectableStore;
 }
