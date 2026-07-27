@@ -24,6 +24,7 @@ import { OidcConfig } from '@forgerock/sdk-types';
 import { QueryDefinition } from '@reduxjs/toolkit/query';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { ResponseType as ResponseType_2 } from '@forgerock/sdk-types';
+import type { SdkStore } from '@forgerock/sdk-types';
 import { StorageConfig } from '@forgerock/storage';
 import { StoreEnhancer } from '@reduxjs/toolkit';
 import { ThunkDispatch } from '@reduxjs/toolkit';
@@ -286,7 +287,7 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
         custom?: CustomLogger;
     };
     storage?: Partial<StorageConfig>;
-}): Promise<{
+}, sharedStore?: SdkStore): Promise<{
     error: string;
     type: string;
     subscribe?: undefined;

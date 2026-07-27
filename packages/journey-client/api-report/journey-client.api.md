@@ -24,6 +24,7 @@ import { PolicyKey } from '@forgerock/sdk-types';
 import { PolicyParams } from '@forgerock/sdk-types';
 import { PolicyRequirement } from '@forgerock/sdk-types';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-types';
 import { Step } from '@forgerock/sdk-types';
 import { StepDetail } from '@forgerock/sdk-types';
 import { StepType } from '@forgerock/sdk-types';
@@ -197,6 +198,8 @@ export interface JourneyClient {
     resume: (url: string, options?: ResumeOptions) => Promise<JourneyResult>;
     // (undocumented)
     start: (options?: StartParam) => Promise<JourneyResult>;
+    // (undocumented)
+    store: SdkStore;
     // (undocumented)
     subscribe: (listener: () => void) => () => void;
     // (undocumented)
