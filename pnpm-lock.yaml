@@ -451,6 +451,9 @@ importers:
       '@forgerock/sdk-request-middleware':
         specifier: workspace:*
         version: link:../sdk-effects/sdk-request-middleware
+      '@forgerock/sdk-store':
+        specifier: workspace:*
+        version: link:../sdk-effects/store
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
@@ -495,12 +498,12 @@ importers:
       '@forgerock/sdk-logger':
         specifier: workspace:*
         version: link:../sdk-effects/logger
-      '@forgerock/sdk-oidc':
-        specifier: workspace:*
-        version: link:../sdk-effects/oidc
       '@forgerock/sdk-request-middleware':
         specifier: workspace:*
         version: link:../sdk-effects/sdk-request-middleware
+      '@forgerock/sdk-store':
+        specifier: workspace:*
+        version: link:../sdk-effects/store
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
@@ -547,6 +550,9 @@ importers:
       '@forgerock/sdk-request-middleware':
         specifier: workspace:*
         version: link:../sdk-effects/sdk-request-middleware
+      '@forgerock/sdk-store':
+        specifier: workspace:*
+        version: link:../sdk-effects/store
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
@@ -613,6 +619,15 @@ importers:
       '@forgerock/sdk-types':
         specifier: workspace:*
         version: link:../../sdk-types
+
+  packages/sdk-effects/store:
+    dependencies:
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../../sdk-types
+      '@reduxjs/toolkit':
+        specifier: 'catalog:'
+        version: 2.10.1
 
   packages/sdk-types: {}
 
