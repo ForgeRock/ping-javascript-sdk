@@ -24,6 +24,9 @@
       "path": "../sdk-effects/sdk-request-middleware"
     },
     {
+      "path": "../sdk-effects/store"
+    },
+    {
       "path": "../sdk-effects/oidc"
     },
     {

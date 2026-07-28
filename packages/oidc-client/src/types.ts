@@ -25,3 +25,6 @@ export type { CustomStorageObject } from '@forgerock/sdk-types';
 // Re-export functions needed to resolve OidcClient and ClientStore type aliases
 export { oidc } from './lib/client.store.js';
 export { createClientStore } from './lib/client.store.utils.js';
+// Referenced by createClientStore's return type, so consumers need the names.
+export type { OidcRootState } from './lib/client.store.utils.js';
+export { rootReducer } from './lib/client.store.utils.js';

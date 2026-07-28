@@ -86,7 +86,7 @@ const storageClient = createStorage<OauthTokens>({
 });
 
 const logger = loggerFn({ level: 'error' });
-const store = createClientStore({ logger });
+const { store } = createClientStore({ logger });
 
 const tokens = {
   accessToken: '1234567890',
