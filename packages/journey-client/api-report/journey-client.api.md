@@ -16,14 +16,13 @@ import { GenericError } from '@forgerock/sdk-types';
 import { isValidWellknownUrl } from '@forgerock/sdk-utilities';
 import { JourneyClientConfig } from '@forgerock/sdk-types';
 import { JourneyServerConfig } from '@forgerock/sdk-types';
-import { LegacyServerConfig } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
-import { makeJourneyConfig } from '@forgerock/sdk-utilities';
 import { NameValue } from '@forgerock/sdk-types';
 import { PolicyKey } from '@forgerock/sdk-types';
 import { PolicyParams } from '@forgerock/sdk-types';
 import { PolicyRequirement } from '@forgerock/sdk-types';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
 import { Step } from '@forgerock/sdk-types';
 import { StepDetail } from '@forgerock/sdk-types';
 import { StepType } from '@forgerock/sdk-types';
@@ -96,9 +95,6 @@ export class ConfirmationCallback extends BaseCallback {
 
 // @public (undocumented)
 export function createCallback(callback: Callback): BaseCallback;
-
-// @public (undocumented)
-export function createJourneyStep(payload: Step, callbackFactory?: CallbackFactory): JourneyStep;
 
 export { createWellknownError };
 
@@ -188,6 +184,7 @@ export function journey<ActionType extends ActionTypes = ActionTypes>(input: {
     level: LogLevel;
     custom?: CustomLogger;
   };
+  store?: SdkStore;
 }): Promise<JourneyClient>;
 
 // @public
@@ -200,6 +197,8 @@ export interface JourneyClient {
   resume: (url: string, options?: ResumeOptions) => Promise<JourneyResult>;
   // (undocumented)
   start: (options?: StartParam) => Promise<JourneyResult>;
+  // (undocumented)
+  store: SdkStore;
   // (undocumented)
   subscribe: (listener: () => void) => () => void;
   // (undocumented)
@@ -257,8 +256,6 @@ export class KbaCreateCallback extends BaseCallback {
   setAnswer(answer: string): void;
   setQuestion(question: string): void;
 }
-
-export { LegacyServerConfig };
 
 export { LogLevel };
 

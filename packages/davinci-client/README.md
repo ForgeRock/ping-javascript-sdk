@@ -63,6 +63,50 @@ interface DaVinciConfig {
 }
 ```
 
+### Sharing a store with another client
+
+If your application also uses `@forgerock/oidc-client`, the two can share one Redux store so the well-known discovery document is fetched once rather than once per client.
+
+`davinci()` exposes the store it created as `client.store`. Pass it to the other client:
+
+```ts
+import { davinci } from '@forgerock/davinci-client';
+import { oidc } from '@forgerock/oidc-client';
+
+const davinciClient = await davinci({ config });
+
+// Attaches to davinci's store; the discovery document is already cached there.
+const oidcClient = await oidc({ config: oidcConfig, store: davinciClient.store });
+```
+
+Or create the store yourself when neither client is the natural owner:
+
+```ts
+import { createSdkStore } from '@forgerock/sdk-store';
+
+const store = createSdkStore();
+const davinciClient = await davinci({ config, store });
+const oidcClient = await oidc({ config: oidcConfig, store });
+```
+
+Omitting `store` is always valid — the client creates its own, which is the default behaviour.
+
+#### Middleware and logging stay private
+
+Sharing a store shares cached data, not configuration. `requestMiddleware` and `logger` are registered against the client you pass them to, and are resolved only by that client's own requests:
+
+```ts
+const store = createSdkStore();
+
+// Runs for DAVINCI_START, DAVINCI_NEXT, DAVINCI_FLOW and the other DaVinci actions only.
+await davinci({ config, store, requestMiddleware: [davinciMiddleware] });
+
+// Runs for OIDC requests only.
+await oidc({ config: oidcConfig, store, requestMiddleware: [oidcMiddleware] });
+```
+
+Middleware passed here will never run against an OIDC token exchange, and vice versa.
+
 ### Start a DaVinci flow
 
 Call the `start` method on the returned client API:
