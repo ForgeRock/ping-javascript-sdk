@@ -111,7 +111,7 @@ export default [
     rules: {
       'import/extensions': [2, 'ignorePackages'],
       '@nx/enforce-module-boundaries': [
-        'warn',
+        'error',
         {
           enforceBuildableLibDependency: true,
           allow: [],

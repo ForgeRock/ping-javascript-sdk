@@ -16,6 +16,7 @@ import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
 import { SerializedError } from '@reduxjs/toolkit';
 import { Unsubscribe } from '@reduxjs/toolkit';
 
@@ -277,7 +278,9 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         level: LogLevel;
         custom?: CustomLogger;
     };
+    store?: SdkStore;
 }): Promise<{
+    store: SdkStore;
     subscribe: (listener: () => void) => Unsubscribe;
     externalIdp: () => (() => Promise<void | InternalErrorResponse>);
     flow: (action: DaVinciAction) => InitFlow;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2020 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -10,7 +10,8 @@ import { REQUESTED_WITH, getEndpointPath, stringify, resolve } from '@forgerock/
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
 import type { Step } from '@forgerock/sdk-types';
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
+import { clientExtra } from '@forgerock/sdk-store';
 import type {
   BaseQueryApi,
   BaseQueryFn,
@@ -84,13 +85,38 @@ function configureSessionRequest(): RequestInit {
   return init;
 }
 
+const JOURNEY_REDUCER_PATH = 'journeyReducer';
+
+/**
+ * This client's private slot on the store's `extraArgument`.
+ *
+ * Optional because a shared store may not have had a journey slot registered
+ * yet; `journeyExtra` substitutes safe defaults.
+ */
 interface Extras {
-  requestMiddleware: RequestMiddleware[];
-  logger: ReturnType<typeof loggerFn>;
+  requestMiddleware?: RequestMiddleware[];
+  logger?: ReturnType<typeof loggerFn>;
+}
+
+/** Fallback so a missing slot degrades to error-level logging, never a crash. */
+const fallbackLogger = loggerFn({ level: 'error' });
+
+/**
+ * Resolves this client's own middleware and logger.
+ *
+ * Reads only the `journeyReducer` slot — never a store-wide value, which on a
+ * shared store would belong to whichever client created it.
+ */
+function journeyExtra(extra: unknown): Required<Extras> {
+  const slot = clientExtra<Extras>(extra, JOURNEY_REDUCER_PATH);
+  return {
+    requestMiddleware: slot.requestMiddleware ?? [],
+    logger: slot.logger ?? fallbackLogger,
+  };
 }
 
 export const journeyApi = createApi({
-  reducerPath: 'journeyReducer',
+  reducerPath: JOURNEY_REDUCER_PATH,
   baseQuery: fetchBaseQuery({
     baseUrl: '/',
     prepareHeaders: (headers: Headers) => {
@@ -121,7 +147,7 @@ export const journeyApi = createApi({
         const url = constructUrl(serverConfig, options?.journey, query);
         const request = configureRequest();
 
-        const { requestMiddleware } = api.extra as Extras;
+        const { requestMiddleware } = journeyExtra(api.extra);
 
         const response = await initQuery({ ...request, url: url }, 'begin', {
           type: 'service',
@@ -153,7 +179,7 @@ export const journeyApi = createApi({
         const url = constructUrl(serverConfig, undefined, query);
         const request = configureRequest(step);
 
-        const { requestMiddleware } = api.extra as Extras;
+        const { requestMiddleware } = journeyExtra(api.extra);
 
         const response = await initQuery({ ...request, url }, 'continue')
           .applyMiddleware(requestMiddleware)
@@ -183,7 +209,7 @@ export const journeyApi = createApi({
         const url = constructSessionsUrl(serverConfig, query);
         const request = configureSessionRequest();
 
-        const { requestMiddleware } = api.extra as Extras;
+        const { requestMiddleware } = journeyExtra(api.extra);
 
         const response = await initQuery({ ...request, url }, 'terminate')
           .applyMiddleware(requestMiddleware)

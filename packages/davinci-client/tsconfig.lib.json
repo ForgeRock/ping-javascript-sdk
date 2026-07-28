@@ -48,6 +48,9 @@
     },
     {
       "path": "../sdk-effects/logger/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/store/tsconfig.lib.json"
     }
   ]
 }

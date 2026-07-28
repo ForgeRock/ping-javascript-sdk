@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -7,49 +7,78 @@
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 
-import { configureStore, type SerializedError } from '@reduxjs/toolkit';
+import { combineSlices, type SerializedError } from '@reduxjs/toolkit';
 import { oidcApi } from './oidc.api.js';
-import { wellknownApi } from './wellknown.api.js';
+import { createSdkStore, injectClient, wellknownApi } from '@forgerock/sdk-store';
 
 import type { GenericError } from '@forgerock/sdk-types';
+import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 /**
+ * The canonical description of the state this client contributes.
+ *
+ * The runtime store is assembled by `injectClient`, which TypeScript cannot
+ * follow across lazy injection. Combining the same slices here lets the state
+ * type be *derived* from them rather than hand-written, so it cannot drift from
+ * what is actually mounted. Exported so the derived state type resolves for
+ * consumers, and so an application can compose the reducer itself if it wants.
+ */
+export const rootReducer = combineSlices(oidcApi, wellknownApi);
+
+export type OidcRootState = ReturnType<typeof rootReducer>;
+
+/**
  * @function createClientStore
- * @description Creates a Redux store configured with OIDC and well-known APIs.
+ * @description Creates, or attaches to, the store backing an OIDC client.
  * @param param - Configuration options for the client store.
- * @param {RequestMiddleware} param.requestMiddleware - An array of request middleware functions to be applied to the store.
- * @param {ReturnType<typeof loggerFn>} param.logger - An optional logger function for logging messages.
- * @returns { ReturnType<typeof configureStore> } - Returns a configured Redux store with OIDC and well-known APIs.
+ * @param {RequestMiddleware} param.requestMiddleware - Request middleware applied to this client's requests only.
+ * @param {ReturnType<typeof loggerFn>} param.logger - An optional logger for this client only.
+ * @param {SdkStore} param.store - An existing SDK store to attach to. Omit to create one.
+ * @returns {SdkStoreHandle<OidcRootState>} - A handle to the store this client is mounted on.
  */
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
   logger,
+  store,
+  clientId,
 }: {
   requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
   logger?: ReturnType<typeof loggerFn>;
-}) {
-  return configureStore({
-    reducer: {
-      [oidcApi.reducerPath]: oidcApi.reducer,
-      [wellknownApi.reducerPath]: wellknownApi.reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        thunk: {
-          extraArgument: {
-            /**
-             * This becomes the `api.extra` argument, and will be passed into the
-             * customer query wrapper for `baseQuery`
-             */
-            requestMiddleware,
-            logger,
-          },
-        },
-      })
-        .concat(wellknownApi.middleware)
-        .concat(oidcApi.middleware),
+  store?: SdkStore;
+  clientId?: string;
+}): SdkStoreHandle<OidcRootState> {
+  return injectClient<OidcRootState>(store ?? createSdkStore(), {
+    api: oidcApi,
+    reducerPath: oidcApi.reducerPath,
+    requestMiddleware,
+    logger,
+    clientId,
   });
+}
+
+/**
+ * Reports the clientId already occupying a store's OIDC slot, when it differs
+ * from the one being initialised.
+ *
+ * `oidcApi.reducerPath` is the fixed string 'oidc', so two clients on one store
+ * would share a single RTK Query cache slice and silently overwrite each other's
+ * token state. Detecting that is cheaper than namespacing per clientId, and
+ * failing loudly beats corrupting tokens.
+ *
+ * @returns The conflicting clientId, or `undefined` when there is no conflict.
+ */
+export function conflictingClientId(
+  store: SdkStore | undefined,
+  clientId: string,
+): string | undefined {
+  const existing = store?.extra.clients[oidcApi.reducerPath];
+  if (!existing) {
+    return undefined;
+  }
+
+  const existingClientId = (existing as { clientId?: string }).clientId;
+  return existingClientId && existingClientId !== clientId ? existingClientId : undefined;
 }
 
 /**

@@ -23,9 +23,10 @@ import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { wellknownApi } from './wellknown.api.js';
+import { wellknownApi } from '@forgerock/sdk-store';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
 /**
  * Import the DaVinciRequest types
  */
@@ -69,6 +70,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
   logger,
+  store: sharedStore,
 }: {
   config: DaVinciConfig;
   requestMiddleware?: RequestMiddleware<ActionType>[];
@@ -76,12 +78,18 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     level: LogLevel;
     custom?: CustomLogger;
   };
+  /**
+   * An existing SDK store to attach to, so discovery caching and state are
+   * shared with another client. Omit to create a store for this client alone.
+   */
+  store?: SdkStore;
 }) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
-  const store = createClientStore({ requestMiddleware, logger: log });
+  const handle = createClientStore({ requestMiddleware, logger: log, store: sharedStore });
+  const store = handle.store;
   const serverInfo = createStorage<ContinueNode['server']>({
     type: 'localStorage',
     name: 'serverInfo',
@@ -113,6 +121,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   store.dispatch(configSlice.actions.set({ ...config, wellknownResponse: openIdResponse }));
 
   return {
+    /** Pass to another SDK client's `store` option to share this store. */
+    store: handle as SdkStore,
     // Pass store methods to the client
     subscribe: store.subscribe,
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -12,16 +12,17 @@ import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
-import { createClientStore, createTokenError } from './client.store.utils.js';
+import { conflictingClientId, createClientStore, createTokenError } from './client.store.utils.js';
 import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import { wellknownApi, wellknownSelector } from './wellknown.api.js';
+import { isSdkStoreHandle, wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { SdkStore } from '@forgerock/sdk-store';
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { StorageConfig } from '@forgerock/storage';
 
@@ -56,6 +57,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   requestMiddleware,
   logger,
   storage,
+  store: sharedStore,
 }: {
   config: OidcConfig;
   requestMiddleware?: RequestMiddleware<ActionType>[];
@@ -64,20 +66,30 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
     custom?: CustomLogger;
   };
   storage?: Partial<StorageConfig>;
+  /**
+   * An existing SDK store to attach to, so discovery caching and state are
+   * shared with another client. Omit to create a store for this client alone.
+   */
+  store?: SdkStore;
 }) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
   const oauthThreshold = config.oauthThreshold || 30 * 1000; // Default to 30 seconds
-  const storageClient = createStorage<OauthTokens>({
-    type: storage?.type || 'localStorage',
-    name: storage?.name || config.clientId,
-    prefix: storage?.prefix || 'pic',
-    ...storage,
-  } as StorageConfig);
-  const store = createClientStore({ requestMiddleware, logger: log });
-
+  /**
+   * Validate before touching the store. RTK's `inject` is irreversible, so
+   * mutating a caller-owned store and *then* rejecting the arguments would leave
+   * them permanently carrying a slice from a call that never succeeded.
+   */
+  if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
+    return {
+      error:
+        'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
+        'another SDK client, or one created with `createSdkStore()`.',
+      type: 'argument_error',
+    };
+  }
   if (!config?.serverConfig?.wellknown) {
     return {
       error: 'Requires a wellknown url initializing this factory.',
@@ -90,6 +102,34 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       type: 'argument_error',
     };
   }
+
+  /**
+   * `oidcApi.reducerPath` is a fixed string, so a second client on the same
+   * store would share one cache slice and clobber the first client's tokens.
+   * Re-initialising the same clientId is fine and stays idempotent.
+   */
+  const conflict = conflictingClientId(sharedStore, config.clientId);
+  if (conflict) {
+    return {
+      error:
+        `This store is already in use by an OIDC client with clientId '${conflict}'. ` +
+        'Use a separate store per clientId.',
+      type: 'argument_error',
+    };
+  }
+
+  const storageClient = createStorage<OauthTokens>({
+    type: storage?.type || 'localStorage',
+    name: storage?.name || config.clientId,
+    prefix: storage?.prefix || 'pic',
+    ...storage,
+  } as StorageConfig);
+  const { store } = createClientStore({
+    requestMiddleware,
+    logger: log,
+    store: sharedStore,
+    clientId: config.clientId,
+  });
 
   const wellknownUrl = config.serverConfig.wellknown;
   const { data, error } = await store.dispatch(
