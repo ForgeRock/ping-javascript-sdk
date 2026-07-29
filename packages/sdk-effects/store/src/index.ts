@@ -10,8 +10,7 @@ export type { WellknownState } from './lib/wellknown.api.js';
 
 export { initWellknownQuery, isValidWellknownResponse } from './lib/wellknown.effects.js';
 
-export { clientExtra, createStoreExtra } from './lib/store.utils.js';
-export type { SdkStoreExtra } from './lib/store.utils.js';
+export { clientExtra } from './lib/store.utils.js';
 
 export { createSdkStore, injectClient, isSdkStoreHandle } from './lib/store.effects.js';
 export type {
