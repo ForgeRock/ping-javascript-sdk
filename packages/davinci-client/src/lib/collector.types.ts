@@ -767,6 +767,19 @@ export interface FidoRegistrationOutputValue {
   trigger: string;
 }
 
+/**
+ * A structured error to return to DaVinci if the application fails to respond successfully to a MetadataCollector
+ *
+ * @property code - Error code
+ * @property message - Error description
+ */
+export interface MetadataError {
+  code: string;
+  message: string;
+}
+
+export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
+
 export interface AssertionValue extends Omit<
   PublicKeyCredential,
   'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'
@@ -806,7 +819,8 @@ export type SingleValueAutoCollectorTypes =
 export type ObjectValueAutoCollectorTypes =
   | 'ObjectValueAutoCollector'
   | 'FidoRegistrationCollector'
-  | 'FidoAuthenticationCollector';
+  | 'FidoAuthenticationCollector'
+  | 'MetadataCollector';
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
 
 export interface AutoCollector<
@@ -851,6 +865,12 @@ export type FidoAuthenticationCollector = AutoCollector<
   FidoAuthenticationInputValue,
   FidoAuthenticationOutputValue
 >;
+export type MetadataCollector = AutoCollector<
+  'ObjectValueAutoCollector',
+  'MetadataCollector',
+  MetadataCollectorInputValue,
+  Record<string, unknown>
+>;
 export type PollingCollector = AutoCollector<
   'SingleValueAutoCollector',
   'PollingCollector',
@@ -872,6 +892,7 @@ export type AutoCollectors =
   | ProtectCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
+  | MetadataCollector
   | PollingCollector
   | SingleValueAutoCollector
   | ObjectValueAutoCollector;
@@ -891,10 +912,12 @@ export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'Pr
       ? FidoRegistrationCollector
       : T extends 'FidoAuthenticationCollector'
         ? FidoAuthenticationCollector
-        : T extends 'ObjectValueAutoCollector'
-          ? ObjectValueAutoCollector
-          : /**
-             * At this point, we have not passed in a collector type
-             * so we can return a SingleValueAutoCollector
-             **/
-            SingleValueAutoCollector;
+        : T extends 'MetadataCollector'
+          ? MetadataCollector
+          : T extends 'ObjectValueAutoCollector'
+            ? ObjectValueAutoCollector
+            : /**
+               * At this point, we have not passed in a collector type
+               * so we can return a SingleValueAutoCollector
+               **/
+              SingleValueAutoCollector;

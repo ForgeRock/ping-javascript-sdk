@@ -38,6 +38,7 @@ import qrCodeComponent from './components/qr-code.js';
 import formImageComponent from './components/form-image.js';
 import pollingComponent from './components/polling.js';
 import booleanComponent from './components/boolean.js';
+import metadataComponent from './components/metadata.js';
 
 const loggerFn = {
   error: () => {
@@ -286,6 +287,12 @@ const urlParams = new URLSearchParams(window.location.search);
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
           davinciClient.pollStatus(collector), // Returns a poll function
+          davinciClient.update(collector), // Returns an update function for this collector
+          submitForm,
+        );
+      } else if (collector.type === 'MetadataCollector') {
+        metadataComponent(
+          formEl, // You can ignore this; it's just for rendering
           davinciClient.update(collector), // Returns an update function for this collector
           submitForm,
         );

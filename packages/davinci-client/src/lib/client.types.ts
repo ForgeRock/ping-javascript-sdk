@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -17,6 +17,7 @@ import type {
   ValidatedTextCollector,
   ValidatedBooleanCollector,
   ValidatedPasswordCollector,
+  MetadataError,
 } from './collector.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
@@ -39,7 +40,8 @@ export type CollectorValueTypes =
   | PhoneNumberInputValue
   | PhoneNumberExtensionInputValue
   | FidoRegistrationInputValue
-  | FidoAuthenticationInputValue;
+  | FidoAuthenticationInputValue
+  | MetadataError;
 
 /**
  * Maps collector types to the specific value type they accept.
@@ -84,21 +86,23 @@ export type CollectorValueType<T> =
                   ? FidoRegistrationInputValue
                   : T extends { type: 'FidoAuthenticationCollector' }
                     ? FidoAuthenticationInputValue
-                    : // category catch-alls
-                      // fallbacks for collectors that don't match on `type`
-                      T extends { category: 'SingleValueCollector' }
-                      ? string
-                      : T extends { category: 'ValidatedSingleValueCollector' }
+                    : T extends { type: 'MetadataCollector' }
+                      ? Record<string, unknown> | MetadataError
+                      : // category catch-alls
+                        // fallbacks for collectors that don't match on `type`
+                        T extends { category: 'SingleValueCollector' }
                         ? string
-                        : T extends { category: 'SingleValueAutoCollector' }
+                        : T extends { category: 'ValidatedSingleValueCollector' }
                           ? string
-                          : T extends { category: 'MultiValueCollector' }
-                            ? string[]
-                            : T extends { category: 'ActionCollector' }
-                              ? never
-                              : T extends { category: 'NoValueCollector' }
+                          : T extends { category: 'SingleValueAutoCollector' }
+                            ? string
+                            : T extends { category: 'MultiValueCollector' }
+                              ? string[]
+                              : T extends { category: 'ActionCollector' }
                                 ? never
-                                : CollectorValueTypes;
+                                : T extends { category: 'NoValueCollector' }
+                                  ? never
+                                  : CollectorValueTypes;
 
 /**
  * A function type that updates a collector's value. Accepts values appropriate for the collector type.

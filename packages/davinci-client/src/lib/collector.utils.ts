@@ -47,6 +47,7 @@ import type {
   FidoAuthenticationField,
   FidoRegistrationField,
   ImageField,
+  MetadataField,
   MultiSelectField,
   PasswordField,
   PhoneNumberField,
@@ -497,7 +498,7 @@ export function returnSingleValueAutoCollector<
  * @returns {AutoCollector} The constructed AutoCollector object.
  */
 export function returnObjectValueAutoCollector<
-  Field extends FidoRegistrationField | FidoAuthenticationField,
+  Field extends FidoRegistrationField | FidoAuthenticationField | MetadataField,
   CollectorType extends ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -517,7 +518,26 @@ export function returnObjectValueAutoCollector<
     });
   }
 
-  if (field.action === 'REGISTER') {
+  if (field.type === 'METADATA') {
+    return {
+      category: 'ObjectValueAutoCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: {},
+        type: field.type,
+        validation: validationArray.length ? validationArray : null,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+        config: field.payload,
+      },
+    } as InferAutoCollectorType<'MetadataCollector'>;
+  } else if (field.action === 'REGISTER') {
     return {
       category: 'ObjectValueAutoCollector',
       error: error || null,
@@ -789,6 +809,8 @@ export function returnObjectCollector<
     });
   }
 
+  const label = 'label' in field ? field.label : '';
+
   let options;
   let defaultValue;
   let extensionLabel: string | null = null;
@@ -884,7 +906,7 @@ export function returnObjectCollector<
     },
     output: {
       key: field.key,
-      label: field.label,
+      label: label,
       type: field.type,
       ...(options && { options: options || [] }),
       ...(extensionLabel !== null && { extensionLabel }),
@@ -910,6 +932,16 @@ export function returnObjectSelectCollector(
       ? 'DeviceAuthenticationCollector'
       : 'DeviceRegistrationCollector',
   );
+}
+
+/**
+ * @function returnMetadataCollector - Creates a MetadataCollector from a METADATA field.
+ * @param {MetadataField} field - The METADATA field from the API response.
+ * @param {number} idx - The index used in the collector id/name.
+ * @returns {MetadataCollector} The constructed MetadataCollector.
+ */
+export function returnMetadataCollector(field: MetadataField, idx: number) {
+  return returnObjectValueAutoCollector(field, idx, 'MetadataCollector');
 }
 
 export function returnObjectValueCollector(

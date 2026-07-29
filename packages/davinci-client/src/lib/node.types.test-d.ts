@@ -19,6 +19,7 @@ import type { ErrorDetail, Links } from './davinci.types.js';
 import type {
   ActionCollector,
   FlowCollector,
+  MetadataCollector,
   MultiSelectCollector,
   PasswordCollector,
   ValidatedPasswordCollector,
@@ -228,6 +229,7 @@ describe('Node Types', () => {
     it('should validate Collectors union type', () => {
       expectTypeOf<Collectors>().toMatchTypeOf<
         | TextCollector
+        | MetadataCollector
         | PasswordCollector
         | ValidatedPasswordCollector
         | FlowCollector

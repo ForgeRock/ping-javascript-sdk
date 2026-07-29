@@ -21,6 +21,7 @@ import {
   returnNoValueCollector,
   returnObjectSelectCollector,
   returnObjectValueCollector,
+  returnMetadataCollector,
   returnSingleValueAutoCollector,
   returnObjectValueAutoCollector,
   returnImageCollector,
@@ -35,6 +36,7 @@ import type {
   DeviceAuthenticationField,
   DeviceRegistrationField,
   ImageField,
+  MetadataField,
   PasswordField,
   FidoAuthenticationField,
   FidoRegistrationField,
@@ -2108,5 +2110,41 @@ describe('returnBooleanCollector', () => {
     };
     const result = returnBooleanCollector(field, 0);
     expect(result.output).not.toHaveProperty('richContent');
+  });
+});
+
+describe('returnMetadataCollector', () => {
+  const mockField: MetadataField = {
+    type: 'METADATA',
+    key: 'metadata-key',
+    payload: {
+      sessionToken: 'abc123',
+      userId: 'user-456',
+    },
+  };
+
+  it('should create a valid MetadataCollector with payload in output', () => {
+    const result = returnMetadataCollector(mockField, 0);
+    expect(result).toEqual({
+      category: 'ObjectValueAutoCollector',
+      error: null,
+      type: 'MetadataCollector',
+      id: 'metadata-key-0',
+      name: 'metadata-key',
+      input: {
+        key: 'metadata-key',
+        value: {},
+        type: 'METADATA',
+        validation: null,
+      },
+      output: {
+        key: 'metadata-key',
+        type: 'METADATA',
+        config: {
+          sessionToken: 'abc123',
+          userId: 'user-456',
+        },
+      },
+    });
   });
 });
