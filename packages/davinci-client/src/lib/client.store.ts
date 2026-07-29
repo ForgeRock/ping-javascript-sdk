@@ -26,7 +26,7 @@ import { configSlice } from './config.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { nodeSlice } from './node.slice.js';
 import { returnPasswordPolicyValidator } from './password-policy.rules.js';
-import { wellknownApi } from '@forgerock/sdk-store';
+import { wellknownApi, isSdkStoreHandle } from '@forgerock/sdk-store';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
@@ -92,12 +92,15 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
-  const handle = createClientStore({ requestMiddleware, logger: log, store: sharedStore });
-  const store = handle.store;
-  const serverInfo = createStorage<ContinueNode['server']>({
-    type: 'localStorage',
-    name: 'serverInfo',
-  });
+
+  if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
+    const message =
+      'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
+      'another SDK client, or one created with `createSdkStore()`.';
+    log.error(message);
+    throw new Error(message);
+  }
+
   if (!config.serverConfig.wellknown) {
     const error = new Error(
       '`wellknown` property is a required as part of the `config.serverConfig`',
@@ -111,6 +114,13 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     log.error(error.message);
     throw error;
   }
+
+  const handle = createClientStore({ requestMiddleware, logger: log, store: sharedStore });
+  const store = handle.store;
+  const serverInfo = createStorage<ContinueNode['server']>({
+    type: 'localStorage',
+    name: 'serverInfo',
+  });
 
   const { data: openIdResponse, error: fetchError } = await store.dispatch(
     wellknownApi.endpoints.configuration.initiate(config.serverConfig.wellknown),
