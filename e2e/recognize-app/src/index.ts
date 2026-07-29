@@ -9,15 +9,14 @@ const client = recognize({
 });
 
 client.subscribe({
-  next: (event) => {
-    console.log('[recognize]', event.type, event.detail);
+  next: ({ type, ...rest }) => {
+    console.log('[recognize]', type, rest);
   },
   error: (err) => {
     console.error('[recognize] error', {
-      code: err.code,
-      message: err.message,
-      name: err.name,
-      cause: err.cause,
+      code: err.error.code,
+      message: err.error.message,
+      cause: err.error.cause,
     });
   },
   complete: (detail) => {
