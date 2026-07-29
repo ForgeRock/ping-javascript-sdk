@@ -6,22 +6,6 @@
  */
 
 /**
- * Per-client slots carried on a store's thunk `extraArgument`.
- *
- * A Redux store has exactly one `extraArgument`, but a shared SDK store serves
- * several clients. Keying the contents by the owning api's `reducerPath` gives
- * each client a private slot, so one client's request middleware and logger can
- * never be resolved by another client's endpoints.
- *
- * The slot type is left generic because each client's needs differ — journey
- * only uses request middleware, oidc and davinci use both middleware and a
- * logger. Callers narrow it at the point of use.
- */
-export interface SdkStoreExtra<Slot = unknown> {
-  readonly clients: Record<string, Slot>;
-}
-
-/**
  * Resolves the calling client's own slot from a store's `extraArgument`.
  *
  * This runs on every request, so it never throws. An unrecognised or malformed
@@ -48,17 +32,4 @@ export function clientExtra<Slot extends object>(extra: unknown, reducerPath: st
   }
 
   return slot as Slot;
-}
-
-/**
- * Builds an `extraArgument` registry holding a single client's slot.
- *
- * Used by each client factory when it creates its own store. When a store is
- * shared, additional slots are added at injection time.
- */
-export function createStoreExtra<Slot extends object>(
-  reducerPath: string,
-  slot: Slot,
-): SdkStoreExtra<Slot> {
-  return { clients: { [reducerPath]: slot } };
 }
