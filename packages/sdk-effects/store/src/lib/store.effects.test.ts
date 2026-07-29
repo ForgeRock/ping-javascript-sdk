@@ -179,6 +179,7 @@ describe('injectClient', () => {
   it('is idempotent for repeated injection of the same client', () => {
     // Arrange
     const handle = createSdkStore();
+    const spy = vi.spyOn(handle.dynamicMiddleware, 'addMiddleware');
 
     // Act
     injectClient(handle, { api: fakeApi, reducerPath: fakeApi.reducerPath });
@@ -187,6 +188,7 @@ describe('injectClient', () => {
 
     // Assert
     expect(Object.keys(handle.store.getState() as object).sort()).toEqual(afterFirst);
+    expect(spy).toHaveBeenCalledTimes(1); // middleware must not be double-registered
   });
 
   it('throws a descriptive error when handed something that is not a handle', () => {
