@@ -2,4 +2,4 @@
 '@forgerock/davinci-client': minor
 ---
 
-Catch FIDO/WebAuthn DOMExeceptions and send them to DaVinci
+Catch FIDO/WebAuthn DOMExceptions and send them to DaVinci

@@ -10,6 +10,9 @@ import { asyncEvents } from './utils/async-events.js';
 const username = 'JSFidoUser@user.com';
 const password = 'FakePassword#123';
 
+const clientId = '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0';
+const policyId = '3eff62cf953372519225d375fd200358';
+
 test.use({ browserName: 'chromium' }); // ensure CDP/WebAuthn is available
 test.describe.configure({ mode: 'serial' });
 
@@ -51,11 +54,9 @@ test.describe('FIDO/WebAuthn Success Tests', () => {
   test('Register and authenticate with webauthn device', async ({ page }) => {
     const { navigate } = asyncEvents(page);
 
-    await navigate(
-      '/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_values=98f2c058aae71ec09eb268db6810ff3c',
-    );
+    await navigate(`/?clientId=${clientId}&acr_values=${policyId}`);
     await expect(page).toHaveURL(
-      'http://localhost:5829/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_values=98f2c058aae71ec09eb268db6810ff3c',
+      `http://localhost:5829/?clientId=${clientId}&acr_values=${policyId}`,
     );
     await expect(page.getByText('FIDO2 Test Form')).toBeVisible();
 
@@ -110,11 +111,9 @@ test.describe('FIDO/WebAuthn Success Tests', () => {
   test('Register and authenticate with usernameless', async ({ page }) => {
     const { navigate } = asyncEvents(page);
 
-    await navigate(
-      '/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_values=98f2c058aae71ec09eb268db6810ff3c',
-    );
+    await navigate(`/?clientId=${clientId}&acr_values=${policyId}`);
     await expect(page).toHaveURL(
-      'http://localhost:5829/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_values=98f2c058aae71ec09eb268db6810ff3c',
+      `http://localhost:5829/?clientId=${clientId}&acr_values=${policyId}`,
     );
     await expect(page.getByText('FIDO2 Test Form')).toBeVisible();
 
@@ -213,9 +212,7 @@ test.describe('FIDO/WebAuthn Error Tests', () => {
   }) => {
     const { navigate } = asyncEvents(page);
 
-    await navigate(
-      '/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_values=98f2c058aae71ec09eb268db6810ff3c',
-    );
+    await navigate(`/?clientId=${clientId}&acr_values=${policyId}`);
     await expect(page.getByText('FIDO2 Test Form')).toBeVisible();
 
     await page.getByRole('button', { name: 'USER_LOGIN' }).click();
@@ -244,9 +241,7 @@ test.describe('FIDO/WebAuthn Error Tests', () => {
   }) => {
     const { navigate } = asyncEvents(page);
 
-    await navigate(
-      '/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_values=98f2c058aae71ec09eb268db6810ff3c',
-    );
+    await navigate(`/?clientId=${clientId}&acr_values=${policyId}`);
     await expect(page.getByText('FIDO2 Test Form')).toBeVisible();
 
     await page.getByRole('button', { name: 'USER_LOGIN' }).click();
@@ -282,9 +277,7 @@ test.describe('FIDO/WebAuthn Error Tests', () => {
   }) => {
     const { navigate } = asyncEvents(page);
 
-    await navigate(
-      '/?clientId=20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0&acr_values=98f2c058aae71ec09eb268db6810ff3c',
-    );
+    await navigate(`/?clientId=${clientId}&acr_values=${policyId}`);
     await expect(page.getByText('FIDO2 Test Form')).toBeVisible();
 
     await page.getByRole('button', { name: 'USER_LOGIN' }).click();

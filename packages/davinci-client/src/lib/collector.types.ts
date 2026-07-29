@@ -768,19 +768,6 @@ export interface FidoRegistrationOutputValue {
   trigger: string;
 }
 
-/**
- * A structured error to return to DaVinci if the application fails to respond successfully to a MetadataCollector
- *
- * @property code - Error code
- * @property message - Error description
- */
-export interface MetadataError {
-  code: string;
-  message: string;
-}
-
-export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
-
 export interface AssertionValue extends Omit<
   PublicKeyCredential,
   'rawId' | 'response' | 'getClientExtensionResults' | 'toJSON'
@@ -804,6 +791,18 @@ export interface FidoAuthenticationOutputValue {
   trigger: string;
 }
 
+/**
+ * A structured error to return to DaVinci if the application fails to respond successfully to a MetadataCollector
+ *
+ * @property code - Error code
+ * @property message - Error description
+ */
+export interface MetadataError {
+  code: string;
+  message: string;
+}
+
+export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
 export interface PollingOutputValue {
   pollInterval: number;
   pollRetries: number;

@@ -1267,7 +1267,7 @@ describe('The node collector reducer with ProtectFieldValue', () => {
 });
 
 describe('The node collector reducer with FidoRegistrationFieldValue', () => {
-  it('should store a GenericError on collector.error when a FIDO error is passed as value', () => {
+  it('should store a GenericError on input.value when a FIDO error is passed as value', () => {
     const fidoError: GenericError = {
       code: 'NotAllowedError',
       error: 'registration_error',
@@ -2175,7 +2175,7 @@ describe('The node collector reducer with BooleanCollector', () => {
 });
 
 describe('The node collector reducer with FidoAuthenticationFieldValue', () => {
-  it('should store a GenericError on collector.error when a FIDO error is passed as value', () => {
+  it('should store a GenericError on input.value when a FIDO error is passed as value', () => {
     const fidoError: GenericError = {
       code: 'TimeoutError',
       error: 'authentication_error',
