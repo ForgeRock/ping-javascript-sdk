@@ -1,5 +1,21 @@
 # @forgerock/davinci-client
 
+## 2.2.0
+
+### Minor Changes
+
+- [#727](https://github.com/ForgeRock/ping-javascript-sdk/pull/727) [`fc0caf2`](https://github.com/ForgeRock/ping-javascript-sdk/commit/fc0caf22e3bd34df3005a3905a210e7385372fde) Thanks [@ancheetah](https://github.com/ancheetah)! - Add MetadataCollector support
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-logger@2.2.0
+  - @forgerock/sdk-oidc@2.2.0
+  - @forgerock/sdk-request-middleware@2.2.0
+  - @forgerock/storage@2.2.0
+  - @forgerock/sdk-types@2.2.0
+  - @forgerock/sdk-utilities@2.2.0
+
 ## 2.1.0
 
 ### Minor Changes
