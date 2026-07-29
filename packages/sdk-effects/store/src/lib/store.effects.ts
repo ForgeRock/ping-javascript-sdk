@@ -117,7 +117,10 @@ export function injectClient<S extends object = Record<string, unknown>>(
   }
 
   const addMiddleware = handle.dynamicMiddleware.addMiddleware as (mw: unknown) => unknown;
-  addMiddleware(api.middleware);
+  const alreadyInjected = reducerPath in (handle.extra.clients as Record<string, unknown>);
+  if (!alreadyInjected) {
+    addMiddleware(api.middleware);
+  }
 
   // The registry is readonly to consumers but mutable here by design: this is
   // the only place a slot is created, and it must work on a store built earlier.
