@@ -26,8 +26,8 @@ import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
-import { wellknownApi } from '@forgerock/sdk-store';
 import type { JourneyResult } from './journey.utils.js';
+import { wellknownApi, isSdkStoreHandle } from '@forgerock/sdk-store';
 
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import type { JourneyClientConfig } from './config.types.js';
@@ -121,6 +121,14 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     log.warn(
       `The following configuration properties are not used by journey-client and will be ignored: ${providedIgnored.join(', ')}`,
     );
+  }
+
+  if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
+    const message =
+      'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
+      'another SDK client, or one created with `createSdkStore()`.';
+    log.error(message);
+    throw new Error(message);
   }
 
   const handle = createJourneyStore({ requestMiddleware, logger: log, store: sharedStore });
