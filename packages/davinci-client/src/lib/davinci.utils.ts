@@ -96,9 +96,14 @@ export function transformActionRequest(
       collector.category === 'ValidatedSingleValueCollector' ||
       collector.category === 'ObjectValueCollector' ||
       collector.category === 'SingleValueAutoCollector' ||
-      collector.category === 'ObjectValueAutoCollector',
+      (collector.category === 'ObjectValueAutoCollector' &&
+        // FIDO collectors do not require any formData sent
+        collector.type !== 'FidoAuthenticationCollector' &&
+        collector.type !== 'FidoRegistrationCollector'),
   );
 
+  // While most action events don't have formData to send back to DaVinci,
+  // the MetadataCollector will always return data in the shape of Record<string, unknown>
   const formData = collectors?.reduce<{
     [key: string]: DaVinciRequestValueTypes | Record<string, unknown>;
   }>((acc, collector) => {
@@ -107,7 +112,6 @@ export function transformActionRequest(
   }, {});
 
   logger.debug('Transforming action request', { node, action });
-
   return {
     id: node.server.id || '',
     eventName: node.server.eventName || '',
@@ -116,7 +120,7 @@ export function transformActionRequest(
       eventType: 'action',
       data: {
         actionKey: action || node.client?.action || '',
-        ...(Object.keys(formData ?? {}).length && { formData: formData }),
+        formData: formData ?? {},
       },
     },
   };

@@ -208,9 +208,9 @@ export type CollectorValueType<T> = T extends {
     type: 'PhoneNumberExtensionCollector';
 } ? PhoneNumberExtensionInputValue : T extends {
     type: 'FidoRegistrationCollector';
-} ? FidoRegistrationInputValue : T extends {
+} ? FidoRegistrationInputValue | GenericError : T extends {
     type: 'FidoAuthenticationCollector';
-} ? FidoAuthenticationInputValue : T extends {
+} ? FidoAuthenticationInputValue | GenericError : T extends {
     type: 'MetadataCollector';
 } ? Record<string, unknown> | MetadataError : T extends {
     category: 'SingleValueCollector';
@@ -227,7 +227,7 @@ export type CollectorValueType<T> = T extends {
 } ? never : CollectorValueTypes;
 
 // @public
-export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
+export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
 
 // @public (undocumented)
 export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField | MetadataField;
@@ -290,13 +290,13 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
     getClient: () => {
+        status: "start";
+    } | {
         action: string;
         collectors: Collectors[];
         description?: string;
         name?: string;
         status: "continue";
-    } | {
-        status: "start";
     } | {
         action: string;
         collectors: Collectors[];
@@ -639,7 +639,7 @@ export interface DaVinciRequest {
 }
 
 // @public
-export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError;
+export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
 
 // @public (undocumented)
 export interface DaVinciSuccessResponse extends DaVinciBaseResponse {
@@ -835,7 +835,7 @@ export interface FailureNode {
 }
 
 // @public (undocumented)
-export type FidoAuthenticationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoAuthenticationCollector', FidoAuthenticationInputValue, FidoAuthenticationOutputValue>;
+export type FidoAuthenticationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoAuthenticationCollector', FidoAuthenticationInputValue | GenericError, FidoAuthenticationOutputValue>;
 
 // @public (undocumented)
 export type FidoAuthenticationField = {
@@ -882,8 +882,11 @@ export interface FidoClient {
     register: (options: FidoRegistrationOptions) => Promise<FidoRegistrationInputValue | GenericError>;
 }
 
+// @public
+export type FidoErrorCode = 'NotAllowedError' | 'AbortError' | 'InvalidStateError' | 'NotSupportedError' | 'SecurityError' | 'TimeoutError' | 'UnknownError';
+
 // @public (undocumented)
-export type FidoRegistrationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoRegistrationCollector', FidoRegistrationInputValue, FidoRegistrationOutputValue>;
+export type FidoRegistrationCollector = AutoCollector<'ObjectValueAutoCollector', 'FidoRegistrationCollector', FidoRegistrationInputValue | GenericError, FidoRegistrationOutputValue>;
 
 // @public (undocumented)
 export type FidoRegistrationField = {

@@ -38,6 +38,8 @@ import type {
   StartOptions,
   ThrownQueryError,
 } from './davinci.types.js';
+import type { GenericError } from '@forgerock/sdk-types';
+import type { FidoRegistrationCollector, FidoAuthenticationCollector } from './collector.types.js';
 import type { ContinueNode } from './node.types.js';
 import type { StartNode } from '../types.js';
 
@@ -171,9 +173,29 @@ export const davinciApi = createApi({
           const hasMetadataCollector = state.node.client?.collectors?.some(
             (collector) => collector.type === 'MetadataCollector',
           );
-          requestBody = hasMetadataCollector
-            ? transformActionRequest(state.node, state.node.client?.action, logger)
-            : transformSubmitRequest(state.node, logger);
+          const fidoErrorCollector = state.node.client?.collectors?.find(
+            (
+              collector,
+            ): collector is (FidoRegistrationCollector | FidoAuthenticationCollector) & {
+              input: { value: GenericError };
+            } =>
+              (collector.type === 'FidoRegistrationCollector' ||
+                collector.type === 'FidoAuthenticationCollector') &&
+              'type' in collector.input.value &&
+              collector.input.value.type === 'fido_error',
+          );
+
+          if (hasMetadataCollector) {
+            requestBody = transformActionRequest(state.node, state.node.client?.action, logger);
+          } else if (fidoErrorCollector) {
+            requestBody = transformActionRequest(
+              state.node,
+              String(fidoErrorCollector.input.value.code ?? 'UnknownError'),
+              logger,
+            );
+          } else {
+            requestBody = transformSubmitRequest(state.node, logger);
+          }
         } else {
           requestBody = body;
         }

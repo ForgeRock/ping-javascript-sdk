@@ -20,6 +20,7 @@ import {
   FidoAuthenticationInputValue,
   MetadataError,
 } from './collector.types.js';
+import { GenericError } from '@forgerock/sdk-types';
 
 export interface DaVinciRequest {
   id: string;
@@ -46,7 +47,8 @@ export type DaVinciRequestValueTypes =
   | PhoneNumberInputValue
   | FidoRegistrationInputValue
   | FidoAuthenticationInputValue
-  | MetadataError;
+  | MetadataError
+  | GenericError;
 
 /**
  * Base Response for DaVinci API
