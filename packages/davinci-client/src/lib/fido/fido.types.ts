@@ -46,3 +46,8 @@ export type FidoErrorCode =
   | 'SecurityError'
   | 'TimeoutError'
   | 'UnknownError';
+
+// Re-export necessary FIDO types for package.json `./fido` entry point
+export type { FidoRegistrationInputValue, FidoAuthenticationInputValue };
+export type { FidoRegistrationOptions, FidoAuthenticationOptions };
+export type { AttestationValue, AssertionValue } from '../collector.types.js';
