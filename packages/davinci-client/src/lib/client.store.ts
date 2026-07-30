@@ -25,7 +25,7 @@ import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { wellknownApi, isSdkStoreHandle } from '@forgerock/sdk-store';
+import { wellknownApi, isSdkStoreHandle, INVALID_STORE_MESSAGE } from '@forgerock/sdk-store';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { SdkStore } from '@forgerock/sdk-store';
@@ -92,11 +92,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   });
 
   if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
-    const message =
-      'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
-      'another SDK client, or one created with `createSdkStore()`.';
-    log.error(message);
-    throw new Error(message);
+    log.error(INVALID_STORE_MESSAGE);
+    throw new Error(INVALID_STORE_MESSAGE);
   }
 
   if (!config.serverConfig.wellknown) {

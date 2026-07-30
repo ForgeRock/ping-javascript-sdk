@@ -18,7 +18,12 @@ import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import { isSdkStoreHandle, wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
+import {
+  isSdkStoreHandle,
+  INVALID_STORE_MESSAGE,
+  wellknownApi,
+  wellknownSelector,
+} from '@forgerock/sdk-store';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
@@ -84,9 +89,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
    */
   if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
     return {
-      error:
-        'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
-        'another SDK client, or one created with `createSdkStore()`.',
+      error: INVALID_STORE_MESSAGE,
       type: 'argument_error',
     };
   }
@@ -124,12 +127,13 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
     prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
-  const { store } = createClientStore({
+  const handle = createClientStore({
     requestMiddleware,
     logger: log,
     store: sharedStore,
     clientId: config.clientId,
   });
+  const { store } = handle;
 
   const wellknownUrl = config.serverConfig.wellknown;
   const { data, error } = await store.dispatch(
@@ -155,6 +159,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
 
   return {
+    /** Pass to another SDK client's `store` option to share this store. */
+    store: handle as SdkStore,
     // Pass store methods to the client
     subscribe: store.subscribe,
 
