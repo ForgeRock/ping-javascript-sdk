@@ -12,7 +12,12 @@ export { initWellknownQuery, isValidWellknownResponse } from './lib/wellknown.ef
 
 export { clientExtra } from './lib/store.utils.js';
 
-export { createSdkStore, injectClient, isSdkStoreHandle } from './lib/store.effects.js';
+export {
+  createSdkStore,
+  injectClient,
+  isSdkStoreHandle,
+  INVALID_STORE_MESSAGE,
+} from './lib/store.effects.js';
 export type {
   ClientSlot,
   InjectClientOptions,

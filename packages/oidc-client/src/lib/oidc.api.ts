@@ -56,11 +56,10 @@ const fallbackLogger = loggerFn({ level: 'error' });
  * store would belong to whichever client created it.
  */
 function oidcExtra(extra: unknown): Required<Extras> {
-  const slot = clientExtra<Extras>(extra, OIDC_REDUCER_PATH);
-  return {
-    requestMiddleware: slot.requestMiddleware ?? [],
-    logger: slot.logger ?? fallbackLogger,
-  };
+  return clientExtra(extra, OIDC_REDUCER_PATH, {
+    requestMiddleware: [],
+    logger: fallbackLogger,
+  });
 }
 
 export const oidcApi = createApi({
