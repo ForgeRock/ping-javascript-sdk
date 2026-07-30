@@ -9,7 +9,6 @@ import type { GenerateAndStoreAuthUrlValues } from '@forgerock/sdk-types';
 import { describe, expect, it, beforeEach } from 'vitest';
 import { createAuthorizeUrl } from './authorize.effects.js';
 import { buildAuthorizeParams } from './authorize.utils.js';
-import { getStorageKey } from './state-pkce.effects.js';
 
 const mockSessionStorage = (() => {
   let store: { [key: string]: string } = {};
@@ -46,8 +45,8 @@ describe('createAuthorizeUrl', () => {
   const baseUrl = 'https://auth.example.com/authorize';
 
   it('should create a valid authorization URL with all required parameters', async () => {
-    const url = await createAuthorizeUrl(baseUrl, mockOptions);
-    const parsedUrl = new URL(url);
+    const result = await createAuthorizeUrl(baseUrl, mockOptions);
+    const parsedUrl = new URL(result.url);
 
     // Check the base URL
     expect(parsedUrl.origin + parsedUrl.pathname).toBe(baseUrl);
@@ -68,6 +67,21 @@ describe('createAuthorizeUrl', () => {
     expect(params.code_challenge).toBeDefined();
   });
 
+  it('should return verifier and state alongside the URL', async () => {
+    const result = await createAuthorizeUrl(baseUrl, mockOptions);
+
+    expect(result.verifier).toBeDefined();
+    expect(result.state).toBeDefined();
+    expect(typeof result.verifier).toBe('string');
+    expect(typeof result.state).toBe('string');
+    expect(result.verifier.length).toBeGreaterThan(0);
+    expect(result.state.length).toBeGreaterThan(0);
+
+    // State in URL should match the returned state
+    const parsedUrl = new URL(result.url);
+    expect(parsedUrl.searchParams.get('state')).toBe(result.state);
+  });
+
   it('should include optional parameters when provided', async () => {
     const prompt = 'login';
     const responseMode = 'pi.flow';
@@ -77,8 +91,8 @@ describe('createAuthorizeUrl', () => {
       responseMode,
     };
 
-    const url = await createAuthorizeUrl(baseUrl, optionsWithOptionals);
-    const params = new URL(url).searchParams;
+    const result = await createAuthorizeUrl(baseUrl, optionsWithOptionals);
+    const params = new URL(result.url).searchParams;
 
     expect(params.get('prompt')).toBe(prompt);
     expect(params.get('response_mode')).toBe(responseMode);
@@ -95,8 +109,8 @@ describe('createAuthorizeUrl', () => {
       },
     };
 
-    const url = await createAuthorizeUrl(baseUrl, optionsWithOptionals);
-    const params = new URL(url).searchParams;
+    const result = await createAuthorizeUrl(baseUrl, optionsWithOptionals);
+    const params = new URL(result.url).searchParams;
 
     expect(params.get('queryA')).toBe(queryA);
     expect(params.get('queryB')).toBe(queryB);
@@ -111,8 +125,8 @@ describe('createAuthorizeUrl', () => {
       },
     };
 
-    const url = await createAuthorizeUrl(baseUrl, optionsWithConflict);
-    const params = new URL(url).searchParams;
+    const result = await createAuthorizeUrl(baseUrl, optionsWithConflict);
+    const params = new URL(result.url).searchParams;
 
     // Standard param should override query param
     expect(params.get('client_id')).toBe(mockOptions.clientId);
@@ -120,21 +134,10 @@ describe('createAuthorizeUrl', () => {
     expect(params.get('custom_param')).toBe('value');
   });
 
-  it('should store the authorize options in session storage', async () => {
+  it('should NOT store values in session storage (caller responsibility)', async () => {
     await createAuthorizeUrl(baseUrl, mockOptions);
-    const storageKey = getStorageKey(mockOptions.clientId);
-    const storedData = sessionStorage.getItem(storageKey);
-
-    const parsedOptions = JSON.parse(storedData as string);
-    const serverUrl = new URL(baseUrl).origin;
-
-    expect(storedData).toBeDefined();
-    expect(parsedOptions).toMatchObject({
-      ...mockOptions,
-      serverConfig: { baseUrl: serverUrl },
-    });
-    expect(parsedOptions).toHaveProperty('state');
-    expect(parsedOptions).toHaveProperty('verifier');
+    // createAuthorizeUrl no longer writes to sessionStorage — that's the caller's job
+    expect(sessionStorage.getItem(`FR-SDK-authflow-${mockOptions.clientId}`)).toBeNull();
   });
 });
 
