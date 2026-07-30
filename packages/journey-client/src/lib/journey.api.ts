@@ -108,11 +108,10 @@ const fallbackLogger = loggerFn({ level: 'error' });
  * shared store would belong to whichever client created it.
  */
 function journeyExtra(extra: unknown): Required<Extras> {
-  const slot = clientExtra<Extras>(extra, JOURNEY_REDUCER_PATH);
-  return {
-    requestMiddleware: slot.requestMiddleware ?? [],
-    logger: slot.logger ?? fallbackLogger,
-  };
+  return clientExtra(extra, JOURNEY_REDUCER_PATH, {
+    requestMiddleware: [],
+    logger: fallbackLogger,
+  });
 }
 
 export const journeyApi = createApi({

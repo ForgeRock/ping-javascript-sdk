@@ -6,26 +6,31 @@
  */
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
-import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
-import { createClientStore, createTokenError } from './client.store.utils.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
+import { conflictingClientId, createClientStore, createTokenError } from './client.store.utils.js';
+import { handleMicroExit } from '@forgerock/sdk-utilities';
+import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
-import { sessionCheckIdTokenµ, sessionCheckNoneµ } from './session.micros.js';
-import { isExpiryWithinThreshold } from './token.utils.js';
-import { wellknownApi, wellknownSelector } from './wellknown.api.js';
+import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
+import {
+  isSdkStoreHandle,
+  INVALID_STORE_MESSAGE,
+  wellknownApi,
+  wellknownSelector,
+} from '@forgerock/sdk-store';
 
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { SdkStore } from '@forgerock/sdk-store';
+import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { StorageConfig } from '@forgerock/storage';
 
-import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type {
   GetTokensOptions,
   LogoutErrorResult,
@@ -35,6 +40,7 @@ import type {
   UserInfoResponse,
 } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
+import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 
@@ -56,6 +62,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   requestMiddleware,
   logger,
   storage,
+  store: sharedStore,
 }: {
   config: OidcConfig;
   requestMiddleware?: RequestMiddleware<ActionType>[];
@@ -64,20 +71,28 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
     custom?: CustomLogger;
   };
   storage?: Partial<StorageConfig>;
+  /**
+   * An existing SDK store to attach to, so discovery caching and state are
+   * shared with another client. Omit to create a store for this client alone.
+   */
+  store?: SdkStore;
 }) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
   const oauthThreshold = config.oauthThreshold || 30 * 1000; // Default to 30 seconds
-  const storageClient = createStorage<OauthTokens>({
-    type: storage?.type || 'localStorage',
-    name: storage?.name || config.clientId,
-    prefix: storage?.prefix || 'pic',
-    ...storage,
-  } as StorageConfig);
-  const store = createClientStore({ requestMiddleware, logger: log });
-
+  /**
+   * Validate before touching the store. RTK's `inject` is irreversible, so
+   * mutating a caller-owned store and *then* rejecting the arguments would leave
+   * them permanently carrying a slice from a call that never succeeded.
+   */
+  if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
+    return {
+      error: INVALID_STORE_MESSAGE,
+      type: 'argument_error',
+    };
+  }
   if (!config?.serverConfig?.wellknown) {
     return {
       error: 'Requires a wellknown url initializing this factory.',
@@ -90,6 +105,35 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       type: 'argument_error',
     };
   }
+
+  /**
+   * `oidcApi.reducerPath` is a fixed string, so a second client on the same
+   * store would share one cache slice and clobber the first client's tokens.
+   * Re-initialising the same clientId is fine and stays idempotent.
+   */
+  const conflict = conflictingClientId(sharedStore, config.clientId);
+  if (conflict) {
+    return {
+      error:
+        `This store is already in use by an OIDC client with clientId '${conflict}'. ` +
+        'Use a separate store per clientId.',
+      type: 'argument_error',
+    };
+  }
+
+  const storageClient = createStorage<OauthTokens>({
+    type: storage?.type || 'localStorage',
+    name: storage?.name || config.clientId,
+    prefix: storage?.prefix || 'pic',
+    ...storage,
+  } as StorageConfig);
+  const handle = createClientStore({
+    requestMiddleware,
+    logger: log,
+    store: sharedStore,
+    clientId: config.clientId,
+  });
+  const { store } = handle;
 
   const wellknownUrl = config.serverConfig.wellknown;
   const { data, error } = await store.dispatch(
@@ -115,6 +159,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
 
   return {
+    /** Pass to another SDK client's `store` option to share this store. */
+    store: handle as SdkStore,
     // Pass store methods to the client
     subscribe: store.subscribe,
 

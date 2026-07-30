@@ -59,6 +59,17 @@ export function createSdkStore(): SdkStore {
 }
 
 /**
+ * Human-readable explanation used whenever an argument fails the
+ * {@link isSdkStoreHandle} check.
+ *
+ * Exported so client packages can reference the same string rather than
+ * duplicating it.
+ */
+export const INVALID_STORE_MESSAGE =
+  'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
+  'another SDK client, or one created with `createSdkStore()`.';
+
+/**
  * Narrows an unknown value to a usable store handle.
  *
  * Client factories accept a store from application code, so the value cannot be
@@ -102,10 +113,7 @@ export function injectClient<S extends object = Record<string, unknown>>(
   options: InjectClientOptions,
 ): SdkStoreHandle<S> {
   if (!isSdkStoreHandle(handle)) {
-    throw new Error(
-      'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
-        'another SDK client, or one created with `createSdkStore()`.',
-    );
+    throw new Error(INVALID_STORE_MESSAGE);
   }
 
   const { api, reducerPath, slices = [], requestMiddleware, logger, clientId } = options;

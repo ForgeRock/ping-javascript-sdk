@@ -26,7 +26,7 @@ import { configSlice } from './config.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { nodeSlice } from './node.slice.js';
 import { returnPasswordPolicyValidator } from './password-policy.rules.js';
-import { wellknownApi, isSdkStoreHandle } from '@forgerock/sdk-store';
+import { wellknownApi, isSdkStoreHandle, INVALID_STORE_MESSAGE } from '@forgerock/sdk-store';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
@@ -94,11 +94,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   });
 
   if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
-    const message =
-      'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
-      'another SDK client, or one created with `createSdkStore()`.';
-    log.error(message);
-    throw new Error(message);
+    log.error(INVALID_STORE_MESSAGE);
+    throw new Error(INVALID_STORE_MESSAGE);
   }
 
   if (!config.serverConfig.wellknown) {
