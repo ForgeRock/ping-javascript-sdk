@@ -72,11 +72,10 @@ const fallbackLogger = loggerFn({ level: 'error' });
  * store would belong to whichever client created it.
  */
 function davinciExtra(extra: unknown): Required<Extras> {
-  const slot = clientExtra<Extras>(extra, DAVINCI_REDUCER_PATH);
-  return {
-    requestMiddleware: slot.requestMiddleware ?? [],
-    logger: slot.logger ?? fallbackLogger,
-  };
+  return clientExtra(extra, DAVINCI_REDUCER_PATH, {
+    requestMiddleware: [],
+    logger: fallbackLogger,
+  });
 }
 
 /**
