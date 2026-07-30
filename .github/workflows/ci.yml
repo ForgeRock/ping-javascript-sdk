@@ -201,3 +201,55 @@ jobs:
 
             ---
             <sub>🔄 Updated automatically on each push to this PR</sub>
+
+      - name: Download feature bundle baseline
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: publish.yml
+          branch: main
+          name: bundle-feature-baseline
+          path: e2e/bundle-check-app
+          if_no_artifact_found: warn
+        continue-on-error: true
+
+      - name: Run feature bundle check
+        id: bundle-features
+        run: |
+          pnpm nx nxBundle bundle-check-app --skip-sync --no-agents
+          {
+            echo 'report<<BUNDLE_FEATURE_EOF'
+            cat e2e/bundle-check-app/dist/bundle-feature-report.md
+            echo 'BUNDLE_FEATURE_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Find feature bundle comment
+        id: find-feature-comment
+        uses: peter-evans/find-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: <!-- bundle-feature-check -->
+
+      - name: Create or update feature bundle comment
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          comment-id: ${{ steps.find-feature-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            <!-- bundle-feature-check -->
+            ## Tree-shaken Feature Bundle Sizes
+
+            Minified + gzip level-9 cost of each SDK feature in isolation, as a consumer would receive it.
+
+            ${{ steps.bundle-features.outputs.report }}
+
+            <details>
+            <summary>How these are measured</summary>
+
+            Each fixture imports a single feature and is bundled with Rollup + esbuild + terser (full minification, ESM, tree-shaking on). Numbers reflect what a consumer ships and what their users download, not the raw dist size.
+
+            </details>
+
+            ---
+            <sub>Updated automatically on each push to this PR</sub>
