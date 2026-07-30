@@ -17,6 +17,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
+        'shared-store': path.resolve(__dirname, 'shared-store.html'),
       },
       output: {
         entryFileNames: 'main.js',

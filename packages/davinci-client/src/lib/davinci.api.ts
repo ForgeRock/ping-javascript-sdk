@@ -25,7 +25,8 @@ import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
 
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
+import { clientExtra } from '@forgerock/sdk-store';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
 /**
@@ -47,9 +48,34 @@ type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>
 >;
 
+const DAVINCI_REDUCER_PATH = 'davinci';
+
+/**
+ * This client's private slot on the store's `extraArgument`.
+ *
+ * Both fields are optional because a shared store may not have had a davinci
+ * slot registered yet; `davinciExtra` substitutes safe defaults so an endpoint
+ * can never fail on a missing slot.
+ */
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
-  requestMiddleware: RequestMiddleware<ActionType, Payload>[];
-  logger: ReturnType<typeof loggerFn>;
+  requestMiddleware?: RequestMiddleware<ActionType, Payload>[];
+  logger?: ReturnType<typeof loggerFn>;
+}
+
+/** Fallback so a missing slot degrades to error-level logging, never a crash. */
+const fallbackLogger = loggerFn({ level: 'error' });
+
+/**
+ * Resolves this client's own middleware and logger.
+ *
+ * Reads only the `davinci` slot — never a store-wide value, which on a shared
+ * store would belong to whichever client created it.
+ */
+function davinciExtra(extra: unknown): Required<Extras> {
+  return clientExtra(extra, DAVINCI_REDUCER_PATH, {
+    requestMiddleware: [],
+    logger: fallbackLogger,
+  });
 }
 
 /**
@@ -57,7 +83,7 @@ interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown
  * @see https://redux-toolkit.js.org/rtk-query/overview
  */
 export const davinciApi = createApi({
-  reducerPath: 'davinci',
+  reducerPath: DAVINCI_REDUCER_PATH,
   // TODO: implement extraOptions for request interceptors: https://stackoverflow.com/a/77569083 & https://stackoverflow.com/a/65129117
   baseQuery: fetchBaseQuery({
     prepareHeaders: (headers) => {
@@ -81,9 +107,9 @@ export const davinciApi = createApi({
         const requestBody = transformActionRequest(
           state.node,
           params.action,
-          (api.extra as Extras).logger,
+          davinciExtra(api.extra).logger,
         );
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = davinciExtra(api.extra);
 
         let href = '';
 
@@ -126,7 +152,7 @@ export const davinciApi = createApi({
        * parameters are pre-typed from the library.
        */
       async onQueryStarted(_, api) {
-        const logger = (api.extra as Extras).logger;
+        const { logger } = davinciExtra(api.extra);
         let response;
 
         try {
@@ -160,7 +186,7 @@ export const davinciApi = createApi({
       async queryFn(body, api, __, baseQuery) {
         const state = api.getState() as RootStateWithNode<ContinueNode>;
         const links = state.node.server._links;
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = davinciExtra(api.extra);
 
         let requestBody;
         let href = '';
@@ -237,7 +263,7 @@ export const davinciApi = createApi({
        * parameters are pre-typed from the library.
        */
       async onQueryStarted(_, api) {
-        const logger = (api.extra as Extras).logger;
+        const { logger } = davinciExtra(api.extra);
         let response;
 
         try {
@@ -270,7 +296,7 @@ export const davinciApi = createApi({
        * @method queryFn - This is just a wrapper around the fetch call
        */
       async queryFn(options, api, __, baseQuery) {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = davinciExtra(api.extra);
         const state = api.getState() as RootStateWithNode<StartNode>;
 
         if (!state) {
@@ -352,7 +378,7 @@ export const davinciApi = createApi({
        * parameters are pre-typed from the library.
        */
       async onQueryStarted(_, api) {
-        const logger = (api.extra as Extras).logger;
+        const { logger } = davinciExtra(api.extra);
         let response;
 
         try {
@@ -381,7 +407,7 @@ export const davinciApi = createApi({
      */
     resume: builder.query<unknown, { serverInfo: ContinueNode['server']; continueToken: string }>({
       async queryFn({ serverInfo, continueToken }, api, _c, baseQuery) {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = davinciExtra(api.extra);
         const links = serverInfo._links;
 
         if (!continueToken) {
@@ -430,7 +456,7 @@ export const davinciApi = createApi({
         return response;
       },
       async onQueryStarted(_, api) {
-        const logger = (api.extra as Extras).logger;
+        const { logger } = davinciExtra(api.extra);
         let response;
 
         try {
@@ -464,7 +490,7 @@ export const davinciApi = createApi({
      */
     poll: builder.mutation<unknown, { endpoint: string; interactionId: string }>({
       async queryFn({ endpoint, interactionId }, api, _c, baseQuery) {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = davinciExtra(api.extra);
 
         const request: FetchArgs = {
           url: endpoint,

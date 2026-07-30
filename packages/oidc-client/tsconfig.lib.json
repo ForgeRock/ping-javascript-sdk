@@ -39,6 +39,9 @@
     },
     {
       "path": "../sdk-effects/iframe-manager/tsconfig.lib.json"
+    },
+    {
+      "path": "../sdk-effects/store/tsconfig.lib.json"
     }
   ],
   "exclude": [

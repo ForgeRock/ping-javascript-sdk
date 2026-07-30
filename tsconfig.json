@@ -84,6 +84,9 @@
     },
     {
       "path": "./tools/api-report"
+    },
+    {
+      "path": "./packages/sdk-effects/store"
     }
   ]
 }
