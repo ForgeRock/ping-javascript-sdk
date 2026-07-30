@@ -17,5 +17,8 @@
   "main": "src/index.js",
   "nx": {
     "implicitDependencies": ["@forgerock/journey-app", "@forgerock/mock-api-v2"]
+  },
+  "dependencies": {
+    "@forgerock/e2e-shared": "workspace:*"
   }
 }
