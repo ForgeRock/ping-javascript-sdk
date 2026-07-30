@@ -24,7 +24,7 @@ import { createStorage } from '@forgerock/storage';
 import * as Either from 'effect/Either';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
 import type { JourneyResult } from './journey.utils.js';
-import { wellknownApi, isSdkStoreHandle } from '@forgerock/sdk-store';
+import { wellknownApi, isSdkStoreHandle, INVALID_STORE_MESSAGE } from '@forgerock/sdk-store';
 
 import type { JourneyStep } from './step.utils.js';
 import type { JourneyClientConfig } from './config.types.js';
@@ -122,11 +122,8 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
   }
 
   if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
-    const message =
-      'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
-      'another SDK client, or one created with `createSdkStore()`.';
-    log.error(message);
-    throw new Error(message);
+    log.error(INVALID_STORE_MESSAGE);
+    throw new Error(INVALID_STORE_MESSAGE);
   }
 
   const { wellknown } = config.serverConfig;
