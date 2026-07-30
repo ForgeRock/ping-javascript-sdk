@@ -27,3 +27,6 @@ export { createClientStore } from './lib/client.store.utils.js';
 // Referenced by createClientStore's return type, so consumers need the names.
 export type { OidcRootState } from './lib/client.store.utils.js';
 export { rootReducer } from './lib/client.store.utils.js';
+
+import { oidc } from './lib/client.store.js';
+export type OidcClient = Awaited<ReturnType<typeof oidc>>;

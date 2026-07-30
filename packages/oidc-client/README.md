@@ -55,7 +55,7 @@ The `oidc()` initialization function accepts the following configuration:
   - **wellknown** (required) - URL to the OIDC provider's well-known configuration endpoint
 - **clientId** (required) - Your application's client ID registered with the OIDC provider
 - **redirectUri** (required) - The URI where the OIDC provider will redirect after authentication
-- **scope** (required) - Space-separated list of requested scopes (e.g., `'openid profile email'`)
+- **scope** (optional, default: `'openid'`) - Space-separated list of requested scopes (e.g., `'openid profile email'`)
 - **storage** (optional) - Storage configuration for tokens (defaults to localStorage)
 - **timeout** (optional) - Request timeout in milliseconds
 - **additionalParameters** (optional) - Additional parameters to include in authorization requests
@@ -392,7 +392,7 @@ const tokens = await oidcClient.token.get({
 if ('error' in tokens) {
   console.error('Failed to retrieve tokens:', tokens.error);
 } else {
-  console.log('Access token:', tokens.access_token);
+  console.log('Access token:', tokens.accessToken);
 }
 ```
 

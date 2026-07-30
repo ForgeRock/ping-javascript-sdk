@@ -117,12 +117,13 @@ const client = await journey({
   config: JourneyClientConfig,
   requestMiddleware?: RequestMiddleware[],
   logger?: { level: LogLevel; custom?: CustomLogger },
+  store?: SdkStore,
 });
 ```
 
 **Returns**: `Promise<JourneyClient>`
 
-**Throws**: `Error` if the wellknown URL is invalid, the fetch fails, or the server is not a ForgeRock AM instance.
+**Throws**: `Error` if the wellknown URL is invalid, the fetch fails, or the server is not a ForgeRock AM instance. Throws if the `store` argument is provided but is not a valid `SdkStore` handle.
 
 ```typescript
 try {
