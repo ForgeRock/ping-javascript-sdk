@@ -112,6 +112,146 @@ The endpoint never throws. A network failure, a non-2xx response, or a payload m
 
 ## API Reference
 
+### `createSdkStore()`
+
+```typescript
+function createSdkStore(): SdkStore;
+```
+
+Creates a Redux store that SDK clients can share. The well-known discovery slice is mounted up front; all other slices are injected lazily via `injectClient()`. Applications may call this directly when they want to own the store's lifetime; otherwise each client factory creates one on demand.
+
+### `injectClient<S>(handle, options)`
+
+```typescript
+function injectClient<S extends object = Record<string, unknown>>(
+  handle: SdkStore,
+  options: InjectClientOptions,
+): SdkStoreHandle<S>;
+```
+
+Attaches a client to an existing store: mounts its RTK Query API reducer and middleware, injects any additional slices, and registers the client's private configuration slot. Safe to call multiple times for the same client — RTK deduplicates reducer injection. Throws `Error` (using `INVALID_STORE_MESSAGE`) if `handle` is not a valid SDK store handle.
+
+### `isSdkStoreHandle(value)`
+
+```typescript
+function isSdkStoreHandle(value: unknown): value is SdkStore;
+```
+
+Type guard. Returns `true` when `value` structurally matches a valid SDK store handle (i.e. it was produced by `createSdkStore()` or returned by a client factory). Used by client factories to validate caller-supplied `store` arguments before touching the store.
+
+### `INVALID_STORE_MESSAGE`
+
+```typescript
+const INVALID_STORE_MESSAGE: string;
+```
+
+Human-readable error message emitted whenever an argument fails the `isSdkStoreHandle()` check. Exported so every client package references the same string rather than duplicating it.
+
+### `clientExtra<Slot>(extra, reducerPath, defaults?)`
+
+```typescript
+function clientExtra<Slot extends object>(
+  extra: unknown,
+  reducerPath: string,
+  defaults?: Partial<Slot>,
+): Slot;
+```
+
+Resolves the calling client's own per-client slot from a store's thunk `extraArgument`. Runs on every request and never throws — an unrecognised `extra` yields `defaults` (or `{}`) instead of an error. When `defaults` are supplied, any slot key that is absent or `undefined` is filled from `defaults`.
+
+### `initWellknownQuery(url)`
+
+```typescript
+function initWellknownQuery(url: string): {
+  applyQuery(callback: QueryCallback): Promise<WellknownQueryResult<WellknownResponse>>;
+};
+```
+
+Creates a well-known query builder for use inside an RTK Query `queryFn`. Constructs the fetch request (with `Accept: application/json`), executes it through the provided `callback`, and validates the response via `isValidWellknownResponse`. Network failures and invalid responses are both normalised to a structured `WellknownQueryError`.
+
+```typescript
+queryFn: async (url, _api, _extra, baseQuery) => {
+  return initWellknownQuery(url).applyQuery(async (req) => await baseQuery(req));
+};
+```
+
+### `isValidWellknownResponse(data)`
+
+```typescript
+function isValidWellknownResponse(data: unknown): data is WellknownResponse;
+```
+
+Returns `true` when `data` contains the minimum required OIDC well-known fields: `issuer`, `authorization_endpoint`, and `token_endpoint` (all strings).
+
+### Types
+
+#### `SdkStore`
+
+```typescript
+interface SdkStore {
+  readonly store: {
+    getState: () => unknown;
+    dispatch: (action: never) => unknown;
+    subscribe: (listener: () => void) => () => void;
+  };
+  readonly rootReducer: InjectableRootReducer;
+  readonly dynamicMiddleware: DynamicMiddleware;
+  readonly extra: SdkStoreRegistry;
+}
+```
+
+State-agnostic shared Redux store contract. This is the type that travels between client packages: `davinci()` and `journey()` expose one as `client.store`; `oidc()` and `journey()` accept one as the `store` option.
+
+#### `SdkStoreHandle<S>`
+
+```typescript
+interface SdkStoreHandle<S extends object = Record<string, unknown>> extends SdkStore {
+  readonly store: Store<S, UnknownAction> & {
+    dispatch: ThunkDispatch<S, SdkStoreRegistry, UnknownAction>;
+  };
+  readonly rootReducer: InjectableRootReducer & Reducer<S>;
+}
+```
+
+Store handle with a known state shape `S`. Returned by each client's own store factory so internal code gets full typing on `getState()` and `dispatch()`. Assignable to `SdkStore` for hand-off to another client.
+
+#### `SdkStoreRegistry`
+
+```typescript
+interface SdkStoreRegistry {
+  readonly clients: Record<string, ClientSlot>;
+}
+```
+
+The mutable client registry carried as the store's `extraArgument`. `configureStore` captures this by reference, so slots added after store creation are visible to every subsequent request.
+
+#### `ClientSlot`
+
+```typescript
+interface ClientSlot {
+  readonly requestMiddleware?: readonly unknown[];
+  readonly logger?: unknown;
+  readonly clientId?: string;
+}
+```
+
+Per-client slot on a store's thunk `extraArgument`. Intentionally loose so `sdk-store` does not depend on `sdk-request-middleware` or `sdk-logger` types. Each client narrows this to its own concrete shape at the point of use.
+
+#### `InjectClientOptions`
+
+```typescript
+interface InjectClientOptions {
+  readonly api: { reducerPath: string; reducer: Reducer; middleware: Middleware };
+  readonly reducerPath: string;
+  readonly slices?: readonly { name: string; reducer: Reducer }[];
+  readonly requestMiddleware?: readonly unknown[];
+  readonly logger?: unknown;
+  readonly clientId?: string;
+}
+```
+
+Options passed to `injectClient()` describing the client attaching itself to a store. `api` provides the RTK Query API (its reducer and middleware are both mounted). `slices` lists any additional Redux slices the client owns. `reducerPath` is used as the registry key — normally matches `api.reducerPath`.
+
 ### `wellknownApi`
 
 The canonical RTK Query API instance. `reducerPath` is `'wellknown'`.
