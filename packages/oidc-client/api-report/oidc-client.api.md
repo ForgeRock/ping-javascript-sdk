@@ -168,25 +168,21 @@ export interface OauthTokens {
 }
 
 // @public
-export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
-  config: OidcConfig;
-  requestMiddleware?: RequestMiddleware<ActionType>[];
-  logger?: {
-    level: LogLevel;
-    custom?: CustomLogger;
-  };
-  storage?: Partial<StorageConfig>;
-  store?: SdkStore;
-}): Promise<
+export function oidc<ActionType extends ActionTypes = ActionTypes>(
+  raw: RawOidcArgs<ActionType>,
+): Promise<
+  | GenericError
   | {
       error: string;
       type: string;
+      store?: undefined;
       subscribe?: undefined;
       authorize?: undefined;
       token?: undefined;
       user?: undefined;
     }
   | {
+      store: SdkStore;
       subscribe: (listener: () => void) => Unsubscribe;
       authorize: {
         url: (options?: GetAuthorizationUrlOptions) => Promise<string | GenericError>;
@@ -234,6 +230,18 @@ export interface PushAuthorizationResponse {
   request_uri: string;
 }
 
+// @public
+export type RawOidcArgs<ActionType extends ActionTypes = ActionTypes> = {
+  config: OidcConfig;
+  requestMiddleware?: RequestMiddleware<ActionType>[];
+  logger?: {
+    level: LogLevel;
+    custom?: CustomLogger;
+  };
+  storage?: Partial<StorageConfig>;
+  store?: unknown;
+};
+
 export { RequestMiddleware };
 
 export { ResponseType_2 as ResponseType };
@@ -251,8 +259,387 @@ export type RevokeSuccessResult = {
   deleteResponse: null;
 };
 
-// @public (undocumented)
-export type OidcRootState = ReturnType<typeof rootReducer>;
+// @public
+export const rootReducer: CombinedSliceReducer<
+  {
+    oidc: CombinedState<
+      {
+        authorizeFetch: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          AuthorizeSuccessResponse,
+          'oidc',
+          unknown
+        >;
+        par: MutationDefinition<
+          {
+            endpoint: string;
+            body: URLSearchParams;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          PushAuthorizationResponse,
+          'oidc',
+          unknown
+        >;
+        sessionCheckIframe: MutationDefinition<
+          {
+            url: string;
+            responseType: SessionCheckResponseType;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          {
+            params: Record<string, string>;
+          },
+          'oidc',
+          unknown
+        >;
+        sessionCheckFetch: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          {
+            status: 204;
+          },
+          'oidc',
+          unknown
+        >;
+        authorizeIframe: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          AuthorizationSuccess,
+          'oidc',
+          unknown
+        >;
+        endSession: MutationDefinition<
+          {
+            idToken: string;
+            endpoint: string;
+            signOutRedirectUri?: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          null,
+          'oidc',
+          unknown
+        >;
+        exchange: MutationDefinition<
+          {
+            code: string;
+            config: OidcConfig;
+            endpoint: string;
+            verifier?: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          TokenExchangeResponse,
+          'oidc',
+          unknown
+        >;
+        revoke: MutationDefinition<
+          {
+            accessToken: string;
+            clientId?: string;
+            endpoint: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          object,
+          'oidc',
+          unknown
+        >;
+        userInfo: MutationDefinition<
+          {
+            accessToken: string;
+            endpoint: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          UserInfoResponse,
+          'oidc',
+          unknown
+        >;
+      },
+      never,
+      'oidc'
+    >;
+    wellknown: CombinedState<
+      {
+        configuration: QueryDefinition<
+          string,
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          WellknownResponse,
+          'wellknown',
+          unknown
+        >;
+      },
+      never,
+      'wellknown'
+    >;
+  },
+  {
+    oidc: CombinedState<
+      {
+        authorizeFetch: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          AuthorizeSuccessResponse,
+          'oidc',
+          unknown
+        >;
+        par: MutationDefinition<
+          {
+            endpoint: string;
+            body: URLSearchParams;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          PushAuthorizationResponse,
+          'oidc',
+          unknown
+        >;
+        sessionCheckIframe: MutationDefinition<
+          {
+            url: string;
+            responseType: SessionCheckResponseType;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          {
+            params: Record<string, string>;
+          },
+          'oidc',
+          unknown
+        >;
+        sessionCheckFetch: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          {
+            status: 204;
+          },
+          'oidc',
+          unknown
+        >;
+        authorizeIframe: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          AuthorizationSuccess,
+          'oidc',
+          unknown
+        >;
+        endSession: MutationDefinition<
+          {
+            idToken: string;
+            endpoint: string;
+            signOutRedirectUri?: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          null,
+          'oidc',
+          unknown
+        >;
+        exchange: MutationDefinition<
+          {
+            code: string;
+            config: OidcConfig;
+            endpoint: string;
+            verifier?: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          TokenExchangeResponse,
+          'oidc',
+          unknown
+        >;
+        revoke: MutationDefinition<
+          {
+            accessToken: string;
+            clientId?: string;
+            endpoint: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          object,
+          'oidc',
+          unknown
+        >;
+        userInfo: MutationDefinition<
+          {
+            accessToken: string;
+            endpoint: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          UserInfoResponse,
+          'oidc',
+          unknown
+        >;
+      },
+      never,
+      'oidc'
+    >;
+    wellknown: CombinedState<
+      {
+        configuration: QueryDefinition<
+          string,
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          WellknownResponse,
+          'wellknown',
+          unknown
+        >;
+      },
+      never,
+      'wellknown'
+    >;
+  },
+  Partial<{
+    oidc: CombinedState<
+      {
+        authorizeFetch: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          AuthorizeSuccessResponse,
+          'oidc',
+          unknown
+        >;
+        par: MutationDefinition<
+          {
+            endpoint: string;
+            body: URLSearchParams;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          PushAuthorizationResponse,
+          'oidc',
+          unknown
+        >;
+        sessionCheckIframe: MutationDefinition<
+          {
+            url: string;
+            responseType: SessionCheckResponseType;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          {
+            params: Record<string, string>;
+          },
+          'oidc',
+          unknown
+        >;
+        sessionCheckFetch: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          {
+            status: 204;
+          },
+          'oidc',
+          unknown
+        >;
+        authorizeIframe: MutationDefinition<
+          {
+            url: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          AuthorizationSuccess,
+          'oidc',
+          unknown
+        >;
+        endSession: MutationDefinition<
+          {
+            idToken: string;
+            endpoint: string;
+            signOutRedirectUri?: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          null,
+          'oidc',
+          unknown
+        >;
+        exchange: MutationDefinition<
+          {
+            code: string;
+            config: OidcConfig;
+            endpoint: string;
+            verifier?: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          TokenExchangeResponse,
+          'oidc',
+          unknown
+        >;
+        revoke: MutationDefinition<
+          {
+            accessToken: string;
+            clientId?: string;
+            endpoint: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          object,
+          'oidc',
+          unknown
+        >;
+        userInfo: MutationDefinition<
+          {
+            accessToken: string;
+            endpoint: string;
+          },
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          UserInfoResponse,
+          'oidc',
+          unknown
+        >;
+      },
+      never,
+      'oidc'
+    >;
+    wellknown: CombinedState<
+      {
+        configuration: QueryDefinition<
+          string,
+          BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
+          never,
+          WellknownResponse,
+          'wellknown',
+          unknown
+        >;
+      },
+      never,
+      'wellknown'
+    >;
+  }>
+>;
 
 // @public (undocumented)
 export type RootState = ReturnType<ClientStore['getState']>;
