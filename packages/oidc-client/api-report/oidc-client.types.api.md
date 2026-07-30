@@ -169,23 +169,16 @@ export interface OauthTokens {
 }
 
 // @public
-export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
-    config: OidcConfig;
-    requestMiddleware?: RequestMiddleware<ActionType>[];
-    logger?: {
-        level: LogLevel;
-        custom?: CustomLogger;
-    };
-    storage?: Partial<StorageConfig>;
-    store?: SdkStore;
-}): Promise<{
+export function oidc<ActionType extends ActionTypes = ActionTypes>(raw: RawOidcArgs<ActionType>): Promise<GenericError | {
     error: string;
     type: string;
+    store?: undefined;
     subscribe?: undefined;
     authorize?: undefined;
     token?: undefined;
     user?: undefined;
 } | {
+    store: SdkStore;
     subscribe: (listener: () => void) => Unsubscribe;
     authorize: {
         url: (options?: GetAuthorizationUrlOptions) => Promise<string | GenericError>;
@@ -223,6 +216,18 @@ export interface PushAuthorizationResponse {
     // (undocumented)
     request_uri: string;
 }
+
+// @public
+export type RawOidcArgs<ActionType extends ActionTypes = ActionTypes> = {
+    config: OidcConfig;
+    requestMiddleware?: RequestMiddleware<ActionType>[];
+    logger?: {
+        level: LogLevel;
+        custom?: CustomLogger;
+    };
+    storage?: Partial<StorageConfig>;
+    store?: unknown;
+};
 
 export { RequestMiddleware }
 
