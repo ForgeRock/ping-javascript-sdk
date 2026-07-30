@@ -5,20 +5,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { CustomLogger } from '@forgerock/sdk-logger';
-import type { GenericError, LogLevel } from '@forgerock/sdk-types';
+import type { GenericError } from '@forgerock/sdk-types';
 import type {
   FidoRegistrationInputValue,
   FidoAuthenticationInputValue,
 } from '../collector.types.js';
 import type { FidoRegistrationOptions, FidoAuthenticationOptions } from '../davinci.types.js';
-
-export interface FidoClientConfig {
-  logger?: {
-    level?: LogLevel;
-    custom?: CustomLogger;
-  };
-}
 
 export interface FidoClient {
   /**

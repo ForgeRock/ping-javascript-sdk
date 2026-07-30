@@ -7,11 +7,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fido } from './fido.js';
 
-import type { FidoClientConfig } from './fido.js';
 import type { FidoRegistrationOptions, FidoAuthenticationOptions } from '../davinci.types';
 import type { GenericError } from '@forgerock/sdk-types';
-
-const silentConfig: FidoClientConfig = { logger: { level: 'none' } };
 
 const mockRegistrationOptions: FidoRegistrationOptions = {
   rp: { id: 'test.example.com', name: 'Test RP' },
@@ -61,7 +58,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -81,7 +78,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -102,7 +99,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -123,7 +120,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -144,7 +141,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -163,7 +160,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -182,7 +179,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -201,7 +198,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -231,7 +228,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(false);
@@ -250,7 +247,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -270,7 +267,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -289,7 +286,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -310,7 +307,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -331,7 +328,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -350,7 +347,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -369,7 +366,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -388,7 +385,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(true);
@@ -420,7 +417,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.authenticate(mockAuthenticationOptions);
 
       expect(isGenericError(result)).toBe(false);
@@ -439,7 +436,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       if ('error' in result) {
@@ -462,7 +459,7 @@ describe('fido', () => {
         configurable: true,
       });
 
-      const fidoClient = fido(silentConfig);
+      const fidoClient = fido();
       const result = await fidoClient.register(mockRegistrationOptions);
 
       expect(isGenericError(result)).toBe(true);

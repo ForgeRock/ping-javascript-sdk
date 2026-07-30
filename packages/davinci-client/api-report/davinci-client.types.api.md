@@ -12,7 +12,6 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
-import type { LogLevel as LogLevel_2 } from '@forgerock/sdk-types';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
@@ -286,11 +285,13 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     resume: (input: {
         continueToken: string;
     }) => Promise<InternalErrorResponse | NodeStates>;
-    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
+    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode>;
     update: <T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
     getClient: () => {
+        status: "start";
+    } | {
         action: string;
         collectors: Collectors[];
         description?: string;
@@ -303,20 +304,18 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         name?: string;
         status: "error";
     } | {
-        status: "failure";
-    } | {
-        status: "start";
-    } | {
         authorization?: {
             code?: string;
             state?: string;
         };
         status: "success";
+    } | {
+        status: "failure";
     } | null;
     getCollectors: () => Collectors[];
     getError: () => DaVinciError | null;
     getErrorCollectors: () => CollectorErrors[];
-    getNode: () => ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode;
+    getNode: () => ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
     getServer: () => {
         _links?: Links;
         id?: string;
@@ -326,6 +325,8 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         eventName?: string;
         status: "continue";
     } | {
+        status: "start";
+    } | {
         _links?: Links;
         eventName?: string;
         id?: string;
@@ -335,22 +336,20 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     } | {
         _links?: Links;
         eventName?: string;
-        href?: string;
-        id?: string;
-        interactionId?: string;
-        interactionToken?: string;
-        status: "failure";
-    } | {
-        status: "start";
-    } | {
-        _links?: Links;
-        eventName?: string;
         id?: string;
         interactionId?: string;
         interactionToken?: string;
         href?: string;
         session?: string;
         status: "success";
+    } | {
+        _links?: Links;
+        eventName?: string;
+        href?: string;
+        id?: string;
+        interactionId?: string;
+        interactionToken?: string;
+        status: "failure";
     } | null;
     cache: {
         getLatestResponse: () => ({
@@ -881,15 +880,6 @@ export interface FidoAuthenticationOutputValue {
 export interface FidoClient {
     authenticate: (options: FidoAuthenticationOptions) => Promise<FidoAuthenticationInputValue | GenericError>;
     register: (options: FidoRegistrationOptions) => Promise<FidoRegistrationInputValue | GenericError>;
-}
-
-// @public (undocumented)
-export interface FidoClientConfig {
-    // (undocumented)
-    logger?: {
-        level?: LogLevel_2;
-        custom?: CustomLogger;
-    };
 }
 
 // @public

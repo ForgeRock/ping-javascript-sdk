@@ -7,7 +7,6 @@
 import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
-import { logger as loggerFn } from '@forgerock/sdk-logger';
 import {
   toFidoErrorCode,
   createFidoError,
@@ -18,9 +17,7 @@ import {
 } from './fido.utils.js';
 
 import type { GenericError } from '@forgerock/sdk-types';
-import type { FidoClient, FidoClientConfig } from './fido.types.js';
-
-export type { FidoClientConfig };
+import type { FidoClient } from './fido.types.js';
 import type {
   FidoAuthenticationInputValue,
   FidoRegistrationInputValue,
@@ -31,12 +28,9 @@ import type { FidoAuthenticationOptions, FidoRegistrationOptions } from '../davi
  * A client function that returns a set of methods for transforming DaVinci data and
  * interacting with the WebAuthn API for registration and authentication
  * @function fido
- * @param { FidoClientConfig } [config] - Optional configuration for the FIDO client
  * @returns {FidoClient} - A set of methods for FIDO registration and authentication
  */
-export function fido(config?: FidoClientConfig): FidoClient {
-  const log = loggerFn({ level: config?.logger?.level ?? 'error', custom: config?.logger?.custom });
-
+export function fido(): FidoClient {
   return {
     /**
      * Call WebAuthn API to create keypair and get public key credential
@@ -61,7 +55,7 @@ export function fido(config?: FidoClientConfig): FidoClient {
               }),
             catch: (error) => {
               const code = toFidoErrorCode(error);
-              log.error('Failed to create keypair: ', code);
+              console.error('Failed to create keypair: ', code);
               return createFidoError(
                 code,
                 'registration_error',
@@ -118,7 +112,7 @@ export function fido(config?: FidoClientConfig): FidoClient {
               }),
             catch: (error) => {
               const code = toFidoErrorCode(error);
-              log.error('Failed to authenticate: ', code);
+              console.error('Failed to authenticate: ', code);
               return createFidoError(
                 code,
                 'authentication_error',
