@@ -22,6 +22,7 @@ import { NameCallback } from './name-callback.js';
 import { PasswordCallback } from './password-callback.js';
 import { PingOneProtectEvaluationCallback } from './ping-protect-evaluation-callback.js';
 import { PingOneProtectInitializeCallback } from './ping-protect-initialize-callback.js';
+import { PingOneRecognizeCallback } from './ping-one-recognize-callback.js';
 import { PollingWaitCallback } from './polling-wait-callback.js';
 import { ReCaptchaCallback } from './recaptcha-callback.js';
 import { ReCaptchaEnterpriseCallback } from './recaptcha-enterprise-callback.js';
@@ -65,6 +66,8 @@ export function createCallback(callback: Callback): BaseCallback {
       return new PingOneProtectEvaluationCallback(callback);
     case callbackType.PingOneProtectInitializeCallback:
       return new PingOneProtectInitializeCallback(callback);
+    case callbackType.PingOneRecognizeCallback:
+      return new PingOneRecognizeCallback(callback);
     case callbackType.PollingWaitCallback:
       return new PollingWaitCallback(callback);
     case callbackType.ReCaptchaCallback:
