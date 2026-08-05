@@ -311,6 +311,10 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     } | {
         status: "start";
     } | {
+        status: "failure";
+    } | {
+        status: "start";
+    } | {
         authorization?: {
             code?: string;
             state?: string;

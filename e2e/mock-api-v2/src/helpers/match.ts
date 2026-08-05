@@ -6,7 +6,7 @@
  */
 import { Effect, Match, Schema } from 'effect';
 
-import { HttpApiError } from '@effect/platform';
+import { HttpApiError } from 'effect/unstable/httpapi';
 import { CapabilitiesRequestBody } from '../schemas/capabilities/capabilities.request.schema.js';
 
 type PingRequestData = Schema.Schema.Type<typeof CapabilitiesRequestBody>;
@@ -21,13 +21,11 @@ const validator = Match.type<PingRequestData>().pipe(
   Match.when(
     { parameters: { data: { formData: { username: Match.string, password: Match.string } } } },
     ({ parameters }) =>
-      Effect.if(
+      Effect.suspend(() =>
         parameters.data.formData.username == 'testuser' &&
-          parameters.data.formData.password === 'Password',
-        {
-          onFalse: () => Effect.fail(new HttpApiError.Unauthorized()),
-          onTrue: () => Effect.succeed(true),
-        },
+        parameters.data.formData.password === 'Password'
+          ? Effect.succeed(true)
+          : Effect.fail(new HttpApiError.Unauthorized()),
       ),
   ),
   Match.orElse(() => Effect.succeed(true)),

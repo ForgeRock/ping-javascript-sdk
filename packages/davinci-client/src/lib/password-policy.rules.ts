@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Array as Arr, Option, pipe } from 'effect';
+import { Array as Arr, Result, pipe } from 'effect';
 
 import type { ValidatedPasswordCollector } from './collector.types.js';
 import type { PasswordPolicy } from './davinci.types.js';
@@ -66,8 +66,8 @@ const minCharactersRule: PasswordPolicyRule = (policy, value) => {
       let hits = 0;
       for (const ch of value) if (members.has(ch)) hits += 1;
       return hits < min
-        ? Option.some(`Password must contain at least ${min} character(s) from "${charset}"`)
-        : Option.none();
+        ? Result.succeed(`Password must contain at least ${min} character(s) from "${charset}"`)
+        : Result.failVoid;
     }),
   );
 };
