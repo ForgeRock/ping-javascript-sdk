@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { it, expect } from '@effect/vitest';
-import { Micro } from 'effect';
+import { Cause, Effect, Exit, Option } from 'effect';
 import { vi, afterEach, describe } from 'vitest';
 import * as sdkUtilities from '@forgerock/sdk-utilities';
 
@@ -181,32 +181,32 @@ describe('buildIdTokenUrl', () => {
 // ─── sessionCheckNoneµ (iframe path — with redirect_uri) ──────────────────────
 
 it.effect('sessionCheckNoneµ uses iframe path and succeeds when redirect_uri is configured', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const { store, dispatch } = makeDispatchSetup({ data: { params: {} } });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckNoneµ(wellknown, config, store, makeStorageClient(storedTokens), log),
     );
 
-    expect(Micro.exitIsSuccess(exit)).toBe(true);
+    expect(Exit.isSuccess(exit)).toBe(true);
     expect(dispatch).toHaveBeenCalledOnce();
   }),
 );
 
 it.effect('sessionCheckNoneµ iframe path fails with no_id_token_hint when storage is empty', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const { store, dispatch } = makeDispatchSetup({ data: { params: {} } });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckNoneµ(wellknown, config, store, makeStorageClient(null), log),
     );
 
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('no_id_token_hint');
-    expect(exit.cause.error.type).toBe('argument_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('no_id_token_hint');
+    expect(errorOpt.value.type).toBe('argument_error');
     expect(dispatch).not.toHaveBeenCalled();
   }),
 );
@@ -214,11 +214,11 @@ it.effect('sessionCheckNoneµ iframe path fails with no_id_token_hint when stora
 // ─── sessionCheckNoneµ (fetch path — without redirect_uri) ───────────────────
 
 it.effect('sessionCheckNoneµ uses fetch path and succeeds when no redirect_uri is configured', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
     const { store, dispatch } = makeFetchDispatchSetup({ data: { status: 204 } });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckNoneµ(
         wellknown,
         configWithoutRedirectUri,
@@ -228,36 +228,34 @@ it.effect('sessionCheckNoneµ uses fetch path and succeeds when no redirect_uri 
       ),
     );
 
-    expect(Micro.exitIsSuccess(exit)).toBe(true);
-    if (!Micro.exitIsSuccess(exit)) {
-      return;
-    }
+    expect(Exit.isSuccess(exit)).toBe(true);
+    if (!Exit.isSuccess(exit)) return;
     expect(exit.value).toStrictEqual({ responseType: 'none' });
     expect(dispatch).toHaveBeenCalledOnce();
   }),
 );
 
 it.effect('sessionCheckNoneµ fetch path fails with no_id_token_hint when storage is empty', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
     const { store, dispatch } = makeFetchDispatchSetup({ data: { status: 204 } });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckNoneµ(wellknown, configWithoutRedirectUri, store, makeStorageClient(null), log),
     );
 
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('no_id_token_hint');
-    expect(exit.cause.error.type).toBe('argument_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('no_id_token_hint');
+    expect(errorOpt.value.type).toBe('argument_error');
     expect(dispatch).not.toHaveBeenCalled();
   }),
 );
 
 it.effect('sessionCheckNoneµ fetch path fails with login_required when AM returns 400', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
     const errorData: GenericError = {
       error: 'login_required',
@@ -266,7 +264,7 @@ it.effect('sessionCheckNoneµ fetch path fails with login_required when AM retur
     };
     const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckNoneµ(
         wellknown,
         configWithoutRedirectUri,
@@ -276,26 +274,26 @@ it.effect('sessionCheckNoneµ fetch path fails with login_required when AM retur
       ),
     );
 
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('login_required');
-    expect(exit.cause.error.type).toBe('auth_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('login_required');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );
 
 // ─── dispatchSessionCheckFetchµ ───────────────────────────────────────────────
 
 it.effect('dispatchSessionCheckFetchµ succeeds when dispatch resolves with data', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const { store, dispatch } = makeFetchDispatchSetup({ data: { status: 204 } });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
     );
 
-    expect(Micro.exitIsSuccess(exit)).toBe(true);
+    expect(Exit.isSuccess(exit)).toBe(true);
     expect(dispatch).toHaveBeenCalledOnce();
   }),
 );
@@ -303,7 +301,7 @@ it.effect('dispatchSessionCheckFetchµ succeeds when dispatch resolves with data
 it.effect(
   'dispatchSessionCheckFetchµ fails with auth_error when dispatch resolves with an error result',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const errorData: GenericError = {
         error: 'login_required',
         message: 'The request requires login.',
@@ -311,21 +309,21 @@ it.effect(
       };
       const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
 
-      const exit = yield* Micro.exit(
+      const exit = yield* Effect.exit(
         dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
       );
 
-      expect(Micro.exitIsFailure(exit)).toBe(true);
-      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-        return;
-      }
-      expect(exit.cause.error.error).toBe('login_required');
-      expect(exit.cause.error.type).toBe('auth_error');
+      expect(Exit.isFailure(exit)).toBe(true);
+      if (!Exit.isFailure(exit)) return;
+      const errorOpt = Cause.findErrorOption(exit.cause);
+      if (!Option.isSome(errorOpt)) return;
+      expect(errorOpt.value.error).toBe('login_required');
+      expect(errorOpt.value.type).toBe('auth_error');
     }),
 );
 
 it.effect('dispatchSessionCheckFetchµ fails with network_error when dispatch rejects', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.spyOn(oidcApi.endpoints.sessionCheckFetch, 'initiate').mockReturnValue(
       Symbol('sentinel') as unknown as ReturnType<
         typeof oidcApi.endpoints.sessionCheckFetch.initiate
@@ -334,23 +332,23 @@ it.effect('dispatchSessionCheckFetchµ fails with network_error when dispatch re
     const dispatch = vi.fn().mockRejectedValue(new Error('network failure'));
     const store: ClientStore = { dispatch } as unknown as ClientStore;
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
     );
 
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.type).toBe('network_error');
-    expect(exit.cause.error.error).toBe('dispatch_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('network_error');
+    expect(errorOpt.value.error).toBe('dispatch_error');
   }),
 );
 
 it.effect(
   'dispatchSessionCheckFetchµ fails with network_error when queryFn receives a string-status error (e.g. FETCH_ERROR)',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const errorData: GenericError = {
         error: 'session_check_error',
         message: 'A network error occurred during session check',
@@ -358,23 +356,23 @@ it.effect(
       };
       const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
 
-      const exit = yield* Micro.exit(
+      const exit = yield* Effect.exit(
         dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
       );
 
-      expect(Micro.exitIsFailure(exit)).toBe(true);
-      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-        return;
-      }
-      expect(exit.cause.error.error).toBe('session_check_error');
-      expect(exit.cause.error.type).toBe('network_error');
+      expect(Exit.isFailure(exit)).toBe(true);
+      if (!Exit.isFailure(exit)) return;
+      const errorOpt = Cause.findErrorOption(exit.cause);
+      if (!Option.isSome(errorOpt)) return;
+      expect(errorOpt.value.error).toBe('session_check_error');
+      expect(errorOpt.value.type).toBe('network_error');
     }),
 );
 
 it.effect(
   'dispatchSessionCheckFetchµ fails with network_error when queryFn receives an unexpected 2xx status',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const errorData: GenericError = {
         error: 'session_check_error',
         message: 'Unexpected response status: 200',
@@ -382,23 +380,23 @@ it.effect(
       };
       const { store } = makeFetchDispatchSetup({ error: { data: errorData } });
 
-      const exit = yield* Micro.exit(
+      const exit = yield* Effect.exit(
         dispatchSessionCheckFetchµ(store, 'https://example.com/authorize?prompt=none'),
       );
 
-      expect(Micro.exitIsFailure(exit)).toBe(true);
-      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-        return;
-      }
-      expect(exit.cause.error.error).toBe('session_check_error');
-      expect(exit.cause.error.type).toBe('network_error');
+      expect(Exit.isFailure(exit)).toBe(true);
+      if (!Exit.isFailure(exit)) return;
+      const errorOpt = Cause.findErrorOption(exit.cause);
+      if (!Option.isSome(errorOpt)) return;
+      expect(errorOpt.value.error).toBe('session_check_error');
+      expect(errorOpt.value.type).toBe('network_error');
     }),
 );
 
 // ─── sessionCheckIdTokenµ ─────────────────────────────────────────────────────
 
 it.effect('sessionCheckIdTokenµ returns claims on valid JWT', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const knownNonce = 'test-nonce-value-12345678901234';
     const knownState = 'known-state-value';
     vi.spyOn(sdkUtilities, 'createRandomString').mockReturnValue(knownNonce);
@@ -415,72 +413,68 @@ it.effect('sessionCheckIdTokenµ returns claims on valid JWT', () =>
       data: { params: { id_token: validJwt, state: knownState } },
     });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckIdTokenµ(wellknown, config, store, makeStorageClient(storedTokens), log),
     );
 
-    expect(Micro.exitIsSuccess(exit)).toBe(true);
-    if (!Micro.exitIsSuccess(exit)) {
-      return;
-    }
+    expect(Exit.isSuccess(exit)).toBe(true);
+    if (!Exit.isSuccess(exit)) return;
     expect(exit.value.responseType).toBe('id_token');
     expect(exit.value.claims).toBeDefined();
-    if (!exit.value.claims) {
-      return;
-    }
+    if (!exit.value.claims) return;
     expect(exit.value.claims['nonce']).toBe(knownNonce);
   }),
 );
 
 it.effect('sessionCheckIdTokenµ fails with state_mismatch when response state does not match', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.spyOn(sdkUtilities, 'createState').mockReturnValue('known-state-value');
 
     const { store } = makeDispatchSetup({
       data: { params: { id_token: 'some.jwt.token', state: 'tampered-state' } },
     });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckIdTokenµ(wellknown, config, store, makeStorageClient(storedTokens), log),
     );
 
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('state_mismatch');
-    expect(exit.cause.error.type).toBe('auth_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('state_mismatch');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );
 
 it.effect('sessionCheckIdTokenµ fails with no_id_token when iframe returns no id_token param', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const knownState = 'known-state-value';
     vi.spyOn(sdkUtilities, 'createState').mockReturnValue(knownState);
 
     const { store } = makeDispatchSetup({ data: { params: { state: knownState } } });
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       sessionCheckIdTokenµ(wellknown, config, store, makeStorageClient(storedTokens), log),
     );
 
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('no_id_token');
-    expect(exit.cause.error.type).toBe('auth_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('no_id_token');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );
 
 it.effect(
   'sessionCheckIdTokenµ fails with missing_redirect_uri when no redirect_uri is configured',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const configWithoutRedirectUri: OidcConfig = { ...config, redirectUri: '' };
       const { store, dispatch } = makeDispatchSetup({ data: { params: {} } });
 
-      const exit = yield* Micro.exit(
+      const exit = yield* Effect.exit(
         sessionCheckIdTokenµ(
           wellknown,
           configWithoutRedirectUri,
@@ -490,12 +484,12 @@ it.effect(
         ),
       );
 
-      expect(Micro.exitIsFailure(exit)).toBe(true);
-      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-        return;
-      }
-      expect(exit.cause.error.error).toBe('missing_redirect_uri');
-      expect(exit.cause.error.type).toBe('argument_error');
+      expect(Exit.isFailure(exit)).toBe(true);
+      if (!Exit.isFailure(exit)) return;
+      const errorOpt = Cause.findErrorOption(exit.cause);
+      if (!Option.isSome(errorOpt)) return;
+      expect(errorOpt.value.error).toBe('missing_redirect_uri');
+      expect(errorOpt.value.type).toBe('argument_error');
       expect(dispatch).not.toHaveBeenCalled();
     }),
 );
@@ -503,33 +497,33 @@ it.effect(
 // ─── readStoredIdTokenµ ───────────────────────────────────────────────────────
 
 it.effect('readStoredIdTokenµ returns idToken string when tokens are stored', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const result = yield* readStoredIdTokenµ(makeStorageClient(storedTokens));
     expect(result).toBe(storedTokens.idToken);
   }),
 );
 
 it.effect('readStoredIdTokenµ returns null when storage is empty', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const result = yield* readStoredIdTokenµ(makeStorageClient(null));
     expect(result).toBeNull();
   }),
 );
 
 it.effect('readStoredIdTokenµ fails with argument_error when storageClient.get rejects', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const failingStorage: StorageClient<OauthTokens> = {
       get: vi.fn().mockRejectedValue(new Error('storage unavailable')),
       set: vi.fn(),
       remove: vi.fn(),
     };
-    const exit = yield* Micro.exit(readStoredIdTokenµ(failingStorage));
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.type).toBe('argument_error');
-    expect(exit.cause.error.error).toBe('storage_error');
+    const exit = yield* Effect.exit(readStoredIdTokenµ(failingStorage));
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('argument_error');
+    expect(errorOpt.value.error).toBe('storage_error');
   }),
 );
 
@@ -538,7 +532,7 @@ it.effect('readStoredIdTokenµ fails with argument_error when storageClient.get 
 it.effect(
   'dispatchSessionCheckIframeµ succeeds and returns params when dispatch resolves with data',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const params = { state: 'ok' };
       const dispatch = vi.fn().mockResolvedValue({ data: { params } });
       const store: ClientStore = { dispatch } as unknown as ClientStore;
@@ -560,7 +554,7 @@ it.effect(
 it.effect(
   'dispatchSessionCheckIframeµ fails with auth_error when dispatch resolves with an error result',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const errorData: GenericError = {
         error: 'login_required',
         message: 'User must authenticate',
@@ -574,20 +568,20 @@ it.effect(
         >,
       );
 
-      const exit = yield* Micro.exit(
+      const exit = yield* Effect.exit(
         dispatchSessionCheckIframeµ(store, 'https://example.com/authorize?prompt=none', 'none'),
       );
-      expect(Micro.exitIsFailure(exit)).toBe(true);
-      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-        return;
-      }
-      expect(exit.cause.error.error).toBe('login_required');
-      expect(exit.cause.error.type).toBe('auth_error');
+      expect(Exit.isFailure(exit)).toBe(true);
+      if (!Exit.isFailure(exit)) return;
+      const errorOpt = Cause.findErrorOption(exit.cause);
+      if (!Option.isSome(errorOpt)) return;
+      expect(errorOpt.value.error).toBe('login_required');
+      expect(errorOpt.value.type).toBe('auth_error');
     }),
 );
 
 it.effect('dispatchSessionCheckIframeµ fails with network_error when dispatch rejects', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const dispatch = vi.fn().mockRejectedValue(new Error('network failure'));
     const store: ClientStore = { dispatch } as unknown as ClientStore;
     vi.spyOn(oidcApi.endpoints.sessionCheckIframe, 'initiate').mockReturnValue(
@@ -596,15 +590,15 @@ it.effect('dispatchSessionCheckIframeµ fails with network_error when dispatch r
       >,
     );
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       dispatchSessionCheckIframeµ(store, 'https://example.com/authorize?prompt=none', 'none'),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.type).toBe('network_error');
-    expect(exit.cause.error.error).toBe('dispatch_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('network_error');
+    expect(errorOpt.value.error).toBe('dispatch_error');
   }),
 );
 
@@ -621,7 +615,7 @@ function makeJwtWithClaims(claims: JWTPayload): string {
 it.effect(
   'validateSessionCheckResponseµ succeeds and returns claims when state and nonce match',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const nonce = 'expected-nonce';
       const state = 'expected-state';
       const jwt = makeJwtWithClaims({ nonce, sub: 'user1' });
@@ -631,7 +625,7 @@ it.effect(
 );
 
 it.effect('validateSessionCheckResponseµ succeeds when state, nonce, and subject all match', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const nonce = 'nonce-abc';
     const state = 'state-abc';
     const jwt = makeJwtWithClaims({ nonce, sub: 'user1' });
@@ -646,81 +640,81 @@ it.effect('validateSessionCheckResponseµ succeeds when state, nonce, and subjec
 );
 
 it.effect('validateSessionCheckResponseµ fails with state_mismatch when state does not match', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const jwt = makeJwtWithClaims({ nonce: 'nonce', sub: 'user1' });
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       validateSessionCheckResponseµ(
         { id_token: jwt, state: 'tampered' },
         'expected-state',
         'nonce',
       ),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('state_mismatch');
-    expect(exit.cause.error.type).toBe('auth_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('state_mismatch');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );
 
 it.effect('validateSessionCheckResponseµ fails with no_id_token when id_token is absent', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const state = 'expected-state';
-    const exit = yield* Micro.exit(validateSessionCheckResponseµ({ state }, state, 'nonce'));
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('no_id_token');
-    expect(exit.cause.error.type).toBe('auth_error');
+    const exit = yield* Effect.exit(validateSessionCheckResponseµ({ state }, state, 'nonce'));
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('no_id_token');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );
 
 it.effect('validateSessionCheckResponseµ fails with nonce_mismatch when nonce does not match', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const state = 'expected-state';
     const jwt = makeJwtWithClaims({ nonce: 'wrong-nonce', sub: 'user1' });
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       validateSessionCheckResponseµ({ id_token: jwt, state }, state, 'expected-nonce'),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('nonce_mismatch');
-    expect(exit.cause.error.type).toBe('auth_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('nonce_mismatch');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );
 
 it.effect('validateSessionCheckResponseµ fails with subject_mismatch when sub does not match', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const nonce = 'valid-nonce';
     const state = 'expected-state';
     const jwt = makeJwtWithClaims({ nonce, sub: 'user2' });
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       validateSessionCheckResponseµ({ id_token: jwt, state }, state, nonce, 'user1'),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('subject_mismatch');
-    expect(exit.cause.error.type).toBe('auth_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('subject_mismatch');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );
 
 it.effect('validateSessionCheckResponseµ fails with invalid_jwt when JWT is malformed', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const state = 'expected-state';
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       validateSessionCheckResponseµ({ id_token: 'not.a.valid.jwt.payload', state }, state, 'nonce'),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) {
-      return;
-    }
-    expect(exit.cause.error.error).toBe('invalid_jwt');
-    expect(exit.cause.error.type).toBe('auth_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('invalid_jwt');
+    expect(errorOpt.value.type).toBe('auth_error');
   }),
 );

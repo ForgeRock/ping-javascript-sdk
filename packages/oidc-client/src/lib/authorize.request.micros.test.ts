@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { it, expect } from '@effect/vitest';
-import { Micro } from 'effect';
+import { Cause, Effect, Exit, Option } from 'effect';
 import { vi, afterEach } from 'vitest';
 import * as sdkOidc from '@forgerock/sdk-oidc';
 import * as sdkUtilities from '@forgerock/sdk-utilities';
@@ -61,7 +61,7 @@ afterEach(() => {
 // ─── generateAuthValuesµ ───────────────────────────────────────────────────────
 
 it.effect('generateAuthValuesµ returns auth URL options and store function', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.stubGlobal('sessionStorage', sessionStorageStub);
     const result = yield* generateAuthValuesµ(config, wellknown);
     const [opts, storeFn] = result;
@@ -73,22 +73,24 @@ it.effect('generateAuthValuesµ returns auth URL options and store function', ()
 );
 
 it.effect('generateAuthValuesµ fails with auth_error when sessionStorage throws', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.spyOn(sdkOidc, 'generateAndStoreAuthUrlValues').mockImplementation(() => {
       throw new Error('storage unavailable');
     });
-    const exit = yield* Micro.exit(generateAuthValuesµ(config, wellknown));
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('auth_error');
-    expect(exit.cause.error.error).toBe('PAR_PARAM_BUILD_ERROR');
+    const exit = yield* Effect.exit(generateAuthValuesµ(config, wellknown));
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('auth_error');
+    expect(errorOpt.value.error).toBe('PAR_PARAM_BUILD_ERROR');
   }),
 );
 
 // ─── generatePkceChallengeµ ────────────────────────────────────────────────────
 
 it.effect('generatePkceChallengeµ returns a non-empty challenge string', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.stubGlobal('crypto', {
       subtle: {
         digest: vi.fn().mockResolvedValue(new ArrayBuffer(32)),
@@ -102,20 +104,22 @@ it.effect('generatePkceChallengeµ returns a non-empty challenge string', () =>
 );
 
 it.effect('generatePkceChallengeµ fails with auth_error when createChallenge throws', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.spyOn(sdkUtilities, 'createChallenge').mockRejectedValue(new Error('crypto unavailable'));
-    const exit = yield* Micro.exit(generatePkceChallengeµ('bad-verifier'));
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('auth_error');
-    expect(exit.cause.error.error).toBe('PAR_CHALLENGE_ERROR');
+    const exit = yield* Effect.exit(generatePkceChallengeµ('bad-verifier'));
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('auth_error');
+    expect(errorOpt.value.error).toBe('PAR_CHALLENGE_ERROR');
   }),
 );
 
 // ─── buildParBodyµ ─────────────────────────────────────────────────────────────
 
 it.effect('buildParBodyµ returns URLSearchParams with expected fields', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const params = yield* buildParBodyµ(config, {}, 'challenge-abc', 'state-xyz');
     expect(params.get('client_id')).toBe(clientId);
     expect(params.get('code_challenge')).toBe('challenge-abc');
@@ -126,29 +130,31 @@ it.effect('buildParBodyµ returns URLSearchParams with expected fields', () =>
 );
 
 it.effect('buildParBodyµ includes prompt when provided', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const params = yield* buildParBodyµ(config, {}, 'challenge-abc', 'state-xyz', 'login');
     expect(params.get('prompt')).toBe('login');
   }),
 );
 
 it.effect('buildParBodyµ fails with auth_error when buildAuthorizeParams throws', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.spyOn(sdkOidc, 'buildAuthorizeParams').mockImplementation(() => {
       throw new Error('build failed');
     });
-    const exit = yield* Micro.exit(buildParBodyµ(config, {}, 'ch', 'st'));
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('auth_error');
-    expect(exit.cause.error.error).toBe('PAR_PARAM_BUILD_ERROR');
+    const exit = yield* Effect.exit(buildParBodyµ(config, {}, 'ch', 'st'));
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('auth_error');
+    expect(errorOpt.value.error).toBe('PAR_PARAM_BUILD_ERROR');
   }),
 );
 
 // ─── buildParSlimUrlµ ──────────────────────────────────────────────────────────
 
 it.effect('buildParSlimUrlµ returns URL with only client_id and request_uri', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const url = yield* buildParSlimUrlµ(
       wellknown.authorization_endpoint,
       clientId,
@@ -162,7 +168,7 @@ it.effect('buildParSlimUrlµ returns URL with only client_id and request_uri', (
 );
 
 it.effect('buildParSlimUrlµ includes prompt when provided', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const url = yield* buildParSlimUrlµ(
       wellknown.authorization_endpoint,
       clientId,
@@ -176,7 +182,7 @@ it.effect('buildParSlimUrlµ includes prompt when provided', () =>
 // ─── storeAuthOptionsµ ─────────────────────────────────────────────────────────
 
 it.effect('storeAuthOptionsµ calls the provided store function', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const storeFn = vi.fn();
     yield* storeAuthOptionsµ(storeFn);
     expect(storeFn).toHaveBeenCalledOnce();
@@ -184,23 +190,25 @@ it.effect('storeAuthOptionsµ calls the provided store function', () =>
 );
 
 it.effect('storeAuthOptionsµ fails with unknown_error when store function throws', () =>
-  Micro.gen(function* () {
-    const exit = yield* Micro.exit(
+  Effect.gen(function* () {
+    const exit = yield* Effect.exit(
       storeAuthOptionsµ(() => {
         throw new Error('storage write failed');
       }),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('unknown_error');
-    expect(exit.cause.error.error).toBe('PAR_STORAGE_ERROR');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('unknown_error');
+    expect(errorOpt.value.error).toBe('PAR_STORAGE_ERROR');
   }),
 );
 
 // ─── validateParResponseµ ──────────────────────────────────────────────────────
 
 it.effect('validateParResponseµ succeeds when request_uri is present', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const result = yield* validateParResponseµ({
       data: { request_uri: 'urn:ietf:params:oauth:request_uri:xyz', expires_in: 60 },
     });
@@ -209,8 +217,8 @@ it.effect('validateParResponseµ succeeds when request_uri is present', () =>
 );
 
 it.effect('validateParResponseµ fails with network_error on RTK error', () =>
-  Micro.gen(function* () {
-    const exit = yield* Micro.exit(
+  Effect.gen(function* () {
+    const exit = yield* Effect.exit(
       validateParResponseµ({
         error: {
           status: 400,
@@ -218,26 +226,30 @@ it.effect('validateParResponseµ fails with network_error on RTK error', () =>
         },
       }),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.error).toBe('invalid_client');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('invalid_client');
   }),
 );
 
 it.effect('validateParResponseµ fails with network_error when request_uri is absent', () =>
-  Micro.gen(function* () {
-    const exit = yield* Micro.exit(validateParResponseµ({ data: { expires_in: 60 } }));
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('network_error');
-    expect(exit.cause.error.error_description).toContain('request_uri');
+  Effect.gen(function* () {
+    const exit = yield* Effect.exit(validateParResponseµ({ data: { expires_in: 60 } }));
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('network_error');
+    expect(errorOpt.value.error_description).toContain('request_uri');
   }),
 );
 
 // ─── createAuthorizeUrlµ ──────────────────────────────────────────────────
 
 it.effect('createAuthorizeUrlµ returns [url, options] tuple', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.stubGlobal('sessionStorage', sessionStorageStub);
     const opts = {
       clientId,
@@ -257,9 +269,9 @@ it.effect('createAuthorizeUrlµ returns [url, options] tuple', () =>
 );
 
 it.effect('createAuthorizeUrlµ fails with auth_error when createAuthorizeUrl rejects', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.spyOn(sdkOidc, 'createAuthorizeUrl').mockRejectedValue(new Error('url build failed'));
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       createAuthorizeUrlµ(wellknown.authorization_endpoint, {
         clientId,
         redirectUri,
@@ -267,18 +279,20 @@ it.effect('createAuthorizeUrlµ fails with auth_error when createAuthorizeUrl re
         responseType,
       }),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('auth_error');
-    expect(exit.cause.error.error).toBe('AuthorizationUrlError');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('auth_error');
+    expect(errorOpt.value.error).toBe('AuthorizationUrlError');
   }),
 );
 
 // ─── handleDispatchErrorµ ──────────────────────────────────────────────────────
 
 it.effect('handleDispatchErrorµ fails immediately for CONFIGURATION_ERROR', () =>
-  Micro.gen(function* () {
-    const exit = yield* Micro.exit(
+  Effect.gen(function* () {
+    const exit = yield* Effect.exit(
       handleDispatchErrorµ(
         {
           status: 'CUSTOM_ERROR',
@@ -290,18 +304,20 @@ it.effect('handleDispatchErrorµ fails immediately for CONFIGURATION_ERROR', () 
         { clientId, redirectUri, scope, responseType },
       ),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('unknown_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('unknown_error');
   }),
 );
 
 it.effect('handleDispatchErrorµ builds redirect URL for non-config errors', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.spyOn(sdkOidc, 'createAuthorizeUrl').mockResolvedValue(
       'https://example.com/authorize?error=login_required',
     );
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       handleDispatchErrorµ(
         {
           status: 400,
@@ -315,17 +331,19 @@ it.effect('handleDispatchErrorµ builds redirect URL for non-config errors', () 
         { clientId, redirectUri, scope, responseType },
       ),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.error).toBe('login_required');
-    expect(exit.cause.error).toHaveProperty('redirectUrl');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('login_required');
+    expect(errorOpt.value).toHaveProperty('redirectUrl');
   }),
 );
 
 // ─── dispatchAuthorizeFetchµ ───────────────────────────────────────────────────
 
 it.effect('dispatchAuthorizeFetchµ succeeds with authorizeResponse', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const authorizeResponse = { code: 'auth-code-abc', state: 'state-xyz' };
     vi.mocked(mockStore.dispatch).mockResolvedValueOnce({
       data: { authorizeResponse },
@@ -344,12 +362,12 @@ it.effect('dispatchAuthorizeFetchµ succeeds with authorizeResponse', () =>
 it.effect(
   'dispatchAuthorizeFetchµ fails with unknown_error when data has no authorizeResponse',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       vi.mocked(mockStore.dispatch).mockResolvedValueOnce({
         data: {},
       } as unknown as ReturnType<typeof mockStore.dispatch>);
 
-      const exit = yield* Micro.exit(
+      const exit = yield* Effect.exit(
         dispatchAuthorizeFetchµ(mockStore, 'https://example.com/authorize', wellknown, {
           clientId,
           redirectUri,
@@ -357,16 +375,18 @@ it.effect(
           responseType,
         }),
       );
-      expect(Micro.exitIsFailure(exit)).toBe(true);
-      if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-      expect(exit.cause.error.type).toBe('unknown_error');
+      expect(Exit.isFailure(exit)).toBe(true);
+      if (!Exit.isFailure(exit)) return;
+      const errorOpt = Cause.findErrorOption(exit.cause);
+      if (!Option.isSome(errorOpt)) return;
+      expect(errorOpt.value.type).toBe('unknown_error');
     }),
 );
 
 // ─── dispatchAuthorizeIframeµ ──────────────────────────────────────────────────
 
 it.effect('dispatchAuthorizeIframeµ succeeds with iframe data', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const iframeData = { code: 'iframe-code', state: 'state-abc' };
     vi.mocked(mockStore.dispatch).mockResolvedValueOnce({
       data: iframeData,
@@ -383,12 +403,12 @@ it.effect('dispatchAuthorizeIframeµ succeeds with iframe data', () =>
 );
 
 it.effect('dispatchAuthorizeIframeµ fails with unknown_error when data is undefined', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.mocked(mockStore.dispatch).mockResolvedValueOnce({
       data: undefined,
     } as unknown as ReturnType<typeof mockStore.dispatch>);
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       dispatchAuthorizeIframeµ(mockStore, 'https://example.com/authorize', wellknown, {
         clientId,
         redirectUri,
@@ -396,19 +416,21 @@ it.effect('dispatchAuthorizeIframeµ fails with unknown_error when data is undef
         responseType,
       }),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('unknown_error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('unknown_error');
   }),
 );
 
 it.effect('dispatchAuthorizeIframeµ fails with unknown_error when data has no code or state', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     vi.mocked(mockStore.dispatch).mockResolvedValueOnce({
       data: { unexpected: 'shape' },
     } as unknown as ReturnType<typeof mockStore.dispatch>);
 
-    const exit = yield* Micro.exit(
+    const exit = yield* Effect.exit(
       dispatchAuthorizeIframeµ(
         mockStore,
         'https://example.com/authorize?foo=bar',
@@ -416,9 +438,11 @@ it.effect('dispatchAuthorizeIframeµ fails with unknown_error when data has no c
         {} as import('@forgerock/sdk-types').GetAuthorizationUrlOptions,
       ),
     );
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
-    expect(exit.cause.error.type).toBe('unknown_error');
-    expect(exit.cause.error.error).toBe('Unknown_Error');
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('unknown_error');
+    expect(errorOpt.value.error).toBe('Unknown_Error');
   }),
 );

@@ -41,9 +41,7 @@ interface openIdConfigurationResponseSchema extends Schema.Schema.Type<
   typeof _openIdConfigurationResponseSchema
 > {}
 
-const openIdConfigurationResponseSchema: Schema.Schema<
-  openIdConfigurationResponseSchema,
-  openIdConfigurationResponseSchema
-> = _openIdConfigurationResponseSchema;
+const openIdConfigurationResponseSchema: Schema.Schema<openIdConfigurationResponseSchema> =
+  _openIdConfigurationResponseSchema;
 
 export { _openIdConfigurationResponseSchema, openIdConfigurationResponseSchema };
