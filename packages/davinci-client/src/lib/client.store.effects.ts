@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { Micro } from 'effect';
+import { Effect } from 'effect';
 import { SerializedError } from '@reduxjs/toolkit/react';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 
@@ -14,6 +14,7 @@ import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { DavinciStore, RootState } from './client.store.utils.js';
 import type { PollingStatus, InternalErrorResponse } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
+import type { ContinueNode } from './node.types.js';
 
 import { createInternalError, isInternalError } from './client.store.utils.js';
 import { davinciApi } from './davinci.api.js';
@@ -55,9 +56,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
  */
 export function getPollingModeµ(
   collector: PollingCollector,
-): Micro.Micro<PollingMode, InternalErrorResponse> {
+): Effect.Effect<PollingMode, InternalErrorResponse> {
   if (collector.type !== 'PollingCollector') {
-    return Micro.fail(
+    return Effect.fail(
       createInternalError('Collector provided to poll is not a PollingCollector', 'argument_error'),
     );
   }
@@ -66,23 +67,23 @@ export function getPollingModeµ(
     collector.output.config;
 
   if (challenge && pollChallengeStatus === true) {
-    return Micro.succeed({ _tag: 'challenge', challenge });
+    return Effect.succeed({ _tag: 'challenge', challenge });
   }
 
   if (!challenge && !pollChallengeStatus) {
     if (retriesRemaining === undefined) {
-      return Micro.fail(
+      return Effect.fail(
         createInternalError('No retries found on PollingCollector', 'argument_error'),
       );
     }
-    return Micro.succeed({
+    return Effect.succeed({
       _tag: 'continue',
       retriesRemaining,
       pollInterval: pollInterval ?? 2000,
     });
   }
 
-  return Micro.succeed({ _tag: 'unknown' });
+  return Effect.succeed({ _tag: 'unknown' });
 }
 
 /**
@@ -114,16 +115,16 @@ export function buildChallengeEndpoint(
 }
 
 /**
- * Lifts a selector result with { error, state } shape into a Micro.
+ * Lifts a selector result with { error, state } shape into an Effect.
  * Succeeds with state when error is null, fails with InternalErrorResponse otherwise.
  */
 function fromSelectorµ<T>(result: {
   error: { message: string } | null;
   state: T;
-}): Micro.Micro<NonNullable<T>, InternalErrorResponse> {
+}): Effect.Effect<NonNullable<T>, InternalErrorResponse> {
   return result.error
-    ? Micro.fail(createInternalError(result.error.message, 'state_error'))
-    : Micro.succeed(result.state as NonNullable<T>);
+    ? Effect.fail(createInternalError(result.error.message, 'state_error'))
+    : Effect.succeed(result.state as NonNullable<T>);
 }
 
 /**
@@ -133,35 +134,35 @@ function fromSelectorµ<T>(result: {
 export function validatePollingPrerequisitesµ(
   rootState: RootState,
   challenge: string,
-): Micro.Micro<PollingPrerequisites, InternalErrorResponse> {
+): Effect.Effect<PollingPrerequisites, InternalErrorResponse> {
   if (!challenge) {
-    return Micro.fail(
+    return Effect.fail(
       createInternalError('No challenge found on collector for poll operation', 'state_error'),
     );
   }
 
   return fromSelectorµ(nodeSlice.selectors.selectContinueServer(rootState)).pipe(
-    Micro.filterOrFail(
-      (server) => !!server.interactionId,
+    Effect.filterOrFail(
+      (server: ContinueNode['server']) => !!server.interactionId,
       () =>
         createInternalError(
           'Missing interactionId in server info for challenge polling',
           'state_error',
         ),
     ),
-    Micro.flatMap((server) =>
+    Effect.flatMap((server: ContinueNode['server']) =>
       fromSelectorµ(nodeSlice.selectors.selectSelfLink(rootState)).pipe(
-        Micro.map((selfLink) => ({ server, selfLink })),
+        Effect.map((selfLink) => ({ server, selfLink })),
       ),
     ),
-    Micro.flatMap(({ server, selfLink }) => {
+    Effect.flatMap(({ server, selfLink }: { server: ContinueNode['server']; selfLink: string }) => {
       const endpoint = buildChallengeEndpoint(selfLink, challenge);
       return typeof endpoint === 'string'
-        ? Micro.succeed({
+        ? Effect.succeed({
             interactionId: server.interactionId!,
             challengeEndpoint: endpoint,
           })
-        : Micro.fail(endpoint);
+        : Effect.fail(endpoint);
     }),
   );
 }
@@ -222,14 +223,14 @@ export function interpretChallengeResponse(
     return pollStatus ? (pollStatus as PollingStatus) : 'error';
   }
 
-  // If we reach here, Micro.repeat exhausted its schedule without the challenge completing
+  // If we reach here, the poll loop exhausted its retries without the challenge completing
   log.debug('Challenge polling timed out');
   return 'timedOut';
 }
 
 /**
- * Builds a Micro effect for the challenge polling branch.
- * validate → dispatch → repeat → interpret → lift errors
+ * Builds an Effect for the challenge polling branch.
+ * validate → dispatch initial → loop (sleep + re-dispatch) while pending → interpret
  */
 function challengePollingµ({
   collector,
@@ -241,51 +242,60 @@ function challengePollingµ({
   challenge: string;
   store: DavinciStore;
   log: ReturnType<typeof loggerFn>;
-}): Micro.Micro<PollingStatus, InternalErrorResponse> {
+}): Effect.Effect<PollingStatus, InternalErrorResponse> {
   const maxRetries = collector.output.config.pollRetries ?? 60;
   const pollInterval = collector.output.config.pollInterval ?? 2000;
 
-  return validatePollingPrerequisitesµ(store.getState(), challenge).pipe(
-    Micro.flatMap(({ interactionId, challengeEndpoint }) =>
-      Micro.promise(() =>
+  return Effect.gen(function* () {
+    const { interactionId, challengeEndpoint } = yield* validatePollingPrerequisitesµ(
+      store.getState(),
+      challenge,
+    );
+
+    const doPoll = (): Effect.Effect<PollDispatchResult, never> =>
+      Effect.promise(() =>
         store.dispatch(
           davinciApi.endpoints.poll.initiate({
             endpoint: challengeEndpoint,
             interactionId,
           }),
         ),
-      ),
-    ),
-    Micro.repeat({
-      while: isChallengeStillPending,
-      // `times` tracks repetitions after the initial attempt, so decrement by one
-      times: maxRetries - 1,
-      schedule: Micro.scheduleSpaced(pollInterval),
-    }),
-    Micro.map((response) => interpretChallengeResponse(response, log)),
-    Micro.flatMap((result) =>
-      isInternalError(result) ? Micro.fail(result) : Micro.succeed(result),
-    ),
-  );
+      );
+
+    let response: PollDispatchResult = yield* doPoll();
+
+    for (let i = 0; i < maxRetries - 1 && isChallengeStillPending(response); i++) {
+      yield* Effect.sleep(pollInterval);
+      response = yield* doPoll();
+    }
+
+    const status = interpretChallengeResponse(response, log);
+
+    if (isInternalError(status)) {
+      return yield* Effect.fail(status);
+    }
+
+    return status;
+  });
 }
 
 /**
- * Builds a Micro effect for the continue polling branch.
+ * Builds an Effect for the continue polling branch.
  * If retries remain, delays by pollInterval then returns 'continue'.
  * If retries are exhausted, returns 'timedOut' immediately.
  */
 function continuePollingµ(
   mode: Extract<PollingMode, { _tag: 'continue' }>,
-): Micro.Micro<PollingStatus, InternalErrorResponse> {
+): Effect.Effect<PollingStatus, InternalErrorResponse> {
   if (mode.retriesRemaining <= 0) {
-    return Micro.succeed('timedOut' as PollingStatus);
+    return Effect.succeed('timedOut' as PollingStatus);
   }
-  return Micro.sleep(mode.pollInterval).pipe(Micro.map(() => 'continue'));
+  return Effect.sleep(mode.pollInterval).pipe(Effect.map(() => 'continue' as PollingStatus));
 }
 
 /**
  * Routes a validated PollingMode to the appropriate polling effect.
- * This is the single entry point — the caller lifts getPollingMode into Micro, pipes through this.
+ * This is the single entry point — the caller lifts getPollingMode into Effect, pipes through this.
  */
 export function pollingµ({
   mode,
@@ -297,7 +307,7 @@ export function pollingµ({
   collector: PollingCollector;
   store: DavinciStore;
   log: ReturnType<typeof loggerFn>;
-}): Micro.Micro<PollingStatus, InternalErrorResponse> {
+}): Effect.Effect<PollingStatus, InternalErrorResponse> {
   if (mode._tag === 'challenge') {
     return challengePollingµ({ collector, challenge: mode.challenge, store, log });
   }
@@ -306,7 +316,7 @@ export function pollingµ({
     return continuePollingµ(mode);
   }
 
-  return Micro.fail(
+  return Effect.fail(
     createInternalError('Invalid polling collector configuration', 'argument_error'),
   );
 }
