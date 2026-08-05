@@ -21,7 +21,7 @@ const CapabilitiesRequestBody = Schema.Struct({
   interactionId: Schema.String,
   parameters: Schema.Struct({
     eventType: Schema.String,
-    data: Schema.Union(UsernamePassword),
+    data: UsernamePassword,
   }),
 });
 
