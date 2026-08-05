@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Context, Effect, Layer, Schema } from 'effect';
-import { HttpApiError } from '@effect/platform';
+import { HttpApiError } from 'effect/unstable/httpapi';
 import { tokenResponseBody } from '../responses/token/token.js';
 import { TokenResponseBody } from '../schemas/token/token.schema.js';
 import { revokeResponseBody } from '../responses/revoke/revoke.js';
@@ -16,7 +16,7 @@ import { HeaderTypes } from '../types/index.js';
 type TokensResponseBody = Schema.Schema.Type<typeof TokenResponseBody>;
 type RevokeTokenResponseBody = Schema.Schema.Type<typeof RevokeResponseBody>;
 
-class Tokens extends Context.Tag('@services/Tokens')<
+class Tokens extends Context.Service<
   Tokens,
   {
     getTokens: <Headers extends HeaderTypes>(
@@ -27,31 +27,28 @@ class Tokens extends Context.Tag('@services/Tokens')<
       tokenTypeHint?: string,
     ) => Effect.Effect<RevokeTokenResponseBody, HttpApiError.Unauthorized, never>;
   }
->() {}
+>()('@services/Tokens') {}
 
-const TokensMock = Layer.succeed(
-  Tokens,
-  Tokens.of({
-    getTokens: () =>
-      Effect.gen(function* () {
-        const response = yield* Effect.tryPromise({
-          try: () => Promise.resolve(tokenResponseBody),
-          catch: () => new HttpApiError.Unauthorized(),
-        });
-        return response;
-      }),
-    revokeToken: (token) =>
-      Effect.gen(function* () {
-        // Apply the REVOKED_ prefix to the token
-        // This is a simple way to mark tokens as revoked without maintaining state
-        // The Authorization middleware will check for this prefix
-        yield* Effect.log('Revoking token', { token, newToken: `REVOKED_${token}` });
+const TokensMock = Layer.succeed(Tokens, {
+  getTokens: () =>
+    Effect.gen(function* () {
+      const response = yield* Effect.tryPromise({
+        try: () => Promise.resolve(tokenResponseBody),
+        catch: () => new HttpApiError.Unauthorized(),
+      });
+      return response;
+    }),
+  revokeToken: (token) =>
+    Effect.gen(function* () {
+      // Apply the REVOKED_ prefix to the token
+      // This is a simple way to mark tokens as revoked without maintaining state
+      // The Authorization middleware will check for this prefix
+      yield* Effect.log('Revoking token', { token, newToken: `REVOKED_${token}` });
 
-        // In a real implementation, we might store the token in a revocation list
-        // or update it in a database. For this mock, we'll just return success.
-        return revokeResponseBody;
-      }),
-  }),
-);
+      // In a real implementation, we might store the token in a revocation list
+      // or update it in a database. For this mock, we'll just return success.
+      return revokeResponseBody;
+    }),
+});
 
 export { TokensMock, Tokens };

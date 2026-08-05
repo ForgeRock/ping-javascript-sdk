@@ -12,7 +12,7 @@ import { CapabilitiesResponse } from '../../schemas/capabilities/capabilities.re
 
 import { QueryTypes } from '../../types/index.js';
 import { validator } from '../../helpers/match.js';
-import { HttpApiError } from '@effect/platform';
+import { HttpApiError } from 'effect/unstable/httpapi';
 
 /**
  * Given data in the shape of Ping's Request formData.value
@@ -34,10 +34,9 @@ const getArrayFromResponseMap = (query: QueryTypes) =>
  * to grab the array from the `responseMap`.
  */
 const getNextStep = (bool: boolean, query: QueryTypes) =>
-  Effect.if(bool, {
-    onTrue: () => getArrayFromResponseMap(query),
-    onFalse: () => Effect.fail(new UnableToFindNextStep()),
-  });
+  Effect.suspend(() =>
+    bool ? getArrayFromResponseMap(query) : Effect.fail(new UnableToFindNextStep()),
+  );
 
 /**
  * Get the first element in the responseMap
@@ -52,27 +51,25 @@ const getFirstElement = (arr: (typeof responseMap)[ResponseMapKeys]) =>
  *
  */
 const getFirstElementAndRespond = (query: QueryTypes) =>
-  pipe(
-    Option.fromNullable(query?.acr_values),
-    Option.map((acr) => responseMap[acr as ResponseMapKeys]),
-    Effect.flatMap(getFirstElement),
-    Effect.catchTag('NoSuchElementException', () => new HttpApiError.NotFound()),
-  );
+  Effect.gen(function* () {
+    const acr = query?.acr_values;
+    if (acr == null) return yield* Effect.fail(new HttpApiError.NotFound());
+    const arr = responseMap[acr as ResponseMapKeys];
+    if (!arr) return yield* Effect.fail(new HttpApiError.NotFound());
+    return yield* getFirstElement(arr);
+  });
 
 /**
  * helper function that dives into a request body for Capabilities Response
  * and will apply a validator function to ensure the request passes validation
  */
 const validateCapabilitiesResponse = (body: any) =>
-  pipe(
-    body,
-    Option.fromNullable,
-    Option.map((body) => body.parameters),
-    Option.map((parameters) => parameters.data),
-    Option.map((data) => data.formData),
-    Option.map((formData) => formData.value),
-    Effect.flatMap(validator),
-  );
+  Effect.gen(function* () {
+    if (body == null) return yield* Effect.fail(new HttpApiError.InternalServerError());
+    const value = body?.parameters?.data?.formData?.value;
+    if (value == null) return yield* Effect.fail(new HttpApiError.InternalServerError());
+    return yield* validator(value);
+  });
 
 export {
   getNextStep,

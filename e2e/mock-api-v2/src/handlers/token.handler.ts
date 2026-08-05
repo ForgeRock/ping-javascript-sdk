@@ -6,7 +6,7 @@
  */
 import { MockApi } from '../spec.js';
 import { Tokens } from '../services/tokens.service.js';
-import { HttpApiBuilder } from '@effect/platform';
+import { HttpApiBuilder } from 'effect/unstable/httpapi';
 import { Effect } from 'effect';
 
 const TokensHandler = HttpApiBuilder.group(MockApi, 'Tokens', (handlers) =>

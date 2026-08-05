@@ -6,11 +6,11 @@
  */
 import { Effect } from 'effect';
 import { MockApi } from '../spec.js';
-import { HttpApiBuilder } from '@effect/platform';
-import { HttpServerRequest } from '@effect/platform/HttpServerRequest';
+import { HttpApiBuilder } from 'effect/unstable/httpapi';
+import { HttpServerRequest } from 'effect/unstable/http/HttpServerRequest';
 
 const OpenidConfigMock = HttpApiBuilder.group(MockApi, 'OpenIDConfig', (handlers) =>
-  handlers.handle('openid', ({ path: { envid } }) =>
+  handlers.handle('openid', ({ params: { envid } }) =>
     Effect.gen(function* () {
       const request = yield* HttpServerRequest;
       const url = new URL(request.url);

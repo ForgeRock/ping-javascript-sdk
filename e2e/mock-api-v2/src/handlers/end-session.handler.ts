@@ -5,7 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect, Console } from 'effect';
-import { HttpApiBuilder, HttpServerRequest } from '@effect/platform';
+import { HttpApiBuilder } from 'effect/unstable/httpapi';
+import * as HttpServerRequest from 'effect/unstable/http/HttpServerRequest';
 import { MockApi } from '../spec.js';
 import { SessionStorage } from '../services/session.service.js';
 
