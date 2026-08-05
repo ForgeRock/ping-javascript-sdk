@@ -207,8 +207,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
+        const bgOptions =
+          options !== undefined ? { ...options, prompt: 'none' as const } : undefined;
         const result = await Micro.runPromiseExit(
-          authorizeµ(wellknown, config, log, store, options, useParFlow),
+          authorizeµ(wellknown, config, log, store, bgOptions, useParFlow),
         );
 
         if (exitIsSuccess(result)) {
