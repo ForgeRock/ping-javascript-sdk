@@ -4,7 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
+import { Effect } from 'effect';
+import { oidcApi } from './oidc.api.js';
+import { createLogoutError } from './client.store.utils.js';
 
 import { createLogoutError } from './client.store.utils.js';
 import { oidcApi } from './oidc.api.js';
@@ -28,9 +30,9 @@ export function logoutµ({
   store: ClientStore;
   storageClient: StorageClient<OauthTokens>;
 }) {
-  return Micro.zip(
+  return Effect.zip(
     // End session with the ID token
-    Micro.promise(() =>
+    Effect.promise(() =>
       store.dispatch(
         oidcApi.endpoints.endSession.initiate({
           idToken: tokens.idToken,
@@ -38,10 +40,10 @@ export function logoutµ({
           signOutRedirectUri: config.signOutRedirectUri,
         }),
       ),
-    ).pipe(Micro.map(({ data, error }) => createLogoutError(data, error))),
+    ).pipe(Effect.map(({ data, error }) => createLogoutError(data, error))),
 
     // Revoke the access token
-    Micro.promise(() =>
+    Effect.promise(() =>
       store.dispatch(
         oidcApi.endpoints.revoke.initiate({
           accessToken: tokens.accessToken,
@@ -49,12 +51,12 @@ export function logoutµ({
           endpoint: wellknown.revocation_endpoint,
         }),
       ),
-    ).pipe(Micro.map(({ data, error }) => createLogoutError(data, error))),
+    ).pipe(Effect.map(({ data, error }) => createLogoutError(data, error))),
   ).pipe(
     // Delete local token and return combined results
-    Micro.flatMap(([sessionResponse, revokeResponse]) =>
-      Micro.promise(() => storageClient.remove()).pipe(
-        Micro.flatMap((deleteResponse) => {
+    Effect.flatMap(([sessionResponse, revokeResponse]) =>
+      Effect.promise(() => storageClient.remove()).pipe(
+        Effect.flatMap((deleteResponse) => {
           const isInnerRequestError =
             (sessionResponse && 'error' in sessionResponse) ||
             (revokeResponse && 'error' in revokeResponse) ||
@@ -67,14 +69,14 @@ export function logoutµ({
               revokeResponse,
               deleteResponse,
             };
-            return Micro.fail(result);
+            return Effect.fail(result);
           } else {
             const result: LogoutSuccessResult = {
               sessionResponse: null,
               revokeResponse: null,
               deleteResponse: null,
             };
-            return Micro.succeed(result);
+            return Effect.succeed(result);
           }
         }),
       ),

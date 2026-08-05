@@ -4,6 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { Effect } from 'effect';
+
 import { createRandomString, createState } from '@forgerock/sdk-utilities';
 import { Micro } from 'effect';
 import { decodeJwt } from 'jose/jwt/decode';
@@ -23,15 +25,15 @@ import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.j
 
 export const readStoredIdTokenµ = (
   storageClient: StorageClient<OauthTokens>,
-): Micro.Micro<string | null, GenericError, never> =>
-  Micro.tryPromise({
+): Effect.Effect<string | null, GenericError, never> =>
+  Effect.tryPromise({
     try: () => storageClient.get(),
     catch: (): GenericError => ({
       error: 'storage_error',
       message: 'Failed to read tokens from storage',
       type: 'argument_error',
     }),
-  }).pipe(Micro.map((tokens) => (tokens && 'idToken' in tokens ? tokens.idToken : null)));
+  }).pipe(Effect.map((tokens) => (tokens && 'idToken' in tokens ? tokens.idToken : null)));
 
 // ─── Dispatch ────────────────────────────────────────────────────────────────
 
@@ -39,8 +41,8 @@ export const dispatchSessionCheckIframeµ = (
   store: ClientStore,
   url: string,
   responseType: 'id_token' | 'none',
-): Micro.Micro<Record<string, string>, GenericError, never> =>
-  Micro.tryPromise({
+): Effect.Effect<Record<string, string>, GenericError, never> =>
+  Effect.tryPromise({
     try: () => store.dispatch(oidcApi.endpoints.sessionCheckIframe.initiate({ url, responseType })),
     catch: (err): GenericError => ({
       error: 'dispatch_error',
@@ -48,27 +50,27 @@ export const dispatchSessionCheckIframeµ = (
       type: 'network_error',
     }),
   }).pipe(
-    Micro.flatMap((result) => {
+    Effect.flatMap((result) => {
       if ('error' in result && result.error) {
         const errData = result.error as {
           data?: { error?: string; message?: string; type?: string };
         };
-        return Micro.fail<GenericError>({
+        return Effect.fail<GenericError>({
           error: errData.data?.error ?? 'session_check_error',
           message: errData.data?.message ?? 'An error occurred during session check',
           type: (errData.data?.type as GenericError['type']) ?? 'network_error',
         });
       }
       const { params } = (result as { data: { params: Record<string, string> } }).data;
-      return Micro.succeed(params);
+      return Effect.succeed(params);
     }),
   );
 
 export const dispatchSessionCheckFetchµ = (
   store: ClientStore,
   url: string,
-): Micro.Micro<void, GenericError, never> =>
-  Micro.tryPromise({
+): Effect.Effect<void, GenericError, never> =>
+  Effect.tryPromise({
     try: () => store.dispatch(oidcApi.endpoints.sessionCheckFetch.initiate({ url })),
     catch: (err): GenericError => ({
       error: 'dispatch_error',
@@ -76,18 +78,18 @@ export const dispatchSessionCheckFetchµ = (
       type: 'network_error',
     }),
   }).pipe(
-    Micro.flatMap((result) => {
+    Effect.flatMap((result) => {
       if ('error' in result && result.error) {
         const errData = result.error as {
           data?: { error?: string; message?: string; type?: string };
         };
-        return Micro.fail<GenericError>({
+        return Effect.fail<GenericError>({
           error: errData.data?.error ?? 'login_required',
           message: errData.data?.message ?? 'The request requires login.',
           type: (errData.data?.type as GenericError['type']) ?? 'auth_error',
         });
       }
-      return Micro.void;
+      return Effect.void;
     }),
   );
 
@@ -98,10 +100,10 @@ export const validateSessionCheckResponseµ = (
   state: string,
   nonce: string,
   subject?: string,
-): Micro.Micro<JWTPayload, GenericError, never> => {
-  return Micro.gen(function* () {
+): Effect.Effect<JWTPayload, GenericError, never> => {
+  return Effect.gen(function* () {
     if (iframeParams.state !== state) {
-      return yield* Micro.fail<GenericError>({
+      return yield* Effect.fail<GenericError>({
         error: 'state_mismatch',
         message: 'State parameter in response does not match the expected value',
         type: 'auth_error',
@@ -110,14 +112,14 @@ export const validateSessionCheckResponseµ = (
 
     const idToken = iframeParams.id_token;
     if (!idToken) {
-      return yield* Micro.fail<GenericError>({
+      return yield* Effect.fail<GenericError>({
         error: 'no_id_token',
         message: 'No id_token found in iframe response',
         type: 'auth_error',
       });
     }
 
-    const claims = yield* Micro.try({
+    const claims = yield* Effect.try({
       try: () => decodeJwt(idToken),
       catch: (): GenericError => ({
         error: 'invalid_jwt',
@@ -127,7 +129,7 @@ export const validateSessionCheckResponseµ = (
     });
 
     if (claims.nonce !== nonce) {
-      return yield* Micro.fail<GenericError>({
+      return yield* Effect.fail<GenericError>({
         error: 'nonce_mismatch',
         message: 'Nonce in id_token does not match the expected value',
         type: 'auth_error',
@@ -135,7 +137,7 @@ export const validateSessionCheckResponseµ = (
     }
 
     if (subject !== undefined && claims.sub !== subject) {
-      return yield* Micro.fail<GenericError>({
+      return yield* Effect.fail<GenericError>({
         error: 'subject_mismatch',
         message: 'Subject claim in id_token does not match the expected value',
         type: 'auth_error',
@@ -197,11 +199,11 @@ export const sessionCheckNoneµ = (
   storageClient: StorageClient<OauthTokens>,
   log: CustomLogger,
   options?: SessionCheckOptions,
-): Micro.Micro<SessionCheckSuccess, GenericError, never> => {
+): Effect.Effect<SessionCheckSuccess, GenericError, never> => {
   return readStoredIdTokenµ(storageClient).pipe(
-    Micro.flatMap((storedIdToken) => {
+    Effect.flatMap((storedIdToken) => {
       if (!storedIdToken) {
-        return Micro.fail<GenericError>({
+        return Effect.fail<GenericError>({
           error: 'no_id_token_hint',
           message: 'response_type=none requires a stored id_token; authenticate first',
           type: 'argument_error',
@@ -223,8 +225,8 @@ export const sessionCheckNoneµ = (
         ? dispatchSessionCheckIframeµ(store, url, 'none')
         : dispatchSessionCheckFetchµ(store, url);
     }),
-    Micro.tap(() => log.debug('Session check (none) completed successfully')),
-    Micro.map((): SessionCheckSuccess => ({ responseType: 'none' })),
+    Effect.tap(() => Effect.sync(() => log.debug('Session check (none) completed successfully'))),
+    Effect.map((): SessionCheckSuccess => ({ responseType: 'none' })),
   );
 };
 
@@ -237,11 +239,11 @@ export const sessionCheckIdTokenµ = (
   storageClient: StorageClient<OauthTokens>,
   log: CustomLogger,
   options?: SessionCheckOptions,
-): Micro.Micro<SessionCheckSuccess, GenericError, never> => {
+): Effect.Effect<SessionCheckSuccess, GenericError, never> => {
   const redirectUri = options?.redirectUri ?? config.redirectUri;
 
   if (!redirectUri) {
-    return Micro.fail<GenericError>({
+    return Effect.fail<GenericError>({
       error: 'missing_redirect_uri',
       message: 'redirect_uri is required for session check with response_type=id_token',
       type: 'argument_error',
@@ -249,7 +251,7 @@ export const sessionCheckIdTokenµ = (
   }
 
   return readStoredIdTokenµ(storageClient).pipe(
-    Micro.flatMap((storedIdToken) => {
+    Effect.flatMap((storedIdToken) => {
       const { url, nonce, state } = buildIdTokenUrl(
         wellknown.authorization_endpoint,
         config,
@@ -258,12 +260,14 @@ export const sessionCheckIdTokenµ = (
         options,
       );
       return dispatchSessionCheckIframeµ(store, url, 'id_token').pipe(
-        Micro.flatMap((iframeParams) =>
+        Effect.flatMap((iframeParams) =>
           validateSessionCheckResponseµ(iframeParams, state, nonce, options?.subject),
         ),
       );
     }),
-    Micro.tap(() => log.debug('Session check (id_token) completed successfully')),
-    Micro.map((claims): SessionCheckSuccess => ({ responseType: 'id_token', claims })),
+    Effect.tap(() =>
+      Effect.sync(() => log.debug('Session check (id_token) completed successfully')),
+    ),
+    Effect.map((claims): SessionCheckSuccess => ({ responseType: 'id_token', claims })),
   );
 };

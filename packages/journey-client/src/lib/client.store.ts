@@ -19,6 +19,8 @@ import * as Either from 'effect/Either';
 import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
+import { createStorage } from '@forgerock/storage';
+import * as Result from 'effect/Result';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
 import { wellknownApi } from './wellknown.api.js';
 
@@ -186,9 +188,9 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
 
     start: async (options?: StartParam) => {
       const response = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      return Either.match(parseJourneyResponse(response), {
-        onLeft: (err): JourneyResult => err,
-        onRight: (step): JourneyResult => createJourneyObject(step),
+      return Result.match(parseJourneyResponse(response), {
+        onFailure: (err): JourneyResult => err,
+        onSuccess: (step): JourneyResult => createJourneyObject(step),
       });
     },
 
@@ -197,9 +199,9 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
       const response = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      return Either.match(parseJourneyResponse(response), {
-        onLeft: (err): JourneyResult => err,
-        onRight: (step): JourneyResult => createJourneyObject(step),
+      return Result.match(parseJourneyResponse(response), {
+        onFailure: (err): JourneyResult => err,
+        onSuccess: (step): JourneyResult => createJourneyObject(step),
       });
     },
 

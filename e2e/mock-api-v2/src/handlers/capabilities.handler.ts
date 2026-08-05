@@ -4,14 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import {
-  HttpApiBuilder,
-  HttpApiError,
-  HttpServerRequest,
-  HttpServerResponse,
-} from '@effect/platform';
 import { Effect, pipe } from 'effect';
-
+import { MockApi } from '../spec.js';
+import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
+import * as HttpServerRequest from 'effect/unstable/http/HttpServerRequest';
+import * as HttpServerResponse from 'effect/unstable/http/HttpServerResponse';
+import { responseMap } from '../responses/index.js';
 import { validator } from '../helpers/match.js';
 import { responseMap } from '../responses/index.js';
 import { returnSuccessResponseRedirect } from '../responses/return-success-redirect.js';
@@ -106,9 +104,9 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
               },
             ),
           ),
-          Effect.flatMap((res) => HttpServerResponse.removeCookie(res, 'stepIndex')),
-          Effect.flatMap((res) => HttpServerResponse.setStatus(res, 200)),
-          Effect.flatMap((res) =>
+          Effect.map((res) => HttpServerResponse.removeCookie(res, 'stepIndex')),
+          Effect.map((res) => HttpServerResponse.setStatus(res, 200)),
+          Effect.map((res) =>
             HttpServerResponse.setHeader(res, 'Content-Type', 'application/json'),
           ),
           Effect.catchTag('CookieError', () => Effect.fail(new HttpApiError.InternalServerError())),

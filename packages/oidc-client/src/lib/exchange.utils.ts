@@ -4,8 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { getStoredAuthUrlValues } from '@forgerock/sdk-oidc';
-import { Micro } from 'effect';
+import type { SerializedError } from '@reduxjs/toolkit';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { Effect } from 'effect';
 
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
@@ -23,7 +24,7 @@ export function createValuesµ(
   endpoint: string,
   options?: Partial<StorageConfig>,
 ) {
-  return Micro.sync(() => {
+  return Effect.sync(() => {
     const storedValues = getStoredAuthUrlValues(config.clientId, options?.prefix);
 
     return {
@@ -39,7 +40,7 @@ export function createValuesµ(
 export function handleTokenResponseµ(
   data: TokenExchangeResponse | undefined,
   error?: FetchBaseQueryError | SerializedError,
-): Micro.Micro<TokenExchangeResponse, TokenExchangeErrorResponse, never> {
+): Effect.Effect<TokenExchangeResponse, TokenExchangeErrorResponse, never> {
   if (error) {
     let message;
     if ('status' in error) {
@@ -48,7 +49,7 @@ export function handleTokenResponseµ(
       message = error.message;
     }
 
-    return Micro.fail({
+    return Effect.fail({
       error: 'Token Exchange failure',
       message: message || 'Unknown error during token exchange',
       type: 'exchange_error',
@@ -56,14 +57,14 @@ export function handleTokenResponseµ(
   }
 
   if (!data) {
-    return Micro.fail({
+    return Effect.fail({
       error: 'Token Exchange failure',
       message: 'No data returned from token exchange',
       type: 'exchange_error',
     } as TokenExchangeErrorResponse);
   }
 
-  return Micro.succeed(data);
+  return Effect.succeed(data);
 }
 
 export function validateValuesµ({
@@ -87,9 +88,9 @@ export function validateValuesµ({
       type: 'state_error',
     } as const;
 
-    return Micro.fail(err);
+    return Effect.fail(err);
   }
-  return Micro.succeed({
+  return Effect.succeed({
     code,
     config,
     endpoint,

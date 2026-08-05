@@ -4,8 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { createWellknownError, isGenericError } from '@forgerock/sdk-utilities';
+import { Effect, Exit, Cause, Option, Either } from 'effect';
+import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
 import { Either, Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
@@ -21,7 +21,9 @@ import {
   isValidCollectorCategory,
   resolveCollectorUpdateValue,
 } from './client.store.utils.js';
-import { returnValidator } from './collector.utils.js';
+import { pollingµ, getPollingModeµ, type PollingMode } from './client.store.effects.js';
+import { nodeSlice } from './node.slice.js';
+import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { nodeSlice } from './node.slice.js';
@@ -455,17 +457,22 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     pollStatus: (collector: PollingCollector): Poller => {
       return async () => {
         const result = await getPollingModeµ(collector).pipe(
-          Micro.flatMap((mode) => pollingµ({ mode, collector, store, log })),
-          Micro.tapError((err) => Micro.sync(() => log.error(err.error.message))),
-          Micro.runPromiseExit,
+          Effect.flatMap((mode: PollingMode) => pollingµ({ mode, collector, store, log })),
+          Effect.tapError((err: InternalErrorResponse) =>
+            Effect.sync(() => log.error(err.error.message)),
+          ),
+          Effect.runPromiseExit,
         );
 
-        if (exitIsSuccess(result)) {
+        if (Exit.isSuccess(result)) {
           return result.value;
         }
 
-        if (exitIsFail(result)) {
-          return result.cause.error;
+        if (Exit.isFailure(result)) {
+          const maybeError = Cause.findErrorOption(result.cause);
+          if (Option.isSome(maybeError)) {
+            return maybeError.value;
+          }
         }
 
         return createInternalError(

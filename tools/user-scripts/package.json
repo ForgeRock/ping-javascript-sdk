@@ -16,7 +16,6 @@
     "test:watch": "pnpm nx nxTest --watch"
   },
   "dependencies": {
-    "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
     "effect": "catalog:effect",
     "vitest": "catalog:vitest"

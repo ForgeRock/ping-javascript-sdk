@@ -19,7 +19,7 @@ const UsernamePasswordFormData = Schema.Struct({
   }),
 });
 
-const FormData = Schema.Union(UsernamePasswordFormData, ProtectSDKRequestFormData);
+const FormData = Schema.Union([UsernamePasswordFormData, ProtectSDKRequestFormData]);
 
 const CapabilitiesResponse = Schema.Struct({
   interactionId: Schema.String,

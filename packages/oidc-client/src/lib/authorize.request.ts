@@ -4,7 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
+import { CustomLogger } from '@forgerock/sdk-logger';
+import { Effect } from 'effect';
 
 import {
   buildParBodyµ,
@@ -44,16 +45,20 @@ function dispatchAuthorizeµ(
   wellknown: WellknownResponse,
   store: ClientStore,
   log: CustomLogger,
-): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> {
+): Effect.Effect<AuthorizationSuccess, AuthorizationError, never> {
   if (options.responseMode === 'pi.flow') {
     const { responseMode: _, ...redirectOptions } = options;
     return dispatchAuthorizeFetchµ(store, url, wellknown, redirectOptions).pipe(
-      Micro.tap(() => log.debug('Received success response from authorize fetch endpoint')),
+      Effect.tap(() =>
+        Effect.sync(() => log.debug('Received success response from authorize fetch endpoint')),
+      ),
     );
   }
 
   return dispatchAuthorizeIframeµ(store, url, wellknown, options).pipe(
-    Micro.tap(() => log.debug('Received success response from authorize iframe endpoint')),
+    Effect.tap(() =>
+      Effect.sync(() => log.debug('Received success response from authorize iframe endpoint')),
+    ),
   );
 }
 
@@ -73,7 +78,7 @@ function dispatchAuthorizeµ(
  * @param options - Optional request-level overrides; `prompt` is split out
  *   so it appears on the slim URL while the rest of the params go in the
  *   PAR POST body.
- * @returns A `Micro` that resolves to the slim authorize URL string or
+ * @returns An `Effect` that resolves to the slim authorize URL string or
  *   fails with a typed `AuthorizationError`.
  */
 export function createParAuthorizeUrlµ(
@@ -82,11 +87,11 @@ export function createParAuthorizeUrlµ(
   log: CustomLogger,
   store: ClientStore,
   options?: OptionalAuthorizeOptions,
-): Micro.Micro<string, AuthorizationError, never> {
+): Effect.Effect<string, AuthorizationError, never> {
   const parEndpoint = wellknown.pushed_authorization_request_endpoint;
 
   if (!parEndpoint) {
-    return Micro.fail({
+    return Effect.fail({
       error: 'PAR_NOT_CONFIGURED',
       error_description: 'PAR endpoint not found in server configuration',
       type: 'wellknown_error',
@@ -95,7 +100,7 @@ export function createParAuthorizeUrlµ(
 
   const { prompt, ...parBodyOptions } = options ?? {};
 
-  return Micro.gen(function* () {
+  return Effect.gen(function* () {
     const [authUrlOptions, storeOptions] = yield* generateAuthValuesµ(config, wellknown, options);
     const challenge = yield* generatePkceChallengeµ(authUrlOptions.verifier);
     const body = yield* buildParBodyµ(
@@ -108,7 +113,7 @@ export function createParAuthorizeUrlµ(
     const parResult = yield* dispatchParRequestµ(store, parEndpoint, body);
     const { request_uri, expires_in } = yield* validateParResponseµ(parResult);
     if (expires_in < 30) {
-      yield* Micro.sync(() =>
+      yield* Effect.sync(() =>
         log.warn(
           `PAR request_uri expires in ${expires_in}s — authorize must complete before expiry`,
         ),
@@ -144,7 +149,7 @@ export function createParAuthorizeUrlµ(
  *   indicating whether to use the PAR flow. The caller owns the derivation
  *   logic (`config.par ?? require_pushed_authorization_requests === true`);
  *   this function simply routes on the resolved value.
- * @returns A `Micro` that resolves to an `AuthorizationSuccess` containing
+ * @returns An `Effect` that resolves to an `AuthorizationSuccess` containing
  *   the `code` and `state`, or fails with a typed `AuthorizationError`.
  */
 export function authorizeµ(
@@ -154,7 +159,7 @@ export function authorizeµ(
   store: ClientStore,
   options: GetAuthorizationUrlOptions | undefined,
   useParFlow: boolean,
-): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> {
+): Effect.Effect<AuthorizationSuccess, AuthorizationError, never> {
   const parDispatchOptions: GetAuthorizationUrlOptions = {
     clientId: config.clientId,
     redirectUri: config.redirectUri,
@@ -164,14 +169,14 @@ export function authorizeµ(
   };
 
   const parFlow = createParAuthorizeUrlµ(wellknown, config, log, store, options).pipe(
-    Micro.tap((url) => log.debug('PAR authorize URL created', url)),
-    Micro.tapError((err) =>
-      Micro.sync(() => log.error(`PAR authorize failed [${err.type}]: ${err.error}`, err)),
+    Effect.tap((url) => Effect.sync(() => log.debug('PAR authorize URL created', url))),
+    Effect.tapError((err) =>
+      Effect.sync(() => log.error(`PAR authorize failed [${err.type}]: ${err.error}`, err)),
     ),
-    Micro.flatMap((url) =>
+    Effect.flatMap((url) =>
       dispatchAuthorizeµ(url, parDispatchOptions, wellknown, store, log).pipe(
-        Micro.tapError((err) =>
-          Micro.sync(() => log.error('Error dispatching PAR authorize request', err)),
+        Effect.tapError((err) =>
+          Effect.sync(() => log.error('Error dispatching PAR authorize request', err)),
         ),
       ),
     ),
@@ -179,13 +184,13 @@ export function authorizeµ(
 
   const [path, opts] = buildAuthorizeOptions(wellknown, config, options);
   const standardFlow = createAuthorizeUrlµ(path, opts).pipe(
-    Micro.tap(([url]) => log.debug('Authorize URL created', url)),
-    Micro.tapError((err) => Micro.sync(() => log.error('Error creating authorize URL', err))),
-    Micro.flatMap(([url, dispatchOpts]) =>
+    Effect.tap(([url]) => Effect.sync(() => log.debug('Authorize URL created', url))),
+    Effect.tapError((err) => Effect.sync(() => log.error('Error creating authorize URL', err))),
+    Effect.flatMap(([url, dispatchOpts]) =>
       dispatchAuthorizeµ(url, dispatchOpts, wellknown, store, log),
     ),
-    Micro.tapError((err) =>
-      Micro.sync(() => log.error('Error dispatching authorize request', err)),
+    Effect.tapError((err) =>
+      Effect.sync(() => log.error('Error dispatching authorize request', err)),
     ),
   );
 

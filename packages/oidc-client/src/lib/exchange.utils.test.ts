@@ -4,9 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { expect, it } from '@effect/vitest';
-import { Micro } from 'effect';
-
+import { it, expect } from '@effect/vitest';
+import { Cause, Effect, Exit, Option } from 'effect';
 import { handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
 
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
@@ -38,7 +37,7 @@ const storedValues: GetAuthorizationUrlOptions = {
 };
 
 it.effect('validateValuesµ succeeds with TokenRequestOptions', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const result = yield* validateValuesµ({
       code,
       state,
@@ -56,7 +55,7 @@ it.effect('validateValuesµ succeeds with TokenRequestOptions', () =>
 );
 
 it.effect('validateValuesµ with verifier succeeds with TokenRequestOptions', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const verifier = 'verifier123';
     const result = yield* validateValuesµ({
       code,
@@ -79,8 +78,8 @@ it.effect('validateValuesµ with verifier succeeds with TokenRequestOptions', ()
 );
 
 it.effect('validateValuesµ fails with state mismatch', () =>
-  Micro.gen(function* () {
-    const result = yield* Micro.exit(
+  Effect.gen(function* () {
+    const result = yield* Effect.exit(
       validateValuesµ({
         code,
         state: 'abcState',
@@ -93,14 +92,17 @@ it.effect('validateValuesµ fails with state mismatch', () =>
       }),
     );
 
-    expect(result).toStrictEqual(
-      Micro.fail({
-        error: 'State mismatch',
-        message:
-          'The provided state does not match the stored state. This is likely due to passing in used, returned, authorize parameters.',
-        type: 'state_error',
-      }),
-    );
+    expect(Exit.isFailure(result)).toBe(true);
+    if (!Exit.isFailure(result)) return;
+    const errorOpt = Cause.findErrorOption(result.cause);
+    expect(Option.isSome(errorOpt)).toBe(true);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value).toStrictEqual({
+      error: 'State mismatch',
+      message:
+        'The provided state does not match the stored state. This is likely due to passing in used, returned, authorize parameters.',
+      type: 'state_error',
+    });
   }),
 );
 
@@ -110,7 +112,7 @@ it.effect('handleTokenResponseµ with data succeeds', () => {
     id_token: '67890',
   };
 
-  return Micro.gen(function* () {
+  return Effect.gen(function* () {
     const result = yield* handleTokenResponseµ(data);
 
     expect(result).toStrictEqual(data);
@@ -118,35 +120,41 @@ it.effect('handleTokenResponseµ with data succeeds', () => {
 });
 
 it.effect('handleTokenResponseµ with no data fails', () => {
-  return Micro.gen(function* () {
-    const result = yield* Micro.exit(handleTokenResponseµ(undefined));
+  return Effect.gen(function* () {
+    const result = yield* Effect.exit(handleTokenResponseµ(undefined));
 
-    expect(result).toStrictEqual(
-      Micro.fail({
-        error: 'Token Exchange failure',
-        message: 'No data returned from token exchange',
-        type: 'exchange_error',
-      }),
-    );
+    expect(Exit.isFailure(result)).toBe(true);
+    if (!Exit.isFailure(result)) return;
+    const errorOpt = Cause.findErrorOption(result.cause);
+    expect(Option.isSome(errorOpt)).toBe(true);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value).toStrictEqual({
+      error: 'Token Exchange failure',
+      message: 'No data returned from token exchange',
+      type: 'exchange_error',
+    });
   });
 });
 
 it.effect('handleTokenResponseµ with error fails', () => {
   const errMessage = 'Fetch error message';
-  return Micro.gen(function* () {
-    const result = yield* Micro.exit(
+  return Effect.gen(function* () {
+    const result = yield* Effect.exit(
       handleTokenResponseµ(undefined, {
         status: 'FETCH_ERROR',
         error: errMessage,
       }),
     );
 
-    expect(result).toStrictEqual(
-      Micro.fail({
-        error: 'Token Exchange failure',
-        message: errMessage,
-        type: 'exchange_error',
-      }),
-    );
+    expect(Exit.isFailure(result)).toBe(true);
+    if (!Exit.isFailure(result)) return;
+    const errorOpt = Cause.findErrorOption(result.cause);
+    expect(Option.isSome(errorOpt)).toBe(true);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value).toStrictEqual({
+      error: 'Token Exchange failure',
+      message: errMessage,
+      type: 'exchange_error',
+    });
   });
 });
