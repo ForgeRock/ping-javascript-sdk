@@ -7,7 +7,7 @@
 import { Effect } from 'effect';
 import { MockApi } from '../spec.js';
 import { UserInfo } from '../services/userinfo.service.js';
-import { HttpApiBuilder, HttpApiError } from '@effect/platform';
+import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
 import { BearerToken } from '../middleware/Authorization.js';
 
 const UserInfoMockHandler = HttpApiBuilder.group(MockApi, 'ProtectedRequests', (handlers) =>

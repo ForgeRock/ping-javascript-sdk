@@ -30,8 +30,7 @@ const _DavinciAuthorizeQuery = Schema.Struct({
 });
 
 interface DavinciAuthorizeQuery extends Schema.Schema.Type<typeof _DavinciAuthorizeQuery> {}
-const DavinciAuthorizeQuery: Schema.Schema<DavinciAuthorizeQuery, DavinciAuthorizeQuery> =
-  _DavinciAuthorizeQuery;
+const DavinciAuthorizeQuery: Schema.Schema<DavinciAuthorizeQuery> = _DavinciAuthorizeQuery;
 
 const DavinciAuthorizeFailure = Schema.Struct({
   error: Schema.String,

@@ -15,7 +15,7 @@ const RevokePath = Schema.Struct({
 const RevokeRequestBody = Schema.Struct({
   token: Schema.String, // The token to be revoked
   token_type_hint: Schema.optional(
-    Schema.Union(Schema.Literal('access_token'), Schema.Literal('refresh_token')),
+    Schema.Union([Schema.Literal('access_token'), Schema.Literal('refresh_token')]),
   ), // Hint about token type (access_token or refresh_token)
   client_id: Schema.optional(Schema.String), // OAuth 2.0 client identifier
   client_secret: Schema.optional(Schema.String), // OAuth 2.0 client secret
