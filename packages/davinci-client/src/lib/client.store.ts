@@ -4,8 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
-import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { Effect, Exit, Cause, Option } from 'effect';
 import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
 import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
@@ -19,7 +18,7 @@ import {
   handleUpdateValidateError,
   type RootState,
 } from './client.store.utils.js';
-import { pollingµ, getPollingModeµ } from './client.store.effects.js';
+import { pollingµ, getPollingModeµ, type PollingMode } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
@@ -434,18 +433,28 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      */
     pollStatus: (collector: PollingCollector): Poller => {
       return async () => {
-        const result = await getPollingModeµ(collector).pipe(
-          Micro.flatMap((mode) => pollingµ({ mode, collector, store, log })),
-          Micro.tapError((err) => Micro.sync(() => log.error(err.error.message))),
-          Micro.runPromiseExit,
+        const pollingEffect = getPollingModeµ(collector).pipe(
+          Effect.flatMap((mode: PollingMode) => pollingµ({ mode, collector, store, log })),
+          Effect.tapError((err: InternalErrorResponse) =>
+            Effect.sync(() => log.error(err.error.message)),
+          ),
         );
 
-        if (exitIsSuccess(result)) {
+        const result = await Effect.runPromiseExit(pollingEffect);
+
+        if (Exit.isSuccess(result)) {
           return result.value;
         }
 
-        if (exitIsFail(result)) {
-          return result.cause.error;
+        if (Exit.isFailure(result)) {
+          const maybeError = Cause.findErrorOption(result.cause);
+          if (Option.isSome(maybeError)) {
+            return maybeError.value;
+          }
+          // Handle defects (unexpected thrown errors)
+          const defect = Cause.squash(result.cause);
+          const message = defect instanceof Error ? defect.message : String(defect);
+          return createInternalError(message, 'unknown_error');
         }
 
         return createInternalError(

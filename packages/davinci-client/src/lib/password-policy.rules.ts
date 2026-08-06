@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Array as Arr, Option, pipe } from 'effect';
+import { Array as Arr, Result, pipe } from 'effect';
 
 import type { ValidatedPasswordCollector } from './collector.types.js';
 import type { PasswordPolicy } from './davinci.types.js';
@@ -52,7 +52,7 @@ const maxRepeatedCharactersRule: PasswordPolicyRule = (policy, value) => {
   const maxCount = pipe(
     countChars(value),
     (counts) => Array.from(counts.values()),
-    Arr.reduce(0, (acc, n) => (n > acc ? n : acc)),
+    (values) => Math.max(0, ...values),
   );
   return maxCount > max ? [`Password cannot repeat any character more than ${max} times`] : [];
 };
@@ -66,8 +66,8 @@ const minCharactersRule: PasswordPolicyRule = (policy, value) => {
       let hits = 0;
       for (const ch of value) if (members.has(ch)) hits += 1;
       return hits < min
-        ? Option.some(`Password must contain at least ${min} character(s) from "${charset}"`)
-        : Option.none();
+        ? Result.succeed(`Password must contain at least ${min} character(s) from "${charset}"`)
+        : Result.fail(undefined);
     }),
   );
 };
