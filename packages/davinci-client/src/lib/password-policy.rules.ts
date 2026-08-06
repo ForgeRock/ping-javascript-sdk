@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -67,7 +67,7 @@ const minCharactersRule: PasswordPolicyRule = (policy, value) => {
       for (const ch of value) if (members.has(ch)) hits += 1;
       return hits < min
         ? Result.succeed(`Password must contain at least ${min} character(s) from "${charset}"`)
-        : Result.failVoid;
+        : Result.fail(undefined);
     }),
   );
 };
