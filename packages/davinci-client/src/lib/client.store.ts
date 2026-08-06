@@ -451,13 +451,14 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
      */
     pollStatus: (collector: PollingCollector): Poller => {
       return async () => {
-        const result = await getPollingModeµ(collector).pipe(
+        const pollingEffect = getPollingModeµ(collector).pipe(
           Effect.flatMap((mode: PollingMode) => pollingµ({ mode, collector, store, log })),
           Effect.tapError((err: InternalErrorResponse) =>
             Effect.sync(() => log.error(err.error.message)),
           ),
-          Effect.runPromiseExit,
         );
+
+        const result = await Effect.runPromiseExit(pollingEffect);
 
         if (Exit.isSuccess(result)) {
           return result.value;
@@ -468,6 +469,10 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
           if (Option.isSome(maybeError)) {
             return maybeError.value;
           }
+          // Handle defects (unexpected thrown errors)
+          const defect = Cause.squash(result.cause);
+          const message = defect instanceof Error ? defect.message : String(defect);
+          return createInternalError(message, 'unknown_error');
         }
 
         return createInternalError(
