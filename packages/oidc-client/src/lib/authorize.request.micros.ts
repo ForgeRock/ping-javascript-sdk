@@ -119,10 +119,7 @@ export const createAuthorizeUrlµ = (
 ): Micro.Micro<[string, GetAuthorizationUrlOptions], AuthorizationError, never> => {
   return Micro.tryPromise({
     try: async () =>
-      [await createAuthorizeUrl(path, { ...options, prompt: 'none' }), options] as [
-        string,
-        GetAuthorizationUrlOptions,
-      ],
+      [await createAuthorizeUrl(path, options), options] as [string, GetAuthorizationUrlOptions],
     catch: (error): AuthorizationError => ({
       error: 'AuthorizationUrlError',
       error_description:

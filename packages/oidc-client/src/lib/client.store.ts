@@ -1,5 +1,5 @@
 /*
- * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -208,7 +208,14 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         const result = await Micro.runPromiseExit(
-          authorizeµ(wellknown, config, log, store, options, useParFlow),
+          authorizeµ(
+            wellknown,
+            config,
+            log,
+            store,
+            { ...(options ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
+            useParFlow,
+          ),
         );
 
         if (exitIsSuccess(result)) {
@@ -328,7 +335,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           config,
           log,
           store,
-          authorizeOptions,
+          { ...(authorizeOptions ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
           useParFlow,
         ).pipe(
           Micro.flatMap((response): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> => {
