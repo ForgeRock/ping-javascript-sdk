@@ -299,9 +299,9 @@ function continuePollingµ(
   mode: Extract<PollingMode, { _tag: 'continue' }>,
 ): Effect.Effect<PollingStatus, InternalErrorResponse> {
   if (mode.retriesRemaining <= 0) {
-    return Effect.succeed('timedOut' as PollingStatus);
+    return Effect.succeed('timedOut');
   }
-  return delayMs(mode.pollInterval).pipe(Effect.map(() => 'continue' as PollingStatus));
+  return delayMs(mode.pollInterval).pipe(Effect.map(() => 'continue'));
 }
 
 /**

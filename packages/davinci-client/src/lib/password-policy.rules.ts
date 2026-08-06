@@ -52,7 +52,7 @@ const maxRepeatedCharactersRule: PasswordPolicyRule = (policy, value) => {
   const maxCount = pipe(
     countChars(value),
     (counts) => Array.from(counts.values()),
-    Arr.reduce(0, (acc, n) => (n > acc ? n : acc)),
+    (values) => Math.max(0, ...values),
   );
   return maxCount > max ? [`Password cannot repeat any character more than ${max} times`] : [];
 };
