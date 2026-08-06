@@ -1,5 +1,5 @@
-import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
-import { Config, Data, Effect, ManagedRuntime } from 'effect';
+import { HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/unstable/http';
+import { Context, Config, Data, Effect, Layer, ManagedRuntime } from 'effect';
 import { NodeHttpClient } from '@effect/platform-node';
 import { getUsersResponse, TokenResponse } from './schemas.js';
 
@@ -28,9 +28,8 @@ export class FailureToAcquireToken extends Data.TaggedError('FailureToAcquireTok
   cause: string;
 }> {}
 
-export class UserService extends Effect.Service<UserService>()('@users/service', {
-  dependencies: [NodeHttpClient.layerUndici],
-  effect: Effect.gen(function* () {
+export class UserService extends Context.Service<UserService>()('@users/service', {
+  make: Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
     const clientId = yield* Config.string('CLIENT_ID');
     const clientSecret = yield* Config.string('CLIENT_SECRET');
@@ -51,23 +50,15 @@ export class UserService extends Effect.Service<UserService>()('@users/service',
     return {
       deleteUser: (userId: string) =>
         Effect.gen(function* () {
-          const response = yield* HttpClientRequest.del(API_URL).pipe(
+          const response = yield* HttpClientRequest.delete(API_URL).pipe(
             HttpClientRequest.appendUrl(`/v1/environments/${envId}/users/${userId}`),
             HttpClientRequest.bearerToken(tokenResponse.access_token),
             client.execute,
             Effect.flatMap(HttpClientResponse.filterStatusOk),
-            Effect.catchTag('ResponseError', (e) =>
+            Effect.catchTag('HttpClientError', (e) =>
               Effect.fail(
                 new DeleteUserError({
-                  message: `Failed to delete user, error in response: ${e}`,
-                  cause: e.message,
-                }),
-              ),
-            ),
-            Effect.catchTag('RequestError', (e) =>
-              Effect.fail(
-                new DeleteUserError({
-                  message: `Failed to delete user, error in request: ${e}`,
+                  message: `Failed to delete user: ${e}`,
                   cause: e.message,
                 }),
               ),
@@ -102,4 +93,6 @@ export class UserService extends Effect.Service<UserService>()('@users/service',
   }),
 }) {}
 
-export const UserRuntime = ManagedRuntime.make(UserService.Default);
+export const UserRuntime = ManagedRuntime.make(
+  Layer.provide(Layer.effect(UserService, UserService.make), NodeHttpClient.layerUndici),
+);
