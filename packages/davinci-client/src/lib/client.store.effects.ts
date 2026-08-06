@@ -29,6 +29,17 @@ import type { InternalErrorResponse, PollingStatus } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
 
 /**
+ * Plain-`setTimeout` delay that bypasses Effect's ClockRef/withFiber chain.
+ * Required in Vite-bundled browser environments where Effect.sleep can hang
+ * due to the ClockRef scheduler not draining in a browser event loop.
+ */
+const delayMs = (ms: number): Effect.Effect<void, never> =>
+  Effect.callback<void, never>((resume) => {
+    const handle = setTimeout(() => resume(Effect.void), ms);
+    return Effect.sync(() => clearTimeout(handle));
+  });
+
+/**
  * Shape returned by RTK Query's dispatch for the poll endpoint.
  */
 export interface PollDispatchResult {
@@ -273,7 +284,7 @@ function challengePollingµ({
     let response: PollDispatchResult = yield* doPoll();
 
     for (let i = 0; i < maxRetries - 1 && isChallengeStillPending(response); i++) {
-      yield* Effect.sleep(pollInterval);
+      yield* delayMs(pollInterval);
       response = yield* doPoll();
     }
 
@@ -298,7 +309,7 @@ function continuePollingµ(
   if (mode.retriesRemaining <= 0) {
     return Effect.succeed('timedOut' as PollingStatus);
   }
-  return Effect.sleep(mode.pollInterval).pipe(Effect.map(() => 'continue' as PollingStatus));
+  return delayMs(mode.pollInterval).pipe(Effect.map(() => 'continue' as PollingStatus));
 }
 
 /**

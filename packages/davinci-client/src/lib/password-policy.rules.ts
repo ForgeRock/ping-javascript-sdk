@@ -67,7 +67,7 @@ const minCharactersRule: PasswordPolicyRule = (policy, value) => {
       for (const ch of value) if (members.has(ch)) hits += 1;
       return hits < min
         ? Result.succeed(`Password must contain at least ${min} character(s) from "${charset}"`)
-        : Result.failVoid;
+        : Result.fail(undefined);
     }),
   );
 };
