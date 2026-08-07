@@ -375,6 +375,50 @@ it('buildAuthorizeOptions falls back to "openid" scope and "code" responseType w
   expect(opts.responseType).toBe('code');
 });
 
+it('buildAuthorizeOptions forwards loginHint, acrValues and query from config', () => {
+  const configWithHints: OidcConfig = {
+    ...config,
+    loginHint: 'user@example.com',
+    acrValues: 'urn:acr:example',
+    query: { ui_locales: 'en-US' },
+  };
+  const [, opts] = buildAuthorizeOptions(wellknown, configWithHints);
+  expect(opts.loginHint).toBe('user@example.com');
+  expect(opts.acrValues).toBe('urn:acr:example');
+  expect(opts.query).toStrictEqual({ ui_locales: 'en-US' });
+});
+
+it('buildAuthorizeOptions forwards nonce, display, prompt and uiLocales from config', () => {
+  const configWithExtras: OidcConfig = {
+    ...config,
+    nonce: 'abc123',
+    display: 'popup',
+    prompt: 'login',
+    uiLocales: 'fr-FR',
+  };
+  const [, opts] = buildAuthorizeOptions(wellknown, configWithExtras);
+  expect(opts.nonce).toBe('abc123');
+  expect(opts.display).toBe('popup');
+  expect(opts.prompt).toBe('login');
+  expect(opts.uiLocales).toBe('fr-FR');
+});
+
+it('buildAuthorizeOptions lets caller options override config-level values', () => {
+  const configWithHint: OidcConfig = { ...config, loginHint: 'config@example.com' };
+  const [, opts] = buildAuthorizeOptions(wellknown, configWithHint, {
+    loginHint: 'caller@example.com',
+  });
+  expect(opts.loginHint).toBe('caller@example.com');
+});
+
+it('buildAuthorizeOptions omits undefined config fields', () => {
+  const [, opts] = buildAuthorizeOptions(wellknown, config);
+  expect(opts.loginHint).toBeUndefined();
+  expect(opts.acrValues).toBeUndefined();
+  expect(opts.query).toBeUndefined();
+  expect(opts.nonce).toBeUndefined();
+});
+
 // ─── authorizeµ flow routing ──────────────────────────────────────────────────
 
 it.effect('authorizeµ uses PAR flow when useParFlow=true', () =>
