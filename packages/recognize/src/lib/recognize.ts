@@ -46,7 +46,7 @@ export function recognize(
   const observers: Set<RecognizeWebComponentObserver> = new Set();
 
   let element: RecognizeWebComponent | null = null;
-  let aborter: AbortController | null = null;
+  const aborter = new AbortController();
 
   const dispatch = (event: RecognizeWebComponentEvent): void => {
     for (const observer of observers) {
@@ -55,8 +55,6 @@ export function recognize(
   };
 
   const addEventListeners = (element: RecognizeWebComponent): void => {
-    aborter = new AbortController();
-
     const onError = (event: ErrorEvent): void => {
       if (event instanceof KeylessRecoverableErrorEvent) {
         element?.dispose();
@@ -166,8 +164,7 @@ export function recognize(
     dispose: (): void => {
       if (element === null) return;
 
-      aborter?.abort();
-      aborter = null;
+      aborter.abort();
 
       element.remove();
       element = null;
