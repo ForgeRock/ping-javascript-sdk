@@ -40,6 +40,13 @@ export function buildAuthorizeOptions(
       scope: config.scope || 'openid',
       responseType: config.responseType || 'code',
       ...(isPiFlow && { responseMode: 'pi.flow' as const }),
+      ...(config.loginHint !== undefined && { loginHint: config.loginHint }),
+      ...(config.nonce !== undefined && { nonce: config.nonce }),
+      ...(config.display !== undefined && { display: config.display }),
+      ...(config.prompt !== undefined && { prompt: config.prompt }),
+      ...(config.uiLocales !== undefined && { uiLocales: config.uiLocales }),
+      ...(config.acrValues !== undefined && { acrValues: config.acrValues }),
+      ...(config.query !== undefined && { query: config.query }),
       ...options,
     },
   ];
