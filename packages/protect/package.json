@@ -1,6 +1,6 @@
 {
   "name": "@forgerock/protect",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
