@@ -138,7 +138,10 @@ export const buildAuthorizeRedirectUrlµ = (
   options: GetAuthorizationUrlOptions,
 ): Micro.Micro<never, AuthorizationError, never> => {
   return Micro.tryPromise({
-    try: () => createAuthorizeUrl(wellknown.authorization_endpoint, { ...options }),
+    try: () => {
+      const { prompt: _prompt, ...interactiveOptions } = options;
+      return createAuthorizeUrl(wellknown.authorization_endpoint, interactiveOptions);
+    },
     catch: (error): AuthorizationError => ({
       error: 'AuthorizationUrlError',
       error_description:
