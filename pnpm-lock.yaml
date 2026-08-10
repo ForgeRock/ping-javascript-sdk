@@ -301,7 +301,7 @@ importers:
   e2e/am-mock-api:
     dependencies:
       body-parser:
-        specifier: ^2.2.2
+        specifier: ^2.3.0
         version: 2.3.0
       cookie-parser:
         specifier: ^1.4.7
