@@ -354,7 +354,7 @@ describe('The node collector reducer', () => {
     ]);
   });
 
-  it('should throw with no collectors', () => {
+  it('should no-op when no collector matches the id', () => {
     const action = {
       type: 'node/update',
       payload: {
@@ -382,10 +382,10 @@ describe('The node collector reducer', () => {
         },
       },
     ];
-    expect(() => nodeCollectorReducer(state, action)).toThrowError('No collector found to update');
+    expect(nodeCollectorReducer(state, action)).toStrictEqual(state);
   });
 
-  it('should throw with no Action Collector', () => {
+  it('should no-op when updating an ActionCollector (read-only)', () => {
     const action = {
       type: 'node/update',
       payload: {
@@ -425,12 +425,10 @@ describe('The node collector reducer', () => {
         },
       },
     ];
-    expect(() => nodeCollectorReducer(state, action)).toThrowError(
-      'ActionCollectors are read-only',
-    );
+    expect(nodeCollectorReducer(state, action)).toStrictEqual(state);
   });
 
-  it('should throw NoValueCollectors are read-only on update', () => {
+  it('should no-op when updating a NoValueCollector (read-only)', () => {
     const action = {
       type: 'node/update',
       payload: {
@@ -454,9 +452,7 @@ describe('The node collector reducer', () => {
         },
       },
     ];
-    expect(() => nodeCollectorReducer(state, action)).toThrowError(
-      'NoValueCollectors, like ReadOnlyCollectors, are read-only',
-    );
+    expect(nodeCollectorReducer(state, action)).toStrictEqual(state);
   });
 
   it('should handle QR_CODE field type', () => {
@@ -2397,7 +2393,7 @@ describe('The node collector reducer with MetadataField', () => {
     expect((result[0] as MetadataCollector).input.value).toEqual({ result: 'ok' });
   });
 
-  it('should throw when updating a MetadataCollector with a non-object value', () => {
+  it('should no-op when updating a MetadataCollector with a non-object value', () => {
     const state: MetadataCollector[] = [
       {
         category: 'ObjectValueAutoCollector',
@@ -2414,6 +2410,6 @@ describe('The node collector reducer with MetadataField', () => {
       type: 'node/update',
       payload: { id: 'metadata-key-0', value: 'not-an-object' },
     };
-    expect(() => nodeCollectorReducer(state, action)).toThrow('Value argument must be an object');
+    expect(nodeCollectorReducer(state, action)).toStrictEqual(state);
   });
 });

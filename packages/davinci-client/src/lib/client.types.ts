@@ -12,8 +12,10 @@ import type {
   PhoneNumberInputValue,
   PhoneNumberExtensionInputValue,
   AutoCollectors,
+  MultiSelectCollector,
   MultiValueCollectors,
   ObjectValueCollectors,
+  SingleValueCollectors,
   ValidatedTextCollector,
   ValidatedBooleanCollector,
   ValidatedPasswordCollector,
@@ -77,7 +79,7 @@ export type CollectorValueType<T> =
           ? boolean
           : // string[] input types
             T extends { type: 'MultiSelectCollector' }
-            ? string[]
+            ? string | string[]
             : // specialized input types
               T extends { type: 'PhoneNumberCollector' }
               ? PhoneNumberInputValue
@@ -98,12 +100,21 @@ export type CollectorValueType<T> =
                           : T extends { category: 'SingleValueAutoCollector' }
                             ? string
                             : T extends { category: 'MultiValueCollector' }
-                              ? string[]
+                              ? string | string[]
                               : T extends { category: 'ActionCollector' }
                                 ? never
                                 : T extends { category: 'NoValueCollector' }
                                   ? never
                                   : CollectorValueTypes;
+
+/**
+ * Collectors which can be updated
+ */
+export type UpdatableCollectors =
+  | SingleValueCollectors
+  | MultiSelectCollector
+  | ObjectValueCollectors
+  | AutoCollectors;
 
 /**
  * A function type that updates a collector's value. Accepts values appropriate for the collector type.
@@ -114,7 +125,7 @@ export type CollectorValueType<T> =
  * @param index Optional index for multi-value collectors
  * @returns null on success, or an InternalErrorResponse on failure
  */
-export type Updater<T = unknown> = (
+export type Updater<T extends UpdatableCollectors = UpdatableCollectors> = (
   value: CollectorValueType<T>,
   index?: number,
 ) => InternalErrorResponse | null;

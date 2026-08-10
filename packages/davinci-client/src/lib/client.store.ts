@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
+import { Micro, Either } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
@@ -17,6 +17,8 @@ import {
   createClientStore,
   createInternalError,
   handleUpdateValidateError,
+  isValidCollectorCategory,
+  resolveCollectorUpdateValue,
   type RootState,
 } from './client.store.utils.js';
 import { pollingµ, getPollingModeµ } from './client.store.effects.js';
@@ -38,7 +40,6 @@ import type {
 } from './davinci.types.js';
 import type {
   SingleValueCollectors,
-  MultiSelectCollector,
   ObjectValueCollectors,
   AutoCollectors,
   PollingCollector,
@@ -49,6 +50,7 @@ import type {
   InternalErrorResponse,
   NodeStates,
   Updater,
+  UpdatableCollectors,
   Validator,
   Poller,
   CollectorValueTypes,
@@ -286,18 +288,18 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
     /**
      * @method update - Exclusive method for updating the current node with user provided values
-     * @param {SingleValueCollector | MultiSelectCollector | ObjectValueCollectors | AutoCollectors} collector - the collector to update
+     * @param {UpdatableCollectors} collector - the collector to update
      * @returns {function} - a function to call for updating collector value
      */
-    update: <
-      T extends
-        | SingleValueCollectors
-        | MultiSelectCollector
-        | ObjectValueCollectors
-        | AutoCollectors,
-    >(
-      collector: T,
-    ): Updater<T> => {
+    update: <T extends UpdatableCollectors>(collector: T): Updater<T> => {
+      if (!collector) {
+        return handleUpdateValidateError(
+          'Argument for `collector` is required',
+          'argument_error',
+          log.error,
+        );
+      }
+
       if (!collector.id) {
         return handleUpdateValidateError(
           'Argument for `collector` has no ID',
@@ -307,45 +309,59 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
       }
 
       const { id } = collector;
-      const { error, state: collectorToUpdate } = nodeSlice.selectors.selectCollector(
-        store.getState(),
-        id,
-      );
-
-      if (error) {
-        return handleUpdateValidateError(error.message, 'state_error', log.error);
-      }
-
-      if (!collectorToUpdate) {
-        return handleUpdateValidateError('Collector not found', 'state_error', log.error);
-      }
-
-      if (
-        collectorToUpdate.category !== 'MultiValueCollector' &&
-        collectorToUpdate.category !== 'SingleValueCollector' &&
-        collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
-        collectorToUpdate.category !== 'ObjectValueCollector' &&
-        collectorToUpdate.category !== 'SingleValueAutoCollector' &&
-        collectorToUpdate.category !== 'ObjectValueAutoCollector'
-      ) {
-        return handleUpdateValidateError(
-          'Collector does not fall into a category that can be updated',
-          'state_error',
-          log.error,
-        );
-      }
 
       return function (value: CollectorValueTypes, index?: number) {
-        try {
-          store.dispatch(nodeSlice.actions.update({ id, value, index }));
-          return null;
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          return {
-            type: 'internal_error',
-            error: { message: errorMessage, type: 'internal_error' },
-          };
+        const { error, state: collectorToUpdate } = nodeSlice.selectors.selectCollector(
+          store.getState(),
+          id,
+        );
+
+        if (error) {
+          log.error(error.message);
+          return createInternalError(error.message, 'state_error');
         }
+
+        if (!collectorToUpdate) {
+          log.error('Collector not found');
+          return createInternalError('Collector not found', 'state_error');
+        }
+
+        if (
+          !isValidCollectorCategory(collectorToUpdate, [
+            'MultiValueCollector',
+            'SingleValueCollector',
+            'ValidatedSingleValueCollector',
+            'ObjectValueCollector',
+            'SingleValueAutoCollector',
+            'ObjectValueAutoCollector',
+          ])
+        ) {
+          log.error('Collector does not fall into a category that can be updated');
+          return createInternalError(
+            'Collector does not fall into a category that can be updated',
+            'state_error',
+          );
+        }
+
+        /**
+         * Validate the collector value type
+         *
+         * `isValidCollectorCategory`'s `Extract<Collectors, { category: C }>` return type
+         * structurally includes `SingleValueCollectorNoValue<'SingleValueCollector'>` — it
+         * shares the same `category`/`type` literals as the real, updatable
+         * `SingleValueCollectorWithValue` shape, so neither can be used to tell them apart.
+         * No runtime factory in collector.utils.ts ever produces the `SingleValueCollectorNoValue`
+         * shape, so the cast is safe.
+         */
+        const result = resolveCollectorUpdateValue(collectorToUpdate as UpdatableCollectors, value);
+        if (Either.isLeft(result)) {
+          log.error(result.left.error.message);
+          return result.left;
+        }
+
+        // Update the collector in the store with the value
+        store.dispatch(nodeSlice.actions.update({ id, value, index }));
+        return null;
       };
     },
 
@@ -394,13 +410,15 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
 
       if (
         collectorToUpdate.type !== 'ValidatedPasswordCollector' &&
-        collectorToUpdate.category !== 'ValidatedSingleValueCollector' &&
-        collectorToUpdate.category !== 'ObjectValueCollector' &&
-        collectorToUpdate.category !== 'MultiValueCollector' &&
-        collectorToUpdate.category !== 'ObjectValueAutoCollector'
+        !isValidCollectorCategory(collectorToUpdate, [
+          'ValidatedSingleValueCollector',
+          'ObjectValueCollector',
+          'MultiValueCollector',
+          'ObjectValueAutoCollector',
+        ])
       ) {
         return handleUpdateValidateError(
-          'Collector does not fall into a category that can be validated',
+          'Collector does not fall into a type or category that can be validated',
           'state_error',
           log.error,
         );
