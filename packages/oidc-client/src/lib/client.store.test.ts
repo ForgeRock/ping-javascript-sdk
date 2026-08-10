@@ -1,5 +1,5 @@
 /*
- * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -651,6 +651,14 @@ describe('authorize.background() with PAR enabled', async () => {
       expect.fail('Expected client, got error');
     }
 
+    let capturedParBody = '';
+    server.use(
+      http.post('*/as/par', async ({ request }) => {
+        capturedParBody = await request.text();
+        return HttpResponse.json({ request_uri: parRequestUri, expires_in: 60 }, { status: 201 });
+      }),
+    );
+
     const response = await result.authorize.background({
       clientId: configWithPar.clientId,
       redirectUri: configWithPar.redirectUri,
@@ -663,8 +671,160 @@ describe('authorize.background() with PAR enabled', async () => {
       expect.fail(`Expected success, got error: ${JSON.stringify(response)}`);
     }
 
+    expect(new URLSearchParams(capturedParBody).get('prompt')).toBe('none');
     expect(response.code).toBeDefined();
     expect(response.state).toBeDefined();
+  });
+});
+
+describe('authorize.background() prompt=none enforcement', async () => {
+  beforeEach(() => {
+    customStorage.remove(storageKey);
+  });
+
+  it('background() always includes prompt=none even when options omit it', async () => {
+    const baseConfig: OidcConfig = {
+      clientId: '123456789',
+      redirectUri: 'https://example.com/callback.html',
+      scope: 'openid profile',
+      serverConfig: { wellknown: 'https://api.example.com/wellknown' },
+      responseType: 'code',
+    };
+
+    // PAR enabled: prompt=none must appear in the PAR request body
+    let capturedParBodyText = '';
+    server.use(
+      http.post('*/as/par', async ({ request }) => {
+        capturedParBodyText = await request.text();
+        return HttpResponse.json({ request_uri: parRequestUri, expires_in: 60 }, { status: 201 });
+      }),
+    );
+
+    const parClient = await oidc({
+      config: { ...baseConfig, par: true },
+      storage: customStorageConfig,
+    });
+    if ('error' in parClient) {
+      expect.fail('Expected client, got error');
+    }
+
+    const parResponse = await parClient.authorize.background({
+      clientId: baseConfig.clientId,
+      redirectUri: baseConfig.redirectUri,
+      scope: baseConfig.scope,
+      responseType: 'code',
+      responseMode: 'pi.flow',
+      // intentionally omitting prompt
+    });
+
+    if ('error' in parResponse) {
+      expect.fail(`Expected success, got error: ${JSON.stringify(parResponse)}`);
+    }
+
+    expect(new URLSearchParams(capturedParBodyText).get('prompt')).toBe('none');
+
+    // PAR disabled (standard flow): prompt=none must appear in the authorize POST URL
+    customStorage.remove(storageKey);
+
+    let capturedAuthorizeUrl = '';
+    server.use(
+      http.post('*/as/authorize', async ({ request }) => {
+        capturedAuthorizeUrl = request.url;
+        return HttpResponse.json({
+          authorizeResponse: {
+            code: 123,
+            state: 'NzUyNDUyMDAxOTMyNDUxNzI1NjkxNDc2MjEyMzUwMjQzMzQyMjE4OQ',
+          },
+        });
+      }),
+    );
+
+    const standardClient = await oidc({
+      config: { ...baseConfig, par: false },
+      storage: customStorageConfig,
+    });
+    if ('error' in standardClient) {
+      expect.fail('Expected client, got error');
+    }
+
+    const standardResponse = await standardClient.authorize.background({
+      clientId: baseConfig.clientId,
+      redirectUri: baseConfig.redirectUri,
+      scope: baseConfig.scope,
+      responseType: 'code',
+      responseMode: 'pi.flow',
+      // intentionally omitting prompt
+    });
+
+    if ('error' in standardResponse) {
+      expect.fail(`Expected success, got error: ${JSON.stringify(standardResponse)}`);
+    }
+
+    expect(new URL(capturedAuthorizeUrl).searchParams.get('prompt')).toBe('none');
+  });
+
+  it('background() with NO argument still includes prompt=none', async () => {
+    const baseConfig: OidcConfig = {
+      clientId: '123456789',
+      redirectUri: 'https://example.com/callback.html',
+      scope: 'openid profile',
+      serverConfig: { wellknown: 'https://api.example.com/wellknown' },
+      responseType: 'code',
+    };
+
+    // PAR flow: capture the PAR request body — do not assert overall success,
+    // because the post-PAR iframe authorize step fails in jsdom.
+    let capturedParBodyText = '';
+    server.use(
+      http.post('*/as/par', async ({ request }) => {
+        capturedParBodyText = await request.text();
+        return HttpResponse.json({ request_uri: parRequestUri, expires_in: 60 }, { status: 201 });
+      }),
+    );
+
+    const parClient = await oidc({
+      config: { ...baseConfig, par: true },
+      storage: customStorageConfig,
+    });
+    if ('error' in parClient) {
+      expect.fail('Expected client, got error');
+    }
+
+    await parClient.authorize.background(); // overall result may be an error — that is OK
+    expect(new URLSearchParams(capturedParBodyText).get('prompt')).toBe('none');
+
+    // Standard flow (no PAR): the SDK uses an iframe GET to the authorize endpoint.
+    // Capture via GET mock; do not assert overall success.
+    customStorage.remove(storageKey);
+
+    let capturedAuthorizeUrl = '';
+    server.use(
+      http.get('*/as/authorize', async ({ request }) => {
+        capturedAuthorizeUrl = request.url;
+        return new HttpResponse(null, { status: 200 });
+      }),
+      http.post('*/as/authorize', async ({ request }) => {
+        capturedAuthorizeUrl = request.url;
+        return HttpResponse.json({
+          authorizeResponse: {
+            code: 123,
+            state: 'NzUyNDUyMDAxOTMyNDUxNzI1NjkxNDc2MjEyMzUwMjQzMzQyMjE4OQ',
+          },
+        });
+      }),
+    );
+
+    const standardClient = await oidc({
+      config: { ...baseConfig, par: false },
+      storage: customStorageConfig,
+    });
+    if ('error' in standardClient) {
+      expect.fail('Expected client, got error');
+    }
+
+    await standardClient.authorize.background(); // overall result may be an error — that is OK
+    expect(capturedAuthorizeUrl).not.toBe('');
+    expect(new URL(capturedAuthorizeUrl).searchParams.get('prompt')).toBe('none');
   });
 });
 
