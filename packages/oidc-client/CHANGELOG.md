@@ -1,5 +1,20 @@
 # @forgerock/oidc-client
 
+## 2.1.1
+
+### Patch Changes
+
+- [`0e1e72d`](https://github.com/ForgeRock/ping-javascript-sdk/commit/0e1e72d72629b7bba560a69bf75e0e04c373930a) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Always include prompt=none on background authorize calls (both standard and PAR flows)
+
+- Updated dependencies []:
+  - @forgerock/iframe-manager@2.1.1
+  - @forgerock/sdk-logger@2.1.1
+  - @forgerock/sdk-oidc@2.1.1
+  - @forgerock/sdk-request-middleware@2.1.1
+  - @forgerock/storage@2.1.1
+  - @forgerock/sdk-types@2.1.1
+  - @forgerock/sdk-utilities@2.1.1
+
 ## 2.1.0
 
 ### Minor Changes
