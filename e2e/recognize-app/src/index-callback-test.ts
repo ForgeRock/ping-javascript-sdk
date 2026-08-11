@@ -8,7 +8,6 @@ import {
 import { recognize } from '@forgerock/recognize';
 import './styles.css';
 
-
 const appEl = document.getElementById('app') as HTMLDivElement;
 appEl.style.cssText = 'display:flex;gap:1.5rem;align-items:flex-start;';
 
@@ -125,7 +124,7 @@ function promptCredentials(): Promise<{ username: string; password: string }> {
         client.subscribe({
           next: (event) => {
             log(
-              `[recognize] ${event.type}${event.detail ? ': ' + JSON.stringify(event.detail) : ''}`,
+              `[recognize] ${event.type}${'detail' in event ? ': ' + JSON.stringify(event.detail) : ''}`,
             );
           },
           error: (err) => {
@@ -138,10 +137,10 @@ function promptCredentials(): Promise<{ username: string; password: string }> {
               err instanceof Error,
             );
             log(
-              `[recognize] error: ${JSON.stringify(err)} — code:${err.code} — msg:${err.message} — constructor:${err?.constructor?.name}`,
+              `[recognize] error: ${JSON.stringify(err)} — code:${err.error.code} — msg:${err.error.message} — constructor:${err?.constructor?.name}`,
             );
-            recognizeCallback.setClientError(err.message);
-            recognizeCallback.setClientErrorCode(err.code);
+            recognizeCallback.setClientError(err.error.message);
+            recognizeCallback.setClientErrorCode(String(err.error.code));
             resolve();
           },
           complete: (data) => {
