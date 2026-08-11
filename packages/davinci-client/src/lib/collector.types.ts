@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { GenericError } from '@forgerock/sdk-types';
 import type {
   FidoAuthenticationOptions,
   FidoRegistrationOptions,
@@ -21,6 +22,7 @@ import type {
 export type SingleValueCollectorTypes =
   | 'PasswordCollector'
   | 'ValidatedPasswordCollector'
+  | 'BooleanCollector'
   | 'ValidatedBooleanCollector'
   | 'SingleValueCollector'
   | 'SingleSelectCollector'
@@ -168,16 +170,18 @@ export type InferSingleValueCollectorType<T extends SingleValueCollectorTypes> =
           ? PasswordCollector
           : T extends 'ValidatedPasswordCollector'
             ? ValidatedPasswordCollector
-            : T extends 'ValidatedBooleanCollector'
-              ? ValidatedBooleanCollector
-              : /**
-                   * At this point, we have not passed in a collector type
-                   * or we have explicitly passed in 'SingleValueCollector'
-                   * So we can return either a SingleValueCollector with value
-                   * or without a value.
-                   **/
-                  | SingleValueCollectorWithValue<'SingleValueCollector'>
-                  | SingleValueCollectorNoValue<'SingleValueCollector'>;
+            : T extends 'BooleanCollector'
+              ? BooleanCollector
+              : T extends 'ValidatedBooleanCollector'
+                ? ValidatedBooleanCollector
+                : /**
+                     * At this point, we have not passed in a collector type
+                     * or we have explicitly passed in 'SingleValueCollector'
+                     * So we can return either a SingleValueCollector with value
+                     * or without a value.
+                     **/
+                    | SingleValueCollectorWithValue<'SingleValueCollector'>
+                    | SingleValueCollectorNoValue<'SingleValueCollector'>;
 
 /**
  * SINGLE-VALUE COLLECTOR TYPES
@@ -224,20 +228,38 @@ export interface ValidatedPasswordCollector {
     verify: boolean;
   };
 }
+
+export interface BooleanCollector extends SingleValueCollectorWithValue<
+  'BooleanCollector',
+  boolean
+> {
+  output: SingleValueCollectorWithValue<'BooleanCollector', boolean>['output'] & {
+    appearance: string;
+    richContent?: CollectorRichContent;
+  };
+}
+
+export interface ValidatedBooleanCollector extends ValidatedSingleValueCollectorWithValue<
+  'ValidatedBooleanCollector',
+  boolean
+> {
+  output: ValidatedSingleValueCollectorWithValue<'ValidatedBooleanCollector', boolean>['output'] & {
+    appearance: string;
+    richContent?: CollectorRichContent;
+  };
+}
+
 export type TextCollector = SingleValueCollectorWithValue<'TextCollector'>;
 export type SingleSelectCollector = SingleSelectCollectorWithValue<'SingleSelectCollector'>;
 export type ValidatedTextCollector = ValidatedSingleValueCollectorWithValue<'TextCollector'>;
-export type ValidatedBooleanCollector = ValidatedSingleValueCollectorWithValue<
-  'ValidatedBooleanCollector',
-  boolean
->;
 
 export type SingleValueCollectors =
-  | ValidatedPasswordCollector
   | PasswordCollector
+  | ValidatedPasswordCollector
   | SingleSelectCollector
   | TextCollector
   | ValidatedTextCollector
+  | BooleanCollector
   | ValidatedBooleanCollector
   | SingleValueCollectorWithValue<'SingleValueCollector'>;
 
@@ -580,7 +602,7 @@ export type NoValueCollectorTypes =
   | 'RichTextCollector'
   | 'NoValueCollector'
   | 'QrCodeCollector'
-  | 'AgreementCollector';
+  | 'ImageCollector';
 
 export interface NoValueCollectorBase<T extends NoValueCollectorTypes> {
   category: 'NoValueCollector';
@@ -631,12 +653,26 @@ export interface QrCodeCollector extends NoValueCollectorBase<'QrCodeCollector'>
 }
 
 /**
+ * @interface ImageCollector - Display-only collector for IMAGE fields. Extends the
+ * generic `NoValueCollectorBase` with the image URL (`src`), `alt` text, and an optional
+ * hyperlink URL (`href`).
+ */
+export interface ImageCollector extends NoValueCollectorBase<'ImageCollector'> {
+  output: NoValueCollectorBase<'ImageCollector'>['output'] & {
+    src: string;
+    alt: string;
+    href?: string;
+  };
+}
+
+/**
  * @interface ReadOnlyCollector - Display-only collector for plain LABEL fields.
  * Extends `NoValueCollectorBase` with the plain-text `content` from the field.
  */
 export interface ReadOnlyCollector extends NoValueCollectorBase<'ReadOnlyCollector'> {
   output: NoValueCollectorBase<'ReadOnlyCollector'>['output'] & {
     content: string;
+    title?: string;
   };
 }
 
@@ -654,21 +690,6 @@ export interface RichTextCollector extends NoValueCollectorBase<'RichTextCollect
   };
 }
 
-export interface AgreementCollector extends NoValueCollectorBase<'AgreementCollector'> {
-  output: {
-    key: string;
-    label: string;
-    type: string;
-    titleEnabled: boolean;
-    title: string;
-    agreement: {
-      id: string;
-      useDynamicAgreement: boolean;
-    };
-    enabled: boolean;
-  };
-}
-
 /**
  * Type to help infer the collector based on the collector type
  * Used specifically in the returnNoValueCollector wrapper function.
@@ -683,8 +704,8 @@ export type InferNoValueCollectorType<T extends NoValueCollectorTypes> =
       ? RichTextCollector
       : T extends 'QrCodeCollector'
         ? QrCodeCollector
-        : T extends 'AgreementCollector'
-          ? AgreementCollector
+        : T extends 'ImageCollector'
+          ? ImageCollector
           : NoValueCollectorBase<'NoValueCollector'>;
 
 export type NoValueCollectors =
@@ -692,7 +713,7 @@ export type NoValueCollectors =
   | ReadOnlyCollector
   | RichTextCollector
   | QrCodeCollector
-  | AgreementCollector;
+  | ImageCollector;
 
 export type NoValueCollector<T extends NoValueCollectorTypes> = InferNoValueCollectorType<T>;
 
@@ -770,6 +791,18 @@ export interface FidoAuthenticationOutputValue {
   trigger: string;
 }
 
+/**
+ * A structured error to return to DaVinci if the application fails to respond successfully to a MetadataCollector
+ *
+ * @property code - Error code
+ * @property message - Error description
+ */
+export interface MetadataError {
+  code: string;
+  message: string;
+}
+
+export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
 export interface PollingOutputValue {
   pollInterval: number;
   pollRetries: number;
@@ -786,7 +819,8 @@ export type SingleValueAutoCollectorTypes =
 export type ObjectValueAutoCollectorTypes =
   | 'ObjectValueAutoCollector'
   | 'FidoRegistrationCollector'
-  | 'FidoAuthenticationCollector';
+  | 'FidoAuthenticationCollector'
+  | 'MetadataCollector';
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
 
 export interface AutoCollector<
@@ -822,14 +856,20 @@ export type ProtectCollector = AutoCollector<
 export type FidoRegistrationCollector = AutoCollector<
   'ObjectValueAutoCollector',
   'FidoRegistrationCollector',
-  FidoRegistrationInputValue,
+  FidoRegistrationInputValue | GenericError,
   FidoRegistrationOutputValue
 >;
 export type FidoAuthenticationCollector = AutoCollector<
   'ObjectValueAutoCollector',
   'FidoAuthenticationCollector',
-  FidoAuthenticationInputValue,
+  FidoAuthenticationInputValue | GenericError,
   FidoAuthenticationOutputValue
+>;
+export type MetadataCollector = AutoCollector<
+  'ObjectValueAutoCollector',
+  'MetadataCollector',
+  MetadataCollectorInputValue,
+  Record<string, unknown>
 >;
 export type PollingCollector = AutoCollector<
   'SingleValueAutoCollector',
@@ -852,6 +892,7 @@ export type AutoCollectors =
   | ProtectCollector
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
+  | MetadataCollector
   | PollingCollector
   | SingleValueAutoCollector
   | ObjectValueAutoCollector;
@@ -871,10 +912,12 @@ export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'Pr
       ? FidoRegistrationCollector
       : T extends 'FidoAuthenticationCollector'
         ? FidoAuthenticationCollector
-        : T extends 'ObjectValueAutoCollector'
-          ? ObjectValueAutoCollector
-          : /**
-             * At this point, we have not passed in a collector type
-             * so we can return a SingleValueAutoCollector
-             **/
-            SingleValueAutoCollector;
+        : T extends 'MetadataCollector'
+          ? MetadataCollector
+          : T extends 'ObjectValueAutoCollector'
+            ? ObjectValueAutoCollector
+            : /**
+               * At this point, we have not passed in a collector type
+               * so we can return a SingleValueAutoCollector
+               **/
+              SingleValueAutoCollector;

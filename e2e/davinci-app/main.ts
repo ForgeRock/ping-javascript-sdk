@@ -1,14 +1,16 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 import './style.css';
 
-import { Config, FRUser, TokenManager } from '@forgerock/javascript-sdk';
 import { davinci } from '@forgerock/davinci-client';
+import { oidc } from '@forgerock/oidc-client';
+import type { OidcConfig } from '@forgerock/oidc-client/types';
 import type {
+  Collectors,
   CustomLogger,
   DaVinciConfig,
   DavinciClient,
@@ -29,13 +31,14 @@ import socialLoginButtonComponent from './components/social-login-button.js';
 import { serverConfigs } from './server-configs.js';
 import singleValueComponent from './components/single-value.js';
 import multiValueComponent from './components/multi-value.js';
-import labelComponent from './components/label.js';
+import readOnlyComponent from './components/read-only.js';
 import objectValueComponent from './components/object-value.js';
 import fidoComponent from './components/fido.js';
 import qrCodeComponent from './components/qr-code.js';
-import agreementComponent from './components/agreement.js';
+import formImageComponent from './components/form-image.js';
 import pollingComponent from './components/polling.js';
 import booleanComponent from './components/boolean.js';
+import metadataComponent from './components/metadata.js';
 
 const loggerFn = {
   error: () => {
@@ -86,6 +89,11 @@ const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
   const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
+  const oidcResult = await oidc({ config: config as OidcConfig });
+  if ('error' in oidcResult) {
+    throw new Error(`Failed to initialize oidc client: ${oidcResult.error}`);
+  }
+  const oidcClient = oidcResult;
   const protectApi = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
@@ -99,10 +107,6 @@ const urlParams = new URLSearchParams(window.location.search);
 
   if (continueToken) {
     resumed = await davinciClient.resume({ continueToken });
-  } else {
-    // the current davinci-config has a slightly
-    // different middleware type than the old legacy config
-    await Config.setAsync(config as any);
   }
 
   function renderComplete() {
@@ -141,25 +145,26 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const tokenBtn = document.getElementById('tokensButton') as HTMLButtonElement;
     tokenBtn.addEventListener('click', async () => {
-      tokens = await TokenManager.getTokens({ query: { code, state } });
+      tokens = await oidcClient.token.exchange(code, state);
 
       console.log(tokens);
 
+      const accessTokenValue = tokens && 'accessToken' in tokens ? tokens.accessToken : '';
       const tokenPreEl = document.getElementById('accessTokenContainer') as HTMLPreElement;
       tokenPreEl.innerHTML = `
         <pre
           data-testid="access-token"
           id="accessTokenValue"
           style="display: block; max-width: 400px; text-wrap: wrap; overflow-wrap: anywhere;"
-        >${tokens?.accessToken}</pre>
+        >${accessTokenValue}</pre>
       `;
     });
 
     const loginBtn = document.getElementById('logoutButton') as HTMLButtonElement;
     loginBtn.addEventListener('click', async () => {
-      await FRUser.logout({ logoutRedirectUri: `${window.location.origin}/` });
+      await oidcClient.user.logout();
 
-      //window.location.reload();
+      window.location.reload();
     });
   }
 
@@ -203,7 +208,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
     const collectors = davinciClient.getCollectors();
 
-    collectors.forEach((collector) => {
+    collectors.forEach((collector: Collectors) => {
       if (collector.type === 'TextCollector' && collector.name === 'protectsdk') {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         collector;
@@ -223,14 +228,14 @@ const urlParams = new URLSearchParams(window.location.search);
           submitForm,
         );
       } else if (collector.type === 'ReadOnlyCollector' || collector.type === 'RichTextCollector') {
-        labelComponent(
+        readOnlyComponent(
           formEl, // You can ignore this; it's just for rendering
           collector, // This is the plain object of the collector
         );
       } else if (collector.type === 'QrCodeCollector') {
         qrCodeComponent(formEl, collector);
-      } else if (collector.type === 'AgreementCollector') {
-        agreementComponent(formEl, collector);
+      } else if (collector.type === 'ImageCollector') {
+        formImageComponent(formEl, collector);
       } else if (collector.type === 'TextCollector') {
         textComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -285,6 +290,21 @@ const urlParams = new URLSearchParams(window.location.search);
           davinciClient.update(collector), // Returns an update function for this collector
           submitForm,
         );
+      } else if (collector.type === 'MetadataCollector') {
+        metadataComponent(
+          formEl, // You can ignore this; it's just for rendering
+          davinciClient.update(collector), // Returns an update function for this collector
+          submitForm,
+        );
+      } else if (collector.type === 'BooleanCollector') {
+        booleanComponent(formEl, collector, davinciClient.update(collector));
+      } else if (collector.type === 'ValidatedBooleanCollector') {
+        booleanComponent(
+          formEl,
+          collector,
+          davinciClient.update(collector),
+          davinciClient.validate(collector),
+        );
       } else if (collector.type === 'FlowCollector') {
         flowLinkComponent(
           formEl, // You can ignore this; it's just for rendering
@@ -299,8 +319,6 @@ const urlParams = new URLSearchParams(window.location.search);
         singleValueComponent(formEl, collector, davinciClient.update(collector));
       } else if (collector.type === 'MultiSelectCollector') {
         multiValueComponent(formEl, collector, davinciClient.update(collector));
-      } else if (collector.type === 'ValidatedBooleanCollector') {
-        booleanComponent(formEl, collector, davinciClient.update(collector));
       }
     });
 

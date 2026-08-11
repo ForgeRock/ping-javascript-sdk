@@ -9,7 +9,7 @@
 
 /// <reference types="vitest/globals" />
 
-import { RecognizeErrorCode } from './defs/recognize-error-code.js';
+import { RECOGNIZE_ERROR_CODE } from './defs/recognize-error-code.js';
 import { recognize } from './recognize.js';
 import { RecognizeWebComponentConfiguration } from './recognize.types.js';
 
@@ -68,7 +68,7 @@ describe('recognize — init', () => {
     const result = await client.init({ mode: 'mount', container, type: 'auth', username: 'user' });
 
     expect(result).toBeDefined();
-    expect(result?.error.code).toBe(RecognizeErrorCode.SDK_ERROR);
+    expect(result?.error.code).toBe(RECOGNIZE_ERROR_CODE.SDK_ERROR);
     expect(result?.error.message).toBe('SDK_ERROR');
     expect(result?.error.cause).toBe(
       'init() called more than once — call dispose() before re-initializing',
@@ -108,7 +108,7 @@ describe('recognize — init', () => {
     const result = await client.init({ mode: 'attach', element: div, username: 'user' });
 
     expect(result).toBeDefined();
-    expect(result?.error.code).toBe(RecognizeErrorCode.SDK_ERROR);
+    expect(result?.error.code).toBe(RECOGNIZE_ERROR_CODE.SDK_ERROR);
     expect(result?.error.message).toBe('SDK_ERROR');
     expect(result?.error.cause).toBe(
       'invalid element <div> — options.element must be a <kl-auth> or <kl-enroll> custom element',
@@ -186,7 +186,7 @@ describe('recognize — error observer', () => {
 
     expect(errorFn).toHaveBeenCalledOnce();
     const receivedError = errorFn.mock.calls[0][0];
-    expect(receivedError.error.code).toBe(RecognizeErrorCode.SDK_ERROR);
+    expect(receivedError.error.code).toBe(RECOGNIZE_ERROR_CODE.SDK_ERROR);
     expect(receivedError.error.message).toBe('SDK_ERROR');
 
     client.dispose();
@@ -206,7 +206,7 @@ describe('recognize — error observer', () => {
     el.dispatchEvent(event);
 
     const receivedError = errorFn.mock.calls[0][0];
-    expect(receivedError.error.code).toBe(RecognizeErrorCode.CAMERA_PERMISSION_DENIED);
+    expect(receivedError.error.code).toBe(RECOGNIZE_ERROR_CODE.CAMERA_PERMISSION_DENIED);
 
     client.dispose();
   });

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -13,6 +13,14 @@ import type {
   FetchBaseQueryMeta,
   MutationResultSelectorResult,
 } from '@reduxjs/toolkit/query';
+import {
+  DeviceValue,
+  PhoneNumberInputValue,
+  FidoRegistrationInputValue,
+  FidoAuthenticationInputValue,
+  MetadataError,
+} from './collector.types.js';
+import { GenericError } from '@forgerock/sdk-types';
 
 export interface DaVinciRequest {
   id: string;
@@ -26,6 +34,21 @@ export interface DaVinciRequest {
     };
   };
 }
+
+/**
+ * Allowed value types for DaVinci formData request bodies. This differs from `CollectorValueTypes` because input values may be transformed for DaVinci.
+ */
+export type DaVinciRequestValueTypes =
+  | string
+  | number
+  | boolean
+  | (string | number | boolean)[]
+  | DeviceValue
+  | PhoneNumberInputValue
+  | FidoRegistrationInputValue
+  | FidoAuthenticationInputValue
+  | MetadataError
+  | GenericError;
 
 /**
  * Base Response for DaVinci API
@@ -140,12 +163,22 @@ export type QrCodeField = {
   fallbackText?: string;
 };
 
+export type ImageField = {
+  type: 'IMAGE';
+  key: string;
+  description: string;
+  imageUrl: string;
+
+  // Optional properties
+  hyperlinkUrl?: string;
+};
+
 export type AgreementField = {
   type: 'AGREEMENT';
   key: string;
   content: string;
   titleEnabled: boolean;
-  title: string;
+  title?: string;
   agreement: {
     id: string;
     useDynamicAgreement: boolean;
@@ -176,10 +209,10 @@ export type SingleCheckboxField = {
   inputType: 'BOOLEAN';
   key: string;
   label: string;
-  required: boolean;
-  validation?: {
-    errorMessage: string;
-  };
+  required?: boolean;
+  errorMessage?: string;
+  appearance: string;
+  richContent?: RichContent;
 };
 
 export type SingleSelectField = {
@@ -317,6 +350,12 @@ export type PollingField = {
   challenge?: string;
 };
 
+export type MetadataField = {
+  type: 'METADATA';
+  key: string;
+  payload: Record<string, unknown>;
+};
+
 export type UnknownField = Record<string, unknown>;
 
 export type ComplexValueFields =
@@ -326,9 +365,10 @@ export type ComplexValueFields =
   | PhoneNumberExtensionField
   | FidoRegistrationField
   | FidoAuthenticationField
-  | PollingField;
+  | PollingField
+  | MetadataField;
 export type MultiValueFields = MultiSelectField;
-export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField;
+export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
 export type RedirectFields = RedirectField;
 export type SingleValueFields =
   | StandardField

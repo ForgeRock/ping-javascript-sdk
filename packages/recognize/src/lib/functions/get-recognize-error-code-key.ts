@@ -7,15 +7,17 @@
  *
  */
 
-import { RecognizeErrorCode } from '../defs/recognize-error-code.js';
+import { RECOGNIZE_ERROR_CODE } from '../defs/recognize-error-code.js';
 import type { RecognizeErrorCodeKey, RecognizeErrorCodeValue } from '../recognize.types.js';
 
 /** @public */
 export function getRecognizeErrorCodeKey(code: RecognizeErrorCodeValue): RecognizeErrorCodeKey {
-  let keys: RecognizeErrorCodeKey[], key: RecognizeErrorCodeKey | undefined;
-
-  keys = Object.keys(RecognizeErrorCode) as RecognizeErrorCodeKey[];
-  key = keys.find((key: RecognizeErrorCodeKey) => RecognizeErrorCode[key] === code);
+  const keys: RecognizeErrorCodeKey[] = Object.keys(
+    RECOGNIZE_ERROR_CODE,
+  ) as RecognizeErrorCodeKey[];
+  const key: RecognizeErrorCodeKey | undefined = keys.find(
+    (key: RecognizeErrorCodeKey) => RECOGNIZE_ERROR_CODE[key] === code,
+  );
 
   return key ?? 'SDK_ERROR';
 }

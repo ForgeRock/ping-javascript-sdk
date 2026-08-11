@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -17,6 +17,7 @@ import type {
   ValidatedTextCollector,
   ValidatedBooleanCollector,
   ValidatedPasswordCollector,
+  MetadataError,
 } from './collector.types.js';
 import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 
@@ -29,14 +30,20 @@ export interface InternalErrorResponse {
 
 export type InitFlow = () => Promise<FlowNode | InternalErrorResponse>;
 
-export type CollectorInputTypes =
+/**
+ * Allowed value types accepted by collector updaters
+ */
+export type CollectorValueTypes =
   | string
   | string[]
   | boolean
   | PhoneNumberInputValue
   | PhoneNumberExtensionInputValue
   | FidoRegistrationInputValue
-  | FidoAuthenticationInputValue;
+  | FidoAuthenticationInputValue
+  | MetadataError
+  | GenericError;
+
 /**
  * Maps collector types to the specific value type they accept.
  * This enables type narrowing when using the update method with specific collector types.
@@ -49,39 +56,54 @@ export type CollectorInputTypes =
  * }
  * ```
  */
-export type CollectorValueType<T> = T extends { type: 'PasswordCollector' }
-  ? string
-  : T extends { type: 'ValidatedPasswordCollector' }
+export type CollectorValueType<T> =
+  // string input types
+  T extends
+    | { type: 'PasswordCollector' }
+    | { type: 'ValidatedPasswordCollector' }
+    | { type: 'SingleSelectCollector' }
+    | { type: 'DeviceRegistrationCollector' }
+    | { type: 'DeviceAuthenticationCollector' }
+    | { type: 'ProtectCollector' }
+    | { type: 'PollingCollector' }
     ? string
-    : T extends { type: 'TextCollector'; category: 'SingleValueCollector' }
+    : // TextCollector branches must remain compound — category is the only discriminant
+      T extends { type: 'TextCollector'; category: 'SingleValueCollector' }
       ? string
       : T extends { type: 'TextCollector'; category: 'ValidatedSingleValueCollector' }
         ? string
-        : T extends { type: 'ValidatedBooleanCollector' }
+        : // boolean input types
+          T extends { type: 'BooleanCollector' } | { type: 'ValidatedBooleanCollector' }
           ? boolean
-          : T extends { type: 'SingleSelectCollector' }
-            ? string
-            : T extends { type: 'MultiSelectCollector' }
-              ? string[]
-              : T extends { type: 'DeviceRegistrationCollector' }
-                ? string
-                : T extends { type: 'DeviceAuthenticationCollector' }
-                  ? string
-                  : T extends { type: 'PhoneNumberCollector' }
-                    ? PhoneNumberInputValue
-                    : T extends { type: 'PhoneNumberExtensionCollector' }
-                      ? PhoneNumberExtensionInputValue
-                      : T extends { type: 'FidoRegistrationCollector' }
-                        ? FidoRegistrationInputValue
-                        : T extends { type: 'FidoAuthenticationCollector' }
-                          ? FidoAuthenticationInputValue
-                          : T extends { category: 'SingleValueCollector' }
+          : // string[] input types
+            T extends { type: 'MultiSelectCollector' }
+            ? string[]
+            : // specialized input types
+              T extends { type: 'PhoneNumberCollector' }
+              ? PhoneNumberInputValue
+              : T extends { type: 'PhoneNumberExtensionCollector' }
+                ? PhoneNumberExtensionInputValue
+                : T extends { type: 'FidoRegistrationCollector' }
+                  ? FidoRegistrationInputValue | GenericError
+                  : T extends { type: 'FidoAuthenticationCollector' }
+                    ? FidoAuthenticationInputValue | GenericError
+                    : T extends { type: 'MetadataCollector' }
+                      ? Record<string, unknown> | MetadataError
+                      : // category catch-alls
+                        // fallbacks for collectors that don't match on `type`
+                        T extends { category: 'SingleValueCollector' }
+                        ? string
+                        : T extends { category: 'ValidatedSingleValueCollector' }
+                          ? string
+                          : T extends { category: 'SingleValueAutoCollector' }
                             ? string
-                            : T extends { category: 'ValidatedSingleValueCollector' }
-                              ? string
-                              : T extends { category: 'MultiValueCollector' }
-                                ? string[]
-                                : CollectorInputTypes;
+                            : T extends { category: 'MultiValueCollector' }
+                              ? string[]
+                              : T extends { category: 'ActionCollector' }
+                                ? never
+                                : T extends { category: 'NoValueCollector' }
+                                  ? never
+                                  : CollectorValueTypes;
 
 /**
  * A function type that updates a collector's value. Accepts values appropriate for the collector type.
@@ -98,20 +120,25 @@ export type Updater<T = unknown> = (
 ) => InternalErrorResponse | null;
 
 /**
+ * Collectors which can be validated
+ */
+export type ValidatedCollectors =
+  | ValidatedTextCollector
+  | ValidatedBooleanCollector
+  | ValidatedPasswordCollector
+  | ObjectValueCollectors
+  | MultiValueCollectors
+  | AutoCollectors;
+
+/**
  * Validates a collector's current value and returns any validation errors.
  *
  * @param value - The current value of the collector to validate.
  * @returns An array of error message strings, or an error object. Returns an empty array when validation passes.
  */
-export type Validator<
-  T =
-    | ValidatedTextCollector
-    | ValidatedBooleanCollector
-    | ValidatedPasswordCollector
-    | ObjectValueCollectors
-    | MultiValueCollectors
-    | AutoCollectors,
-> = (value: CollectorValueType<T>) =>
+export type Validator<T extends ValidatedCollectors = ValidatedCollectors> = (
+  value: CollectorValueType<T>,
+) =>
   | string[]
   | {
       error: {

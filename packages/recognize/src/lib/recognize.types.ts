@@ -9,7 +9,7 @@
 
 import type { LocalizationPack, LocalizationVariables, LoggerLevel, Theme } from '@aracna/core';
 
-import type { RecognizeErrorCode } from './defs/recognize-error-code.js';
+import type { RECOGNIZE_ERROR_CODE } from './defs/recognize-error-code.js';
 import type {
   KeylessAuthElement,
   KeylessCameraInstruction,
@@ -43,10 +43,10 @@ export interface RecognizeError {
 }
 
 /** @public */
-export type RecognizeErrorCodeKey = keyof typeof RecognizeErrorCode;
+export type RecognizeErrorCodeKey = keyof typeof RECOGNIZE_ERROR_CODE;
 
 /** @public */
-export type RecognizeErrorCodeValue = (typeof RecognizeErrorCode)[RecognizeErrorCodeKey];
+export type RecognizeErrorCodeValue = (typeof RECOGNIZE_ERROR_CODE)[RecognizeErrorCodeKey];
 
 /** @public */
 export type RecognizeSessionType = 'auth' | 'enroll';

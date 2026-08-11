@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>E2E Test | Ping Identity JavaScript SDK</title>
+
+    <style>
+      #logout {
+        display: none;
+      }
+      #user-info-btn {
+        display: none;
+      }
+      fieldset {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <a href="/">Home</a>
+      <h1>OIDC App | PAR Login (Pushed Authorization Request)</h1>
+      <p>
+        Client: <code>ParClient</code> &mdash; PAR enabled. Authorize params are sent via
+        back-channel POST to <code>/par</code> first, then a slim URL (<code
+          >client_id + request_uri</code
+        >
+        only) is used for the authorize redirect.
+      </p>
+
+      <h2>Step 1: Establish AM Session (Journey: Login)</h2>
+      <p>
+        Background PAR auth requires an existing AM session. Log in via the Login journey first.
+      </p>
+      <form id="journey-form">
+        <fieldset>
+          <label for="username">User Name</label>
+          <input id="username" type="text" autocomplete="username" />
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" />
+          <button type="submit">Login (Journey)</button>
+        </fieldset>
+      </form>
+      <p id="journey-status"></p>
+
+      <h2>Step 2: PAR OAuth</h2>
+      <button id="login-background" disabled>Login (Background &mdash; PAR + iframe)</button>
+      <button id="login-redirect">Login (Redirect &mdash; PAR slim URL)</button>
+      <button id="get-tokens">Get Tokens (Local)</button>
+      <button id="get-tokens-background">Get Tokens (Background)</button>
+      <button id="renew-tokens">Renew Tokens</button>
+      <button id="logout">Logout</button>
+      <button id="user-info-btn">User Info</button>
+      <button id="revoke">Revoke Token</button>
+      <a href="/par/">Start Over</a>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

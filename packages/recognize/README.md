@@ -39,18 +39,18 @@ client.dispose();
 
 ## Configuration
 
-| Option | Type | Required | Description |
-|--------|------|----------|-------------|
-| `customer` | `string` | Yes | Customer identifier |
-| `serviceURL` | `string` | Yes | URL of the recognition service |
-| `authorizationToken` | `string` | No | Authorization token |
-| `lang` | `string` | No | Language code for the UI |
-| `theme` | `unknown` | No | Theme object |
-| `disableSteps` | `string[]` | No | Steps to skip in the flow |
-| `enableCameraFlash` | `boolean` | No | Enable camera flash |
-| `enableCameraInstructions` | `boolean` | No | Show camera instructions |
-| `disableLogger` | `boolean` | No | Disable internal logging |
-| `disablePoweredBy` | `boolean` | No | Hide the "Powered by" badge |
-| `enableWasmPthreads` | `boolean` | No | Enable WASM pthreads |
-| `operationID` | `string` | No | Custom operation ID |
-| `transactionData` | `string` | No | Transaction data string |
+| Option                     | Type       | Required | Description                    |
+| -------------------------- | ---------- | -------- | ------------------------------ |
+| `customer`                 | `string`   | Yes      | Customer identifier            |
+| `serviceURL`               | `string`   | Yes      | URL of the recognition service |
+| `authorizationToken`       | `string`   | No       | Authorization token            |
+| `lang`                     | `string`   | No       | Language code for the UI       |
+| `theme`                    | `unknown`  | No       | Theme object                   |
+| `disableSteps`             | `string[]` | No       | Steps to skip in the flow      |
+| `enableCameraFlash`        | `boolean`  | No       | Enable camera flash            |
+| `enableCameraInstructions` | `boolean`  | No       | Show camera instructions       |
+| `disableLogger`            | `boolean`  | No       | Disable internal logging       |
+| `disablePoweredBy`         | `boolean`  | No       | Hide the "Powered by" badge    |
+| `enableWasmPthreads`       | `boolean`  | No       | Enable WASM pthreads           |
+| `operationID`              | `string`   | No       | Custom operation ID            |
+| `transactionData`          | `string`   | No       | Transaction data string        |

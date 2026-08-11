@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,12 +8,14 @@ import { GenericError } from '@forgerock/sdk-types';
 
 import type {
   FlowCollector,
+  MetadataCollector,
   PasswordCollector,
   ValidatedPasswordCollector,
   TextCollector,
   IdpCollector,
   SubmitCollector,
   ActionCollector,
+  BooleanCollector,
   ValidatedBooleanCollector,
   SingleValueCollector,
   SingleSelectCollector,
@@ -30,16 +32,18 @@ import type {
   FidoRegistrationCollector,
   FidoAuthenticationCollector,
   QrCodeCollector,
-  AgreementCollector,
+  ImageCollector,
   PhoneNumberExtensionCollector,
 } from './collector.types.js';
 import type { Links } from './davinci.types.js';
 
 export type Collectors =
   | FlowCollector
+  | MetadataCollector
   | PasswordCollector
   | ValidatedPasswordCollector
   | TextCollector
+  | BooleanCollector
   | ValidatedBooleanCollector
   | SingleSelectCollector
   | IdpCollector
@@ -59,7 +63,7 @@ export type Collectors =
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
   | QrCodeCollector
-  | AgreementCollector
+  | ImageCollector
   | UnknownCollector;
 
 export interface CollectorErrors {

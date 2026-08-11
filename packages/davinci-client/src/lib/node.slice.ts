@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -20,7 +20,7 @@ import { getCollectorErrors } from './node.utils.js';
  */
 import type { Draft, PayloadAction } from '@reduxjs/toolkit';
 
-import type { SubmitCollector } from './collector.types.js';
+import type { MetadataCollector, SubmitCollector } from './collector.types.js';
 import type {
   DavinciErrorResponse,
   DaVinciFailureResponse,
@@ -192,12 +192,16 @@ export const nodeSlice = createSlice({
         (collector): collector is SubmitCollector => collector.type === 'SubmitCollector',
       )[0];
 
+      const metadataCollector = collectors.filter(
+        (collector): collector is MetadataCollector => collector.type === 'MetadataCollector',
+      )[0];
+
       newState.cache = {
         key: action.payload.requestId,
       };
 
       newState.client = {
-        action: submitCollector?.output.key,
+        action: submitCollector?.output.key || metadataCollector?.output.key,
         description: action.payload.data?.form?.description,
         collectors,
         name: action.payload.data.form?.name,

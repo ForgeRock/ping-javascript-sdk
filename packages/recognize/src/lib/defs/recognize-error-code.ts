@@ -8,7 +8,7 @@
  */
 
 /** @public */
-export const RecognizeErrorCode = {
+export const RECOGNIZE_ERROR_CODE = {
   SDK_ERROR: 1000,
   SDK_NOT_CONFIGURED: 1001,
   SDK_INVALID_CONFIGURATION: 1002,
@@ -49,4 +49,3 @@ export const RecognizeErrorCode = {
   SECURITY_ERROR: 6000,
   SECURITY_DEVICE_NOT_GENUINE: 6001,
 } as const;
-

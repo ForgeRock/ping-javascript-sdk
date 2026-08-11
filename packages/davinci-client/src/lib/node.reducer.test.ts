@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -12,6 +12,7 @@ import type {
   DeviceRegistrationCollector,
   FidoAuthenticationCollector,
   FidoRegistrationCollector,
+  MetadataCollector,
   MultiSelectCollector,
   PasswordCollector,
   ValidatedPasswordCollector,
@@ -20,11 +21,14 @@ import type {
   PollingCollector,
   ProtectCollector,
   QrCodeCollector,
-  AgreementCollector,
+  ReadOnlyCollector,
+  ImageCollector,
   SubmitCollector,
   TextCollector,
+  BooleanCollector,
   ValidatedBooleanCollector,
 } from './collector.types.js';
+import type { GenericError } from '@forgerock/sdk-types';
 import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
 
 describe('The node collector reducer', () => {
@@ -426,6 +430,35 @@ describe('The node collector reducer', () => {
     );
   });
 
+  it('should throw NoValueCollectors are read-only on update', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'image-0',
+        value: 'attempted-update',
+      },
+    };
+    const state: ImageCollector[] = [
+      {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'ImageCollector',
+        id: 'image-0',
+        name: 'image-0',
+        output: {
+          key: 'image-0',
+          label: 'Alt text',
+          type: 'IMAGE',
+          src: 'https://example.com/test-image.png',
+          alt: 'Alt text',
+        },
+      },
+    ];
+    expect(() => nodeCollectorReducer(state, action)).toThrowError(
+      'NoValueCollectors, like ReadOnlyCollectors, are read-only',
+    );
+  });
+
   it('should handle QR_CODE field type', () => {
     const action = {
       type: 'node/next',
@@ -484,22 +517,53 @@ describe('The node collector reducer', () => {
       {
         category: 'NoValueCollector',
         error: null,
-        type: 'AgreementCollector',
+        type: 'ReadOnlyCollector',
         id: 'agreement-field-0',
         name: 'agreement-field-0',
         output: {
           key: 'agreement-field-0',
           label: 'Please accept the terms and conditions',
           type: 'AGREEMENT',
-          titleEnabled: true,
+          content: 'Please accept the terms and conditions',
           title: 'Terms and Conditions',
-          agreement: {
-            id: 'agreement-123',
-            useDynamicAgreement: false,
-          },
-          enabled: true,
         },
-      } satisfies AgreementCollector,
+      } satisfies ReadOnlyCollector,
+    ]);
+  });
+
+  it('should handle IMAGE field type', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'IMAGE',
+            key: 'image-field',
+            imageUrl: 'https://example.com/test-image.png',
+            description: 'Test image alt text',
+            hyperlinkUrl: 'https://example.com/click-target',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'NoValueCollector',
+        error: null,
+        type: 'ImageCollector',
+        id: 'image-field-0',
+        name: 'image-field-0',
+        output: {
+          key: 'image-field-0',
+          label: 'Test image alt text',
+          type: 'IMAGE',
+          src: 'https://example.com/test-image.png',
+          alt: 'Test image alt text',
+          href: 'https://example.com/click-target',
+        },
+      } satisfies ImageCollector,
     ]);
   });
 });
@@ -1203,6 +1267,85 @@ describe('The node collector reducer with ProtectFieldValue', () => {
 });
 
 describe('The node collector reducer with FidoRegistrationFieldValue', () => {
+  it('should store a GenericError on input.value when a FIDO error is passed as value', () => {
+    const fidoError: GenericError = {
+      code: 'NotAllowedError',
+      error: 'registration_error',
+      message: 'FIDO registration failed: NotAllowedError',
+      type: 'fido_error',
+    };
+    const publicKeyCredentialCreationOptions: FidoRegistrationOptions = {
+      rp: { name: 'Example RP', id: 'example.com' },
+      user: { id: [1], displayName: 'Test User', name: 'testuser' },
+      challenge: [1, 2, 3, 4],
+      pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+      timeout: 60000,
+      authenticatorSelection: {
+        residentKey: 'required',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
+      attestation: 'none',
+      extensions: { credProps: true, hmacCreateSecret: true },
+    };
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'fido2-registration-0',
+        value: fidoError,
+      },
+    };
+    const state: FidoRegistrationCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoRegistrationCollector',
+        id: 'fido2-registration-0',
+        name: 'fido2-registration',
+        input: {
+          key: 'fido2-registration',
+          value: {},
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-registration',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialCreationOptions,
+            action: 'REGISTER',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ];
+
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoRegistrationCollector',
+        id: 'fido2-registration-0',
+        name: 'fido2-registration',
+        input: {
+          key: 'fido2-registration',
+          value: fidoError,
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-registration',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialCreationOptions,
+            action: 'REGISTER',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ]);
+  });
+
   it('should handle collector updates ', () => {
     // todo: declare inputValue type as FidoRegistrationInputValue
     const mockInputValue = {
@@ -1618,7 +1761,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
             inputType: 'BOOLEAN',
             key: 'accept-terms',
             label: 'Accept Terms',
-            required: false,
+            required: true,
           },
         ],
         formData: {},
@@ -1636,13 +1779,14 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           key: 'accept-terms',
           value: false,
           type: 'SINGLE_CHECKBOX',
-          validation: [],
+          validation: [{ type: 'required', message: 'Value cannot be empty', rule: true }],
         },
         output: {
           key: 'accept-terms',
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: '',
         },
       } satisfies ValidatedBooleanCollector,
     ]);
@@ -1683,6 +1827,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: '',
         },
       } satisfies ValidatedBooleanCollector,
     ]);
@@ -1699,7 +1844,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
             key: 'accept-terms',
             label: 'Accept Terms',
             required: true,
-            validation: { errorMessage: 'You must accept the terms' },
+            errorMessage: 'You must accept the terms',
           },
         ],
         formData: {},
@@ -1738,6 +1883,7 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: 'checkbox',
         },
       },
     ];
@@ -1759,13 +1905,348 @@ describe('The node collector reducer with ValidatedBooleanCollector', () => {
           label: 'Accept Terms',
           type: 'SINGLE_CHECKBOX',
           value: false,
+          appearance: 'checkbox',
         },
       },
+    ]);
+  });
+
+  it('should normalise richContent replacements from Record to RichContentLink[]', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: true,
+            appearance: 'checkbox',
+            richContent: {
+              content: 'I agree to the {{tos}}',
+              replacements: {
+                tos: {
+                  type: 'link',
+                  value: 'Terms of Service',
+                  href: 'https://example.com/tos',
+                  target: '_blank',
+                },
+              },
+            },
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'ValidatedSingleValueCollector',
+        error: null,
+        type: 'ValidatedBooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+          validation: [{ type: 'required', message: 'Value cannot be empty', rule: true }],
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+          richContent: {
+            content: 'I agree to the {{tos}}',
+            replacements: [
+              {
+                key: 'tos',
+                type: 'link',
+                value: 'Terms of Service',
+                href: 'https://example.com/tos',
+                target: '_blank',
+              },
+            ],
+          },
+        },
+      } satisfies ValidatedBooleanCollector,
+    ]);
+  });
+});
+
+describe('The node collector reducer with BooleanCollector', () => {
+  it('should produce a BooleanCollector from a non-required SINGLE_CHECKBOX field', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: false,
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: '',
+        },
+      } satisfies BooleanCollector,
+    ]);
+  });
+
+  it('should produce a BooleanCollector when field.required is absent', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: '',
+        },
+      } satisfies BooleanCollector,
+    ]);
+  });
+
+  it('should handle collector updates (toggle to true)', () => {
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'accept-terms-0',
+        value: true,
+      },
+    };
+    const state: BooleanCollector[] = [
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+        },
+      },
+    ];
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: true,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+        },
+      },
+    ]);
+  });
+
+  it('should normalise richContent replacements from Record to RichContentLink[]', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'SINGLE_CHECKBOX',
+            inputType: 'BOOLEAN',
+            key: 'accept-terms',
+            label: 'Accept Terms',
+            required: false,
+            appearance: 'checkbox',
+            richContent: {
+              content: 'I agree to the {{tos}}',
+              replacements: {
+                tos: {
+                  type: 'link',
+                  value: 'Terms of Service',
+                  href: 'https://example.com/tos',
+                  target: '_blank',
+                },
+              },
+            },
+          },
+        ],
+        formData: {},
+      },
+    };
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result).toEqual([
+      {
+        category: 'SingleValueCollector',
+        error: null,
+        type: 'BooleanCollector',
+        id: 'accept-terms-0',
+        name: 'accept-terms',
+        input: {
+          key: 'accept-terms',
+          value: false,
+          type: 'SINGLE_CHECKBOX',
+        },
+        output: {
+          key: 'accept-terms',
+          label: 'Accept Terms',
+          type: 'SINGLE_CHECKBOX',
+          value: false,
+          appearance: 'checkbox',
+          richContent: {
+            content: 'I agree to the {{tos}}',
+            replacements: [
+              {
+                key: 'tos',
+                type: 'link',
+                value: 'Terms of Service',
+                href: 'https://example.com/tos',
+                target: '_blank',
+              },
+            ],
+          },
+        },
+      } satisfies BooleanCollector,
     ]);
   });
 });
 
 describe('The node collector reducer with FidoAuthenticationFieldValue', () => {
+  it('should store a GenericError on input.value when a FIDO error is passed as value', () => {
+    const fidoError: GenericError = {
+      code: 'TimeoutError',
+      error: 'authentication_error',
+      message: 'FIDO authentication failed: TimeoutError',
+      type: 'fido_error',
+    };
+    const publicKeyCredentialRequestOptions: FidoAuthenticationOptions = {
+      challenge: [1, 2, 3, 4],
+      timeout: 60000,
+      rpId: 'example.com',
+      allowCredentials: [{ type: 'public-key', id: [1, 2, 3, 4] }],
+      userVerification: 'preferred',
+    };
+    const action = {
+      type: 'node/update',
+      payload: {
+        id: 'fido2-authentication-0',
+        value: fidoError,
+      },
+    };
+    const state: FidoAuthenticationCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoAuthenticationCollector',
+        id: 'fido2-authentication-0',
+        name: 'fido2-authentication',
+        input: {
+          key: 'fido2-authentication',
+          value: {},
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-authentication',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialRequestOptions,
+            action: 'AUTHENTICATE',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ];
+
+    expect(nodeCollectorReducer(state, action)).toStrictEqual([
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'FidoAuthenticationCollector',
+        id: 'fido2-authentication-0',
+        name: 'fido2-authentication',
+        input: {
+          key: 'fido2-authentication',
+          value: fidoError,
+          type: 'FIDO2',
+          validation: null,
+        },
+        output: {
+          key: 'fido2-authentication',
+          type: 'FIDO2',
+          config: {
+            publicKeyCredentialRequestOptions,
+            action: 'AUTHENTICATE',
+            trigger: 'BUTTON',
+          },
+        },
+      },
+    ]);
+  });
+
   it('should handle collector updates ', () => {
     // todo: declare inputValue type as FidoAuthenticationInputValue
     const mockInputValue = {
@@ -1851,5 +2332,88 @@ describe('The node collector reducer with FidoAuthenticationFieldValue', () => {
         },
       },
     ]);
+  });
+});
+
+describe('The node collector reducer with MetadataField', () => {
+  it('should create a MetadataCollector from a METADATA field', () => {
+    const action = {
+      type: 'node/next',
+      payload: {
+        fields: [
+          {
+            type: 'METADATA',
+            key: 'metadata-key',
+            payload: { sessionToken: 'abc123' },
+          },
+        ],
+        formData: {},
+      },
+    };
+
+    const result = nodeCollectorReducer(undefined, action);
+    expect(result[0]).toEqual({
+      category: 'ObjectValueAutoCollector',
+      error: null,
+      type: 'MetadataCollector',
+      id: 'metadata-key-0',
+      name: 'metadata-key',
+      input: {
+        key: 'metadata-key',
+        value: {},
+        type: 'METADATA',
+        validation: null,
+      },
+      output: {
+        key: 'metadata-key',
+        type: 'METADATA',
+        config: { sessionToken: 'abc123' },
+      },
+    } satisfies MetadataCollector);
+  });
+
+  it('should update a MetadataCollector input value', () => {
+    const state: MetadataCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'MetadataCollector',
+        id: 'metadata-key-0',
+        name: 'metadata-key',
+        input: { key: 'metadata-key', value: {}, type: 'METADATA', validation: null },
+        output: {
+          key: 'metadata-key',
+          type: 'METADATA',
+          config: { sessionToken: 'abc123' },
+        },
+      },
+    ];
+
+    const action = {
+      type: 'node/update',
+      payload: { id: 'metadata-key-0', value: { result: 'ok' } },
+    };
+    const result = nodeCollectorReducer(state, action);
+    expect((result[0] as MetadataCollector).input.value).toEqual({ result: 'ok' });
+  });
+
+  it('should throw when updating a MetadataCollector with a non-object value', () => {
+    const state: MetadataCollector[] = [
+      {
+        category: 'ObjectValueAutoCollector',
+        error: null,
+        type: 'MetadataCollector',
+        id: 'metadata-key-0',
+        name: 'metadata-key',
+        input: { key: 'metadata-key', value: {}, type: 'METADATA', validation: null },
+        output: { key: 'metadata-key', type: 'METADATA', config: {} },
+      },
+    ];
+
+    const action = {
+      type: 'node/update',
+      payload: { id: 'metadata-key-0', value: 'not-an-object' },
+    };
+    expect(() => nodeCollectorReducer(state, action)).toThrow('Value argument must be an object');
   });
 });

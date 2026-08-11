@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -31,20 +31,23 @@ import type {
   AutoCollectors,
   SingleValueAutoCollectorTypes,
   ObjectValueAutoCollectorTypes,
+  ImageCollector,
   QrCodeCollector,
   ReadOnlyCollector,
   RichTextCollector,
   RichContentLink,
-  AgreementCollector,
   PhoneNumberExtensionOutputValue,
   PasswordCollector,
   ValidatedPasswordCollector,
+  BooleanCollector,
 } from './collector.types.js';
 import type {
   DeviceAuthenticationField,
   DeviceRegistrationField,
   FidoAuthenticationField,
   FidoRegistrationField,
+  ImageField,
+  MetadataField,
   MultiSelectField,
   PasswordField,
   PhoneNumberField,
@@ -62,6 +65,27 @@ import type {
   ReadOnlyFields,
   PhoneNumberExtensionField,
 } from './davinci.types.js';
+
+/**
+ * @function normalizeReplacements - Flattens the API's keyed
+ * `Record<string, RichContentReplacement>` into an array of `RichContentLink`
+ * with the original key carried on each entry. Hrefs are passed through
+ * unmodified — consumers are responsible for sanitizing before rendering.
+ *
+ * @param {Record<string, RichContentReplacement>} replacements - The replacements map from the API.
+ * @returns {RichContentLink[]} The flattened array of replacement entries.
+ */
+export function normalizeReplacements(
+  replacements: Record<string, RichContentReplacement>,
+): RichContentLink[] {
+  return Object.entries(replacements).map(([key, replacement]) => ({
+    key,
+    type: replacement.type,
+    value: replacement.value,
+    href: replacement.href,
+    ...(replacement.target && { target: replacement.target }),
+  }));
+}
 
 /**
  * @function returnActionCollector - Creates an ActionCollector object based on the provided field and index.
@@ -253,16 +277,52 @@ export function returnSingleValueCollector<
         options: options,
       },
     } as InferSingleValueCollectorType<'SingleSelectCollector'>;
+  } else if (collectorType === 'BooleanCollector') {
+    const richContent =
+      'richContent' in field && field.richContent
+        ? {
+            content: field.richContent.content,
+            replacements: normalizeReplacements(field.richContent.replacements ?? {}),
+          }
+        : undefined;
+
+    return {
+      category: 'SingleValueCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: false,
+        type: field.type,
+      },
+      output: {
+        key: field.key,
+        label: field.label,
+        type: field.type,
+        value: false,
+        appearance: ('appearance' in field && field.appearance) || '',
+        ...(richContent && { richContent }),
+      },
+    } as InferSingleValueCollectorType<'BooleanCollector'>;
   } else if (collectorType === 'ValidatedBooleanCollector') {
     const validationArray = [];
     if ('required' in field && field.required === true) {
       validationArray.push({
         type: 'required',
-        message:
-          ('validation' in field && field.validation?.errorMessage) || 'Value cannot be empty',
+        message: ('errorMessage' in field && field.errorMessage) || 'Value cannot be empty',
         rule: true,
       });
     }
+
+    const richContent =
+      'richContent' in field && field.richContent
+        ? {
+            content: field.richContent.content,
+            replacements: normalizeReplacements(field.richContent.replacements ?? {}),
+          }
+        : undefined;
 
     return {
       category: 'ValidatedSingleValueCollector',
@@ -281,6 +341,8 @@ export function returnSingleValueCollector<
         label: field.label,
         type: field.type,
         value: false,
+        appearance: ('appearance' in field && field.appearance) || '',
+        ...(richContent && { richContent }),
       },
     } as InferSingleValueCollectorType<'ValidatedBooleanCollector'>;
   } else if ('validation' in field || 'required' in field) {
@@ -436,7 +498,7 @@ export function returnSingleValueAutoCollector<
  * @returns {AutoCollector} The constructed AutoCollector object.
  */
 export function returnObjectValueAutoCollector<
-  Field extends FidoRegistrationField | FidoAuthenticationField,
+  Field extends FidoRegistrationField | FidoAuthenticationField | MetadataField,
   CollectorType extends ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -456,7 +518,26 @@ export function returnObjectValueAutoCollector<
     });
   }
 
-  if (field.action === 'REGISTER') {
+  if (field.type === 'METADATA') {
+    return {
+      category: 'ObjectValueAutoCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: {},
+        type: field.type,
+        validation: validationArray.length ? validationArray : null,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+        config: field.payload,
+      },
+    } as InferAutoCollectorType<'MetadataCollector'>;
+  } else if (field.action === 'REGISTER') {
     return {
       category: 'ObjectValueAutoCollector',
       error: error || null,
@@ -556,13 +637,30 @@ export function returnSingleSelectCollector(field: SingleSelectField, idx: numbe
 }
 
 /**
+ * @function returnBooleanCollector - Creates a BooleanCollector (no validation).
+ * @param {SingleCheckboxField} field - The field object containing key, label, type.
+ * @param {number} idx - The index to be used in the id of the BooleanCollector.
+ * @returns {BooleanCollector} The constructed BooleanCollector object.
+ */
+export function returnBooleanCollector(field: SingleCheckboxField, idx: number): BooleanCollector {
+  return returnSingleValueCollector(field, idx, 'BooleanCollector') as BooleanCollector;
+}
+
+/**
  * @function returnValidatedBooleanCollector - Creates a ValidatedBooleanCollector object based on the provided field and index.
  * @param {SingleCheckboxField} field - The field object containing key, label, type, required, and validation.
  * @param {number} idx - The index to be used in the id of the ValidatedBooleanCollector.
  * @returns {ValidatedBooleanCollector} The constructed ValidatedBooleanCollector object.
  */
-export function returnValidatedBooleanCollector(field: SingleCheckboxField, idx: number) {
-  return returnSingleValueCollector(field, idx, 'ValidatedBooleanCollector');
+export function returnValidatedBooleanCollector(
+  field: SingleCheckboxField,
+  idx: number,
+): ValidatedBooleanCollector {
+  return returnSingleValueCollector(
+    field,
+    idx,
+    'ValidatedBooleanCollector',
+  ) as ValidatedBooleanCollector;
 }
 
 /**
@@ -711,6 +809,8 @@ export function returnObjectCollector<
     });
   }
 
+  const label = 'label' in field ? field.label : '';
+
   let options;
   let defaultValue;
   let extensionLabel: string | null = null;
@@ -806,7 +906,7 @@ export function returnObjectCollector<
     },
     output: {
       key: field.key,
-      label: field.label,
+      label: label,
       type: field.type,
       ...(options && { options: options || [] }),
       ...(extensionLabel !== null && { extensionLabel }),
@@ -834,6 +934,16 @@ export function returnObjectSelectCollector(
   );
 }
 
+/**
+ * @function returnMetadataCollector - Creates a MetadataCollector from a METADATA field.
+ * @param {MetadataField} field - The METADATA field from the API response.
+ * @param {number} idx - The index used in the collector id/name.
+ * @returns {MetadataCollector} The constructed MetadataCollector.
+ */
+export function returnMetadataCollector(field: MetadataField, idx: number) {
+  return returnObjectValueAutoCollector(field, idx, 'MetadataCollector');
+}
+
 export function returnObjectValueCollector(
   field: PhoneNumberField | PhoneNumberExtensionField,
   idx: number,
@@ -857,27 +967,6 @@ export function returnObjectValueCollector(
 }
 
 /**
- * @function normalizeReplacements - Flattens the API's keyed
- * `Record<string, RichContentReplacement>` into an array of `RichContentLink`
- * with the original key carried on each entry. Hrefs are passed through
- * unmodified — consumers are responsible for sanitizing before rendering.
- *
- * @param {Record<string, RichContentReplacement>} replacements - The replacements map from the API.
- * @returns {RichContentLink[]} The flattened array of replacement entries.
- */
-export function normalizeReplacements(
-  replacements: Record<string, RichContentReplacement>,
-): RichContentLink[] {
-  return Object.entries(replacements).map(([key, replacement]) => ({
-    key,
-    type: replacement.type,
-    value: replacement.value,
-    href: replacement.href,
-    ...(replacement.target && { target: replacement.target }),
-  }));
-}
-
-/**
  * @function returnNoValueCollector - Creates a NoValueCollector object based on the provided field, index, and optional collector type.
  * @param {DaVinciField} field - The field object containing key, label, type, and links.
  * @param {number} idx - The index to be used in the id of the NoValueCollector.
@@ -889,7 +978,7 @@ export function returnNoValueCollector<
   CollectorType extends NoValueCollectorTypes = 'NoValueCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
-  if (!('content' in field)) {
+  if (field.type !== 'IMAGE' && !('content' in field)) {
     error = `${error}Content is not found in the field object. `;
   }
   if (!('type' in field)) {
@@ -904,7 +993,7 @@ export function returnNoValueCollector<
     name: `${field.key || field.type}-${idx}`,
     output: {
       key: `${field.key || field.type}-${idx}`,
-      label: field.content,
+      label: 'content' in field ? field.content : '',
       type: field.type,
     },
   } as InferNoValueCollectorType<CollectorType>;
@@ -920,10 +1009,10 @@ export function returnNoValueCollector<
  * @returns {ReadOnlyCollector | RichTextCollector} The constructed collector.
  */
 export function returnReadOnlyCollector(
-  field: ReadOnlyField,
+  field: ReadOnlyField | AgreementField,
   idx: number,
 ): ReadOnlyCollector | RichTextCollector {
-  if (field.richContent) {
+  if (field.type === 'LABEL' && field.richContent) {
     const base = returnNoValueCollector(field, idx, 'RichTextCollector');
     return {
       ...base,
@@ -944,6 +1033,7 @@ export function returnReadOnlyCollector(
     output: {
       ...base.output,
       content: field.content,
+      ...(field.type === 'AGREEMENT' && field.titleEnabled && { title: field.title ?? '' }),
     },
   };
 }
@@ -968,24 +1058,35 @@ export function returnQrCodeCollector(field: QrCodeField, idx: number): QrCodeCo
 }
 
 /**
- * @function returnAgreementCollector - Creates an AgreementCollector object based on the provided field and index.
- * @param {AgreementField} field - The field object containing key, label, type, and agreement details.
- * @param {number} idx - The index to be used in the id of the AgreementCollector.
- * @returns {AgreementCollector} The constructed AgreementCollector object.
+ * @function returnImageCollector - Creates an ImageCollector object for displaying IMAGE fields.
+ *
+ * Composes on top of `returnNoValueCollector` for `category`, `id`, `name`, and base
+ * `output.{key, type}`. Overrides `output.label` and `output.alt` with `field.description`
+ * (IMAGE has no wire `label` property).
+ *
+ * @param {ImageField} field - The IMAGE field from the API response.
+ * @param {number} idx - The index used in the collector `id`/`name`.
+ * @returns {ImageCollector} The constructed ImageCollector object.
  */
-export function returnAgreementCollector(field: AgreementField, idx: number): AgreementCollector {
-  const base = returnNoValueCollector(field, idx, 'AgreementCollector');
+export function returnImageCollector(field: ImageField, idx: number): ImageCollector {
+  const base = returnNoValueCollector(field, idx, 'ImageCollector');
+  let error = base.error || '';
+  if (!field.imageUrl) {
+    error = `${error}ImageUrl is not found in the field object. `;
+  }
+  if (!field.description) {
+    error = `${error}Description is not found in the field object. `;
+  }
+
   return {
     ...base,
+    error: error || null,
     output: {
       ...base.output,
-      titleEnabled: field.titleEnabled,
-      title: field.title,
-      agreement: {
-        id: field.agreement?.id ?? '',
-        useDynamicAgreement: field.agreement?.useDynamicAgreement ?? false,
-      },
-      enabled: field.enabled ?? false,
+      label: field.description || '',
+      src: field.imageUrl || '',
+      alt: field.description || '',
+      ...(field.hyperlinkUrl ? { href: field.hyperlinkUrl } : {}),
     },
   };
 }

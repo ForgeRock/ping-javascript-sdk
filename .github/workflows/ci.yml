@@ -32,6 +32,9 @@ jobs:
         with:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Lint dependency versions
+        run: pnpm syncpack:lint
+
       - run: pnpm nx fix-ci
         if: always()
 

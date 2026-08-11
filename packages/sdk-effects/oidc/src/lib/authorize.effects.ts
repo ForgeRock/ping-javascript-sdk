@@ -11,6 +11,7 @@
 import { createChallenge } from '@forgerock/sdk-utilities';
 
 import { generateAndStoreAuthUrlValues } from './state-pkce.effects.js';
+import { buildAuthorizeParams } from './authorize.utils.js';
 
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
@@ -39,16 +40,9 @@ export async function createAuthorizeUrl(
 
   const challenge = await createChallenge(authorizeUrlOptions.verifier);
 
-  const requestParams = new URLSearchParams({
-    ...options.query,
-    code_challenge: challenge,
-    code_challenge_method: 'S256',
-    client_id: options.clientId,
-    prompt: options.prompt || '',
-    redirect_uri: options.redirectUri,
-    response_mode: options.responseMode || '',
-    response_type: options.responseType,
-    scope: options.scope,
+  const requestParams = buildAuthorizeParams({
+    ...options,
+    challenge,
     state: authorizeUrlOptions.state,
   });
 

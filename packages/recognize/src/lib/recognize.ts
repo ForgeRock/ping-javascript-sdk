@@ -8,7 +8,7 @@
  */
 
 import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
-import { RecognizeErrorCode } from './defs/recognize-error-code.js';
+import { RECOGNIZE_ERROR_CODE } from './defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
 import { createRecognizeError } from './functions/create-recognize-error.js';
 import { setAttributes } from './functions/set-attributes.js';
@@ -46,7 +46,7 @@ export function recognize(
   const observers: Set<RecognizeWebComponentObserver> = new Set();
 
   let element: RecognizeWebComponent | null = null;
-  let aborter: AbortController | null = null;
+  const aborter = new AbortController();
 
   const dispatch = (event: RecognizeWebComponentEvent): void => {
     for (const observer of observers) {
@@ -55,8 +55,6 @@ export function recognize(
   };
 
   const addEventListeners = (element: RecognizeWebComponent): void => {
-    aborter = new AbortController();
-
     const onError = (event: ErrorEvent): void => {
       if (event instanceof KeylessRecoverableErrorEvent) {
         element?.dispose();
@@ -64,7 +62,7 @@ export function recognize(
 
       const code: RecognizeErrorCodeValue =
         RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[event.error?.message] ??
-        RecognizeErrorCode.SDK_ERROR;
+        RECOGNIZE_ERROR_CODE.SDK_ERROR;
 
       const error: RecognizeError = createRecognizeError(code, { cause: event.error });
 
@@ -123,7 +121,7 @@ export function recognize(
 
     async init(options: RecognizeWebComponentInitOptions): Promise<RecognizeError | void> {
       if (element !== null) {
-        return createRecognizeError(RecognizeErrorCode.SDK_ERROR, {
+        return createRecognizeError(RECOGNIZE_ERROR_CODE.SDK_ERROR, {
           cause: 'init() called more than once — call dispose() before re-initializing',
         });
       }
@@ -131,7 +129,7 @@ export function recognize(
       try {
         await import('./recognize-sdk/index.js');
       } catch (error: unknown) {
-        return createRecognizeError(RecognizeErrorCode.SDK_WEB_ASSEMBLY_IMPORT_FAILED, {
+        return createRecognizeError(RECOGNIZE_ERROR_CODE.SDK_WEB_ASSEMBLY_IMPORT_FAILED, {
           cause: error,
         });
       }
@@ -140,7 +138,7 @@ export function recognize(
         const tag: string = options.element.tagName;
 
         if (tag !== 'KL-AUTH' && tag !== 'KL-ENROLL') {
-          return createRecognizeError(RecognizeErrorCode.SDK_ERROR, {
+          return createRecognizeError(RECOGNIZE_ERROR_CODE.SDK_ERROR, {
             cause: `invalid element <${tag.toLowerCase()}> — options.element must be a <kl-auth> or <kl-enroll> custom element`,
           });
         }
@@ -166,8 +164,7 @@ export function recognize(
     dispose: (): void => {
       if (element === null) return;
 
-      aborter?.abort();
-      aborter = null;
+      aborter.abort();
 
       element.remove();
       element = null;
