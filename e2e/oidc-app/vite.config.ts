@@ -4,7 +4,7 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const pages = ['ping-am', 'ping-one'];
+const pages = ['ping-am', 'ping-one', 'par'];
 export default defineConfig(() => ({
   root: __dirname + '/src',
   cacheDir: '../../node_modules/.vite/e2e/oidc-app',

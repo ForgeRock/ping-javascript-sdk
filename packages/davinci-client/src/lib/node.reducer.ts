@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -15,11 +15,13 @@ import { createAction, createReducer } from '@reduxjs/toolkit';
 import {
   returnActionCollector,
   returnFlowCollector,
+  returnMetadataCollector,
   returnPasswordCollector,
   returnValidatedPasswordCollector,
   returnIdpCollector,
   returnSubmitCollector,
   returnTextCollector,
+  returnBooleanCollector,
   returnValidatedBooleanCollector,
   returnSingleSelectCollector,
   returnMultiSelectCollector,
@@ -32,42 +34,18 @@ import {
   returnFidoRegistrationCollector,
   returnFidoAuthenticationCollector,
   returnQrCodeCollector,
-  returnAgreementCollector,
+  returnImageCollector,
 } from './collector.utils.js';
+import type { GenericError } from '@forgerock/sdk-types';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type {
-  ActionCollector,
-  MultiSelectCollector,
-  ValidatedBooleanCollector,
-  SingleSelectCollector,
-  FlowCollector,
-  PasswordCollector,
-  ValidatedPasswordCollector,
-  SingleValueCollector,
-  IdpCollector,
-  SubmitCollector,
-  TextCollector,
-  ReadOnlyCollector,
-  RichTextCollector,
-  ValidatedTextCollector,
-  DeviceAuthenticationCollector,
-  DeviceRegistrationCollector,
-  PhoneNumberCollector,
-  PhoneNumberInputValue,
-  PhoneNumberOutputValue,
-  UnknownCollector,
-  ProtectCollector,
-  PollingCollector,
-  FidoRegistrationCollector,
-  FidoAuthenticationCollector,
-  FidoAuthenticationInputValue,
   FidoRegistrationInputValue,
-  QrCodeCollector,
-  AgreementCollector,
+  FidoAuthenticationInputValue,
+  PhoneNumberOutputValue,
   PhoneNumberExtensionOutputValue,
-  PhoneNumberExtensionCollector,
-  PhoneNumberExtensionInputValue,
 } from './collector.types.js';
+import type { CollectorValueTypes } from './client.types.js';
+import type { Collectors } from './node.types.js';
 
 /**
  * @const nextCollectorValues - Action for setting the next collector values
@@ -81,14 +59,7 @@ export const nextCollectorValues = createAction<{
 }>('node/next');
 export const updateCollectorValues = createAction<{
   id: string;
-  value:
-    | string
-    | string[]
-    | boolean
-    | PhoneNumberInputValue
-    | PhoneNumberExtensionInputValue
-    | FidoRegistrationInputValue
-    | FidoAuthenticationInputValue;
+  value: CollectorValueTypes;
   index?: number;
 }>('node/update');
 export const pollCollectorValues = createAction('node/poll');
@@ -96,33 +67,7 @@ export const pollCollectorValues = createAction('node/poll');
 /**
  * @const initialCollectorValues - Initial state for the collector values
  */
-const initialCollectorValues: (
-  | FlowCollector
-  | PasswordCollector
-  | ValidatedPasswordCollector
-  | TextCollector
-  | IdpCollector
-  | SubmitCollector
-  | ActionCollector<'ActionCollector'>
-  | SingleValueCollector<'SingleValueCollector'>
-  | ValidatedBooleanCollector
-  | SingleSelectCollector
-  | MultiSelectCollector
-  | DeviceAuthenticationCollector
-  | DeviceRegistrationCollector
-  | PhoneNumberCollector
-  | PhoneNumberExtensionCollector
-  | ReadOnlyCollector
-  | RichTextCollector
-  | ValidatedTextCollector
-  | UnknownCollector
-  | ProtectCollector
-  | PollingCollector
-  | FidoRegistrationCollector
-  | FidoAuthenticationCollector
-  | QrCodeCollector
-  | AgreementCollector
-)[] = [];
+const initialCollectorValues: Collectors[] = [];
 
 /**
  * @const nodeCollectorReducer - Reducer for handling the collector values
@@ -144,7 +89,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
              * Some collectors may not have the same properties as others;
              * LABEL field types are one of them, so let's catch them first.
              */
-            if (field.type === 'LABEL') {
+            if (field.type === 'LABEL' || field.type === 'AGREEMENT') {
               return returnReadOnlyCollector(field, idx);
             }
 
@@ -152,8 +97,8 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
               return returnQrCodeCollector(field, idx);
             }
 
-            if (field.type === 'AGREEMENT') {
-              return returnAgreementCollector(field, idx);
+            if (field.type === 'IMAGE') {
+              return returnImageCollector(field, idx);
             }
 
             // *Some* collectors may have default or existing data to display
@@ -200,7 +145,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                 return returnObjectValueCollector(field, idx, prefillData);
               }
               case 'SINGLE_CHECKBOX': {
-                return returnValidatedBooleanCollector(field, idx);
+                return field.required === true
+                  ? returnValidatedBooleanCollector(field, idx)
+                  : returnBooleanCollector(field, idx);
               }
               case 'TEXT': {
                 const str = data as string;
@@ -228,6 +175,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
                   return returnFidoAuthenticationCollector(field, idx);
                 }
                 break;
+              }
+              case 'METADATA': {
+                return returnMetadataCollector(field, idx);
               }
               default:
               // Default is handled below
@@ -260,6 +210,7 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       if (collector.category === 'NoValueCollector') {
         throw new Error('NoValueCollectors, like ReadOnlyCollectors, are read-only');
       }
+
       if (action.payload.value === undefined) {
         throw new Error('Value argument cannot be undefined');
       }
@@ -269,7 +220,10 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         collector.category === 'ValidatedSingleValueCollector' ||
         collector.category === 'SingleValueAutoCollector'
       ) {
-        if (collector.type === 'ValidatedBooleanCollector') {
+        if (
+          collector.type === 'BooleanCollector' ||
+          collector.type === 'ValidatedBooleanCollector'
+        ) {
           if (typeof action.payload.value !== 'boolean') {
             throw new Error('Value argument must be a boolean');
           }
@@ -297,13 +251,13 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
 
       if (collector.type === 'DeviceAuthenticationCollector') {
-        if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+        const inputValue = action.payload.value;
+        if (typeof inputValue !== 'string') {
+          throw new Error('Value argument must be a string');
         }
+
         // Iterate through the options object and find option to update
-        const option = collector.output.options.find(
-          (option) => option.value === action.payload.value,
-        );
+        const option = collector.output.options.find((option) => option.value === inputValue);
 
         if (!option) {
           throw new Error('No option found matching value to update');
@@ -318,14 +272,13 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
 
       if (collector.type === 'DeviceRegistrationCollector') {
-        if (typeof action.payload.id !== 'string') {
-          throw new Error('Index argument must be a string');
+        const inputValue = action.payload.value;
+        if (typeof inputValue !== 'string') {
+          throw new Error('Value argument must be a string');
         }
 
         // Iterate through the options object and find option to update
-        const option = collector.output.options.find(
-          (option) => option.value === action.payload.value,
-        );
+        const option = collector.output.options.find((option) => option.value === inputValue);
 
         if (!option) {
           throw new Error('No option found matching value to update');
@@ -373,10 +326,12 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         if (typeof action.payload.value !== 'object') {
           throw new Error('Value argument must be an object');
         }
-        if (!('attestationValue' in action.payload.value)) {
+        const isFidoError =
+          'type' in action.payload.value && action.payload.value.type === 'fido_error';
+        if (!isFidoError && !('attestationValue' in action.payload.value)) {
           throw new Error('Value argument must contain an attestationValue property');
         }
-        collector.input.value = action.payload.value;
+        collector.input.value = action.payload.value as FidoRegistrationInputValue | GenericError;
       }
 
       if (collector.type === 'FidoAuthenticationCollector') {
@@ -386,10 +341,23 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
         if (typeof action.payload.value !== 'object') {
           throw new Error('Value argument must be an object');
         }
-        if (!('assertionValue' in action.payload.value)) {
+        const isFidoError =
+          'type' in action.payload.value && action.payload.value.type === 'fido_error';
+        if (!isFidoError && !('assertionValue' in action.payload.value)) {
           throw new Error('Value argument must contain an assertionValue property');
         }
-        collector.input.value = action.payload.value;
+        collector.input.value = action.payload.value as FidoAuthenticationInputValue | GenericError;
+      }
+
+      if (collector.type === 'MetadataCollector') {
+        if (
+          typeof action.payload.value !== 'object' ||
+          action.payload.value === null ||
+          Array.isArray(action.payload.value)
+        ) {
+          throw new Error('Value argument must be an object');
+        }
+        collector.input.value = action.payload.value as Record<string, unknown>;
       }
     })
     /**

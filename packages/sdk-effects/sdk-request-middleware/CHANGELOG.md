@@ -1,5 +1,23 @@
 # @forgerock/sdk-request-middleware
 
+## 2.1.0
+
+### Minor Changes
+
+- [#563](https://github.com/ForgeRock/ping-javascript-sdk/pull/563) [`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9) Thanks [@ancheetah](https://github.com/ancheetah)! - Adds `pollStatus()` method and `PollingCollector` to `@forgerock/davinci-client` for polling support in DaVinci flows.
+
+  Pass a `PollingCollector` to `davinciClient.pollStatus(collector)` to get a poller function. The polling mode is detected automatically from the collector:
+  - **Challenge polling**: Periodically calls the `/status` endpoint until the challenge is resolved.
+  - **Continue polling**: Performs a delay and returns a status based on remaining poll retries. Call the returned poller function repeatedly in a loop until it resolves with the next node in the flow or an error.
+
+  Adds ability to intercept the polling request with middleware.
+
+- [#631](https://github.com/ForgeRock/ping-javascript-sdk/pull/631) [`15d616d`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d616d665ed6daec7c55fdcdcfe7256972a805c) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Add support for PAR in oidc-client requests for redirect flows
+
+### Patch Changes
+
+- [#555](https://github.com/ForgeRock/ping-javascript-sdk/pull/555) [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801) Thanks [@ancheetah](https://github.com/ancheetah)! - Fixes files distributed in sdk-effects packages. Excludes files not in `/dist` folder.
+
 ## 2.0.0
 
 ### Major Changes

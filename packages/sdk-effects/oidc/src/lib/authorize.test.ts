@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,6 +8,7 @@
 import type { GenerateAndStoreAuthUrlValues } from '@forgerock/sdk-types';
 import { describe, expect, it, beforeEach } from 'vitest';
 import { createAuthorizeUrl } from './authorize.effects.js';
+import { buildAuthorizeParams } from './authorize.utils.js';
 import { getStorageKey } from './state-pkce.effects.js';
 
 const mockSessionStorage = (() => {
@@ -134,5 +135,151 @@ describe('createAuthorizeUrl', () => {
     });
     expect(parsedOptions).toHaveProperty('state');
     expect(parsedOptions).toHaveProperty('verifier');
+  });
+});
+
+describe('buildAuthorizeParams', () => {
+  it('returns URLSearchParams with required OAuth fields', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid profile',
+      responseType: 'code',
+      challenge: 'abc123challenge',
+      state: 'randomstate',
+    });
+
+    expect(params.get('client_id')).toBe('test-client');
+    expect(params.get('redirect_uri')).toBe('https://example.com/cb');
+    expect(params.get('scope')).toBe('openid profile');
+    expect(params.get('response_type')).toBe('code');
+    expect(params.get('code_challenge')).toBe('abc123challenge');
+    expect(params.get('code_challenge_method')).toBe('S256');
+    expect(params.get('state')).toBe('randomstate');
+  });
+
+  it('includes response_mode when provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      responseMode: 'pi.flow',
+    });
+
+    expect(params.get('response_mode')).toBe('pi.flow');
+  });
+
+  it('omits optional fields when not provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+    });
+
+    expect(params.has('response_mode')).toBe(false);
+    expect(params.has('prompt')).toBe(false);
+    expect(params.has('login_hint')).toBe(false);
+    expect(params.has('nonce')).toBe(false);
+    expect(params.has('display')).toBe(false);
+    expect(params.has('ui_locales')).toBe(false);
+    expect(params.has('acr_values')).toBe(false);
+  });
+
+  it('includes login_hint when provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      loginHint: 'user@example.com',
+    });
+
+    expect(params.get('login_hint')).toBe('user@example.com');
+  });
+
+  it('includes nonce when provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      nonce: 'custom-nonce-value',
+    });
+
+    expect(params.get('nonce')).toBe('custom-nonce-value');
+  });
+
+  it('includes display when provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      display: 'popup',
+    });
+
+    expect(params.get('display')).toBe('popup');
+  });
+
+  it('includes ui_locales when provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      uiLocales: 'en-US',
+    });
+
+    expect(params.get('ui_locales')).toBe('en-US');
+  });
+
+  it('includes acr_values when provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      acrValues: 'Level3',
+    });
+
+    expect(params.get('acr_values')).toBe('Level3');
+  });
+
+  it('includes all new OIDC params together', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      loginHint: 'user@example.com',
+      nonce: 'my-nonce',
+      display: 'page',
+      uiLocales: 'fr-FR',
+      acrValues: 'Level2',
+    });
+
+    expect(params.get('login_hint')).toBe('user@example.com');
+    expect(params.get('nonce')).toBe('my-nonce');
+    expect(params.get('display')).toBe('page');
+    expect(params.get('ui_locales')).toBe('fr-FR');
+    expect(params.get('acr_values')).toBe('Level2');
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@forgerock/sdk-logger",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -31,7 +31,9 @@
     "test": "pnpm nx nxTest",
     "test:watch": "pnpm nx nxTest --watch"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@forgerock/sdk-types": "workspace:*"
+  },
   "nx": {
     "tags": ["scope:sdk-effects"]
   }

@@ -1,17 +1,19 @@
+// @vitest-environment node
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { callbackType } from '@forgerock/sdk-types';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
-import type { GenericError, Step, WellknownResponse } from '@forgerock/sdk-types';
-
 import { journey } from './client.store.js';
+import { makeJourneyConfig } from '@forgerock/sdk-utilities';
 import { createJourneyStep } from './step.utils.js';
+
+import { callbackType, type GenericError, type Step, type WellknownResponse } from '../index.js';
+
 import { JourneyClientConfig } from './config.types.js';
 
 /**
@@ -75,7 +77,7 @@ function getUrlFromInput(input: RequestInfo | URL): string {
 /**
  * Helper to setup mock fetch for wellknown + journey responses
  */
-function setupMockFetch(journeyResponse: Step | null = null) {
+function setupMockFetch(journeyResponse: Step | null = null, authenticateStatus = 200) {
   mockFetch.mockImplementation((input: RequestInfo | URL) => {
     const url = getUrlFromInput(input);
 
@@ -85,8 +87,13 @@ function setupMockFetch(journeyResponse: Step | null = null) {
     }
 
     // Journey authenticate endpoint
-    if (journeyResponse && url.includes('/authenticate')) {
-      return Promise.resolve(new Response(JSON.stringify(journeyResponse)));
+    if (url.includes('/authenticate')) {
+      if (journeyResponse === null) {
+        return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+      }
+      return Promise.resolve(
+        new Response(JSON.stringify(journeyResponse), { status: authenticateStatus }),
+      );
     }
 
     return Promise.reject(new Error(`Unexpected fetch: ${url}`));
@@ -108,6 +115,7 @@ describe('journey-client', () => {
     expect(client.redirect).toBeInstanceOf(Function);
     expect(client.resume).toBeInstanceOf(Function);
     expect(client.terminate).toBeInstanceOf(Function);
+    expect(client.subscribe).toBeInstanceOf(Function);
   });
 
   test('journey_InvalidWellknownUrl_ThrowsError', async () => {
@@ -152,6 +160,30 @@ describe('journey-client', () => {
     }
   });
 
+  test('start_401WithStepPayload_ReturnsLoginFailure', async () => {
+    const failurePayload: Step = {
+      code: 401,
+      message: 'Access Denied',
+      reason: 'Unauthorized',
+      detail: { failureUrl: 'https://example.com/failure' },
+    };
+    setupMockFetch(failurePayload, 401);
+
+    const client = await journey({ config: mockConfig });
+    const result = await client.start();
+
+    expect(result).toBeDefined();
+    expect(isGenericError(result)).toBe(false);
+    expect(result).toHaveProperty('type', 'LoginFailure');
+
+    if (!isGenericError(result) && result.type === 'LoginFailure') {
+      expect(result.payload).toEqual(failurePayload);
+      expect(result.getCode()).toBe(401);
+      expect(result.getMessage()).toBe('Access Denied');
+      expect(result.getReason()).toBe('Unauthorized');
+    }
+  });
+
   test('next_WellknownConfig_SendsStepAndReturnsNext', async () => {
     const initialStep = createJourneyStep({
       authId: 'test-auth-id',
@@ -192,6 +224,34 @@ describe('journey-client', () => {
     }
   });
 
+  test('next_401WithStepPayload_ReturnsLoginFailure', async () => {
+    const initialStep = createJourneyStep({
+      authId: 'test-auth-id',
+      callbacks: [],
+    });
+    const failurePayload: Step = {
+      code: 401,
+      message: 'Access Denied',
+      reason: 'Unauthorized',
+      detail: { failureUrl: 'https://example.com/failure' },
+    };
+    setupMockFetch(failurePayload, 401);
+
+    const client = await journey({ config: mockConfig });
+    const result = await client.next(initialStep, {});
+
+    expect(result).toBeDefined();
+    expect(isGenericError(result)).toBe(false);
+    expect(result).toHaveProperty('type', 'LoginFailure');
+
+    if (!isGenericError(result) && result.type === 'LoginFailure') {
+      expect(result.payload).toEqual(failurePayload);
+      expect(result.getCode()).toBe(401);
+      expect(result.getMessage()).toBe('Access Denied');
+      expect(result.getReason()).toBe('Unauthorized');
+    }
+  });
+
   test('redirect_WellknownConfig_StoresStepAndCallsLocationAssign', async () => {
     const mockStepPayload: Step = {
       callbacks: [
@@ -204,10 +264,7 @@ describe('journey-client', () => {
     };
     const step = createJourneyStep(mockStepPayload);
     const assignMock = vi.fn();
-    const locationSpy = vi.spyOn(window, 'location', 'get').mockReturnValue({
-      ...window.location,
-      assign: assignMock,
-    });
+    vi.stubGlobal('window', { location: { assign: assignMock } });
     setupMockFetch();
 
     const client = await journey({ config: mockConfig });
@@ -216,7 +273,7 @@ describe('journey-client', () => {
     expect(mockStorageInstance.set).toHaveBeenCalledWith({ step: step.payload });
     expect(assignMock).toHaveBeenCalledWith('https://sso.com/redirect');
 
-    locationSpy.mockRestore();
+    vi.unstubAllGlobals();
   });
 
   describe('resume()', () => {
@@ -367,7 +424,7 @@ describe('journey-client', () => {
 
     expect(isGenericError(result)).toBe(true);
     if (isGenericError(result)) {
-      expect(result.error).toBe('no_response_data');
+      expect(result.error).toBe('request_failed');
       expect(result.type).toBe('unknown_error');
     }
   });
@@ -501,6 +558,48 @@ describe('journey-client', () => {
 
       const request = mockFetch.mock.calls[1][0] as Request;
       expect(request.url).toBe('https://test.com/am/json/realms/root/realms/alpha/authenticate');
+    });
+  });
+
+  describe('unified JSON config entry', () => {
+    test('accepts unified JSON config and initializes successfully', async () => {
+      setupMockFetch();
+
+      const unifiedConfig = {
+        oidc: {
+          clientId: 'ignored-by-journey',
+          discoveryEndpoint: mockWellknownUrl,
+          scopes: ['openid'],
+          redirectUri: 'https://example.com/callback',
+        },
+      };
+
+      const client = await journey({ config: makeJourneyConfig(unifiedConfig) });
+      expect(client).toHaveProperty('start');
+      expect(client).toHaveProperty('next');
+    });
+
+    test('throws when unified JSON config has missing required field', async () => {
+      const invalidConfig = {
+        oidc: {
+          // discoveryEndpoint missing — required even for journey
+        },
+      };
+
+      expect(() => makeJourneyConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
+    });
+
+    test('throws when unified JSON config has wrong field type', async () => {
+      const invalidConfig = {
+        oidc: {
+          clientId: '123',
+          discoveryEndpoint: mockWellknownUrl,
+          scopes: 'openid', // should be array
+          redirectUri: 'https://example.com/callback',
+        },
+      };
+
+      expect(() => makeJourneyConfig(invalidConfig)).toThrow(/Invalid unified SDK config/);
     });
   });
 });

@@ -17,9 +17,11 @@ export function setAttributes(
   config: RecognizeWebComponentConfiguration,
 ): void {
   if (config.aspectRatio !== undefined) element.aspectRatio = config.aspectRatio;
-  if (config.authorizationToken !== undefined) element.authorizationToken = config.authorizationToken;
+  if (config.authorizationToken !== undefined)
+    element.authorizationToken = config.authorizationToken;
   if (config.cameraAspectRatio !== undefined) element.cameraAspectRatio = config.cameraAspectRatio;
-  if (config.cameraInstructions !== undefined) element.cameraInstructions = config.cameraInstructions;
+  if (config.cameraInstructions !== undefined)
+    element.cameraInstructions = config.cameraInstructions;
   element.customer = config.customer;
   if (config.datadogEnv !== undefined) element.datadogEnv = config.datadogEnv;
   if (config.datadogToken !== undefined) element.datadogToken = config.datadogToken;
@@ -28,13 +30,17 @@ export function setAttributes(
   if (config.disablePoweredBy !== undefined) element.disablePoweredBy = config.disablePoweredBy;
   if (config.disableSteps !== undefined) element.disableSteps = config.disableSteps;
   if (config.enableCameraFlash !== undefined) element.enableCameraFlash = config.enableCameraFlash;
-  if (config.enableCameraInstructions !== undefined) element.enableCameraInstructions = config.enableCameraInstructions;
-  if (config.enableCameraInstructionsIcons !== undefined) element.enableCameraInstructionsIcons = config.enableCameraInstructionsIcons;
+  if (config.enableCameraInstructions !== undefined)
+    element.enableCameraInstructions = config.enableCameraInstructions;
+  if (config.enableCameraInstructionsIcons !== undefined)
+    element.enableCameraInstructionsIcons = config.enableCameraInstructionsIcons;
   if (config.enableDatadogPII !== undefined) element.enableDatadogPII = config.enableDatadogPII;
-  if (config.enableWasmPthreads !== undefined) element.enableWasmPthreads = config.enableWasmPthreads;
+  if (config.enableWasmPthreads !== undefined)
+    element.enableWasmPthreads = config.enableWasmPthreads;
   if (config.lang !== undefined) element.lang = config.lang;
   if (config.localizationPacks !== undefined) element.localizationPacks = config.localizationPacks;
-  if (config.localizationVariables !== undefined) element.localizationVariables = config.localizationVariables;
+  if (config.localizationVariables !== undefined)
+    element.localizationVariables = config.localizationVariables;
   if (config.loggerLevel !== undefined) element.loggerLevel = config.loggerLevel;
   if (config.operationID !== undefined) element.operationID = config.operationID;
   if (config.seedEntropy !== undefined) element.seedEntropy = config.seedEntropy;

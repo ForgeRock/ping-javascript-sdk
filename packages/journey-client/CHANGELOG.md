@@ -1,5 +1,89 @@
 # @forgerock/journey-client
 
+## 2.1.0
+
+### Minor Changes
+
+- [#633](https://github.com/ForgeRock/ping-javascript-sdk/pull/633) [`dcb54b2`](https://github.com/ForgeRock/ping-javascript-sdk/commit/dcb54b27323aef3ce5f08286b8067d53476c03cc) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Expose `subscribe` method on journey and oidc client instances, consistent with davinci-client. Allows consumers to listen for store state changes.
+
+- [#581](https://github.com/ForgeRock/ping-javascript-sdk/pull/581) [`07015a2`](https://github.com/ForgeRock/ping-javascript-sdk/commit/07015a2679081cd273b135ed33b7847ff107cf02) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - Add WebAuthn conditional mediation (passkey autofill) support.
+  - `WebAuthn.authenticate(step, signal?)` derives mediation from WebAuthn metadata (`meta.mediation`).
+  - When `meta.mediation` is `'conditional'`, an `AbortSignal` is used (caller-provided if present, otherwise created by the SDK).
+  - If conditional mediation is requested but not supported, `authenticate()` throws `NotSupportedError` (and the existing error handling sets the hidden outcome to `unsupported`).
+  - Adds `WebAuthn.isConditionalMediationSupported()` helper, docs, and unit tests.
+
+- [#684](https://github.com/ForgeRock/ping-javascript-sdk/pull/684) [`4fe7bfe`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4fe7bfeba94627eed14f787c73384aed34be80ff) Thanks [@SteinGabriel](https://github.com/SteinGabriel)! - Add unified cross-platform SDK configuration support
+
+  New utility functions in `@forgerock/sdk-utilities` convert the cross-platform unified JSON config schema into each client's native config shape. Validation and mapping are owned entirely by the utilities layer — client factories remain typed to their existing config interfaces.
+
+  **New in `@forgerock/sdk-utilities`:**
+  - `makeOidcConfig(json)` — validates and maps unified JSON → `OidcConfig`; throws on invalid input
+  - `makeJourneyConfig(json)` — validates and maps unified JSON → `JourneyClientConfig`; throws on invalid input
+  - `makeDavinciConfig(json)` — validates and maps unified JSON → `DaVinciConfig`; throws on invalid input
+  - `UnifiedSdkConfig`, `UnifiedOidcConfig`, `UnifiedJourneyConfig` types
+  - `validateUnifiedSdkConfig` / `validateUnifiedOidcConfig` — pure validation returning `Either<T, ConfigValidationError[]>`
+  - `unifiedToOidcConfig`, `unifiedToJourneyConfig`, `unifiedToDavinciConfig` — pure mappers returning `Either<T, ConfigValidationError>`
+  - `AuthDisplayValue`, `AuthPromptValue` types (canonical source — shared between `OidcConfig` and `GetAuthorizationUrlOptions`)
+
+  **Usage:**
+
+  ```ts
+  import { makeDavinciConfig } from '@forgerock/sdk-utilities';
+
+  const client = await davinci({ config: makeDavinciConfig(unifiedJsonConfig) });
+  ```
+
+  **New in `@forgerock/sdk-types`:**
+  - `OidcConfig`, `JourneyClientConfig`, `DaVinciConfig` moved here as canonical types (previously mirrored in `sdk-utilities` as `Mapped*` types)
+  - `AuthDisplayValue`, `AuthPromptValue` types added (renamed from `OidcDisplayValue`/`OidcPromptValue`)
+  - `GetAuthorizationUrlOptions` extended with `loginHint`, `nonce`, `display`, `uiLocales`, `acrValues`; `prompt` widened to include `'select_account'`
+
+  **Updated in `@forgerock/sdk-logger`:**
+  - `LogLevel` now re-exported from `@forgerock/sdk-types` (single source of truth); runtime behaviour unchanged
+
+  **New in `@forgerock/sdk-oidc`:**
+  - `buildAuthorizeParams` forwards all new OIDC authorize params into the URL
+
+  **New in `@forgerock/oidc-client`:**
+  - `endSession` appends `post_logout_redirect_uri` when `signOutRedirectUri` is set on config
+  - Authorize URL construction forwards `loginHint`, `state`, `nonce`, `display`, `prompt`, `uiLocales`, `acrValues`, `additionalParameters` from config
+
+  **New in `@forgerock/journey-client`:**
+  - No API change — consume `makeJourneyConfig` at call-site to use unified JSON config
+
+  **New in `@forgerock/davinci-client`:**
+  - No API change — consume `makeDavinciConfig` at call-site to use unified JSON config
+
+### Patch Changes
+
+- [#630](https://github.com/ForgeRock/ping-javascript-sdk/pull/630) [`5f55b08`](https://github.com/ForgeRock/ping-javascript-sdk/commit/5f55b08b0f46f70f36095f1f0009b7d3e456cb03) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - patch @forgerock/journey-client: export PolicyParams from journey-client/types
+
+- [#564](https://github.com/ForgeRock/ping-javascript-sdk/pull/564) [`15d5af3`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d5af32310174296ae1513c95168c5e8336d668) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Update interfaces and types that are missing from exports
+
+- [#583](https://github.com/ForgeRock/ping-javascript-sdk/pull/583) [`b081582`](https://github.com/ForgeRock/ping-javascript-sdk/commit/b0815826304b0bb05fd94391ce1d4edf4b3df8e0) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - Restore legacy resume() redirect query-param handling.
+
+  resume() now parses and forwards additional URL params (error, errorCode, errorMessage, nonce, RelayState, scope, suspendedId) and uses authIndexValue as a fallback journey value.
+
+- [#557](https://github.com/ForgeRock/ping-javascript-sdk/pull/557) [`5fe2f41`](https://github.com/ForgeRock/ping-javascript-sdk/commit/5fe2f4157249111d77b7d29d09535e56f79120cf) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Extend `JourneyClientConfig` from `AsyncLegacyConfigOptions` so the same config object can be shared across journey-client, davinci-client, and oidc-client
+  - `clientId`, `scope`, `redirectUri`, and other inherited properties are now accepted but ignored — a warning is logged when they are provided
+  - `serverConfig.wellknown` remains required
+
+- [#578](https://github.com/ForgeRock/ping-javascript-sdk/pull/578) [`096733d`](https://github.com/ForgeRock/ping-javascript-sdk/commit/096733df543a6fa2e9468873677ab2f350aade36) Thanks [@SteinGabriel](https://github.com/SteinGabriel)! - Support `signalsInitializationOptions` pass-through config from AM in `PingOneProtectInitializeCallback`.
+  - `getConfig()` detects `signalsInitializationOptions` in the callback output; if it is a valid plain object, returns it directly as `SignalsInitializationOptions`
+  - Falls back to the existing `ProtectConfig` construction when the property is absent or invalid (null, string, array)
+  - `protect()` now accepts `ProtectConfig | SignalsInitializationOptions` so the pass-through config flows in without type assertions
+  - Updates vendored Signals SDK from v5.6.0w to v5.6.9w
+
+- [#670](https://github.com/ForgeRock/ping-javascript-sdk/pull/670) [`832ce89`](https://github.com/ForgeRock/ping-javascript-sdk/commit/832ce898915238ab5c92016e50ee3e78c9d1af3c) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - Return `JourneyLoginFailure` by hitting the previously-unreached `LoginFailure` branch when `start()`/`next()` receives a failure payload with a login failure `code`
+
+- Updated dependencies [[`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9), [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801), [`4fe7bfe`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4fe7bfeba94627eed14f787c73384aed34be80ff), [`15d616d`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d616d665ed6daec7c55fdcdcfe7256972a805c)]:
+  - @forgerock/sdk-request-middleware@2.1.0
+  - @forgerock/storage@2.1.0
+  - @forgerock/sdk-logger@2.1.0
+  - @forgerock/sdk-oidc@2.1.0
+  - @forgerock/sdk-utilities@2.1.0
+  - @forgerock/sdk-types@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

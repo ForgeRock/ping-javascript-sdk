@@ -1348,6 +1348,11 @@ export const recaptchaEnterpriseCallback = {
   ],
 };
 
+export const parResponse = {
+  request_uri: 'urn:ietf:params:oauth:request_uri:mock-par-request-uri',
+  expires_in: 60,
+};
+
 export const qrCodeCallbacksResponse = {
   authId: 'qrcode-journey-confirmation',
   callbacks: [

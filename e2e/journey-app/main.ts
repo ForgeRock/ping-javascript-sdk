@@ -206,8 +206,11 @@ if (searchParams.get('middleware') === 'true') {
       renderComplete();
     } else if (step?.type === 'LoginFailure') {
       console.error('Journey failed');
-      renderForm();
       renderError();
+      const errorHtml = errorEl.innerHTML;
+      step = await journeyClient.start({ journey: journeyName });
+      renderForm();
+      errorEl.innerHTML = errorHtml;
     } else {
       console.error('Unknown node status', step);
     }

@@ -1,5 +1,109 @@
 # @forgerock/davinci-client
 
+## 2.1.0
+
+### Minor Changes
+
+- [#698](https://github.com/ForgeRock/ping-javascript-sdk/pull/698) [`da0521e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/da0521e5b503ba2004cfb4e5ecec3ac42d511f5d) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - Add `ImageCollector` for rendering `IMAGE` form fields from PingOne Forms.
+
+- [#572](https://github.com/ForgeRock/ping-javascript-sdk/pull/572) [`eafe277`](https://github.com/ForgeRock/ping-javascript-sdk/commit/eafe27750c89e616679061461e6b4ebea4e25ef7) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Add `ValidatedPasswordCollector` alongside `PasswordCollector`. The reducer routes by `field.type`: `PASSWORD` always produces a `PasswordCollector`, `PASSWORD_VERIFY` always produces a `ValidatedPasswordCollector`. `ValidatedPasswordCollector.output.passwordPolicy` carries the embedded policy from the field; when the field has no policy, an empty policy object is emitted and the validator treats it as no rules. Consumers can render password requirements directly from the collector.
+
+  Both collectors now expose a `verify: boolean` on `output` (defaults to `false`), propagated from the field when the server sends `verify: true`.
+
+  `store.validate(collector)` accepts a `ValidatedPasswordCollector` and returns a validator that enforces the policy's length, unique-character, repeated-character, and per-charset minimum rules. Passing a `PasswordCollector` returns the standard "cannot be validated" error.
+
+- [#562](https://github.com/ForgeRock/ping-javascript-sdk/pull/562) [`63e94aa`](https://github.com/ForgeRock/ping-javascript-sdk/commit/63e94aa47114eee07846d5e90b47c1649190df4c) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Add QR code collector support to davinci-client
+
+- [#573](https://github.com/ForgeRock/ping-javascript-sdk/pull/573) [`77ecd01`](https://github.com/ForgeRock/ping-javascript-sdk/commit/77ecd019d569f059d2dc34592ebe9fb308003b0b) Thanks [@ancheetah](https://github.com/ancheetah)! - A new PhoneNumberExtensionCollector has been added to support phone number fields that include an extension. When a DaVinci PHONE_NUMBER field has showExtension: true, the SDK now produces a PhoneNumberExtensionCollector instead of a PhoneNumberCollector.
+
+- [#563](https://github.com/ForgeRock/ping-javascript-sdk/pull/563) [`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9) Thanks [@ancheetah](https://github.com/ancheetah)! - Adds `pollStatus()` method and `PollingCollector` to `@forgerock/davinci-client` for polling support in DaVinci flows.
+
+  Pass a `PollingCollector` to `davinciClient.pollStatus(collector)` to get a poller function. The polling mode is detected automatically from the collector:
+  - **Challenge polling**: Periodically calls the `/status` endpoint until the challenge is resolved.
+  - **Continue polling**: Performs a delay and returns a status based on remaining poll retries. Call the returned poller function repeatedly in a loop until it resolves with the next node in the flow or an error.
+
+  Adds ability to intercept the polling request with middleware.
+
+- [#568](https://github.com/ForgeRock/ping-javascript-sdk/pull/568) [`df2e9e2`](https://github.com/ForgeRock/ping-javascript-sdk/commit/df2e9e24ec906bf3275ee317821e289dc1ac8460) Thanks [@ryanbas21](https://github.com/ryanbas21)! - A new `ReadOnlyCollector.output.richContent` property is always present and contains the structured link data when a LABEL field includes `richContent`. Its shape is `CollectorRichContent` — a template string with `{{key}}` placeholders (`content`) and a validated `replacements` array (`ValidatedReplacement[]`). When no `richContent` is present, `replacements` is an empty array.
+
+  **New type exports**: `RichContentLink`, `ValidatedReplacement`, `CollectorRichContent`
+
+- [#684](https://github.com/ForgeRock/ping-javascript-sdk/pull/684) [`4fe7bfe`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4fe7bfeba94627eed14f787c73384aed34be80ff) Thanks [@SteinGabriel](https://github.com/SteinGabriel)! - Add unified cross-platform SDK configuration support
+
+  New utility functions in `@forgerock/sdk-utilities` convert the cross-platform unified JSON config schema into each client's native config shape. Validation and mapping are owned entirely by the utilities layer — client factories remain typed to their existing config interfaces.
+
+  **New in `@forgerock/sdk-utilities`:**
+  - `makeOidcConfig(json)` — validates and maps unified JSON → `OidcConfig`; throws on invalid input
+  - `makeJourneyConfig(json)` — validates and maps unified JSON → `JourneyClientConfig`; throws on invalid input
+  - `makeDavinciConfig(json)` — validates and maps unified JSON → `DaVinciConfig`; throws on invalid input
+  - `UnifiedSdkConfig`, `UnifiedOidcConfig`, `UnifiedJourneyConfig` types
+  - `validateUnifiedSdkConfig` / `validateUnifiedOidcConfig` — pure validation returning `Either<T, ConfigValidationError[]>`
+  - `unifiedToOidcConfig`, `unifiedToJourneyConfig`, `unifiedToDavinciConfig` — pure mappers returning `Either<T, ConfigValidationError>`
+  - `AuthDisplayValue`, `AuthPromptValue` types (canonical source — shared between `OidcConfig` and `GetAuthorizationUrlOptions`)
+
+  **Usage:**
+
+  ```ts
+  import { makeDavinciConfig } from '@forgerock/sdk-utilities';
+
+  const client = await davinci({ config: makeDavinciConfig(unifiedJsonConfig) });
+  ```
+
+  **New in `@forgerock/sdk-types`:**
+  - `OidcConfig`, `JourneyClientConfig`, `DaVinciConfig` moved here as canonical types (previously mirrored in `sdk-utilities` as `Mapped*` types)
+  - `AuthDisplayValue`, `AuthPromptValue` types added (renamed from `OidcDisplayValue`/`OidcPromptValue`)
+  - `GetAuthorizationUrlOptions` extended with `loginHint`, `nonce`, `display`, `uiLocales`, `acrValues`; `prompt` widened to include `'select_account'`
+
+  **Updated in `@forgerock/sdk-logger`:**
+  - `LogLevel` now re-exported from `@forgerock/sdk-types` (single source of truth); runtime behaviour unchanged
+
+  **New in `@forgerock/sdk-oidc`:**
+  - `buildAuthorizeParams` forwards all new OIDC authorize params into the URL
+
+  **New in `@forgerock/oidc-client`:**
+  - `endSession` appends `post_logout_redirect_uri` when `signOutRedirectUri` is set on config
+  - Authorize URL construction forwards `loginHint`, `state`, `nonce`, `display`, `prompt`, `uiLocales`, `acrValues`, `additionalParameters` from config
+
+  **New in `@forgerock/journey-client`:**
+  - No API change — consume `makeJourneyConfig` at call-site to use unified JSON config
+
+  **New in `@forgerock/davinci-client`:**
+  - No API change — consume `makeDavinciConfig` at call-site to use unified JSON config
+
+- [#579](https://github.com/ForgeRock/ping-javascript-sdk/pull/579) [`6c13d93`](https://github.com/ForgeRock/ping-javascript-sdk/commit/6c13d93db76fa1c8d19382909bea34cb0b80f4cf) Thanks [@ancheetah](https://github.com/ancheetah)! - Support form agreements with additional `title` property ReadOnlyCollector
+
+- [#629](https://github.com/ForgeRock/ping-javascript-sdk/pull/629) [`aa4bae9`](https://github.com/ForgeRock/ping-javascript-sdk/commit/aa4bae98c548a4f02ce92192616f6ef9dea422fb) Thanks [@ancheetah](https://github.com/ancheetah)! - Adds support for the SINGLE_CHECKBOX field. A new ValidatedBooleanCollector interface was introduced including validation support for required checkboxes and updater support for booleans. A BooleanCollector was also added for parity in the case that no validation is required.
+
+  **Type improvements**
+  - `SingleValueCollectorWithValue<T, V>` and `ValidatedSingleValueCollectorWithValue<T, V>` are now generic over their value type (`V`, defaults to `string`), replacing the loose `string | number | boolean` union
+  - `ValidatedBooleanCollector` interface extends `ValidatedSingleValueCollectorWithValue`, intersecting `output` with `appearance: string` and `richContent?: CollectorRichContent`
+  - `Validator` is now generic over collector type `T`, replacing the hardcoded `string` input with `CollectorValueType<T>` — so validators receive the value type that matches their collector (e.g. `boolean` for `ValidatedBooleanCollector`, `string` for text collectors) rather than always `string`
+
+- [#631](https://github.com/ForgeRock/ping-javascript-sdk/pull/631) [`15d616d`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d616d665ed6daec7c55fdcdcfe7256972a805c) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Add support for PAR in oidc-client requests for redirect flows
+
+### Patch Changes
+
+- [#564](https://github.com/ForgeRock/ping-javascript-sdk/pull/564) [`15d5af3`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d5af32310174296ae1513c95168c5e8336d668) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Update interfaces and types that are missing from exports
+
+- [#637](https://github.com/ForgeRock/ping-javascript-sdk/pull/637) [`3a554c9`](https://github.com/ForgeRock/ping-javascript-sdk/commit/3a554c924adc1aa6b6e5c2c760e4de246dc7dcb6) Thanks [@ancheetah](https://github.com/ancheetah)! - Fixed collector value types and simplified node reducer imports
+
+  ### `client.types.ts`
+  - Added `CollectorValueTypes` union type; replaces inline unions in `updateCollectorValues` action payload (`node.reducer.ts`) and the `update` method return closure (`client.store.ts`).
+  - Rewrote `CollectorValueType<T>` conditional type: grouped branches by return type (string, boolean, string[], specialized, category catch-alls), added `never` for `ActionCollector` and `NoValueCollector`, and added a `SingleValueAutoCollector` catch-all.
+
+  ### `node.reducer.ts` / `client.store.ts`
+  - Replaced ~30 individual collector type imports with `Collectors` (from `node.types`) and `CollectorValueTypes` (from `client.types`), collapsing verbose inline union annotations to single-type references.
+
+- [#719](https://github.com/ForgeRock/ping-javascript-sdk/pull/719) [`2f91101`](https://github.com/ForgeRock/ping-javascript-sdk/commit/2f91101187ffaced377cd34a880cfe5d59c7e916) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - Fix RTK Query cache lookups in `cache.getLatestResponse()` and `cache.getResponseWithId()`.
+
+- Updated dependencies [[`ec39137`](https://github.com/ForgeRock/ping-javascript-sdk/commit/ec3913769fbd1572f09fdf3fd45dcb61e84866c9), [`d849256`](https://github.com/ForgeRock/ping-javascript-sdk/commit/d849256768abea11d8e034fb982ae4220a5b7801), [`4fe7bfe`](https://github.com/ForgeRock/ping-javascript-sdk/commit/4fe7bfeba94627eed14f787c73384aed34be80ff), [`15d616d`](https://github.com/ForgeRock/ping-javascript-sdk/commit/15d616d665ed6daec7c55fdcdcfe7256972a805c)]:
+  - @forgerock/sdk-request-middleware@2.1.0
+  - @forgerock/storage@2.1.0
+  - @forgerock/sdk-logger@2.1.0
+  - @forgerock/sdk-oidc@2.1.0
+  - @forgerock/sdk-utilities@2.1.0
+  - @forgerock/sdk-types@2.1.0
+
 ## 2.0.0
 
 ### Major Changes

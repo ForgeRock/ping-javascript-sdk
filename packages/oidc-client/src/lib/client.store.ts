@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,12 +8,16 @@ import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
-import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
-import { authorizeµ } from './authorize.request.js';
+import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError } from './client.store.utils.js';
+import { handleMicroExit } from '@forgerock/sdk-utilities';
+import { isExpiryWithinThreshold } from './token.utils.js';
+import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
+import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
 import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
@@ -32,8 +36,7 @@ import type {
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
-import { isExpiryWithinThreshold } from './token.utils.js';
-import { logoutµ } from './logout.request.js';
+import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 
 /**
  * @function oidc
@@ -62,7 +65,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   };
   storage?: Partial<StorageConfig>;
 }) {
-  const log = loggerFn({ level: logger?.level || 'error', custom: logger?.custom });
+  const log = loggerFn({
+    level: logger?.level ?? config.log ?? 'error',
+    custom: logger?.custom,
+  });
   const oauthThreshold = config.oauthThreshold || 30 * 1000; // Default to 30 seconds
   const storageClient = createStorage<OauthTokens>({
     type: storage?.type || 'localStorage',
@@ -92,9 +98,26 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
 
   if (error || !data) {
     log.error(`Error fetching wellknown config. Please check the URL: ${wellknownUrl}`);
+    return {
+      error: `Failed to fetch well-known configuration from: ${wellknownUrl}`,
+      type: 'wellknown_error',
+    };
   }
 
+  if (data?.require_pushed_authorization_requests && config.par === false) {
+    return {
+      error:
+        'The authorization server requires Pushed Authorization Requests (PAR). Set config.par to true or omit it.',
+      type: 'argument_error',
+    };
+  }
+
+  const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
+
   return {
+    // Pass store methods to the client
+    subscribe: store.subscribe,
+
     /**
      * An object containing methods for the creation, and background use, of the authorization URL
      */
@@ -106,14 +129,6 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        * @returns {Promise<string | GenericError>} - Returns a promise that resolves to the authorization URL or an error.
        */
       url: async (options?: GetAuthorizationUrlOptions): Promise<string | GenericError> => {
-        const optionsWithDefaults = {
-          clientId: config.clientId,
-          redirectUri: config.redirectUri,
-          scope: config.scope || 'openid',
-          responseType: config.responseType || 'code',
-          ...options,
-        };
-
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -123,6 +138,52 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             type: 'wellknown_error',
           };
         }
+
+        if (useParFlow) {
+          const result = await Micro.runPromiseExit(
+            createParAuthorizeUrlµ(wellknown, config, log, store, options).pipe(
+              Micro.tapError((err) =>
+                Micro.sync(() =>
+                  log.error(`PAR authorize.url() failed [${err.type}]: ${err.error}`, err),
+                ),
+              ),
+            ),
+          );
+
+          if (exitIsSuccess(result)) {
+            return result.value;
+          } else if (exitIsFail(result)) {
+            const authErr = result.cause.error;
+            return {
+              error: authErr.error,
+              message: authErr.error_description,
+              type: authErr.type,
+            };
+          } else {
+            const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
+            return {
+              error: 'PAR authorization failure',
+              message:
+                defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
+              type: 'auth_error',
+            };
+          }
+        }
+
+        const optionsWithDefaults = {
+          clientId: config.clientId,
+          redirectUri: config.redirectUri,
+          scope: config.scope || 'openid',
+          responseType: config.responseType || 'code',
+          ...(config.loginHint !== undefined && { loginHint: config.loginHint }),
+          ...(config.nonce !== undefined && { nonce: config.nonce }),
+          ...(config.display !== undefined && { display: config.display }),
+          ...(config.prompt !== undefined && { prompt: config.prompt }),
+          ...(config.uiLocales !== undefined && { uiLocales: config.uiLocales }),
+          ...(config.acrValues !== undefined && { acrValues: config.acrValues }),
+          ...(config.query !== undefined && { query: config.query }),
+          ...options,
+        };
 
         return createAuthorizeUrl(wellknown.authorization_endpoint, optionsWithDefaults);
       },
@@ -147,7 +208,14 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         const result = await Micro.runPromiseExit(
-          await authorizeµ(wellknown, config, log, store, options),
+          authorizeµ(
+            wellknown,
+            config,
+            log,
+            store,
+            { ...(options ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
+            useParFlow,
+          ),
         );
 
         if (exitIsSuccess(result)) {
@@ -155,9 +223,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'Authorization failure',
-            error_description: result.cause.message,
+            error_description:
+              defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
           };
         }
@@ -206,18 +276,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         );
 
         const result = await Micro.runPromiseExit(getTokensµ);
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          return {
-            error: 'Token Exchange failure',
-            message: result.cause.message,
-            type: 'exchange_error',
-          };
-        }
+        return handleMicroExit(result, 'Token Exchange failure', 'exchange_error');
       },
 
       /**
@@ -276,7 +335,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           config,
           log,
           store,
-          authorizeOptions,
+          { ...(authorizeOptions ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
+          useParFlow,
         ).pipe(
           Micro.flatMap((response): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> => {
             return buildTokenExchangeµ({
@@ -311,9 +371,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         } else if (exitIsFail(result)) {
           return result.cause.error;
         } else {
+          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
           return {
             error: 'Background token renewal failed',
-            error_description: result.cause.message,
+            error_description:
+              defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
             type: 'auth_error',
           };
         }
@@ -401,18 +463,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         );
 
         const result = await Micro.runPromiseExit(revokeµ);
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          return {
-            error: 'Token revocation failure',
-            message: result.cause.message,
-            type: 'auth_error',
-          };
-        }
+        return handleMicroExit(result, 'Token revocation failure', 'auth_error');
       },
     },
 
@@ -476,18 +527,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         );
 
         const result = await Micro.runPromiseExit(info);
-
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          return {
-            error: 'User Info retrieval failure',
-            message: result.cause.message,
-            type: 'auth_error',
-          };
-        }
+        return handleMicroExit(result, 'User Info retrieval failure', 'auth_error');
       },
 
       /**
@@ -531,18 +571,38 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         const result = await Micro.runPromiseExit(
           logoutµ({ tokens, config, wellknown, store, storageClient }),
         );
+        return handleMicroExit(result, 'Logout_Failure', 'auth_error');
+      },
 
-        if (exitIsSuccess(result)) {
-          return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
+      /**
+       * @method session
+       * @description Checks whether the user has an active session at the authorization server
+       *              using a hidden iframe with prompt=none. Supports response_type=none (default)
+       *              and response_type=id_token.
+       * @param {SessionCheckOptions} options - Optional parameters for the session check.
+       * @returns {Promise<SessionCheckSuccess | GenericError>} - Never throws; returns a typed result.
+       */
+      session: async (
+        options?: SessionCheckOptions,
+      ): Promise<SessionCheckSuccess | GenericError> => {
+        const state = store.getState();
+        const wellknown = wellknownSelector(wellknownUrl, state);
+
+        if (!wellknown?.authorization_endpoint) {
           return {
-            error: 'Logout_Failure',
-            message: result.cause.message,
-            type: 'auth_error',
+            error: 'Wellknown missing authorization endpoint',
+            message: 'Authorization endpoint not found in wellknown configuration',
+            type: 'wellknown_error',
           };
         }
+
+        const micro =
+          options?.responseType === 'id_token'
+            ? sessionCheckIdTokenµ(wellknown, config, store, storageClient, log, options)
+            : sessionCheckNoneµ(wellknown, config, store, storageClient, log, options);
+
+        const result = await Micro.runPromiseExit(micro);
+        return handleMicroExit(result, 'Session check failure', 'unknown_error');
       },
     },
   };

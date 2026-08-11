@@ -1,6 +1,6 @@
 {
   "name": "@forgerock/oidc-client",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
@@ -32,9 +32,11 @@
     "@forgerock/sdk-oidc": "workspace:*",
     "@forgerock/sdk-request-middleware": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",
+    "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/storage": "workspace:*",
     "@reduxjs/toolkit": "catalog:",
-    "effect": "catalog:effect"
+    "effect": "catalog:effect",
+    "jose": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:effect",

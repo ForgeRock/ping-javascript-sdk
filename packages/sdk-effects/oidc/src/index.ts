@@ -6,5 +6,6 @@
  */
 
 export * from './lib/authorize.effects.js';
+export * from './lib/authorize.utils.js';
 export * from './lib/state-pkce.effects.js';
 export * from './lib/wellknown.effects.js';

@@ -30,12 +30,6 @@ runs:
         cache: 'pnpm'
         registry-url: 'https://registry.npmjs.org'
 
-    - name: Update npm
-      run: |
-        corepack enable
-        corepack install -g npm@latest
-      shell: bash
-
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       shell: bash

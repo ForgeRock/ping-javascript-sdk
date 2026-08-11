@@ -126,6 +126,9 @@ jobs:
         with:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Build all packages
+        run: pnpm nx run-many -t build --no-agents --skip-nx-cache
+
       - name: Version Packages for snapshot
         run: pnpm changeset version --snapshot ${{ inputs.snapshot_tag }}
         env:

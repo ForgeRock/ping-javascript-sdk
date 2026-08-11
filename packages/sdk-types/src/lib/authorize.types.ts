@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -7,6 +7,15 @@
 import type { LegacyConfigOptions } from './legacy-config.types.js';
 
 export type ResponseType = 'code' | 'token';
+
+// Canonical runtime lists of the OIDC `display`/`prompt` values; the union types are
+// derived from them so the allowed values live in one place — runtime validators can
+// iterate the arrays while the types stay in sync. Colocated as in `am-callback.types.ts`.
+export const AUTH_DISPLAY_VALUES = ['page', 'popup', 'touch', 'wap'] as const;
+export const AUTH_PROMPT_VALUES = ['none', 'login', 'consent', 'select_account'] as const;
+
+export type AuthDisplayValue = (typeof AUTH_DISPLAY_VALUES)[number];
+export type AuthPromptValue = (typeof AUTH_PROMPT_VALUES)[number];
 
 /**
  * Options for the authorization URL
@@ -29,7 +38,12 @@ export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   state?: string;
   verifier?: string;
   query?: Record<string, string>;
-  prompt?: 'none' | 'login' | 'consent';
+  prompt?: AuthPromptValue;
+  loginHint?: string;
+  nonce?: string;
+  display?: AuthDisplayValue;
+  uiLocales?: string;
+  acrValues?: string;
   successParams?: string[];
   errorParams?: string[];
 }

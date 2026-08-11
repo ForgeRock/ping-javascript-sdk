@@ -13,6 +13,7 @@ export type {
   Callback,
   CallbackType,
   GenericError,
+  WellknownResponse,
   PolicyRequirement,
   FailedPolicyRequirement,
   NameValue,
@@ -60,7 +61,7 @@ export * from './lib/callbacks/validated-create-username-callback.js';
 
 // Re-export types used in public API signatures that aren't covered above
 export type { DeviceProfileData, Geolocation } from './lib/device/interfaces.js';
-export type { JourneyResult } from './lib/client.store.js';
+export type { JourneyResult } from './lib/journey.utils.js';
 export type { ResolvedServerConfig } from './lib/wellknown.utils.js';
 export type { JourneyLoginSuccess } from './lib/login-success.utils.js';
 export type { JourneyLoginFailure } from './lib/login-failure.utils.js';

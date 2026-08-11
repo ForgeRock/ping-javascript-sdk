@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -28,7 +28,7 @@ import type {
   ReadOnlyCollector,
   RichTextCollector,
   QrCodeCollector,
-  AgreementCollector,
+  ImageCollector,
   PhoneNumberCollector,
   PhoneNumberExtensionCollector,
   ObjectValueCollectorWithObjectValue,
@@ -434,6 +434,7 @@ describe('Collector Types', () => {
           label: 'Accept terms',
           type: 'boolean',
           value: false,
+          appearance: 'CHECKBOX',
         },
       };
 
@@ -629,28 +630,60 @@ describe('Collector Types', () => {
       expectTypeOf(tCollector).toEqualTypeOf<QrCodeCollector>();
     });
 
-    it('should correctly infer AgreementCollector Type', () => {
-      const tCollector: InferNoValueCollectorType<'AgreementCollector'> = {
+    it('should correctly infer ReadOnlyCollector Type for AGREEMENT fields', () => {
+      const tCollector: InferNoValueCollectorType<'ReadOnlyCollector'> = {
         category: 'NoValueCollector',
         error: null,
-        type: 'AgreementCollector',
+        type: 'ReadOnlyCollector',
         id: 'agreement-0',
         name: 'agreement-0',
         output: {
           key: 'agreement-0',
           label: 'Please accept the terms and conditions',
           type: 'AGREEMENT',
-          titleEnabled: true,
+          content: 'Please accept the terms and conditions',
           title: 'Terms and Conditions',
-          agreement: {
-            id: 'agreement-123',
-            useDynamicAgreement: false,
-          },
-          enabled: true,
         },
       };
 
-      expectTypeOf(tCollector).toEqualTypeOf<AgreementCollector>();
+      expectTypeOf(tCollector).toEqualTypeOf<ReadOnlyCollector>();
+    });
+
+    it('should correctly infer ImageCollector Type', () => {
+      const tCollector: InferNoValueCollectorType<'ImageCollector'> = {
+        category: 'NoValueCollector',
+        type: 'ImageCollector',
+        name: 'ImageCollector',
+        id: '1',
+        error: null,
+        output: {
+          key: 'image1',
+          label: 'A hero image',
+          type: 'IMAGE',
+          src: 'https://example.com/image.png',
+          alt: 'A hero image',
+          href: 'https://example.com',
+        },
+      };
+      expectTypeOf(tCollector).toEqualTypeOf<ImageCollector>();
+    });
+
+    it('should correctly infer ImageCollector Type without optional href', () => {
+      const tCollector: InferNoValueCollectorType<'ImageCollector'> = {
+        category: 'NoValueCollector',
+        type: 'ImageCollector',
+        name: 'ImageCollector',
+        id: '1',
+        error: null,
+        output: {
+          key: 'image1',
+          label: 'A hero image',
+          type: 'IMAGE',
+          src: 'https://example.com/image.png',
+          alt: 'A hero image',
+        },
+      };
+      expectTypeOf(tCollector).toEqualTypeOf<ImageCollector>();
     });
   });
 
