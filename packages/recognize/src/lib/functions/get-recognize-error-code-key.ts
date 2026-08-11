@@ -12,10 +12,12 @@ import type { RecognizeErrorCodeKey, RecognizeErrorCodeValue } from '../recogniz
 
 /** @public */
 export function getRecognizeErrorCodeKey(code: RecognizeErrorCodeValue): RecognizeErrorCodeKey {
-  let keys: RecognizeErrorCodeKey[], key: RecognizeErrorCodeKey | undefined;
-
-  keys = Object.keys(RECOGNIZE_ERROR_CODE) as RecognizeErrorCodeKey[];
-  key = keys.find((key: RecognizeErrorCodeKey) => RECOGNIZE_ERROR_CODE[key] === code);
+  const keys: RecognizeErrorCodeKey[] = Object.keys(
+    RECOGNIZE_ERROR_CODE,
+  ) as RecognizeErrorCodeKey[];
+  const key: RecognizeErrorCodeKey | undefined = keys.find(
+    (key: RecognizeErrorCodeKey) => RECOGNIZE_ERROR_CODE[key] === code,
+  );
 
   return key ?? 'SDK_ERROR';
 }
