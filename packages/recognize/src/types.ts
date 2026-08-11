@@ -1,0 +1,16 @@
+export type {
+  CreateRecognizeErrorOptions,
+  RecognizeError,
+  RecognizeErrorCodeKey,
+  RecognizeErrorCodeValue,
+  RecognizeSessionType,
+  RecognizeWebComponentClient,
+  RecognizeWebComponentCompleteData,
+  RecognizeWebComponentConfiguration,
+  RecognizeWebComponentEvent,
+  RecognizeWebComponentInitOptions,
+  RecognizeWebComponentObserver,
+  RecognizeWebComponentStepChangeEventDetail,
+  RecognizeWebComponentUnsubscribe,
+  RecognizeWebComponentVideoFrameQualityEventDetail,
+} from './lib/recognize.types.js';

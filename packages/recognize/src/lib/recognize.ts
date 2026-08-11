@@ -1,0 +1,177 @@
+/*
+ *
+ * Copyright © 2026 Ping Identity Corporation. All right reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ *
+ */
+
+import { CAMERA_ONLY_DISABLE_STEPS } from './defs/constants.js';
+import { RECOGNIZE_ERROR_CODE } from './defs/recognize-error-code.js';
+import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
+import { createRecognizeError } from './functions/create-recognize-error.js';
+import { setAttributes } from './functions/set-attributes.js';
+import type {
+  KeylessRecognitionFailureEvent,
+  KeylessStepChangeEvent,
+  KeylessSuccessEvent,
+  KeylessVideoFrameQualityEvent,
+} from './recognize-sdk/index.js';
+import { KeylessRecoverableErrorEvent } from './recognize-sdk/index.js';
+import type {
+  RecognizeError,
+  RecognizeErrorCodeValue,
+  RecognizeWebComponent,
+  RecognizeWebComponentClient,
+  RecognizeWebComponentConfiguration,
+  RecognizeWebComponentEvent,
+  RecognizeWebComponentInitOptions,
+  RecognizeWebComponentObserver,
+  RecognizeWebComponentUnsubscribe,
+} from './recognize.types.js';
+
+/**
+ * @function recognize - Returns a client to interact with the PingOne Recognize SDK web components
+ * @param {RecognizeWebComponentConfiguration} configuration - Configuration for the PingOne Recognize SDK
+ * @returns {RecognizeWebComponentClient}
+ */
+export function recognize(
+  configuration: RecognizeWebComponentConfiguration,
+): RecognizeWebComponentClient {
+  const config: RecognizeWebComponentConfiguration = {
+    disableSteps: CAMERA_ONLY_DISABLE_STEPS,
+    ...configuration,
+  };
+  const observers: Set<RecognizeWebComponentObserver> = new Set();
+
+  let element: RecognizeWebComponent | null = null;
+  const aborter = new AbortController();
+
+  const dispatch = (event: RecognizeWebComponentEvent): void => {
+    for (const observer of observers) {
+      observer.next(event);
+    }
+  };
+
+  const addEventListeners = (element: RecognizeWebComponent): void => {
+    const onError = (event: ErrorEvent): void => {
+      if (event instanceof KeylessRecoverableErrorEvent) {
+        element?.dispose();
+      }
+
+      const code: RecognizeErrorCodeValue =
+        RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP[event.error?.message] ??
+        RECOGNIZE_ERROR_CODE.SDK_ERROR;
+
+      const error: RecognizeError = createRecognizeError(code, { cause: event.error });
+
+      for (const observer of observers) {
+        observer.error?.(error);
+      }
+
+      observers.clear();
+    };
+
+    const onRecognitionFailure = (event: KeylessRecognitionFailureEvent): void => {
+      return onError(
+        new KeylessRecoverableErrorEvent({
+          error: new Error('SERVER_RECOGNITION_FAILED', { cause: event.detail }),
+        }),
+      );
+    };
+
+    const onRecoverableError = (event: KeylessRecoverableErrorEvent): void => onError(event);
+
+    const onSuccess = (event: KeylessSuccessEvent): void => {
+      for (const observer of observers) {
+        observer.complete?.(event.detail);
+      }
+
+      observers.clear();
+    };
+
+    const onNonCancelable = (): void => dispatch({ type: 'non-cancelable' });
+
+    const onRecognitionStart = (): void => dispatch({ type: 'recognition-start' });
+
+    const onStepChange = (event: KeylessStepChangeEvent): void =>
+      dispatch({ type: 'step-change', detail: event.detail });
+
+    const onVideoFrameQuality = (event: KeylessVideoFrameQualityEvent): void =>
+      dispatch({ type: 'video-frame-quality', detail: event.detail });
+
+    const options: AddEventListenerOptions = { signal: aborter.signal };
+
+    element.addEventListener('error', onError, options);
+    element.addEventListener('non-cancelable', onNonCancelable, options);
+    element.addEventListener('recognition-failure', onRecognitionFailure, options);
+    element.addEventListener('recognition-start', onRecognitionStart, options);
+    element.addEventListener('recoverable-error', onRecoverableError, options);
+    element.addEventListener('step-change', onStepChange, options);
+    element.addEventListener('success', onSuccess, options);
+    element.addEventListener('video-frame-quality', onVideoFrameQuality, options);
+  };
+
+  const client: RecognizeWebComponentClient = {
+    subscribe: (observer: RecognizeWebComponentObserver): RecognizeWebComponentUnsubscribe => {
+      observers.add(observer);
+      return () => observers.delete(observer);
+    },
+
+    async init(options: RecognizeWebComponentInitOptions): Promise<RecognizeError | void> {
+      if (element !== null) {
+        return createRecognizeError(RECOGNIZE_ERROR_CODE.SDK_ERROR, {
+          cause: 'init() called more than once — call dispose() before re-initializing',
+        });
+      }
+
+      try {
+        await import('./recognize-sdk/index.js');
+      } catch (error: unknown) {
+        return createRecognizeError(RECOGNIZE_ERROR_CODE.SDK_WEB_ASSEMBLY_IMPORT_FAILED, {
+          cause: error,
+        });
+      }
+
+      if (options.mode === 'attach') {
+        const tag: string = options.element.tagName;
+
+        if (tag !== 'KL-AUTH' && tag !== 'KL-ENROLL') {
+          return createRecognizeError(RECOGNIZE_ERROR_CODE.SDK_ERROR, {
+            cause: `invalid element <${tag.toLowerCase()}> — options.element must be a <kl-auth> or <kl-enroll> custom element`,
+          });
+        }
+
+        element = options.element as RecognizeWebComponent;
+        element.username = options.username;
+
+        setAttributes(element, config);
+        addEventListeners(element);
+      } else {
+        const tag: 'kl-auth' | 'kl-enroll' = options.type === 'auth' ? 'kl-auth' : 'kl-enroll';
+
+        element = document.createElement(tag);
+        element.username = options.username;
+
+        setAttributes(element, config);
+        addEventListeners(element);
+
+        options.container.appendChild(element);
+      }
+    },
+
+    dispose: (): void => {
+      if (element === null) return;
+
+      aborter.abort();
+
+      element.remove();
+      element = null;
+
+      observers.clear();
+    },
+  };
+
+  return client;
+}

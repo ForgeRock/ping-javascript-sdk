@@ -1,0 +1,18 @@
+{
+  "name": "@forgerock/recognize-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm nx nxBuild",
+    "lint": "pnpm nx nxLint",
+    "preview": "pnpm nx nxPreview",
+    "serve": "pnpm nx nxServe"
+  },
+  "dependencies": {
+    "@forgerock/journey-client": "workspace:*",
+    "@forgerock/recognize": "workspace:*"
+  },
+  "nx": {
+    "tags": ["scope:e2e"]
+  }
+}

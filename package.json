@@ -145,6 +145,7 @@
       "undici": "^7.29.0",
       "nanoid": "^5.1.16",
       "postcss": "^8.5.23"
-    }
+    },
+    "onlyBuiltDependencies": ["@evilmartians/lefthook", "@swc/core", "nx"]
   }
 }

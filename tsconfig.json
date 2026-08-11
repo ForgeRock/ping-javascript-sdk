@@ -84,6 +84,12 @@
     },
     {
       "path": "./tools/api-report"
+    },
+    {
+      "path": "./packages/recognize"
+    },
+    {
+      "path": "./e2e/recognize-app"
     }
   ]
 }

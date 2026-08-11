@@ -28,6 +28,7 @@
     "@forgerock/protect-suites",
     "@forgerock/journey-app",
     "@forgerock/journey-suites",
+    "@forgerock/recognize-app",
     "am-mock-api"
   ]
 }

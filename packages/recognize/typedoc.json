@@ -1,0 +1,4 @@
+{
+  "name": "@forgerock/recognize",
+  "entryPoints": ["src/index.ts"]
+}
