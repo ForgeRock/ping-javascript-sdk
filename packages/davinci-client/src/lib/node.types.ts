@@ -66,6 +66,8 @@ export type Collectors =
   | ImageCollector
   | UnknownCollector;
 
+export type CollectorCategory = Collectors['category'];
+
 export interface CollectorErrors {
   code: string;
   message: string;
