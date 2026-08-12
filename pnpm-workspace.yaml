@@ -18,11 +18,11 @@ catalog:
   typescript: '5.8.3'
 catalogs:
   effect:
-    effect: '4.0.0-beta.103'
+    effect: '4.0.0-rc.108'
     '@effect/language-service': '0.87.1'
-    '@effect/platform-node': '4.0.0-beta.103'
-    '@effect/vitest': '4.0.0-beta.103'
-    '@effect/opentelemetry': '4.0.0-beta.103'
+    '@effect/platform-node': '4.0.0-rc.108'
+    '@effect/vitest': '4.0.0-rc.108'
+    '@effect/opentelemetry': '4.0.0-rc.108'
   vitest:
     vitest: '^4.1.0'
     '@vitest/coverage-v8': '^4.1.0'
