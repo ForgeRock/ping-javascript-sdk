@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { combineSlices, configureStore, createDynamicMiddleware } from '@reduxjs/toolkit';
-import { Match, Either } from 'effect';
+import { Match, Result } from 'effect';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
@@ -170,14 +170,14 @@ export function isValidCollectorCategory<C extends CollectorCategory>(
  *
  * @param collector - The collector the value is being validated against
  * @param value - The candidate value to validate
- * @returns `Either.right` with the narrowed value, or `Either.left` with the validation error
+ * @returns `Result.succeed` with the narrowed value, or `Result.fail` with the validation error
  */
 export function resolveCollectorUpdateValue<T extends UpdatableCollectors>(
   collector: T,
   value: CollectorValueTypes,
-): Either.Either<CollectorValueType<T>, InternalErrorResponse> {
-  const ok = (v: CollectorValueTypes) => Either.right(v as CollectorValueType<T>);
-  const err = (message: string) => Either.left(createInternalError(message, 'argument_error'));
+): Result.Result<CollectorValueType<T>, InternalErrorResponse> {
+  const ok = (v: CollectorValueTypes) => Result.succeed(v as CollectorValueType<T>);
+  const err = (message: string) => Result.fail(createInternalError(message, 'argument_error'));
 
   if (value === undefined) {
     return err('Value argument cannot be undefined');

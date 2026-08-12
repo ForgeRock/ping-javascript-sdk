@@ -59,8 +59,7 @@ function updateCollector<T extends UpdatableCollectors>(
 ): void {
   const result = resolveCollectorUpdateValue(collector, value);
   if (Result.isSuccess(result)) {
-    const resolvedValue = result.success;
-    cb(resolvedValue);
+    cb(result.success as CollectorValueType<T>);
   }
 }
 

@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, Exit, Cause, Option, Either } from 'effect';
+import { Effect, Exit, Cause, Option, Result } from 'effect';
 import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
 import { createStorage } from '@forgerock/storage';
 import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
@@ -358,9 +358,9 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
          * shape, so the cast is safe.
          */
         const result = resolveCollectorUpdateValue(collectorToUpdate as UpdatableCollectors, value);
-        if (Either.isLeft(result)) {
-          log.error(result.left.error.message);
-          return result.left;
+        if (Result.isFailure(result)) {
+          log.error(result.failure.error.message);
+          return result.failure;
         }
 
         // Update the collector in the store with the value
