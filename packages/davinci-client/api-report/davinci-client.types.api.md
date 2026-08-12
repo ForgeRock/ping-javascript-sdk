@@ -405,8 +405,12 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
   resume: (input: { continueToken: string }) => Promise<InternalErrorResponse | NodeStates>;
   start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(
     options?: StartOptions<QueryParams> | undefined,
-  ) => Promise<StartNode | ErrorNode | FailureNode | ContinueNode | SuccessNode>;
-  update: <T extends UpdatableCollectors>(collector: T) => Updater<T>;
+  ) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
+  update: <
+    T extends SingleValueCollectors | MultiSelectCollector | ObjectValueCollectors | AutoCollectors,
+  >(
+    collector: T,
+  ) => Updater<T>;
   validate: (
     collector:
       | SingleValueCollectors
@@ -416,9 +420,6 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
   ) => Validator;
   pollStatus: (collector: PollingCollector) => Poller;
   getClient: () =>
-    | {
-        status: 'start';
-      }
     | {
         action: string;
         collectors: Collectors[];
@@ -435,6 +436,12 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         description?: string;
         name?: string;
         status: 'continue';
+      }
+    | {
+        status: 'failure';
+      }
+    | {
+        status: 'start';
       }
     | {
         authorization?: {
@@ -447,10 +454,16 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
   getCollectors: () => Collectors[];
   getError: () => DaVinciError | null;
   getErrorCollectors: () => CollectorErrors[];
-  getNode: () => StartNode | ErrorNode | FailureNode | ContinueNode | SuccessNode;
+  getNode: () => ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode;
   getServer: () =>
     | {
-        status: 'start';
+        _links?: Links;
+        id?: string;
+        interactionId?: string;
+        interactionToken?: string;
+        href?: string;
+        eventName?: string;
+        status: 'continue';
       }
     | {
         _links?: Links;
@@ -470,13 +483,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         status: 'failure';
       }
     | {
-        _links?: Links;
-        id?: string;
-        interactionId?: string;
-        interactionToken?: string;
-        href?: string;
-        eventName?: string;
-        status: 'continue';
+        status: 'start';
       }
     | {
         _links?: Links;
