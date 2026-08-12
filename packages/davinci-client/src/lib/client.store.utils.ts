@@ -118,7 +118,6 @@ export function handleUpdateValidateError(
   };
 }
 
-
 /**
  * @function createInternalError
  * @description - Creates an InternalErrorResponse object
