@@ -374,7 +374,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-effects/logger
 
-  e2e/journey-suites: {}
+  e2e/journey-suites:
+    dependencies:
+      '@forgerock/journey-client':
+        specifier: workspace:*
+        version: link:../../packages/journey-client
 
   e2e/mock-api-v2:
     dependencies:
@@ -436,7 +440,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/protect
 
-  e2e/protect-suites: {}
+  e2e/protect-suites:
+    dependencies:
+      '@forgerock/javascript-sdk':
+        specifier: 'catalog:'
+        version: 4.9.0
 
   e2e/recognize-app:
     dependencies:

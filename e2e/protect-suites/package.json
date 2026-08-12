@@ -15,7 +15,11 @@
   "author": "",
   "type": "module",
   "main": "src/index.js",
+  "dependencies": {
+    "@forgerock/javascript-sdk": "catalog:"
+  },
   "nx": {
-    "implicitDependencies": ["@forgerock/protect-app"]
+    "implicitDependencies": ["@forgerock/protect-app"],
+    "tags": ["scope:e2e"]
   }
 }
