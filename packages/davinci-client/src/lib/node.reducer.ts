@@ -8,7 +8,7 @@
  * Import the required utilities from Redux Toolkit
  */
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import { Either } from 'effect';
+import { Result } from 'effect';
 
 /**
  * Import the collector utilities
@@ -58,8 +58,8 @@ function updateCollector<T extends UpdatableCollectors>(
   cb: (resolvedValue: CollectorValueType<T>) => void,
 ): void {
   const result = resolveCollectorUpdateValue(collector, value);
-  if (Either.isRight(result)) {
-    const resolvedValue = result.right;
+  if (Result.isSuccess(result)) {
+    const resolvedValue = result.success;
     cb(resolvedValue);
   }
 }
