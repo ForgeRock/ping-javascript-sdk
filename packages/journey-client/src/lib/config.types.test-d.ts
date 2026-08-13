@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,6 +8,7 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type {
   JourneyClientConfig,
   JourneyServerConfig,
+  LegacyServerConfig,
   InternalJourneyClientConfig,
 } from './config.types.js';
 import type { AsyncLegacyConfigOptions } from '@forgerock/sdk-types';
@@ -19,16 +20,28 @@ describe('Config Types', () => {
       expectTypeOf<JourneyClientConfig>().toExtend<AsyncLegacyConfigOptions>();
     });
 
-    it('should narrow serverConfig to JourneyServerConfig', () => {
-      expectTypeOf<JourneyClientConfig['serverConfig']>().toExtend<JourneyServerConfig>();
-      expectTypeOf<JourneyClientConfig['serverConfig']['wellknown']>().toBeString();
+    it('should type serverConfig as JourneyServerConfig | LegacyServerConfig', () => {
+      expectTypeOf<JourneyClientConfig['serverConfig']>().toEqualTypeOf<
+        JourneyServerConfig | LegacyServerConfig
+      >();
     });
 
-    it('should reject config without wellknown', () => {
-      // @ts-expect-error - wellknown is required on serverConfig
+    it('should have wellknown only on the JourneyServerConfig branch', () => {
+      type WellknownBranch = Extract<JourneyClientConfig['serverConfig'], { wellknown: string }>;
+      expectTypeOf<WellknownBranch['wellknown']>().toBeString();
+    });
+
+    it('should reject serverConfig with neither wellknown nor baseUrl', () => {
+      // @ts-expect-error - serverConfig must satisfy JourneyServerConfig (wellknown) or LegacyServerConfig (baseUrl)
       const config: JourneyClientConfig = { serverConfig: {} };
-      // This assertion verifies the variable's runtime shape doesn't satisfy the full type.
       expectTypeOf(config).not.toMatchObjectType<Required<JourneyClientConfig>>();
+    });
+
+    it('should accept LegacyServerConfig with baseUrl', () => {
+      const config: JourneyClientConfig = {
+        serverConfig: { baseUrl: 'https://am.example.com' },
+      };
+      expectTypeOf(config).toExtend<JourneyClientConfig>();
     });
 
     it('should allow AsyncLegacyConfigOptions properties', () => {
@@ -53,8 +66,9 @@ describe('Config Types', () => {
       expectTypeOf(config).toExtend<JourneyClientConfig>();
     });
 
-    it('should have optional timeout on serverConfig', () => {
-      expectTypeOf<JourneyClientConfig['serverConfig']>().toHaveProperty('timeout');
+    it('should have optional timeout on both serverConfig branches', () => {
+      expectTypeOf<JourneyServerConfig>().toHaveProperty('timeout');
+      expectTypeOf<LegacyServerConfig>().toHaveProperty('timeout');
     });
   });
 
