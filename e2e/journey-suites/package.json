@@ -16,13 +16,10 @@
   "type": "module",
   "main": "src/index.js",
   "dependencies": {
-    "@forgerock/journey-client": "workspace:*"
+    "@forgerock/journey-client": "workspace:*",
+    "@forgerock/e2e-shared": "workspace:*"
   },
   "nx": {
-    "implicitDependencies": [
-      "@forgerock/journey-app",
-      "@forgerock/mock-api-v2"
-    ],
-    "tags": ["scope:e2e"]
+    "implicitDependencies": ["@forgerock/journey-app", "@forgerock/mock-api-v2"]
   }
 }

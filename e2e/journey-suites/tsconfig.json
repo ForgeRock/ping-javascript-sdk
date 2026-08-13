@@ -7,6 +7,9 @@
       "path": "../../packages/journey-client"
     },
     {
+      "path": "../shared"
+    },
+    {
       "path": "./tsconfig.e2e.json"
     }
   ]

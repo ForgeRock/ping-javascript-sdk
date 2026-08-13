@@ -1,0 +1,35 @@
+{
+  "name": "@forgerock/coverage-matrix",
+  "targets": {
+    "analyze": {
+      "command": "tsx scripts/analyze.ts",
+      "options": {
+        "cwd": "tools/coverage-matrix"
+      }
+    },
+    "collect": {
+      "command": "tsx scripts/collect.ts",
+      "options": {
+        "cwd": "tools/coverage-matrix"
+      }
+    },
+    "generate": {
+      "command": "tsx scripts/generate.ts",
+      "dependsOn": ["analyze", "collect"],
+      "options": {
+        "cwd": "tools/coverage-matrix"
+      },
+      "outputs": ["{projectRoot}/data/coverage-matrix.json"]
+    },
+    "coverage-report": {
+      "command": "tsx scripts/analyze.ts && tsx scripts/collect.ts && tsx scripts/generate.ts && vite build",
+      "options": {
+        "cwd": "tools/coverage-matrix"
+      },
+      "outputs": [
+        "{projectRoot}/data/coverage-matrix.json",
+        "{projectRoot}/dist"
+      ]
+    }
+  }
+}

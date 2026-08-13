@@ -1,0 +1,22 @@
+{
+  "name": "@forgerock/mock-conditional",
+  "version": "0.0.0",
+  "exports": {
+    ".": {
+      "default": "./dist/src/index.js",
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./constants": {
+      "default": "./dist/src/lib/constants/index.js",
+      "import": "./dist/src/lib/constants/index.js",
+      "types": "./dist/src/lib/constants/index.d.ts"
+    },
+    "./package.json": "./package.json",
+    "./types": {
+      "default": "./dist/src/types.js",
+      "import": "./dist/src/types.js",
+      "types": "./dist/src/types.d.ts"
+    }
+  }
+}

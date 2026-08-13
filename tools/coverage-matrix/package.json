@@ -1,0 +1,24 @@
+{
+  "name": "@forgerock/coverage-matrix",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "analyze": "tsx scripts/analyze.ts",
+    "build": "vite build",
+    "collect": "tsx scripts/collect.ts",
+    "dev": "vite",
+    "generate": "tsx scripts/generate.ts",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "glob": "^11.0.0",
+    "svelte": "^5.0.0",
+    "tsx": "^4.0.0",
+    "vite": "catalog:vite"
+  },
+  "nx": {
+    "tags": ["scope:tool"]
+  }
+}
