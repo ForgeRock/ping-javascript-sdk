@@ -1,5 +1,25 @@
 # @forgerock/davinci-client
 
+## 2.2.0
+
+### Minor Changes
+
+- [#727](https://github.com/ForgeRock/ping-javascript-sdk/pull/727) [`fc0caf2`](https://github.com/ForgeRock/ping-javascript-sdk/commit/fc0caf22e3bd34df3005a3905a210e7385372fde) Thanks [@ancheetah](https://github.com/ancheetah)! - Add MetadataCollector support
+
+- [#730](https://github.com/ForgeRock/ping-javascript-sdk/pull/730) [`8b9ffbd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/8b9ffbdfa673571cac58118d54f86af680bc4299) Thanks [@ancheetah](https://github.com/ancheetah)! - Catch FIDO/WebAuthn DOMExceptions and send them to DaVinci
+
+### Patch Changes
+
+- [#753](https://github.com/ForgeRock/ping-javascript-sdk/pull/753) [`e1b8adb`](https://github.com/ForgeRock/ping-javascript-sdk/commit/e1b8adbc791de77d011b20f71080f6e5482c77c5) Thanks [@ancheetah](https://github.com/ancheetah)! - Refactor node reducer updater to remove throws
+
+- Updated dependencies []:
+  - @forgerock/sdk-logger@2.2.0
+  - @forgerock/sdk-oidc@2.2.0
+  - @forgerock/sdk-request-middleware@2.2.0
+  - @forgerock/storage@2.2.0
+  - @forgerock/sdk-types@2.2.0
+  - @forgerock/sdk-utilities@2.2.0
+
 ## 2.1.1
 
 ### Patch Changes
