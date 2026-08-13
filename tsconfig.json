@@ -84,6 +84,9 @@
     },
     {
       "path": "./e2e/recognize-app"
+    },
+    {
+      "path": "./e2e/bundle-check-app"
     }
   ]
 }

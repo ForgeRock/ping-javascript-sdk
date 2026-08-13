@@ -93,6 +93,16 @@ jobs:
           path: previous_sizes.json
           retention-days: 30
 
+      - name: Run feature bundle check
+        run: pnpm nx nxBundle bundle-check-app --skip-sync
+
+      - name: Upload feature bundle baseline
+        uses: actions/upload-artifact@v5
+        with:
+          name: bundle-feature-baseline
+          path: e2e/bundle-check-app/dist/bundle-feature-baseline.json
+          retention-days: 30
+
   snapshot:
     # Guard against publishing snapshots from the protected release branch.
     if: >-

@@ -1,0 +1,42 @@
+{
+  "name": "@forgerock/bundle-check-app",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Measures tree-shaken, gzip-level-9 bundle cost of journey-client features via isolated Rollup fixtures",
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "bundle": "pnpm nx nxBundle bundle-check-app"
+  },
+  "dependencies": {
+    "@forgerock/davinci-client": "workspace:*",
+    "@forgerock/device-client": "workspace:*",
+    "@forgerock/journey-client": "workspace:*",
+    "@forgerock/oidc-client": "workspace:*",
+    "@forgerock/protect": "workspace:*",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^1.0.0",
+    "rollup": "^4.59.0",
+    "rollup-plugin-esbuild": "^6.2.1",
+    "tsx": "^4.20.0"
+  },
+  "nx": {
+    "tags": ["scope:e2e"],
+    "targets": {
+      "nxBundle": {
+        "dependsOn": ["^nxBuild"],
+        "command": "tsx {projectRoot}/src/bundle.ts",
+        "inputs": [
+          "{projectRoot}/src/**/*.ts",
+          "{projectRoot}/fixtures/**/*.ts",
+          "{projectRoot}/bundle-feature-baseline.json",
+          "{workspaceRoot}/packages/journey-client/dist/**/*.js"
+        ],
+        "outputs": ["{projectRoot}/dist"]
+      }
+    }
+  }
+}
