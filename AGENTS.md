@@ -93,7 +93,6 @@ e2e/
 ├── davinci-suites/          # Playwright e2e for DaVinci flows
 ├── journey-suites/          # Playwright e2e for Journey flows
 ├── oidc-suites/             # Playwright e2e for OIDC flows
-├── protect-suites/
 ├── am-mock-api/             # Mock AM server for journey e2e
 └── mock-api-v2/             # Mock API v2
 ```

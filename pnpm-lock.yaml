@@ -431,21 +431,6 @@ importers:
 
   e2e/oidc-suites: {}
 
-  e2e/protect-app:
-    dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
-      '@forgerock/protect':
-        specifier: workspace:*
-        version: link:../../packages/protect
-
-  e2e/protect-suites:
-    dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
-
   e2e/recognize-app:
     dependencies:
       '@forgerock/journey-client':
