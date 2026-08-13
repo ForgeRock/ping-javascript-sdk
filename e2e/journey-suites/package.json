@@ -15,7 +15,14 @@
   "author": "",
   "type": "module",
   "main": "src/index.js",
+  "dependencies": {
+    "@forgerock/journey-client": "workspace:*"
+  },
   "nx": {
-    "implicitDependencies": ["@forgerock/journey-app", "@forgerock/mock-api-v2"]
+    "implicitDependencies": [
+      "@forgerock/journey-app",
+      "@forgerock/mock-api-v2"
+    ],
+    "tags": ["scope:e2e"]
   }
 }

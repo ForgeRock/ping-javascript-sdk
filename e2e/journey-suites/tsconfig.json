@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../../packages/journey-client"
+    },
+    {
       "path": "./tsconfig.e2e.json"
     }
   ]
