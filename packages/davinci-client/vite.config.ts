@@ -4,11 +4,17 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/davinci-client',
+  resolve: {
+    alias: {
+      '@forgerock/sdk-wellknown': resolve(__dirname, '../sdk-effects/wellknown/src/index.ts'),
+    },
+  },
   test: {
     watch: false,
     typecheck: {
