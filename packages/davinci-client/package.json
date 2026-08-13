@@ -13,6 +13,7 @@
   "type": "module",
   "exports": {
     ".": "./dist/src/index.js",
+    "./fido": "./dist/src/lib/fido/index.js",
     "./types": "./dist/src/types.d.ts"
   },
   "main": "./dist/src/index.js",
