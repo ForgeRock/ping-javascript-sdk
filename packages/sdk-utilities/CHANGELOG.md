@@ -1,5 +1,12 @@
 # @forgerock/sdk-utilities
 
+## 2.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-types@2.2.0
+
 ## 2.1.1
 
 ### Patch Changes

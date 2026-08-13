@@ -1,6 +1,6 @@
 {
   "name": "@forgerock/recognize",
-  "version": "0.0.1",
+  "version": "2.2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ForgeRock/ping-javascript-sdk.git",
