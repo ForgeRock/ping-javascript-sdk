@@ -12,18 +12,13 @@ import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
-import { conflictingClientId, createClientStore, createTokenError } from './client.store.utils.js';
+import { createClientStore, createTokenError, parseOidcArgs } from './client.store.utils.js';
 import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import {
-  isSdkStoreHandle,
-  INVALID_STORE_MESSAGE,
-  wellknownApi,
-  wellknownSelector,
-} from '@forgerock/sdk-store';
+import { wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
 
 import type { ActionTypes } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
@@ -42,65 +37,7 @@ import type { OauthTokens } from './config.types.js';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
-import type { ParsedOidcArgs, RawOidcArgs } from './client.store.types.js';
-
-/**
- * @function parseOidcArgs
- * @description Pure, synchronous parser for OIDC factory arguments that implements
- *              the "parse, don't validate" pattern. Returns a narrowed
- *              {@link ParsedOidcArgs} on success, or a {@link GenericError} describing
- *              the first structural failure found.
- *
- *              The PAR check (which requires a network round-trip) is intentionally
- *              excluded — it belongs in `oidc()` after the wellknown fetch.
- * @param raw - The unvalidated arguments to parse.
- * @returns {ParsedOidcArgs<ActionType> | GenericError}
- */
-export function parseOidcArgs<ActionType extends ActionTypes = ActionTypes>(
-  raw: RawOidcArgs<ActionType>,
-): ParsedOidcArgs<ActionType> | GenericError {
-  /**
-   * Validate before touching the store. RTK's `inject` is irreversible, so
-   * mutating a caller-owned store and *then* rejecting the arguments would leave
-   * them permanently carrying a slice from a call that never succeeded.
-   */
-  if (raw.store !== undefined && !isSdkStoreHandle(raw.store)) {
-    return {
-      error: INVALID_STORE_MESSAGE,
-      type: 'argument_error',
-    };
-  }
-  if (!raw.config?.serverConfig?.wellknown) {
-    return {
-      error: 'Requires a wellknown url initializing this factory.',
-      type: 'argument_error',
-    };
-  }
-  if (!raw.config?.clientId) {
-    return {
-      error: 'Requires a clientId.',
-      type: 'argument_error',
-    };
-  }
-
-  /**
-   * `oidcApi.reducerPath` is a fixed string, so a second client on the same
-   * store would share one cache slice and clobber the first client's tokens.
-   * Re-initialising the same clientId is fine and stays idempotent.
-   */
-  const validatedStore = raw.store as SdkStore | undefined;
-  const conflict = conflictingClientId(validatedStore, raw.config.clientId);
-  if (conflict) {
-    return {
-      error:
-        `This store is already in use by an OIDC client with clientId '${conflict}'. ` +
-        'Use a separate store per clientId.',
-      type: 'argument_error',
-    };
-  }
-
-  return raw as unknown as ParsedOidcArgs<ActionType>;
-}
+import type { RawOidcArgs } from './client.store.types.js';
 
 /**
  * @function oidc
