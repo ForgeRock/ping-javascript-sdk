@@ -4,13 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { createWellknownError, isGenericError } from '@forgerock/sdk-utilities';
-import { createStorage } from '@forgerock/storage';
-import { Either, Micro } from 'effect';
+import { Micro, Either } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
+import { createStorage } from '@forgerock/storage';
+import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
 
-import { getPollingModeµ, pollingµ } from './client.store.effects.js';
 /**
  * Import RTK slices and api
  */
@@ -21,35 +20,15 @@ import {
   isValidCollectorCategory,
   resolveCollectorUpdateValue,
 } from './client.store.utils.js';
-import { returnValidator } from './collector.utils.js';
-import { configSlice } from './config.slice.js';
-import { davinciApi } from './davinci.api.js';
+import type { RootState } from './davinci.state.js';
+import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
-import { returnPasswordPolicyValidator } from './password-policy.rules.js';
-import { wellknownApi, isSdkStoreHandle, INVALID_STORE_MESSAGE } from '@forgerock/sdk-store';
+import { davinciApi } from './davinci.api.js';
+import { configSlice } from './config.slice.js';
+import { wellknownApi, assertValidStore } from '@forgerock/sdk-store';
 
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { SdkStore } from '@forgerock/sdk-store';
-
-import type { RootState } from './client.store.utils.js';
-import type {
-  CollectorValueTypes,
-  InitFlow,
-  InternalErrorResponse,
-  NodeStates,
-  Poller,
-  UpdatableCollectors,
-  Updater,
-  Validator,
-} from './client.types.js';
-import type {
-  AutoCollectors,
-  MultiValueCollectors,
-  ObjectValueCollectors,
-  PollingCollector,
-  SingleValueCollectors,
-} from './collector.types.js';
 /**
  * Import the DaVinciRequest types
  */
@@ -60,6 +39,25 @@ import type {
   OutgoingQueryParams,
   StartOptions,
 } from './davinci.types.js';
+import type {
+  SingleValueCollectors,
+  ObjectValueCollectors,
+  AutoCollectors,
+  PollingCollector,
+  MultiValueCollectors,
+} from './collector.types.js';
+import type {
+  InitFlow,
+  InternalErrorResponse,
+  NodeStates,
+  Updater,
+  UpdatableCollectors,
+  Validator,
+  Poller,
+  CollectorValueTypes,
+} from './client.types.js';
+import { returnValidator } from './collector.utils.js';
+import { returnPasswordPolicyValidator } from './password-policy.rules.js';
 import type { ContinueNode, StartNode } from './node.types.js';
 
 /**
@@ -86,17 +84,17 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
    * An existing SDK store to attach to, so discovery caching and state are
    * shared with another client. Omit to create a store for this client alone.
    */
-  store?: SdkStore;
+  store?: unknown;
 }) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
 
-  if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
-    log.error(INVALID_STORE_MESSAGE);
-    throw new Error(INVALID_STORE_MESSAGE);
-  }
+  const storeError = assertValidStore(sharedStore);
+  if (storeError) return storeError;
+
+  const validStore = sharedStore as SdkStore | undefined;
 
   if (!config.serverConfig.wellknown) {
     const error = new Error(
@@ -112,7 +110,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     throw error;
   }
 
-  const handle = createClientStore({ requestMiddleware, logger: log, store: sharedStore });
+  const handle = createClientStore({ requestMiddleware, logger: log, store: validStore });
   const store = handle.store;
   const serverInfo = createStorage<ContinueNode['server']>({
     type: 'localStorage',

@@ -4,53 +4,28 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Either, Match } from 'effect';
+import { Match, Either } from 'effect';
 
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { GenericError } from '@forgerock/sdk-types';
 
-import { combineSlices } from '@reduxjs/toolkit';
-
-import { configSlice } from './config.slice.js';
-import { nodeSlice } from './node.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { createSdkStore, injectClient, wellknownApi } from '@forgerock/sdk-store';
-import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
-
+import type { Collectors, CollectorCategory } from './node.types.js';
 import type {
   CollectorValueType,
   CollectorValueTypes,
   InternalErrorResponse,
   UpdatableCollectors,
 } from './client.types.js';
-import type {
-  CollectorCategory,
-  Collectors,
-  ContinueNode,
-  ErrorNode,
-  StartNode,
-  SuccessNode,
-} from './node.types.js';
 
-/**
- * The canonical description of the state this client contributes.
- *
- * The runtime store is assembled by `injectClient`, which TypeScript cannot
- * follow across lazy injection. Combining the same slices here lets the state
- * type be *derived* from them rather than hand-written, so it cannot drift from
- * what is actually mounted. Exported so the derived state type resolves for
- * consumers, and so an application can compose the reducer itself if it wants.
- */
-export const rootReducer = combineSlices(configSlice, nodeSlice, davinciApi, wellknownApi);
+import { createSdkStore, injectClient } from '@forgerock/sdk-store';
+import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 
-export type RootState = ReturnType<typeof rootReducer>;
+import { configSlice } from './config.slice.js';
+import { nodeSlice } from './node.slice.js';
+import { davinciApi } from './davinci.api.js';
 
-export interface RootStateWithNode<
-  T extends ErrorNode | ContinueNode | StartNode | SuccessNode,
-> extends RootState {
-  node: T;
-}
+import type { RootState } from './davinci.state.js';
 
 /**
  * Creates, or attaches to, the store backing a DaVinci client.
