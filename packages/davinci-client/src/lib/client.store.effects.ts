@@ -11,7 +11,8 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
-import type { DavinciStore, RootState } from './client.store.utils.js';
+import type { DavinciStore } from './client.store.utils.js';
+import type { RootState } from './davinci.state.js';
 import type { PollingStatus, InternalErrorResponse } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
 

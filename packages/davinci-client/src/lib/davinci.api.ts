@@ -32,7 +32,7 @@ import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-midd
 /**
  * Import the DaVinci types
  */
-import type { RootStateWithNode } from './client.store.utils.js';
+import type { RootStateWithNode } from './davinci.state.js';
 import type {
   DaVinciCacheEntry,
   OutgoingQueryParams,

@@ -19,13 +19,13 @@ import {
   handleUpdateValidateError,
   isValidCollectorCategory,
   resolveCollectorUpdateValue,
-  type RootState,
 } from './client.store.utils.js';
+import type { RootState } from './davinci.state.js';
 import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { wellknownApi, isSdkStoreHandle, INVALID_STORE_MESSAGE } from '@forgerock/sdk-store';
+import { wellknownApi, assertValidStore } from '@forgerock/sdk-store';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { SdkStore } from '@forgerock/sdk-store';
@@ -84,17 +84,17 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
    * An existing SDK store to attach to, so discovery caching and state are
    * shared with another client. Omit to create a store for this client alone.
    */
-  store?: SdkStore;
+  store?: unknown;
 }) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
 
-  if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
-    log.error(INVALID_STORE_MESSAGE);
-    throw new Error(INVALID_STORE_MESSAGE);
-  }
+  const storeError = assertValidStore(sharedStore);
+  if (storeError) return storeError;
+
+  const validStore = sharedStore as SdkStore | undefined;
 
   if (!config.serverConfig.wellknown) {
     const error = new Error(
@@ -110,7 +110,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     throw error;
   }
 
-  const handle = createClientStore({ requestMiddleware, logger: log, store: sharedStore });
+  const handle = createClientStore({ requestMiddleware, logger: log, store: validStore });
   const store = handle.store;
   const serverInfo = createStorage<ContinueNode['server']>({
     type: 'localStorage',

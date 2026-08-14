@@ -100,6 +100,33 @@ export function isSdkStoreHandle(value: unknown): value is SdkStore {
 }
 
 /**
+ * Validates that `store` is either `undefined` or a valid {@link SdkStore}.
+ * Returns `undefined` on success, or a `GenericError` describing the failure.
+ *
+ * Using this in factory functions avoids duplicating the
+ * `isSdkStoreHandle` guard + `INVALID_STORE_MESSAGE` string in every package.
+ */
+export function assertValidStore(
+  store: unknown,
+): { error: string; type: 'argument_error' } | undefined {
+  if (store !== undefined && !isSdkStoreHandle(store)) {
+    return { error: INVALID_STORE_MESSAGE, type: 'argument_error' };
+  }
+  return undefined;
+}
+
+/**
+ * Returns the registered client slot for a given reducer path, or `undefined`.
+ * Use this instead of reaching into `store.extra.clients` directly.
+ */
+export function getClientForReducerPath(
+  store: SdkStore,
+  reducerPath: string,
+): { clientId?: string } | undefined {
+  return store.extra.clients[reducerPath] as { clientId?: string } | undefined;
+}
+
+/**
  * Attaches a client to a store: mounts its reducers and middleware, and
  * registers its private slot on the store's client registry.
  *

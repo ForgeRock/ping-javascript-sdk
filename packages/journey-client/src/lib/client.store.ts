@@ -25,7 +25,7 @@ import { createStorage } from '@forgerock/storage';
 import * as Either from 'effect/Either';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
 import type { JourneyResult } from './journey.utils.js';
-import { wellknownApi, isSdkStoreHandle, INVALID_STORE_MESSAGE } from '@forgerock/sdk-store';
+import { wellknownApi, assertValidStore, getClientForReducerPath } from '@forgerock/sdk-store';
 
 import type { JourneyStep } from './step.utils.js';
 import type { JourneyClientConfig } from './config.types.js';
@@ -88,8 +88,8 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
    * An existing SDK store to attach to, so discovery caching and state are
    * shared with another client. Omit to create a store for this client alone.
    */
-  store?: SdkStore;
-}): Promise<JourneyClient> {
+  store?: unknown;
+}): Promise<JourneyClient | { error: string; type: 'argument_error' }> {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
@@ -121,12 +121,23 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     );
   }
 
-  if (sharedStore !== undefined && !isSdkStoreHandle(sharedStore)) {
-    log.error(INVALID_STORE_MESSAGE);
-    throw new Error(INVALID_STORE_MESSAGE);
+  const storeError = assertValidStore(sharedStore);
+  if (storeError) return storeError;
+
+  const validStore = sharedStore as SdkStore | undefined;
+
+  if (validStore) {
+    const existing = getClientForReducerPath(validStore, journeyApi.reducerPath);
+    if (existing) {
+      return {
+        error:
+          'This store already has a journey client attached. Use a separate store per journey client.',
+        type: 'argument_error' as const,
+      };
+    }
   }
 
-  const handle = createJourneyStore({ requestMiddleware, logger: log, store: sharedStore });
+  const handle = createJourneyStore({ requestMiddleware, logger: log, store: validStore });
   const store = handle.store;
 
   if ('baseUrl' in config.serverConfig) {
