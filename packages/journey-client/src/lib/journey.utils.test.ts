@@ -70,8 +70,8 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result._tag).toBe('Right');
-    expect((result as { right: unknown }).right).toBe(body);
+    expect(result._tag).toBe('Success');
+    expect((result as { success: unknown }).success).toBe(body);
   });
 
   it('returns left(GenericError) when FetchBaseQueryError has numeric status but non-object body', () => {
@@ -79,8 +79,8 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result._tag).toBe('Left');
-    expect((result as { left: unknown }).left).toMatchObject({
+    expect(result._tag).toBe('Failure');
+    expect((result as { failure: unknown }).failure).toMatchObject({
       error: 'request_failed',
       type: 'unknown_error',
     });
@@ -91,8 +91,8 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result._tag).toBe('Left');
-    expect((result as { left: { message: string } }).left.message).toContain('Network error');
+    expect(result._tag).toBe('Failure');
+    expect((result as { failure: { message: string } }).failure.message).toContain('Network error');
   });
 
   it('returns left(GenericError) for PARSING_ERROR', () => {
@@ -105,8 +105,10 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result._tag).toBe('Left');
-    expect((result as { left: { message: string } }).left.message).toContain('JSON parse error');
+    expect(result._tag).toBe('Failure');
+    expect((result as { failure: { message: string } }).failure.message).toContain(
+      'JSON parse error',
+    );
   });
 
   it('returns left(GenericError) for TIMEOUT_ERROR', () => {
@@ -114,8 +116,10 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result._tag).toBe('Left');
-    expect((result as { left: { message: string } }).left.message).toContain('Request timed out');
+    expect(result._tag).toBe('Failure');
+    expect((result as { failure: { message: string } }).failure.message).toContain(
+      'Request timed out',
+    );
   });
 
   it('returns left(GenericError) for CUSTOM_ERROR', () => {
@@ -123,8 +127,8 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result._tag).toBe('Left');
-    expect((result as { left: { message: string } }).left.message).toContain(
+    expect(result._tag).toBe('Failure');
+    expect((result as { failure: { message: string } }).failure.message).toContain(
       'Custom error occurred',
     );
   });
@@ -134,8 +138,8 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data: undefined, error });
 
-    expect(result._tag).toBe('Left');
-    expect((result as { left: { message: string } }).left.message).toContain(
+    expect(result._tag).toBe('Failure');
+    expect((result as { failure: { message: string } }).failure.message).toContain(
       'Something went wrong',
     );
   });
@@ -143,8 +147,8 @@ describe('parseJourneyResponse', () => {
   it('returns left(GenericError) when no data and no error', () => {
     const result = parseJourneyResponse({ data: undefined, error: undefined });
 
-    expect(result._tag).toBe('Left');
-    expect((result as { left: unknown }).left).toMatchObject({
+    expect(result._tag).toBe('Failure');
+    expect((result as { failure: unknown }).failure).toMatchObject({
       error: 'no_response_data',
       type: 'unknown_error',
     });
@@ -155,7 +159,7 @@ describe('parseJourneyResponse', () => {
 
     const result = parseJourneyResponse({ data, error: undefined });
 
-    expect(result._tag).toBe('Right');
-    expect((result as { right: unknown }).right).toBe(data);
+    expect(result._tag).toBe('Success');
+    expect((result as { success: unknown }).success).toBe(data);
   });
 });

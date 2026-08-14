@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
+import { Effect } from 'effect';
 
 import { logger } from '@forgerock/sdk-logger';
 
@@ -34,22 +34,22 @@ export function buildTokenExchangeµ({
   state,
   store,
   options,
-}: BuildTokenExchangeµParams): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> {
+}: BuildTokenExchangeµParams): Effect.Effect<OauthTokens, TokenExchangeErrorResponse, never> {
   return createValuesµ(code, config, state, endpoint, options).pipe(
-    Micro.flatMap((options) => validateValuesµ(options)),
-    Micro.tap((options) => log.debug('Token exchange values created', options)),
-    Micro.tapError((options) =>
-      Micro.sync(() => log.error('Error creating token exchange values', options)),
+    Effect.flatMap((options) => validateValuesµ(options)),
+    Effect.tap((options) => Effect.sync(() => log.debug('Token exchange values created', options))),
+    Effect.tapError((options) =>
+      Effect.sync(() => log.error('Error creating token exchange values', options)),
     ),
-    Micro.flatMap((requestOptions) =>
-      Micro.promise(() => store.dispatch(oidcApi.endpoints.exchange.initiate(requestOptions))),
+    Effect.flatMap((requestOptions) =>
+      Effect.promise(() => store.dispatch(oidcApi.endpoints.exchange.initiate(requestOptions))),
     ),
-    Micro.flatMap(({ data, error }) => handleTokenResponseµ(data, error)),
-    Micro.tap((data) => log.debug('Token exchange response handled', data)),
-    Micro.tapError((error) =>
-      Micro.sync(() => log.error('Error handling token exchange response', error)),
+    Effect.flatMap(({ data, error }) => handleTokenResponseµ(data, error)),
+    Effect.tap((data) => Effect.sync(() => log.debug('Token exchange response handled', data))),
+    Effect.tapError((error) =>
+      Effect.sync(() => log.error('Error handling token exchange response', error)),
     ),
-    Micro.map((data) => {
+    Effect.map((data) => {
       const tokens = {
         accessToken: data.access_token,
         idToken: data.id_token,
