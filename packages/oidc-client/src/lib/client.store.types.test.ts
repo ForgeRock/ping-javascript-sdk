@@ -8,7 +8,7 @@
 import { it, expect, describe } from 'vitest';
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 
-import { parseOidcArgs } from './client.store.js';
+import { parseOidcArgs } from './client.store.utils.js';
 import { createClientStore } from './client.store.utils.js';
 
 import type { OidcConfig } from './config.types.js';

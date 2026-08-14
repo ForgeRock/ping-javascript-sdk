@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,7 +8,7 @@ import './style.css';
 
 import { journey } from '@forgerock/journey-client';
 
-import type { JourneyClient, RequestMiddleware } from '@forgerock/journey-client/types';
+import type { RequestMiddleware } from '@forgerock/journey-client/types';
 
 import { renderCallbacks } from './callback-map.js';
 import { renderDeleteDevicesSection } from './components/delete-device.js';
@@ -62,15 +62,14 @@ if (searchParams.get('middleware') === 'true') {
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
-  let journeyClient: JourneyClient;
-  try {
-    journeyClient = await journey({ config: config, requestMiddleware });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+  const journeyResult = await journey({ config: config, requestMiddleware });
+  if ('error' in journeyResult) {
+    const message = journeyResult.error;
     console.error('Failed to initialize journey client:', message);
     errorEl.textContent = message;
     return;
   }
+  const journeyClient = journeyResult;
   let step = await journeyClient.start({ journey: journeyName });
 
   function renderError() {

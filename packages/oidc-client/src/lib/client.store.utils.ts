@@ -9,11 +9,19 @@ import { logger as loggerFn } from '@forgerock/sdk-logger';
 
 import { combineSlices, type SerializedError } from '@reduxjs/toolkit';
 import { oidcApi } from './oidc.api.js';
-import { createSdkStore, injectClient, wellknownApi } from '@forgerock/sdk-store';
+import {
+  createSdkStore,
+  injectClient,
+  isSdkStoreHandle,
+  INVALID_STORE_MESSAGE,
+  wellknownApi,
+  getClientForReducerPath,
+} from '@forgerock/sdk-store';
 
 import type { GenericError } from '@forgerock/sdk-types';
 import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { ParsedOidcArgs, RawOidcArgs } from './client.store.types.js';
 
 /**
  * The canonical description of the state this client contributes.
@@ -72,13 +80,10 @@ export function conflictingClientId(
   store: SdkStore | undefined,
   clientId: string,
 ): string | undefined {
-  const existing = store?.extra.clients[oidcApi.reducerPath];
-  if (!existing) {
-    return undefined;
-  }
-
-  const existingClientId = (existing as { clientId?: string }).clientId;
-  return existingClientId && existingClientId !== clientId ? existingClientId : undefined;
+  if (!store) return undefined;
+  const existing = getClientForReducerPath(store, oidcApi.reducerPath);
+  if (!existing) return undefined;
+  return existing.clientId && existing.clientId !== clientId ? existing.clientId : undefined;
 }
 
 /**
@@ -141,4 +146,62 @@ export function createTokenError(type: 'no_tokens' | 'no_access_token' | 'no_id_
   }
 
   return error;
+}
+
+/**
+ * @function parseOidcArgs
+ * @description Pure, synchronous parser for OIDC factory arguments that implements
+ *              the "parse, don't validate" pattern. Returns a narrowed
+ *              {@link ParsedOidcArgs} on success, or a {@link GenericError} describing
+ *              the first structural failure found.
+ *
+ *              The PAR check (which requires a network round-trip) is intentionally
+ *              excluded — it belongs in `oidc()` after the wellknown fetch.
+ * @param raw - The unvalidated arguments to parse.
+ * @returns {ParsedOidcArgs<ActionType> | GenericError}
+ */
+export function parseOidcArgs<ActionType extends ActionTypes = ActionTypes>(
+  raw: RawOidcArgs<ActionType>,
+): ParsedOidcArgs<ActionType> | GenericError {
+  /**
+   * Validate before touching the store. RTK's `inject` is irreversible, so
+   * mutating a caller-owned store and *then* rejecting the arguments would leave
+   * them permanently carrying a slice from a call that never succeeded.
+   */
+  if (raw.store !== undefined && !isSdkStoreHandle(raw.store)) {
+    return {
+      error: INVALID_STORE_MESSAGE,
+      type: 'argument_error',
+    };
+  }
+  if (!raw.config?.serverConfig?.wellknown) {
+    return {
+      error: 'Requires a wellknown url initializing this factory.',
+      type: 'argument_error',
+    };
+  }
+  if (!raw.config?.clientId) {
+    return {
+      error: 'Requires a clientId.',
+      type: 'argument_error',
+    };
+  }
+
+  /**
+   * `oidcApi.reducerPath` is a fixed string, so a second client on the same
+   * store would share one cache slice and clobber the first client's tokens.
+   * Re-initialising the same clientId is fine and stays idempotent.
+   */
+  const validatedStore = raw.store as SdkStore | undefined;
+  const conflict = conflictingClientId(validatedStore, raw.config.clientId);
+  if (conflict) {
+    return {
+      error:
+        `This store is already in use by an OIDC client with clientId '${conflict}'. ` +
+        'Use a separate store per clientId.',
+      type: 'argument_error',
+    };
+  }
+
+  return raw as unknown as ParsedOidcArgs<ActionType>;
 }
