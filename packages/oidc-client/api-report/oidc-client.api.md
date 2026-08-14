@@ -6,9 +6,9 @@
 
 import { ActionTypes } from '@forgerock/sdk-request-middleware';
 import { BaseQueryFn } from '@reduxjs/toolkit/query';
+import { CombinedSliceReducer } from '@reduxjs/toolkit';
 import { CombinedState } from '@reduxjs/toolkit/query';
 import { CustomLogger } from '@forgerock/sdk-logger';
-import { EnhancedStore } from '@reduxjs/toolkit';
 import { FetchArgs } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
@@ -17,17 +17,14 @@ import { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { JWTPayload } from 'jose';
 import { logger } from '@forgerock/sdk-logger';
 import { LogLevel } from '@forgerock/sdk-logger';
-import { LogMessage } from '@forgerock/sdk-logger';
 import { MutationDefinition } from '@reduxjs/toolkit/query';
 import { OidcConfig } from '@forgerock/sdk-types';
 import { QueryDefinition } from '@reduxjs/toolkit/query';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { ResponseType as ResponseType_2 } from '@forgerock/sdk-types';
+import type { SdkStore } from '@forgerock/sdk-store';
+import type { SdkStoreHandle } from '@forgerock/sdk-store';
 import { StorageConfig } from '@forgerock/storage';
-import { StoreEnhancer } from '@reduxjs/toolkit';
-import { ThunkDispatch } from '@reduxjs/toolkit';
-import { Tuple } from '@reduxjs/toolkit';
-import { UnknownAction } from '@reduxjs/toolkit';
 import { Unsubscribe } from '@reduxjs/toolkit';
 import { WellknownResponse } from '@forgerock/sdk-types';
 
@@ -113,119 +110,16 @@ export interface AuthorizeSuccessResponse {
 // @public (undocumented)
 export type BuildAuthorizationData = [string, GetAuthorizationUrlOptions];
 
-// @public (undocumented)
-export type ClientStore = ReturnType<typeof createClientStore>;
+// @public
+export type ClientStore = ReturnType<typeof createClientStore>['store'];
 
 // @public
 export function createClientStore<ActionType extends ActionTypes>(input: {
     requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
     logger?: ReturnType<typeof logger>;
-}): EnhancedStore<    {
-oidc: CombinedState<    {
-authorizeFetch: MutationDefinition<    {
-url: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
-par: MutationDefinition<    {
-endpoint: string;
-body: URLSearchParams;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
-sessionCheckIframe: MutationDefinition<    {
-url: string;
-responseType: SessionCheckResponseType;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
-params: Record<string, string>;
-}, "oidc", unknown>;
-sessionCheckFetch: MutationDefinition<    {
-url: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
-status: 204;
-}, "oidc", unknown>;
-authorizeIframe: MutationDefinition<    {
-url: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
-endSession: MutationDefinition<    {
-idToken: string;
-endpoint: string;
-signOutRedirectUri?: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
-exchange: MutationDefinition<    {
-code: string;
-config: OidcConfig;
-endpoint: string;
-verifier?: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, TokenExchangeResponse, "oidc", unknown>;
-revoke: MutationDefinition<    {
-accessToken: string;
-clientId?: string;
-endpoint: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, object, "oidc", unknown>;
-userInfo: MutationDefinition<    {
-accessToken: string;
-endpoint: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, UserInfoResponse, "oidc", unknown>;
-}, never, "oidc">;
-wellknown: CombinedState<    {
-configuration: QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellknownResponse, "wellknown", unknown>;
-}, never, "wellknown">;
-}, UnknownAction, Tuple<[StoreEnhancer<    {
-dispatch: ThunkDispatch<    {
-oidc: CombinedState<    {
-authorizeFetch: MutationDefinition<    {
-url: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
-par: MutationDefinition<    {
-endpoint: string;
-body: URLSearchParams;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
-sessionCheckIframe: MutationDefinition<    {
-url: string;
-responseType: SessionCheckResponseType;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
-params: Record<string, string>;
-}, "oidc", unknown>;
-sessionCheckFetch: MutationDefinition<    {
-url: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
-status: 204;
-}, "oidc", unknown>;
-authorizeIframe: MutationDefinition<    {
-url: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
-endSession: MutationDefinition<    {
-idToken: string;
-endpoint: string;
-signOutRedirectUri?: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
-exchange: MutationDefinition<    {
-code: string;
-config: OidcConfig;
-endpoint: string;
-verifier?: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, TokenExchangeResponse, "oidc", unknown>;
-revoke: MutationDefinition<    {
-accessToken: string;
-clientId?: string;
-endpoint: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, object, "oidc", unknown>;
-userInfo: MutationDefinition<    {
-accessToken: string;
-endpoint: string;
-}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, UserInfoResponse, "oidc", unknown>;
-}, never, "oidc">;
-wellknown: CombinedState<    {
-configuration: QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellknownResponse, "wellknown", unknown>;
-}, never, "wellknown">;
-}, {
-requestMiddleware: RequestMiddleware<ActionType, unknown>[] | undefined;
-logger: {
-changeLevel: (level: LogLevel) => void;
-error: (...args: LogMessage[]) => void;
-warn: (...args: LogMessage[]) => void;
-info: (...args: LogMessage[]) => void;
-debug: (...args: LogMessage[]) => void;
-} | undefined;
-}, UnknownAction>;
-}>, StoreEnhancer]>>;
+    store?: SdkStore;
+    clientId?: string;
+}): SdkStoreHandle<OidcRootState>;
 
 export { CustomLogger }
 
@@ -275,22 +169,16 @@ export interface OauthTokens {
 }
 
 // @public
-export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
-    config: OidcConfig;
-    requestMiddleware?: RequestMiddleware<ActionType>[];
-    logger?: {
-        level: LogLevel;
-        custom?: CustomLogger;
-    };
-    storage?: Partial<StorageConfig>;
-}): Promise<{
+export function oidc<ActionType extends ActionTypes = ActionTypes>(raw: RawOidcArgs<ActionType>): Promise<GenericError | {
     error: string;
     type: string;
+    store?: undefined;
     subscribe?: undefined;
     authorize?: undefined;
     token?: undefined;
     user?: undefined;
 } | {
+    store: SdkStore;
     subscribe: (listener: () => void) => Unsubscribe;
     authorize: {
         url: (options?: GetAuthorizationUrlOptions) => Promise<string | GenericError>;
@@ -316,6 +204,9 @@ export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 export { OidcConfig }
 
 // @public (undocumented)
+export type OidcRootState = ReturnType<typeof rootReducer>;
+
+// @public (undocumented)
 export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
 
 // @public (undocumented)
@@ -325,6 +216,18 @@ export interface PushAuthorizationResponse {
     // (undocumented)
     request_uri: string;
 }
+
+// @public
+export type RawOidcArgs<ActionType extends ActionTypes = ActionTypes> = {
+    config: OidcConfig;
+    requestMiddleware?: RequestMiddleware<ActionType>[];
+    logger?: {
+        level: LogLevel;
+        custom?: CustomLogger;
+    };
+    storage?: Partial<StorageConfig>;
+    store?: unknown;
+};
 
 export { RequestMiddleware }
 
@@ -342,6 +245,150 @@ export type RevokeSuccessResult = {
     revokeResponse: null;
     deleteResponse: null;
 };
+
+// @public
+export const rootReducer: CombinedSliceReducer<    {
+oidc: CombinedState<    {
+authorizeFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
+par: MutationDefinition<    {
+endpoint: string;
+body: URLSearchParams;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
+sessionCheckIframe: MutationDefinition<    {
+url: string;
+responseType: SessionCheckResponseType;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+params: Record<string, string>;
+}, "oidc", unknown>;
+sessionCheckFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+status: 204;
+}, "oidc", unknown>;
+authorizeIframe: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
+endSession: MutationDefinition<    {
+idToken: string;
+endpoint: string;
+signOutRedirectUri?: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
+exchange: MutationDefinition<    {
+code: string;
+config: OidcConfig;
+endpoint: string;
+verifier?: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, TokenExchangeResponse, "oidc", unknown>;
+revoke: MutationDefinition<    {
+accessToken: string;
+clientId?: string;
+endpoint: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, object, "oidc", unknown>;
+userInfo: MutationDefinition<    {
+accessToken: string;
+endpoint: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, UserInfoResponse, "oidc", unknown>;
+}, never, "oidc">;
+wellknown: CombinedState<    {
+configuration: QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellknownResponse, "wellknown", unknown>;
+}, never, "wellknown">;
+}, {
+oidc: CombinedState<    {
+authorizeFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
+par: MutationDefinition<    {
+endpoint: string;
+body: URLSearchParams;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
+sessionCheckIframe: MutationDefinition<    {
+url: string;
+responseType: SessionCheckResponseType;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+params: Record<string, string>;
+}, "oidc", unknown>;
+sessionCheckFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+status: 204;
+}, "oidc", unknown>;
+authorizeIframe: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
+endSession: MutationDefinition<    {
+idToken: string;
+endpoint: string;
+signOutRedirectUri?: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
+exchange: MutationDefinition<    {
+code: string;
+config: OidcConfig;
+endpoint: string;
+verifier?: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, TokenExchangeResponse, "oidc", unknown>;
+revoke: MutationDefinition<    {
+accessToken: string;
+clientId?: string;
+endpoint: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, object, "oidc", unknown>;
+userInfo: MutationDefinition<    {
+accessToken: string;
+endpoint: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, UserInfoResponse, "oidc", unknown>;
+}, never, "oidc">;
+wellknown: CombinedState<    {
+configuration: QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellknownResponse, "wellknown", unknown>;
+}, never, "wellknown">;
+}, Partial<{
+oidc: CombinedState<    {
+authorizeFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizeSuccessResponse, "oidc", unknown>;
+par: MutationDefinition<    {
+endpoint: string;
+body: URLSearchParams;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, PushAuthorizationResponse, "oidc", unknown>;
+sessionCheckIframe: MutationDefinition<    {
+url: string;
+responseType: SessionCheckResponseType;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+params: Record<string, string>;
+}, "oidc", unknown>;
+sessionCheckFetch: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, {
+status: 204;
+}, "oidc", unknown>;
+authorizeIframe: MutationDefinition<    {
+url: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, AuthorizationSuccess, "oidc", unknown>;
+endSession: MutationDefinition<    {
+idToken: string;
+endpoint: string;
+signOutRedirectUri?: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, null, "oidc", unknown>;
+exchange: MutationDefinition<    {
+code: string;
+config: OidcConfig;
+endpoint: string;
+verifier?: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, TokenExchangeResponse, "oidc", unknown>;
+revoke: MutationDefinition<    {
+accessToken: string;
+clientId?: string;
+endpoint: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, object, "oidc", unknown>;
+userInfo: MutationDefinition<    {
+accessToken: string;
+endpoint: string;
+}, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, UserInfoResponse, "oidc", unknown>;
+}, never, "oidc">;
+wellknown: CombinedState<    {
+configuration: QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellknownResponse, "wellknown", unknown>;
+}, never, "wellknown">;
+}>>;
 
 // @public (undocumented)
 export type RootState = ReturnType<ClientStore['getState']>;
