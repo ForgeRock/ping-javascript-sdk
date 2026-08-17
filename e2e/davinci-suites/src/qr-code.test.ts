@@ -1,38 +1,20 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
-import { password, username } from './utils/demo-user.js';
 
-const qrCodeUrl =
-  '/?clientId=c12743f9-08e8-4420-a624-71bbb08e9fe1&acr_values=9da1b93991bcd577947da228ad4c741f';
+const clientId = 'e4ef2896-8d90-4abd-bf0f-7b8034995927';
+const policyId = 'b6c0b61b1c7697f9fcfb013d05e8f977';
+const qrCodeUrl = `/?clientId=${clientId}&acr_values=${policyId}`;
 
-test('QR code renders after navigating through device registration flow', async ({ page }) => {
+test('QR code renders on screen', async ({ page }) => {
   const { navigate } = asyncEvents(page);
 
   await navigate(qrCodeUrl);
-
-  // Step 1: Login
-  await page.getByRole('button', { name: 'USER_LOGIN' }).click();
-  await page.waitForEvent('requestfinished');
-
-  await page.getByLabel('Username').fill(username);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Sign On' }).click();
-  await page.waitForEvent('requestfinished');
-
-  // Step 2: Select device registration
-  await page.getByRole('button', { name: 'DEVICE_REGISTRATION' }).click();
-  await page.waitForEvent('requestfinished');
-
-  // Step 3: Choose "Mobile App" from the device selection screen
-  await expect(page.getByText('MFA Device Selection - Registration')).toBeVisible();
-  await page.getByRole('button', { name: 'Mobile App' }).click();
-  await page.waitForEvent('requestfinished');
 
   // Step 4: QR code should now be visible
   const qrImage = page.locator('[data-testid="qr-code-image"]');

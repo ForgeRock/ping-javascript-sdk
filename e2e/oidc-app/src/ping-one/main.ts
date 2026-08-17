@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2025 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -13,13 +13,13 @@ const clientId = urlParams.get('clientid');
 const wellknown = urlParams.get('wellknown');
 
 const config = {
-  clientId: clientId || '654b14e2-7cc5-4977-8104-c4113e43c537',
+  clientId: clientId || '00e62f85-3d49-4046-b860-15aefdebbb0d',
   redirectUri: 'http://localhost:8443/ping-one/',
   scope: 'openid revoke profile email',
   serverConfig: {
     wellknown:
       wellknown ||
-      'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+      'https://auth.pingone.ca/356a254c-cba3-4ade-be1a-860136e8df01/as/.well-known/openid-configuration',
   },
 };
 
