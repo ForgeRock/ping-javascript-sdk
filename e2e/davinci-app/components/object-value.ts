@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -75,32 +75,63 @@ export default function objectValueComponent(
     phoneLabel.className = 'object-options-title';
     phoneLabel.setAttribute('for', 'phone-number-input');
 
+    // Country code dropdown
+    const countryCodeLabel = document.createElement('label');
+    countryCodeLabel.textContent = 'Country Code';
+    countryCodeLabel.setAttribute('for', collector.output.key || 'dropdown-field');
+    countryCodeLabel.className = 'dropdown-label';
+    countryCodeLabel.setAttribute('for', collector.output.key || 'dropdown-field');
+
+    const countryCodeInput = document.createElement('select');
+    countryCodeInput.name = collector.output.key || 'dropdown-field';
+    countryCodeInput.id = collector.output.key || 'dropdown-field';
+
+    const countryCodes = ['IN', 'BR', 'CA', 'US'];
+    for (const option of countryCodes) {
+      const optionEl = document.createElement('option');
+      optionEl.value = option;
+      optionEl.textContent = option;
+      countryCodeInput.appendChild(optionEl);
+    }
+
+    // Phone number input
     const phoneInput = document.createElement('input');
     phoneInput.setAttribute('type', 'tel');
     phoneInput.setAttribute('id', 'phone-number-input');
     phoneInput.setAttribute('name', 'phone-number-input');
     phoneInput.setAttribute('placeholder', 'Enter phone number');
 
+    formEl.appendChild(countryCodeLabel);
+    formEl.appendChild(countryCodeInput);
     formEl.appendChild(phoneLabel);
     formEl.appendChild(phoneInput);
 
-    // Add change event listener
+    const phoneNumberUpdater = updater as Updater<PhoneNumberCollector>;
+
+    // Add change event listener for phone number input
     phoneInput.addEventListener('change', (event) => {
-      // Properly type the event target
       const target = event.target as HTMLInputElement;
-      const selectedValue = target.value;
-
-      if (!selectedValue) {
-        console.error('No value found for the selected option');
-        return;
-      }
-
+      const phoneValue = target.value;
+      const countryCodeValue = countryCodeInput.value;
       const phoneNumberInputValue: PhoneNumberInputValue = {
-        phoneNumber: selectedValue,
-        countryCode: collector.output.value?.countryCode || '',
+        phoneNumber: phoneValue,
+        countryCode: countryCodeValue || collector.output.value?.countryCode || '',
       };
-      const phoneNumberUpdater = updater as Updater<PhoneNumberCollector>;
+
       phoneNumberUpdater(phoneNumberInputValue);
+    });
+
+    // Add change event listener for extension input
+    countryCodeInput.addEventListener('change', (event) => {
+      const target = event.target as HTMLSelectElement;
+      const countryCodeValue = target.value;
+      const phoneValue = phoneInput.value;
+      const countryCodeInputValue: PhoneNumberInputValue = {
+        phoneNumber: phoneValue,
+        countryCode: countryCodeValue || collector.output.value?.countryCode || '',
+      };
+
+      phoneNumberUpdater(countryCodeInputValue);
     });
   } else if (collector.type === 'PhoneNumberExtensionCollector') {
     const phoneLabel = document.createElement('label');

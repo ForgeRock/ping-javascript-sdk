@@ -34,32 +34,20 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
     },
   },
   /**
-   * SDK Team Tenant
-   * DemoUser-sdkWebClient
+   * Login Registration
    */
-  '724ec718-c41c-4d51-98b0-84a583f450f9': {
-    clientId: '724ec718-c41c-4d51-98b0-84a583f450f9',
+  '625e45e0-dde5-402e-9bf9-7da1275df03a': {
+    clientId: '625e45e0-dde5-402e-9bf9-7da1275df03a',
     redirectUri: window.location.origin + '/',
     scope: 'openid profile email name revoke',
     serverConfig: {
       wellknown:
-        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
-    },
-  },
-  /**
-   * Form Fields (old env — image feature flag enabled)
-   */
-  '60de77d5-dd2c-41ef-8c40-f8bb2381a359': {
-    clientId: '60de77d5-dd2c-41ef-8c40-f8bb2381a359',
-    redirectUri: window.location.origin + '/',
-    scope: 'openid profile email name revoke',
-    serverConfig: {
-      wellknown:
-        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+        'https://auth.pingone.ca/356a254c-cba3-4ade-be1a-860136e8df01/as/.well-known/openid-configuration',
     },
   },
   /**
    * Form Fields
+   * QR Code
    * ValidatedPasswordCollector / Password Policy
    */
   'e4ef2896-8d90-4abd-bf0f-7b8034995927': {
@@ -72,29 +60,19 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
     },
   },
   /**
-   * Phone Number Input With Email and Password
+   * MFA: FIDO, Email, SMS
    */
-  '20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0': {
-    clientId: '20dd0ed0-bb9b-4c8f-9a60-9ebeb4b348e0',
+  '9c1d9655-7d1b-46f3-a96d-345690259d2a': {
+    clientId: '9c1d9655-7d1b-46f3-a96d-345690259d2a',
     redirectUri: window.location.origin + '/',
     scope: 'openid profile email revoke',
     serverConfig: {
       wellknown:
-        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
-    },
-  },
-  /** QR Code policy id : aa3c00c3ec25a9721be078f7bf44678d **/
-  'c12743f9-08e8-4420-a624-71bbb08e9fe1': {
-    clientId: 'c12743f9-08e8-4420-a624-71bbb08e9fe1',
-    redirectUri: window.location.origin + '/',
-    scope: 'openid profile email',
-    serverConfig: {
-      wellknown:
-        'https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/.well-known/openid-configuration',
+        'https://auth.pingone.ca/356a254c-cba3-4ade-be1a-860136e8df01/as/.well-known/openid-configuration',
     },
   },
   /**
-   * AutoCollectors: Polling, Metadata, FIDO, Protect
+   * AutoCollectors: Polling, Metadata, Protect
    */
   '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0': {
     clientId: '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0',
