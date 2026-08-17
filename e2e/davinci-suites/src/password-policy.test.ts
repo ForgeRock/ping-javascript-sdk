@@ -9,7 +9,7 @@ import { asyncEvents } from './utils/async-events.js';
 import { password } from './utils/demo-user.js';
 
 const CLIENT_ID = 'e4ef2896-8d90-4abd-bf0f-7b8034995927';
-const POLICY_ID = '5e8613e337c67a67db09373019e962e0';
+const POLICY_ID = '93d0e640dcf435ffc458228bca04be5f';
 
 /**
  * A unique email per test run to avoid conflicts with existing accounts.

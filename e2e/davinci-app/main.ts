@@ -59,7 +59,7 @@ const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
 
 const config: DaVinciConfig =
-  serverConfigs[searchParams.get('clientId') || '724ec718-c41c-4d51-98b0-84a583f450f9'];
+  serverConfigs[searchParams.get('clientId') || '625e45e0-dde5-402e-9bf9-7da1275df03a'];
 
 const logger: { level: 'debug'; custom?: typeof loggerFn } = {
   level: 'debug' as const,
