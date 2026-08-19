@@ -32,7 +32,7 @@ export class PingOneRecognizeCallback extends BaseCallback {
   }
 
   public getServiceURL(): string {
-    return this.getOutputByName<string>('websocketURL', '');
+    return this.getOutputByName<string>('authenticationServiceUrl', '');
   }
 
   public getCustomerName(): string {
