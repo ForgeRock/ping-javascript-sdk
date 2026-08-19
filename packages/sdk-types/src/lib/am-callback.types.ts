@@ -20,6 +20,7 @@ export const callbackType = {
   PasswordCallback: 'PasswordCallback',
   PingOneProtectEvaluationCallback: 'PingOneProtectEvaluationCallback',
   PingOneProtectInitializeCallback: 'PingOneProtectInitializeCallback',
+  PingOneRecognizeCallback: 'PingOneRecognizeCallback',
   PollingWaitCallback: 'PollingWaitCallback',
   ReCaptchaCallback: 'ReCaptchaCallback',
   ReCaptchaEnterpriseCallback: 'ReCaptchaEnterpriseCallback',
