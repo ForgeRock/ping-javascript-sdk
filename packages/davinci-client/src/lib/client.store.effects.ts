@@ -11,7 +11,8 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 
-import type { ClientStore, RootState } from './client.store.utils.js';
+import type { DavinciStore } from './client.store.utils.js';
+import type { RootState } from './davinci.state.js';
 import type { PollingStatus, InternalErrorResponse } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
 
@@ -239,7 +240,7 @@ function challengePollingµ({
 }: {
   collector: PollingCollector;
   challenge: string;
-  store: ReturnType<ClientStore>;
+  store: DavinciStore;
   log: ReturnType<typeof loggerFn>;
 }): Micro.Micro<PollingStatus, InternalErrorResponse> {
   const maxRetries = collector.output.config.pollRetries ?? 60;
@@ -295,7 +296,7 @@ export function pollingµ({
 }: {
   mode: PollingMode;
   collector: PollingCollector;
-  store: ReturnType<ClientStore>;
+  store: DavinciStore;
   log: ReturnType<typeof loggerFn>;
 }): Micro.Micro<PollingStatus, InternalErrorResponse> {
   if (mode._tag === 'challenge') {

@@ -8,7 +8,7 @@
 
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
-import { journey } from './client.store.js';
+import { journey, type JourneyClient } from './client.store.js';
 import { makeJourneyConfig } from '@forgerock/sdk-utilities';
 import { createJourneyStep } from './step.utils.js';
 
@@ -108,7 +108,7 @@ describe('journey-client', () => {
   test('journey_WellknownConfig_ReturnsClientWithAllMethods', async () => {
     setupMockFetch();
 
-    const client = await journey({ config: mockConfig });
+    const client = (await journey({ config: mockConfig })) as JourneyClient;
 
     expect(client.start).toBeInstanceOf(Function);
     expect(client.next).toBeInstanceOf(Function);
@@ -142,7 +142,7 @@ describe('journey-client', () => {
     const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
     setupMockFetch(mockStepResponse);
 
-    const client = await journey({ config: mockConfig });
+    const client = (await journey({ config: mockConfig })) as JourneyClient;
     const step = await client.start();
 
     expect(step).toBeDefined();
@@ -169,7 +169,7 @@ describe('journey-client', () => {
     };
     setupMockFetch(failurePayload, 401);
 
-    const client = await journey({ config: mockConfig });
+    const client = (await journey({ config: mockConfig })) as JourneyClient;
     const result = await client.start();
 
     expect(result).toBeDefined();
@@ -207,7 +207,7 @@ describe('journey-client', () => {
     };
     setupMockFetch(nextStepPayload);
 
-    const client = await journey({ config: mockConfig });
+    const client = (await journey({ config: mockConfig })) as JourneyClient;
     const nextStep = await client.next(initialStep, {});
 
     expect(nextStep).toBeDefined();
@@ -237,7 +237,7 @@ describe('journey-client', () => {
     };
     setupMockFetch(failurePayload, 401);
 
-    const client = await journey({ config: mockConfig });
+    const client = (await journey({ config: mockConfig })) as JourneyClient;
     const result = await client.next(initialStep, {});
 
     expect(result).toBeDefined();
@@ -267,7 +267,7 @@ describe('journey-client', () => {
     vi.stubGlobal('window', { location: { assign: assignMock } });
     setupMockFetch();
 
-    const client = await journey({ config: mockConfig });
+    const client = (await journey({ config: mockConfig })) as JourneyClient;
     await client.redirect(step);
 
     expect(mockStorageInstance.set).toHaveBeenCalledWith({ step: step.payload });
@@ -285,7 +285,7 @@ describe('journey-client', () => {
       const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(nextStepPayload);
 
-      const client = await journey({ config: mockConfig });
+      const client = (await journey({ config: mockConfig })) as JourneyClient;
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
       const step = await client.resume(resumeUrl, {});
 
@@ -314,7 +314,7 @@ describe('journey-client', () => {
       const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(nextStepPayload);
 
-      const client = await journey({ config: mockConfig });
+      const client = (await journey({ config: mockConfig })) as JourneyClient;
       const resumeUrl =
         'https://app.com/callback?code=123&state=abc&error=access_denied&errorCode=E1&errorMessage=oops&form_post_entry=fp&nonce=n1&RelayState=rs&responsekey=rk&scope=openid&suspendedId=s1';
       await client.resume(resumeUrl, {});
@@ -342,7 +342,7 @@ describe('journey-client', () => {
       const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(nextStepPayload);
 
-      const client = await journey({ config: mockConfig });
+      const client = (await journey({ config: mockConfig })) as JourneyClient;
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
       await client.resume(resumeUrl, { query: { code: 'override' } });
 
@@ -363,7 +363,7 @@ describe('journey-client', () => {
       const nextStepPayload: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(nextStepPayload);
 
-      const client = await journey({ config: mockConfig });
+      const client = (await journey({ config: mockConfig })) as JourneyClient;
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
       const step = await client.resume(resumeUrl, {});
 
@@ -384,7 +384,7 @@ describe('journey-client', () => {
       mockStorageInstance.get.mockResolvedValue(undefined);
       setupMockFetch();
 
-      const client = await journey({ config: mockConfig });
+      const client = (await journey({ config: mockConfig })) as JourneyClient;
       const resumeUrl = 'https://app.com/callback?code=123&state=abc';
 
       await expect(client.resume(resumeUrl)).rejects.toThrow(
@@ -399,7 +399,7 @@ describe('journey-client', () => {
       const mockStepResponse: Step = { authId: 'test-auth-id', callbacks: [] };
       setupMockFetch(mockStepResponse);
 
-      const client = await journey({ config: mockConfig });
+      const client = (await journey({ config: mockConfig })) as JourneyClient;
       const resumeUrl = 'https://app.com/callback?foo=bar';
       const step = await client.resume(resumeUrl, {});
 
@@ -419,7 +419,7 @@ describe('journey-client', () => {
   test('start_NoDataFromServer_ReturnsGenericError', async () => {
     setupMockFetch(null);
 
-    const client = await journey({ config: mockConfig });
+    const client = (await journey({ config: mockConfig })) as JourneyClient;
     const result = await client.start();
 
     expect(isGenericError(result)).toBe(true);
@@ -453,7 +453,7 @@ describe('journey-client', () => {
         return Promise.resolve(new Response(JSON.stringify(mockStepResponse)));
       });
 
-      const client = await journey({ config: localhostConfig });
+      const client = (await journey({ config: localhostConfig })) as JourneyClient;
       await client.start();
 
       expect(mockFetch).toHaveBeenCalledTimes(2);
@@ -553,7 +553,7 @@ describe('journey-client', () => {
         return Promise.resolve(new Response(JSON.stringify(mockStepResponse)));
       });
 
-      const client = await journey({ config: alphaConfig });
+      const client = (await journey({ config: alphaConfig })) as JourneyClient;
       await client.start();
 
       const request = mockFetch.mock.calls[1][0] as Request;

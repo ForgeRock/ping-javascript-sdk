@@ -23,6 +23,7 @@ import { PolicyKey } from '@forgerock/sdk-types';
 import { PolicyParams } from '@forgerock/sdk-types';
 import { PolicyRequirement } from '@forgerock/sdk-types';
 import { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
 import { Step } from '@forgerock/sdk-types';
 import { StepDetail } from '@forgerock/sdk-types';
 import { StepType } from '@forgerock/sdk-types';
@@ -184,7 +185,11 @@ export function journey<ActionType extends ActionTypes = ActionTypes>(input: {
         level: LogLevel;
         custom?: CustomLogger;
     };
-}): Promise<JourneyClient>;
+    store?: unknown;
+}): Promise<JourneyClient | {
+    error: string;
+    type: 'argument_error';
+}>;
 
 // @public
 export interface JourneyClient {
@@ -196,6 +201,8 @@ export interface JourneyClient {
     resume: (url: string, options?: ResumeOptions) => Promise<JourneyResult>;
     // (undocumented)
     start: (options?: StartParam) => Promise<JourneyResult>;
+    // (undocumented)
+    store: SdkStore;
     // (undocumented)
     subscribe: (listener: () => void) => () => void;
     // (undocumented)

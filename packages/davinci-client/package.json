@@ -30,6 +30,7 @@
     "@forgerock/sdk-logger": "workspace:*",
     "@forgerock/sdk-oidc": "workspace:*",
     "@forgerock/sdk-request-middleware": "workspace:*",
+    "@forgerock/sdk-store": "workspace:*",
     "@forgerock/sdk-types": "workspace:*",
     "@forgerock/sdk-utilities": "workspace:*",
     "@forgerock/storage": "workspace:*",
