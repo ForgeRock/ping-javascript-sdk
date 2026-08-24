@@ -92,7 +92,10 @@ export async function deleteWebAuthnDevice(config: JourneyClientConfig): Promise
     return 'No credential id found. Register a WebAuthn device first.';
   }
 
-  const wellknown = config.serverConfig.wellknown;
+  const wellknown = 'wellknown' in config.serverConfig ? config.serverConfig.wellknown : undefined;
+  if (!wellknown) {
+    throw new Error('serverConfig.wellknown is required to delete a WebAuthn device.');
+  }
   const baseUrl = getBaseUrlFromWellknown(wellknown);
   const realmUrlPath = getRealmUrlPathFromWellknown(wellknown);
   const userId = await getUserIdFromSession(baseUrl, realmUrlPath);
