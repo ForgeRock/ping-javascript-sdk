@@ -10,8 +10,8 @@ import { asyncEvents } from './utils/async-events.js';
 const username = 'JSFidoUser@user.com';
 const password = 'FakePassword#123';
 
-const clientId = '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0';
-const policyId = '3eff62cf953372519225d375fd200358';
+const clientId = '9c1d9655-7d1b-46f3-a96d-345690259d2a';
+const policyId = '4b6008f10ba174dd3ce3ab60c5b81d7e';
 
 test.use({ browserName: 'chromium' }); // ensure CDP/WebAuthn is available
 test.describe.configure({ mode: 'serial' });

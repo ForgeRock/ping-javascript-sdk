@@ -58,8 +58,8 @@ const loggerFn = {
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
 
-const config: DaVinciConfig =
-  serverConfigs[searchParams.get('clientId') || '724ec718-c41c-4d51-98b0-84a583f450f9'];
+const defaultClientId = '625e45e0-dde5-402e-9bf9-7da1275df03a';
+const config: DaVinciConfig = serverConfigs[searchParams.get('clientId') || defaultClientId];
 
 const logger: { level: 'debug'; custom?: typeof loggerFn } = {
   level: 'debug' as const,
@@ -94,12 +94,16 @@ const urlParams = new URLSearchParams(window.location.search);
     throw new Error(`Failed to initialize oidc client: ${oidcResult.error}`);
   }
   const oidcClient = oidcResult;
-  const protectApi = protect({ envId: '02fb4743-189a-4bc7-9d6c-a919edfe6447' });
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: InternalErrorResponse | NodeStates | undefined;
 
   // Initialize Protect
+  const envId: string = new URL(config.serverConfig.wellknown ?? '').pathname.split('/')[1];
+  if (!envId) {
+    throw new Error('Failed to parse env ID for Protect');
+  }
+  const protectApi = protect({ envId });
   const error = await protectApi.start();
   if (error?.error) {
     console.error('Error starting Protect:', error.error);

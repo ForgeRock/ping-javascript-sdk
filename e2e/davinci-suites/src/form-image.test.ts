@@ -10,9 +10,9 @@ import { asyncEvents } from './utils/async-events.js';
 
 test('Should render image collector in form', async ({ page }) => {
   const { navigate } = asyncEvents(page);
-  await navigate('/?clientId=60de77d5-dd2c-41ef-8c40-f8bb2381a359');
+  await navigate('/?clientId=e4ef2896-8d90-4abd-bf0f-7b8034995927');
 
-  await expect(page.getByText('Select Test Form')).toBeVisible();
+  await expect(page.getByText('Select Form Fields Test Form')).toBeVisible();
   await page.getByRole('button', { name: 'Form Fields' }).click();
 
   await expect(page.getByText('Form Fields Tests')).toBeVisible();

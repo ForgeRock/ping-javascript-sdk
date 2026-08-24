@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -39,6 +39,7 @@ test('Test happy paths on test page', async ({ page }) => {
     if (response.url().includes('/revoke') && response.status() === 200) {
       return true;
     }
+    return false;
   });
   await logoutButton.click();
   await revokeCall;
@@ -46,12 +47,7 @@ test('Test happy paths on test page', async ({ page }) => {
 });
 test('ensure query params passed to start are sent off in authorize call', async ({ page }) => {
   const { navigate } = asyncEvents(page);
-  // Wait for the request to a URL containing '/authorize'
-  const requestPromise = page.waitForRequest((request) => {
-    return request
-      .url()
-      .includes('https://auth.pingone.ca/02fb4743-189a-4bc7-9d6c-a919edfe6447/as/authorize');
-  });
+  const requestPromise = page.waitForRequest('https://auth.pingone.ca/*/as/authorize?*');
   await navigate('/?testParam=123');
 
   // Wait for the request to be made to authorize
@@ -62,7 +58,7 @@ test('ensure query params passed to start are sent off in authorize call', async
   const queryParams = Object.fromEntries(url.searchParams.entries());
 
   expect(queryParams['testParam']).toBe('123');
-  expect(queryParams['client_id']).toBe('724ec718-c41c-4d51-98b0-84a583f450f9');
+  expect(queryParams['client_id']).toBe('625e45e0-dde5-402e-9bf9-7da1275df03a');
   expect(queryParams['response_mode']).toBe('pi.flow');
 
   expect(page.url()).toBe('http://localhost:5829/?testParam=123');
