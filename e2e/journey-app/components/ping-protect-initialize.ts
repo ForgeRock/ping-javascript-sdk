@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -43,19 +43,8 @@ export default function pingProtectInitializeComponent(
       const config = callback.getConfig();
       console.log('Protect callback config:', config);
 
-      if (!config?.envId) {
-        const error = 'Missing envId in Protect configuration';
-        console.error(error);
-        callback.setClientError(error);
-        message.innerText = `Initialization failed: ${error}`;
-        message.style.color = 'red';
-        return;
-      }
-
-      console.log('Initializing Protect with envId:', config.envId);
-
       // Create and store protect instance
-      protectInstance = protect({ envId: config.envId });
+      protectInstance = protect(config);
       console.log('Protect instance created');
 
       // Initialize the Protect SDK
