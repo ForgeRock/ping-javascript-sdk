@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+
 import {
   callbackType,
   journey,
@@ -6,7 +13,6 @@ import {
   PingOneRecognizeCallback,
 } from '@forgerock/journey-client';
 import { recognize } from '@forgerock/recognize';
-import './styles.css';
 
 const appEl = document.getElementById('app') as HTMLDivElement;
 appEl.style.cssText = 'display:flex;gap:1.5rem;align-items:flex-start;';
@@ -100,15 +106,13 @@ function promptCredentials(): Promise<{ username: string; password: string }> {
 
     if (recognizeCallback) {
       log(`[step] got PingOneRecognizeCallback — op: ${recognizeCallback.getOperationType()}`);
-      log(`[config] ${JSON.stringify(recognizeCallback.getWebSDKConfig())}`);
 
-      const config = recognizeCallback.getWebSDKConfig();
       const operationType = recognizeCallback.getOperationType();
+      const serviceURL = recognizeCallback.getServiceURL();
 
-      const serviceURL = config.ws.url
-        .replace(/^wss:\/\//, 'https://')
-        .replace(/^ws:\/\//, 'http://');
-
+      log(`[config] serviceURL: ${serviceURL}`);
+      log(`[config] customer: ${recognizeCallback.getCustomerName()}`);
+      log(`[config] username: ${recognizeCallback.getUsername()}`);
       log(`[options] webSDKOptions from server: ${JSON.stringify(recognizeCallback.getOptions())}`);
 
       const client = recognize({
