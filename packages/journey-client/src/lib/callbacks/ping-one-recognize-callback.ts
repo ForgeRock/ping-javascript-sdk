@@ -11,14 +11,6 @@ import { BaseCallback } from './base-callback.js';
 
 export type PingOneRecognizeOperationType = 'ENROLL' | 'AUTHENTICATE';
 
-export interface PingOneRecognizeWebSDKConfig {
-  customer: { name: string };
-  transaction: { data: string };
-  username: string;
-  ws: { url: string };
-  [key: string]: unknown;
-}
-
 /**
  * @class - Represents a callback used to perform PingOne Recognize (Keyless) biometric operations.
  */
@@ -49,16 +41,6 @@ export class PingOneRecognizeCallback extends BaseCallback {
 
   public getOptions(): Record<string, unknown> {
     return this.getOutputByName<Record<string, unknown>>('webSDKOptions', {});
-  }
-
-  public getWebSDKConfig(): PingOneRecognizeWebSDKConfig {
-    return {
-      customer: { name: this.getCustomerName() },
-      transaction: { data: this.getTransactionData() },
-      username: this.getUsername(),
-      ws: { url: this.getServiceURL() },
-      ...this.getOptions(),
-    };
   }
 
   public setSignedJwt(jwt: string): void {
