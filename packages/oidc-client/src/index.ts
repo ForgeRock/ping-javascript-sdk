@@ -6,3 +6,6 @@
  */
 export { oidc } from './lib/client.store.js';
 export * from './types.js';
+
+// Re-export necessary helpers
+export { makeOidcConfig } from '@forgerock/sdk-utilities';

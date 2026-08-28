@@ -18,6 +18,7 @@ import { isValidWellknownUrl } from '@forgerock/sdk-utilities';
 import { JourneyClientConfig } from '@forgerock/sdk-types';
 import { JourneyServerConfig } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
+import { makeJourneyConfig } from '@forgerock/sdk-utilities';
 import { NameValue } from '@forgerock/sdk-types';
 import { PolicyKey } from '@forgerock/sdk-types';
 import { PolicyParams } from '@forgerock/sdk-types';
@@ -257,6 +258,8 @@ export class KbaCreateCallback extends BaseCallback {
 }
 
 export { LogLevel }
+
+export { makeJourneyConfig }
 
 // @public (undocumented)
 export interface MessageCreator {
