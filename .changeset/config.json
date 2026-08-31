@@ -17,6 +17,7 @@
     "@forgerock/pingone-scripts",
     "@forgerock/device-client-app",
     "@forgerock/davinci-app",
+    "@forgerock/recognize",
     "@forgerock/davinci-suites",
     "@forgerock/api-report",
     "@forgerock/interface-mapping-validator",
