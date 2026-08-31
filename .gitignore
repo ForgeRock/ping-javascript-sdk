@@ -1,5 +1,6 @@
 # OS files
 .DS_Store
+.devenv/*
 */DS_Store
 **/*.DS_Store
 .pnpm-store/*
