@@ -17,6 +17,7 @@ concurrency:
 jobs:
   block-merge-label:
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Fail if "Do not merge" label present
         env:
