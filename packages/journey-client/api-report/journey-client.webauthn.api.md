@@ -104,7 +104,7 @@ export abstract class WebAuthn {
     static getRegistrationOutcome(credential: PublicKeyCredential | null): OutcomeWithName<string, AttestationType, PublicKeyCredential>;
     static getTextOutputCallback(step: JourneyStep): TextOutputCallback | undefined;
     static getWebAuthnStepType(step: JourneyStep): WebAuthnStepType;
-    static isConditionalMediationSupported(): Promise<boolean>;
+    static isConditionalMediationSupported(step?: JourneyStep): Promise<boolean>;
     static register<T extends string = ''>(step: JourneyStep, deviceName?: T): Promise<JourneyStep>;
 }
 
