@@ -1,6 +1,7 @@
 name: ForgeRock Pull Request CI
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 env:
   NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
@@ -14,8 +15,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  block-merge-label:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Fail if "Do not merge" label present
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          if echo "$LABELS" | tr '[:upper:]' '[:lower:]' | grep -q '"do not merge"'; then
+            echo "::error::Merge blocked: PR is labeled 'do not merge'."
+            exit 1
+          fi
+
   pr:
-    if: ${{github.event.pull_request.head.repo.full_name == github.repository}}
+    if: ${{github.event.pull_request.head.repo.full_name == github.repository && !contains(fromJSON('["labeled", "unlabeled"]'), github.event.action)}}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
