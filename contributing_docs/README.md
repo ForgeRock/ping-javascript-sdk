@@ -14,6 +14,13 @@
     - [Module Types](./creating-a-package.md#optional-prompts)
   - [Publishing Considerations](./creating-a-package.md#notes)
 
+### Environment Setup
+
+- [Nix Environment](./nix-environment.md#nix-environment)
+  - [What the flake provides](./nix-environment.md#what-the-flake-provides)
+  - [What devenv adds on top](./nix-environment.md#what-devenv-adds-on-top)
+  - [Troubleshooting](./nix-environment.md#troubleshooting)
+
 ### Version Control
 
 - [Git Workflow](./git.md#git)
