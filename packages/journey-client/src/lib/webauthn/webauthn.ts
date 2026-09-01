@@ -66,8 +66,9 @@ type WebAuthnMetadata = WebAuthnAuthenticationMetadata | WebAuthnRegistrationMet
  * Conditional mediation is **server-driven** in this SDK via WebAuthn metadata (`meta.mediation`).
  *
  * ```js
- * // Optional: feature-detect conditional UI before attempting
- * const supportsConditionalUI = await WebAuthn.isConditionalMediationSupported();
+ * // Optional: feature-detect conditional UI before attempting.
+ * // Pass the step to also confirm AM requested conditional mediation.
+ * const supportsConditionalUI = await WebAuthn.isConditionalMediationSupported(step);
  *
  * if (supportsConditionalUI) {
  *   const controller = new AbortController();
@@ -126,14 +127,29 @@ export abstract class WebAuthn {
   /**
    * Determines if the browser supports conditional mediation.
    *
-   * @return Whether the browser supports conditional mediation
+   * When a step is provided, this also checks that the AM server requested
+   * conditional mediation via the WebAuthn metadata (`meta.mediation === 'conditional'`).
+   *
+   * @param step Optional step containing the WebAuthn metadata callback
+   * @return Whether conditional mediation is supported by the browser,
+   *         and requested by AM when a step is provided
    */
-  public static async isConditionalMediationSupported(): Promise<boolean> {
-    return (
+  public static async isConditionalMediationSupported(step?: JourneyStep): Promise<boolean> {
+    const isBrowserSupported =
       typeof PublicKeyCredential !== 'undefined' &&
       typeof PublicKeyCredential.isConditionalMediationAvailable === 'function' &&
-      (await PublicKeyCredential.isConditionalMediationAvailable())
-    );
+      (await PublicKeyCredential.isConditionalMediationAvailable());
+
+    if (!step) {
+      return isBrowserSupported;
+    }
+
+    const metadataCallback = this.getMetadataCallback(step);
+    const meta = metadataCallback?.getOutputValue('data') as
+      | WebAuthnAuthenticationMetadata
+      | undefined;
+
+    return isBrowserSupported && meta?.mediation === 'conditional';
   }
 
   /**
