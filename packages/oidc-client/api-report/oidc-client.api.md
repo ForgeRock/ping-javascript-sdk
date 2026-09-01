@@ -18,6 +18,7 @@ import type { JWTPayload } from 'jose';
 import { logger } from '@forgerock/sdk-logger';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { LogMessage } from '@forgerock/sdk-logger';
+import { makeOidcConfig } from '@forgerock/sdk-utilities';
 import { MutationDefinition } from '@reduxjs/toolkit/query';
 import { OidcConfig } from '@forgerock/sdk-types';
 import { QueryDefinition } from '@reduxjs/toolkit/query';
@@ -259,6 +260,8 @@ export type LogoutErrorResult = {
 export type LogoutSuccessResult = RevokeSuccessResult & {
     sessionResponse: null;
 };
+
+export { makeOidcConfig }
 
 // @public (undocumented)
 export interface OauthTokens {

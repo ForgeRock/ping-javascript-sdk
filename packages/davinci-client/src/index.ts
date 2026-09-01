@@ -8,4 +8,7 @@
 export { davinci } from './lib/client.store.js';
 export { fido } from './lib/fido/fido.js';
 
+// Re-export necessary helpers
+export { makeDavinciConfig } from '@forgerock/sdk-utilities';
+
 export * from './types.js';
