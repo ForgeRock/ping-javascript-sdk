@@ -6,8 +6,11 @@
 
 import { ActionTypes } from '@forgerock/sdk-request-middleware';
 import { BaseQueryFn } from '@reduxjs/toolkit/query';
+import { BrowserStorageConfig } from '@forgerock/storage';
 import { CombinedState } from '@reduxjs/toolkit/query';
 import { CustomLogger } from '@forgerock/sdk-logger';
+import { CustomStorageConfig } from '@forgerock/storage';
+import { CustomStorageObject } from '@forgerock/sdk-types';
 import { EnhancedStore } from '@reduxjs/toolkit';
 import { FetchArgs } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -110,6 +113,8 @@ export interface AuthorizeSuccessResponse {
     // (undocumented)
     status?: string;
 }
+
+export { BrowserStorageConfig }
 
 // @public (undocumented)
 export type BuildAuthorizationData = [string, GetAuthorizationUrlOptions];
@@ -229,6 +234,10 @@ debug: (...args: LogMessage[]) => void;
 }>, StoreEnhancer]>>;
 
 export { CustomLogger }
+
+export { CustomStorageConfig }
+
+export { CustomStorageObject }
 
 export { GenericError }
 
