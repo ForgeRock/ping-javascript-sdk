@@ -28,7 +28,7 @@ jobs:
           fi
 
   pr:
-    if: ${{github.event.pull_request.head.repo.full_name == github.repository}}
+    if: ${{github.event.pull_request.head.repo.full_name == github.repository && !contains(fromJSON('["labeled", "unlabeled"]'), github.event.action)}}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
