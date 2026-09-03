@@ -21,10 +21,10 @@
   "types": "./dist/src/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "pnpm nx nxBuild",
-    "lint": "pnpm nx nxLint",
-    "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch"
+    "build": "cd ../.. && pnpm nx run @forgerock/oidc-client:nxBuild",
+    "lint": "cd ../.. && pnpm nx run @forgerock/oidc-client:nxLint",
+    "test": "cd ../.. && pnpm nx run @forgerock/oidc-client:nxTest",
+    "test:watch": "cd ../.. && pnpm nx run @forgerock/oidc-client:nxTest --watch"
   },
   "dependencies": {
     "@forgerock/iframe-manager": "workspace:*",

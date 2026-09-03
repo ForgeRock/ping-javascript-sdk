@@ -24,9 +24,9 @@
   "module": "./dist/src/index.js",
   "files": ["dist"],
   "scripts": {
-    "lint": "pnpm nx nxLint",
-    "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch"
+    "lint": "cd ../.. && pnpm nx run @forgerock/protect:nxLint",
+    "test": "cd ../.. && pnpm nx run @forgerock/protect:nxTest",
+    "test:watch": "cd ../.. && pnpm nx run @forgerock/protect:nxTest --watch"
   },
   "dependencies": {},
   "publishConfig": {

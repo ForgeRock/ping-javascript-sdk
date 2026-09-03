@@ -25,10 +25,10 @@
   "types": "./dist/src/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "pnpm nx nxBuild",
-    "lint": "pnpm nx nxLint",
-    "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch"
+    "build": "cd ../../.. && pnpm nx run @forgerock/sdk-oidc:nxBuild",
+    "lint": "cd ../../.. && pnpm nx run @forgerock/sdk-oidc:nxLint",
+    "test": "cd ../../.. && pnpm nx run @forgerock/sdk-oidc:nxTest",
+    "test:watch": "cd ../../.. && pnpm nx run @forgerock/sdk-oidc:nxTest --watch"
   },
   "dependencies": {
     "@forgerock/sdk-types": "workspace:*",

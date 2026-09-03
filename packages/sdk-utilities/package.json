@@ -34,10 +34,10 @@
   "module": "./dist/src/index.js",
   "files": ["dist"],
   "scripts": {
-    "build": "pnpm nx nxBuild",
-    "lint": "pnpm nx nxLint",
-    "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch"
+    "build": "cd ../.. && pnpm nx run @forgerock/sdk-utilities:nxBuild",
+    "lint": "cd ../.. && pnpm nx run @forgerock/sdk-utilities:nxLint",
+    "test": "cd ../.. && pnpm nx run @forgerock/sdk-utilities:nxTest",
+    "test:watch": "cd ../.. && pnpm nx run @forgerock/sdk-utilities:nxTest --watch"
   },
   "dependencies": {
     "@forgerock/sdk-types": "workspace:*",

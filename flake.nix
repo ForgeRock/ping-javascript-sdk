@@ -36,8 +36,9 @@
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
               nodejs_24
-              # package.json pins pnpm@10.21.0; nixpkgs provides 10.34.5 (latest pnpm_10)
-              pkgs.pnpm_10
+              # corepack resolves pnpm from package.json packageManager pin (10.21.0),
+              # keeping nix and repo pnpm versions in lockstep
+              pkgs.corepack
               git
               nixpkgs-fmt
               nil

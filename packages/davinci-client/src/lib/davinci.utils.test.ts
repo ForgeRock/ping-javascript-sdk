@@ -12,7 +12,7 @@ import { handleResponse, transformSubmitRequest, transformActionRequest } from '
 
 import type { ContinueNode } from './node.types.d.ts';
 import { next0 } from './mock-data/davinci.next.mock.js';
-import { DaVinciCacheEntry } from './davinci.types.js';
+import type { DaVinciCacheEntry } from './davinci.types.js';
 import { error0a, error3 } from './mock-data/davinci.error.mock.js';
 import { success0 } from './mock-data/davinci.success.mock.js';
 
