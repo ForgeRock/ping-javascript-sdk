@@ -76,7 +76,7 @@ overrides:
   '@opentelemetry/core': ^2.8.0
   brace-expansion@<2: ~1.1.15
   brace-expansion@>=2 <3: ~2.1.1
-  brace-expansion@>=3 <4: ~3.0.2
+  brace-expansion@>=3 <4: ~5.0.0
   brace-expansion@>=4: ~5.0.8
   ws: ^8.21.1
   undici: ^7.29.0
@@ -4988,6 +4988,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
