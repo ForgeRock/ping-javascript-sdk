@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "pnpm nx nxBuild",
-    "lint": "pnpm nx nxLint",
-    "preview": "pnpm nx nxPreview",
-    "serve": "pnpm nx nxServe"
+    "build": "cd ../.. && pnpm nx run @forgerock/oidc-app:nxBuild",
+    "lint": "cd ../.. && pnpm nx run @forgerock/oidc-app:nxLint",
+    "preview": "cd ../.. && pnpm nx run @forgerock/oidc-app:nxPreview",
+    "serve": "cd ../.. && pnpm nx run @forgerock/oidc-app:nxServe"
   },
   "dependencies": {
     "@forgerock/oidc-client": "workspace:*"

@@ -21,10 +21,10 @@
   "typings": "./dist/src/index.d.ts",
   "files": ["dist", "!dist/tsconfig.lib.tsbuildinfo"],
   "scripts": {
-    "build": "pnpm nx nxBuild",
-    "lint": "pnpm nx nxLint",
-    "test": "pnpm nx nxTest",
-    "test:watch": "pnpm nx nxTest --watch"
+    "build": "cd ../.. && pnpm nx run @forgerock/davinci-client:nxBuild",
+    "lint": "cd ../.. && pnpm nx run @forgerock/davinci-client:nxLint",
+    "test": "cd ../.. && pnpm nx run @forgerock/davinci-client:nxTest",
+    "test:watch": "cd ../.. && pnpm nx run @forgerock/davinci-client:nxTest --watch"
   },
   "dependencies": {
     "@forgerock/sdk-logger": "workspace:*",

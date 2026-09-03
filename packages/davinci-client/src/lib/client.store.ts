@@ -17,10 +17,9 @@ import {
   createInternalError,
   handleUpdateValidateError,
   isValidCollectorCategory,
-  resolveCollectorUpdateValue,
-  toSdkStore,
-  type RootState,
 } from './client.store.utils.js';
+import { toSdkStore, type RootState } from './client.store.utils.js';
+import { resolveCollectorUpdateValue } from './collector.validation.js';
 import { pollingµ, getPollingModeµ, type PollingMode } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';

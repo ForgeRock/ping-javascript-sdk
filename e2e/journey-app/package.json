@@ -5,10 +5,10 @@
   "description": "Ping Journey Client Test App",
   "type": "module",
   "scripts": {
-    "build": "pnpm nx nxBuild",
-    "lint": "pnpm nx nxLint",
-    "preview": "pnpm nx nxPreview",
-    "serve": "pnpm nx nxServe"
+    "build": "cd ../.. && pnpm nx run @forgerock/journey-app:nxBuild",
+    "lint": "cd ../.. && pnpm nx run @forgerock/journey-app:nxLint",
+    "preview": "cd ../.. && pnpm nx run @forgerock/journey-app:nxPreview",
+    "serve": "cd ../.. && pnpm nx run @forgerock/journey-app:nxServe"
   },
   "dependencies": {
     "@forgerock/journey-client": "workspace:*",

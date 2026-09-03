@@ -6,11 +6,11 @@
   "type": "module",
   "main": "./src/main.js",
   "scripts": {
-    "build": "pnpm nx build",
+    "build": "cd ../.. && pnpm nx run @forgerock/mock-api-v2:build",
     "dev": "node dist/src/main.js --watch-path=./",
-    "lint": "pnpm nx nxLint",
+    "lint": "cd ../.. && pnpm nx run @forgerock/mock-api-v2:nxLint",
     "serve": "node dist/src/main.js",
-    "test": "pnpm nx nxTest"
+    "test": "cd ../.. && pnpm nx run @forgerock/mock-api-v2:nxTest"
   },
   "dependencies": {
     "@effect/language-service": "catalog:effect",
