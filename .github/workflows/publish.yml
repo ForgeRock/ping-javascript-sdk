@@ -54,7 +54,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: publish
-        uses: changesets/action@v1
+        uses: changesets/action@v2.1.1
         id: changesets
         with:
           publish: pnpm ci:release
