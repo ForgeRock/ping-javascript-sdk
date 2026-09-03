@@ -38,7 +38,7 @@ jobs:
 
       # Restore-only cache to avoid save attempts/noise on forks
       - name: Restore Playwright browsers cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
