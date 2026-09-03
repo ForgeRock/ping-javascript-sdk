@@ -53,7 +53,7 @@ runs:
       shell: bash
 
     - name: Set Nx SHAs
-      uses: nrwl/nx-set-shas@v4
+      uses: nrwl/nx-set-shas@v5
 
     - name: Check TS References are Synced
       shell: bash
