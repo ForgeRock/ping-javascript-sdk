@@ -138,7 +138,7 @@
       "fast-uri": "^3.1.6",
       "qs": "^6.16.0",
       "@opentelemetry/core": "^2.8.0",
-      "brace-expansion@<2": "~1.1.15",
+      "brace-expansion@<2": "~2.1.2",
       "brace-expansion@>=2 <3": "~2.1.1",
       "brace-expansion@>=3 <4": "~3.0.2",
       "brace-expansion@>=4": "~5.0.8",
