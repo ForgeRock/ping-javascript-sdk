@@ -1,5 +1,13 @@
 # @forgerock/sdk-oidc
 
+## 2.2.0
+
+### Patch Changes
+
+- Updated dependencies [[`1c154dd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1c154dd117895ec7bbf26d7c6e0ba89b8d47161f)]:
+  - @forgerock/sdk-utilities@2.2.0
+  - @forgerock/sdk-types@2.2.0
+
 ## 2.1.1
 
 ### Patch Changes
