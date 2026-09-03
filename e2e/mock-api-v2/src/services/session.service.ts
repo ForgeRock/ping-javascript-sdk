@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Context, Effect } from 'effect';
 import { nanoid } from 'nanoid';
 
 export type SessionData = {
@@ -9,98 +9,104 @@ export type SessionData = {
 };
 
 export interface SessionStorageApi {
-  createSession: (data: SessionData) => Effect.Effect<string, Error, never>;
-  getSession: (sessionId: string) => Effect.Effect<SessionData | null, Error, never>;
-  deleteSession: (sessionId: string) => Effect.Effect<void, Error, never>;
-  updateSession: (sessionId: string, data: SessionData) => Effect.Effect<void, Error, never>;
-  refreshSession: (sessionId: string, expiryDate?: Date) => Effect.Effect<void, Error, never>;
+  createSession: (data: SessionData) => Effect.Effect<SessionData, never, never>;
+  getSession: (sessionId: string) => Effect.Effect<SessionData | null, never, never>;
+  deleteSession: (sessionId: string) => Effect.Effect<undefined, never, never>;
+  updateSession: (
+    sessionId: string,
+    data: SessionData,
+  ) => Effect.Effect<SessionData | Error, never, never>;
+  refreshSession: (sessionId: string, expiryDate?: Date) => Effect.Effect<unknown, never, never>;
   isSessionExpired: (sessionData: SessionData) => boolean;
-  cleanupExpiredSessions: () => Effect.Effect<void, never, never>;
+  cleanupExpiredSessions: () => Effect.Effect<undefined, never, never>;
 }
 
-export class SessionStorage extends Effect.Service<SessionStorage>()('SessionStorage', {
-  sync: () => {
-    // In-memory session store
-    const _store = new Map<string, SessionData>();
+export class SessionStorage extends Context.Service<SessionStorage, SessionStorageApi>()(
+  'SessionStorage',
+  {
+    make: Effect.sync(() => {
+      // In-memory session store
+      const _store = new Map<string, SessionData>();
 
-    // Check if a session is expired
-    const isSessionExpired = (sessionData: SessionData): boolean => {
-      const now = new Date();
-      return sessionData.expiresAt < now;
-    };
+      // Check if a session is expired
+      const isSessionExpired = (sessionData: SessionData): boolean => {
+        const now = new Date();
+        return sessionData.expiresAt < now;
+      };
 
-    return {
-      createSession: Effect.fn('CreateSessionMiddleware')(function* (data: SessionData) {
-        const sessionId = nanoid();
-        _store.set(sessionId, data);
-        return data;
-      }),
+      return {
+        createSession: Effect.fn('CreateSessionMiddleware')(function* (data: SessionData) {
+          const sessionId = nanoid();
+          _store.set(sessionId, data);
+          return data;
+        }),
 
-      getSession: Effect.fn('GetSessionMiddleware')(function* (sessionId: string) {
-        const session = _store.get(sessionId);
+        getSession: Effect.fn('GetSessionMiddleware')(function* (sessionId: string) {
+          const session = _store.get(sessionId);
 
-        if (!session) {
-          return null;
-        }
+          if (!session) {
+            return null;
+          }
 
-        // Check if session is expired
-        if (isSessionExpired(session)) {
-          _store.delete(sessionId);
-          return null;
-        }
-
-        return session;
-      }),
-
-      deleteSession: Effect.fn('DeleteSessionMiddleware')(function* (sessionId: string) {
-        _store.delete(sessionId);
-        return undefined;
-      }),
-
-      updateSession: Effect.fn('UpdateSessionMiddleware')(function* (
-        sessionId: string,
-        data: SessionData,
-      ) {
-        if (!_store.has(sessionId)) {
-          return new Error('Session not found');
-        }
-        _store.set(sessionId, data);
-        return data;
-      }),
-
-      refreshSession: Effect.fn('RefreshSessionMiddleware')(function* (
-        sessionId: string,
-        expiryDate?: Date,
-      ) {
-        const session = _store.get(sessionId);
-
-        if (!session) {
-          return Effect.fail(new Error('Session not found'));
-        }
-
-        if (isSessionExpired(session)) {
-          _store.delete(sessionId);
-          return new Error('Session has expired');
-        }
-
-        // Update expiry date
-        const newExpiryDate = expiryDate || new Date(Date.now() + 24 * 60 * 60 * 1000); // Default: 24 hours from now
-        session.expiresAt = newExpiryDate;
-        _store.set(sessionId, session);
-
-        return session.data;
-      }),
-
-      isSessionExpired,
-
-      cleanupExpiredSessions: Effect.fn('CleanupExpiredSessionsMiddleware')(function* () {
-        for (const [sessionId, session] of _store.entries()) {
+          // Check if session is expired
           if (isSessionExpired(session)) {
             _store.delete(sessionId);
+            return null;
           }
-        }
-        return undefined;
-      }),
-    };
+
+          return session;
+        }),
+
+        deleteSession: Effect.fn('DeleteSessionMiddleware')(function* (sessionId: string) {
+          _store.delete(sessionId);
+          return undefined;
+        }),
+
+        updateSession: Effect.fn('UpdateSessionMiddleware')(function* (
+          sessionId: string,
+          data: SessionData,
+        ) {
+          if (!_store.has(sessionId)) {
+            return new Error('Session not found');
+          }
+          _store.set(sessionId, data);
+          return data;
+        }),
+
+        refreshSession: Effect.fn('RefreshSessionMiddleware')(function* (
+          sessionId: string,
+          expiryDate?: Date,
+        ) {
+          const session = _store.get(sessionId);
+
+          if (!session) {
+            return Effect.fail(new Error('Session not found'));
+          }
+
+          if (isSessionExpired(session)) {
+            _store.delete(sessionId);
+            return new Error('Session has expired');
+          }
+
+          // Update expiry date
+          const newExpiryDate = expiryDate || new Date(Date.now() + 24 * 60 * 60 * 1000); // Default: 24 hours from now
+          session.expiresAt = newExpiryDate;
+          _store.set(sessionId, session);
+
+          return session.data;
+        }),
+
+        isSessionExpired,
+
+        cleanupExpiredSessions: Effect.fn('CleanupExpiredSessionsMiddleware')(function* () {
+          for (const [sessionId, session] of _store.entries()) {
+            if (isSessionExpired(session)) {
+              _store.delete(sessionId);
+            }
+          }
+          return undefined;
+        }),
+      };
+    }),
   },
-}) {}
+) {}

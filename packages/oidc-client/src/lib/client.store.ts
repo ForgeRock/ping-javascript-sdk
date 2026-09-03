@@ -7,21 +7,20 @@
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 import { createStorage } from '@forgerock/storage';
-import { Micro } from 'effect';
-import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { Cause, Effect, Exit, Option } from 'effect';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
-import { createClientStore, createTokenError } from './client.store.utils.js';
-import { handleMicroExit } from '@forgerock/sdk-utilities';
+import { createClientStore, createTokenError, injectIntoStore } from './client.store.utils.js';
+import { handleExit } from '@forgerock/sdk-utilities';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import { wellknownApi, wellknownSelector } from './wellknown.api.js';
+import { wellknownApi, wellknownSelector } from '@forgerock/sdk-wellknown';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { GenericError, GetAuthorizationUrlOptions, SdkStore } from '@forgerock/sdk-types';
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { StorageConfig } from '@forgerock/storage';
 
@@ -51,20 +50,23 @@ import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.j
  * @param {Partial<StorageConfig>} param.storage - optional storage configuration for persisting OIDC tokens.
  * @returns {ReturnType<typeof oidc>} - Returns an object with methods for authorization, token exchange, user info retrieval, and logout.
  */
-export async function oidc<ActionType extends ActionTypes = ActionTypes>({
-  config,
-  requestMiddleware,
-  logger,
-  storage,
-}: {
-  config: OidcConfig;
-  requestMiddleware?: RequestMiddleware<ActionType>[];
-  logger?: {
-    level: LogLevel;
-    custom?: CustomLogger;
-  };
-  storage?: Partial<StorageConfig>;
-}) {
+export async function oidc<ActionType extends ActionTypes = ActionTypes>(
+  {
+    config,
+    requestMiddleware,
+    logger,
+    storage,
+  }: {
+    config: OidcConfig;
+    requestMiddleware?: RequestMiddleware<ActionType>[];
+    logger?: {
+      level: LogLevel;
+      custom?: CustomLogger;
+    };
+    storage?: Partial<StorageConfig>;
+  },
+  sharedStore?: SdkStore,
+) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
@@ -76,7 +78,15 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
     prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
-  const store = createClientStore({ requestMiddleware, logger: log });
+  if (sharedStore && requestMiddleware?.length) {
+    log.warn(
+      '`requestMiddleware` is ignored when a `sharedStore` is provided. ' +
+        'Pass request middleware to the davinci() or journey() factory that owns the store.',
+    );
+  }
+  const store = sharedStore
+    ? injectIntoStore(sharedStore)
+    : createClientStore({ requestMiddleware, logger: log });
 
   if (!config?.serverConfig?.wellknown) {
     return {
@@ -140,34 +150,37 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         if (useParFlow) {
-          const result = await Micro.runPromiseExit(
+          const result = await Effect.runPromiseExit(
             createParAuthorizeUrlµ(wellknown, config, log, store, options).pipe(
-              Micro.tapError((err) =>
-                Micro.sync(() =>
+              Effect.tapError((err) =>
+                Effect.sync(() =>
                   log.error(`PAR authorize.url() failed [${err.type}]: ${err.error}`, err),
                 ),
               ),
             ),
           );
 
-          if (exitIsSuccess(result)) {
+          if (Exit.isSuccess(result)) {
             return result.value;
-          } else if (exitIsFail(result)) {
-            const authErr = result.cause.error;
+          }
+          const authUrlFailure = Cause.findErrorOption(result.cause);
+          if (Option.isSome(authUrlFailure)) {
+            const authErr = authUrlFailure.value;
             return {
               error: authErr.error,
               message: authErr.error_description,
               type: authErr.type,
             };
-          } else {
-            const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-            return {
-              error: 'PAR authorization failure',
-              message:
-                defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-              type: 'auth_error',
-            };
           }
+          const authUrlDefect = Cause.squash(result.cause);
+          return {
+            error: 'PAR authorization failure',
+            message:
+              authUrlDefect instanceof Error
+                ? authUrlDefect.message
+                : String(authUrlDefect ?? 'Unknown defect'),
+            type: 'auth_error',
+          };
         }
 
         const optionsWithDefaults = {
@@ -207,7 +220,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
-        const result = await Micro.runPromiseExit(
+        const result = await Effect.runPromiseExit(
           authorizeµ(
             wellknown,
             config,
@@ -218,19 +231,22 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           ),
         );
 
-        if (exitIsSuccess(result)) {
+        if (Exit.isSuccess(result)) {
           return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-          return {
-            error: 'Authorization failure',
-            error_description:
-              defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-            type: 'auth_error',
-          };
         }
+        const bgAuthFailure = Cause.findErrorOption(result.cause);
+        if (Option.isSome(bgAuthFailure)) {
+          return bgAuthFailure.value;
+        }
+        const bgAuthDefect = Cause.squash(result.cause);
+        return {
+          error: 'Authorization failure',
+          error_description:
+            bgAuthDefect instanceof Error
+              ? bgAuthDefect.message
+              : String(bgAuthDefect ?? 'Unknown defect'),
+          type: 'auth_error',
+        };
       },
     },
     /**
@@ -269,14 +285,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           endpoint: wellknown.token_endpoint,
           store,
           options,
-        }).pipe(
-          Micro.tap(async (tokens) => {
-            await storageClient.set(tokens);
-          }),
-        );
+        }).pipe(Effect.tap((tokens) => Effect.promise(() => storageClient.set(tokens))));
 
-        const result = await Micro.runPromiseExit(getTokensµ);
-        return handleMicroExit(result, 'Token Exchange failure', 'exchange_error');
+        const result = await Effect.runPromiseExit(getTokensµ);
+        return handleExit(result, 'Token Exchange failure', 'exchange_error');
       },
 
       /**
@@ -338,47 +350,54 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           { ...(authorizeOptions ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
           useParFlow,
         ).pipe(
-          Micro.flatMap((response): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> => {
-            return buildTokenExchangeµ({
-              code: response.code,
-              config,
-              log,
-              state: response.state,
-              endpoint: wellknown.token_endpoint,
-              store,
-              options: storageOptions,
-            });
-          }),
-          Micro.tap(async (newTokens) => {
-            if (tokens && 'accessToken' in tokens) {
-              await store.dispatch(
-                oidcApi.endpoints.revoke.initiate({
-                  accessToken: tokens.accessToken,
-                  clientId: config.clientId,
-                  endpoint: wellknown.revocation_endpoint,
-                }),
-              );
-              await storageClient.remove();
-            }
-            await storageClient.set(newTokens);
-          }),
+          Effect.flatMap(
+            (response): Effect.Effect<OauthTokens, TokenExchangeErrorResponse, never> => {
+              return buildTokenExchangeµ({
+                code: response.code,
+                config,
+                log,
+                state: response.state,
+                endpoint: wellknown.token_endpoint,
+                store,
+                options: storageOptions,
+              });
+            },
+          ),
+          Effect.tap((newTokens) =>
+            Effect.promise(async () => {
+              if (tokens && 'accessToken' in tokens) {
+                await store.dispatch(
+                  oidcApi.endpoints.revoke.initiate({
+                    accessToken: tokens.accessToken,
+                    clientId: config.clientId,
+                    endpoint: wellknown.revocation_endpoint,
+                  }),
+                );
+                await storageClient.remove();
+              }
+              await storageClient.set(newTokens);
+            }),
+          ),
         );
 
-        const result = await Micro.runPromiseExit(attemptAuthorizeGetTokensµ);
+        const result = await Effect.runPromiseExit(attemptAuthorizeGetTokensµ);
 
-        if (exitIsSuccess(result)) {
+        if (Exit.isSuccess(result)) {
           return result.value;
-        } else if (exitIsFail(result)) {
-          return result.cause.error;
-        } else {
-          const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
-          return {
-            error: 'Background token renewal failed',
-            error_description:
-              defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),
-            type: 'auth_error',
-          };
         }
+        const tokenGetFailure = Cause.findErrorOption(result.cause);
+        if (Option.isSome(tokenGetFailure)) {
+          return tokenGetFailure.value;
+        }
+        const tokenGetDefect = Cause.squash(result.cause);
+        return {
+          error: 'Background token renewal failed',
+          error_description:
+            tokenGetDefect instanceof Error
+              ? tokenGetDefect.message
+              : String(tokenGetDefect ?? 'Unknown defect'),
+          type: 'auth_error',
+        };
       },
       /**
        * @method revoke
@@ -406,7 +425,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
-        const revokeµ = Micro.promise(() =>
+        const revokeµ = Effect.promise(() =>
           store.dispatch(
             oidcApi.endpoints.revoke.initiate({
               accessToken: tokens.accessToken,
@@ -415,7 +434,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             }),
           ),
         ).pipe(
-          Micro.map(({ error }) => {
+          Effect.map(({ error }) => {
             if (error) {
               let message = 'An error occurred while revoking the token';
               let status: number | string = 'unknown';
@@ -436,9 +455,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             return null;
           }),
           // Delete local token and return combined results
-          Micro.flatMap((revokeResponse) =>
-            Micro.promise(() => storageClient.remove()).pipe(
-              Micro.flatMap((deleteResponse) => {
+          Effect.flatMap((revokeResponse) =>
+            Effect.promise(() => storageClient.remove()).pipe(
+              Effect.flatMap((deleteResponse) => {
                 const isInnerRequestError =
                   (revokeResponse && 'error' in revokeResponse) ||
                   (deleteResponse && 'error' in deleteResponse);
@@ -449,21 +468,21 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
                     revokeResponse,
                     deleteResponse,
                   };
-                  return Micro.fail(result);
+                  return Effect.fail(result);
                 } else {
                   const result: RevokeSuccessResult = {
                     revokeResponse: null,
                     deleteResponse: null,
                   };
-                  return Micro.succeed(result);
+                  return Effect.succeed(result);
                 }
               }),
             ),
           ),
         );
 
-        const result = await Micro.runPromiseExit(revokeµ);
-        return handleMicroExit(result, 'Token revocation failure', 'auth_error');
+        const result = await Effect.runPromiseExit(revokeµ);
+        return handleExit(result, 'Token revocation failure', 'auth_error');
       },
     },
 
@@ -497,7 +516,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
-        const info = Micro.promise(() =>
+        const info = Effect.promise(() =>
           store.dispatch(
             oidcApi.endpoints.userInfo.initiate({
               accessToken: tokens.accessToken,
@@ -505,7 +524,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             }),
           ),
         ).pipe(
-          Micro.flatMap(({ data, error }) => {
+          Effect.flatMap(({ data, error }) => {
             if (error) {
               let message = 'An error occurred while fetching user info';
               let status: number | string = 'unknown';
@@ -515,19 +534,19 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
               if ('status' in error) {
                 status = error.status;
               }
-              return Micro.fail({
+              return Effect.fail({
                 error: 'User Info retrieval failure',
                 message,
                 type: 'auth_error',
                 status,
               } as const);
             }
-            return Micro.succeed(data);
+            return Effect.succeed(data);
           }),
         );
 
-        const result = await Micro.runPromiseExit(info);
-        return handleMicroExit(result, 'User Info retrieval failure', 'auth_error');
+        const result = await Effect.runPromiseExit(info);
+        return handleExit(result, 'User Info retrieval failure', 'auth_error');
       },
 
       /**
@@ -568,10 +587,10 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           return createTokenError('no_id_token');
         }
 
-        const result = await Micro.runPromiseExit(
+        const result = await Effect.runPromiseExit(
           logoutµ({ tokens, config, wellknown, store, storageClient }),
         );
-        return handleMicroExit(result, 'Logout_Failure', 'auth_error');
+        return handleExit(result, 'Logout_Failure', 'auth_error');
       },
 
       /**
@@ -596,13 +615,13 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
-        const micro =
+        const effect =
           options?.responseType === 'id_token'
             ? sessionCheckIdTokenµ(wellknown, config, store, storageClient, log, options)
             : sessionCheckNoneµ(wellknown, config, store, storageClient, log, options);
 
-        const result = await Micro.runPromiseExit(micro);
-        return handleMicroExit(result, 'Session check failure', 'unknown_error');
+        const result = await Effect.runPromiseExit(effect);
+        return handleExit(result, 'Session check failure', 'unknown_error');
       },
     },
   };

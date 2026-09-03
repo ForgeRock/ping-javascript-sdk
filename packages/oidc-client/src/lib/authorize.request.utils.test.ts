@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { it } from '@effect/vitest';
-import { Micro } from 'effect';
+import { Cause, Effect, Exit, Option } from 'effect';
 import { vi, afterEach, expect } from 'vitest';
 import * as sdkOidc from '@forgerock/sdk-oidc';
 import { createParAuthorizeUrlµ, authorizeµ } from './authorize.request.js';
@@ -66,6 +66,7 @@ const sessionStorageStub = { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.clearAllMocks();
   vi.restoreAllMocks();
 });
 
@@ -131,26 +132,23 @@ it('toDispatchError delegates to toAuthorizationError for FetchBaseQueryError', 
 // ─── createParAuthorizeUrlµ ───────────────────────────────────────────────────────────
 
 it.effect('createParAuthorizeUrlµ fails with PAR_NOT_CONFIGURED when par endpoint is missing', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const configWithPar: OidcConfig = { ...config, par: true };
-    const result = yield* Micro.exit(
+    const result = yield* Effect.exit(
       createParAuthorizeUrlµ(wellknown, configWithPar, mockLog, mockStore),
     );
-    expect(Micro.exitIsFailure(result)).toBe(true);
-    if (!Micro.exitIsFailure(result)) return;
-    expect(Micro.causeIsFail(result.cause)).toBe(true);
-    if (Micro.causeIsFail(result.cause)) {
-      expect(result.cause.error.error).toBe('PAR_NOT_CONFIGURED');
-      expect(result.cause.error.type).toBe('wellknown_error');
-      expect(result.cause.error.error_description).toBe(
-        'PAR endpoint not found in server configuration',
-      );
-    }
+    expect(Exit.isFailure(result)).toBe(true);
+    if (!Exit.isFailure(result)) return;
+    const errorOpt = Cause.findErrorOption(result.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.error).toBe('PAR_NOT_CONFIGURED');
+    expect(errorOpt.value.type).toBe('wellknown_error');
+    expect(errorOpt.value.error_description).toBe('PAR endpoint not found in server configuration');
   }),
 );
 
 it.effect('createParAuthorizeUrlµ succeeds and returns slim authorize URL', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const configWithPar: OidcConfig = { ...config, par: true };
     const requestUri = 'urn:ietf:params:oauth:request_uri:abc123';
 
@@ -170,7 +168,7 @@ it.effect('createParAuthorizeUrlµ succeeds and returns slim authorize URL', () 
 );
 
 it.effect('createParAuthorizeUrlµ fails with network_error when PAR POST returns error', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const configWithPar: OidcConfig = { ...config, par: true };
 
     vi.stubGlobal('sessionStorage', sessionStorageStub);
@@ -182,16 +180,15 @@ it.effect('createParAuthorizeUrlµ fails with network_error when PAR POST return
       },
     } as unknown as ReturnType<typeof mockStore.dispatch>);
 
-    const result = yield* Micro.exit(
+    const result = yield* Effect.exit(
       createParAuthorizeUrlµ(wellknownWithPar, configWithPar, mockLog, mockStore),
     );
 
-    expect(Micro.exitIsFailure(result)).toBe(true);
-    if (!Micro.exitIsFailure(result)) return;
-    expect(Micro.causeIsFail(result.cause)).toBe(true);
-    if (Micro.causeIsFail(result.cause)) {
-      expect(result.cause.error.type).toBe('network_error');
-    }
+    expect(Exit.isFailure(result)).toBe(true);
+    if (!Exit.isFailure(result)) return;
+    const errorOpt = Cause.findErrorOption(result.cause);
+    if (!Option.isSome(errorOpt)) return;
+    expect(errorOpt.value.type).toBe('network_error');
     expect(sessionStorageStub.setItem).not.toHaveBeenCalled();
   }),
 );
@@ -199,7 +196,7 @@ it.effect('createParAuthorizeUrlµ fails with network_error when PAR POST return
 it.effect(
   'createParAuthorizeUrlµ fails with network_error when PAR response is missing request_uri',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const configWithPar: OidcConfig = { ...config, par: true };
 
       vi.stubGlobal('sessionStorage', sessionStorageStub);
@@ -207,19 +204,18 @@ it.effect(
         data: {},
       } as unknown as ReturnType<typeof mockStore.dispatch>);
 
-      const result = yield* Micro.exit(
+      const result = yield* Effect.exit(
         createParAuthorizeUrlµ(wellknownWithPar, configWithPar, mockLog, mockStore),
       );
 
-      expect(Micro.exitIsFailure(result)).toBe(true);
-      if (!Micro.exitIsFailure(result)) return;
-      expect(Micro.causeIsFail(result.cause)).toBe(true);
-      if (Micro.causeIsFail(result.cause)) {
-        expect(result.cause.error.type).toBe('network_error');
-        expect(result.cause.error.error_description).toBe(
-          "PAR response missing required 'request_uri' field",
-        );
-      }
+      expect(Exit.isFailure(result)).toBe(true);
+      if (!Exit.isFailure(result)) return;
+      const errorOpt = Cause.findErrorOption(result.cause);
+      if (!Option.isSome(errorOpt)) return;
+      expect(errorOpt.value.type).toBe('network_error');
+      expect(errorOpt.value.error_description).toBe(
+        "PAR response missing required 'request_uri' field",
+      );
       expect(sessionStorageStub.setItem).not.toHaveBeenCalled();
     }),
 );
@@ -227,7 +223,7 @@ it.effect(
 it.effect(
   'createParAuthorizeUrlµ with prompt=none includes prompt on slim authorize URL and in PAR body',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const configWithPar: OidcConfig = { ...config, par: true };
       const requestUri = 'urn:ietf:params:oauth:request_uri:prompt-none-test';
 
@@ -288,13 +284,15 @@ it('hasPushRequestUri returns false when request_uri is missing', () => {
 import { validateParResponseµ } from './authorize.request.micros.js';
 
 it.effect('validateParResponseµ with SerializedError preserves error message', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const serializedError = { name: 'Error', message: 'network timeout', code: 'FETCH_ERROR' };
-    const exit = yield* Micro.exit(validateParResponseµ({ error: serializedError }));
-    expect(Micro.exitIsFailure(exit)).toBe(true);
-    if (!Micro.exitIsFailure(exit) || !Micro.causeIsFail(exit.cause)) return;
+    const exit = yield* Effect.exit(validateParResponseµ({ error: serializedError }));
+    expect(Exit.isFailure(exit)).toBe(true);
+    if (!Exit.isFailure(exit)) return;
+    const errorOpt = Cause.findErrorOption(exit.cause);
+    if (!Option.isSome(errorOpt)) return;
     // Should surface the actual message, not generic "Unknown_Error"
-    expect(exit.cause.error.error_description).toContain('network timeout');
+    expect(errorOpt.value.error_description).toContain('network timeout');
   }),
 );
 
@@ -378,7 +376,7 @@ it('buildAuthorizeOptions falls back to "openid" scope and "code" responseType w
 // ─── authorizeµ flow routing ──────────────────────────────────────────────────
 
 it.effect('authorizeµ uses PAR flow when useParFlow=true', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const requestUri = 'urn:ietf:params:oauth:request_uri:par-routing-test';
     const authorizeResponse = { code: 'par-code', state: 'par-state' };
 
@@ -401,7 +399,7 @@ it.effect('authorizeµ uses PAR flow when useParFlow=true', () =>
 );
 
 it.effect('authorizeµ uses standard flow when useParFlow=false', () =>
-  Micro.gen(function* () {
+  Effect.gen(function* () {
     const authorizeResponse = { code: 'std-code', state: 'std-state' };
 
     vi.stubGlobal('sessionStorage', sessionStorageStub);
@@ -422,7 +420,7 @@ it.effect('authorizeµ uses standard flow when useParFlow=false', () =>
 it.effect(
   'authorizeµ uses PAR flow when caller passes useParFlow=true (e.g. server requires PAR)',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const requestUri = 'urn:ietf:params:oauth:request_uri:required-par-test';
       const authorizeResponse = { code: 'req-par-code', state: 'req-par-state' };
 
@@ -452,7 +450,7 @@ it.effect(
 it.effect(
   'authorizeµ routes to pi.flow fetch when options.responseMode is pi.flow (unwraps authorizeResponse)',
   () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       // pi.flow dispatch goes through dispatchAuthorizeFetch which unwraps { authorizeResponse }
       const requestUri = 'urn:ietf:params:oauth:request_uri:pi-flow-test';
       const authorizeResponse = { code: 'pi-code', state: 'pi-state' };
