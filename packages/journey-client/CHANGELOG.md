@@ -1,5 +1,21 @@
 # @forgerock/journey-client
 
+## 2.2.0
+
+### Minor Changes
+
+- [#759](https://github.com/ForgeRock/ping-javascript-sdk/pull/759) [`729c355`](https://github.com/ForgeRock/ping-javascript-sdk/commit/729c355ae3ef0f24bc748e87efeb0574ea94121e) Thanks [@ancheetah](https://github.com/ancheetah)! - re-export JSON client config helpers from respective client packages
+
+### Patch Changes
+
+- Updated dependencies [[`1c154dd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1c154dd117895ec7bbf26d7c6e0ba89b8d47161f)]:
+  - @forgerock/sdk-utilities@2.2.0
+  - @forgerock/sdk-oidc@2.2.0
+  - @forgerock/sdk-logger@2.2.0
+  - @forgerock/sdk-request-middleware@2.2.0
+  - @forgerock/storage@2.2.0
+  - @forgerock/sdk-types@2.2.0
+
 ## 2.1.1
 
 ### Patch Changes

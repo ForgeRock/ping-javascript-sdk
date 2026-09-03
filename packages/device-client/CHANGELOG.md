@@ -1,5 +1,11 @@
 # @forgerock/device-client
 
+## 2.2.0
+
+### Patch Changes
+
+- [#780](https://github.com/ForgeRock/ping-javascript-sdk/pull/780) [`1c154dd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1c154dd117895ec7bbf26d7c6e0ba89b8d47161f) Thanks [@ryanbas21](https://github.com/ryanbas21)! - fix the header to send ping-sdk instead of forgerock-sdk
+
 ## 2.1.1
 
 ## 2.1.0
