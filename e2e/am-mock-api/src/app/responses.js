@@ -3,7 +3,7 @@
  *
  * responses.js
  *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2020 - 2026 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
@@ -60,7 +60,6 @@ export const createTxnStepUpUrl = (url) => {
   redirectUrl.searchParams.set('authIndexType', 'composite_advice');
   redirectUrl.searchParams.set(
     'authIndexValue',
-    // eslint-disable-next-line max-len
     '%3CAdvices%3E%3CAttributeValuePair%3E%3CAttribute%20name%3D%22TransactionConditionAdvice%22/%3E%3CValue%3E39dfdd15-59a3-473c-a7fc-ecda3bbc3bc8%3C/Value%3E%3C/AttributeValuePair%3E%3C/Advices%3E',
   );
 
@@ -78,7 +77,6 @@ export const createTreeStepUpUrl = (url) => {
   redirectUrl.searchParams.set('authIndexType', 'composite_advice');
   redirectUrl.searchParams.set(
     'authIndexValue',
-    // eslint-disable-next-line max-len
     '%3CAdvices%3E%3CAttributeValuePair%3E%3CAttribute%20name=%22AuthenticateToServiceConditionAdvice%22/%3E%3CValue%3E/sdk:ConfirmPassword%3C/Value%3E%3C/AttributeValuePair%3E%3C/Advices%3E',
   );
 
@@ -140,7 +138,6 @@ export const emailSuspend = {
         {
           name: 'message',
           value:
-            // eslint-disable-next-line max-len
             'An email has been sent to the address you entered. Click the link in that email to proceed.',
         },
         { name: 'messageType', value: '0' },
@@ -355,6 +352,37 @@ export const pingProtectInitialize = {
         {
           name: 'disableHub',
           value: false,
+        },
+      ],
+      input: [
+        {
+          name: 'IDToken1clientError',
+          value: '',
+        },
+      ],
+    },
+  ],
+};
+
+export const pingProtectSignalsInitializationOptions = {
+  authId: 'foo',
+  callbacks: [
+    {
+      type: 'PingOneProtectInitializeCallback',
+      output: [
+        {
+          name: 'signalsInitializationOptions',
+          value: {
+            behavioralDataCollection: 'true',
+            consoleLogEnabled: 'true',
+            disableTags: 'false',
+            disableHub: 'false',
+            lazyMetadata: 'false',
+            deviceAttributesToIgnore: 'userAgent',
+            universalDeviceIdentification: 'false',
+            agentIdentification: 'false',
+            htmlGeoLocation: 'false',
+          },
         },
       ],
       input: [
@@ -592,7 +620,6 @@ export const redirectCallback = {
         {
           name: 'redirectUrl',
           value:
-            // eslint-disable-next-line max-len
             'http://localhost:9443/o/oauth2/v2/auth?nonce=ko7fdf2v3b6yctgq35bdpndel0p9qiq&response_type=code&client_id=546064052569-ke17g9ufsmvda3kgg7s5kp2hpf3gnqi8.apps.googleusercontent.com&scope=openid%20profile%20email&code_challenge=Bh_6aMiI04KGI1wVILtEamByklmXnQY9JKhKhlwsIxk&code_challenge_method=S256&state=rtu8pz65dbg6baw985d532myfbbnf5v',
         },
         { name: 'redirectMethod', value: 'GET' },
@@ -609,9 +636,7 @@ export const redirectCallbackSaml = {
       output: [
         {
           name: 'redirectUrl',
-          value:
-            // eslint-disable-next-line max-len
-            'http://localhost:9443/SAMLTest/',
+          value: 'http://localhost:9443/SAMLTest/',
         },
         { name: 'redirectMethod', value: 'GET' },
         { name: 'trackingCookie', value: true },
@@ -627,9 +652,7 @@ export const redirectCallbackFailureSaml = {
       output: [
         {
           name: 'redirectUrl',
-          value:
-            // eslint-disable-next-line max-len
-            'http://localhost:9443/SAMLFailure',
+          value: 'http://localhost:9443/SAMLFailure',
         },
         { name: 'redirectMethod', value: 'GET' },
         { name: 'trackingCookie', value: true },
