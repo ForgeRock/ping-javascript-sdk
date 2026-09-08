@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@forgerock/device-client": "workspace:*",
-    "@forgerock/javascript-sdk": "catalog:",
+    "@forgerock/journey-client": "workspace:*",
+    "@forgerock/oidc-client": "workspace:*",
+    "@forgerock/sdk-types": "workspace:*",
     "effect": "catalog:effect"
   },
   "devDependencies": {

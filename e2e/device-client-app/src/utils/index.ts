@@ -1,63 +1,66 @@
+/*
+ *
+ * Copyright © 2025 Ping Identity Corporation. All right reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ *
+ */
+
 import { deviceClient } from '@forgerock/device-client';
 import type { ConfigOptions, DeviceClient } from '@forgerock/device-client/types';
 import {
-  CallbackType,
-  Config,
-  FRAuth,
-  FRLoginFailure,
-  FRLoginSuccess,
-  FRStep,
+  callbackType,
+  journey,
   NameCallback,
   PasswordCallback,
-  SessionManager,
-  TokenManager,
-  UserManager,
-} from '@forgerock/javascript-sdk';
+  StepType,
+} from '@forgerock/journey-client';
+import type {
+  JourneyClient,
+  JourneyClientConfig,
+  JourneyResult,
+} from '@forgerock/journey-client/types';
+import { oidc } from '@forgerock/oidc-client';
+import type { OidcClient, OidcConfig } from '@forgerock/oidc-client/types';
 import { Console, Effect } from 'effect';
 
-const logout = Effect.ignore(
-  Effect.tryPromise({
-    try: () => SessionManager.logout(),
-    catch: (err) => new Error(`Logout failed: ${err}`),
-  }),
-);
+let cachedOidcClient: OidcClient | null = null;
 
-const start = Effect.tryPromise({
-  try: () => FRAuth.start(),
-  catch: (err) => new Error(`Authentication start failed: ${err}`),
-}).pipe(Effect.tap((step) => Console.log('Called start', step)));
+const oidcClientOrThrow = (): OidcClient => {
+  if (!cachedOidcClient) {
+    throw new Error('OIDC client not initialized');
+  }
+  return cachedOidcClient;
+};
 
-const checkFRStep = (step: FRStep | FRLoginFailure | FRLoginSuccess) =>
+const checkForStep = (step: JourneyResult) =>
   Effect.try({
     try: () => {
-      if (step.type == 'LoginSuccess' || step.type == 'LoginFailure') {
-        throw new Error(`Unexpected step type: ${step.type}`);
-      } else {
+      if (step && 'type' in step && step.type === StepType.Step) {
         return step;
       }
+      throw new Error(`Unexpected step type: ${JSON.stringify(step)}`);
     },
     catch: (err) => new Error(`Failed to start authentication: ${err}`),
   });
 
-const callNext = (step: FRStep) =>
+const callNext = (client: JourneyClient, step: JourneyResult) =>
   Effect.tryPromise({
-    try: () => FRAuth.next(step),
+    try: () => client.next(step as Parameters<JourneyClient['next']>[0]),
     catch: (err) => new Error(`Failed to proceed to next step: ${err}`),
-  }).pipe(Effect.tap((step) => Console.log('Got next step', step)));
+  }).pipe(Effect.tap((next) => Console.log('Got next step', next)));
 
-const getTokens = Effect.tryPromise({
-  try: () => TokenManager.getTokens(),
-  catch: (err) => new Error(`Failed to get tokens: ${err}`),
-}).pipe(Effect.tap((tokens) => Console.log('Got Tokens', tokens)));
-
-const checkForLoginSuccess = (step: FRStep | FRLoginSuccess | FRLoginFailure) => {
-  if (step.type === 'LoginSuccess') {
-    return Effect.succeed(step);
-  } else if (step.type === 'LoginFailure') {
+const checkForLoginSuccess = (result: JourneyResult) => {
+  if (result && 'type' in result && result.type === StepType.LoginSuccess) {
+    return Effect.succeed(result);
+  } else if (result && 'type' in result && result.type === StepType.LoginFailure) {
     return Effect.fail(new Error(`Login failed`));
   } else {
     return Effect.fail(
-      new Error(`Unexpected step, expected to be in a LoginSuccess but got ${step.type}`),
+      new Error(
+        `Unexpected step, expected to be in a LoginSuccess but got ${JSON.stringify(result)}`,
+      ),
     );
   }
 };
@@ -66,7 +69,6 @@ export const LoginAndGetClient = Effect.gen(function* () {
   const url = new URL(window.location.href);
   const amUrl = url.searchParams.get('amUrl') || 'https://openam-sdks.forgeblocks.com/am';
   const realmPath = url.searchParams.get('realmPath') || 'alpha';
-  const platformHeader = url.searchParams.get('platformHeader') === 'true' ? true : false;
   const tree = url.searchParams.get('tree') || 'selfservice';
 
   /**
@@ -77,7 +79,7 @@ export const LoginAndGetClient = Effect.gen(function* () {
   const un = url.searchParams.get('un') || 'devicetestuser';
   const pw = url.searchParams.get('pw') || 'password';
 
-  const config: ConfigOptions = {
+  const deviceConfig: ConfigOptions = {
     realmPath,
     serverConfig: {
       baseUrl: amUrl,
@@ -85,45 +87,84 @@ export const LoginAndGetClient = Effect.gen(function* () {
     },
   };
 
-  yield* Effect.try(() =>
-    Config.set({
-      platformHeader,
-      realmPath,
-      tree,
-      clientId: 'WebOAuthClient',
-      scope: 'profile email me.read openid',
-      redirectUri: `${window.location.origin}/src/_callback/index.html`,
-      serverConfig: {
-        baseUrl: amUrl,
-        timeout: 3000,
-      },
-    }),
-  );
-  yield* logout;
+  const realmSegment = realmPath ? `/realms/root/realms/${realmPath}` : '';
+  const wellknown = `${amUrl.replace(/\/$/, '')}/oauth2${realmSegment}/.well-known/openid-configuration`;
+  const redirectUri = `${window.location.origin}/src/_callback/index.html`;
 
-  yield* start.pipe(
-    Effect.flatMap((step) => checkFRStep(step)),
+  const journeyConfig: JourneyClientConfig = {
+    serverConfig: {
+      wellknown,
+    },
+  };
+
+  const oidcConfig: OidcConfig = {
+    clientId: 'WebOAuthClient',
+    scope: 'profile email me.read openid',
+    redirectUri,
+    serverConfig: {
+      wellknown,
+    },
+  };
+
+  const journeyClient = yield* Effect.tryPromise({
+    try: () => journey({ config: journeyConfig }),
+    catch: (err) => new Error(`Failed to initialize journey client: ${err}`),
+  });
+
+  const oidcClient = yield* Effect.tryPromise({
+    try: () => oidc({ config: oidcConfig }),
+    catch: (err) => new Error(`Failed to initialize OIDC client: ${err}`),
+  });
+
+  if ('error' in oidcClient) {
+    return yield* Effect.fail(new Error(`Failed to initialize OIDC client: ${oidcClient.error}`));
+  }
+
+  cachedOidcClient = oidcClient;
+
+  yield* Effect.tryPromise({
+    try: () => oidcClientOrThrow().user.logout(),
+    catch: (err) => new Error(`Logout failed: ${err}`),
+  });
+
+  yield* Effect.tryPromise({
+    try: () => journeyClient.start({ journey: tree }),
+    catch: (err) => new Error(`Authentication start failed: ${err}`),
+  }).pipe(
+    Effect.tap((step) => Console.log('Called start', step)),
+    Effect.flatMap((step) => checkForStep(step)),
     Effect.map((step) => {
-      step.getCallbackOfType<NameCallback>(CallbackType.NameCallback).setName(un);
-      step.getCallbackOfType<PasswordCallback>(CallbackType.PasswordCallback).setPassword(pw);
+      step.getCallbackOfType<NameCallback>(callbackType.NameCallback).setName(un);
+      step.getCallbackOfType<PasswordCallback>(callbackType.PasswordCallback).setPassword(pw);
 
       return step;
     }),
-    Effect.flatMap((step) => callNext(step)),
+    Effect.flatMap((step) => callNext(journeyClient, step)),
     /**
      * Don't explicitly need this but if the journey changes
      * maybe we dont get a LoginSuccess
      */
     Effect.flatMap((step) => checkForLoginSuccess(step)),
-    Effect.flatMap(() => getTokens),
+    Effect.flatMap(() =>
+      Effect.tryPromise({
+        try: () => oidcClientOrThrow().token.get({ backgroundRenew: true }),
+        catch: (err) => new Error(`Failed to get tokens: ${err}`),
+      }).pipe(Effect.tap((tokens) => Console.log('Got Tokens', tokens))),
+    ),
   );
 
-  const client: DeviceClient = deviceClient(config);
+  const client: DeviceClient = deviceClient(deviceConfig);
   return client;
 });
 
 export const getUser = Effect.tryPromise({
-  try: () => UserManager.getCurrentUser() as Promise<Record<string, string>>,
+  try: async () => {
+    const response = await oidcClientOrThrow().user.info();
+    if (response && 'error' in response) {
+      throw new Error(`Failed to get user info: ${response.error}`);
+    }
+    return response as unknown as Record<string, string>;
+  },
   catch: (err) => new Error(`Failed to get current user: ${err}`),
 });
 
