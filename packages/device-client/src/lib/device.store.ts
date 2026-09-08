@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { type ConfigOptions } from '@forgerock/javascript-sdk';
+import { type ConfigOptions } from './types/index.js';
 import { configureStore } from '@reduxjs/toolkit';
 import { deviceService } from './services/index.js';
 import type { OathDevice, RetrieveOathQuery } from './types/oath.types.js';
