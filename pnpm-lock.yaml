@@ -345,9 +345,15 @@ importers:
       '@forgerock/device-client':
         specifier: workspace:*
         version: link:../../packages/device-client
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
+      '@forgerock/journey-client':
+        specifier: workspace:*
+        version: link:../../packages/journey-client
+      '@forgerock/oidc-client':
+        specifier: workspace:*
+        version: link:../../packages/oidc-client
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
       effect:
         specifier: catalog:effect
         version: 3.21.0
@@ -479,9 +485,9 @@ importers:
 
   packages/device-client:
     dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
       '@reduxjs/toolkit':
         specifier: 'catalog:'
         version: 2.10.1
