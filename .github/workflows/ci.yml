@@ -169,7 +169,7 @@ jobs:
           ./scripts/bundle-sizes.sh
 
       - name: Upload current stats as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: bundle-size-stats-pr-${{ github.event.pull_request.number }}
           path: |
