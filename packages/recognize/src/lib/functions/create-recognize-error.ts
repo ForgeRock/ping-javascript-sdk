@@ -1,18 +1,19 @@
 /*
  *
- * Copyright © 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  *
  */
 
+import { getRecognizeErrorCodeKey } from './get-recognize-error-code-key.js';
+
 import type {
   CreateRecognizeErrorOptions,
   RecognizeError,
   RecognizeErrorCodeValue,
 } from '../recognize.types.js';
-import { getRecognizeErrorCodeKey } from './get-recognize-error-code-key.js';
 
 /** @public */
 export function createRecognizeError(

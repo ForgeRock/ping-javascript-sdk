@@ -1,9 +1,9 @@
 import type {
+  GeneratedSections,
   LegacyExport,
   NewSdkExport,
-  SymbolMapping,
   RenamedMapping,
-  GeneratedSections,
+  SymbolMapping,
 } from './types.js';
 
 // ---------------------------------------------------------------------------

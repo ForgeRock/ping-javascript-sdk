@@ -1,25 +1,24 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { StepType } from '@forgerock/sdk-types';
 import * as Either from 'effect/Either';
 
-import { StepType } from '@forgerock/sdk-types';
-
-import type { GenericError, Step } from '@forgerock/sdk-types';
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type { SerializedError } from '@reduxjs/toolkit';
-
-import { createJourneyLoginSuccess } from './login-success.utils.js';
 import { createJourneyLoginFailure } from './login-failure.utils.js';
+import { createJourneyLoginSuccess } from './login-success.utils.js';
 import { createJourneyStep } from './step.utils.js';
 
-import type { JourneyStep } from './step.utils.js';
+import type { GenericError, Step } from '@forgerock/sdk-types';
+import type { SerializedError } from '@reduxjs/toolkit';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+
 import type { JourneyLoginFailure } from './login-failure.utils.js';
 import type { JourneyLoginSuccess } from './login-success.utils.js';
+import type { JourneyStep } from './step.utils.js';
 
 export type JourneyResult = JourneyStep | JourneyLoginSuccess | JourneyLoginFailure | GenericError;
 

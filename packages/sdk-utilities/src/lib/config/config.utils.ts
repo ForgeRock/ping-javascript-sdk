@@ -5,28 +5,28 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { pipe } from 'effect';
-import * as Either from 'effect/Either';
-
 import {
   AUTH_DISPLAY_VALUES,
   AUTH_PROMPT_VALUES,
   LOG_LEVEL_UPPERCASE_VALUES,
 } from '@forgerock/sdk-types';
+import { pipe } from 'effect';
+import * as Either from 'effect/Either';
+
 import type { LogLevel } from '@forgerock/sdk-types';
 
 import type {
-  UnifiedSdkConfig,
-  UnifiedOidcConfig,
-  UnifiedJourneyConfig,
-  OidcConfig,
-  JourneyClientConfig,
-  DaVinciConfig,
   ConfigValidationError,
-  ParseResult,
-  Parser,
+  DaVinciConfig,
   FieldParser,
+  JourneyClientConfig,
+  OidcConfig,
   ParsedProp,
+  Parser,
+  ParseResult,
+  UnifiedJourneyConfig,
+  UnifiedOidcConfig,
+  UnifiedSdkConfig,
 } from './config.types.js';
 
 /* ------------------------------------------------------------------ *

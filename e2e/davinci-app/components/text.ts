@@ -4,13 +4,14 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { dotToCamelCase } from '../helper.js';
+
 import type {
   TextCollector,
-  ValidatedTextCollector,
   Updater,
+  ValidatedTextCollector,
   Validator,
 } from '@forgerock/davinci-client/types';
-import { dotToCamelCase } from '../helper.js';
 
 export default function textComponent(
   formEl: HTMLFormElement,

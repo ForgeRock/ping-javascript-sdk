@@ -5,10 +5,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { makeDavinciConfig } from '@forgerock/sdk-utilities';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { davinci } from './client.store.js';
-import { makeDavinciConfig } from '@forgerock/sdk-utilities';
+
 import type { DaVinciConfig } from './config.types.js';
 
 // ---------------------------------------------------------------------------

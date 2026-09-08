@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -12,13 +12,8 @@ import { RECOGNIZE_ERROR_CODE } from './defs/recognize-error-code.js';
 import { RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP } from './defs/recognize-sdk-to-recognize-proxy-error-map.js';
 import { createRecognizeError } from './functions/create-recognize-error.js';
 import { setAttributes } from './functions/set-attributes.js';
-import type {
-  KeylessRecognitionFailureEvent,
-  KeylessStepChangeEvent,
-  KeylessSuccessEvent,
-  KeylessVideoFrameQualityEvent,
-} from './recognize-sdk/index.js';
 import { KeylessRecoverableErrorEvent } from './recognize-sdk/index.js';
+
 import type {
   RecognizeError,
   RecognizeErrorCodeValue,
@@ -30,6 +25,12 @@ import type {
   RecognizeWebComponentObserver,
   RecognizeWebComponentUnsubscribe,
 } from './recognize.types.js';
+import type {
+  KeylessRecognitionFailureEvent,
+  KeylessStepChangeEvent,
+  KeylessSuccessEvent,
+  KeylessVideoFrameQualityEvent,
+} from './recognize-sdk/index.js';
 
 /**
  * @function recognize - Returns a client to interact with the PingOne Recognize SDK web components

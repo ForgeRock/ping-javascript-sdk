@@ -1,14 +1,15 @@
 /*
  *
- * Copyright © 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  *
  */
 
-import type { RecognizeErrorCodeValue } from '../recognize.types.js';
 import { RECOGNIZE_ERROR_CODE } from './recognize-error-code.js';
+
+import type { RecognizeErrorCodeValue } from '../recognize.types.js';
 
 export const RECOGNIZE_SDK_TO_RECOGNIZE_PROXY_ERROR_MAP: Record<string, RecognizeErrorCodeValue> =
   Object.freeze({

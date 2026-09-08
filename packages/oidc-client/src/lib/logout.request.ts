@@ -5,13 +5,15 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Micro } from 'effect';
-import { oidcApi } from './oidc.api.js';
-import { createLogoutError } from './client.store.utils.js';
 
-import type { OauthTokens, OidcConfig } from './config.types.js';
+import { createLogoutError } from './client.store.utils.js';
+import { oidcApi } from './oidc.api.js';
+
 import type { WellknownResponse } from '@forgerock/sdk-types';
 import type { StorageClient } from '@forgerock/storage';
+
 import type { ClientStore, LogoutErrorResult, LogoutSuccessResult } from './client.types.js';
+import type { OauthTokens, OidcConfig } from './config.types.js';
 
 export function logoutµ({
   tokens,

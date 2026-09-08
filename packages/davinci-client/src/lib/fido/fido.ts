@@ -8,8 +8,8 @@ import { Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import {
-  toFidoErrorCode,
   createFidoError,
+  toFidoErrorCode,
   transformAssertion,
   transformAuthenticationOptions,
   transformPublicKeyCredential,
@@ -17,12 +17,13 @@ import {
 } from './fido.utils.js';
 
 import type { GenericError } from '@forgerock/sdk-types';
-import type { FidoClient } from './fido.types.js';
+
 import type {
   FidoAuthenticationInputValue,
   FidoRegistrationInputValue,
 } from '../collector.types.js';
 import type { FidoAuthenticationOptions, FidoRegistrationOptions } from '../davinci.types.js';
+import type { FidoClient } from './fido.types.js';
 
 /**
  * A client function that returns a set of methods for transforming DaVinci data and

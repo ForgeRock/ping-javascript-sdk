@@ -5,31 +5,31 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { configureStore } from '@reduxjs/toolkit';
-import { Match, Either } from 'effect';
+import { Either, Match } from 'effect';
 
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import { configSlice } from './config.slice.js';
+import { davinciApi } from './davinci.api.js';
+import { nodeSlice } from './node.slice.js';
+import { wellknownApi } from './wellknown.api.js';
+
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError } from '@forgerock/sdk-types';
 
-import type {
-  ErrorNode,
-  ContinueNode,
-  StartNode,
-  SuccessNode,
-  Collectors,
-  CollectorCategory,
-} from './node.types.js';
 import type {
   CollectorValueType,
   CollectorValueTypes,
   InternalErrorResponse,
   UpdatableCollectors,
 } from './client.types.js';
-
-import { configSlice } from './config.slice.js';
-import { nodeSlice } from './node.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { wellknownApi } from './wellknown.api.js';
+import type {
+  CollectorCategory,
+  Collectors,
+  ContinueNode,
+  ErrorNode,
+  StartNode,
+  SuccessNode,
+} from './node.types.js';
 
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,

@@ -6,6 +6,7 @@
  */
 
 import type { GenericError } from '@forgerock/sdk-types';
+
 import type {
   FidoAuthenticationOptions,
   FidoRegistrationOptions,

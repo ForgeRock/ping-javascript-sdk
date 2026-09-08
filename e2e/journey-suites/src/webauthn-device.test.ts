@@ -6,9 +6,11 @@
  */
 
 import { expect, test } from '@playwright/test';
-import type { CDPSession } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
-import { username, password } from './utils/demo-user.js';
+import { password, username } from './utils/demo-user.js';
+
+import type { CDPSession } from '@playwright/test';
 
 const WEBAUTHN_CREDENTIAL_ID_QUERY_PARAM = 'webauthnCredentialId';
 

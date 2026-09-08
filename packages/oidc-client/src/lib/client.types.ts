@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
-import { createClientStore } from './client.store.utils.js';
-import { oidc } from './client.store.js';
+
+import type { oidc } from './client.store.js';
+import type { createClientStore } from './client.store.utils.js';
 
 export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 

@@ -1,28 +1,29 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expectTypeOf, it } from 'vitest';
+
+import type { NodeStates } from './lib/client.types.js';
+import type { DaVinciError } from './lib/node.types.js';
+import type * as Types from './types.js';
 import type {
-  StartNode,
+  ActionCollector,
   ContinueNode,
   ErrorNode,
-  SuccessNode,
   FailureNode,
-  ActionCollector,
-  SingleValueCollector,
   FlowCollector,
-  PasswordCollector,
-  TextCollector,
   IdpCollector,
+  PasswordCollector,
+  SingleValueCollector,
+  StartNode,
   SubmitCollector,
+  SuccessNode,
+  TextCollector,
 } from './types.js';
-import type * as Types from './types.js';
-import { DaVinciError } from './lib/node.types.js';
-import { NodeStates } from './lib/client.types.js';
 
 describe('Type exports', () => {
   it('should validate all types are exported', () => {

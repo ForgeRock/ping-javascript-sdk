@@ -1,7 +1,8 @@
-import { Project, Node } from 'ts-morph';
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve, join } from 'node:path';
-import type { NewSdkExport, ExportKind } from '../types.js';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { Node, Project } from 'ts-morph';
+
+import type { ExportKind, NewSdkExport } from '../types.js';
 
 type PackageExports = Record<string, string | Record<string, string>>;
 

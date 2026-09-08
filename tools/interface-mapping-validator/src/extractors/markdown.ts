@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
+
 import { SECTIONS } from '../config.js';
+
 import type { DocumentedMapping, MarkdownExtractionResult } from '../types.js';
 
 const IMPORT_SYMBOL_RE = /import\s+(?:type\s+)?{\s*(\w+)\s*}\s+from\s+['"]([^'"]+)['"]/;
