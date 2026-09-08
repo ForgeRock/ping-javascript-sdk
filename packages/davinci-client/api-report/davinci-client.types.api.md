@@ -10,7 +10,7 @@ import { CustomLogger } from '@forgerock/sdk-logger';
 import type { DaVinciConfig } from '@forgerock/sdk-types';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
-import { GenericError } from '@forgerock/sdk-types';
+import type { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
