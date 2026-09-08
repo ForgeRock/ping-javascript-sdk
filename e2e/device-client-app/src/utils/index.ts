@@ -1,19 +1,29 @@
+/*
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+
 import { deviceClient } from '@forgerock/device-client';
-import type { ConfigOptions, DeviceClient } from '@forgerock/device-client/types';
 import {
   CallbackType,
   Config,
   FRAuth,
-  FRLoginFailure,
-  FRLoginSuccess,
-  FRStep,
-  NameCallback,
-  PasswordCallback,
   SessionManager,
   TokenManager,
   UserManager,
 } from '@forgerock/javascript-sdk';
 import { Console, Effect } from 'effect';
+
+import type { ConfigOptions, DeviceClient } from '@forgerock/device-client/types';
+import type {
+  FRLoginFailure,
+  FRLoginSuccess,
+  FRStep,
+  NameCallback,
+  PasswordCallback,
+} from '@forgerock/javascript-sdk';
 
 const logout = Effect.ignore(
   Effect.tryPromise({

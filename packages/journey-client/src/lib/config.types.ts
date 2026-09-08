@@ -6,6 +6,7 @@
  */
 
 import type { GenericError } from '@forgerock/sdk-types';
+
 import type { ResolvedServerConfig } from './wellknown.utils.js';
 
 export type { JourneyServerConfig, JourneyClientConfig } from '@forgerock/sdk-types';

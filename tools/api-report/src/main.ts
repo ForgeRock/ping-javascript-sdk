@@ -1,9 +1,15 @@
-import { Extractor, type ExtractorMessage } from '@microsoft/api-extractor';
-import { readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { Extractor } from '@microsoft/api-extractor';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { resolveEntryPoints, type EntryPoint } from './resolve-entries.js';
+
 import { buildExtractorConfig } from './config.js';
-import { parseForgottenExportMessage, applyFixes, type ForgottenExport } from './fixer.js';
+import { applyFixes, parseForgottenExportMessage } from './fixer.js';
+import { resolveEntryPoints } from './resolve-entries.js';
+
+import type { ExtractorMessage } from '@microsoft/api-extractor';
+
+import type { ForgottenExport } from './fixer.js';
+import type { EntryPoint } from './resolve-entries.js';
 
 const WORKSPACE_ROOT = resolve(import.meta.dirname, '../../..');
 

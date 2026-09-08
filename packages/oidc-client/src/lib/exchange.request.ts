@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 import { Micro } from 'effect';
 
-import { logger } from '@forgerock/sdk-logger';
-
 import { createValuesµ, handleTokenResponseµ, validateValuesµ } from './exchange.utils.js';
 import { oidcApi } from './oidc.api.js';
 
+import type { logger } from '@forgerock/sdk-logger';
+import type { StorageConfig } from '@forgerock/storage';
+
 import type { ClientStore } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type { StorageConfig } from '@forgerock/storage';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 
 interface BuildTokenExchangeµParams {

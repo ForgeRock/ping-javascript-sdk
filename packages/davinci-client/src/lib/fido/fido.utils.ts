@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import type { GenericError } from '@forgerock/sdk-types';
+
 import type {
   FidoAuthenticationInputValue,
   FidoRegistrationInputValue,

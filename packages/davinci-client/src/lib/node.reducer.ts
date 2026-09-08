@@ -10,41 +10,42 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
 import { Either } from 'effect';
 
+import { resolveCollectorUpdateValue } from './client.store.utils.js';
 /**
  * Import the collector utilities
  */
 import {
   returnActionCollector,
-  returnFlowCollector,
-  returnMetadataCollector,
-  returnPasswordCollector,
-  returnValidatedPasswordCollector,
-  returnIdpCollector,
-  returnSubmitCollector,
-  returnTextCollector,
   returnBooleanCollector,
-  returnValidatedBooleanCollector,
-  returnSingleSelectCollector,
+  returnFidoAuthenticationCollector,
+  returnFidoRegistrationCollector,
+  returnFlowCollector,
+  returnIdpCollector,
+  returnImageCollector,
+  returnMetadataCollector,
   returnMultiSelectCollector,
-  returnReadOnlyCollector,
   returnObjectSelectCollector,
   returnObjectValueCollector,
-  returnProtectCollector,
+  returnPasswordCollector,
   returnPollingCollector,
-  returnUnknownCollector,
-  returnFidoRegistrationCollector,
-  returnFidoAuthenticationCollector,
+  returnProtectCollector,
   returnQrCodeCollector,
-  returnImageCollector,
+  returnReadOnlyCollector,
+  returnSingleSelectCollector,
+  returnSubmitCollector,
+  returnTextCollector,
+  returnUnknownCollector,
+  returnValidatedBooleanCollector,
+  returnValidatedPasswordCollector,
 } from './collector.utils.js';
-import { resolveCollectorUpdateValue } from './client.store.utils.js';
-import type { DaVinciField, UnknownField } from './davinci.types.js';
-import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
+
 import type {
   CollectorValueType,
   CollectorValueTypes,
   UpdatableCollectors,
 } from './client.types.js';
+import type { PhoneNumberExtensionOutputValue, PhoneNumberOutputValue } from './collector.types.js';
+import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type { Collectors } from './node.types.js';
 
 /**

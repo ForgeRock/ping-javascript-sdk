@@ -1,5 +1,6 @@
 import { ExtractorConfig, ExtractorLogLevel } from '@microsoft/api-extractor';
 import { resolve } from 'node:path';
+
 import type { EntryPoint } from './resolve-entries.js';
 
 const WORKSPACE_ROOT = resolve(import.meta.dirname, '../../..');

@@ -4,31 +4,33 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { nodeCollectorReducer } from './node.reducer.js';
+
+import type { GenericError } from '@forgerock/sdk-types';
+
 import type {
+  BooleanCollector,
   DeviceAuthenticationCollector,
   DeviceRegistrationCollector,
   FidoAuthenticationCollector,
   FidoRegistrationCollector,
+  ImageCollector,
   MetadataCollector,
   MultiSelectCollector,
   PasswordCollector,
-  ValidatedPasswordCollector,
   PhoneNumberCollector,
   PhoneNumberExtensionCollector,
   PollingCollector,
   ProtectCollector,
   QrCodeCollector,
   ReadOnlyCollector,
-  ImageCollector,
   SubmitCollector,
   TextCollector,
-  BooleanCollector,
   ValidatedBooleanCollector,
+  ValidatedPasswordCollector,
 } from './collector.types.js';
-import type { GenericError } from '@forgerock/sdk-types';
 import type { FidoAuthenticationOptions, FidoRegistrationOptions } from './davinci.types.js';
 
 describe('The node collector reducer', () => {

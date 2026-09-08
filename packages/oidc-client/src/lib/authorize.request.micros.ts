@@ -18,13 +18,13 @@ import {
   isFetchBaseQueryError,
   toDispatchError,
 } from './authorize.request.utils.js';
-import type { AuthPromptValue } from '@forgerock/sdk-utilities';
-
 import { oidcApi } from './oidc.api.js';
 
+import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';
+import type { AuthPromptValue } from '@forgerock/sdk-utilities';
 import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';
+
 import type {
   AuthorizationError,
   AuthorizationSuccess,

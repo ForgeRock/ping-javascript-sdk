@@ -4,8 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { ReadOnlyCollector, RichTextCollector } from '@forgerock/davinci-client/types';
 import { richContentInterpolation } from '../helper.js';
+
+import type { ReadOnlyCollector, RichTextCollector } from '@forgerock/davinci-client/types';
 
 export default function (
   formEl: HTMLFormElement,

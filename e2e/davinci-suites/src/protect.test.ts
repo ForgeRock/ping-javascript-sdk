@@ -5,8 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
-import { username, password } from './utils/demo-user.js';
+import { password, username } from './utils/demo-user.js';
 
 const clientId = '31a587ce-9aa4-4f36-a09f-78cd8a0a74a0';
 

@@ -20,6 +20,8 @@ import {
 } from './helpers.js';
 
 import type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+import type { MetadataCallback } from '../callbacks/metadata-callback.js';
+import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 import type { JourneyStep } from '../step.utils.js';
 import type {
   AttestationType,
@@ -29,8 +31,6 @@ import type {
   WebAuthnRegistrationMetadata,
   WebAuthnTextOutputRegistration,
 } from './interfaces.js';
-import type { MetadataCallback } from '../callbacks/metadata-callback.js';
-import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 
 // <clientdata>::<attestation>::<publickeyCredential>::<DeviceName>
 export type OutcomeWithName<

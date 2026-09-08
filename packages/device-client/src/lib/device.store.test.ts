@@ -1,21 +1,21 @@
 // @vitest-environment node
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { afterEach, afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { setupServer } from 'msw/node';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+
 import { deviceClient } from './device.store.js';
 import { handlers } from './device.store.test.utils.js';
-
 import {
-  MOCK_PUSH_DEVICES,
   MOCK_BINDING_DEVICES,
-  MOCK_OATH_DEVICES,
-  MOCK_WEBAUTHN_DEVICES,
   MOCK_DEVICE_PROFILE_SUCCESS,
+  MOCK_OATH_DEVICES,
+  MOCK_PUSH_DEVICES,
+  MOCK_WEBAUTHN_DEVICES,
 } from './mock-data/device.store.mock.js';
 
 export const server = setupServer(...handlers);

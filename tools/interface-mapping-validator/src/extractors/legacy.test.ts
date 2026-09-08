@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import { resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
 import { extractLegacyExports } from './legacy.js';
 
 const FIXTURE_PATH = resolve(__dirname, '../fixtures/legacy-sample.d.ts');

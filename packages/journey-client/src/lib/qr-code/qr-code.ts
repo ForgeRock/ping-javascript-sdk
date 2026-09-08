@@ -3,16 +3,15 @@
  *
  * index.ts
  *
- * Copyright (c) 2024 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2024 - 2026 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
 import { callbackType } from '@forgerock/sdk-types';
 
-import { TextOutputCallback } from '../callbacks/text-output-callback.js';
-import { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
-
+import type { HiddenValueCallback } from '../callbacks/hidden-value-callback.js';
+import type { TextOutputCallback } from '../callbacks/text-output-callback.js';
 import type { JourneyStep } from '../step.utils.js';
 
 export type QRCodeData = {

@@ -1,11 +1,14 @@
 /*
- * Copyright © 2026 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { expect, type Page } from '@playwright/test';
+import { expect } from '@playwright/test';
+
 import { asyncEvents } from './async-events.js';
+
+import type { Page } from '@playwright/test';
 
 export async function loginPingAm(page: Page, username: string, password: string) {
   const { clickWithRedirect } = asyncEvents(page);

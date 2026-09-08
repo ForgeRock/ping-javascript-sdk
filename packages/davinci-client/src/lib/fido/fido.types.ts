@@ -6,11 +6,12 @@
  */
 
 import type { GenericError } from '@forgerock/sdk-types';
+
 import type {
-  FidoRegistrationInputValue,
   FidoAuthenticationInputValue,
+  FidoRegistrationInputValue,
 } from '../collector.types.js';
-import type { FidoRegistrationOptions, FidoAuthenticationOptions } from '../davinci.types.js';
+import type { FidoAuthenticationOptions, FidoRegistrationOptions } from '../davinci.types.js';
 
 export interface FidoClient {
   /**

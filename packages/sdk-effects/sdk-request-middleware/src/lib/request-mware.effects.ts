@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
-import {
+import { actionTypes } from './request-mware.derived.js';
+
+import type {
   FetchArgs,
   FetchBaseQueryError,
   FetchBaseQueryMeta,
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
-
-import { actionTypes } from './request-mware.derived.js';
 
 import type { ActionTypes, EndpointTypes } from './request-mware.derived.js';
 import type { ModifiedFetchArgs, RequestMiddleware } from './request-mware.types.js';

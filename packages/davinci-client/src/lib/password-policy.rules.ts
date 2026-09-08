@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 import { Array as Arr, Option, pipe } from 'effect';
 
+import type { Validator } from './client.types.js';
 import type { ValidatedPasswordCollector } from './collector.types.js';
 import type { PasswordPolicy } from './davinci.types.js';
-import { Validator } from './client.types.js';
 
 /**
  * A single policy check: given the policy and a candidate value, produce zero or more

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -11,7 +11,8 @@
 
 import { RECOGNIZE_ERROR_CODE } from './defs/recognize-error-code.js';
 import { recognize } from './recognize.js';
-import { RecognizeWebComponentConfiguration } from './recognize.types.js';
+
+import type { RecognizeWebComponentConfiguration } from './recognize.types.js';
 
 vi.mock('./recognize-sdk/index.js', () => ({
   KeylessRecoverableErrorEvent: class extends ErrorEvent {},

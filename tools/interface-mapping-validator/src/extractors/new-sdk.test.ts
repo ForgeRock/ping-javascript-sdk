@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import { resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
 import { extractNewSdkExports } from './new-sdk.js';
 
 const FIXTURE_DIR = resolve(__dirname, '../fixtures/mock-package');

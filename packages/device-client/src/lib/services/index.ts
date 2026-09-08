@@ -5,26 +5,34 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
-import {
+
+import type {
+  BoundDeviceQuery,
+  Device,
+  GetBoundDevicesQuery,
+} from '../types/bound-device.types.js';
+import type {
   DeletedOathDevice,
   OathDevice,
   OathResponse,
   RetrieveOathQuery,
 } from '../types/oath.types.js';
-import {
+import type {
+  GetProfileDevices,
+  ProfileDevice,
+  ProfileDevicesQuery,
+} from '../types/profile-device.types.js';
+import type {
   DeleteDeviceQuery,
   DeletedPushDevice,
   PushDevice,
   PushDeviceQuery,
 } from '../types/push-device.types.js';
-import { BoundDeviceQuery, Device, GetBoundDevicesQuery } from '../types/bound-device.types.js';
-
-import { UpdatedWebAuthnDevice, WebAuthnDevice, WebAuthnQuery } from '../types/webauthn.types.js';
-import {
-  ProfileDevice,
-  GetProfileDevices,
-  ProfileDevicesQuery,
-} from '../types/profile-device.types.js';
+import type {
+  UpdatedWebAuthnDevice,
+  WebAuthnDevice,
+  WebAuthnQuery,
+} from '../types/webauthn.types.js';
 
 export interface GeneralResponse<T> {
   pagedResultsCookie: string | null;

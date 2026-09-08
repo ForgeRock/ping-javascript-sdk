@@ -5,11 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { GenerateAndStoreAuthUrlValues } from '@forgerock/sdk-types';
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { createAuthorizeUrl } from './authorize.effects.js';
 import { buildAuthorizeParams } from './authorize.utils.js';
 import { getStorageKey } from './state-pkce.effects.js';
+
+import type { GenerateAndStoreAuthUrlValues } from '@forgerock/sdk-types';
 
 const mockSessionStorage = (() => {
   let store: { [key: string]: string } = {};
