@@ -13,6 +13,7 @@
   "type": "module",
   "exports": {
     ".": "./dist/src/index.js",
+    "./_utils": "./dist/src/_utils.js",
     "./device": "./dist/src/lib/device/device-profile.js",
     "./package.json": "./package.json",
     "./policy": "./dist/src/lib/policy/policy.js",
