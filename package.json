@@ -51,8 +51,8 @@
     }
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.6.0",
-    "@changesets/cli": "^2.27.9",
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.2",
     "@commitlint/cli": "^20.0.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@commitlint/prompt": "^20.0.0",
@@ -107,7 +107,7 @@
     "prettier": "^3.2.5",
     "shx": "^0.4.0",
     "swc-loader": "0.2.7",
-    "syncpack": "^15.0.0",
+    "syncpack": "14.0.0",
     "ts-node": "10.9.2",
     "ts-patch": "3.3.0",
     "tslib": "catalog:",
@@ -124,7 +124,7 @@
   },
   "packageManager": "pnpm@10.21.0+sha512.da3337267e400fdd3d479a6c68079ac6db01d8ca4f67572083e722775a796788a7a9956613749e000fac20d424b594f7a791a5f4e2e13581c5ef947f26968a40",
   "engines": {
-    "node": "^20 || ^22 || ^24",
+    "node": "^22.11 || ^24 || >=26",
     "pnpm": ">=10.17.1"
   },
   "nx": {
