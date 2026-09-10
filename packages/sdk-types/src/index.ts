@@ -15,3 +15,4 @@ export * from './lib/tokens.types.js';
 export * from './lib/config.types.js';
 export * from './lib/authorize.types.js';
 export * from './lib/policy.types.js';
+export * from './lib/store.types.js';

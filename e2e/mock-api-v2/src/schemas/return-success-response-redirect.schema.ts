@@ -43,6 +43,5 @@ const _SuccessResponseRedirect = Schema.Struct({
 });
 
 interface SuccessResponseRedirect extends Schema.Schema.Type<typeof _SuccessResponseRedirect> {}
-const SuccessResponseRedirect: Schema.Schema<SuccessResponseRedirect, SuccessResponseRedirect> =
-  _SuccessResponseRedirect;
+const SuccessResponseRedirect: Schema.Schema<SuccessResponseRedirect> = _SuccessResponseRedirect;
 export { SuccessResponseRedirect };

@@ -9,13 +9,13 @@ import { Schema } from 'effect';
 const _TokenRequestBody = Schema.Struct({
   client_id: Schema.String,
   code: Schema.String,
-  grant_type: Schema.Union(Schema.Literal('authorization_code')),
+  grant_type: Schema.Union([Schema.Literal('authorization_code')]),
   redirect_uri: Schema.String,
   code_verifier: Schema.String,
 });
 
 interface TokenRequestBody extends Schema.Schema.Type<typeof _TokenRequestBody> {}
-const TokenRequestBody: Schema.Schema<TokenRequestBody, TokenRequestBody> = _TokenRequestBody;
+const TokenRequestBody: Schema.Schema<TokenRequestBody> = _TokenRequestBody;
 
 const _TokenResponseBody = Schema.Struct({
   access_token: Schema.String,
@@ -27,6 +27,6 @@ const _TokenResponseBody = Schema.Struct({
 });
 
 interface TokenResponseBody extends Schema.Schema.Type<typeof _TokenResponseBody> {}
-const TokenResponseBody: Schema.Schema<TokenResponseBody, TokenResponseBody> = _TokenResponseBody;
+const TokenResponseBody: Schema.Schema<TokenResponseBody> = _TokenResponseBody;
 
 export { TokenRequestBody, TokenResponseBody };

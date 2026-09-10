@@ -4,8 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Micro } from 'effect';
-import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { Effect, Exit, Cause, Option } from 'effect';
 
 import {
   toFidoErrorCode,
@@ -46,14 +45,14 @@ export function fido(): FidoClient {
         );
       }
 
-      const createCredentialµ = Micro.sync(() => transformRegistrationOptions(options)).pipe(
-        Micro.flatMap((publicKeyCredentialCreationOptions) =>
-          Micro.tryPromise({
+      const createCredentialµ = Effect.sync(() => transformRegistrationOptions(options)).pipe(
+        Effect.flatMap((publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions) =>
+          Effect.tryPromise({
             try: () =>
               navigator.credentials.create({
                 publicKey: publicKeyCredentialCreationOptions,
               }),
-            catch: (error) => {
+            catch: (error: unknown) => {
               const code = toFidoErrorCode(error);
               console.error('Failed to create keypair: ', code);
               return createFidoError(
@@ -64,9 +63,9 @@ export function fido(): FidoClient {
             },
           }),
         ),
-        Micro.flatMap((credential) => {
+        Effect.flatMap((credential: Credential | null) => {
           if (!credential) {
-            return Micro.fail(
+            return Effect.fail(
               createFidoError(
                 'UnknownError',
                 'registration_error',
@@ -74,19 +73,25 @@ export function fido(): FidoClient {
               ),
             );
           }
-          return Micro.succeed(transformPublicKeyCredential(credential as PublicKeyCredential));
+          return Effect.succeed(transformPublicKeyCredential(credential as PublicKeyCredential));
         }),
       );
 
-      const result = await Micro.runPromiseExit(createCredentialµ);
+      const result = await Effect.runPromiseExit(createCredentialµ);
 
-      if (exitIsSuccess(result)) {
+      if (Exit.isSuccess(result)) {
         return result.value;
-      } else if (exitIsFail(result)) {
-        return result.cause.error;
-      } else {
-        return createFidoError('UnknownError', 'registration_error', result.cause.message);
       }
+
+      if (Exit.isFailure(result)) {
+        const maybeError = Cause.findErrorOption(result.cause);
+        if (Option.isSome(maybeError)) {
+          return maybeError.value;
+        }
+        return createFidoError('UnknownError', 'registration_error', Cause.pretty(result.cause));
+      }
+
+      return createFidoError('UnknownError', 'registration_error', 'Unexpected exit state');
     },
 
     /**
@@ -103,14 +108,14 @@ export function fido(): FidoClient {
         );
       }
 
-      const getAssertionµ = Micro.sync(() => transformAuthenticationOptions(options)).pipe(
-        Micro.flatMap((publicKeyCredentialRequestOptions) =>
-          Micro.tryPromise({
+      const getAssertionµ = Effect.sync(() => transformAuthenticationOptions(options)).pipe(
+        Effect.flatMap((publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptions) =>
+          Effect.tryPromise({
             try: () =>
               navigator.credentials.get({
                 publicKey: publicKeyCredentialRequestOptions,
               }),
-            catch: (error) => {
+            catch: (error: unknown) => {
               const code = toFidoErrorCode(error);
               console.error('Failed to authenticate: ', code);
               return createFidoError(
@@ -121,9 +126,9 @@ export function fido(): FidoClient {
             },
           }),
         ),
-        Micro.flatMap((assertion) => {
+        Effect.flatMap((assertion: Credential | null) => {
           if (!assertion) {
-            return Micro.fail(
+            return Effect.fail(
               createFidoError(
                 'UnknownError',
                 'authentication_error',
@@ -131,19 +136,25 @@ export function fido(): FidoClient {
               ),
             );
           }
-          return Micro.succeed(transformAssertion(assertion as PublicKeyCredential));
+          return Effect.succeed(transformAssertion(assertion as PublicKeyCredential));
         }),
       );
 
-      const result = await Micro.runPromiseExit(getAssertionµ);
+      const result = await Effect.runPromiseExit(getAssertionµ);
 
-      if (exitIsSuccess(result)) {
+      if (Exit.isSuccess(result)) {
         return result.value;
-      } else if (exitIsFail(result)) {
-        return result.cause.error;
-      } else {
-        return createFidoError('UnknownError', 'authentication_error', result.cause.message);
       }
+
+      if (Exit.isFailure(result)) {
+        const maybeError = Cause.findErrorOption(result.cause);
+        if (Option.isSome(maybeError)) {
+          return maybeError.value;
+        }
+        return createFidoError('UnknownError', 'authentication_error', Cause.pretty(result.cause));
+      }
+
+      return createFidoError('UnknownError', 'authentication_error', 'Unexpected exit state');
     },
   };
 }

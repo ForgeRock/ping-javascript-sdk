@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import * as Either from 'effect/Either';
+import * as Result from 'effect/Result';
 
 import { StepType } from '@forgerock/sdk-types';
 
@@ -71,7 +71,7 @@ export function createJourneyObject(
 export function parseJourneyResponse(res: {
   data?: Step;
   error?: FetchBaseQueryError | SerializedError;
-}): Either.Either<Step, GenericError> {
+}): Result.Result<Step, GenericError> {
   // https://redux-toolkit.js.org/rtk-query/api/fetchBaseQuery#signature
   // AM sends LoginFailure as a structured step body over HTTP 4xx — normalise both sources so the
   // left guards below only see genuine transport failures, never AM application responses.
@@ -88,7 +88,7 @@ export function parseJourneyResponse(res: {
   // https://redux-toolkit.js.org/rtk-query/usage-with-typescript#type-safe-error-handling
   // Non-HTTP fetch failure (network down, CORS, etc.) — definitely left, never carries an AM body
   if (res.error && 'error' in res.error) {
-    return Either.left({
+    return Result.fail({
       error: 'request_failed',
       message: `Request failed: ${res.error.error}`,
       type: 'unknown_error',
@@ -97,7 +97,7 @@ export function parseJourneyResponse(res: {
 
   // Redux serialization error — definitely left, never carries an AM body
   if (res.error && 'message' in res.error) {
-    return Either.left({
+    return Result.fail({
       error: 'request_failed',
       message: `Request failed: ${res.error.message ?? 'Unknown error'}`,
       type: 'unknown_error',
@@ -106,7 +106,7 @@ export function parseJourneyResponse(res: {
 
   // HTTP error whose body was not a parseable AM step — left
   if (res.error && !stepData) {
-    return Either.left({
+    return Result.fail({
       error: 'request_failed',
       message: 'Request failed: Unknown error',
       type: 'unknown_error',
@@ -115,7 +115,7 @@ export function parseJourneyResponse(res: {
 
   // No data from either source — left
   if (!stepData) {
-    return Either.left({
+    return Result.fail({
       error: 'no_response_data',
       message: 'No data received from server',
       type: 'unknown_error',
@@ -123,5 +123,5 @@ export function parseJourneyResponse(res: {
   }
 
   // Every transport failure has been ruled out — this is a valid AM step
-  return Either.right(stepData);
+  return Result.succeed(stepData);
 }

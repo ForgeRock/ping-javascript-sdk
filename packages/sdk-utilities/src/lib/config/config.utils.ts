@@ -5,8 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { pipe } from 'effect';
-import * as Either from 'effect/Either';
+import { pipe, Result } from 'effect';
 
 import {
   AUTH_DISPLAY_VALUES,
@@ -69,22 +68,22 @@ function isAbsent(value: unknown): value is undefined | null {
 
 /**
  * Gather every error from a list of parsed results without short-circuiting (unlike
- * `Either.all`, which stops at the first `Left`). Returns all accumulated errors so a
+ * `Result.all`, which stops at the first failure). Returns all accumulated errors so a
  * section parser can report every invalid field in one pass.
  */
 export function collectErrors(
   results: ReadonlyArray<ParseResult<unknown>>,
 ): ConfigValidationError[] {
-  return results.flatMap((result) => (Either.isLeft(result) ? result.left : []));
+  return results.flatMap((result) => (Result.isFailure(result) ? result.failure : []));
 }
 
 /**
  * Unwraps a `ParseResult<V>`, then returns `{ [key]: value }` when the value is defined, `{}` otherwise.
  * Spread into an object literal to conditionally include a property without an inline ternary.
- * Safe to call after `collectErrors` — every result is guaranteed `Right` past the error guard.
+ * Safe to call after `collectErrors` — every result is guaranteed `Success` past the error guard.
  */
 function parsedProp<K extends string, V>(key: K, result: ParseResult<V>): ParsedProp<K, V> {
-  const value = Either.getOrThrow(result);
+  const value = Result.getOrThrow(result);
   return (value !== undefined ? { [key]: value } : {}) as ParsedProp<K, V>;
 }
 
@@ -94,21 +93,21 @@ function parsedProp<K extends string, V>(key: K, result: ParseResult<V>): Parsed
 
 const requiredString: FieldParser<string> = (value, fieldPath) => {
   if (isAbsent(value)) {
-    return Either.left([{ field: fieldPath, message: 'Required field is missing' }]);
+    return Result.fail([{ field: fieldPath, message: 'Required field is missing' }]);
   }
   return typeof value === 'string'
-    ? Either.right(value)
-    : Either.left([{ field: fieldPath, message: `Expected string, got ${typeName(value)}` }]);
+    ? Result.succeed(value)
+    : Result.fail([{ field: fieldPath, message: `Expected string, got ${typeName(value)}` }]);
 };
 
 /** Required, non-empty string — treats `''` as missing (a blank value can't satisfy a requirement). */
 const requiredNonEmptyString: FieldParser<string> = (value, fieldPath) => {
   if (isAbsent(value) || value === '') {
-    return Either.left([{ field: fieldPath, message: 'Required field is missing' }]);
+    return Result.fail([{ field: fieldPath, message: 'Required field is missing' }]);
   }
   return typeof value === 'string'
-    ? Either.right(value)
-    : Either.left([{ field: fieldPath, message: `Expected string, got ${typeName(value)}` }]);
+    ? Result.succeed(value)
+    : Result.fail([{ field: fieldPath, message: `Expected string, got ${typeName(value)}` }]);
 };
 
 /** Parse each element of an array as a string, accumulating one error per non-string element. */
@@ -125,46 +124,46 @@ function parseStringElements(value: readonly unknown[], fieldPath: string): Pars
       });
     }
   });
-  return errors.length > 0 ? Either.left(errors) : Either.right(parsed);
+  return errors.length > 0 ? Result.fail(errors) : Result.succeed(parsed);
 }
 
 /** Required, non-empty array of strings — treats absent or `[]` as missing. */
 const requiredNonEmptyStringArray: FieldParser<string[]> = (value, fieldPath) => {
   if (isAbsent(value) || (Array.isArray(value) && value.length === 0)) {
-    return Either.left([{ field: fieldPath, message: 'Required field is missing' }]);
+    return Result.fail([{ field: fieldPath, message: 'Required field is missing' }]);
   }
   if (!Array.isArray(value)) {
-    return Either.left([{ field: fieldPath, message: `Expected array, got ${typeName(value)}` }]);
+    return Result.fail([{ field: fieldPath, message: `Expected array, got ${typeName(value)}` }]);
   }
   return parseStringElements(value, fieldPath);
 };
 
 const optionalString: FieldParser<string | undefined> = (value, fieldPath) => {
-  if (isAbsent(value)) return Either.right(undefined);
+  if (isAbsent(value)) return Result.succeed(undefined);
   return typeof value === 'string'
-    ? Either.right(value)
-    : Either.left([{ field: fieldPath, message: `Expected string, got ${typeName(value)}` }]);
+    ? Result.succeed(value)
+    : Result.fail([{ field: fieldPath, message: `Expected string, got ${typeName(value)}` }]);
 };
 
 /** Finite, non-negative number (rejects NaN, Infinity, negatives). Optional-aware. */
 const finiteNonNegativeNumber: FieldParser<number | undefined> = (value, fieldPath) => {
-  if (isAbsent(value)) return Either.right(undefined);
+  if (isAbsent(value)) return Result.succeed(undefined);
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
-    return Either.left([
+    return Result.fail([
       {
         field: fieldPath,
         message: `Expected a finite, non-negative number, got ${typeName(value)}`,
       },
     ]);
   }
-  return Either.right(value);
+  return Result.succeed(value);
 };
 
 /** Optional array of strings, accumulating one error per non-string element. */
 const optionalStringArray: FieldParser<string[] | undefined> = (value, fieldPath) => {
-  if (isAbsent(value)) return Either.right(undefined);
+  if (isAbsent(value)) return Result.succeed(undefined);
   if (!Array.isArray(value)) {
-    return Either.left([{ field: fieldPath, message: `Expected array, got ${typeName(value)}` }]);
+    return Result.fail([{ field: fieldPath, message: `Expected array, got ${typeName(value)}` }]);
   }
   return parseStringElements(value, fieldPath);
 };
@@ -174,9 +173,9 @@ const optionalStringRecord: FieldParser<Record<string, string> | undefined> = (
   value,
   fieldPath,
 ) => {
-  if (isAbsent(value)) return Either.right(undefined);
+  if (isAbsent(value)) return Result.succeed(undefined);
   if (typeof value !== 'object' || Array.isArray(value)) {
-    return Either.left([{ field: fieldPath, message: `Expected object, got ${typeName(value)}` }]);
+    return Result.fail([{ field: fieldPath, message: `Expected object, got ${typeName(value)}` }]);
   }
   const parsed: Record<string, string> = {};
   const errors: ConfigValidationError[] = [];
@@ -190,7 +189,7 @@ const optionalStringRecord: FieldParser<Record<string, string> | undefined> = (
       });
     }
   }
-  return errors.length > 0 ? Either.left(errors) : Either.right(parsed);
+  return errors.length > 0 ? Result.fail(errors) : Result.succeed(parsed);
 };
 
 /**
@@ -201,16 +200,16 @@ function optionalLiteralUnion<const Members extends readonly string[]>(
   members: Members,
 ): FieldParser<Members[number] | undefined> {
   return (value, fieldPath) => {
-    if (isAbsent(value)) return Either.right(undefined);
+    if (isAbsent(value)) return Result.succeed(undefined);
     if (typeof value !== 'string') {
-      return Either.left([
+      return Result.fail([
         { field: fieldPath, message: `Expected string, got ${typeName(value)}` },
       ]);
     }
     const matched = members.find((member): member is Members[number] => member === value);
     return matched !== undefined
-      ? Either.right(matched)
-      : Either.left([
+      ? Result.succeed(matched)
+      : Result.fail([
           { field: fieldPath, message: `Expected one of ${members.join(', ')}, got ${value}` },
         ]);
   };
@@ -260,10 +259,10 @@ export const parseOidcSection: Parser<UnifiedOidcConfig> = (input) => {
     acrValues,
     additionalParameters,
   ]);
-  if (errors.length > 0) return Either.left(errors);
+  if (errors.length > 0) return Result.fail(errors);
 
   const oidc: UnifiedOidcConfig = {
-    discoveryEndpoint: Either.getOrThrow(discoveryEndpoint),
+    discoveryEndpoint: Result.getOrThrow(discoveryEndpoint),
     ...parsedProp('clientId', clientId),
     ...parsedProp('redirectUri', redirectUri),
     ...parsedProp('scopes', scopes),
@@ -277,7 +276,7 @@ export const parseOidcSection: Parser<UnifiedOidcConfig> = (input) => {
     ...parsedProp('acrValues', acrValues),
     ...parsedProp('additionalParameters', additionalParameters),
   };
-  return Either.right(oidc);
+  return Result.succeed(oidc);
 };
 
 /** Parse the `journey` block. `serverUrl` required; `realm`/`cookieName` optional. */
@@ -287,28 +286,28 @@ export const parseJourneySection: Parser<UnifiedJourneyConfig> = (input) => {
   const cookieName = optionalString(input['cookieName'], 'journey.cookieName');
 
   const errors = collectErrors([serverUrl, realm, cookieName]);
-  if (errors.length > 0) return Either.left(errors);
+  if (errors.length > 0) return Result.fail(errors);
 
   const journey: UnifiedJourneyConfig = {
-    serverUrl: Either.getOrThrow(serverUrl),
+    serverUrl: Result.getOrThrow(serverUrl),
     ...parsedProp('realm', realm),
     ...parsedProp('cookieName', cookieName),
   };
-  return Either.right(journey);
+  return Result.succeed(journey);
 };
 
 /**
- * Run a section parser against an optional nested object: absent → `Right(undefined)`;
- * present-but-not-an-object → `Left`; present object → delegate to `parser`.
+ * Run a section parser against an optional nested object: absent → `Result.succeed(undefined)`;
+ * present-but-not-an-object → failure; present object → delegate to `parser`.
  */
 function parseOptionalSection<A>(
   value: unknown,
   prefix: string,
   parser: Parser<A>,
 ): ParseResult<A | undefined> {
-  if (isAbsent(value)) return Either.right(undefined);
+  if (isAbsent(value)) return Result.succeed(undefined);
   if (typeof value !== 'object' || Array.isArray(value)) {
-    return Either.left([{ field: prefix, message: `Expected object, got ${typeName(value)}` }]);
+    return Result.fail([{ field: prefix, message: `Expected object, got ${typeName(value)}` }]);
   }
   return parser({ ...value });
 }
@@ -321,7 +320,7 @@ export const parseUnifiedSdkConfig: Parser<UnifiedSdkConfig> = (input) => {
   const oidc = parseOptionalSection(input['oidc'], 'oidc', parseOidcSection);
 
   const errors = collectErrors([timeout, log, journey, oidc]);
-  if (errors.length > 0) return Either.left(errors);
+  if (errors.length > 0) return Result.fail(errors);
 
   const config: UnifiedSdkConfig = {
     ...parsedProp('timeout', timeout),
@@ -329,7 +328,7 @@ export const parseUnifiedSdkConfig: Parser<UnifiedSdkConfig> = (input) => {
     ...parsedProp('journey', journey),
     ...parsedProp('oidc', oidc),
   };
-  return Either.right(config);
+  return Result.succeed(config);
 };
 
 /* ------------------------------------------------------------------ *
@@ -344,14 +343,14 @@ export const parseUnifiedSdkConfig: Parser<UnifiedSdkConfig> = (input) => {
  */
 function parseClientSdkConfig(config: UnifiedSdkConfig): ParseResult<ClientSdkConfig> {
   if (!config.oidc) {
-    return Either.left([{ field: 'oidc', message: 'Required block is missing' }]);
+    return Result.fail([{ field: 'oidc', message: 'Required block is missing' }]);
   }
   const oidc = config.oidc;
-  // All three are required and non-optional, so `Either.all` (first-error) is enough — the
+  // All three are required and non-optional, so `Result.all` (first-error) is enough — the
   // struct form keeps field/value paired by key. Section parsers collect errors across many
   // optional fields instead, so they accumulate via `collectErrors`.
-  return Either.map(
-    Either.all({
+  return Result.map(
+    Result.all({
       clientId: requiredNonEmptyString(oidc.clientId, 'oidc.clientId'),
       redirectUri: requiredNonEmptyString(oidc.redirectUri, 'oidc.redirectUri'),
       scopes: requiredNonEmptyStringArray(oidc.scopes, 'oidc.scopes'),
@@ -367,8 +366,8 @@ function parseClientSdkConfig(config: UnifiedSdkConfig): ParseResult<ClientSdkCo
  */
 function parseJourneySdkConfig(config: UnifiedSdkConfig): ParseResult<JourneySdkConfig> {
   return config.oidc
-    ? Either.right({ ...config, oidc: config.oidc })
-    : Either.left([{ field: 'oidc', message: 'Required block is missing' }]);
+    ? Result.succeed({ ...config, oidc: config.oidc })
+    : Result.fail([{ field: 'oidc', message: 'Required block is missing' }]);
 }
 
 /* ------------------------------------------------------------------ *
@@ -440,33 +439,33 @@ function buildDavinciConfig(config: ClientSdkConfig): DaVinciConfig {
 
 function assertObject(
   input: unknown,
-): Either.Either<Readonly<Record<string, unknown>>, ConfigValidationError[]> {
+): Result.Result<Readonly<Record<string, unknown>>, ConfigValidationError[]> {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
-    return Either.left([{ field: 'config', message: `Expected object, got ${typeName(input)}` }]);
+    return Result.fail([{ field: 'config', message: `Expected object, got ${typeName(input)}` }]);
   }
-  return Either.right(input as Readonly<Record<string, unknown>>);
+  return Result.succeed(input as Readonly<Record<string, unknown>>);
 }
 
 export const parseToOidcConfig = (input: unknown): ParseResult<OidcConfig> =>
   pipe(
     assertObject(input),
-    Either.flatMap(parseUnifiedSdkConfig),
-    Either.flatMap(parseClientSdkConfig),
-    Either.map(buildOidcConfig),
+    Result.flatMap(parseUnifiedSdkConfig),
+    Result.flatMap(parseClientSdkConfig),
+    Result.map(buildOidcConfig),
   );
 
 export const parseToJourneyConfig = (input: unknown): ParseResult<JourneyClientConfig> =>
   pipe(
     assertObject(input),
-    Either.flatMap(parseUnifiedSdkConfig),
-    Either.flatMap(parseJourneySdkConfig),
-    Either.map(buildJourneyConfig),
+    Result.flatMap(parseUnifiedSdkConfig),
+    Result.flatMap(parseJourneySdkConfig),
+    Result.map(buildJourneyConfig),
   );
 
 export const parseToDavinciConfig = (input: unknown): ParseResult<DaVinciConfig> =>
   pipe(
     assertObject(input),
-    Either.flatMap(parseUnifiedSdkConfig),
-    Either.flatMap(parseClientSdkConfig),
-    Either.map(buildDavinciConfig),
+    Result.flatMap(parseUnifiedSdkConfig),
+    Result.flatMap(parseClientSdkConfig),
+    Result.map(buildDavinciConfig),
   );
