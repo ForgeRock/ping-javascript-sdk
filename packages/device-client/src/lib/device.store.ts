@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { type ConfigOptions } from './types/index.js';
+import type { LegacyConfigOptions as ConfigOptions } from '@forgerock/sdk-types';
 import { configureStore } from '@reduxjs/toolkit';
 import { deviceService } from './services/index.js';
 import type { OathDevice, RetrieveOathQuery } from './types/oath.types.js';

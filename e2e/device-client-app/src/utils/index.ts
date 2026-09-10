@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2025 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -20,9 +20,10 @@ import type {
   JourneyClient,
   JourneyClientConfig,
   JourneyResult,
+  JourneyStep,
 } from '@forgerock/journey-client/types';
 import { oidc } from '@forgerock/oidc-client';
-import type { OidcClient, OidcConfig } from '@forgerock/oidc-client/types';
+import type { OidcClient, OidcConfig, UserInfoResponse } from '@forgerock/oidc-client/types';
 import { Console, Effect } from 'effect';
 
 let cachedOidcClient: OidcClient | null = null;
@@ -45,9 +46,9 @@ const checkForStep = (step: JourneyResult) =>
     catch: (err) => new Error(`Failed to start authentication: ${err}`),
   });
 
-const callNext = (client: JourneyClient, step: JourneyResult) =>
+const callNext = (client: JourneyClient, step: JourneyStep) =>
   Effect.tryPromise({
-    try: () => client.next(step as Parameters<JourneyClient['next']>[0]),
+    try: () => client.next(step),
     catch: (err) => new Error(`Failed to proceed to next step: ${err}`),
   }).pipe(Effect.tap((next) => Console.log('Got next step', next)));
 
@@ -125,7 +126,7 @@ export const LoginAndGetClient = Effect.gen(function* () {
   yield* Effect.tryPromise({
     try: () => oidcClientOrThrow().user.logout(),
     catch: (err) => new Error(`Logout failed: ${err}`),
-  });
+  }).pipe(Effect.catchAll((err) => Console.warn('Logout failed, continuing:', err)));
 
   yield* Effect.tryPromise({
     try: () => journeyClient.start({ journey: tree }),
@@ -158,12 +159,12 @@ export const LoginAndGetClient = Effect.gen(function* () {
 });
 
 export const getUser = Effect.tryPromise({
-  try: async () => {
+  try: async (): Promise<UserInfoResponse> => {
     const response = await oidcClientOrThrow().user.info();
-    if (response && 'error' in response) {
+    if ('error' in response) {
       throw new Error(`Failed to get user info: ${response.error}`);
     }
-    return response as unknown as Record<string, string>;
+    return response;
   },
   catch: (err) => new Error(`Failed to get current user: ${err}`),
 });
