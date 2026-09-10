@@ -15,6 +15,7 @@ catalog:
   msw: '^2.5.1'
   tslib: '^2.5.0'
   tsx: '4.21.0'
+  typescript: '5.8.3'
 catalogs:
   effect:
     effect: '^3.20.0'

@@ -38,13 +38,6 @@
       "options": {
         "buildTarget": "am-mock-api:build"
       }
-    },
-    "lint": {
-      "options": {
-        "fix": true,
-        "ignore-path": ".eslintignore",
-        "args": ["**/*.ts"]
-      }
     }
   }
 }

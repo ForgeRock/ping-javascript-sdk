@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "catalog:vitest",
+    "typescript": "catalog:",
     "vite": "catalog:vite",
     "vitest": "catalog:vitest",
     "vitest-canvas-mock": "catalog:vitest"
