@@ -4,7 +4,7 @@
 
 ```ts
 
-import { ConfigOptions } from '@forgerock/javascript-sdk';
+import type { LegacyConfigOptions } from '@forgerock/sdk-types';
 
 // @public (undocumented)
 export type Bluetooth = {
@@ -21,7 +21,8 @@ export type Browser = {
     userAgent: string;
 };
 
-export { ConfigOptions }
+// @public (undocumented)
+export type ConfigOptions = LegacyConfigOptions;
 
 // @public (undocumented)
 export type DeleteDeviceQuery = {

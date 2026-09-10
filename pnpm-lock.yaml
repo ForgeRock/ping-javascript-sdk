@@ -71,7 +71,7 @@ overrides:
   rollup: ^4.59.0
   picomatch@>=4: ^4.0.4
   picomatch@<3: ^2.3.2
-  fast-uri: ^3.1.6
+  fast-uri: ^3.1.7
   qs: ^6.16.0
   '@opentelemetry/core': ^2.8.0
   brace-expansion@<2: ~1.1.15
@@ -79,7 +79,7 @@ overrides:
   brace-expansion@>=3 <4: ~3.0.2
   brace-expansion@>=4: ~5.0.8
   ws: ^8.21.1
-  undici: ^7.29.0
+  undici: ^7.29.1
   nanoid: ^5.1.16
   postcss: ^8.5.23
 
@@ -345,9 +345,15 @@ importers:
       '@forgerock/device-client':
         specifier: workspace:*
         version: link:../../packages/device-client
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
+      '@forgerock/journey-client':
+        specifier: workspace:*
+        version: link:../../packages/journey-client
+      '@forgerock/oidc-client':
+        specifier: workspace:*
+        version: link:../../packages/oidc-client
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
       effect:
         specifier: catalog:effect
         version: 3.21.0
@@ -479,9 +485,9 @@ importers:
 
   packages/device-client:
     dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
       '@reduxjs/toolkit':
         specifier: 'catalog:'
         version: 2.10.1
@@ -5153,8 +5159,8 @@ packages:
   fast-string-width@3.0.2:
     resolution: {integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==}
 
-  fast-uri@3.1.6:
-    resolution: {integrity: sha512-7Ical1vFEMr0onbVzEDIreM22I4khW+fzyQPwvAFWBp1iwdshSZRsL4jjRvPG9JP1uiqMHRto+YU6R2/CzDz5Q==}
+  fast-uri@3.1.7:
+    resolution: {integrity: sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==}
 
   fast-wrap-ansi@0.2.2:
     resolution: {integrity: sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q==}
@@ -8095,8 +8101,8 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@7.29.0:
-    resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
+  undici@7.29.1:
+    resolution: {integrity: sha512-RYONW2MeafgYlkVOKYKkA/Ag7BmXqgIWCa8t1m0JcxrQg9pI9lEqRhAOruOBCbAohOa/gkCF+iPi9hrgvTzu6Q==}
     engines: {node: '>=20.18.1'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
@@ -8534,7 +8540,7 @@ snapshots:
   '@actions/http-client@4.0.1':
     dependencies:
       tunnel: 0.0.6
-      undici: 7.29.0
+      undici: 7.29.1
 
   '@actions/io@3.0.2': {}
 
@@ -9735,7 +9741,7 @@ snapshots:
       '@effect/sql': 0.44.2(@effect/experimental@0.54.6(@effect/platform@0.90.10(effect@3.21.0))(effect@3.21.0))(@effect/platform@0.90.10(effect@3.21.0))(effect@3.21.0)
       effect: 3.21.0
       mime: 3.0.0
-      undici: 7.29.0
+      undici: 7.29.1
       ws: 8.21.1
     transitivePeerDependencies:
       - bufferutil
@@ -10762,7 +10768,7 @@ snapshots:
       '@octokit/plugin-paginate-rest': 9.2.2(@octokit/core@5.2.2)
       '@octokit/plugin-rest-endpoint-methods': 10.4.1(@octokit/core@5.2.2)
       '@octokit/types': 12.6.0
-      undici: 7.29.0
+      undici: 7.29.1
 
   '@octokit/auth-action@4.1.0':
     dependencies:
@@ -12204,21 +12210,21 @@ snapshots:
   ajv@8.17.1:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.6
+      fast-uri: 3.1.7
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
   ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.6
+      fast-uri: 3.1.7
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.6
+      fast-uri: 3.1.7
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -13751,7 +13757,7 @@ snapshots:
     dependencies:
       fast-string-truncated-width: 3.0.3
 
-  fast-uri@3.1.6: {}
+  fast-uri@3.1.7: {}
 
   fast-wrap-ansi@0.2.2:
     dependencies:
@@ -17138,7 +17144,7 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  undici@7.29.0: {}
+  undici@7.29.1: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
