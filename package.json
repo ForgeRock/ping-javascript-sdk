@@ -107,7 +107,7 @@
     "prettier": "^3.2.5",
     "shx": "^0.4.0",
     "swc-loader": "0.2.7",
-    "syncpack": "14.0.0",
+    "syncpack": "15.3.3",
     "ts-node": "10.9.2",
     "ts-patch": "3.3.0",
     "tslib": "catalog:",
