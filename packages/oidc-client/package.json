@@ -40,7 +40,8 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:effect",
-    "msw": "catalog:"
+    "msw": "catalog:",
+    "typescript": "catalog:"
   },
   "nx": {
     "tags": ["scope:package"],

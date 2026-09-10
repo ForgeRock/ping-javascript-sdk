@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:effect",
+    "typescript": "catalog:",
     "vitest": "catalog:vitest"
   },
   "nx": {

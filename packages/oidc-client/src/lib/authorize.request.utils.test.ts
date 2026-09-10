@@ -6,7 +6,7 @@
  */
 import { it } from '@effect/vitest';
 import { Micro } from 'effect';
-import { vi, afterEach, expect } from 'vitest';
+import { vi, beforeEach, afterEach, expect } from 'vitest';
 import * as sdkOidc from '@forgerock/sdk-oidc';
 import { createParAuthorizeUrlµ, authorizeµ } from './authorize.request.js';
 import {
@@ -63,6 +63,12 @@ const mockLog = {
 } as unknown as import('@forgerock/sdk-logger').CustomLogger;
 
 const sessionStorageStub = { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() };
+
+// vitest 4: restoreAllMocks no longer resets plain vi.fn() mocks (spies only),
+// so clear call history explicitly between tests.
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 afterEach(() => {
   vi.unstubAllGlobals();

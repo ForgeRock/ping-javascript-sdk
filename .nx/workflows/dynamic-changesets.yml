@@ -1,5 +1,22 @@
 distribute-on:
-  small-changeset: 3 linux-medium-js # Distribute on small if 1-25% of projects affected in PR
-  medium-changeset: 6 linux-medium-js # Distribute on medium if 26-50% of projects affected in PR
-  large-changeset: 10 linux-medium-js # Distribute on large if 51-75% of projects affected in PR
-  extra-large-changeset: 15 linux-medium-js # Distribute on extra-large if 76-100% of projects affected in PR
+  small-changeset: 5 linux-medium-js # Distribute on small if 1-25% of projects affected in PR
+  medium-changeset: 8 linux-medium-js # Distribute on medium if 26-50% of projects affected in PR
+  large-changeset: 14 linux-medium-js # Distribute on large if 51-75% of projects affected in PR
+  extra-large-changeset: 19 linux-medium-js # Distribute on extra-large if 76-100% of projects affected in PR
+
+# Pin e2e suites to dedicated agent groups. Both suites use linux-medium-js
+# templates, but each assignment rule creates its own dedicated agent pool, so
+# the suites stay isolated. Both suites' web apps bind port 5829 (cannot change
+# due to CORS), so if an atomized task from one suite can run on the same agent
+# as the other suite, a leaked/orphaned dev server gets wrongly reused across
+# suites. Per-suite agent pools guarantee an orphaned server can only belong to
+# the same suite's app.
+assignment-rules:
+  - projects:
+      - '*davinci-suites*'
+    run-on:
+      - agent: linux-medium-js
+  - projects:
+      - '*journey-suites*'
+    run-on:
+      - agent: linux-medium-js

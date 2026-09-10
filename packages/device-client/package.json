@@ -31,7 +31,8 @@
     "@reduxjs/toolkit": "catalog:"
   },
   "devDependencies": {
-    "msw": "catalog:"
+    "msw": "catalog:",
+    "typescript": "catalog:"
   },
   "nx": {
     "tags": ["scope:package"],
