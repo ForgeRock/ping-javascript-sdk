@@ -581,9 +581,9 @@ describe('journey-client', () => {
     test('journey_BaseUrl_NoRealmPath_UsesRootAuthenticate', async () => {
       setupBaseUrlFetch();
 
-      const client = await journey({
+      const client = (await journey({
         config: { serverConfig: { baseUrl } },
-      });
+      })) as JourneyClient;
       await client.start();
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -594,9 +594,9 @@ describe('journey-client', () => {
     test('journey_BaseUrl_WithRealmPath_UsesRealmAuthenticate', async () => {
       setupBaseUrlFetch();
 
-      const client = await journey({
+      const client = (await journey({
         config: { serverConfig: { baseUrl }, realmPath: 'alpha' },
-      });
+      })) as JourneyClient;
       await client.start();
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -609,9 +609,9 @@ describe('journey-client', () => {
     test('journey_BaseUrl_TrailingSlashInput_NormalizesCorrectly', async () => {
       setupBaseUrlFetch();
 
-      const client = await journey({
+      const client = (await journey({
         config: { serverConfig: { baseUrl: `${baseUrl}/` } },
-      });
+      })) as JourneyClient;
       await client.start();
 
       const request = mockFetch.mock.calls[0][0] as Request;
@@ -621,9 +621,9 @@ describe('journey-client', () => {
     test('journey_BaseUrl_Terminate_UsesRootSessionsUrl', async () => {
       setupBaseUrlFetch();
 
-      const client = await journey({
+      const client = (await journey({
         config: { serverConfig: { baseUrl } },
-      });
+      })) as JourneyClient;
       await client.terminate();
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -636,9 +636,9 @@ describe('journey-client', () => {
     test('journey_BaseUrl_WithRealmPath_Terminate_UsesRealmSessionsUrl', async () => {
       setupBaseUrlFetch();
 
-      const client = await journey({
+      const client = (await journey({
         config: { serverConfig: { baseUrl }, realmPath: 'alpha' },
-      });
+      })) as JourneyClient;
       await client.terminate();
 
       expect(mockFetch).toHaveBeenCalledTimes(1);

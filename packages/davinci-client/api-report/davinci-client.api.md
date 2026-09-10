@@ -12,6 +12,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { LogLevel } from '@forgerock/sdk-logger';
+import { makeDavinciConfig } from '@forgerock/sdk-utilities';
 import type { MutationResultSelectorResult } from '@reduxjs/toolkit/query';
 import { QueryStatus } from '@reduxjs/toolkit/query';
 import { Reducer } from '@reduxjs/toolkit';
@@ -1021,6 +1022,8 @@ export interface Links {
 }
 
 export { LogLevel }
+
+export { makeDavinciConfig }
 
 // @public (undocumented)
 export type MetadataCollector = AutoCollector<'ObjectValueAutoCollector', 'MetadataCollector', MetadataCollectorInputValue, Record<string, unknown>>;
