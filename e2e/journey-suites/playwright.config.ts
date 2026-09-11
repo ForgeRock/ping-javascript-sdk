@@ -38,7 +38,7 @@ const config: PlaywrightTestConfig = {
       cwd: workspaceRoot,
     },
     {
-      command: 'pnpm --filter am-mock-api exec node dist/src/index.js',
+      command: 'pnpm --filter am-mock-api exec tsx src/index.js',
       port: 9443,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,
