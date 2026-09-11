@@ -31,7 +31,8 @@ const config: PlaywrightTestConfig = {
         }
       : undefined,
     {
-      command: 'pnpm --filter @forgerock/journey-app exec vite',
+      command:
+        'pnpm --filter @forgerock/journey-app... build && pnpm --filter @forgerock/journey-app exec vite',
       port: 5829,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,

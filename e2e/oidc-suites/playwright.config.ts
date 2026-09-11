@@ -22,7 +22,8 @@ export default defineConfig({
   },
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm --filter @forgerock/oidc-app exec vite',
+    command:
+      'pnpm --filter @forgerock/oidc-app... build && pnpm --filter @forgerock/oidc-app exec vite',
     port: 8443,
     ignoreHTTPSErrors: true,
     reuseExistingServer: !process.env.CI,
