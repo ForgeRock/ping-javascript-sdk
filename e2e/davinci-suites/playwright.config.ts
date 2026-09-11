@@ -34,7 +34,8 @@ const config: PlaywrightTestConfig = {
         }
       : undefined,
     {
-      command: 'pnpm --filter @forgerock/davinci-app exec vite',
+      command:
+        'pnpm --filter @forgerock/davinci-app... build && pnpm --filter @forgerock/davinci-app exec vite',
       port: 5829,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,
