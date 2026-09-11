@@ -3,7 +3,7 @@
  *
  * routes.auth.js
  *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2020 - 2026 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
@@ -28,6 +28,7 @@ import {
   pollingCallback,
   pingProtectEvaluate,
   pingProtectInitialize,
+  pingProtectSignalsInitializationOptions,
   redirectCallback,
   redirectCallbackSaml,
   requestDeviceProfile,
@@ -42,7 +43,6 @@ import {
   textInputCallback,
   treeAuthz,
   txnAuthz,
-  otpQRCodeCallbacks,
   wellKnownForgeRock,
   recaptchaEnterpriseCallback,
   MetadataMarketPlaceInitialize,
@@ -94,6 +94,11 @@ export default function (app) {
         res.json(nameCallback);
       } else if (req.query.authIndexValue === 'TEST_LoginPingProtect') {
         res.json({ ...pingProtectInitialize, authId: 'protect-journey-init' });
+      } else if (req.query.authIndexValue === 'TEST_LoginPingProtectSignalsOptions') {
+        res.json({
+          ...pingProtectSignalsInitializationOptions,
+          authId: 'protect-journey-signals-init-options',
+        });
       } else if (req.query.authIndexValue === 'IDMSocialLogin') {
         res.json(selectIdPCallback);
       } else if (req.query.authIndexValue === 'TEST_MetadataMarketPlace') {
@@ -449,10 +454,8 @@ export default function (app) {
   });
 
   app.post(authPaths.tokenExchange, wait, async (req, res) => {
-    // eslint-disable-next-line
     const access_token = v4();
     const refresh_token = v4();
-    // eslint-disable-next-line
     const tokens = { ...oauthTokens, access_token, refresh_token };
 
     if (req.path.includes('middleware')) {
@@ -496,7 +499,6 @@ export default function (app) {
     } else {
       const referrer = new URL(req.get('Referer'));
       const additionalQueryParams =
-        // eslint-disable-next-line max-len
         'state=rtu8pz65dbg6baw985d532myfbbnf5v&code=4%2F0AY0e-g5vHGhzfggdAuIofxnblW-iR1Y30G5lN5RvbrU8Zv5ZmtUVheTzSX7YMJF_usbzUA&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&hd=forgerock.com&prompt=none';
       const redirectUrl = `${referrer.href}${
         referrer.href.includes('?') ? '&' : '?'
