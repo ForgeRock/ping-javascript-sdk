@@ -3,7 +3,7 @@
  *
  * fr-webauthn.mock.data.ts
  *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2020 - 2026 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
@@ -310,6 +310,37 @@ export const webAuthnAuthMetaCallback70StoredUsername = {
             relyingPartyId: '',
             allowCredentials: '',
             timeout: '60000',
+          },
+        },
+      ],
+    },
+    {
+      type: callbackType.HiddenValueCallback,
+      output: [
+        { name: 'value', value: 'false' },
+        { name: 'id', value: 'webAuthnOutcome' },
+      ],
+      input: [{ name: 'IDToken2', value: 'webAuthnOutcome' }],
+    },
+  ],
+};
+
+export const webAuthnAuthMetaCallback70Conditional = {
+  authId: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9 ... ',
+  callbacks: [
+    {
+      type: callbackType.MetadataCallback,
+      output: [
+        {
+          name: 'data',
+          value: {
+            userVerification: 'preferred',
+            _type: 'WebAuthn',
+            challenge: 'OHmmFKfBhrUZKkuZJ84lf9N8TaRmQSjRdZyueeSIXAo=',
+            relyingPartyId: '',
+            allowCredentials: '',
+            timeout: '60000',
+            mediation: 'conditional',
           },
         },
       ],

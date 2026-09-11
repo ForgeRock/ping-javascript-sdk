@@ -65,16 +65,9 @@ export async function handleWebAuthnStep(
     ) as HTMLInputElement | null;
     conditionalInput?.focus();
 
-    const isConditionalSupported = await WebAuthn.isConditionalMediationSupported();
+    const isConditionalMediation = await WebAuthn.isConditionalMediationSupported(step);
 
-    const metadataCallback = WebAuthn.getMetadataCallback(step);
-    const meta = metadataCallback?.getData<{
-      mediation?: CredentialMediationRequirement;
-      conditional?: boolean;
-    }>();
-    const isConditionalMediation = meta?.mediation === 'conditional' || meta?.conditional === true;
-
-    if (isConditionalSupported && conditionalInput && isConditionalMediation) {
+    if (isConditionalMediation && conditionalInput) {
       const controller = new AbortController();
       void WebAuthn.authenticate(step, controller.signal)
         .then(() => submitForm())
