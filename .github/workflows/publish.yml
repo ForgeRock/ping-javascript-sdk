@@ -57,12 +57,11 @@ jobs:
         uses: changesets/action@v2.1.1
         id: changesets
         with:
-          publish: pnpm ci:release
-          version: pnpm ci:version
-          title: Release PR
-          branch: main
-          commit: 'chore: version-packages'
-          setupGitUser: true
+          publish-script: pnpm ci:release
+          version-script: pnpm ci:version
+          pr-title: Release PR
+          pr-base-branch: main
+          commit-message: 'chore: version-packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
