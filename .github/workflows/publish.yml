@@ -62,8 +62,7 @@ jobs:
           pr-title: Release PR
           pr-base-branch: main
           commit-message: 'chore: version-packages'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
 
       - name: Publish Release Steps
         if: steps.changesets.outputs.published == 'true'
