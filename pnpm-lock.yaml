@@ -83,7 +83,7 @@ overrides:
   brace-expansion@>=4: ~5.0.8
   ws: ^8.21.1
   undici: ^7.29.1
-  nanoid: ^5.1.16
+  nanoid: ^6.0.0
   postcss: ^8.5.23
 
 importers:
@@ -416,8 +416,8 @@ importers:
         specifier: catalog:effect
         version: 3.21.0
       nanoid:
-        specifier: ^5.1.16
-        version: 5.1.16
+        specifier: ^6.0.0
+        version: 6.0.1
     devDependencies:
       '@effect/vitest':
         specifier: catalog:effect
@@ -5100,6 +5100,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -6674,9 +6675,9 @@ packages:
     resolution: {integrity: sha512-dkEJPVvun4FryqBmZ5KhDo0K9iDXAwn08tMLDinNdRBNPcYEDiWYysLcc6k3mjTMlbP9KyylvRpd4wFtwrT9rw==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  nanoid@5.1.16:
-    resolution: {integrity: sha512-kVrnsrJqMR8+oLJnGEmSWw9BivK5mt7H3FZatVRjrc5wGqFYuBxX1yG7+A7Gi5AefkX6t/oCkizcQgpu0cY1dQ==}
-    engines: {node: ^18 || >=20}
+  nanoid@6.0.1:
+    resolution: {integrity: sha512-3wVS3i51pE2pi1k5FFL/95BGfVS0kSsvDVuGXHOtxox/TywUmtgq+3qiTOTbs9J7KfHaXPiN171k/A6dBnaXFw==}
+    engines: {node: ^22 || ^24 || >=26}
     hasBin: true
 
   napi-postinstall@0.3.4:
@@ -8651,7 +8652,7 @@ snapshots:
   '@aracna/core@1.5.0':
     dependencies:
       cookie: 1.1.1
-      nanoid: 5.1.16
+      nanoid: 6.0.1
       rfc4648: 1.5.4
 
   '@aracna/web-components@1.1.18(@aracna/core@1.5.0)(@aracna/web@1.1.0(@aracna/core@1.5.0))(@floating-ui/dom@1.8.0)(dompurify@3.4.13)(focus-trap@8.2.2)(lit@3.3.3)(qrcode@1.5.4)(tabbable@6.5.0)':
@@ -15628,7 +15629,7 @@ snapshots:
 
   mute-stream@3.0.0: {}
 
-  nanoid@5.1.16: {}
+  nanoid@6.0.1: {}
 
   napi-postinstall@0.3.4: {}
 
@@ -16157,7 +16158,7 @@ snapshots:
 
   postcss@8.5.26:
     dependencies:
-      nanoid: 5.1.16
+      nanoid: 6.0.1
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
