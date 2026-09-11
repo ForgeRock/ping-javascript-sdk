@@ -31,14 +31,14 @@ const config: PlaywrightTestConfig = {
         }
       : undefined,
     {
-      command: 'pnpm nx serve @forgerock/journey-app',
+      command: 'pnpm --filter @forgerock/journey-app exec vite',
       port: 5829,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,
       cwd: workspaceRoot,
     },
     {
-      command: 'pnpm nx serve am-mock-api',
+      command: 'pnpm --filter am-mock-api exec node dist/src/index.js',
       port: 9443,
       ignoreHTTPSErrors: true,
       reuseExistingServer: !process.env.CI,
