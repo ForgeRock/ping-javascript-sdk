@@ -12,17 +12,17 @@ import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
-import { createClientStore, createTokenError } from './client.store.utils.js';
+import { createClientStore, createTokenError, parseOidcArgs } from './client.store.utils.js';
 import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { isExpiryWithinThreshold } from './token.utils.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import { wellknownApi, wellknownSelector } from './wellknown.api.js';
+import { wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
 
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { ActionTypes } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
+import type { SdkStore } from '@forgerock/sdk-store';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type {
@@ -33,63 +33,53 @@ import type {
   RevokeSuccessResult,
   UserInfoResponse,
 } from './client.types.js';
-import type { OauthTokens, OidcConfig } from './config.types.js';
+import type { OauthTokens } from './config.types.js';
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
+import type { RawOidcArgs } from './client.store.types.js';
 
 /**
  * @function oidc
  * @description Factory function to create an OIDC client with methods for authorization, token exchange,
  *              user info retrieval, and logout. It initializes the client with the provided configuration,
  *              request middleware, logger, and storage options.
- * @param param - configuration object containing the OIDC client configuration, request middleware, logger,
- * @param {OidcConfig} param.config - OIDC configuration including server details, client ID, redirect URI,
+ * @param raw - configuration object containing the OIDC client configuration, request middleware, logger,
+ * @param {OidcConfig} raw.config - OIDC configuration including server details, client ID, redirect URI,
  *              storage options, scope, and response type.
- * @param {RequestMiddleware} param.requestMiddleware - optional array of request middleware functions to process requests.
- * @param {{ level: LogLevel, custom: CustomLogger }} param.logger - optional logger configuration with log level and custom logger.
- * @param {Partial<StorageConfig>} param.storage - optional storage configuration for persisting OIDC tokens.
+ * @param {RequestMiddleware} raw.requestMiddleware - optional array of request middleware functions to process requests.
+ * @param {{ level: LogLevel, custom: CustomLogger }} raw.logger - optional logger configuration with log level and custom logger.
+ * @param {Partial<StorageConfig>} raw.storage - optional storage configuration for persisting OIDC tokens.
+ * @param {unknown} raw.store - optional existing SDK store to share across clients; validated at runtime via `isSdkStoreHandle`.
  * @returns {ReturnType<typeof oidc>} - Returns an object with methods for authorization, token exchange, user info retrieval, and logout.
  */
-export async function oidc<ActionType extends ActionTypes = ActionTypes>({
-  config,
-  requestMiddleware,
-  logger,
-  storage,
-}: {
-  config: OidcConfig;
-  requestMiddleware?: RequestMiddleware<ActionType>[];
-  logger?: {
-    level: LogLevel;
-    custom?: CustomLogger;
-  };
-  storage?: Partial<StorageConfig>;
-}) {
+export async function oidc<ActionType extends ActionTypes = ActionTypes>(
+  raw: RawOidcArgs<ActionType>,
+) {
+  const parsed = parseOidcArgs(raw);
+  if ('type' in parsed) return parsed;
+
+  const { config, requestMiddleware, logger, storage, store: sharedStore } = parsed;
+
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
   const oauthThreshold = config.oauthThreshold || 30 * 1000; // Default to 30 seconds
+
   const storageClient = createStorage<OauthTokens>({
     type: storage?.type || 'localStorage',
     name: storage?.name || config.clientId,
     prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
-  const store = createClientStore({ requestMiddleware, logger: log });
-
-  if (!config?.serverConfig?.wellknown) {
-    return {
-      error: 'Requires a wellknown url initializing this factory.',
-      type: 'argument_error',
-    };
-  }
-  if (!config?.clientId) {
-    return {
-      error: 'Requires a clientId.',
-      type: 'argument_error',
-    };
-  }
+  const handle = createClientStore({
+    requestMiddleware,
+    logger: log,
+    store: sharedStore,
+    clientId: config.clientId,
+  });
+  const { store } = handle;
 
   const wellknownUrl = config.serverConfig.wellknown;
   const { data, error } = await store.dispatch(
@@ -115,6 +105,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
   const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
 
   return {
+    /** Pass to another SDK client's `store` option to share this store. */
+    store: handle as SdkStore,
     // Pass store methods to the client
     subscribe: store.subscribe,
 

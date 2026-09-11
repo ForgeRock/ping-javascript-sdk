@@ -6,7 +6,7 @@
  */
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
-import { initWellknownQuery } from '@forgerock/sdk-oidc';
+import { initWellknownQuery } from '@forgerock/sdk-store';
 
 import type { WellknownResponse } from '@forgerock/sdk-types';
 import type {
@@ -18,7 +18,7 @@ import type {
 /**
  * RTK Query API for well-known endpoint discovery.
  *
- * Uses the `initWellknownQuery` builder pattern from `@forgerock/sdk-oidc`.
+ * Uses the `initWellknownQuery` builder pattern from `@forgerock/sdk-store`.
  * The builder constructs the request and validates the response;
  * `fetchBaseQuery` handles the HTTP transport through RTK Query's pipeline.
  */

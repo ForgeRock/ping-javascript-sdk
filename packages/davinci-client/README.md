@@ -25,7 +25,7 @@ Configure DaVinci Client with the following minimum, required properties:
 
 ```ts
 // Demo with example values
-import { davinci } from '@forgerock/davinci';
+import { davinci } from '@forgerock/davinci-client';
 
 const davinciClient = await davinci({
   config: {
@@ -42,7 +42,7 @@ If you have a need for more than one client, say you need to use two or more dif
 
 ```ts
 // Demo with example values
-import { davinci } from '@forgerock/davinci';
+import { davinci } from '@forgerock/davinci-client';
 
 const firstDavinciClient = await davinci(/** config 1 **/);
 const secondDavinciClient = await davinci(/** config 2 **/);
@@ -62,6 +62,50 @@ interface DaVinciConfig {
   };
 }
 ```
+
+### Sharing a store with another client
+
+If your application also uses `@forgerock/oidc-client`, the two can share one Redux store so the well-known discovery document is fetched once rather than once per client.
+
+`davinci()` exposes the store it created as `client.store`. Pass it to the other client:
+
+```ts
+import { davinci } from '@forgerock/davinci-client';
+import { oidc } from '@forgerock/oidc-client';
+
+const davinciClient = await davinci({ config });
+
+// Attaches to davinci's store; the discovery document is already cached there.
+const oidcClient = await oidc({ config: oidcConfig, store: davinciClient.store });
+```
+
+Or create the store yourself when neither client is the natural owner:
+
+```ts
+import { createSdkStore } from '@forgerock/sdk-store';
+
+const store = createSdkStore();
+const davinciClient = await davinci({ config, store });
+const oidcClient = await oidc({ config: oidcConfig, store });
+```
+
+Omitting `store` is always valid — the client creates its own, which is the default behaviour.
+
+#### Middleware and logging stay private
+
+Sharing a store shares cached data, not configuration. `requestMiddleware` and `logger` are registered against the client you pass them to, and are resolved only by that client's own requests:
+
+```ts
+const store = createSdkStore();
+
+// Runs for DAVINCI_START, DAVINCI_NEXT, DAVINCI_FLOW and the other DaVinci actions only.
+await davinci({ config, store, requestMiddleware: [davinciMiddleware] });
+
+// Runs for OIDC requests only.
+await oidc({ config: oidcConfig, store, requestMiddleware: [oidcMiddleware] });
+```
+
+Middleware passed here will never run against an OIDC token exchange, and vice versa.
 
 ### Start a DaVinci flow
 
@@ -182,10 +226,10 @@ Upon each collector in the array, some will need an `updater`, like the collecto
 
 ```ts
 // Example SingleValueCollector using the TextCollector
-const collectors = davinci.collectors();
+const collectors = davinciClient.getCollectors();
 collectors.map((collector) => {
   if (collector.type === 'TextCollector') {
-    renderTextCollector(collector, davinci.update(collector));
+    renderTextCollector(collector, davinciClient.update(collector));
   }
 });
 ```
@@ -214,7 +258,7 @@ The `SubmitCollector` is associated with the submission of the current node and 
 
 ```ts
 // Example SubmitCollector mapping
-const collectors = davinci.collectors();
+const collectors = davinciClient.getCollectors();
 collectors.map((collector) => {
   if (collector.type === 'SubmitCollector') {
     renderSubmitCollector(
@@ -234,7 +278,7 @@ To do this, you call the `flow` method on the `davinciClient` passing the `key` 
 
 ```ts
 // Example FlowCollector mapping
-const collectors = davinci.collectors();
+const collectors = davinciClient.getCollectors();
 collectors.map((collector) => {
   if (collector.type === 'FlowCollector') {
     renderFlowCollector(collector, davinciClient.flow(collector));
@@ -260,7 +304,7 @@ function renderFlowCollector(collector, startFlow) {
 After collecting the needed data, you proceed to the next node in the DaVinci flow by calling the `.next()` method on the same `davinci` client object. This can be the result of a user clicking on the button rendered from the `SubmitCollector`, from the "submit" event of the HTML form itself, or from programmatically triggering the submission in the application layer.
 
 ```ts
-let nextStep = davinci.next();
+const nextStep = await davinciClient.next();
 ```
 
 Note: There's no need to pass anything into the `next` method as the DaVinci Client internally stores the updated object needed for the server.
@@ -284,25 +328,12 @@ When you receive a success node, you will likely want to use the Authorization C
 Here's a brief sample of what that might look like in pseudocode:
 
 ```ts
-// ... other imports
-
-import { Config, TokenManager } from '@forgerock/javascript-sdk';
-
-// ... other config or initialization code
-
-// This Config.set accepts the same config schema as the davinci function
-Config.set(config);
-
-const node = await davinciClient.next();
-
-if (node.status === 'success') {
-  const clientInfo = davinciClient.getClient();
-
-  const code = clientInfo.authorization?.code || '';
-  const state = clientInfo.authorization?.state || '';
-
-  const tokens = await TokenManager.getTokens({ query: { code, state } });
-  // user now has session and OIDC tokens
+// oidcClient is an instance of oidc() from @forgerock/oidc-client, configured earlier
+const tokens = await oidcClient.token.exchange(code, state);
+if ('error' in tokens) {
+  console.error('Token exchange failed:', tokens.error);
+} else {
+  console.log('Access token:', tokens.accessToken);
 }
 ```
 
@@ -320,7 +351,7 @@ if (node.status === 'failure') {
   renderError(error);
 
   // ... user clicks button to restart flow
-  const freshNode = davinciClient.start();
+  const freshNode = await davinciClient.start();
 }
 ```
 
