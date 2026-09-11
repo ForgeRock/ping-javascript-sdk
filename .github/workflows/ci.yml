@@ -52,7 +52,7 @@ jobs:
       - run: pnpm nx fix-ci
         if: always()
 
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           directory: ./packages/
           token: ${{ secrets.CODECOV_TOKEN }}
