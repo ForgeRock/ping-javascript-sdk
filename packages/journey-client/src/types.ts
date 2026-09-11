@@ -47,6 +47,7 @@ export * from './lib/callbacks/name-callback.js';
 export * from './lib/callbacks/password-callback.js';
 export * from './lib/callbacks/ping-protect-evaluation-callback.js';
 export * from './lib/callbacks/ping-protect-initialize-callback.js';
+export * from './lib/callbacks/ping-one-recognize-callback.js';
 export * from './lib/callbacks/polling-wait-callback.js';
 export * from './lib/callbacks/recaptcha-callback.js';
 export * from './lib/callbacks/recaptcha-enterprise-callback.js';
