@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { it, expect, describe } from 'vitest';
-import { Micro } from 'effect';
+import { Cause, Effect, Exit, Option } from 'effect';
 import { deepStrictEqual } from 'node:assert';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
@@ -101,8 +101,8 @@ const partialWellknown = {
 
 describe('signOutRedirectUri', () => {
   it('logoutµ appends post_logout_redirect_uri when signOutRedirectUri is set in config', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const end_session_endpoint = 'https://example.com/am/oauth2/alpha/connect/endSession';
         const revocation_endpoint = 'https://example.com/am/oauth2/alpha/token/revoke';
         let capturedUrl = '';
@@ -132,8 +132,8 @@ describe('signOutRedirectUri', () => {
     ));
 
   it('logoutµ omits post_logout_redirect_uri when signOutRedirectUri is absent', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const end_session_endpoint = 'https://example.com/am/oauth2/alpha/connect/endSession';
         const revocation_endpoint = 'https://example.com/am/oauth2/alpha/token/revoke';
         let capturedUrl = '';
@@ -165,8 +165,8 @@ describe('signOutRedirectUri', () => {
 
 describe('Ping AM', () => {
   it('logoutµ succeeds with valid wellknown endpoints', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const end_session_endpoint = 'https://example.com/am/oauth2/alpha/connect/endSession';
         const revocation_endpoint = 'https://example.com/am/oauth2/alpha/token/revoke';
 
@@ -191,12 +191,12 @@ describe('Ping AM', () => {
     ));
 
   it('logoutµ fails on bad endSession', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const end_session_endpoint = 'https://example.com/am/oauth2/fake-realm/connect/endSession';
         const revocation_endpoint = 'https://example.com/am/oauth2/alpha/token/revoke';
 
-        const result = yield* Micro.exit(
+        const result = yield* Effect.exit(
           logoutµ({
             tokens,
             config,
@@ -210,30 +210,31 @@ describe('Ping AM', () => {
           }),
         );
 
-        deepStrictEqual(
-          result,
-          Micro.exitFail({
-            error: 'Inner request error',
-            sessionResponse: {
-              error: 'End Session failure',
-              message: 'An error occurred while ending the session',
-              type: 'auth_error',
-              status: 400,
-            },
-            revokeResponse: null,
-            deleteResponse: null,
-          }),
-        );
+        expect(Exit.isFailure(result)).toBe(true);
+        if (!Exit.isFailure(result)) return;
+        const errorOpt = Cause.findErrorOption(result.cause);
+        if (!Option.isSome(errorOpt)) return;
+        deepStrictEqual(errorOpt.value, {
+          error: 'Inner request error',
+          sessionResponse: {
+            error: 'End Session failure',
+            message: 'An error occurred while ending the session',
+            type: 'auth_error',
+            status: 400,
+          },
+          revokeResponse: null,
+          deleteResponse: null,
+        });
       }),
     ));
 
   it('logoutµ fails on bad revoke', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const end_session_endpoint = 'https://example.com/am/oauth2/alpha/connect/endSession';
         const revocation_endpoint = 'https://example.com/am/oauth2/fake-realm/token/revoke';
 
-        const result = yield* Micro.exit(
+        const result = yield* Effect.exit(
           logoutµ({
             tokens,
             config,
@@ -247,20 +248,21 @@ describe('Ping AM', () => {
           }),
         );
 
-        deepStrictEqual(
-          result,
-          Micro.exitFail({
-            error: 'Inner request error',
-            sessionResponse: null,
-            revokeResponse: {
-              error: 'End Session failure',
-              message: 'An error occurred while ending the session',
-              type: 'auth_error',
-              status: 400,
-            },
-            deleteResponse: null,
-          }),
-        );
+        expect(Exit.isFailure(result)).toBe(true);
+        if (!Exit.isFailure(result)) return;
+        const errorOpt = Cause.findErrorOption(result.cause);
+        if (!Option.isSome(errorOpt)) return;
+        deepStrictEqual(errorOpt.value, {
+          error: 'Inner request error',
+          sessionResponse: null,
+          revokeResponse: {
+            error: 'End Session failure',
+            message: 'An error occurred while ending the session',
+            type: 'auth_error',
+            status: 400,
+          },
+          deleteResponse: null,
+        });
       }),
     ));
 });
@@ -269,8 +271,8 @@ describe('PingOne', () => {
   const fakeEndSessionEndpoint = 'https://example.com/endSession';
 
   it('logoutµ succeeds with valid wellknown endpoints', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const ping_end_idp_session_endpoint = 'https://example.com/as/idpSignoff';
         const revocation_endpoint = 'https://example.com/as/revoke';
 
@@ -296,12 +298,12 @@ describe('PingOne', () => {
     ));
 
   it('logoutµ fails on bad endSession', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const ping_end_idp_session_endpoint = 'https://example.com/as/badIdpSignoff';
         const revocation_endpoint = 'https://example.com/as/revoke';
 
-        const result = yield* Micro.exit(
+        const result = yield* Effect.exit(
           logoutµ({
             tokens,
             config,
@@ -316,30 +318,31 @@ describe('PingOne', () => {
           }),
         );
 
-        deepStrictEqual(
-          result,
-          Micro.exitFail({
-            error: 'Inner request error',
-            sessionResponse: {
-              error: 'End Session failure',
-              message: 'An error occurred while ending the session',
-              type: 'auth_error',
-              status: 400,
-            },
-            revokeResponse: null,
-            deleteResponse: null,
-          }),
-        );
+        expect(Exit.isFailure(result)).toBe(true);
+        if (!Exit.isFailure(result)) return;
+        const errorOpt = Cause.findErrorOption(result.cause);
+        if (!Option.isSome(errorOpt)) return;
+        deepStrictEqual(errorOpt.value, {
+          error: 'Inner request error',
+          sessionResponse: {
+            error: 'End Session failure',
+            message: 'An error occurred while ending the session',
+            type: 'auth_error',
+            status: 400,
+          },
+          revokeResponse: null,
+          deleteResponse: null,
+        });
       }),
     ));
 
   it('logoutµ fails on bad revoke', () =>
-    Micro.runPromise(
-      Micro.gen(function* () {
+    Effect.runPromise(
+      Effect.gen(function* () {
         const ping_end_idp_session_endpoint = 'https://example.com/as/idpSignoff';
         const revocation_endpoint = 'https://example.com/as/badRevoke';
 
-        const result = yield* Micro.exit(
+        const result = yield* Effect.exit(
           logoutµ({
             tokens,
             config,
@@ -354,20 +357,21 @@ describe('PingOne', () => {
           }),
         );
 
-        deepStrictEqual(
-          result,
-          Micro.exitFail({
-            error: 'Inner request error',
-            sessionResponse: null,
-            revokeResponse: {
-              error: 'End Session failure',
-              message: 'An error occurred while ending the session',
-              type: 'auth_error',
-              status: 400,
-            },
-            deleteResponse: null,
-          }),
-        );
+        expect(Exit.isFailure(result)).toBe(true);
+        if (!Exit.isFailure(result)) return;
+        const errorOpt = Cause.findErrorOption(result.cause);
+        if (!Option.isSome(errorOpt)) return;
+        deepStrictEqual(errorOpt.value, {
+          error: 'Inner request error',
+          sessionResponse: null,
+          revokeResponse: {
+            error: 'End Session failure',
+            message: 'An error occurred while ending the session',
+            type: 'auth_error',
+            status: 400,
+          },
+          deleteResponse: null,
+        });
       }),
     ));
 });

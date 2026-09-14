@@ -4,10 +4,14 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Layer } from 'effect';
+import { Effect, Layer } from 'effect';
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node';
 import { MockApi } from './spec.js';
-import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, HttpServer } from '@effect/platform';
+import { HttpApiBuilder, HttpApiSwagger } from 'effect/unstable/httpapi';
+import * as HttpMiddleware from 'effect/unstable/http/HttpMiddleware';
+import * as HttpRouter from 'effect/unstable/http/HttpRouter';
+import * as HttpServer from 'effect/unstable/http/HttpServer';
+import type { ServeError } from 'effect/unstable/http/HttpServerError';
 import { createServer } from 'node:http';
 import { HealthCheckLive } from './handlers/healthcheck.handler.js';
 import { OpenidConfigMock } from './handlers/open-id-configuration.handler.js';
@@ -26,47 +30,63 @@ import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trac
 import { EndSessionHandlerMock } from './handlers/end-session.handler.js';
 import { RevokeTokenHandler } from './handlers/revoke.handler.js';
 
-const Services = [
-  Layer.provide(TokensMock),
-  Layer.provide(IncrementStepIndexMock),
-  Layer.provide(AuthorizationMock),
-  Layer.provide(UserInfoMockService),
-  Layer.provide(SessionMiddlewareMock),
-  Layer.provide(SessionStorage.Default),
-] as const;
-
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: 'Mock-Api' },
   spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
 }));
 
-const APIMock = HttpApiBuilder.api(MockApi).pipe(
-  Layer.provide(HealthCheckLive),
-  Layer.provide(OpenidConfigMock),
-  Layer.provide(AuthorizeHandlerMock),
-  Layer.provide(TokensHandler),
-  Layer.provide(CapabilitiesHandlerMock),
-  Layer.provide(UserInfoMockHandler),
-  Layer.provide(EndSessionHandlerMock),
-  Layer.provide(RevokeTokenHandler),
-  ...Services,
+// Wire SessionStorage into SessionMiddlewareMock
+const SessionLayer = Layer.provide(
+  SessionMiddlewareMock,
+  Layer.effect(SessionStorage, SessionStorage.make),
 );
 
-const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
-  Layer.provide(HttpApiSwagger.layer()),
-  Layer.provide(
-    HttpApiBuilder.middlewareCors({
+// Merge all group handlers
+const HandlersLayer = Layer.mergeAll(
+  HealthCheckLive,
+  OpenidConfigMock,
+  AuthorizeHandlerMock,
+  TokensHandler,
+  CapabilitiesHandlerMock,
+  UserInfoMockHandler,
+  EndSessionHandlerMock,
+  RevokeTokenHandler,
+);
+
+// Merge all services
+const ServicesLayer = Layer.mergeAll(
+  TokensMock,
+  IncrementStepIndexMock,
+  AuthorizationMock,
+  UserInfoMockService,
+  SessionLayer,
+);
+
+// Build application routes layer with all handlers and services provided in one step each
+const AppLayer = HttpApiBuilder.layer(MockApi).pipe(
+  Layer.provide(HandlersLayer),
+  Layer.provide(ServicesLayer),
+);
+
+// Compose app + swagger, then provide the router service
+const AppWithSwagger = Layer.merge(AppLayer, HttpApiSwagger.layer(MockApi)).pipe(
+  Layer.provide(HttpRouter.layer),
+);
+
+const ServerMock = HttpRouter.serve(AppWithSwagger, {
+  middleware: (app) =>
+    HttpMiddleware.cors({
       allowedMethods: ['GET', 'PUT', 'POST', 'OPTIONS'],
       allowedOrigins: ['*'],
       credentials: true,
       maxAge: 3600,
-    }),
-  ),
-  Layer.provide(APIMock),
-
-  Layer.provide(NodeSdkLive),
+    })(HttpMiddleware.logger(app)),
+}).pipe(
   HttpServer.withLogAddress,
+  Layer.provide(NodeSdkLive),
   Layer.provide(NodeHttpServer.layer(createServer, { port: 9443, host: 'localhost' })),
 );
 
-Layer.launch(ServerMock).pipe(NodeRuntime.runMain);
+// TypeScript cannot fully resolve complex Effect layer generic compositions;
+// all requirements ARE satisfied at runtime — NodeHttpServer provides FileSystem, Path, HttpPlatform, Etag.
+NodeRuntime.runMain(Layer.launch(ServerMock) as Effect.Effect<never, ServeError, never>);

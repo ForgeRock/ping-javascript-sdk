@@ -8,7 +8,7 @@
  * Import the required utilities from Redux Toolkit
  */
 import { createAction, createReducer } from '@reduxjs/toolkit';
-import { Either } from 'effect';
+import { Result } from 'effect';
 
 /**
  * Import the collector utilities
@@ -37,7 +37,7 @@ import {
   returnQrCodeCollector,
   returnImageCollector,
 } from './collector.utils.js';
-import { resolveCollectorUpdateValue } from './client.store.utils.js';
+import { resolveCollectorUpdateValue } from './collector.resolver.js';
 import type { DaVinciField, UnknownField } from './davinci.types.js';
 import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
 import type {
@@ -58,9 +58,8 @@ function updateCollector<T extends UpdatableCollectors>(
   cb: (resolvedValue: CollectorValueType<T>) => void,
 ): void {
   const result = resolveCollectorUpdateValue(collector, value);
-  if (Either.isRight(result)) {
-    const resolvedValue = result.right;
-    cb(resolvedValue);
+  if (Result.isSuccess(result)) {
+    cb(result.success as CollectorValueType<T>);
   }
 }
 

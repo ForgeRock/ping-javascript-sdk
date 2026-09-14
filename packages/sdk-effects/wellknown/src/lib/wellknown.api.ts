@@ -22,6 +22,9 @@ import type {
  * Uses the `initWellknownQuery` builder pattern from `@forgerock/sdk-oidc`.
  * The builder constructs the request and validates the response;
  * `fetchBaseQuery` handles the HTTP transport through RTK Query's pipeline.
+ *
+ * This is the canonical single instance — all SDK client packages import from here
+ * so that a shared Redux store gets a single cache entry per URL.
  */
 export const wellknownApi = createApi({
   reducerPath: 'wellknown',
@@ -43,6 +46,11 @@ export const wellknownApi = createApi({
   }),
 });
 
+/** Minimum state shape required to use wellknown selectors. */
+export type WellknownState = {
+  [wellknownApi.reducerPath]: ReturnType<typeof wellknownApi.reducer>;
+};
+
 /**
  * Creates a memoized selector for cached well-known data.
  *
@@ -54,4 +62,19 @@ export function createWellknownSelector(wellknownUrl: string) {
     wellknownApi.endpoints.configuration.select(wellknownUrl),
     (result) => result?.data,
   );
+}
+
+/**
+ * Convenience selector for any state that contains the wellknown slice.
+ *
+ * Unlike {@link createWellknownSelector}, this immediately evaluates the
+ * selector against the provided state rather than returning a reusable selector.
+ *
+ * @param wellknownUrl - The well-known endpoint URL used as the cache key
+ * @param state - Any Redux state that includes the wellknown slice
+ * @returns The cached WellknownResponse or undefined if not yet fetched
+ */
+export function wellknownSelector<S extends WellknownState>(wellknownUrl: string, state: S) {
+  const selector = createWellknownSelector(wellknownUrl);
+  return selector(state);
 }

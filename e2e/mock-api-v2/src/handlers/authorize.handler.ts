@@ -6,11 +6,12 @@
  */
 import { Effect, pipe } from 'effect';
 import { MockApi } from '../spec.js';
-import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platform';
+import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
+import * as HttpServerResponse from 'effect/unstable/http/HttpServerResponse';
 import { getFirstElementAndRespond } from '../services/mock-env-helpers/index.js';
 
 const AuthorizeHandlerMock = HttpApiBuilder.group(MockApi, 'Authorization', (handlers) =>
-  handlers.handle('authorize', ({ urlParams }) =>
+  handlers.handle('authorize', ({ query: urlParams }) =>
     Effect.gen(function* () {
       const acr_value = urlParams?.acr_values ?? '';
 

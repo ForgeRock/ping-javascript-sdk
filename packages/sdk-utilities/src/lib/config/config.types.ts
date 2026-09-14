@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type * as Either from 'effect/Either';
+import type { Result } from 'effect';
 
 import type { LogLevel, AuthDisplayValue, AuthPromptValue } from '@forgerock/sdk-types';
 
@@ -50,10 +50,10 @@ export type ConfigValidationError = {
 };
 
 /**
- * A parsed result over the accumulating-error channel. Effect's `Either` is
- * `Either<Right, Left>`, so the SECOND type parameter is the error channel.
+ * A parsed result over the accumulating-error channel. Effect's `Result` is
+ * `Result<OkValue, ErrValue>`, so the SECOND type parameter is the error channel.
  */
-export type ParseResult<A> = Either.Either<A, ConfigValidationError[]>;
+export type ParseResult<A> = Result.Result<A, ConfigValidationError[]>;
 
 /** Parses a record of unknown values into `A`. Unknown fields are silently ignored. */
 export type Parser<A> = (input: Readonly<Record<string, unknown>>) => ParseResult<A>;

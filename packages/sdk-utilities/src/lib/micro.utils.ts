@@ -4,22 +4,32 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
-import type { MicroExit } from 'effect/Micro';
+import { Cause, Exit } from 'effect';
 import type { GenericError } from '@forgerock/sdk-types';
 
-export function handleMicroExit<T, E>(
-  result: MicroExit<T, E>,
+/**
+ * Unwrap an {@link Exit.Exit} into a plain value.
+ *
+ * - **Success** → returns the wrapped value.
+ * - **Failure with a typed error** → returns the error value from the first `Fail` reason.
+ * - **Defect / Die** → returns a {@link GenericError} built from the defect message.
+ * - **Other failure** → returns a {@link GenericError} with an unknown defect message.
+ */
+export function handleExit<T, E>(
+  result: Exit.Exit<T, E>,
   defectError: string,
   defectType: GenericError['type'],
 ): T | E | GenericError {
-  if (exitIsSuccess(result)) {
+  if (Exit.isSuccess(result)) {
     return result.value;
   }
-  if (exitIsFail(result)) {
-    return result.cause.error;
+  const reasons = result.cause.reasons;
+  const failReason = reasons.find(Cause.isFailReason);
+  if (failReason !== undefined) {
+    return failReason.error;
   }
-  const defect = causeIsDie(result.cause) ? result.cause.defect : undefined;
+  const dieReason = reasons.find(Cause.isDieReason);
+  const defect = dieReason?.defect;
   return {
     error: defectError,
     message: defect instanceof Error ? defect.message : String(defect ?? 'Unknown defect'),

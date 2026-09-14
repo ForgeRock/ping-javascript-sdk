@@ -10,7 +10,7 @@ import {
   generateAndStoreAuthUrlValues,
 } from '@forgerock/sdk-oidc';
 import { createChallenge } from '@forgerock/sdk-utilities';
-import { Micro } from 'effect';
+import { Effect } from 'effect';
 
 import {
   buildParAuthorizeUrl,
@@ -39,8 +39,8 @@ export const generateAuthValuesµ = (
   config: OidcConfig,
   wellknown: WellknownResponse,
   options?: OptionalAuthorizeOptions,
-): Micro.Micro<ReturnType<typeof generateAndStoreAuthUrlValues>, AuthorizationError, never> => {
-  return Micro.try({
+): Effect.Effect<ReturnType<typeof generateAndStoreAuthUrlValues>, AuthorizationError, never> => {
+  return Effect.try({
     try: () =>
       generateAndStoreAuthUrlValues({
         clientId: config.clientId,
@@ -60,8 +60,8 @@ export const generateAuthValuesµ = (
 
 export const generatePkceChallengeµ = (
   verifier: string,
-): Micro.Micro<string, AuthorizationError, never> => {
-  return Micro.tryPromise({
+): Effect.Effect<string, AuthorizationError, never> => {
+  return Effect.tryPromise({
     try: () => createChallenge(verifier),
     catch: (err): AuthorizationError => ({
       error: 'PAR_CHALLENGE_ERROR',
@@ -73,8 +73,8 @@ export const generatePkceChallengeµ = (
 
 export const storeAuthOptionsµ = (
   storeOptions: () => void,
-): Micro.Micro<void, AuthorizationError, never> => {
-  return Micro.try({
+): Effect.Effect<void, AuthorizationError, never> => {
+  return Effect.try({
     try: () => storeOptions(),
     catch: (err): AuthorizationError => ({
       error: 'PAR_STORAGE_ERROR',
@@ -92,8 +92,8 @@ export const buildParBodyµ = (
   challenge: string,
   state: string,
   prompt?: AuthPromptValue,
-): Micro.Micro<URLSearchParams, AuthorizationError, never> => {
-  return Micro.try({
+): Effect.Effect<URLSearchParams, AuthorizationError, never> => {
+  return Effect.try({
     try: () =>
       buildAuthorizeParams({
         clientId: config.clientId,
@@ -116,8 +116,8 @@ export const buildParBodyµ = (
 export const createAuthorizeUrlµ = (
   path: string,
   options: GetAuthorizationUrlOptions,
-): Micro.Micro<[string, GetAuthorizationUrlOptions], AuthorizationError, never> => {
-  return Micro.tryPromise({
+): Effect.Effect<[string, GetAuthorizationUrlOptions], AuthorizationError, never> => {
+  return Effect.tryPromise({
     try: async () =>
       [await createAuthorizeUrl(path, { ...options, prompt: 'none' }), options] as [
         string,
@@ -136,8 +136,8 @@ export const buildAuthorizeRedirectUrlµ = (
   res: { error: string; error_description: string },
   wellknown: WellknownResponse,
   options: GetAuthorizationUrlOptions,
-): Micro.Micro<never, AuthorizationError, never> => {
-  return Micro.tryPromise({
+): Effect.Effect<never, AuthorizationError, never> => {
+  return Effect.tryPromise({
     try: () => {
       const { prompt: _prompt, ...interactiveOptions } = options;
       return createAuthorizeUrl(wellknown.authorization_endpoint, interactiveOptions);
@@ -149,8 +149,8 @@ export const buildAuthorizeRedirectUrlµ = (
       type: 'auth_error',
     }),
   }).pipe(
-    Micro.flatMap((url) =>
-      Micro.fail({
+    Effect.flatMap((url) =>
+      Effect.fail({
         error: res.error,
         error_description: res.error_description,
         type: 'auth_error',
@@ -163,26 +163,26 @@ export const buildAuthorizeRedirectUrlµ = (
 export const validateParResponseµ = (result: {
   error?: FetchBaseQueryError | SerializedError;
   data?: unknown;
-}): Micro.Micro<{ request_uri: string; expires_in: number }, AuthorizationError, never> => {
+}): Effect.Effect<{ request_uri: string; expires_in: number }, AuthorizationError, never> => {
   if (result.error) {
-    return Micro.fail(toDispatchError(result.error));
+    return Effect.fail(toDispatchError(result.error));
   }
   if (!hasPushRequestUri(result.data)) {
-    return Micro.fail({
+    return Effect.fail({
       error: 'PAR_ERROR',
       error_description: "PAR response missing required 'request_uri' field",
       type: 'network_error',
     } as const);
   }
   const d = result.data as { request_uri: string; expires_in?: number };
-  return Micro.succeed({ request_uri: d.request_uri, expires_in: d.expires_in ?? 60 });
+  return Effect.succeed({ request_uri: d.request_uri, expires_in: d.expires_in ?? 60 });
 };
 
 export const handleDispatchErrorµ = (
   error: FetchBaseQueryError | SerializedError,
   wellknown: WellknownResponse,
   options: GetAuthorizationUrlOptions,
-): Micro.Micro<never, AuthorizationError, never> => {
+): Effect.Effect<never, AuthorizationError, never> => {
   const errorDetails = toDispatchError(error);
   const isConfigError =
     isFetchBaseQueryError(error) &&
@@ -190,7 +190,7 @@ export const handleDispatchErrorµ = (
     error.statusText === 'CONFIGURATION_ERROR';
 
   return isConfigError
-    ? Micro.fail(errorDetails)
+    ? Effect.fail(errorDetails)
     : buildAuthorizeRedirectUrlµ(errorDetails, wellknown, options);
 };
 
@@ -200,12 +200,12 @@ export const dispatchParRequestµ = (
   store: ClientStore,
   parEndpoint: string,
   body: URLSearchParams,
-): Micro.Micro<
+): Effect.Effect<
   { error?: FetchBaseQueryError | SerializedError; data?: unknown },
   AuthorizationError,
   never
 > => {
-  return Micro.tryPromise({
+  return Effect.tryPromise({
     try: () => store.dispatch(oidcApi.endpoints.par.initiate({ endpoint: parEndpoint, body })),
     catch: (error): AuthorizationError => ({
       error: 'PAR_DISPATCH_ERROR',
@@ -220,8 +220,8 @@ export const buildParSlimUrlµ = (
   clientId: string,
   requestUri: string,
   prompt?: AuthPromptValue,
-): Micro.Micro<string, AuthorizationError, never> => {
-  return Micro.try({
+): Effect.Effect<string, AuthorizationError, never> => {
+  return Effect.try({
     try: () => buildParAuthorizeUrl({ authorizationEndpoint, clientId, requestUri, prompt }),
     catch: (err): AuthorizationError => ({
       error: 'PAR_URL_BUILD_ERROR',
@@ -238,8 +238,8 @@ export const dispatchAuthorizeFetchµ = (
   url: string,
   wellknown: WellknownResponse,
   options: GetAuthorizationUrlOptions,
-): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> => {
-  return Micro.tryPromise({
+): Effect.Effect<AuthorizationSuccess, AuthorizationError, never> => {
+  return Effect.tryPromise({
     try: () => store.dispatch(oidcApi.endpoints.authorizeFetch.initiate({ url })),
     catch: (error): AuthorizationError => ({
       error: 'AUTHORIZE_DISPATCH_ERROR',
@@ -248,14 +248,14 @@ export const dispatchAuthorizeFetchµ = (
       type: 'network_error',
     }),
   }).pipe(
-    Micro.flatMap(({ error, data }) => {
+    Effect.flatMap(({ error, data }) => {
       if (error) {
         return handleDispatchErrorµ(error, wellknown, options);
       }
       if (data?.authorizeResponse) {
-        return Micro.succeed(data.authorizeResponse);
+        return Effect.succeed(data.authorizeResponse);
       }
-      return Micro.fail({
+      return Effect.fail({
         error: 'Unknown_Error',
         error_description: 'Response schema was not recognized',
         type: 'unknown_error',
@@ -269,8 +269,8 @@ export const dispatchAuthorizeIframeµ = (
   url: string,
   wellknown: WellknownResponse,
   options: GetAuthorizationUrlOptions,
-): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> => {
-  return Micro.tryPromise({
+): Effect.Effect<AuthorizationSuccess, AuthorizationError, never> => {
+  return Effect.tryPromise({
     try: () => store.dispatch(oidcApi.endpoints.authorizeIframe.initiate({ url })),
     catch: (error): AuthorizationError => ({
       error: 'AUTHORIZE_DISPATCH_ERROR',
@@ -279,15 +279,15 @@ export const dispatchAuthorizeIframeµ = (
       type: 'network_error',
     }),
   }).pipe(
-    Micro.flatMap(({ error, data }) => {
+    Effect.flatMap(({ error, data }) => {
       if (error) {
         return handleDispatchErrorµ(error, wellknown, options);
       }
       const d = data as { code?: unknown; state?: unknown } | undefined;
       if (d !== undefined && typeof d.code === 'string' && typeof d.state === 'string') {
-        return Micro.succeed(d as AuthorizationSuccess);
+        return Effect.succeed(d as AuthorizationSuccess);
       }
-      return Micro.fail({
+      return Effect.fail({
         error: 'Unknown_Error',
         error_description: 'Response data did not contain expected code and state fields',
         type: 'unknown_error',
