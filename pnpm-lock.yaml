@@ -348,9 +348,15 @@ importers:
       '@forgerock/device-client':
         specifier: workspace:*
         version: link:../../packages/device-client
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
+      '@forgerock/journey-client':
+        specifier: workspace:*
+        version: link:../../packages/journey-client
+      '@forgerock/oidc-client':
+        specifier: workspace:*
+        version: link:../../packages/oidc-client
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
       effect:
         specifier: catalog:effect
         version: 3.21.0
@@ -488,9 +494,9 @@ importers:
 
   packages/device-client:
     dependencies:
-      '@forgerock/javascript-sdk':
-        specifier: 'catalog:'
-        version: 4.9.0
+      '@forgerock/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
       '@reduxjs/toolkit':
         specifier: 'catalog:'
         version: 2.10.1
@@ -4507,10 +4513,6 @@ packages:
   cookie@0.7.2:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
-
-  cookie@1.0.2:
-    resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
-    engines: {node: '>=18'}
 
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
@@ -13096,8 +13098,6 @@ snapshots:
 
   cookie@0.7.2: {}
 
-  cookie@1.0.2: {}
-
   cookie@1.1.1: {}
 
   cookiejar@2.1.4: {}
@@ -15442,7 +15442,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.5
 
   make-error@1.3.6: {}
 
@@ -15601,7 +15601,7 @@ snapshots:
       '@mswjs/interceptors': 0.40.0
       '@open-draft/deferred-promise': 2.2.0
       '@types/statuses': 2.0.6
-      cookie: 1.0.2
+      cookie: 1.1.1
       graphql: 16.12.0
       headers-polyfill: 4.0.3
       is-node-process: 1.2.0
