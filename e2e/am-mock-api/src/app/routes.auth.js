@@ -29,6 +29,7 @@ import {
   pingProtectEvaluate,
   pingProtectInitialize,
   pingProtectSignalsInitializationOptions,
+  pingOneRecognize,
   redirectCallback,
   redirectCallbackSaml,
   requestDeviceProfile,
@@ -61,6 +62,19 @@ import wait from './wait.js';
 
 console.log(`Your user password from 'env.config' file: ${USERS[0].pw}`);
 
+/**
+ * Decodes the payload segment of an unsigned JWT and returns its `sub` claim,
+ * or null if the token can't be parsed.
+ */
+function getJwtSub(jwt) {
+  try {
+    const [, payload] = jwt.split('.');
+    return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))).sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export const baz = {
   canWithdraw: false,
 };
@@ -92,6 +106,8 @@ export default function (app) {
         req.query.authIndexValue === 'SAMLFailure'
       ) {
         res.json(nameCallback);
+      } else if (req.query.authIndexValue === 'TEST_LoginPingRecognize') {
+        res.json({ ...initialBasicLogin, authId: 'recognize-journey-login' });
       } else if (req.query.authIndexValue === 'TEST_LoginPingProtect') {
         res.json({ ...pingProtectInitialize, authId: 'protect-journey-init' });
       } else if (req.query.authIndexValue === 'TEST_LoginPingProtectSignalsOptions') {
@@ -362,6 +378,41 @@ export default function (app) {
       } else if (protectEvalCb) {
         res.cookie('iPlanetDirectoryPro', 'protect-session-' + Date.now(), { domain: 'localhost' });
         res.json(authSuccess);
+      } else {
+        res.status(401).json(authFail);
+      }
+    } else if (
+      req.query.authIndexValue === 'TEST_LoginPingRecognize' ||
+      req.body.authId?.startsWith('recognize-journey')
+    ) {
+      const recognizeCb = req.body.callbacks.find((cb) => cb.type === 'PingOneRecognizeCallback');
+      const passwordCb = req.body.callbacks.find((cb) => cb.type === 'PasswordCallback');
+
+      if (recognizeCb) {
+        const inputValue = (name) => {
+          const input = recognizeCb.input?.find((x) => x.name === name);
+          return input ? String(input.value ?? '') : '';
+        };
+        const signedJwt = inputValue('IDToken1signedJwt');
+        const recognizeId = inputValue('IDToken1recognizeId');
+        const clientError = inputValue('IDToken1clientError');
+        const clientErrorCode = inputValue('IDToken1clientErrorCode');
+
+        if (clientError) {
+          res.status(401).json({
+            ...authFail,
+            message: `Recognize client error: ${clientError} (${clientErrorCode})`,
+          });
+        } else if (signedJwt && recognizeId && getJwtSub(signedJwt) === recognizeId) {
+          res.cookie('iPlanetDirectoryPro', 'recognize-session-' + Date.now(), {
+            domain: 'localhost',
+          });
+          res.json(authSuccess);
+        } else {
+          res.status(401).json(authFail);
+        }
+      } else if (passwordCb && passwordCb.input[0].value === USERS[0].pw) {
+        res.json({ ...pingOneRecognize, authId: 'recognize-journey-recognize' });
       } else {
         res.status(401).json(authFail);
       }

@@ -1,33 +1,9 @@
 /*
- * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-
-import {
-  attributeInputComponent,
-  choiceComponent,
-  confirmationComponent,
-  deviceProfileComponent,
-  hiddenValueComponent,
-  kbaCreateComponent,
-  metadataComponent,
-  passwordComponent,
-  pingProtectEvaluationComponent,
-  pingProtectInitializeComponent,
-  pollingWaitComponent,
-  recaptchaComponent,
-  recaptchaEnterpriseComponent,
-  redirectComponent,
-  selectIdpComponent,
-  suspendedTextOutputComponent,
-  termsAndConditionsComponent,
-  textInputComponent,
-  textOutputComponent,
-  validatedPasswordComponent,
-  validatedUsernameComponent,
-} from './components/index.js';
 
 import type {
   AttributeInputCallback,
@@ -42,6 +18,7 @@ import type {
   PasswordCallback,
   PingOneProtectEvaluationCallback,
   PingOneProtectInitializeCallback,
+  PingOneRecognizeCallback,
   PollingWaitCallback,
   ReCaptchaCallback,
   ReCaptchaEnterpriseCallback,
@@ -54,6 +31,31 @@ import type {
   ValidatedCreatePasswordCallback,
   ValidatedCreateUsernameCallback,
 } from '@forgerock/journey-client/types';
+
+import {
+  attributeInputComponent,
+  choiceComponent,
+  confirmationComponent,
+  deviceProfileComponent,
+  hiddenValueComponent,
+  kbaCreateComponent,
+  metadataComponent,
+  passwordComponent,
+  pingProtectEvaluationComponent,
+  pingProtectInitializeComponent,
+  pingOneRecognizeComponent,
+  pollingWaitComponent,
+  recaptchaComponent,
+  recaptchaEnterpriseComponent,
+  redirectComponent,
+  selectIdpComponent,
+  suspendedTextOutputComponent,
+  termsAndConditionsComponent,
+  textInputComponent,
+  textOutputComponent,
+  validatedPasswordComponent,
+  validatedUsernameComponent,
+} from './components/index.js';
 
 /**
  * Renders a callback component based on its type
@@ -117,6 +119,9 @@ export function renderCallback(
         idx,
         onSubmit,
       );
+      break;
+    case 'PingOneRecognizeCallback':
+      pingOneRecognizeComponent(journeyEl, callback as PingOneRecognizeCallback, idx, onSubmit);
       break;
     case 'PollingWaitCallback':
       pollingWaitComponent(journeyEl, callback as PollingWaitCallback, idx);
