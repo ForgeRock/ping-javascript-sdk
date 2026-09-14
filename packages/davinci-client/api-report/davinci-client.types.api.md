@@ -290,12 +290,16 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     resume: (input: {
         continueToken: string;
     }) => Promise<InternalErrorResponse | NodeStates>;
-    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<StartNode | ErrorNode | FailureNode | ContinueNode | SuccessNode>;
+    start: <QueryParams extends OutgoingQueryParams = OutgoingQueryParams>(options?: StartOptions<QueryParams> | undefined) => Promise<ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode>;
     update: <T extends UpdatableCollectors>(collector: T) => Updater<T>;
     validate: (collector: SingleValueCollectors | ObjectValueCollectors | MultiValueCollectors | AutoCollectors) => Validator;
     pollStatus: (collector: PollingCollector) => Poller;
     getClient: () => {
-        status: "start";
+        action: string;
+        collectors: Collectors[];
+        description?: string;
+        name?: string;
+        status: "continue";
     } | {
         action: string;
         collectors: Collectors[];
@@ -305,11 +309,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     } | {
         status: "failure";
     } | {
-        action: string;
-        collectors: Collectors[];
-        description?: string;
-        name?: string;
-        status: "continue";
+        status: "start";
     } | {
         authorization?: {
             code?: string;
@@ -320,9 +320,15 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
     getCollectors: () => Collectors[];
     getError: () => DaVinciError | null;
     getErrorCollectors: () => CollectorErrors[];
-    getNode: () => StartNode | ErrorNode | FailureNode | ContinueNode | SuccessNode;
+    getNode: () => ContinueNode | ErrorNode | FailureNode | StartNode | SuccessNode;
     getServer: () => {
-        status: "start";
+        _links?: Links;
+        id?: string;
+        interactionId?: string;
+        interactionToken?: string;
+        href?: string;
+        eventName?: string;
+        status: "continue";
     } | {
         _links?: Links;
         eventName?: string;
@@ -339,13 +345,7 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         interactionToken?: string;
         status: "failure";
     } | {
-        _links?: Links;
-        id?: string;
-        interactionId?: string;
-        interactionToken?: string;
-        href?: string;
-        eventName?: string;
-        status: "continue";
+        status: "start";
     } | {
         _links?: Links;
         eventName?: string;
@@ -362,14 +362,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "data" | "fulfilledTimeStamp"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -386,14 +386,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "error"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -414,14 +414,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "data" | "fulfilledTimeStamp"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
@@ -438,14 +438,14 @@ export function davinci<ActionType extends ActionTypes = ActionTypes>(input: {
         } & Omit<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
         }, "error"> & Required<Pick<{
             requestId: string;
             data?: unknown;
-            error?: SerializedError | FetchBaseQueryError | undefined;
+            error?: FetchBaseQueryError | SerializedError | undefined;
             endpointName: string;
             startedTimeStamp: number;
             fulfilledTimeStamp?: number;
