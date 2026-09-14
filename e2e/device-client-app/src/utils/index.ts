@@ -8,19 +8,23 @@
  */
 
 import { deviceClient } from '@forgerock/device-client';
-import { callbackType, journey, StepType } from '@forgerock/journey-client';
-import { oidc } from '@forgerock/oidc-client';
-import { Console, Effect } from 'effect';
-
 import type { ConfigOptions, DeviceClient } from '@forgerock/device-client/types';
-import type { NameCallback, PasswordCallback } from '@forgerock/journey-client';
+import {
+  callbackType,
+  journey,
+  NameCallback,
+  PasswordCallback,
+  StepType,
+} from '@forgerock/journey-client';
 import type {
   JourneyClient,
   JourneyClientConfig,
   JourneyResult,
   JourneyStep,
 } from '@forgerock/journey-client/types';
+import { oidc } from '@forgerock/oidc-client';
 import type { OidcClient, OidcConfig, UserInfoResponse } from '@forgerock/oidc-client/types';
+import { Console, Effect } from 'effect';
 
 let cachedOidcClient: OidcClient | null = null;
 
@@ -122,7 +126,7 @@ export const LoginAndGetClient = Effect.gen(function* () {
   yield* Effect.tryPromise({
     try: () => oidcClientOrThrow().user.logout(),
     catch: (err) => new Error(`Logout failed: ${err}`),
-  }).pipe(Effect.catchAll((err) => Console.warn('Logout failed, continuing:', err)));
+  }).pipe(Effect.catch((err) => Console.warn('Logout failed, continuing:', err)));
 
   yield* Effect.tryPromise({
     try: () => journeyClient.start({ journey: tree }),
