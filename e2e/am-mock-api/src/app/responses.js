@@ -367,6 +367,59 @@ export const pingProtectInitialize = {
   ],
 };
 
+export const pingOneRecognize = {
+  authId: 'foo',
+  callbacks: [
+    {
+      type: 'PingOneRecognizeCallback',
+      output: [
+        {
+          name: 'operationType',
+          value: 'AUTHENTICATE',
+        },
+        {
+          name: 'authenticationServiceUrl',
+          value: 'https://recognize.example.com',
+        },
+        {
+          name: 'customerName',
+          value: 'mock-customer',
+        },
+        {
+          name: 'username',
+          value: 'sdkuser',
+        },
+        {
+          name: 'transactionData',
+          value: 'mock-transaction-data',
+        },
+        {
+          name: 'webSDKOptions',
+          value: { requestRecognitionFrame: true },
+        },
+      ],
+      input: [
+        {
+          name: 'IDToken1signedJwt',
+          value: '',
+        },
+        {
+          name: 'IDToken1recognizeId',
+          value: '',
+        },
+        {
+          name: 'IDToken1clientError',
+          value: '',
+        },
+        {
+          name: 'IDToken1clientErrorCode',
+          value: '',
+        },
+      ],
+    },
+  ],
+};
+
 export const choiceCallback = {
   authId: 'foo',
   callbacks: [

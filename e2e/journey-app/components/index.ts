@@ -22,6 +22,7 @@ export { default as metadataComponent } from './metadata.js';
 export { default as passwordComponent } from './password.js';
 export { default as pingProtectEvaluationComponent } from './ping-protect-evaluation.js';
 export { default as pingProtectInitializeComponent } from './ping-protect-initialize.js';
+export { default as pingOneRecognizeComponent } from './ping-one-recognize.js';
 export { default as pollingWaitComponent } from './polling-wait.js';
 export { default as recaptchaComponent } from './recaptcha.js';
 export { default as recaptchaEnterpriseComponent } from './recaptcha-enterprise.js';

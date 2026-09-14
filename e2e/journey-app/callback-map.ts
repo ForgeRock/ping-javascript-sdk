@@ -18,6 +18,7 @@ import type {
   PasswordCallback,
   PingOneProtectEvaluationCallback,
   PingOneProtectInitializeCallback,
+  PingOneRecognizeCallback,
   PollingWaitCallback,
   ReCaptchaCallback,
   ReCaptchaEnterpriseCallback,
@@ -42,6 +43,7 @@ import {
   passwordComponent,
   pingProtectEvaluationComponent,
   pingProtectInitializeComponent,
+  pingOneRecognizeComponent,
   pollingWaitComponent,
   recaptchaComponent,
   recaptchaEnterpriseComponent,
@@ -117,6 +119,9 @@ export function renderCallback(
         idx,
         onSubmit,
       );
+      break;
+    case 'PingOneRecognizeCallback':
+      pingOneRecognizeComponent(journeyEl, callback as PingOneRecognizeCallback, idx, onSubmit);
       break;
     case 'PollingWaitCallback':
       pollingWaitComponent(journeyEl, callback as PollingWaitCallback, idx);
