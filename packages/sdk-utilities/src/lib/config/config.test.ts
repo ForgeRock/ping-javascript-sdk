@@ -16,6 +16,7 @@ import {
   parseUnifiedSdkConfig,
 } from './config.utils.js';
 import { makeOidcConfig, makeJourneyConfig, makeDavinciConfig } from './config.effects.js';
+import type { JourneyServerConfig } from '@forgerock/sdk-types';
 
 const minimalOidc = {
   clientId: 'my-client',
@@ -235,14 +236,14 @@ describe('parseToJourneyConfig', () => {
 
   it('parseToJourneyConfig_MinimalConfig_MapsWellknown', () => {
     const data = Result.getOrThrow(parseToJourneyConfig({ oidc: minimalOidc }));
-    expect(data.serverConfig.wellknown).toBe(
+    expect((data.serverConfig as JourneyServerConfig).wellknown).toBe(
       'https://example.com/.well-known/openid-configuration',
     );
   });
 
   it('parseToJourneyConfig_JourneyOnlyConfig_MapsWellknown', () => {
     const data = Result.getOrThrow(parseToJourneyConfig(journeyOnlyConfig));
-    expect(data.serverConfig.wellknown).toBe(
+    expect((data.serverConfig as JourneyServerConfig).wellknown).toBe(
       'https://example.com/.well-known/openid-configuration',
     );
   });
@@ -463,7 +464,7 @@ describe('makeOidcConfig', () => {
 describe('makeJourneyConfig', () => {
   it('makeJourneyConfig_ValidConfig_ReturnsMappedJourneyConfig', () => {
     const result = makeJourneyConfig(fullConfig);
-    expect(result.serverConfig.wellknown).toBe(
+    expect((result.serverConfig as JourneyServerConfig).wellknown).toBe(
       'https://example.com/.well-known/openid-configuration',
     );
     expect(result.realmPath).toBe('alpha');
