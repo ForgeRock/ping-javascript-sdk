@@ -57,42 +57,39 @@ export async function handleWebAuthnStep(
   const webAuthnStep = WebAuthn.getWebAuthnStepType(step);
 
   if (webAuthnStep === WebAuthnStepType.Authentication) {
-    // For conditional mediation, we need an input with `autocomplete="webauthn"` to exist.
     renderCallbacks(journeyEl, callbacks, submitForm);
 
-    const conditionalInput = journeyEl.querySelector(
-      'input[autocomplete="webauthn"]',
-    ) as HTMLInputElement | null;
-    conditionalInput?.focus();
+    const hasPasswordInput = journeyEl.querySelector('input[type="password"]') !== null;
+    const isPasskeyOnly = !hasPasswordInput;
 
-    const isConditionalSupported = await WebAuthn.isConditionalMediationSupported();
+    // True only when the browser supports conditional mediation AND AM requested it
+    // (meta.mediation === 'conditional').
+    const isConditionalMediation = await WebAuthn.isConditionalMediationSupported(step);
 
-    const metadataCallback = WebAuthn.getMetadataCallback(step);
-    const meta = metadataCallback?.getData<{
-      mediation?: CredentialMediationRequirement;
-      conditional?: boolean;
-    }>();
-    const isConditionalMediation = meta?.mediation === 'conditional' || meta?.conditional === true;
+    const hasPasskeyAutocompleteValues = callbacks.some((callback) => {
+      const values = callback.getOutputByName<string[]>('autocompleteValues', []);
+      return values.includes('username') && values.includes('webauthn');
+    });
+    if (isConditionalMediation && hasPasskeyAutocompleteValues) {
+      journeyEl.querySelectorAll('input[type="text"]').forEach((input) => {
+        input.setAttribute('autocomplete', 'username webauthn');
+      });
+    }
 
-    if (isConditionalSupported && conditionalInput && isConditionalMediation) {
-      const controller = new AbortController();
-      void WebAuthn.authenticate(step, controller.signal)
-        .then(() => submitForm())
-        .catch(() => {
-          setError('WebAuthn failed or was cancelled. Please try again or use a different method.');
-        });
-
+    // Only auto-invoke WebAuthn when the step offers no normal login path (passkey-only step)
+    // or when AM requested conditional mediation (silent autofill, no popup). On a hybrid page
+    // with a password field, WebAuthn must not pop a modal — the user logs in normally.
+    if (!isPasskeyOnly && !isConditionalMediation) {
       return { callbacksRendered: true, didSubmit: false };
     }
 
-    // Fallback to the traditional (prompted) WebAuthn flow.
-    const webAuthnSuccess = await webauthnComponent(journeyEl, step, 0);
-    if (webAuthnSuccess) {
-      submitForm();
-      return { callbacksRendered: true, didSubmit: true };
-    }
+    const controller = new AbortController();
+    void WebAuthn.authenticate(step, controller.signal)
+      .then(() => submitForm())
+      .catch(() => {
+        setError('WebAuthn failed or was cancelled. Please try again or use a different method.');
+      });
 
-    setError('WebAuthn failed or was cancelled. Please try again or use a different method.');
     return { callbacksRendered: true, didSubmit: false };
   }
 
