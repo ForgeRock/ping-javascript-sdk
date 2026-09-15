@@ -71,3 +71,41 @@ The assertion checks that the status message for deleted device contains the sam
 2. Credential ids are passed around with query params, which makes it easy to replicate tests without any dependency on external storage.
 3. The test provides freedom to choose how to resolve the uuid depending on the app, so the app can decide whether to retrieve the uuid through OIDC, session, or another way.
 4. The test lets the app decide how to handle app-specific UI, so this pattern is framework agnostic and can be used by any app that supports Playwright, whether it's React, Vue, or Svelte.
+
+## Passkey Autofill Journeys
+
+The `TEST_AutofillPasskeyWebAuthn_*` journeys form a 2x2x2 matrix that tests the presence and absence of three AM-side configuration toggles on the WebAuthn authentication node:
+
+| Toggle                      | Journey name part | AM signal                                                                               |
+| --------------------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| Passkey autocomplete values | `autocomplete`    | Username callback output `autocompleteValues` contains `username` and `webauthn`        |
+| Conditional mediation       | `conditional`     | WebAuthn metadata `mediation: 'conditional'` (silent passkey autofill)                  |
+| Authentication button       | `button`          | WebAuthn node config `conditionalManualButton` (manual "Sign in with a passkey" button) |
+
+The journey named `TEST_AutofillPasskeyWebAuthn_disabled` is the 000 case: all three toggles off. The other seven combine the toggles, named in the order `autocomplete`, `conditional`, `button` (for example, `TEST_AutofillPasskeyWebAuthn_autocomplete_conditional_button` is the 111 case).
+
+Each journey's page is a hybrid login page: a username collector, a password collector, and a WebAuthn authentication node on the same step. The journey app follows two rules for these pages:
+
+1. If the step has a password field (a normal login path), WebAuthn never pops a modal. The user logs in normally; passkeys surface only through the autofill dropdown.
+2. WebAuthn is auto-invoked only when AM requested conditional mediation (silent autofill). Passkey-only steps with no password field (like `TEST_WebAuthnAuthentication`) always auto-prompt, since there is no other way to continue.
+
+| Journey                            | Autocomplete values | Conditional mediation | Button  | Expected app behavior                                                                                           |
+| ---------------------------------- | ------------------- | --------------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| `_disabled`                        | absent              | absent                | absent  | Plain login form; user logs in with username and password; no WebAuthn prompt                                   |
+| `_autocomplete`                    | present             | absent                | absent  | Plain login form; no decoration because conditional mediation is not active; user logs in normally              |
+| `_conditional`                     | absent              | present               | absent  | Silent conditional WebAuthn fires on render; username input is not decorated (no autofill signal from AM)       |
+| `_conditional_button`              | absent              | present               | present | Same as `_conditional`; the manual button is not rendered by the app (see note below)                           |
+| `_autocomplete_conditional`        | present             | present               | absent  | Full passkey autofill: input decorated with `autocomplete="username webauthn"`, silent authentication, no popup |
+| `_autocomplete_conditional_button` | present             | present               | present | Same as `_autocomplete_conditional` (see note below)                                                            |
+| `_autocomplete_button`             | present             | absent                | present | Plain login form; user logs in normally (see note below)                                                        |
+| `_button`                          | absent              | absent                | present | Plain login form; user logs in normally (see note below)                                                        |
+
+> **Note:** the authentication button feature is not yet supported in the SDK. The `button` toggle is part of the AM journey configuration (node field `conditionalManualButton`), and the journeys exist to cover the matrix, but the journey app (and the SDK) do not render the manual "Sign in with a passkey" button until that feature ships. The `*_button` journeys currently behave like their counterparts without the button part.
+
+## Journey Prereqs (Passkey Autofill)
+
+The autofill journeys reuse the same prereqs as the rest of the WebAuthn tests:
+
+1. Chromium is required, and a CDP virtual authenticator with resident keys, user verification, and automatic presence simulation.
+2. Register a passkey first via `TEST_WebAuthn-Registration`, since each authentication journey needs an existing credential.
+3. Clear cookies and storage between registration and authentication, since the SDK persists session state in localStorage.
