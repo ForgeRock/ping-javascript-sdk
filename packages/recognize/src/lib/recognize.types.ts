@@ -99,6 +99,7 @@ export interface RecognizeWebComponentConfiguration {
   localizationVariables?: LocalizationVariables;
   loggerLevel?: LoggerLevel;
   operationID?: string;
+  requestRecognitionFrame?: boolean;
   seedEntropy?: boolean;
   serviceURL: string;
   theme?: Theme;
