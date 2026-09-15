@@ -144,7 +144,7 @@
       "brace-expansion@>=4": "~5.0.8",
       "ws": "^8.21.1",
       "undici": "^7.29.1",
-      "nanoid": "^5.1.16",
+      "nanoid": "^6.0.0",
       "postcss": "^8.5.23"
     },
     "onlyBuiltDependencies": ["@evilmartians/lefthook", "@swc/core", "nx"]
