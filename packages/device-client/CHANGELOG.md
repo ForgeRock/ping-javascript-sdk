@@ -1,5 +1,19 @@
 # @forgerock/device-client
 
+## 2.2.0
+
+### Minor Changes
+
+- [#816](https://github.com/ForgeRock/ping-javascript-sdk/pull/816) [`83bc16e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/83bc16e0d954e5c16e509ead6c01c4a9c8fc4b9b) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Removed the dependency on `@forgerock/javascript-sdk` from `device-client` and the e2e app.
+
+  **BREAKING:** The `tokenStore` config now accepts a `CustomStorageObject` (from `@forgerock/sdk-types`) instead of the legacy `TokenStoreObject`. Custom token-store implementers must adapt: `get` now returns `Promise<string | null | GenericError>` instead of `Promise<Tokens>`. Usage of the `'sessionStorage'`/`'localStorage'` string values is unaffected.
+
+### Patch Changes
+
+- [#780](https://github.com/ForgeRock/ping-javascript-sdk/pull/780) [`1c154dd`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1c154dd117895ec7bbf26d7c6e0ba89b8d47161f) Thanks [@ryanbas21](https://github.com/ryanbas21)! - fix the header to send ping-sdk instead of forgerock-sdk
+- Updated dependencies []:
+  - @forgerock/sdk-types@2.2.0
+
 ## 2.1.1
 
 ## 2.1.0
