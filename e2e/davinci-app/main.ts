@@ -13,7 +13,6 @@ import type {
   Collectors,
   CustomLogger,
   DaVinciConfig,
-  DavinciClient,
   GetClient,
   InternalErrorResponse,
   NodeStates,
@@ -88,7 +87,11 @@ const requestMiddleware: RequestMiddleware<'DAVINCI_NEXT' | 'DAVINCI_START'>[] =
 const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
-  const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
+  const davinciResult = await davinci({ config, logger, requestMiddleware });
+  if ('error' in davinciResult) {
+    throw new Error(`Failed to initialize davinci client: ${davinciResult.error}`);
+  }
+  const davinciClient = davinciResult;
   const oidcResult = await oidc({ config: config as OidcConfig });
   if ('error' in oidcResult) {
     throw new Error(`Failed to initialize oidc client: ${oidcResult.error}`);
