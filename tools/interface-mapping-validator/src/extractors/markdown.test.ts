@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import { resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
 import { extractDocumentedMappings } from './markdown.js';
 
 const FIXTURE_PATH = resolve(__dirname, '../fixtures/sample-mapping.md');

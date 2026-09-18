@@ -8,9 +8,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { StepType } from '../types.js';
-import { type Step } from '../index.js';
-
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
+
+import type { Step } from '../index.js';
 import type { JourneyLoginFailure } from './login-failure.utils.js';
 
 describe('createJourneyObject', () => {

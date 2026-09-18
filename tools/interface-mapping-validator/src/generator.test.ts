@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import { generateSections } from './generator.js';
+
 import type { LegacyExport, NewSdkExport, SymbolMapping } from './types.js';
 
 // ---------------------------------------------------------------------------

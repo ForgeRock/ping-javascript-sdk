@@ -8,22 +8,22 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { createJourneyStep } from '../step.utils.js';
 import { WebAuthnStepType } from './enums.js';
 import { WebAuthn } from './webauthn.js';
 import {
-  webAuthnRegJSCallback653,
-  webAuthnAuthJSCallback653,
-  webAuthnRegJSCallback70,
   webAuthnAuthJSCallback70,
-  webAuthnRegMetaCallback70,
-  webAuthnAuthMetaCallback70,
-  webAuthnRegJSCallback70StoredUsername,
   webAuthnAuthJSCallback70StoredUsername,
-  webAuthnRegMetaCallback70StoredUsername,
-  webAuthnAuthMetaCallback70StoredUsername,
+  webAuthnAuthJSCallback653,
+  webAuthnAuthMetaCallback70,
   webAuthnAuthMetaCallback70Conditional,
+  webAuthnAuthMetaCallback70StoredUsername,
+  webAuthnRegJSCallback70,
+  webAuthnRegJSCallback70StoredUsername,
+  webAuthnRegJSCallback653,
+  webAuthnRegMetaCallback70,
+  webAuthnRegMetaCallback70StoredUsername,
 } from './webauthn.mock.data.js';
-import { createJourneyStep } from '../step.utils.js';
 
 describe('Test FRWebAuthn conditional mediation support', () => {
   const originalPublicKeyCredential = globalThis.PublicKeyCredential;

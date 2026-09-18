@@ -1,9 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdirSync, writeFileSync, readFileSync, rmSync, mkdtempSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { analyzePackage, type PackageInfo } from './main.js';
+import { join, resolve } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
 import { applyFixes } from './fixer.js';
+import { analyzePackage } from './main.js';
+
+import type { PackageInfo } from './main.js';
 
 let FIXTURE_ROOT: string;
 let CLIENT_DIR: string;

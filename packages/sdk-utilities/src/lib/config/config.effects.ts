@@ -7,8 +7,9 @@
 
 import * as Either from 'effect/Either';
 
-import { parseToOidcConfig, parseToJourneyConfig, parseToDavinciConfig } from './config.utils.js';
-import type { OidcConfig, JourneyClientConfig, DaVinciConfig } from './config.types.js';
+import { parseToDavinciConfig, parseToJourneyConfig, parseToOidcConfig } from './config.utils.js';
+
+import type { DaVinciConfig, JourneyClientConfig, OidcConfig } from './config.types.js';
 
 function throwOnLeft<T>(result: Either.Either<T, { field: string; message: string }[]>): T {
   if (Either.isLeft(result)) {

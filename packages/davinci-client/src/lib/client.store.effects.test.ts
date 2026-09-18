@@ -5,16 +5,17 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { it } from '@effect/vitest';
 import { Micro } from 'effect';
 import { describe, expect, vi } from 'vitest';
-import { it } from '@effect/vitest';
 
 import {
   buildChallengeEndpoint,
-  isChallengeStillPending,
-  interpretChallengeResponse,
   getPollingModeµ,
+  interpretChallengeResponse,
+  isChallengeStillPending,
 } from './client.store.effects.js';
+
 import type { PollDispatchResult } from './client.store.effects.js';
 import type { PollingCollector } from './collector.types.js';
 

@@ -8,7 +8,11 @@ export default [
       '@nx/dependency-checks': [
         'warn',
         {
-          ignoredFiles: ['{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}'],
+          ignoredFiles: [
+            '{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}',
+            '{projectRoot}/vite.config.{js,ts,mjs,mts}',
+            '{projectRoot}/vitest.setup.{js,ts,mjs,mts}',
+          ],
         },
       ],
     },

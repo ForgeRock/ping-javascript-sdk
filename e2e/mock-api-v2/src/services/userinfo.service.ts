@@ -1,15 +1,18 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Layer, Schema } from 'effect';
-import { Effect, Context } from 'effect';
+import { HttpApiError } from '@effect/platform';
+import { Layer } from 'effect';
+import { Context, Effect } from 'effect';
 
 import { userInfoResponse } from '../responses/userinfo/userinfo.js';
-import { UserInfoSchema } from '../schemas/userinfo/userinfo.schema.js';
-import { HttpApiError } from '@effect/platform';
+
+import type { Schema } from 'effect';
+
+import type { UserInfoSchema } from '../schemas/userinfo/userinfo.schema.js';
 
 /***
  * This file should be converted to a Layer that uses Request

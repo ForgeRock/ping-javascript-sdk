@@ -5,10 +5,11 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import type { BaseCallback, JourneyStep } from '@forgerock/journey-client/types';
 import { WebAuthn, WebAuthnStepType } from '@forgerock/journey-client/webauthn';
 
 import { renderCallbacks } from '../callback-map.js';
+
+import type { BaseCallback, JourneyStep } from '@forgerock/journey-client/types';
 
 type WebAuthnStepHandlerResult = {
   callbacksRendered: boolean;

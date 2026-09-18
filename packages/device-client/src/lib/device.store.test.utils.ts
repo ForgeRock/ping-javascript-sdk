@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,12 +8,12 @@
 import { http, HttpResponse } from 'msw';
 
 import {
-  MOCK_PUSH_DEVICES,
   MOCK_BINDING_DEVICES,
-  MOCK_OATH_DEVICES,
   MOCK_DELETED_OATH_DEVICE,
-  MOCK_WEBAUTHN_DEVICES,
   MOCK_DEVICE_PROFILE_SUCCESS,
+  MOCK_OATH_DEVICES,
+  MOCK_PUSH_DEVICES,
+  MOCK_WEBAUTHN_DEVICES,
 } from './mock-data/device.store.mock.js';
 
 // Create mock service worker handlers

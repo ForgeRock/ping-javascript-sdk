@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2025 - 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,7 +8,8 @@
  */
 
 import { protect } from './protect.js';
-import { ProtectConfig, Protect } from './protect.types.js';
+
+import type { Protect, ProtectConfig } from './protect.types.js';
 
 const config: ProtectConfig = {
   envId: '12345',

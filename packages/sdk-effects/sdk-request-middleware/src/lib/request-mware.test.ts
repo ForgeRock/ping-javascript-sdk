@@ -1,11 +1,14 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
-import {
+import { initQuery, middlewareWrapper } from './request-mware.effects.js';
+import middleware from './request-mware.mock.js';
+
+import type {
   FetchArgs,
   FetchBaseQueryError,
   FetchBaseQueryMeta,
@@ -14,9 +17,6 @@ import {
 
 import type { ActionTypes } from './request-mware.derived.js';
 import type { Action, ModifiedFetchArgs } from './request-mware.types.js';
-
-import { initQuery, middlewareWrapper } from './request-mware.effects.js';
-import middleware from './request-mware.mock.js';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>

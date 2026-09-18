@@ -7,21 +7,21 @@
 import type { GenericError } from '@forgerock/sdk-types';
 
 import type {
-  FidoRegistrationInputValue,
-  FidoAuthenticationInputValue,
-  PhoneNumberInputValue,
-  PhoneNumberExtensionInputValue,
   AutoCollectors,
+  FidoAuthenticationInputValue,
+  FidoRegistrationInputValue,
+  MetadataError,
   MultiSelectCollector,
   MultiValueCollectors,
   ObjectValueCollectors,
+  PhoneNumberExtensionInputValue,
+  PhoneNumberInputValue,
   SingleValueCollectors,
-  ValidatedTextCollector,
   ValidatedBooleanCollector,
   ValidatedPasswordCollector,
-  MetadataError,
+  ValidatedTextCollector,
 } from './collector.types.js';
-import type { ErrorNode, FailureNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
+import type { ContinueNode, ErrorNode, FailureNode, StartNode, SuccessNode } from './node.types.js';
 
 export type FlowNode = ContinueNode | ErrorNode | StartNode | SuccessNode | FailureNode;
 

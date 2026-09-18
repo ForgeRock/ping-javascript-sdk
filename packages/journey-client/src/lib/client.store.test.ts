@@ -6,15 +6,15 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { makeJourneyConfig } from '@forgerock/sdk-utilities';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
+import { callbackType } from '../index.js';
 import { journey } from './client.store.js';
-import { makeJourneyConfig } from '@forgerock/sdk-utilities';
 import { createJourneyStep } from './step.utils.js';
 
-import { callbackType, type GenericError, type Step, type WellknownResponse } from '../index.js';
-
-import { JourneyClientConfig } from './config.types.js';
+import type { GenericError, Step, WellknownResponse } from '../index.js';
+import type { JourneyClientConfig } from './config.types.js';
 
 /**
  * Type guard to check if a result is a GenericError

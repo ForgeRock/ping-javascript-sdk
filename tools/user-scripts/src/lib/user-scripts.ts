@@ -1,6 +1,7 @@
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
-import { Config, Data, Effect, ManagedRuntime } from 'effect';
 import { NodeHttpClient } from '@effect/platform-node';
+import { Config, Data, Effect, ManagedRuntime } from 'effect';
+
 import { getUsersResponse, TokenResponse } from './schemas.js';
 
 export class UnexpectedStatus extends Data.TaggedError('UnExpectedStatus')<{

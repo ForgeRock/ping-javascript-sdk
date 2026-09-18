@@ -4,8 +4,11 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { test, expect, CDPSession } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+
 import { asyncEvents } from './utils/async-events.js';
+
+import type { CDPSession } from '@playwright/test';
 
 const username = 'JSFidoUser@user.com';
 const password = 'FakePassword#123';

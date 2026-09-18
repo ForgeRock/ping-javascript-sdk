@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import type { Finding } from './types.js';
+import { describe, expect, it } from 'vitest';
+
 import { formatReport } from './reporter.js';
+
+import type { Finding } from './types.js';
 
 const makeFinding = (overrides: Partial<Finding> = {}): Finding => ({
   category: 'undocumented-legacy-symbol',

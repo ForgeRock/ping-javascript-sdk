@@ -6,7 +6,7 @@
 import type { AuthResponse } from '@forgerock/sdk-types';
 import type { Callback } from '@forgerock/sdk-types';
 import type { CallbackType } from '@forgerock/sdk-types';
-import { Step } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
 import type { StepType } from '@forgerock/sdk-types';
 
 // @public
