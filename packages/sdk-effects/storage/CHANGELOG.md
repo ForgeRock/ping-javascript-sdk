@@ -1,5 +1,12 @@
 # @forgerock/storage
 
+## 2.3.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-types@2.3.0
+
 ## 2.2.0
 
 ### Patch Changes
