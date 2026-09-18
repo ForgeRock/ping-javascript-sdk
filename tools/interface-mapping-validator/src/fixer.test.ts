@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { applyFixes } from './fixer.js';
-import type { Finding } from './types.js';
+import { describe, expect, it } from 'vitest';
+
 import { SECTIONS } from './config.js';
+import { applyFixes } from './fixer.js';
+
+import type { Finding } from './types.js';
 
 const SAMPLE_DOC = `# Interface Mapping
 

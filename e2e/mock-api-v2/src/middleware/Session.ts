@@ -1,6 +1,16 @@
+/*
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+
 import { HttpApiError, HttpApiMiddleware, HttpServerRequest } from '@effect/platform';
-import { SessionData, SessionStorage } from '../services/session.service.js';
 import { Context, Effect, Layer } from 'effect';
+
+import { SessionStorage } from '../services/session.service.js';
+
+import type { SessionData } from '../services/session.service.js';
 
 class Session extends Context.Tag('Session')<Session, SessionData>() {}
 

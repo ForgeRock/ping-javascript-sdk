@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,13 +8,15 @@
  * Import the createSlice and PayloadAction utilities from Redux Toolkit
  * @see https://redux-toolkit.js.org/api/createslice
  */
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 /**
  * Import the types
  */
 import type { InternalDaVinciConfig } from './config.types.js';
-import { Endpoints } from './wellknown.types.js';
+import type { Endpoints } from './wellknown.types.js';
 
 /**
  * @const initialState - The initial state of the configuration slice

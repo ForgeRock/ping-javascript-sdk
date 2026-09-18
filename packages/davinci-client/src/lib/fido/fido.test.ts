@@ -4,11 +4,13 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { fido } from './fido.js';
 
-import type { FidoRegistrationOptions, FidoAuthenticationOptions } from '../davinci.types';
 import type { GenericError } from '@forgerock/sdk-types';
+
+import type { FidoAuthenticationOptions, FidoRegistrationOptions } from '../davinci.types';
 
 const mockRegistrationOptions: FidoRegistrationOptions = {
   rp: { id: 'test.example.com', name: 'Test RP' },

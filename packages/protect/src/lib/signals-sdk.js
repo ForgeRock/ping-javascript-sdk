@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -1602,7 +1602,6 @@ if (typeof window !== 'undefined') {
                     null || K === void 0
                 ) && K.body
               );
-
             )
               await i(C);
             return await h(Q, Q.contentWindow);
@@ -5346,7 +5345,6 @@ components: ${Pt(ie)}
                   for (
                     (o = o || e.length) > e.length && (o = e.length), s = o - 1;
                     s >= 0 && (192 & e[s]) == 128;
-
                   )
                     s--;
                   return s < 0 || s === 0 ? o : s + t[e[s]] > o ? s : o;
@@ -5534,7 +5532,6 @@ components: ${Pt(ie)}
                       ce++,
                       u.insert--,
                       !(u.lookahead + u.insert < _e));
-
                     );
                 } while (u.lookahead < Ve && u.strm.avail_in !== 0);
               }
@@ -6048,7 +6045,6 @@ components: ${Pt(ie)}
                           c(u),
                           (te = T.pending),
                           T.pending !== T.pending_buf_size));
-
                       )
                         (n(T, 255 & T.gzhead.extra[T.gzindex]), T.gzindex++);
                       (T.gzhead.hcrc &&
@@ -6216,7 +6212,6 @@ components: ${Pt(ie)}
                       u.input = F,
                       x(H);
                     H.lookahead >= _e;
-
                   ) {
                     ((T = H.strstart), (te = H.lookahead - (_e - 1)));
                     do
@@ -6418,7 +6413,6 @@ components: ${Pt(ie)}
                   $ <= b.heap_len &&
                   ($ < b.heap_len && A(V, b.heap[$ + 1], b.heap[$], b.depth) && $++,
                   !A(V, W, b.heap[$], b.depth));
-
                 )
                   ((b.heap[j] = b.heap[$]), (j = $), ($ <<= 1));
                 b.heap[j] = W;

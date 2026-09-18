@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
-import type { MicroExit } from 'effect/Micro';
+
 import type { GenericError } from '@forgerock/sdk-types';
+import type { MicroExit } from 'effect/Micro';
 
 export function handleMicroExit<T, E>(
   result: MicroExit<T, E>,

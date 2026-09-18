@@ -3,15 +3,13 @@
  *
  * index.ts
  *
- * Copyright (c) 2020 - 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2020 - 2026 Ping Identity Corporation. All rights reserved.
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { reduceToObject, reduceToString } from '@forgerock/sdk-utilities';
 import { logger as loggerFn } from '@forgerock/sdk-logger';
-
-import type { LogLevel } from '@forgerock/sdk-logger';
+import { reduceToObject, reduceToString } from '@forgerock/sdk-utilities';
 
 import {
   browserProps,
@@ -23,6 +21,8 @@ import {
   hardwareProps,
   platformProps,
 } from './defaults.js';
+
+import type { LogLevel } from '@forgerock/sdk-logger';
 
 import type {
   BaseProfileConfig,

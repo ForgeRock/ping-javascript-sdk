@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { expect, test } from '@playwright/test';
+
 import { password } from './utils/demo-user.js';
 
 test.describe('Device registration tests', () => {

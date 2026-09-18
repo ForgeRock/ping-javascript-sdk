@@ -5,13 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { wellknownApi } from './wellknown.api.js';
+
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 
 const rootReducer = combineReducers({
   [journeyApi.reducerPath]: journeyApi.reducer,

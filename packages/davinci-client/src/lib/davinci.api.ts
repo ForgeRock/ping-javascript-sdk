@@ -8,40 +8,38 @@
  * Import the RTK Query library from Redux Toolkit
  * @see https://redux-toolkit.js.org/rtk-query/overview
  */
-import {
-  createApi,
-  FetchArgs,
-  fetchBaseQuery,
-  FetchBaseQueryError,
-  FetchBaseQueryMeta,
-  QueryReturnValue,
-} from '@reduxjs/toolkit/query';
-
+import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
 /**
  * Import internal modules
  */
 import { initQuery } from '@forgerock/sdk-request-middleware';
-import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
 import { handleResponse, transformActionRequest, transformSubmitRequest } from './davinci.utils.js';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { GenericError } from '@forgerock/sdk-types';
+import type {
+  FetchArgs,
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  QueryReturnValue,
+} from '@reduxjs/toolkit/query';
 
+import type { StartNode } from '../types.js';
 /**
  * Import the DaVinci types
  */
 import type { RootStateWithNode } from './client.store.utils.js';
+import type { FidoAuthenticationCollector, FidoRegistrationCollector } from './collector.types.js';
 import type {
   DaVinciCacheEntry,
   OutgoingQueryParams,
   StartOptions,
   ThrownQueryError,
 } from './davinci.types.js';
-import type { GenericError } from '@forgerock/sdk-types';
-import type { FidoRegistrationCollector, FidoAuthenticationCollector } from './collector.types.js';
 import type { ContinueNode } from './node.types.js';
-import type { StartNode } from '../types.js';
 
 type BaseQueryResponse = Promise<
   QueryReturnValue<unknown, FetchBaseQueryError, FetchBaseQueryMeta>

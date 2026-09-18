@@ -8,19 +8,20 @@
  * Request for DaVinci API
  */
 
+import type { GenericError } from '@forgerock/sdk-types';
 import type {
   FetchBaseQueryError,
   FetchBaseQueryMeta,
   MutationResultSelectorResult,
 } from '@reduxjs/toolkit/query';
-import {
+
+import type {
   DeviceValue,
-  PhoneNumberInputValue,
-  FidoRegistrationInputValue,
   FidoAuthenticationInputValue,
+  FidoRegistrationInputValue,
   MetadataError,
+  PhoneNumberInputValue,
 } from './collector.types.js';
-import { GenericError } from '@forgerock/sdk-types';
 
 export interface DaVinciRequest {
   id: string;

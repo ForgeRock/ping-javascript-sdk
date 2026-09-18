@@ -5,10 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { WellknownResponse } from '@forgerock/sdk-types';
-import type { InternalJourneyClientConfig } from './config.types.js';
+import { createSlice } from '@reduxjs/toolkit';
+
 import { convertWellknown } from './wellknown.utils.js';
+
+import type { WellknownResponse } from '@forgerock/sdk-types';
+import type { PayloadAction } from '@reduxjs/toolkit';
+
+import type { InternalJourneyClientConfig } from './config.types.js';
 
 /**
  * Payload dispatched to the config slice after well-known resolution.

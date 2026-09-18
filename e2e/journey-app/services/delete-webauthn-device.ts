@@ -6,8 +6,9 @@
  */
 
 import { deviceClient as createDeviceClient } from '@forgerock/device-client';
+
 import type { WebAuthnDevice } from '@forgerock/device-client/types';
-import { JourneyClientConfig } from '@forgerock/journey-client/types';
+import type { JourneyClientConfig } from '@forgerock/journey-client/types';
 
 /**
  * Derives the AM base URL from an OIDC well-known URL.

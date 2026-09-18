@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 import { describe, expectTypeOf, it } from 'vitest';
-import type { DaVinciConfig, InternalDaVinciConfig } from './config.types.js';
+
 import type { AsyncLegacyConfigOptions, WellknownResponse } from '@forgerock/sdk-types';
+
+import type { DaVinciConfig, InternalDaVinciConfig } from './config.types.js';
 
 describe('Config Types', () => {
   describe('DaVinciConfig', () => {

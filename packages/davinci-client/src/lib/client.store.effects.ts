@@ -6,18 +6,18 @@
  */
 
 import { Micro } from 'effect';
-import { SerializedError } from '@reduxjs/toolkit/react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
-
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
-
-import type { ClientStore, RootState } from './client.store.utils.js';
-import type { PollingStatus, InternalErrorResponse } from './client.types.js';
-import type { PollingCollector } from './collector.types.js';
 
 import { createInternalError, isInternalError } from './client.store.utils.js';
 import { davinciApi } from './davinci.api.js';
 import { nodeSlice } from './node.slice.js';
+
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import type { SerializedError } from '@reduxjs/toolkit/react';
+
+import type { ClientStore, RootState } from './client.store.utils.js';
+import type { InternalErrorResponse, PollingStatus } from './client.types.js';
+import type { PollingCollector } from './collector.types.js';
 
 /**
  * Shape returned by RTK Query's dispatch for the poll endpoint.

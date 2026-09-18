@@ -5,11 +5,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { fido } from '@forgerock/davinci-client';
+
 import type {
-  FidoRegistrationCollector,
   FidoAuthenticationCollector,
-  Updater,
   FidoClient,
+  FidoRegistrationCollector,
+  Updater,
 } from '@forgerock/davinci-client/types';
 
 export default function fidoComponent(

@@ -1,13 +1,13 @@
 /*
  *
- * Copyright © 2025 - 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  *
  */
 
-import { Protect, ProtectConfig, SignalsInitializationOptions } from './protect.types.js';
+import type { Protect, ProtectConfig, SignalsInitializationOptions } from './protect.types.js';
 
 // Add Signals SDK namespace to the window object
 declare global {

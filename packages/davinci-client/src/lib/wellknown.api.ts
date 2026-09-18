@@ -5,9 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { initWellknownQuery } from '@forgerock/sdk-oidc';
 import { createSelector } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
-import { initWellknownQuery } from '@forgerock/sdk-oidc';
 
 import type { WellknownResponse } from '@forgerock/sdk-types';
 import type {

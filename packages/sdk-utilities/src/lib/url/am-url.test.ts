@@ -1,6 +1,6 @@
 /*
  *
- * Copyright © 2025 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All right reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -8,7 +8,8 @@
  */
 
 import { getEndpointPath, getRealmUrlPath } from './am-url.utils.js';
-import { GetEndpointPathParams } from './am-url.types.js';
+
+import type { GetEndpointPathParams } from './am-url.types.js';
 
 describe('The URL utility functions', () => {
   it('getRealmUrlPath creates the correct paths', () => {

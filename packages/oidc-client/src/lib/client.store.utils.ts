@@ -4,14 +4,15 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import { logger as loggerFn } from '@forgerock/sdk-logger';
+import { configureStore } from '@reduxjs/toolkit';
 
-import { configureStore, type SerializedError } from '@reduxjs/toolkit';
 import { oidcApi } from './oidc.api.js';
 import { wellknownApi } from './wellknown.api.js';
 
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError } from '@forgerock/sdk-types';
+import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 /**
