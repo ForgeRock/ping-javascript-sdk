@@ -112,7 +112,7 @@ export type Device = {
 export type DeviceClient = ReturnType<typeof deviceClient>;
 
 // @public
-export const deviceClient: (config: ConfigOptions) => {
+export const deviceClient: (config: LegacyConfigOptions) => {
     oath: {
         get: (query: RetrieveOathQuery) => Promise<OathDevice[] | {
             error: unknown;
