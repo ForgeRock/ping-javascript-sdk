@@ -1,5 +1,17 @@
 # @forgerock/davinci-client
 
+## 2.3.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-logger@2.3.0
+  - @forgerock/sdk-oidc@2.3.0
+  - @forgerock/sdk-request-middleware@2.3.0
+  - @forgerock/storage@2.3.0
+  - @forgerock/sdk-types@2.3.0
+  - @forgerock/sdk-utilities@2.3.0
+
 ## 2.2.0
 
 ### Minor Changes
