@@ -5,9 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import {
-  callbackType,
-  journey,
+import { callbackType, journey } from '@forgerock/journey-client';
+import type {
   NameCallback,
   PasswordCallback,
   PingOneRecognizeCallback,
