@@ -6,12 +6,13 @@
  */
 
 import { callbackType, journey } from '@forgerock/journey-client';
+import { recognize } from '@forgerock/recognize';
+
 import type {
   NameCallback,
   PasswordCallback,
   PingOneRecognizeCallback,
 } from '@forgerock/journey-client';
-import { recognize } from '@forgerock/recognize';
 
 const appEl = document.getElementById('app') as HTMLDivElement;
 appEl.style.cssText = 'display:flex;gap:1.5rem;align-items:flex-start;';

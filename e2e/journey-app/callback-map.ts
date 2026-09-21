@@ -5,6 +5,31 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import {
+  attributeInputComponent,
+  choiceComponent,
+  confirmationComponent,
+  deviceProfileComponent,
+  hiddenValueComponent,
+  kbaCreateComponent,
+  metadataComponent,
+  passwordComponent,
+  pingOneRecognizeComponent,
+  pingProtectEvaluationComponent,
+  pingProtectInitializeComponent,
+  pollingWaitComponent,
+  recaptchaComponent,
+  recaptchaEnterpriseComponent,
+  redirectComponent,
+  selectIdpComponent,
+  suspendedTextOutputComponent,
+  termsAndConditionsComponent,
+  textInputComponent,
+  textOutputComponent,
+  validatedPasswordComponent,
+  validatedUsernameComponent,
+} from './components/index.js';
+
 import type {
   AttributeInputCallback,
   BaseCallback,
@@ -31,31 +56,6 @@ import type {
   ValidatedCreatePasswordCallback,
   ValidatedCreateUsernameCallback,
 } from '@forgerock/journey-client/types';
-
-import {
-  attributeInputComponent,
-  choiceComponent,
-  confirmationComponent,
-  deviceProfileComponent,
-  hiddenValueComponent,
-  kbaCreateComponent,
-  metadataComponent,
-  passwordComponent,
-  pingProtectEvaluationComponent,
-  pingProtectInitializeComponent,
-  pingOneRecognizeComponent,
-  pollingWaitComponent,
-  recaptchaComponent,
-  recaptchaEnterpriseComponent,
-  redirectComponent,
-  selectIdpComponent,
-  suspendedTextOutputComponent,
-  termsAndConditionsComponent,
-  textInputComponent,
-  textOutputComponent,
-  validatedPasswordComponent,
-  validatedUsernameComponent,
-} from './components/index.js';
 
 /**
  * Renders a callback component based on its type
