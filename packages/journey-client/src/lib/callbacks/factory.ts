@@ -17,6 +17,7 @@ import { KbaCreateCallback } from './kba-create-callback.js';
 import { MetadataCallback } from './metadata-callback.js';
 import { NameCallback } from './name-callback.js';
 import { PasswordCallback } from './password-callback.js';
+import { PingOneRecognizeCallback } from './ping-one-recognize-callback.js';
 import { PingOneProtectEvaluationCallback } from './ping-protect-evaluation-callback.js';
 import { PingOneProtectInitializeCallback } from './ping-protect-initialize-callback.js';
 import { PollingWaitCallback } from './polling-wait-callback.js';
@@ -64,6 +65,8 @@ export function createCallback(callback: Callback): BaseCallback {
       return new PingOneProtectEvaluationCallback(callback);
     case callbackType.PingOneProtectInitializeCallback:
       return new PingOneProtectInitializeCallback(callback);
+    case callbackType.PingOneRecognizeCallback:
+      return new PingOneRecognizeCallback(callback);
     case callbackType.PollingWaitCallback:
       return new PollingWaitCallback(callback);
     case callbackType.ReCaptchaCallback:

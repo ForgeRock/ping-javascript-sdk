@@ -11,11 +11,11 @@
     "serve": "pnpm nx nxServe"
   },
   "dependencies": {
+    "@forgerock/device-client": "workspace:*",
     "@forgerock/journey-client": "workspace:*",
     "@forgerock/oidc-client": "workspace:*",
     "@forgerock/protect": "workspace:*",
-    "@forgerock/sdk-logger": "workspace:*",
-    "@forgerock/device-client": "workspace:*"
+    "@forgerock/sdk-logger": "workspace:*"
   },
   "nx": {
     "tags": ["scope:e2e"]
