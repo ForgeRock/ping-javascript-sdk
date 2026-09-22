@@ -308,7 +308,7 @@ export const davinciApi = createApi({
           };
         }
 
-        const authorizeEndpoint = state.config.endpoints.authorize;
+        const authorizeEndpoint = state.davinciConfig.endpoints.authorize;
 
         if (!authorizeEndpoint) {
           return { error: { status: 400, data: 'authorizeEndpoint URL must be set' } };
@@ -316,12 +316,12 @@ export const davinciApi = createApi({
 
         try {
           const authorizeUrl = await createAuthorizeUrl(authorizeEndpoint, {
-            clientId: state?.config?.clientId,
+            clientId: state?.davinciConfig?.clientId,
             login: 'redirect', // TODO: improve this in SDK to be more semantic
-            redirectUri: state?.config?.redirectUri,
-            responseType: state?.config?.responseType as 'code',
+            redirectUri: state?.davinciConfig?.redirectUri,
+            responseType: state?.davinciConfig?.responseType as 'code',
             responseMode: 'pi.flow',
-            scope: state?.config?.scope,
+            scope: state?.davinciConfig?.scope,
           });
           const url = new URL(authorizeUrl);
           const existingParams = url.searchParams;

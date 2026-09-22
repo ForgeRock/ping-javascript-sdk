@@ -35,9 +35,9 @@ const initialState = {
  * @see https://redux-toolkit.js.org/api/createslice
  */
 export const configSlice = createSlice({
-  name: 'config',
+  name: 'davinciConfig',
   initialState,
-  reducerPath: 'config',
+  reducerPath: 'davinciConfig',
   reducers: {
     /**
      * @method set - Set the configuration for the DaVinci client

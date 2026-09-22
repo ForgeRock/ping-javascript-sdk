@@ -132,6 +132,7 @@ export function getClientForReducerPath(
  *
  * Safe to call more than once for the same client — RTK deduplicates reducer
  * injection, and re-registering a slot simply overwrites it with equal values.
+ * Client slices must each have a distinct reducer path when sharing a store.
  *
  * @throws If `handle` is not a valid SDK store handle.
  */

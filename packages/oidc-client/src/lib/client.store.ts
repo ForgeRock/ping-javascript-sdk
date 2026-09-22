@@ -87,6 +87,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>(
   );
 
   if (error || !data) {
+    // RTK Query retains rejected query entries. Clear them before returning so a
+    // later client sharing this store performs a fresh discovery request.
+    store.dispatch(wellknownApi.util.resetApiState());
     log.error(`Error fetching wellknown config. Please check the URL: ${wellknownUrl}`);
     return {
       error: `Failed to fetch well-known configuration from: ${wellknownUrl}`,

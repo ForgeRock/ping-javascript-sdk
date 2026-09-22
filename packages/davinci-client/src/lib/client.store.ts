@@ -25,7 +25,7 @@ import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { configSlice } from './config.slice.js';
-import { wellknownApi, assertValidStore } from '@forgerock/sdk-store';
+import { wellknownApi, assertValidStore, getClientForReducerPath } from '@forgerock/sdk-store';
 
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { SdkStore } from '@forgerock/sdk-store';
@@ -95,6 +95,14 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   if (storeError) return storeError;
 
   const validStore = sharedStore as SdkStore | undefined;
+
+  if (validStore && getClientForReducerPath(validStore, davinciApi.reducerPath)) {
+    return {
+      error:
+        'This store already has a DaVinci client attached. Use a separate store per DaVinci client.',
+      type: 'argument_error' as const,
+    };
+  }
 
   if (!config.serverConfig.wellknown) {
     const error = new Error(

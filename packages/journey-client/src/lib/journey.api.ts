@@ -28,10 +28,10 @@ import type { JourneyStep } from './step.types.js';
 
 /**
  * Minimal state type for accessing journey config from RTK Query endpoints.
- * References the config slice directly (not nested under journey).
+ * References the Journey configuration slice directly (not nested under journey).
  */
 interface JourneyRootState {
-  config: InternalJourneyClientConfig;
+  journeyConfig: InternalJourneyClientConfig;
 }
 
 function constructUrl(
@@ -136,7 +136,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
@@ -169,7 +169,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
@@ -198,7 +198,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }

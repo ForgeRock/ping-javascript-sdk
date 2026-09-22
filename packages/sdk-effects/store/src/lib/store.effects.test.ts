@@ -33,6 +33,18 @@ const fakeSlice = createSlice({
   reducers: { bump: (state) => ({ value: state.value + 1 }) },
 });
 
+const davinciConfigSlice = createSlice({
+  name: 'davinciConfig',
+  initialState: { clientId: 'davinci-client' },
+  reducers: {},
+});
+
+const journeyConfigSlice = createSlice({
+  name: 'journeyConfig',
+  initialState: { clientId: 'journey-client' },
+  reducers: {},
+});
+
 /** Stand-in for a request middleware; sdk-store does not depend on its type. */
 function noopMiddleware() {
   return (_req: unknown, _action: unknown, next: () => unknown) => {
@@ -123,6 +135,29 @@ describe('injectClient', () => {
 
     // Assert
     expect(Object.keys(handle.store.getState() as object)).toContain('fakeSlice');
+  });
+
+  it('keeps DaVinci and Journey configuration state distinct in a shared store', () => {
+    // Arrange
+    const handle = createSdkStore();
+
+    // Act
+    injectClient(handle, {
+      api: fakeApi,
+      reducerPath: fakeApi.reducerPath,
+      slices: [davinciConfigSlice],
+    });
+    injectClient(handle, {
+      api: otherApi,
+      reducerPath: otherApi.reducerPath,
+      slices: [journeyConfigSlice],
+    });
+
+    // Assert
+    expect(handle.store.getState()).toMatchObject({
+      davinciConfig: { clientId: 'davinci-client' },
+      journeyConfig: { clientId: 'journey-client' },
+    });
   });
 
   it('registers the client slot under its reducerPath', () => {
