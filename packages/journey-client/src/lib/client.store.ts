@@ -193,7 +193,7 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     );
   }
 
-  const configError = store.getState().journeyConfig.error;
+  const configError = store.getState().config.error;
 
   if (configError) {
     const message = `${configError.error}: ${configError.message}`;

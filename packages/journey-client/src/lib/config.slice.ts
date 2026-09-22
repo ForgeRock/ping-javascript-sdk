@@ -46,8 +46,7 @@ const initialState: InternalJourneyClientConfig = {
  * and stores the resulting `ResolvedServerConfig`.
  */
 export const configSlice = createSlice({
-  name: 'journeyConfig',
-  reducerPath: 'journeyConfig',
+  name: 'config',
   initialState,
   reducers: {
     set(state, action: PayloadAction<ResolvedConfig | BaseConfig>) {

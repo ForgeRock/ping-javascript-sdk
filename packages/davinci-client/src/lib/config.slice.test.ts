@@ -12,7 +12,7 @@ describe('The config slice reducers', () => {
   it('should return state with minimal config', () => {
     expect(
       configSlice.reducer(undefined, {
-        type: 'davinciConfig/set',
+        type: 'config/set',
         payload: {
           clientId: '123',
           serverConfig: {
@@ -40,7 +40,7 @@ describe('The config slice reducers', () => {
 
   it('should handle setting the configuration', () => {
     const action = {
-      type: 'davinciConfig/set',
+      type: 'config/set',
       payload: {
         clientId: '1234',
         redirectUri: 'https://example.com',
