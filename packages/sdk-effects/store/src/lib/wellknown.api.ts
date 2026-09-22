@@ -5,9 +5,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { initWellknownQuery } from './wellknown.effects.js';
 import { createSelector } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+
+import { initWellknownQuery } from './wellknown.effects.js';
 
 import type { WellknownResponse } from '@forgerock/sdk-types';
 import type {
