@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { initWellknownQuery } from '@forgerock/sdk-oidc';
+import { initWellknownQuery } from './wellknown.effects.js';
 import { createSelector } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
@@ -16,7 +16,13 @@ import type {
   QueryReturnValue,
 } from '@reduxjs/toolkit/query';
 
-import type { RootState } from './client.types.js';
+/**
+ * RootState type for wellknown selector consumers.
+ * Minimal state shape with the wellknown reducer mounted.
+ */
+export interface WellknownState {
+  wellknown: ReturnType<typeof wellknownApi.reducer>;
+}
 
 /**
  * RTK Query API for well-known endpoint discovery.
@@ -45,6 +51,14 @@ export const wellknownApi = createApi({
   }),
 });
 
+const createWellknownSelectorForUrl = (wellknownUrl: string) =>
+  createSelector(
+    wellknownApi.endpoints.configuration.select(wellknownUrl),
+    (result) => result?.data,
+  );
+
+const wellknownSelectors = new Map<string, ReturnType<typeof createWellknownSelectorForUrl>>();
+
 /**
  * Creates a memoized selector for cached well-known data.
  *
@@ -52,10 +66,14 @@ export const wellknownApi = createApi({
  * @returns A memoized selector that extracts the WellknownResponse from state, or undefined if not yet fetched
  */
 export function createWellknownSelector(wellknownUrl: string) {
-  return createSelector(
-    wellknownApi.endpoints.configuration.select(wellknownUrl),
-    (result) => result?.data,
-  );
+  const existingSelector = wellknownSelectors.get(wellknownUrl);
+  if (existingSelector) {
+    return existingSelector;
+  }
+
+  const selector = createWellknownSelectorForUrl(wellknownUrl);
+  wellknownSelectors.set(wellknownUrl, selector);
+  return selector;
 }
 
 /**
@@ -68,7 +86,7 @@ export function createWellknownSelector(wellknownUrl: string) {
  * @param state - The oidc-client Redux root state
  * @returns The cached WellknownResponse or undefined if not yet fetched
  */
-export function wellknownSelector(wellknownUrl: string, state: RootState) {
+export function wellknownSelector(wellknownUrl: string, state: WellknownState) {
   const selector = createSelector(
     wellknownApi.endpoints.configuration.select(wellknownUrl),
     (result) => result?.data,
