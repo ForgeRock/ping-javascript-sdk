@@ -11,20 +11,18 @@ import { AracnaIconElement } from '@aracna/web-components/elements/data/icon-ele
 import { AracnaQrCodeElement } from '@aracna/web-components/elements/data/qr-code-element';
 import type { AracnaQrCodeElementAttributes } from '@aracna/web-components';
 import type { AracnaQrCodeElementEventMap } from '@aracna/web-components';
-import { AracnaSelectButtonElement } from '@aracna/web-components/elements/input/select-element';
-import { AracnaSelectButtonElementEventMap } from '@aracna/web-components';
-import { AracnaSelectOptionElement } from '@aracna/web-components/elements/input/select-element';
 import { AracnaTextElement } from '@aracna/web-components/elements/typography/text-element';
 import type { AracnaTextElementAttributes } from '@aracna/web-components';
 import type { AracnaTextElementEventMap } from '@aracna/web-components';
 import { CreateKeylessMediaStreamArgs } from '@keyless/sdk-web';
 import { CSSResultGroup } from 'lit';
-import { FormControlChangeEvent } from '@aracna/web-components';
 import { IResult } from '@ua-parser-js/pro-enterprise';
+import { KeylessFaceTargetArea } from '@keyless/sdk-web';
 import { KeylessMediaDevice } from '@keyless/sdk-web';
 import { KeylessVideoFrameQuality } from '@keyless/sdk-web';
 import { KeylessVideoFrameQualityFilter } from '@keyless/sdk-web';
 import { KeylessVideoFrameQualitySource } from '@keyless/sdk-web';
+import { ListBoxOptionSelectEvent } from '@aracna/web-components';
 import { LocalizationPack } from '@aracna/core';
 import { LocalizationVariables } from '@aracna/core';
 import { LoggerLevel } from '@aracna/core';
@@ -124,7 +122,6 @@ export declare interface KeylessButtonElementEventMap extends AracnaButtonElemen
 /** @public */
 export declare class KeylessCameraBiometricElement extends KeylessCameraElement {
     connectedCallback(): void;
-    disconnectedCallback(): void;
     get slug(): any;
 }
 
@@ -144,10 +141,10 @@ export declare class KeylessCameraCornersElement extends AracnaBaseElement {
      */
     /** */
     disableAnimation?: boolean;
-    hasFrameResults?: boolean;
-    hasTriggeredBiometricFilters?: boolean;
+    protected _faceTargetArea?: KeylessFaceTargetArea;
     theme?: Theme;
     protected _themeOptions?: KeylessThemeOptions;
+    protected _videoFrameQuality?: KeylessVideoFrameQuality;
     /**
      * State
      */
@@ -160,14 +157,19 @@ export declare class KeylessCameraCornersElement extends AracnaBaseElement {
     protected animationControls?: AnimationPlaybackControlsWithThen;
     constructor();
     connectedCallback(): void;
+    computeLayout(animated?: boolean): void;
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void;
     handleAnimation(): void;
-    render(): TemplateResult<1>;
+    render(): TemplateResult<1> | undefined;
     get corners(): string[];
     get slug(): any;
     get styleHTML(): TemplateResult;
+    get faceTargetArea(): KeylessFaceTargetArea | undefined;
+    set faceTargetArea(area: KeylessFaceTargetArea | undefined);
     get themeOptions(): KeylessThemeOptions | undefined;
     set themeOptions(options: KeylessThemeOptions | undefined);
+    get videoFrameQuality(): KeylessVideoFrameQuality | undefined;
+    set videoFrameQuality(quality: KeylessVideoFrameQuality | undefined);
     get hasFrameResultsWithEmptyFilters(): boolean;
     get isAnimatable(): boolean;
     static properties: PropertyDeclarations;
@@ -299,7 +301,6 @@ export declare class KeylessCameraSelectElement extends AracnaBaseElement {
      */
     /** */
     disableLogger?: boolean;
-    expanded?: boolean;
     localizationPacks?: LocalizationPack[];
     localizationVariables?: LocalizationVariables;
     loggerLevel?: LoggerLevel;
@@ -312,17 +313,11 @@ export declare class KeylessCameraSelectElement extends AracnaBaseElement {
     protected defaultDeviceID?: string;
     protected deviceLabel?: string;
     protected devices: KeylessMediaDevice[];
-    /**
-     * Queries
-     */
-    /** */
-    protected selectButton: AracnaSelectButtonElement<AracnaSelectButtonElementEventMap>;
-    protected selectOptions: AracnaSelectOptionElement[];
     constructor();
     connectedCallback(): void;
-    onSelectChange: (event: FormControlChangeEvent<string>) => void;
+    onOptionSelect: (event: ListBoxOptionSelectEvent) => void;
     isDeviceActive(device: KeylessMediaDevice): boolean;
-    render(): TemplateResult<1> | typeof nothing;
+    render(): TemplateResult<1>;
     get slug(): any;
     get styleHTML(): TemplateResult;
     get themeOptions(): KeylessThemeOptions | undefined;
@@ -330,7 +325,6 @@ export declare class KeylessCameraSelectElement extends AracnaBaseElement {
     get ua(): IResult;
     static deps: KeylessDependencyDeclarations;
     static properties: PropertyDeclarations;
-    static queries: QueryDeclarations;
     static styles: CSSResultGroup;
 }
 
@@ -553,6 +547,7 @@ export declare class KeylessPoweredByElement extends AracnaBaseElement {
     /** */
     theme?: Theme;
     protected _themeOptions?: KeylessThemeOptions;
+    connectedCallback(): void;
     render(): TemplateResult<1>;
     get slug(): any;
     get styleHTML(): TemplateResult;
@@ -706,12 +701,13 @@ export declare class KeylessStepController implements ReactiveController {
 
 /** @public */
 export declare class KeylessSuccessEvent extends CustomEvent<KeylessSuccessEventDetail> {
-    constructor(jwt?: string, seedEntropy?: string);
+    constructor(jwt?: string, recognitionFrame?: string, seedEntropy?: string);
 }
 
 /** @public */
 export declare interface KeylessSuccessEventDetail {
     jwt?: string;
+    recognitionFrame?: string;
     seedEntropy?: string;
     source: KeylessSessionSource;
 }
@@ -1104,12 +1100,14 @@ export declare interface KeylessThemeOptionsElementsRootTexts {
 
 /** @public */
 export declare class KeylessVideoFrameQualityEvent extends CustomEvent<KeylessVideoFrameQualityEventDetail> {
-    constructor(filters: KeylessVideoFrameQualityFilter[], source: KeylessVideoFrameQualitySource, timestamp: number);
+    constructor(filters: KeylessVideoFrameQualityFilter[], source: KeylessVideoFrameQualitySource, timestamp: number, logs?: string, resolution?: string);
 }
 
 /** @public */
 export declare interface KeylessVideoFrameQualityEventDetail {
     filters: KeylessVideoFrameQualityFilter[];
+    logs?: string;
+    resolution?: string;
     source: KeylessVideoFrameQualitySource;
     timestamp: Date;
 }
@@ -1146,6 +1144,7 @@ declare class RootElement extends AracnaBaseElement<RootElementEventMap> {
     localizationVariables?: LocalizationVariables;
     loggerLevel?: LoggerLevel;
     operationID?: string;
+    requestRecognitionFrame?: boolean;
     seedEntropy?: boolean;
     serviceURL: string;
     switchToMobileBaseURL?: string;
@@ -1162,6 +1161,7 @@ declare class RootElement extends AracnaBaseElement<RootElementEventMap> {
     /** */
     cancelable: boolean;
     error?: Error;
+    faceTargetArea?: KeylessFaceTargetArea;
     hasMultipleVideoMediaDevices: boolean;
     recoverable: boolean;
     protected _step: KeylessComponentsStep;
