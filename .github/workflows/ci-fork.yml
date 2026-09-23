@@ -52,7 +52,7 @@ jobs:
           git fetch origin +refs/heads/main:refs/remotes/upstream/main
           git branch --force main upstream/main
 
-      - uses: nrwl/nx-set-shas@v4
+      - uses: nrwl/nx-set-shas@v5
 
       - run: pnpm nx format:check
       - run: pnpm nx affected -t build typecheck lint test e2e-ci --no-agents
