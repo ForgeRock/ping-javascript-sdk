@@ -4,13 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { createWellknownError, isGenericError } from '@forgerock/sdk-utilities';
-import { createStorage } from '@forgerock/storage';
-import { Either, Micro } from 'effect';
+import { Micro, Either } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
+import { type CustomLogger, logger as loggerFn, type LogLevel } from '@forgerock/sdk-logger';
+import { createStorage } from '@forgerock/storage';
+import { isGenericError, createWellknownError } from '@forgerock/sdk-utilities';
 
-import { getPollingModeµ, pollingµ } from './client.store.effects.js';
 /**
  * Import RTK slices and api
  */
@@ -21,34 +20,15 @@ import {
   isValidCollectorCategory,
   resolveCollectorUpdateValue,
 } from './client.store.utils.js';
-import { returnValidator } from './collector.utils.js';
-import { configSlice } from './config.slice.js';
-import { davinciApi } from './davinci.api.js';
+import type { RootState } from './davinci.state.js';
+import { pollingµ, getPollingModeµ } from './client.store.effects.js';
 import { nodeSlice } from './node.slice.js';
-import { returnPasswordPolicyValidator } from './password-policy.rules.js';
-import { wellknownApi } from './wellknown.api.js';
+import { davinciApi } from './davinci.api.js';
+import { configSlice } from './config.slice.js';
+import { wellknownApi, assertValidStore, getClientForReducerPath } from '@forgerock/sdk-store';
 
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-
-import type { RootState } from './client.store.utils.js';
-import type {
-  CollectorValueTypes,
-  InitFlow,
-  InternalErrorResponse,
-  NodeStates,
-  Poller,
-  UpdatableCollectors,
-  Updater,
-  Validator,
-} from './client.types.js';
-import type {
-  AutoCollectors,
-  MultiValueCollectors,
-  ObjectValueCollectors,
-  PollingCollector,
-  SingleValueCollectors,
-} from './collector.types.js';
+import type { SdkStore } from '@forgerock/sdk-store';
 /**
  * Import the DaVinciRequest types
  */
@@ -59,6 +39,25 @@ import type {
   OutgoingQueryParams,
   StartOptions,
 } from './davinci.types.js';
+import type {
+  SingleValueCollectors,
+  ObjectValueCollectors,
+  AutoCollectors,
+  PollingCollector,
+  MultiValueCollectors,
+} from './collector.types.js';
+import type {
+  InitFlow,
+  InternalErrorResponse,
+  NodeStates,
+  Updater,
+  UpdatableCollectors,
+  Validator,
+  Poller,
+  CollectorValueTypes,
+} from './client.types.js';
+import { returnValidator } from './collector.utils.js';
+import { returnPasswordPolicyValidator } from './password-policy.rules.js';
 import type { ContinueNode, StartNode } from './node.types.js';
 
 /**
@@ -73,6 +72,7 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
   logger,
+  store: sharedStore,
 }: {
   config: DaVinciConfig;
   requestMiddleware?: RequestMiddleware<ActionType>[];
@@ -80,16 +80,30 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     level: LogLevel;
     custom?: CustomLogger;
   };
+  /**
+   * An existing SDK store to attach to, so discovery caching and state are
+   * shared with another client. Omit to create a store for this client alone.
+   */
+  store?: unknown;
 }) {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
-  const store = createClientStore({ requestMiddleware, logger: log });
-  const serverInfo = createStorage<ContinueNode['server']>({
-    type: 'localStorage',
-    name: 'serverInfo',
-  });
+
+  const storeError = assertValidStore(sharedStore);
+  if (storeError) return storeError;
+
+  const validStore = sharedStore as SdkStore | undefined;
+
+  if (validStore && getClientForReducerPath(validStore, davinciApi.reducerPath)) {
+    return {
+      error:
+        'This store already has a DaVinci client attached. Use a separate store per DaVinci client.',
+      type: 'argument_error' as const,
+    };
+  }
+
   if (!config.serverConfig.wellknown) {
     const error = new Error(
       '`wellknown` property is a required as part of the `config.serverConfig`',
@@ -104,6 +118,13 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
     throw error;
   }
 
+  const handle = createClientStore({ requestMiddleware, logger: log, store: validStore });
+  const store = handle.store;
+  const serverInfo = createStorage<ContinueNode['server']>({
+    type: 'localStorage',
+    name: 'serverInfo',
+  });
+
   const { data: openIdResponse, error: fetchError } = await store.dispatch(
     wellknownApi.endpoints.configuration.initiate(config.serverConfig.wellknown),
   );
@@ -117,6 +138,8 @@ export async function davinci<ActionType extends ActionTypes = ActionTypes>({
   store.dispatch(configSlice.actions.set({ ...config, wellknownResponse: openIdResponse }));
 
   return {
+    /** Pass to another SDK client's `store` option to share this store. */
+    store: handle as SdkStore,
     // Pass store methods to the client
     subscribe: store.subscribe,
 

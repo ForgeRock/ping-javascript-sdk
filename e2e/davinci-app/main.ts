@@ -4,33 +4,14 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import './style.css';
+
 import { davinci } from '@forgerock/davinci-client';
 import { oidc } from '@forgerock/oidc-client';
-import { protect } from '@forgerock/protect';
-
-import './style.css';
-import booleanComponent from './components/boolean.js';
-import fidoComponent from './components/fido.js';
-import flowLinkComponent from './components/flow-link.js';
-import formImageComponent from './components/form-image.js';
-import metadataComponent from './components/metadata.js';
-import multiValueComponent from './components/multi-value.js';
-import objectValueComponent from './components/object-value.js';
-import passwordComponent from './components/password.js';
-import pollingComponent from './components/polling.js';
-import protectComponent from './components/protect.js';
-import qrCodeComponent from './components/qr-code.js';
-import readOnlyComponent from './components/read-only.js';
-import singleValueComponent from './components/single-value.js';
-import socialLoginButtonComponent from './components/social-login-button.js';
-import submitButtonComponent from './components/submit-button.js';
-import textComponent from './components/text.js';
-import { serverConfigs } from './server-configs.js';
-
+import type { OidcConfig } from '@forgerock/oidc-client/types';
 import type {
   Collectors,
   CustomLogger,
-  DavinciClient,
   DaVinciConfig,
   GetClient,
   InternalErrorResponse,
@@ -38,7 +19,25 @@ import type {
   ProtectCollector,
   RequestMiddleware,
 } from '@forgerock/davinci-client/types';
-import type { OidcConfig } from '@forgerock/oidc-client/types';
+import { protect } from '@forgerock/protect';
+
+import textComponent from './components/text.js';
+import passwordComponent from './components/password.js';
+import submitButtonComponent from './components/submit-button.js';
+import protectComponent from './components/protect.js';
+import flowLinkComponent from './components/flow-link.js';
+import socialLoginButtonComponent from './components/social-login-button.js';
+import { serverConfigs } from './server-configs.js';
+import singleValueComponent from './components/single-value.js';
+import multiValueComponent from './components/multi-value.js';
+import readOnlyComponent from './components/read-only.js';
+import objectValueComponent from './components/object-value.js';
+import fidoComponent from './components/fido.js';
+import qrCodeComponent from './components/qr-code.js';
+import formImageComponent from './components/form-image.js';
+import pollingComponent from './components/polling.js';
+import booleanComponent from './components/boolean.js';
+import metadataComponent from './components/metadata.js';
 
 const loggerFn = {
   error: () => {
@@ -88,7 +87,11 @@ const requestMiddleware: RequestMiddleware<'DAVINCI_NEXT' | 'DAVINCI_START'>[] =
 const urlParams = new URLSearchParams(window.location.search);
 
 (async () => {
-  const davinciClient: DavinciClient = await davinci({ config, logger, requestMiddleware });
+  const davinciResult = await davinci({ config, logger, requestMiddleware });
+  if ('error' in davinciResult) {
+    throw new Error(`Failed to initialize davinci client: ${davinciResult.error}`);
+  }
+  const davinciClient = davinciResult;
   const oidcResult = await oidc({ config: config as OidcConfig });
   if ('error' in oidcResult) {
     throw new Error(`Failed to initialize oidc client: ${oidcResult.error}`);

@@ -10,6 +10,7 @@ The oidc module follows the [OIDC](https://openid.net/specs/openid-connect-core-
 - [Initialization](#initialization)
   - [Configuration Options](#configuration-options)
 - [Quick Start](#quick-start)
+- [Sharing a Store With Another Client](#sharing-a-store-with-another-client)
 - [API Reference](#api-reference)
   - [authorize](#authorize)
   - [token](#token)
@@ -54,10 +55,16 @@ The `oidc()` initialization function accepts the following configuration:
   - **wellknown** (required) - URL to the OIDC provider's well-known configuration endpoint
 - **clientId** (required) - Your application's client ID registered with the OIDC provider
 - **redirectUri** (required) - The URI where the OIDC provider will redirect after authentication
-- **scope** (required) - Space-separated list of requested scopes (e.g., `'openid profile email'`)
+- **scope** (optional, default: `'openid'`) - Space-separated list of requested scopes (e.g., `'openid profile email'`)
 - **storage** (optional) - Storage configuration for tokens (defaults to localStorage)
 - **timeout** (optional) - Request timeout in milliseconds
 - **additionalParameters** (optional) - Additional parameters to include in authorization requests
+
+The `oidc()` function also accepts:
+
+- **requestMiddleware** (optional) - Middleware applied to this client's requests only
+- **logger** (optional) - Log level and custom logger for this client only
+- **store** (optional) - An existing SDK store to attach to. See [Sharing a Store](#sharing-a-store-with-another-client)
 
 ## Quick Start
 
@@ -81,6 +88,65 @@ const user = await oidcClient.user.info();
 // Clean up: logout and revoke tokens
 await oidcClient.user.logout();
 ```
+
+## Sharing a Store With Another Client
+
+If your application also uses `@forgerock/davinci-client` or `@forgerock/journey-client`, the clients can share one Redux store. The well-known discovery document is then fetched once rather than once per client.
+
+Pass the other client's `store` handle:
+
+```js
+import { davinci } from '@forgerock/davinci-client';
+import { oidc } from '@forgerock/oidc-client';
+
+const davinciClient = await davinci({ config: davinciConfig });
+
+// Attaches to davinci's store; the discovery document is already cached there.
+const oidcClient = await oidc({ config: oidcConfig, store: davinciClient.store });
+```
+
+Or create the store yourself when neither client is the natural owner:
+
+```js
+import { createSdkStore } from '@forgerock/sdk-store';
+
+const store = createSdkStore();
+const davinciClient = await davinci({ config: davinciConfig, store });
+const oidcClient = await oidc({ config: oidcConfig, store });
+```
+
+Omitting `store` is always valid — the client creates its own, which is the default behaviour.
+
+### Middleware and logging stay private
+
+Sharing a store shares cached data, not configuration. Your `requestMiddleware` and `logger` are registered against this client alone and are only applied to OIDC requests:
+
+```js
+const oidcClient = await oidc({
+  config,
+  store,
+  // Runs for AUTHORIZE, PAR, TOKEN_EXCHANGE, REVOKE, USER_INFO and END_SESSION only.
+  requestMiddleware: [myOidcMiddleware],
+  logger: { level: 'debug' },
+});
+```
+
+Middleware passed to `davinci()` or `journey()` will never run against an OIDC token exchange, and middleware passed here will never run against their requests.
+
+### One OIDC client per store
+
+`oidc()` mounts at a fixed key in the store, so two OIDC clients sharing one store would overwrite each other's token state. Initialising a second client with a different `clientId` returns an `argument_error`:
+
+```js
+const store = createSdkStore();
+await oidc({ config: { ...config, clientId: 'app-one' }, store });
+
+const second = await oidc({ config: { ...config, clientId: 'app-two' }, store });
+// { error: "This store is already in use by an OIDC client with clientId 'app-one'. ...",
+//   type: 'argument_error' }
+```
+
+Re-initialising with the _same_ `clientId` is allowed and idempotent. If you need two clientIds, give each its own store.
 
 ## API Reference
 
@@ -326,7 +392,7 @@ const tokens = await oidcClient.token.get({
 if ('error' in tokens) {
   console.error('Failed to retrieve tokens:', tokens.error);
 } else {
-  console.log('Access token:', tokens.access_token);
+  console.log('Access token:', tokens.accessToken);
 }
 ```
 

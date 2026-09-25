@@ -113,8 +113,12 @@ export const LoginAndGetClient = Effect.gen(function* () {
     catch: (err) => new Error(`Failed to initialize OIDC client: ${err}`),
   });
 
+  if ('error' in journeyClient) {
+    throw new Error(`Failed to initialize journey client: ${journeyClient.error}`);
+  }
+
   if ('error' in oidcClient) {
-    return yield* Effect.fail(new Error(`Failed to initialize OIDC client: ${oidcClient.error}`));
+    throw new Error(`Failed to initialize OIDC client: ${oidcClient.error}`);
   }
 
   cachedOidcClient = oidcClient;

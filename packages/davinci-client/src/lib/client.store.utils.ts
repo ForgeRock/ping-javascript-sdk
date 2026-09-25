@@ -4,76 +4,59 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { configureStore } from '@reduxjs/toolkit';
-import { Either, Match } from 'effect';
+import { Match, Either } from 'effect';
 
-import { configSlice } from './config.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { nodeSlice } from './node.slice.js';
-import { wellknownApi } from './wellknown.api.js';
-
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { GenericError } from '@forgerock/sdk-types';
 
+import type { Collectors, CollectorCategory } from './node.types.js';
 import type {
   CollectorValueType,
   CollectorValueTypes,
   InternalErrorResponse,
   UpdatableCollectors,
 } from './client.types.js';
-import type {
-  CollectorCategory,
-  Collectors,
-  ContinueNode,
-  ErrorNode,
-  StartNode,
-  SuccessNode,
-} from './node.types.js';
 
+import { createSdkStore, injectClient } from '@forgerock/sdk-store';
+import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
+
+import { configSlice } from './config.slice.js';
+import { nodeSlice } from './node.slice.js';
+import { davinciApi } from './davinci.api.js';
+
+import type { RootState } from './davinci.state.js';
+
+/**
+ * Creates, or attaches to, the store backing a DaVinci client.
+ *
+ * Passing `store` attaches to an existing SDK store so that discovery caching
+ * and state are shared; omitting it creates one, which is the default.
+ */
 export function createClientStore<ActionType extends ActionTypes>({
   requestMiddleware,
   logger,
+  store,
 }: {
   requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
   logger?: ReturnType<typeof loggerFn>;
-}) {
-  return configureStore({
-    reducer: {
-      config: configSlice.reducer,
-      node: nodeSlice.reducer,
-      [davinciApi.reducerPath]: davinciApi.reducer,
-      [wellknownApi.reducerPath]: wellknownApi.reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        thunk: {
-          extraArgument: {
-            /**
-             * This becomes the `api.extra` argument, and will be passed into the
-             * customer query wrapper for `baseQuery`
-             */
-            requestMiddleware,
-            logger,
-          },
-        },
-      })
-        .concat(davinciApi.middleware)
-        .concat(wellknownApi.middleware),
+  store?: SdkStore;
+}): SdkStoreHandle<RootState> {
+  return injectClient<RootState>(store ?? createSdkStore(), {
+    api: davinciApi,
+    reducerPath: davinciApi.reducerPath,
+    slices: [configSlice, nodeSlice],
+    requestMiddleware,
+    logger,
   });
 }
 
 export type ClientStore = typeof createClientStore;
 
-export type RootState = ReturnType<ReturnType<ClientStore>['getState']>;
+/** The inner Redux store type — used by effects that need dispatch/getState. */
+export type DavinciStore = SdkStoreHandle<RootState>['store'];
 
-export interface RootStateWithNode<
-  T extends ErrorNode | ContinueNode | StartNode | SuccessNode,
-> extends RootState {
-  node: T;
-}
-
-export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;
+export type AppDispatch = DavinciStore['dispatch'];
 
 /**
  * @function createInternalError
