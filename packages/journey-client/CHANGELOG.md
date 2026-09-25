@@ -1,5 +1,23 @@
 # @forgerock/journey-client
 
+## 2.3.0
+
+### Minor Changes
+
+- [#762](https://github.com/ForgeRock/ping-javascript-sdk/pull/762) [`52ef91a`](https://github.com/ForgeRock/ping-javascript-sdk/commit/52ef91a91ac756bc8c79a4649380b4c343033daf) Thanks [@vatsalparikh](https://github.com/vatsalparikh)! - Add AM server-side conditional mediation check to `WebAuthn.isConditionalMediationSupported` and export custom storage config types from oidc-client
+
+- [#745](https://github.com/ForgeRock/ping-javascript-sdk/pull/745) [`39e72a3`](https://github.com/ForgeRock/ping-javascript-sdk/commit/39e72a356c33d058e6b01cc06565fb8d349e0566) Thanks [@eugeniobet-ping](https://github.com/eugeniobet-ping)! - Add support for PingOne Recognize enrollment and authentication callbacks
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-logger@2.3.0
+  - @forgerock/sdk-oidc@2.3.0
+  - @forgerock/sdk-request-middleware@2.3.0
+  - @forgerock/storage@2.3.0
+  - @forgerock/sdk-types@2.3.0
+  - @forgerock/sdk-utilities@2.3.0
+
 ## 2.2.0
 
 ### Minor Changes
