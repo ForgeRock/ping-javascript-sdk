@@ -4,6 +4,58 @@
     "declaration": true,
     "declarationMap": true,
     "skipLibCheck": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "refactors": true,
+        "diagnostics": true,
+        "includeSuggestionsInTsc": true,
+        "quickinfo": true,
+        "completions": true,
+        "debug": false,
+        "goto": true,
+        "renames": true,
+        "ignoreEffectSuggestionsInTscExitCode": true,
+        "ignoreEffectWarningsInTscExitCode": false,
+        "ignoreEffectErrorsInTscExitCode": false,
+        "skipDisabledOptimization": false,
+        "mermaidProvider": "mermaid.live",
+        "noExternal": false,
+        "layerGraphFollowDepth": 0,
+        "inlays": false,
+        "namespaceImportPackages": [],
+        "barrelImportPackages": [],
+        "importAliases": {},
+        "topLevelNamedReexports": "ignore",
+        "keyPatterns": [
+          {
+            "target": "service",
+            "pattern": "default",
+            "skipLeadingPath": ["src/"]
+          },
+          {
+            "target": "custom",
+            "pattern": "default",
+            "skipLeadingPath": ["src/"]
+          }
+        ],
+        "extendedKeyDetection": false,
+        "pipeableMinArgCount": 2,
+        "allowedDuplicatedPackages": [],
+        "effectFn": ["span"],
+        "diagnosticSeverity": {},
+        "overrides": [
+          {
+            "include": ["src/**/*.ts"],
+            "options": {
+              "diagnosticSeverity": {
+                "floatingEffect": "error"
+              }
+            }
+          }
+        ]
+      }
+    ]
   }
 }
