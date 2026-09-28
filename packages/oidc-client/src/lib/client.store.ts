@@ -101,6 +101,8 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>(
   }
 
   if (data?.require_pushed_authorization_requests && config.par === false) {
+    // Clear the client registration so a different clientId can retry on this store.
+    unregisterClient(handle, oidcApi.reducerPath);
     return {
       error:
         'The authorization server requires Pushed Authorization Requests (PAR). Set config.par to true or omit it.',

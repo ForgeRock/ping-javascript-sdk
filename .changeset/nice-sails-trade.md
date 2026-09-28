@@ -3,7 +3,7 @@
 '@forgerock/journey-client': minor
 '@forgerock/oidc-client': minor
 '@forgerock/sdk-store': minor
-'@forgerock/sdk-oidc': patch
+'@forgerock/sdk-oidc': major
 ---
 
 Allow multiple SDK clients to share a single Redux store.

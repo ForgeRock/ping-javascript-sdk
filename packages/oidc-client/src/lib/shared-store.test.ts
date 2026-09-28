@@ -247,6 +247,53 @@ describe('wellknown failure does not leak clientId registration', () => {
     }
     expect(second.token).toBeDefined();
   });
+
+  it('allows a different clientId to initialize after PAR argument error', async () => {
+    // Arrange
+    const store = createSdkStore();
+
+    // First client fails due to PAR validation error
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('.well-known')) {
+        wellknownFetchCount++;
+        return new Response(
+          JSON.stringify({
+            ...mockWellknownResponse,
+            require_pushed_authorization_requests: true,
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
+      return new Response(JSON.stringify({}), { status: 200 });
+    });
+
+    const first = await oidc({
+      config: { ...oidcConfig, clientId: 'first-client', par: false },
+      store,
+    });
+
+    // Assert first client failed due to PAR validation
+    expect(first).toHaveProperty('type', 'argument_error');
+    if ('error' in first) {
+      expect(first.error).toContain('PAR');
+    }
+
+    // Act - second client with DIFFERENT clientId and PAR enabled should succeed
+    const second = await oidc({
+      config: { ...oidcConfig, clientId: 'second-client', par: true },
+      store,
+    });
+
+    // Assert - PAR argument_error should also clean up client registration
+    if ('error' in second) {
+      throw new Error(
+        `BUG: Second client failed with: ${second.error}. ` +
+          `The clientId from the PAR-argument_error first client was not cleaned up.`,
+      );
+    }
+    expect(second.token).toBeDefined();
+  });
 });
 
 describe('store handle contract', () => {
