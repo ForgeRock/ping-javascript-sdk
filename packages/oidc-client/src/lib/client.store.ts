@@ -12,7 +12,7 @@ import { Micro } from 'effect';
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
-import { forwardAuthorizeOptions } from './authorize.request.utils.js';
+import { forwardAuthorizeOptions, validateRedirectUri } from './authorize.request.utils.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError } from './client.store.utils.js';
 import { logoutµ } from './logout.request.js';
@@ -146,6 +146,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
+        const redirectUriError = validateRedirectUri(wellknown, config, options, useParFlow);
+        if (redirectUriError) {
+          return redirectUriError;
+        }
+
         if (useParFlow) {
           const result = await Micro.runPromiseExit(
             createParAuthorizeUrlµ(wellknown, config, log, store, options).pipe(
@@ -202,6 +207,15 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
+        const redirectUriError = validateRedirectUri(wellknown, config, options, useParFlow);
+        if (redirectUriError) {
+          return {
+            error: 'Argument error',
+            error_description: redirectUriError.error,
+            type: 'argument_error',
+          };
+        }
+
         const result = await Micro.runPromiseExit(
           authorizeµ(
             wellknown,
@@ -238,7 +252,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        *              configuration and stores them in the configured storage.
        * @param {string} code - The authorization code received from the authorization server.
        * @param {string} state - The state parameter from the authorization URL creation.
-       * @param {Partial<StorageConfig>} options - Optional storage configuration for persisting tokens.
+       * @param {Partial<StorageConfig>} [options] - Optional storage configuration for persisting tokens.
        * @returns {Promise<OauthTokens | GenericError | TokenExchangeErrorResponse>}
        */
       exchange: async (
@@ -325,6 +339,20 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         // If we're here, backgroundRenew is true and we have no tokens, expired tokens or forceRenew is true
+        const redirectUriError = validateRedirectUri(
+          wellknown,
+          config,
+          options?.authorizeOptions,
+          useParFlow,
+        );
+        if (redirectUriError) {
+          return {
+            error: 'Argument error',
+            error_description: redirectUriError.error,
+            type: 'argument_error',
+          };
+        }
+
         const attemptAuthorizeGetTokensµ = authorizeµ(
           wellknown,
           config,

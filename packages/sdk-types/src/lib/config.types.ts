@@ -23,12 +23,12 @@ export const LOG_LEVEL_UPPERCASE_VALUES = LOG_LEVEL_VALUES.map((v) =>
 /** Configuration for creating an OIDC client instance. */
 export interface OidcConfig extends AsyncLegacyConfigOptions {
   clientId: string;
-  redirectUri: string;
   scope: string;
   serverConfig: {
     wellknown: string;
     timeout?: number;
   };
+  redirectUri?: string;
   responseType?: ResponseType;
   responseMode?: ResponseMode;
   /** Use Pushed Authorization Requests (PAR) for the authorization flow. */

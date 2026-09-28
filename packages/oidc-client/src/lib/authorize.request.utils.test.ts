@@ -13,6 +13,7 @@ import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import {
   buildAuthorizeOptions,
   forwardAuthorizeOptions,
+  validateRedirectUri,
   buildParAuthorizeUrl,
   hasPushRequestUri,
   isFetchBaseQueryError,
@@ -423,6 +424,23 @@ it('buildAuthorizeOptions uses config.responseMode when server lacks pi.flow sup
   expect(opts.responseMode).toBe('query');
 });
 
+it('buildAuthorizeOptions omits redirectUri when config does not provide it', () => {
+  const minimal: OidcConfig = { clientId, scope, serverConfig: config.serverConfig };
+  const [, opts] = buildAuthorizeOptions(wellknown, minimal);
+  expect(opts.redirectUri).toBeUndefined();
+});
+
+it('buildAuthorizeOptions still injects pi.flow for a config without redirectUri', () => {
+  const minimal: OidcConfig = { clientId, scope, serverConfig: config.serverConfig };
+  const wkWithPiFlow: WellknownResponse = {
+    ...wellknown,
+    response_modes_supported: ['query', 'fragment', 'pi.flow'],
+  };
+  const [, opts] = buildAuthorizeOptions(wkWithPiFlow, minimal);
+  expect(opts.responseMode).toBe('pi.flow');
+  expect(opts.redirectUri).toBeUndefined();
+});
+
 // ─── forwardAuthorizeOptions ──────────────────────────────────────────────────
 
 it('forwardAuthorizeOptions forwards optional config fields as defaults', () => {
@@ -499,6 +517,161 @@ it('forwardAuthorizeOptions applies required-field fallbacks from config', () =>
   expect(opts.clientId).toBe(clientId);
   expect(opts.scope).toBe('openid');
   expect(opts.responseType).toBe('code');
+});
+
+// ─── forwardAuthorizeOptions: optional redirectUri ───────────────────────────
+
+it('forwardAuthorizeOptions resolves redirectUri to undefined when config omits it', () => {
+  const minimal: OidcConfig = { clientId, scope, serverConfig: config.serverConfig };
+  const opts = forwardAuthorizeOptions(minimal);
+  expect(opts.redirectUri).toBeUndefined();
+});
+
+it('forwardAuthorizeOptions inherits config redirectUri when the option is undefined', () => {
+  const opts = forwardAuthorizeOptions(config, { redirectUri: undefined });
+  expect(opts.redirectUri).toBe(config.redirectUri);
+});
+
+it('forwardAuthorizeOptions lets a defined option override config redirectUri', () => {
+  const opts = forwardAuthorizeOptions(config, { redirectUri: 'https://other.example.com/cb' });
+  expect(opts.redirectUri).toBe('https://other.example.com/cb');
+});
+
+it('forwardAuthorizeOptions treats an empty-string redirectUri override as a defined value', () => {
+  // Unlike scope (truthy fallback), redirectUri honors '' as an explicit override;
+  // validateRedirectUri is what rejects it downstream.
+  const opts = forwardAuthorizeOptions(config, { redirectUri: '' });
+  expect(opts.redirectUri).toBe('');
+});
+
+// ─── validateRedirectUri ─────────────────────────────────────────────────────
+
+const wellknownWithPiFlow: WellknownResponse = {
+  ...wellknown,
+  response_modes_supported: ['query', 'fragment', 'pi.flow'],
+};
+
+it('validateRedirectUri returns null when config provides a redirectUri', () => {
+  expect(validateRedirectUri(wellknown, config)).toBeNull();
+});
+
+it('validateRedirectUri returns null when options provide a redirectUri and config omits it', () => {
+  const minimal: OidcConfig = { clientId, scope, serverConfig: config.serverConfig };
+  expect(
+    validateRedirectUri(wellknown, minimal, { redirectUri: 'https://other.example.com/cb' }),
+  ).toBeNull();
+});
+
+it('validateRedirectUri returns argument_error when no redirectUri is configured and pi.flow is not requested', () => {
+  const minimal: OidcConfig = { clientId, scope, serverConfig: config.serverConfig };
+  expect(validateRedirectUri(wellknown, minimal)).toStrictEqual({
+    error: 'Redirect URI is required when response mode is not pi.flow',
+    type: 'argument_error',
+  });
+});
+
+it('validateRedirectUri returns null for a pi.flow config on a pi.flow server without a redirectUri', () => {
+  const piFlowConfig: OidcConfig = {
+    clientId,
+    scope,
+    serverConfig: config.serverConfig,
+    responseMode: 'pi.flow',
+  };
+  expect(validateRedirectUri(wellknownWithPiFlow, piFlowConfig)).toBeNull();
+});
+
+it('validateRedirectUri returns argument_error for a pi.flow config on a server that does not support pi.flow', () => {
+  const piFlowConfig: OidcConfig = {
+    clientId,
+    scope,
+    serverConfig: config.serverConfig,
+    responseMode: 'pi.flow',
+  };
+  expect(validateRedirectUri(wellknown, piFlowConfig)).toStrictEqual({
+    error: 'pi.flow response mode is not supported',
+    type: 'argument_error',
+  });
+});
+
+it('validateRedirectUri returns argument_error when options request pi.flow on an unsupported server', () => {
+  expect(validateRedirectUri(wellknown, config, { responseMode: 'pi.flow' })).toStrictEqual({
+    error: 'pi.flow response mode is not supported',
+    type: 'argument_error',
+  });
+});
+
+it('validateRedirectUri returns null for a per-request pi.flow override on a pi.flow server without a redirectUri', () => {
+  const minimal: OidcConfig = { clientId, scope, serverConfig: config.serverConfig };
+  expect(validateRedirectUri(wellknownWithPiFlow, minimal, { responseMode: 'pi.flow' })).toBeNull();
+});
+
+it('validateRedirectUri requires a redirectUri when a defined options.responseMode overrides config pi.flow', () => {
+  const piFlowConfig: OidcConfig = {
+    clientId,
+    scope,
+    serverConfig: config.serverConfig,
+    responseMode: 'pi.flow',
+  };
+  expect(
+    validateRedirectUri(wellknownWithPiFlow, piFlowConfig, { responseMode: 'query' }),
+  ).toStrictEqual({
+    error: 'Redirect URI is required when response mode is not pi.flow',
+    type: 'argument_error',
+  });
+});
+
+it('validateRedirectUri requires a redirectUri when options.responseMode is null (explicit unset of config pi.flow)', () => {
+  const piFlowConfig: OidcConfig = {
+    clientId,
+    scope,
+    serverConfig: config.serverConfig,
+    responseMode: 'pi.flow',
+  };
+  expect(
+    validateRedirectUri(wellknownWithPiFlow, piFlowConfig, { responseMode: null }),
+  ).toStrictEqual({
+    error: 'Redirect URI is required when response mode is not pi.flow',
+    type: 'argument_error',
+  });
+});
+
+it('validateRedirectUri treats an empty-string options.redirectUri as missing', () => {
+  expect(validateRedirectUri(wellknown, config, { redirectUri: '' })).toStrictEqual({
+    error: 'Redirect URI is required when response mode is not pi.flow',
+    type: 'argument_error',
+  });
+});
+
+it('validateRedirectUri reports the pi.flow error before the missing-redirectUri error', () => {
+  // pi.flow requested AND unsupported AND no redirectUri: the pi.flow error wins
+  const piFlowConfig: OidcConfig = {
+    clientId,
+    scope,
+    serverConfig: config.serverConfig,
+    responseMode: 'pi.flow',
+  };
+  const result = validateRedirectUri(wellknown, piFlowConfig);
+  expect(result).toStrictEqual({
+    error: 'pi.flow response mode is not supported',
+    type: 'argument_error',
+  });
+});
+
+// ─── validateRedirectUri: PAR flow ────────────────────────────────────────────
+
+const configNoRedirect: OidcConfig = { clientId, scope, serverConfig: config.serverConfig };
+
+it('validateRedirectUri returns null for a PAR flow with a redirectUri', () => {
+  expect(validateRedirectUri(wellknown, config, undefined, true)).toBeNull();
+});
+
+it('validateRedirectUri reports the PAR error before the missing-redirectUri error', () => {
+  // PAR without a redirectUri on a non-pi.flow server: the PAR error wins
+  const result = validateRedirectUri(wellknown, configNoRedirect, undefined, true);
+  expect(result).toStrictEqual({
+    error: 'Redirect URI is required for PingAM PAR flow',
+    type: 'argument_error',
+  });
 });
 
 // ─── authorizeµ flow routing ──────────────────────────────────────────────────

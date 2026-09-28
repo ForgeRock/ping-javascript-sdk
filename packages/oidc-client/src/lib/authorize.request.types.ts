@@ -13,6 +13,7 @@ export type BuildAuthorizationData = [string, GetAuthorizationUrlOptions];
  * per-request via `null`.
  */
 export type UnsettableAuthorizeOption =
+  | 'redirectUri'
   | 'responseMode'
   | 'query'
   | 'prompt'

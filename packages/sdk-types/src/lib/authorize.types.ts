@@ -21,20 +21,20 @@ export type ResponseMode = 'fragment' | 'form_post' | 'pi.flow' | 'query';
 
 /**
  * Options for the authorization URL
- * @param clientId The client ID of the application
- * @param redirectUri The redirect URI of the application
- * @param responseType The response type of the authorization request
- * @param scope The scope of the authorization request
+ * @param {string} clientId The client ID of the application
+ * @param {string} [redirectUri] The redirect URI of the application
+ * @param {ResponseType} responseType The response type of the authorization request
+ * @param {string} scope The scope of the authorization request
  */
 export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   /**
-   * These four properties clientid, scope, responseType and redirectUri are required
-   * when using this type, which are not required when defining Config.
+   * These three properties clientid, scope, responseType are required
+   * when using this type, which are not required when defining LegacyConfigOptions.
    */
   clientId: string;
-  redirectUri: string;
   scope: string;
   responseType: ResponseType;
+  redirectUri?: string;
   responseMode?: ResponseMode;
   query?: Record<string, string>;
   prompt?: AuthPromptValue;

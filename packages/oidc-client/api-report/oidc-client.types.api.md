@@ -202,6 +202,7 @@ export function createClientStore<ActionType extends ActionTypes>(input: {
             config: OidcConfig;
             endpoint: string;
             verifier?: string;
+            redirectUri?: string;
           },
           BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
           never,
@@ -369,6 +370,7 @@ export function createClientStore<ActionType extends ActionTypes>(input: {
                     config: OidcConfig;
                     endpoint: string;
                     verifier?: string;
+                    redirectUri?: string;
                   },
                   BaseQueryFn<
                     string | FetchArgs,
@@ -654,11 +656,14 @@ export interface TokenRequestOptions {
   // (undocumented)
   endpoint: string;
   // (undocumented)
+  redirectUri?: string;
+  // (undocumented)
   verifier?: string;
 }
 
 // @public
 export type UnsettableAuthorizeOption =
+  | 'redirectUri'
   | 'responseMode'
   | 'query'
   | 'prompt'

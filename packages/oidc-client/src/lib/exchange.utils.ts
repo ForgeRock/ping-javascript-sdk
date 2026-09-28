@@ -78,14 +78,14 @@ export function validateValuesµ({
   state: string;
   storedValues: GetAuthorizationUrlOptions;
   endpoint: string;
-}) {
+}): Micro.Micro<TokenRequestOptions, TokenExchangeErrorResponse, never> {
   if (!storedValues || storedValues.state !== state) {
-    const err = {
+    const err: TokenExchangeErrorResponse = {
       error: 'State mismatch',
       message:
         'The provided state does not match the stored state. This is likely due to passing in used, returned, authorize parameters.',
       type: 'state_error',
-    } as const;
+    };
 
     return Micro.fail(err);
   }
@@ -93,6 +93,7 @@ export function validateValuesµ({
     code,
     config,
     endpoint,
+    ...(storedValues.redirectUri && { redirectUri: storedValues.redirectUri }), // Optional redirect URI used during authorization request stored in session storage
     ...(storedValues.verifier && { verifier: storedValues.verifier }), // Optional PKCE
-  } as TokenRequestOptions);
+  });
 }

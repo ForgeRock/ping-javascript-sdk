@@ -339,7 +339,7 @@ The options accepted by `authorize.url()`, `authorize.background()`, and `token.
 - **Omitted or `undefined`** — inherits the config default.
 - **`null`** — explicitly unsets the config default for this request; the parameter is omitted from the authorization request.
 
-`null` is only accepted on the fields that can be inherited from config: `responseMode`, `query`, `prompt`, `loginHint`, `nonce`, `display`, `uiLocales`, and `acrValues`. The required request fields (`clientId`, `redirectUri`, `scope`, `responseType`) can be overridden with a value but not unset.
+`null` is only accepted on the fields that can be inherited from config: `redirectUri`, `responseMode`, `query`, `prompt`, `loginHint`, `nonce`, `display`, `uiLocales`, and `acrValues`. The required request fields (`clientId`, `scope`, `responseType`) can be overridden with a value but not unset.
 
 ```js
 // This request must not prompt
