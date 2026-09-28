@@ -5,9 +5,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { createSdkStore, isSdkStoreHandle, wellknownApi } from '@forgerock/sdk-store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createSdkStore, isSdkStoreHandle, wellknownApi } from '@forgerock/sdk-store';
 import { oidc } from './client.store.js';
 import { createClientStore } from './client.store.utils.js';
 import { oidcApi } from './oidc.api.js';
@@ -188,6 +188,64 @@ describe('mode 3 — consumer-owned store', () => {
 
     // Assert — middleware is no longer discarded on the shared path
     expect(store.extra.clients[oidcApi.reducerPath]?.requestMiddleware).toHaveLength(1);
+  });
+});
+
+describe('wellknown failure does not leak clientId registration', () => {
+  it('allows a different clientId to initialize after wellknown fetch fails', async () => {
+    // Arrange
+    const store = createSdkStore();
+
+    // First client fails due to 500 on wellknown
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('.well-known')) {
+        wellknownFetchCount++;
+        return new Response(JSON.stringify({ error: 'unavailable' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({}), { status: 200 });
+    });
+
+    const first = await oidc({
+      config: { ...oidcConfig, clientId: 'first-client' },
+      store,
+    });
+
+    // Assert first client failed
+    expect(first).toHaveProperty('type', 'wellknown_error');
+
+    // Reset fetch to succeed for second client
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = typeof input === 'string' ? input : (input as Request).url;
+      if (url.includes('.well-known')) {
+        wellknownFetchCount++;
+        return new Response(JSON.stringify(mockWellknownResponse), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({}), { status: 200 });
+    });
+
+    // Act - second client with DIFFERENT clientId should succeed
+    const second = await oidc({
+      config: { ...oidcConfig, clientId: 'second-client' },
+      store,
+    });
+
+    // Assert - this is what the PR review is asking about
+    // If first-client left a stale registration, second-client would get:
+    // "This store is already in use by an OIDC client with clientId 'first-client'"
+    if ('error' in second) {
+      throw new Error(
+        `BUG: Second client failed with: ${second.error}. ` +
+          `The clientId from the failed first client was not cleaned up.`,
+      );
+    }
+    expect(second.token).toBeDefined();
   });
 });
 

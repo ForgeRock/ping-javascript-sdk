@@ -19,6 +19,7 @@ export {
   INVALID_STORE_MESSAGE,
   assertValidStore,
   getClientForReducerPath,
+  unregisterClient,
 } from './lib/store.effects.js';
 export type {
   ClientSlot,

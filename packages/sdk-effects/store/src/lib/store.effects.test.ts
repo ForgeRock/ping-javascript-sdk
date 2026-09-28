@@ -8,7 +8,12 @@ import { createSlice } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { describe, expect, it, vi } from 'vitest';
 
-import { createSdkStore, injectClient, isSdkStoreHandle } from './store.effects.js';
+import {
+  createSdkStore,
+  injectClient,
+  isSdkStoreHandle,
+  unregisterClient,
+} from './store.effects.js';
 import { wellknownApi } from './wellknown.api.js';
 
 const fakeApi = createApi({
@@ -249,5 +254,55 @@ describe('injectClient', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       injectClient({} as any, { api: fakeApi, reducerPath: fakeApi.reducerPath }),
     ).toThrow(/not a valid SDK store/i);
+  });
+});
+
+describe('unregisterClient', () => {
+  it('removes the client slot from the registry', () => {
+    // Arrange
+    const handle = createSdkStore();
+    injectClient(handle, {
+      api: fakeApi,
+      reducerPath: fakeApi.reducerPath,
+      clientId: 'test-client',
+    });
+    expect(handle.extra.clients['fake']).toBeDefined();
+
+    // Act
+    unregisterClient(handle, fakeApi.reducerPath);
+
+    // Assert
+    expect(handle.extra.clients['fake']).toBeUndefined();
+  });
+
+  it('allows a different clientId to be injected after unregister', () => {
+    // Arrange
+    const handle = createSdkStore();
+    injectClient(handle, {
+      api: fakeApi,
+      reducerPath: fakeApi.reducerPath,
+      clientId: 'first-client',
+    });
+
+    // Act
+    unregisterClient(handle, fakeApi.reducerPath);
+    injectClient(handle, {
+      api: fakeApi,
+      reducerPath: fakeApi.reducerPath,
+      clientId: 'second-client',
+    });
+
+    // Assert
+    expect(handle.extra.clients['fake']?.clientId).toBe('second-client');
+  });
+
+  it('is idempotent — no error when slot does not exist', () => {
+    // Arrange
+    const handle = createSdkStore();
+    // No injection
+
+    // Act & Assert — should not throw
+    expect(() => unregisterClient(handle, 'nonexistent')).not.toThrow();
+    expect(handle.extra.clients['nonexistent']).toBeUndefined();
   });
 });

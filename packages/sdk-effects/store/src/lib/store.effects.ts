@@ -127,6 +127,22 @@ export function getClientForReducerPath(
 }
 
 /**
+ * Removes a client slot from the registry when initialization fails.
+ *
+ * Injection is irreversible at the RTK level, but clearing the registry slot
+ * lets a different client retry with a different clientId. Without this, a
+ * failed wellknown fetch would permanently "own" the store for the first
+ * clientId, preventing any other client from attaching.
+ *
+ * @param store - The store to clean up.
+ * @param reducerPath - The client's reducer path (e.g., 'oidc').
+ */
+export function unregisterClient(store: SdkStore, reducerPath: string): void {
+  // The registry is mutable by design — this is the cleanup counterpart to injectClient.
+  delete (store.extra.clients as Record<string, unknown>)[reducerPath];
+}
+
+/**
  * Attaches a client to a store: mounts its reducers and middleware, and
  * registers its private slot on the store's client registry.
  *

@@ -6,25 +6,27 @@
  */
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { unregisterClient, wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
+import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
-import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError, parseOidcArgs } from './client.store.utils.js';
-import { handleMicroExit } from '@forgerock/sdk-utilities';
-import { isExpiryWithinThreshold } from './token.utils.js';
+import { buildTokenExchangeµ } from './exchange.request.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
-import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import { wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
+import { sessionCheckIdTokenµ, sessionCheckNoneµ } from './session.micros.js';
+import { isExpiryWithinThreshold } from './token.utils.js';
 
 import type { ActionTypes } from '@forgerock/sdk-request-middleware';
-import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { SdkStore } from '@forgerock/sdk-store';
+import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
+import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
+import type { RawOidcArgs } from './client.store.types.js';
 import type {
   GetTokensOptions,
   LogoutErrorResult,
@@ -34,10 +36,8 @@ import type {
   UserInfoResponse,
 } from './client.types.js';
 import type { OauthTokens } from './config.types.js';
-import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
-import type { RawOidcArgs } from './client.store.types.js';
 
 /**
  * @function oidc
@@ -90,6 +90,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>(
     // RTK Query retains rejected query entries. Clear them before returning so a
     // later client sharing this store performs a fresh discovery request.
     store.dispatch(wellknownApi.util.resetApiState());
+    // Clear the client registration so a different clientId can retry on this store.
+    // Without this, the failed client would permanently "own" the store.
+    unregisterClient(handle, oidcApi.reducerPath);
     log.error(`Error fetching wellknown config. Please check the URL: ${wellknownUrl}`);
     return {
       error: `Failed to fetch well-known configuration from: ${wellknownUrl}`,
