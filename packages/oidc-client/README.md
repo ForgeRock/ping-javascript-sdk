@@ -18,6 +18,7 @@ The oidc module follows the [OIDC](https://openid.net/specs/openid-connect-core-
   - [Redirect-Based Login](#redirect-based-login-authorizeurl)
   - [Background Authorization](#background-authorization-authorizebackground)
   - [Automatic Token Renewal](#automatic-token-renewal)
+  - [Per-Request Option Overrides](#per-request-option-overrides)
   - [Error Handling](#error-handling)
 
 ## Installation
@@ -92,7 +93,7 @@ Methods for creating and handling authorization flows.
 
 Creates an authorization URL with the provided options or defaults from the configuration.
 
-- **Parameters**: `GetAuthorizationUrlOptions` (optional)
+- **Parameters**: `OptionalAuthorizeOptions` (optional) — see [Per-Request Option Overrides](#per-request-option-overrides)
 - **Returns**: `Promise<string | GenericError>` - The authorization URL or an error
 
 ```js
@@ -103,7 +104,7 @@ const authUrl = await oidcClient.authorize.url();
 
 Initiates the authorization process in the background, returning the authorization code and state or an error. This method handles the authorization flow without requiring user interaction.
 
-- **Parameters**: `GetAuthorizationUrlOptions` (optional)
+- **Parameters**: `OptionalAuthorizeOptions` (optional) — see [Per-Request Option Overrides](#per-request-option-overrides)
 - **Returns**: `Promise<AuthorizationSuccess | AuthorizationError>` - An object containing `code` and `state` on success, or error details on failure
 
 ```js
@@ -135,7 +136,7 @@ Retrieves the current OAuth tokens from storage. Optionally auto-renews tokens i
 - **Parameters**: `GetTokensOptions` (optional)
   - `forceRenew` - Force token renewal even if not expired
   - `backgroundRenew` - Automatically renew expired tokens
-  - `authorizeOptions` - Options for authorization during renewal
+  - `authorizeOptions` - `OptionalAuthorizeOptions` for authorization during renewal — see [Per-Request Option Overrides](#per-request-option-overrides)
   - `storageOptions` - Storage configuration options
 - **Returns**: `Promise<OauthTokens | TokenExchangeErrorResponse | AuthorizationError | GenericError>` - The tokens or an error
 
@@ -328,6 +329,24 @@ if ('error' in tokens) {
 } else {
   console.log('Access token:', tokens.access_token);
 }
+```
+
+### Per-Request Option Overrides
+
+The options accepted by `authorize.url()`, `authorize.background()`, and `token.get({ authorizeOptions })` (`OptionalAuthorizeOptions`) are merged over the defaults from your `OidcConfig`. Each field follows a three-state rule:
+
+- **A defined value** — including `''` — overrides the config default for this request.
+- **Omitted or `undefined`** — inherits the config default.
+- **`null`** — explicitly unsets the config default for this request; the parameter is omitted from the authorization request.
+
+`null` is only accepted on the fields that can be inherited from config: `responseMode`, `query`, `prompt`, `loginHint`, `nonce`, `display`, `uiLocales`, and `acrValues`. The required request fields (`clientId`, `redirectUri`, `scope`, `responseType`) can be overridden with a value but not unset.
+
+```js
+// This request must not prompt
+const authUrl = await oidcClient.authorize.url({ prompt: null });
+
+// Override scope for one request
+const authUrl = await oidcClient.authorize.url({ scope: 'openid email' });
 ```
 
 ### Error Handling

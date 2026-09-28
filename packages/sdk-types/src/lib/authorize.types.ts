@@ -17,6 +17,8 @@ export const AUTH_PROMPT_VALUES = ['none', 'login', 'consent', 'select_account']
 export type AuthDisplayValue = (typeof AUTH_DISPLAY_VALUES)[number];
 export type AuthPromptValue = (typeof AUTH_PROMPT_VALUES)[number];
 
+export type ResponseMode = 'fragment' | 'form_post' | 'pi.flow' | 'query';
+
 /**
  * Options for the authorization URL
  * @param clientId The client ID of the application
@@ -30,13 +32,10 @@ export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
    * when using this type, which are not required when defining Config.
    */
   clientId: string;
-  scope: string;
   redirectUri: string;
+  scope: string;
   responseType: ResponseType;
-  responseMode?: 'fragment' | 'form_post' | 'pi.flow' | 'query';
-  login?: 'redirect' | 'embedded';
-  state?: string;
-  verifier?: string;
+  responseMode?: ResponseMode;
   query?: Record<string, string>;
   prompt?: AuthPromptValue;
   loginHint?: string;
@@ -44,6 +43,9 @@ export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
   display?: AuthDisplayValue;
   uiLocales?: string;
   acrValues?: string;
+  login?: 'redirect' | 'embedded';
+  state?: string;
+  verifier?: string;
   successParams?: string[];
   errorParams?: string[];
 }

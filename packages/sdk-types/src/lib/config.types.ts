@@ -4,9 +4,14 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { AuthDisplayValue, AuthPromptValue, ResponseType } from './authorize.types.js';
 import type { AsyncLegacyConfigOptions } from './legacy-config.types.js';
 import type { CustomStorageObject } from './tokens.types.js';
+import type {
+  ResponseType,
+  AuthDisplayValue,
+  AuthPromptValue,
+  ResponseMode,
+} from './authorize.types.js';
 
 export const LOG_LEVEL_VALUES = ['none', 'error', 'warn', 'info', 'debug'] as const;
 export type LogLevel = (typeof LOG_LEVEL_VALUES)[number];
@@ -25,6 +30,7 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
     timeout?: number;
   };
   responseType?: ResponseType;
+  responseMode?: ResponseMode;
   /** Use Pushed Authorization Requests (PAR) for the authorization flow. */
   par?: boolean;
   /** URI to redirect to after logout; maps to `post_logout_redirect_uri` in the end-session request. */

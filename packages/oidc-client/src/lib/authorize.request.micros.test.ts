@@ -128,7 +128,7 @@ it.effect('buildParBodyµ returns URLSearchParams with expected fields', () =>
 
 it.effect('buildParBodyµ includes prompt when provided', () =>
   Micro.gen(function* () {
-    const params = yield* buildParBodyµ(config, {}, 'challenge-abc', 'state-xyz', 'login');
+    const params = yield* buildParBodyµ(config, { prompt: 'login' }, 'challenge-abc', 'state-xyz');
     expect(params.get('prompt')).toBe('login');
   }),
 );

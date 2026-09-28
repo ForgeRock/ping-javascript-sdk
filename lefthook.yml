@@ -6,8 +6,10 @@ pre-commit:
       run: node tools/copyright/sync-header-years.mjs --fix
       stage_fixed: true
     nx-check:
-      run: pnpm nx affected -t typecheck lint build api-report --tui=false
+      run: pnpm nx affected -t typecheck lint build api-report --head=HEAD --base=main --tui=false
       stage_fixed: true
+      env:
+        NX_CACHE_DIRECTORY: .nx/cache
     format:
       run: pnpm nx format:write
       stage_fixed: true

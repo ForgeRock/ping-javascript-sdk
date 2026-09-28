@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Ping Identity Corporation. All rights reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -7,7 +7,38 @@
 import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
 export type BuildAuthorizationData = [string, GetAuthorizationUrlOptions];
-export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
+
+/**
+ * Authorize URL params inheritable from OidcConfig that may be explicitly unset
+ * per-request via `null`.
+ */
+export type UnsettableAuthorizeOption =
+  | 'responseMode'
+  | 'query'
+  | 'prompt'
+  | 'loginHint'
+  | 'nonce'
+  | 'display'
+  | 'uiLocales'
+  | 'acrValues';
+
+/**
+ * Per-request overrides for the authorization URL. Values are merged over
+ * the client `OidcConfig` defaults:
+ * - a defined value overrides config (including `''` for the optional fields)
+ * - `undefined` / omitted inherits the config default
+ * - `null` explicitly unsets the config default for this request
+ *
+ * `null` is only accepted on fields inheritable from config
+ * (`responseMode`, `query`, `prompt`, `loginHint`, `nonce`, `display`,
+ * `uiLocales`, `acrValues`).
+ */
+export type OptionalAuthorizeOptions = {
+  [K in keyof GetAuthorizationUrlOptions]?: K extends UnsettableAuthorizeOption
+    ? GetAuthorizationUrlOptions[K] | null
+    : GetAuthorizationUrlOptions[K];
+};
+
 export interface AuthorizeErrorResponse {
   id?: string;
   code?: string;

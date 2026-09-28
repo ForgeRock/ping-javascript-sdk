@@ -565,8 +565,12 @@ export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 
 export { OidcConfig };
 
-// @public (undocumented)
-export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
+// @public
+export type OptionalAuthorizeOptions = {
+  [K in keyof GetAuthorizationUrlOptions]?: K extends UnsettableAuthorizeOption
+    ? GetAuthorizationUrlOptions[K] | null
+    : GetAuthorizationUrlOptions[K];
+};
 
 // @public (undocumented)
 export interface PushAuthorizationResponse {
@@ -652,6 +656,17 @@ export interface TokenRequestOptions {
   // (undocumented)
   verifier?: string;
 }
+
+// @public
+export type UnsettableAuthorizeOption =
+  | 'responseMode'
+  | 'query'
+  | 'prompt'
+  | 'loginHint'
+  | 'nonce'
+  | 'display'
+  | 'uiLocales'
+  | 'acrValues';
 
 // @public (undocumented)
 export type UserInfoResponse = {

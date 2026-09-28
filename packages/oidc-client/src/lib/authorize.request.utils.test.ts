@@ -12,6 +12,7 @@ import { afterEach, beforeEach, expect, vi } from 'vitest';
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import {
   buildAuthorizeOptions,
+  forwardAuthorizeOptions,
   buildParAuthorizeUrl,
   hasPushRequestUri,
   isFetchBaseQueryError,
@@ -381,6 +382,121 @@ it('buildAuthorizeOptions falls back to "openid" scope and "code" responseType w
     serverConfig: config.serverConfig,
   } as unknown as OidcConfig;
   const [, opts] = buildAuthorizeOptions(wellknown, minimal);
+  expect(opts.scope).toBe('openid');
+  expect(opts.responseType).toBe('code');
+});
+
+it('buildAuthorizeOptions keeps pi.flow over config.responseMode when options omit responseMode', () => {
+  const configWithQuery: OidcConfig = { ...config, responseMode: 'query' };
+  const wkWithPiFlow: WellknownResponse = {
+    ...wellknown,
+    response_modes_supported: ['query', 'pi.flow'],
+  };
+  const [, opts] = buildAuthorizeOptions(wkWithPiFlow, configWithQuery);
+  expect(opts.responseMode).toBe('pi.flow');
+});
+
+it('buildAuthorizeOptions keeps pi.flow when options.responseMode is explicitly undefined', () => {
+  const configWithQuery: OidcConfig = { ...config, responseMode: 'query' };
+  const wkWithPiFlow: WellknownResponse = {
+    ...wellknown,
+    response_modes_supported: ['query', 'pi.flow'],
+  };
+  const [, opts] = buildAuthorizeOptions(wkWithPiFlow, configWithQuery, {
+    responseMode: undefined,
+  });
+  expect(opts.responseMode).toBe('pi.flow');
+});
+
+it('buildAuthorizeOptions lets a defined options.responseMode override pi.flow', () => {
+  const wkWithPiFlow: WellknownResponse = {
+    ...wellknown,
+    response_modes_supported: ['query', 'pi.flow'],
+  };
+  const [, opts] = buildAuthorizeOptions(wkWithPiFlow, config, { responseMode: 'query' });
+  expect(opts.responseMode).toBe('query');
+});
+
+it('buildAuthorizeOptions uses config.responseMode when server lacks pi.flow support', () => {
+  const configWithQuery: OidcConfig = { ...config, responseMode: 'query' };
+  const [, opts] = buildAuthorizeOptions(wellknown, configWithQuery);
+  expect(opts.responseMode).toBe('query');
+});
+
+// ─── forwardAuthorizeOptions ──────────────────────────────────────────────────
+
+it('forwardAuthorizeOptions forwards optional config fields as defaults', () => {
+  const configWithOptionals: OidcConfig = {
+    ...config,
+    loginHint: 'jane',
+    nonce: 'nonce',
+    prompt: 'consent',
+    uiLocales: 'fr',
+    acrValues: '12345',
+    query: { custom: 'value' },
+  };
+  const opts = forwardAuthorizeOptions(configWithOptionals);
+  expect(opts.loginHint).toBe('jane');
+  expect(opts.nonce).toBe('nonce');
+  expect(opts.prompt).toBe('consent');
+  expect(opts.uiLocales).toBe('fr');
+  expect(opts.acrValues).toBe('12345');
+  expect(opts.query).toEqual({ custom: 'value' });
+
+  // Fields not set on config resolve to undefined
+  expect(opts.responseMode).toBeUndefined();
+  expect(opts.display).toBeUndefined();
+});
+
+it('forwardAuthorizeOptions lets a defined option value win over config', () => {
+  const configWithPrompt: OidcConfig = { ...config, prompt: 'login' };
+  const opts = forwardAuthorizeOptions(configWithPrompt, { prompt: 'consent' });
+  expect(opts.prompt).toBe('consent');
+});
+
+it('forwardAuthorizeOptions treats an empty string as a defined override', () => {
+  const configWithHint: OidcConfig = { ...config, loginHint: 'jane' };
+  const opts = forwardAuthorizeOptions(configWithHint, { loginHint: '' });
+  expect(opts.loginHint).toBe('');
+});
+
+it('forwardAuthorizeOptions falls back to config when the option property is undefined', () => {
+  const configWithPrompt: OidcConfig = { ...config, prompt: 'login' };
+  const opts = forwardAuthorizeOptions(configWithPrompt, { prompt: undefined });
+  expect(opts.prompt).toBe('login');
+});
+
+it('forwardAuthorizeOptions explicitly unsets a config value when the option is null', () => {
+  const configWithPrompt: OidcConfig = { ...config, prompt: 'login' };
+  const opts = forwardAuthorizeOptions(configWithPrompt, { prompt: null });
+  expect(opts.prompt).toBeUndefined();
+});
+
+it('forwardAuthorizeOptions passes through options not present on config', () => {
+  const opts = forwardAuthorizeOptions(config, {
+    state: 'abc123',
+    verifier: 'verifier-xyz',
+  });
+  expect(opts.state).toBe('abc123');
+  expect(opts.verifier).toBe('verifier-xyz');
+});
+
+it('forwardAuthorizeOptions lets a defined option override required config fields, but not with empty strings', () => {
+  const opts = forwardAuthorizeOptions(config, { clientId: 'override-id', scope: '' });
+  expect(opts.clientId).toBe('override-id');
+  // Required fields use an || merge: an empty-string override falls through to config
+  expect(opts.scope).toBe(config.scope);
+});
+
+it('forwardAuthorizeOptions applies required-field fallbacks from config', () => {
+  // scope/responseType omitted to exercise the fallbacks
+  const minimal = {
+    clientId,
+    redirectUri,
+    serverConfig: config.serverConfig,
+  } as OidcConfig;
+  const opts = forwardAuthorizeOptions(minimal);
+  expect(opts.clientId).toBe(clientId);
   expect(opts.scope).toBe('openid');
   expect(opts.responseType).toBe('code');
 });
