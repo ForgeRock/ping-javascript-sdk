@@ -98,6 +98,7 @@ export const journeyApi = createApi({
       headers.set('Accept-API-Version', 'protocol=1.0,resource=2.1');
       headers.set('Content-Type', 'application/json');
       headers.set('X-Requested-With', REQUESTED_WITH);
+      headers.set('X-Requested-Platform', 'javascript');
 
       return headers;
     },
