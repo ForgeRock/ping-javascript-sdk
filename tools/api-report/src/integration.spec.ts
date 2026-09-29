@@ -252,6 +252,7 @@ describe('integration: forgotten export detection and fix', () => {
   });
 
   it('should handle multiple entry points', () => {
+    // This test runs api-extractor twice, which can be slow in CI environments
     // Add a second entry point: ./utils with its own forgotten export
     mkdirSync(resolve(CLIENT_DIR, 'dist/src/utils'), { recursive: true });
 
