@@ -15,17 +15,17 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 /**
  * Import the types
  */
-import type { InternalDaVinciConfig } from './config.types.js';
-import type { Endpoints } from './wellknown.types.js';
+import type { ConfigState, InternalDaVinciConfig } from './config.types.js';
+import { Endpoints } from './wellknown.types.js';
 
 /**
  * @const initialState - The initial state of the configuration slice
- * NOTE: The clientId, redirectUri, responseType, and scope are set to empty strings
+ * NOTE: The clientId, responseType, and scope are set to empty strings;
+ * redirectUri is optional and stays undefined when not configured
  */
-const initialState = {
+const initialState: ConfigState = {
   endpoints: {} as Endpoints,
   clientId: '',
-  redirectUri: '',
   responseType: '',
   scope: '',
 };
@@ -47,7 +47,7 @@ export const configSlice = createSlice({
      */
     set(state, action: PayloadAction<InternalDaVinciConfig>) {
       state.clientId = action.payload.clientId || '';
-      state.redirectUri = action.payload.redirectUri || `${location.origin}/handle-redirect`;
+      state.redirectUri = action.payload.redirectUri;
       if ('responseType' in action.payload && action.payload.responseType) {
         state.responseType = action.payload.responseType;
       } else {

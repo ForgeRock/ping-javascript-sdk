@@ -24,7 +24,7 @@ describe('The config slice reducers', () => {
         },
       }),
     ).toEqual({
-      redirectUri: 'http://localhost:3000/handle-redirect',
+      redirectUri: undefined,
       responseType: 'code',
       scope: 'openid',
       clientId: '123',
