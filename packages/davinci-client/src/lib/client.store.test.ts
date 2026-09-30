@@ -85,9 +85,10 @@ function makeStorageStub() {
   };
 }
 
-function mockFetchImplementation() {
+function mockFetchImplementation(record?: string[]) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const url = typeof input === 'string' ? input : (input as Request).url;
+    record?.push(url);
 
     if (url.includes('.well-known')) {
       return new Response(JSON.stringify(mockWellknownResponse), {
@@ -181,6 +182,58 @@ describe('davinci client — cache', () => {
 
       expect(result).toHaveProperty('error.type', 'state_error');
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('authorize URL — redirect_uri', () => {
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', makeStorageStub());
+    vi.stubGlobal('sessionStorage', makeStorageStub());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  function startRequestUrl(requestUrls: string[]): string | undefined {
+    // The start request hits the wellknown authorization_endpoint
+    // (and carries any middleware query params)
+    return requestUrls.find((url) => url.includes('/authorize'));
+  }
+
+  it('omits redirect_uri from the start request when not configured', async () => {
+    const requestUrls: string[] = [];
+    mockFetchImplementation(requestUrls);
+
+    const config: DaVinciConfig = {
+      clientId: 'test-client-id',
+      scope: 'openid profile',
+      serverConfig: {
+        wellknown: TEST_WELLKNOWN_URL,
+      },
+    };
+
+    const client = await davinci({ config });
+    await client.start();
+
+    const startUrl = startRequestUrl(requestUrls);
+    expect(startUrl).toBeDefined();
+    expect(startUrl).not.toContain('redirect_uri=');
+  });
+
+  it('sends redirect_uri on the start request when configured', async () => {
+    const requestUrls: string[] = [];
+    mockFetchImplementation(requestUrls);
+
+    const client = await davinci({ config: mockConfig });
+    await client.start();
+
+    const startUrl = startRequestUrl(requestUrls);
+    expect(startUrl).toBeDefined();
+    expect(startUrl).toContain('redirect_uri=http%3A%2F%2Flocalhost%2Fcallback');
   });
 });
 

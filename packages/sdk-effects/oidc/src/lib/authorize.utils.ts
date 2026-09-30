@@ -22,11 +22,11 @@ export function buildAuthorizeParams(
   params.set('client_id', options.clientId);
   params.set('response_type', options.responseType);
   params.set('scope', options.scope);
-  params.set('redirect_uri', options.redirectUri);
   params.set('code_challenge', options.challenge);
   params.set('code_challenge_method', 'S256');
   params.set('state', options.state);
 
+  if (options.redirectUri) params.set('redirect_uri', options.redirectUri);
   if (options.responseMode) params.set('response_mode', options.responseMode);
   if (options.prompt) params.set('prompt', options.prompt);
   if (options.loginHint) params.set('login_hint', options.loginHint);

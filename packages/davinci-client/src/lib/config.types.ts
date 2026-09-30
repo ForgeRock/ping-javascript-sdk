@@ -8,8 +8,25 @@
 import type { WellknownResponse } from '@forgerock/sdk-types';
 import type { DaVinciConfig } from '@forgerock/sdk-types';
 
+import type { Endpoints } from './wellknown.types.js';
+
 export type { DaVinciConfig };
 
 export interface InternalDaVinciConfig extends DaVinciConfig {
   wellknownResponse: WellknownResponse;
+}
+
+/**
+ * State shape of the configuration slice
+ */
+export interface ConfigState {
+  endpoints: Endpoints;
+  clientId: string;
+  /**
+   * Optional: when not configured, it stays undefined and
+   * is omitted from the authorize request
+   */
+  redirectUri?: string;
+  responseType: string;
+  scope: string;
 }

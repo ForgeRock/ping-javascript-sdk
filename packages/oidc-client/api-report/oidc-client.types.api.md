@@ -202,6 +202,7 @@ export function createClientStore<ActionType extends ActionTypes>(input: {
             config: OidcConfig;
             endpoint: string;
             verifier?: string;
+            redirectUri?: string;
           },
           BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>,
           never,
@@ -369,6 +370,7 @@ export function createClientStore<ActionType extends ActionTypes>(input: {
                     config: OidcConfig;
                     endpoint: string;
                     verifier?: string;
+                    redirectUri?: string;
                   },
                   BaseQueryFn<
                     string | FetchArgs,
@@ -474,8 +476,7 @@ export { GetAuthorizationUrlOptions };
 
 // @public (undocumented)
 export interface GetTokensOptions {
-  // (undocumented)
-  authorizeOptions?: GetAuthorizationUrlOptions;
+  authorizeOptions?: OptionalAuthorizeOptions;
   // (undocumented)
   backgroundRenew?: boolean;
   // (undocumented)
@@ -534,9 +535,9 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
   | {
       subscribe: (listener: () => void) => Unsubscribe;
       authorize: {
-        url: (options?: GetAuthorizationUrlOptions) => Promise<string | GenericError>;
+        url: (options?: OptionalAuthorizeOptions) => Promise<string | GenericError>;
         background: (
-          options?: GetAuthorizationUrlOptions,
+          options?: OptionalAuthorizeOptions,
         ) => Promise<AuthorizationSuccess | AuthorizationError>;
       };
       token: {
@@ -565,8 +566,12 @@ export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 
 export { OidcConfig };
 
-// @public (undocumented)
-export type OptionalAuthorizeOptions = Partial<GetAuthorizationUrlOptions>;
+// @public
+export type OptionalAuthorizeOptions = {
+  [K in keyof GetAuthorizationUrlOptions]?: K extends UnsettableAuthorizeOption
+    ? GetAuthorizationUrlOptions[K] | null
+    : GetAuthorizationUrlOptions[K];
+};
 
 // @public (undocumented)
 export interface PushAuthorizationResponse {
@@ -650,8 +655,22 @@ export interface TokenRequestOptions {
   // (undocumented)
   endpoint: string;
   // (undocumented)
+  redirectUri?: string;
+  // (undocumented)
   verifier?: string;
 }
+
+// @public
+export type UnsettableAuthorizeOption =
+  | 'redirectUri'
+  | 'responseMode'
+  | 'query'
+  | 'prompt'
+  | 'loginHint'
+  | 'nonce'
+  | 'display'
+  | 'uiLocales'
+  | 'acrValues';
 
 // @public (undocumented)
 export type UserInfoResponse = {

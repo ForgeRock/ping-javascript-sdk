@@ -36,10 +36,9 @@ import type {
 interface ClientOidcBlock extends UnifiedOidcConfig {
   // Full set of fields the client flow (oidc/davinci) requires. `discoveryEndpoint` is
   // inherited as required `string` — every flow needs it, so it is proven non-empty upstream
-  // by `parseOidcSection`. The three below are optional in the unified schema and narrowed to
+  // by `parseOidcSection`. The two below are optional in the unified schema and narrowed to
   // required here by `parseClientSdkConfig`.
   clientId: string;
-  redirectUri: string;
   scopes: string[];
 }
 
@@ -347,13 +346,12 @@ function parseClientSdkConfig(config: UnifiedSdkConfig): ParseResult<ClientSdkCo
     return Either.left([{ field: 'oidc', message: 'Required block is missing' }]);
   }
   const oidc = config.oidc;
-  // All three are required and non-optional, so `Either.all` (first-error) is enough — the
+  // All two are required and non-optional, so `Either.all` (first-error) is enough — the
   // struct form keeps field/value paired by key. Section parsers collect errors across many
   // optional fields instead, so they accumulate via `collectErrors`.
   return Either.map(
     Either.all({
       clientId: requiredNonEmptyString(oidc.clientId, 'oidc.clientId'),
-      redirectUri: requiredNonEmptyString(oidc.redirectUri, 'oidc.redirectUri'),
       scopes: requiredNonEmptyStringArray(oidc.scopes, 'oidc.scopes'),
     }),
     (validated): ClientSdkConfig => ({ ...config, oidc: { ...oidc, ...validated } }),
@@ -383,12 +381,12 @@ function buildOidcConfig(config: ClientSdkConfig): OidcConfig {
   const { oidc } = config;
   return {
     clientId: oidc.clientId,
-    redirectUri: oidc.redirectUri,
     scope: oidc.scopes.join(' '),
     serverConfig: {
       wellknown: oidc.discoveryEndpoint,
       ...(config.timeout !== undefined && { timeout: config.timeout }),
     },
+    ...(oidc.redirectUri !== undefined && { redirectUri: oidc.redirectUri }),
     ...(oidc.refreshThreshold !== undefined && { oauthThreshold: oidc.refreshThreshold * 1000 }),
     ...(config.journey?.realm !== undefined && { realmPath: config.journey.realm }),
     ...(oidc.signOutRedirectUri !== undefined && { signOutRedirectUri: oidc.signOutRedirectUri }),
@@ -421,12 +419,12 @@ function buildDavinciConfig(config: ClientSdkConfig): DaVinciConfig {
   const { oidc } = config;
   return {
     clientId: oidc.clientId,
-    redirectUri: oidc.redirectUri,
     scope: oidc.scopes.join(' '),
     serverConfig: {
       wellknown: oidc.discoveryEndpoint,
       ...(config.timeout !== undefined && { timeout: config.timeout }),
     },
+    ...(oidc.redirectUri !== undefined && { redirectUri: oidc.redirectUri }),
     ...(oidc.refreshThreshold !== undefined && { oauthThreshold: oidc.refreshThreshold * 1000 }),
     ...(config.journey?.realm !== undefined && { realmPath: config.journey.realm }),
     ...(config.log !== undefined && { log: toMappedLogLevel(config.log) }),

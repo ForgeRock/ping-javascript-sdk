@@ -1,17 +1,26 @@
 pre-commit:
+  piped: true
   commands:
     nx-sync:
+      priority: 1
       run: pnpm nx sync
     copyright-sync:
+      priority: 2
       run: node tools/copyright/sync-header-years.mjs --fix
       stage_fixed: true
-    nx-check:
-      run: pnpm nx affected -t typecheck lint build api-report --tui=false
+    nx-affected:
+      priority: 3
+      run: pnpm nx affected -t typecheck lint build api-report --head=HEAD --base=main --tui=false
       stage_fixed: true
+      interactive: false
+      env:
+        NX_CACHE_DIRECTORY: .nx/cache
     format:
+      priority: 4
       run: pnpm nx format:write
       stage_fixed: true
     syncpack:
+      priority: 5
       glob: >-
         {package.json,
         pnpm-workspace.yaml,
@@ -23,6 +32,7 @@ pre-commit:
         scratchpad/package.json}
       run: pnpm syncpack:lint
     interface-mapping:
+      priority: 6
       glob: >-
         {tools/interface-mapping-validator/**/*.ts,
         interface_mapping.md,

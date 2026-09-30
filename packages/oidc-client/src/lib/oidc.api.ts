@@ -42,12 +42,16 @@ export const oidcApi = createApi({
       queryFn: async ({ url }, api, _, baseQuery) => {
         const { requestMiddleware, logger } = api.extra as Extras;
 
+        const params = new URL(url).searchParams;
+        const responseMode = params.get('response_mode');
+
         const request: FetchArgs = {
           url,
           method: 'POST',
           credentials: 'include',
           headers: {
             Accept: 'application/json',
+            ...(responseMode === 'pi.flow' && { 'X-Requested-With': 'ping-sdk' }),
           },
         };
 
@@ -451,19 +455,20 @@ export const oidcApi = createApi({
         config: OidcConfig;
         endpoint: string;
         verifier?: string;
+        redirectUri?: string;
       }
     >({
-      queryFn: async ({ code, config, endpoint, verifier }, api, _, baseQuery) => {
+      queryFn: async ({ code, config, endpoint, verifier, redirectUri }, api, _, baseQuery) => {
         const { requestMiddleware, logger } = api.extra as Extras;
+        const { clientId } = config;
 
-        const { clientId, redirectUri } = config;
         const body = new URLSearchParams({
           grant_type: 'authorization_code',
           code,
           client_id: clientId,
-          redirect_uri: redirectUri,
         });
 
+        if (redirectUri) body.append('redirect_uri', redirectUri);
         if (verifier) {
           body.append('code_verifier', verifier);
         }

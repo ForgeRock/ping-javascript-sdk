@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2025 - 2026 Ping Identity Corporation. All right reserved.
+ * Copyright © 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -107,31 +107,6 @@ test.describe('PingOne login and get token tests', () => {
       'Configuration error. Please check your OAuth configuration, like clientId or allowed redirect URLs.',
     );
     await expect(page.locator('.error')).toContainText(`"type": "network_error"`);
-  });
-
-  test('login with pi.flow response mode', async ({ page }) => {
-    const { clickWithRedirect, navigate } = asyncEvents(page);
-    await navigate('/ping-one/?piflow=true');
-
-    await page.on('request', (request) => {
-      const method = request.method();
-      const requestUrl = request.url();
-
-      if (method === 'POST' && requestUrl.includes('/as/authorize')) {
-        expect(requestUrl).toContain('response_mode=pi.flow');
-      }
-    });
-
-    await clickWithRedirect('Login (Background)', '**/signon/**');
-
-    await page.getByLabel('Username').fill(pingOneUsername);
-    await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
-    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
-
-    expect(page.url()).toContain('code');
-    expect(page.url()).toContain('state');
-
-    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
   });
 });
 

@@ -4,9 +4,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { GenericError } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
+import type { OptionalAuthorizeOptions } from './authorize.request.types.js';
 import type { oidc } from './client.store.js';
 import type { createClientStore } from './client.store.utils.js';
 
@@ -19,7 +20,11 @@ export type RootState = ReturnType<ClientStore['getState']>;
 export type AppDispatch = ReturnType<ClientStore['dispatch']>;
 
 export interface GetTokensOptions {
-  authorizeOptions?: GetAuthorizationUrlOptions;
+  /**
+   * Per-request overrides; set a field to `null` to explicitly unset its
+   * `OidcConfig` default. See {@link OptionalAuthorizeOptions}.
+   */
+  authorizeOptions?: OptionalAuthorizeOptions;
   backgroundRenew?: boolean;
   forceRenew?: boolean;
   storageOptions?: Partial<StorageConfig>;
