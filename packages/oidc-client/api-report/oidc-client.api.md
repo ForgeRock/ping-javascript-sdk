@@ -477,8 +477,7 @@ export { GetAuthorizationUrlOptions };
 
 // @public (undocumented)
 export interface GetTokensOptions {
-  // (undocumented)
-  authorizeOptions?: GetAuthorizationUrlOptions;
+  authorizeOptions?: OptionalAuthorizeOptions;
   // (undocumented)
   backgroundRenew?: boolean;
   // (undocumented)
@@ -539,9 +538,9 @@ export function oidc<ActionType extends ActionTypes = ActionTypes>(input: {
   | {
       subscribe: (listener: () => void) => Unsubscribe;
       authorize: {
-        url: (options?: GetAuthorizationUrlOptions) => Promise<string | GenericError>;
+        url: (options?: OptionalAuthorizeOptions) => Promise<string | GenericError>;
         background: (
-          options?: GetAuthorizationUrlOptions,
+          options?: OptionalAuthorizeOptions,
         ) => Promise<AuthorizationSuccess | AuthorizationError>;
       };
       token: {

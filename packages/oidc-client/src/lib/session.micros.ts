@@ -8,6 +8,7 @@ import { createRandomString, createState } from '@forgerock/sdk-utilities';
 import { Micro } from 'effect';
 import { decodeJwt } from 'jose/jwt/decode';
 
+import { resolveAuthorizeOption } from './authorize.request.utils.js';
 import { oidcApi } from './oidc.api.js';
 
 import type { CustomLogger } from '@forgerock/sdk-logger';
@@ -18,7 +19,6 @@ import type { JWTPayload } from 'jose';
 import type { ClientStore } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
-import { resolveAuthorizeOption } from './authorize.request.utils.js';
 
 // ─── Storage read ─────────────────────────────────────────────────────────────
 

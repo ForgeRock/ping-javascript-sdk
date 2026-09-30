@@ -16,7 +16,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
  * Import the types
  */
 import type { ConfigState, InternalDaVinciConfig } from './config.types.js';
-import { Endpoints } from './wellknown.types.js';
+import type { Endpoints } from './wellknown.types.js';
 
 /**
  * @const initialState - The initial state of the configuration slice

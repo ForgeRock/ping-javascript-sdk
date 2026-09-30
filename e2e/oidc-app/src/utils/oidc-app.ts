@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2025 - 2026 Ping Identity Corporation. All right reserved.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
@@ -83,7 +83,6 @@ export async function oidcApp({
 }) {
   const code = urlParams.get('code');
   const state = urlParams.get('state');
-  const piflow = urlParams.get('piflow');
   const par = urlParams.get('par') === 'true';
 
   const oidcClient: OidcClient = await oidc({
@@ -95,17 +94,7 @@ export async function oidcApp({
   }
 
   document.getElementById('login-background')?.addEventListener('click', async () => {
-    const authorizeOptions =
-      piflow === 'true'
-        ? {
-            clientId: config.clientId,
-            redirectUri: config.redirectUri,
-            scope: config.scope,
-            responseType: config.responseType ?? 'code',
-            responseMode: 'pi.flow' as const,
-          }
-        : undefined;
-    const response = await oidcClient.authorize?.background(authorizeOptions);
+    const response = await oidcClient.authorize?.background();
 
     if (!response) return;
 
@@ -114,6 +103,7 @@ export async function oidcApp({
       displayError(response);
 
       if (response.redirectUrl) {
+        console.log('Redirect URL: ', response.redirectUrl);
         window.location.assign(response.redirectUrl);
       } else {
         console.log('Authorization failed with no ability to redirect:', response);

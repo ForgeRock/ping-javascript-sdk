@@ -7,6 +7,7 @@
 
 import type { WellknownResponse } from '@forgerock/sdk-types';
 import type { DaVinciConfig } from '@forgerock/sdk-types';
+
 import type { Endpoints } from './wellknown.types.js';
 
 export type { DaVinciConfig };

@@ -94,6 +94,7 @@ const urlParams = new URLSearchParams(window.location.search);
     throw new Error(`Failed to initialize oidc client: ${oidcResult.error}`);
   }
   const oidcClient = oidcResult;
+  const oidcPiFlow = urlParams.get('piFlow') === 'true';
   const continueToken = urlParams.get('continueToken');
   const formEl = document.getElementById('form') as HTMLFormElement;
   let resumed: InternalErrorResponse | NodeStates | undefined;
@@ -113,7 +114,7 @@ const urlParams = new URLSearchParams(window.location.search);
     resumed = await davinciClient.resume({ continueToken });
   }
 
-  function renderComplete() {
+  async function renderComplete() {
     const clientInfo: GetClient = davinciClient.getClient();
     const serverInfo = davinciClient.getServer();
 
@@ -122,8 +123,24 @@ const urlParams = new URLSearchParams(window.location.search);
     let state = '';
 
     if (clientInfo?.status === 'success') {
-      code = clientInfo.authorization?.code || '';
-      state = clientInfo.authorization?.state || '';
+      if (!oidcPiFlow) {
+        code = clientInfo.authorization?.code || '';
+        state = clientInfo.authorization?.state || '';
+      } else {
+        // For testing OIDC client authorize with pi.flow path only
+        // Otherwise, retrieving code/state from davinciClient is the recommended method
+        const result = await oidcClient.authorize.background({
+          responseMode: 'pi.flow',
+          redirectUri: null,
+        });
+        if ('error' in result) {
+          console.error(`Error: authorize background; ${result.error}`);
+          return;
+        } else {
+          code = result.code;
+          state = result.state;
+        }
+      }
     }
 
     if (serverInfo && serverInfo.status === 'success') {
