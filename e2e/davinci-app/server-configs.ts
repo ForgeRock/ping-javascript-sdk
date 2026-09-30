@@ -38,7 +38,6 @@ export const serverConfigs: Record<string, DaVinciConfig> = {
    */
   '625e45e0-dde5-402e-9bf9-7da1275df03a': {
     clientId: '625e45e0-dde5-402e-9bf9-7da1275df03a',
-    redirectUri: window.location.origin + '/',
     scope: 'openid profile email name revoke',
     serverConfig: {
       wellknown:

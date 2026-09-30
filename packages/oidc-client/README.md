@@ -54,7 +54,7 @@ The `oidc()` initialization function accepts the following configuration:
 - **serverConfig** (required)
   - **wellknown** (required) - URL to the OIDC provider's well-known configuration endpoint
 - **clientId** (required) - Your application's client ID registered with the OIDC provider
-- **redirectUri** (required) - The URI where the OIDC provider will redirect after authentication
+- **redirectUri** (optional) - The URI where the OIDC provider will redirect after authentication. Can be omitted when using `responseMode: pi.flow`.
 - **scope** (required) - Space-separated list of requested scopes (e.g., `'openid profile email'`)
 - **storage** (optional) - Storage configuration for tokens (defaults to localStorage)
 - **timeout** (optional) - Request timeout in milliseconds

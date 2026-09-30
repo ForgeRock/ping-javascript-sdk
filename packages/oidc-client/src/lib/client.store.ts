@@ -13,8 +13,8 @@ import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import { forwardAuthorizeOptions, validateRedirectUri } from './authorize.request.utils.js';
-import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError } from './client.store.utils.js';
+import { buildTokenExchangeµ } from './exchange.request.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckIdTokenµ, sessionCheckNoneµ } from './session.micros.js';
@@ -27,6 +27,11 @@ import type { GenericError } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type {
+  AuthorizationError,
+  AuthorizationSuccess,
+  OptionalAuthorizeOptions,
+} from './authorize.request.types.js';
+import type {
   GetTokensOptions,
   LogoutErrorResult,
   LogoutSuccessResult,
@@ -35,11 +40,6 @@ import type {
   UserInfoResponse,
 } from './client.types.js';
 import type { OauthTokens, OidcConfig } from './config.types.js';
-import type {
-  AuthorizationError,
-  AuthorizationSuccess,
-  OptionalAuthorizeOptions,
-} from './authorize.request.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 

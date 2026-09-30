@@ -6,7 +6,6 @@
  */
 import { Micro } from 'effect';
 
-import { buildAuthorizeOptions, forwardAuthorizeOptions } from './authorize.request.utils.js';
 import {
   buildParBodyµ,
   buildParSlimUrlµ,
@@ -19,6 +18,7 @@ import {
   storeAuthOptionsµ,
   validateParResponseµ,
 } from './authorize.request.micros.js';
+import { buildAuthorizeOptions, forwardAuthorizeOptions } from './authorize.request.utils.js';
 
 import type { CustomLogger } from '@forgerock/sdk-logger';
 import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';

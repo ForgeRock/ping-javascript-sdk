@@ -123,7 +123,7 @@ const EXCLUDE_PATTERNS = [
 
 export function updateCopyrightYears(content, year) {
   const regex =
-    /(^.*(?:©\s*|&copy;\s*)?Copyright(?:\s*\(c\))?\s+)(\d{4})(?:([ \t]*-[ \t]*)(\d{4}))?(\s+Ping Identity(?: Corporation)?\b.*$)/gim;
+    /(^.*(?:©\s*|&copy;\s*)?Copyright(?:\s*\(c\))?(?:\s*©\s*|\s*&copy;\s*)?\s+)(\d{4})(?:([ \t]*-[ \t]*)(\d{4}))?(\s+Ping Identity(?: Corporation)?\b.*$)/gim;
 
   return content.replace(regex, (match, prefix, startYear, separator, endYear, suffix) => {
     if (!HEADER_COMMENT_LINE_REGEX.test(prefix)) {
@@ -194,7 +194,7 @@ const MAYBE_PING_COPYRIGHT_LINE_REGEX =
   /(?:©\s*|&copy;\s*)?Copyright(?:\s*\(c\))?.*Ping Identity(?: Corporation)?/i;
 const HEADER_COMMENT_LINE_REGEX = /^\s*(?:\/\*+|\*+|\/\/+|#+|<!--)\s*/;
 const VALID_PING_COPYRIGHT_LINE_REGEX =
-  /^.*(?:©\s*|&copy;\s*)?Copyright(?:\s*\(c\))?\s+\d{4}(?:[ \t]*-[ \t]*\d{4})?\s+Ping Identity(?: Corporation)?\b.*$/i;
+  /^.*Copyright(?:\s*\(c\)|\s*©|\s*&copy;)\s+\d{4}(?:[ \t]*-[ \t]*\d{4})?\s+Ping Identity(?: Corporation)?\b.*$/i;
 
 if (isCliExecution()) {
   run();

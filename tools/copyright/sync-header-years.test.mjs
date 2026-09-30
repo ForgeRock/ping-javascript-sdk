@@ -31,18 +31,36 @@ test('does not change an already-current spaced range', () => {
   assert.equal(actual, input);
 });
 
-test('supports © and &copy; variants', () => {
+test('supports postfix © and &copy; variants', () => {
   const input = [
-    '/* © Copyright 2020-2024 Ping Identity. */',
-    '<!-- &copy; Copyright 2020-2024 Ping Identity. -->',
+    '/* Copyright © 2020-2024 Ping Identity. */',
+    '<!-- Copyright &copy; 2020-2024 Ping Identity. -->',
   ].join('\n');
   const actual = updateCopyrightYears(input, 2026);
   assert.equal(
     actual,
     [
-      '/* © Copyright 2020 - 2026 Ping Identity. */',
-      '<!-- &copy; Copyright 2020 - 2026 Ping Identity. -->',
+      '/* Copyright © 2020 - 2026 Ping Identity. */',
+      '<!-- Copyright &copy; 2020 - 2026 Ping Identity. -->',
     ].join('\n'),
+  );
+});
+
+test('updates stale single year in postfix © format', () => {
+  const input = '/* Copyright © 2025 Ping Identity Corporation. All right reserved. */';
+  const actual = updateCopyrightYears(input, 2026);
+  assert.equal(
+    actual,
+    '/* Copyright © 2025 - 2026 Ping Identity Corporation. All right reserved. */',
+  );
+});
+
+test('updates stale range in postfix © format and keeps the symbol', () => {
+  const input = '/* Copyright © 2020-2024 Ping Identity Corporation. All right reserved. */';
+  const actual = updateCopyrightYears(input, 2026);
+  assert.equal(
+    actual,
+    '/* Copyright © 2020 - 2026 Ping Identity Corporation. All right reserved. */',
   );
 });
 
@@ -84,6 +102,26 @@ test('flags Ping headers with a <current_year> placeholder', () => {
 test('does not flag valid Ping headers', () => {
   const input = '/* Copyright (c) 2020 - 2026 Ping Identity Corporation. */';
   assert.deepEqual(inspectPingCopyrightHeader(input), { present: true, invalid: false });
+});
+
+test('does not flag valid postfix © Ping headers', () => {
+  const input = '/* Copyright © 2025 - 2026 Ping Identity Corporation. All right reserved. */';
+  assert.deepEqual(inspectPingCopyrightHeader(input), { present: true, invalid: false });
+});
+
+test('does not flag valid postfix &copy; Ping headers', () => {
+  const input = '/* Copyright &copy; 2025 Ping Identity Corporation. All right reserved. */';
+  assert.deepEqual(inspectPingCopyrightHeader(input), { present: true, invalid: false });
+});
+
+test('flags Ping headers without (c) or © after Copyright', () => {
+  const input = '/* Copyright 2025 - 2026 Ping Identity Corporation. All right reserved. */';
+  assert.deepEqual(inspectPingCopyrightHeader(input), { present: true, invalid: true });
+});
+
+test('flags prefix © Ping headers as invalid', () => {
+  const input = '/* © Copyright 2020 - 2026 Ping Identity Corporation. */';
+  assert.deepEqual(inspectPingCopyrightHeader(input), { present: true, invalid: true });
 });
 
 test('does not flag non-header Ping copyright text', () => {

@@ -4,14 +4,14 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { AsyncLegacyConfigOptions } from './legacy-config.types.js';
-import type { CustomStorageObject } from './tokens.types.js';
 import type {
-  ResponseType,
   AuthDisplayValue,
   AuthPromptValue,
   ResponseMode,
+  ResponseType,
 } from './authorize.types.js';
+import type { AsyncLegacyConfigOptions } from './legacy-config.types.js';
+import type { CustomStorageObject } from './tokens.types.js';
 
 export const LOG_LEVEL_VALUES = ['none', 'error', 'warn', 'info', 'debug'] as const;
 export type LogLevel = (typeof LOG_LEVEL_VALUES)[number];

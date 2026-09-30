@@ -12,14 +12,14 @@ import { afterEach, beforeEach, expect, vi } from 'vitest';
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import {
   buildAuthorizeOptions,
-  forwardAuthorizeOptions,
-  validateRedirectUri,
   buildParAuthorizeUrl,
+  forwardAuthorizeOptions,
   hasPushRequestUri,
   isFetchBaseQueryError,
   isStringRecord,
   toAuthorizationError,
   toDispatchError,
+  validateRedirectUri,
 } from './authorize.request.utils.js';
 
 import type { CustomLogger } from '@forgerock/sdk-logger';
