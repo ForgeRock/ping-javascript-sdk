@@ -1,8 +1,11 @@
-import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { NodeHttpClient } from '@effect/platform-node';
-import { Config, Data, Effect, ManagedRuntime } from 'effect';
+import { Config, Context, Data, Effect, Layer, ManagedRuntime } from 'effect';
+import { HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/http';
 
 import { getUsersResponse, TokenResponse } from './schemas.js';
+
+import type { Schema } from 'effect';
+import type { HttpClientError } from 'effect/http';
 
 export class UnexpectedStatus extends Data.TaggedError('UnExpectedStatus')<{
   message: string;
@@ -29,78 +32,76 @@ export class FailureToAcquireToken extends Data.TaggedError('FailureToAcquireTok
   cause: string;
 }> {}
 
-export class UserService extends Effect.Service<UserService>()('@users/service', {
-  dependencies: [NodeHttpClient.layerUndici],
-  effect: Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient;
-    const clientId = yield* Config.string('CLIENT_ID');
-    const clientSecret = yield* Config.string('CLIENT_SECRET');
-    const envId = yield* Config.string('ENV_ID');
-    const AUTH_URL = yield* Config.string('AUTH_URL');
-    const API_URL = yield* Config.string('API_URL');
+type UsersResponse = typeof getUsersResponse.Type;
+type UserServiceErrors = UnexpectedStatus | DeleteUserError | HttpClientError.HttpClientError;
 
-    const tokenResponse = yield* HttpClientRequest.post(AUTH_URL).pipe(
-      HttpClientRequest.setHeader('Content-Type', 'application/x-www-form-urlencoded'),
-      HttpClientRequest.appendUrl(`/${envId}/as/token`),
-      HttpClientRequest.setUrlParam('grant_type', 'client_credentials'),
-      HttpClientRequest.setHeader('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`),
-      client.execute,
-      Effect.flatMap(HttpClientResponse.filterStatusOk),
-      Effect.flatMap(HttpClientResponse.schemaBodyJson(TokenResponse)),
-    );
+export class UserService extends Context.Service<
+  UserService,
+  {
+    readonly deleteUser: (
+      userId: string,
+    ) => Effect.Effect<HttpClientResponse.HttpClientResponse, UserServiceErrors>;
+    readonly getUsers: (
+      filterTerm: string,
+      query: string,
+    ) => Effect.Effect<UsersResponse, HttpClientError.HttpClientError | Schema.SchemaError>;
+  }
+>()('@users/service') {}
 
-    return {
-      deleteUser: (userId: string) =>
-        Effect.gen(function* () {
-          const response = yield* HttpClientRequest.del(API_URL).pipe(
-            HttpClientRequest.appendUrl(`/v1/environments/${envId}/users/${userId}`),
-            HttpClientRequest.bearerToken(tokenResponse.access_token),
-            client.execute,
-            Effect.flatMap(HttpClientResponse.filterStatusOk),
-            Effect.catchTag('ResponseError', (e) =>
-              Effect.fail(
-                new DeleteUserError({
-                  message: `Failed to delete user, error in response: ${e}`,
-                  cause: e.message,
-                }),
-              ),
-            ),
-            Effect.catchTag('RequestError', (e) =>
-              Effect.fail(
-                new DeleteUserError({
-                  message: `Failed to delete user, error in request: ${e}`,
-                  cause: e.message,
-                }),
-              ),
-            ),
-          );
+const makeUserService = Effect.gen(function* () {
+  const client = yield* HttpClient.HttpClient;
+  const clientId = yield* Config.String('CLIENT_ID');
+  const clientSecret = yield* Config.String('CLIENT_SECRET');
+  const envId = yield* Config.String('ENV_ID');
+  const AUTH_URL = yield* Config.String('AUTH_URL');
+  const API_URL = yield* Config.String('API_URL');
 
-          /**
-           * Docs says we should expect a 204 response for success
-           */
-          if (response.status !== 204) {
-            return yield* Effect.fail(
-              new UnexpectedStatus({
-                message: 'Unexpected status code',
-                cause: response.status.toString(),
-              }),
-            );
-          }
+  const tokenResponse = yield* HttpClientRequest.post(AUTH_URL).pipe(
+    HttpClientRequest.setHeader('Content-Type', 'application/x-www-form-urlencoded'),
+    HttpClientRequest.appendUrl(`/${envId}/as/token`),
+    HttpClientRequest.setUrlParam('grant_type', 'client_credentials'),
+    HttpClientRequest.setHeader('Authorization', `Basic ${btoa(`${clientId}:${clientSecret}`)}`),
+    client.execute,
+    Effect.flatMap(HttpClientResponse.filterStatusOk),
+    Effect.flatMap(HttpClientResponse.schemaBodyJson(TokenResponse)),
+  );
 
-          return response;
-        }),
-      getUsers: (filterTerm: string, query: string) =>
-        HttpClientRequest.get(API_URL).pipe(
-          HttpClientRequest.setHeader('Content-Type', 'application/json'),
-          HttpClientRequest.appendUrl(`/v1/environments/${envId}/users`),
-          HttpClientRequest.appendUrlParam('filter', `${filterTerm} eq "${query}"`),
+  return {
+    deleteUser: (userId: string) =>
+      Effect.gen(function* () {
+        const response = yield* HttpClientRequest.delete(API_URL).pipe(
+          HttpClientRequest.appendUrl(`/v1/environments/${envId}/users/${userId}`),
           HttpClientRequest.bearerToken(tokenResponse.access_token),
           client.execute,
           Effect.flatMap(HttpClientResponse.filterStatusOk),
-          Effect.flatMap(HttpClientResponse.schemaBodyJson(getUsersResponse)),
-        ),
-    };
-  }),
-}) {}
+        );
 
-export const UserRuntime = ManagedRuntime.make(UserService.Default);
+        if (response.status !== 204) {
+          return yield* Effect.fail(
+            new UnexpectedStatus({
+              message: 'Unexpected status code',
+              cause: response.status.toString(),
+            }),
+          );
+        }
+
+        return response;
+      }),
+    getUsers: (filterTerm: string, query: string) =>
+      HttpClientRequest.get(API_URL).pipe(
+        HttpClientRequest.setHeader('Content-Type', 'application/json'),
+        HttpClientRequest.appendUrl(`/v1/environments/${envId}/users`),
+        HttpClientRequest.appendUrlParam('filter', `${filterTerm} eq "${query}"`),
+        HttpClientRequest.bearerToken(tokenResponse.access_token),
+        client.execute,
+        Effect.flatMap(HttpClientResponse.filterStatusOk),
+        Effect.flatMap(HttpClientResponse.schemaBodyJson(getUsersResponse)),
+      ),
+  };
+});
+
+export const UserServiceLayer = Layer.effect(UserService, makeUserService).pipe(
+  Layer.provide(NodeHttpClient.layerUndici),
+);
+
+export const UserRuntime = ManagedRuntime.make(UserServiceLayer);

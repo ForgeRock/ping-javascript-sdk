@@ -1,6 +1,7 @@
 import { Effect } from 'effect';
-import { Command } from '@effect/platform';
-import { FileSystem, Path } from '@effect/platform';
+import * as Command from 'effect/cli/Command';
+import * as FileSystem from 'effect/FileSystem';
+import * as Path from 'effect/Path';
 import {
   CommandExitError,
   GitStatusError,

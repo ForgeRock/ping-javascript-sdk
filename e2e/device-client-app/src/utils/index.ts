@@ -122,7 +122,7 @@ export const LoginAndGetClient = Effect.gen(function* () {
   yield* Effect.tryPromise({
     try: () => oidcClientOrThrow().user.logout(),
     catch: (err) => new Error(`Logout failed: ${err}`),
-  }).pipe(Effect.catchAll((err) => Console.warn('Logout failed, continuing:', err)));
+  }).pipe(Effect.orElseSucceed((err) => Console.warn('Logout failed, continuing:', err)));
 
   yield* Effect.tryPromise({
     try: () => journeyClient.start({ journey: tree }),

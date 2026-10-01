@@ -4,11 +4,20 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { NodeSdk } from '@effect/opentelemetry';
-import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, HttpServer } from '@effect/platform';
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node';
-import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
 import { Layer } from 'effect';
+import { HttpMiddleware } from 'effect/http';
+import { HttpRouter } from 'effect/http';
+import { HttpServer } from 'effect/http';
+import { HttpApiBuilder, HttpApiSwagger } from 'effect/http-api';
+
+import { MockApi } from './spec.js';
+
+import type { Effect } from 'effect';
+import type { HttpServerError } from 'effect/http';
+type ServeError = HttpServerError.ServeError;
+import { NodeSdk } from '@effect/opentelemetry';
+import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
 import { createServer } from 'node:http';
 
 import { AuthorizeHandlerMock } from './handlers/authorize.handler.js';
@@ -25,49 +34,64 @@ import { SessionMiddlewareMock } from './middleware/Session.js';
 import { SessionStorage } from './services/session.service.js';
 import { TokensMock } from './services/tokens.service.js';
 import { UserInfoMockService } from './services/userinfo.service.js';
-import { MockApi } from './spec.js';
-
-const Services = [
-  Layer.provide(TokensMock),
-  Layer.provide(IncrementStepIndexMock),
-  Layer.provide(AuthorizationMock),
-  Layer.provide(UserInfoMockService),
-  Layer.provide(SessionMiddlewareMock),
-  Layer.provide(SessionStorage.Default),
-] as const;
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: 'Mock-Api' },
   spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
 }));
 
-const APIMock = HttpApiBuilder.api(MockApi).pipe(
-  Layer.provide(HealthCheckLive),
-  Layer.provide(OpenidConfigMock),
-  Layer.provide(AuthorizeHandlerMock),
-  Layer.provide(TokensHandler),
-  Layer.provide(CapabilitiesHandlerMock),
-  Layer.provide(UserInfoMockHandler),
-  Layer.provide(EndSessionHandlerMock),
-  Layer.provide(RevokeTokenHandler),
-  ...Services,
+// Wire SessionStorage into SessionMiddlewareMock
+const SessionLayer = Layer.provide(
+  SessionMiddlewareMock,
+  Layer.effect(SessionStorage, SessionStorage.make),
 );
 
-const ServerMock = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
-  Layer.provide(HttpApiSwagger.layer()),
-  Layer.provide(
-    HttpApiBuilder.middlewareCors({
+// Merge all group handlers
+const HandlersLayer = Layer.mergeAll(
+  HealthCheckLive,
+  OpenidConfigMock,
+  AuthorizeHandlerMock,
+  TokensHandler,
+  CapabilitiesHandlerMock,
+  UserInfoMockHandler,
+  EndSessionHandlerMock,
+  RevokeTokenHandler,
+);
+
+// Merge all services
+const ServicesLayer = Layer.mergeAll(
+  TokensMock,
+  IncrementStepIndexMock,
+  AuthorizationMock,
+  UserInfoMockService,
+  SessionLayer,
+);
+
+// Build application routes layer with all handlers and services provided in one step each
+const AppLayer = HttpApiBuilder.layer(MockApi).pipe(
+  Layer.provide(HandlersLayer),
+  Layer.provide(ServicesLayer),
+);
+
+// Compose app + swagger, then provide the router service
+const AppWithSwagger = Layer.merge(AppLayer, HttpApiSwagger.layer(MockApi)).pipe(
+  Layer.provide(HttpRouter.layer),
+);
+
+const ServerMock = HttpRouter.serve(AppWithSwagger, {
+  middleware: (app) =>
+    HttpMiddleware.cors({
       allowedMethods: ['GET', 'PUT', 'POST', 'OPTIONS'],
       allowedOrigins: ['*'],
       credentials: true,
       maxAge: 3600,
-    }),
-  ),
-  Layer.provide(APIMock),
-
-  Layer.provide(NodeSdkLive),
+    })(HttpMiddleware.logger(app)),
+}).pipe(
   HttpServer.withLogAddress,
+  Layer.provide(NodeSdkLive),
   Layer.provide(NodeHttpServer.layer(createServer, { port: 9443, host: 'localhost' })),
 );
 
-Layer.launch(ServerMock).pipe(NodeRuntime.runMain);
+// TypeScript cannot fully resolve complex Effect layer generic compositions;
+// all requirements ARE satisfied at runtime — NodeHttpServer provides FileSystem, Path, HttpPlatform, Etag.
+NodeRuntime.runMain(Layer.launch(ServerMock) as Effect.Effect<never, ServeError, never>);

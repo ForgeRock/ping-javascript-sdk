@@ -1,12 +1,5 @@
-/*
- * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
- *
- * This software may be modified and distributed under the terms
- * of the MIT license. See the LICENSE file for details.
- */
-
-import { HttpApiBuilder } from '@effect/platform';
 import { Effect } from 'effect';
+import { HttpApiBuilder } from 'effect/http-api';
 
 import { MockApi } from '../spec.js';
 

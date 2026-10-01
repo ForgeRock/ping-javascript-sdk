@@ -4,8 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { HttpApiBuilder, HttpApiError } from '@effect/platform';
 import { Effect } from 'effect';
+import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
 
 import { BearerToken } from '../middleware/Authorization.js';
 import { UserInfo } from '../services/userinfo.service.js';

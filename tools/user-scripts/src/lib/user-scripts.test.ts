@@ -1,7 +1,7 @@
 // import { describe, expect, it } from '@effect/vitest';
 // import { GetUsersError, UnexpectedStatus, UserService } from './user-scripts.js';
 // import { ConfigProvider, Effect, Layer } from 'effect';
-// import { HttpClient, HttpClientResponse } from '@effect/platform';
+// import { HttpClient, HttpClientResponse } from 'effect/http';
 //
 // const Config = ConfigProvider.fromMap(
 //   new Map([

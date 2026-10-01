@@ -4,13 +4,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import {
-  HttpApiBuilder,
-  HttpApiError,
-  HttpServerRequest,
-  HttpServerResponse,
-} from '@effect/platform';
 import { Effect, pipe } from 'effect';
+import { HttpServerRequest } from 'effect/http';
+import { HttpServerResponse } from 'effect/http';
+import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
 
 import { validator } from '../helpers/match.js';
 import { responseMap } from '../responses/index.js';
@@ -106,15 +103,15 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
               },
             ),
           ),
-          Effect.flatMap((res) => HttpServerResponse.removeCookie(res, 'stepIndex')),
-          Effect.flatMap((res) => HttpServerResponse.setStatus(res, 200)),
-          Effect.flatMap((res) =>
+          Effect.map((res) => HttpServerResponse.removeCookie(res, 'stepIndex')),
+          Effect.map((res) => HttpServerResponse.setStatus(res, 200)),
+          Effect.map((res) =>
             HttpServerResponse.setHeader(res, 'Content-Type', 'application/json'),
           ),
-          Effect.catchTag('CookieError', () => Effect.fail(new HttpApiError.InternalServerError())),
-          Effect.catchTag('HttpBodyError', () =>
-            Effect.fail(new HttpApiError.InternalServerError()),
-          ),
+          Effect.catchTags({
+            CookiesError: () => Effect.fail(new HttpApiError.InternalServerError()),
+            HttpBodyError: () => Effect.fail(new HttpApiError.InternalServerError()),
+          }),
         );
       }
 

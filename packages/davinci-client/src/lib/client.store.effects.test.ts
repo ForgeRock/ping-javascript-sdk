@@ -6,7 +6,7 @@
  */
 
 import { it } from '@effect/vitest';
-import { Micro } from 'effect';
+import { Effect, Exit } from 'effect';
 import { describe, expect, vi } from 'vitest';
 
 import {
@@ -186,7 +186,7 @@ describe('getPollingModeµ', () => {
   };
 
   it.effect('succeeds with challenge mode when challenge and pollChallengeStatus are set', () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const collector: PollingCollector = {
         ...basePollingCollector,
         output: {
@@ -207,7 +207,7 @@ describe('getPollingModeµ', () => {
   );
 
   it.effect('succeeds with continue mode when no challenge is present', () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const result = yield* getPollingModeµ(basePollingCollector);
 
       expect(result).toStrictEqual({
@@ -219,7 +219,7 @@ describe('getPollingModeµ', () => {
   );
 
   it.effect('succeeds with unknown mode for ambiguous configuration', () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const collector: PollingCollector = {
         ...basePollingCollector,
         output: {
@@ -240,13 +240,13 @@ describe('getPollingModeµ', () => {
   );
 
   it.effect('fails when collector type is not PollingCollector', () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const badCollector = { ...basePollingCollector, type: 'TextCollector' } as any;
 
-      const result = yield* Micro.exit(getPollingModeµ(badCollector));
+      const result = yield* Effect.exit(getPollingModeµ(badCollector));
 
       expect(result).toStrictEqual(
-        Micro.exitFail({
+        Exit.fail({
           error: {
             message: 'Collector provided to poll is not a PollingCollector',
             type: 'argument_error',
@@ -258,7 +258,7 @@ describe('getPollingModeµ', () => {
   );
 
   it.effect('fails when retriesRemaining is undefined in continue mode', () =>
-    Micro.gen(function* () {
+    Effect.gen(function* () {
       const collector: PollingCollector = {
         ...basePollingCollector,
         output: {
@@ -267,10 +267,10 @@ describe('getPollingModeµ', () => {
         },
       };
 
-      const result = yield* Micro.exit(getPollingModeµ(collector));
+      const result = yield* Effect.exit(getPollingModeµ(collector));
 
       expect(result).toStrictEqual(
-        Micro.exitFail({
+        Exit.fail({
           error: {
             message: 'No retries found on PollingCollector',
             type: 'argument_error',

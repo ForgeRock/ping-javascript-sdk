@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2026 Ping Identity Corporation. All rights reserved.
- *
- * This software may be modified and distributed under the terms
- * of the MIT license. See the LICENSE file for details.
- */
-
 /**
  * Verifies consumer-facing types are re-exported from @forgerock/journey-client/types.
  * Checked by tsc --noEmit, not executed at runtime.
@@ -22,9 +15,11 @@ import type {
   FailureDetail,
   GenericError,
   LogLevel,
+  // These should be re-exported but are not yet
   NameValue,
   PolicyRequirement,
   RequestMiddleware,
+  // Already re-exported (regression guard)
   Step,
   StepDetail,
   StepType,

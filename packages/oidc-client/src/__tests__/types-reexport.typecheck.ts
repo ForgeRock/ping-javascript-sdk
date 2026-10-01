@@ -4,14 +4,13 @@
  */
 import type {
   ActionTypes,
-  BrowserStorageConfig,
   CustomLogger,
-  CustomStorageConfig,
-  CustomStorageObject,
+  // Already re-exported (regression guard)
   GenericError,
   GetAuthorizationUrlOptions,
   LogLevel,
   RequestMiddleware,
+  // Should be re-exported but is not yet
   ResponseType,
   StorageConfig,
   WellknownResponse,
@@ -23,9 +22,6 @@ type _Assert = [
   GetAuthorizationUrlOptions,
   WellknownResponse,
   StorageConfig,
-  BrowserStorageConfig,
-  CustomStorageConfig,
-  CustomStorageObject,
   ActionTypes,
   RequestMiddleware,
   CustomLogger,

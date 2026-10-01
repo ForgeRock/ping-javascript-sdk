@@ -29,9 +29,8 @@ const _DavinciAuthorizeQuery = Schema.Struct({
   acr_values: Schema.optional(Schema.String), // this should be optional
 });
 
-interface DavinciAuthorizeQuery extends Schema.Schema.Type<typeof _DavinciAuthorizeQuery> {}
-const DavinciAuthorizeQuery: Schema.Schema<DavinciAuthorizeQuery, DavinciAuthorizeQuery> =
-  _DavinciAuthorizeQuery;
+type DavinciAuthorizeQuery = Schema.Schema.Type<typeof _DavinciAuthorizeQuery>;
+const DavinciAuthorizeQuery: Schema.Schema<DavinciAuthorizeQuery> = _DavinciAuthorizeQuery;
 
 const DavinciAuthorizeFailure = Schema.Struct({
   error: Schema.String,

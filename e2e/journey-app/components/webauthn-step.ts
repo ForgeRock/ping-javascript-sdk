@@ -65,7 +65,7 @@ export async function handleWebAuthnStep(
 
     // True only when the browser supports conditional mediation AND AM requested it
     // (meta.mediation === 'conditional').
-    const isConditionalMediation = await WebAuthn.isConditionalMediationSupported(step);
+    const isConditionalMediation = await WebAuthn.isConditionalMediationSupported();
 
     const hasPasskeyAutocompleteValues = callbacks.some((callback) => {
       const values = callback.getOutputByName<string[]>('autocompleteValues', []);

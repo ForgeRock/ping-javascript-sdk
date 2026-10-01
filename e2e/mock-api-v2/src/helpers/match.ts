@@ -4,8 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { HttpApiError } from '@effect/platform';
 import { Effect, Match } from 'effect';
+import { HttpApiError } from 'effect/http-api';
 
 import type { Schema } from 'effect';
 
@@ -23,13 +23,11 @@ const validator = Match.type<PingRequestData>().pipe(
   Match.when(
     { parameters: { data: { formData: { username: Match.string, password: Match.string } } } },
     ({ parameters }) =>
-      Effect.if(
+      Effect.suspend(() =>
         parameters.data.formData.username == 'testuser' &&
-          parameters.data.formData.password === 'Password',
-        {
-          onFalse: () => Effect.fail(new HttpApiError.Unauthorized()),
-          onTrue: () => Effect.succeed(true),
-        },
+        parameters.data.formData.password === 'Password'
+          ? Effect.succeed(true)
+          : Effect.fail(new HttpApiError.Unauthorized()),
       ),
   ),
   Match.orElse(() => Effect.succeed(true)),

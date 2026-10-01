@@ -7,7 +7,7 @@
  *
  */
 
-import { Console, Effect } from 'effect';
+import { Console, Context, Effect } from 'effect';
 
 import { getUser, handleError, handleSuccess, LoginAndGetClient } from '../utils/index.js';
 
@@ -58,4 +58,4 @@ const webauthn = Effect.gen(function* () {
   yield* Console.log('deleted', deletedDevice);
 });
 
-Effect.runPromise(webauthn).then(handleSuccess).catch(handleError);
+Effect.runPromiseWith(Context.empty())(webauthn).then(handleSuccess).catch(handleError);

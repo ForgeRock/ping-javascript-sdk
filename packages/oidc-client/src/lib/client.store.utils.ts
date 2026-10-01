@@ -4,16 +4,47 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 import { configureStore } from '@reduxjs/toolkit';
 
 import { oidcApi } from './oidc.api.js';
-import { wellknownApi } from './wellknown.api.js';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError } from '@forgerock/sdk-types';
 import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+
+/**
+ * Internal InjectableStore shape — mirrored from davinci/journey-client.
+ * Only used within oidc-client for the shared-store injection path.
+ */
+interface InjectableStore {
+  readonly store: ReturnType<typeof configureStore>;
+  readonly rootReducer: { inject: (api: unknown) => void };
+  readonly dynamicMiddleware: { addMiddleware: (...mw: unknown[]) => void };
+}
+
+/**
+ * Recovers the InjectableStore from an opaque SdkStore handle so oidc-client
+ * can inject its own reducer and middleware into a store owned by another client.
+ */
+function fromSdkStore(sdkStore: object): InjectableStore {
+  return sdkStore as unknown as InjectableStore;
+}
+
+/**
+ * Lazily injects oidcApi reducer and middleware into a store that was created
+ * by davinci() or journey(). Safe to call multiple times — RTK deduplicates injections.
+ * The cast is safe: after injection, the store's state will contain the oidc and wellknown
+ * slices, matching the shape produced by createClientStore.
+ */
+export function injectIntoStore(sdkStore: object): ReturnType<typeof createClientStore> {
+  const { store, rootReducer, dynamicMiddleware } = fromSdkStore(sdkStore);
+  rootReducer.inject(oidcApi);
+  dynamicMiddleware.addMiddleware(oidcApi.middleware);
+  return store as unknown as ReturnType<typeof createClientStore>;
+}
 
 /**
  * @function createClientStore

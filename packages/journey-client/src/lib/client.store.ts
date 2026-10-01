@@ -13,18 +13,18 @@ import {
   isGenericError,
   isValidWellknownUrl,
 } from '@forgerock/sdk-utilities';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 import { createStorage } from '@forgerock/storage';
-import * as Either from 'effect/Either';
+import * as Result from 'effect/Result';
 
-import { createJourneyStore } from './client.store.utils.js';
+import { createJourneyStore, toSdkStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
-import { wellknownApi } from './wellknown.api.js';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError } from '@forgerock/sdk-types';
+import type { GenericError, SdkStore } from '@forgerock/sdk-types';
 import type { Step } from '@forgerock/sdk-types';
 
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
@@ -35,6 +35,7 @@ import type { JourneyStep } from './step.utils.js';
 
 /** The journey client instance returned by the `journey()` function. */
 export interface JourneyClient {
+  store: SdkStore;
   subscribe: (listener: () => void) => () => void;
   start: (options?: StartParam) => Promise<JourneyResult>;
   next: (step: JourneyStep, options?: NextOptions) => Promise<JourneyResult>;
@@ -115,7 +116,8 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     );
   }
 
-  const store = createJourneyStore({ requestMiddleware, logger: log });
+  const injectable = createJourneyStore({ requestMiddleware, logger: log });
+  const store = injectable.store;
 
   if ('baseUrl' in config.serverConfig) {
     const { baseUrl } = config.serverConfig;
@@ -182,13 +184,14 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
   });
 
   const self: JourneyClient = {
+    store: toSdkStore(injectable) as SdkStore,
     subscribe: store.subscribe,
 
     start: async (options?: StartParam) => {
       const response = await store.dispatch(journeyApi.endpoints.start.initiate(options));
-      return Either.match(parseJourneyResponse(response), {
-        onLeft: (err): JourneyResult => err,
-        onRight: (step): JourneyResult => createJourneyObject(step),
+      return Result.match(parseJourneyResponse(response), {
+        onFailure: (err): JourneyResult => err,
+        onSuccess: (step): JourneyResult => createJourneyObject(step),
       });
     },
 
@@ -197,9 +200,9 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
      */
     next: async (step: JourneyStep, options?: NextOptions) => {
       const response = await store.dispatch(journeyApi.endpoints.next.initiate({ step, options }));
-      return Either.match(parseJourneyResponse(response), {
-        onLeft: (err): JourneyResult => err,
-        onRight: (step): JourneyResult => createJourneyObject(step),
+      return Result.match(parseJourneyResponse(response), {
+        onFailure: (err): JourneyResult => err,
+        onSuccess: (step): JourneyResult => createJourneyObject(step),
       });
     },
 

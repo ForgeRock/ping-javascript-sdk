@@ -7,7 +7,7 @@
  *
  */
 
-import { Console, Effect } from 'effect';
+import { Console, Context, Effect } from 'effect';
 
 import { getUser, handleError, handleSuccess, LoginAndGetClient } from '../utils/index.js';
 
@@ -45,4 +45,4 @@ const push = Effect.gen(function* () {
   yield* Console.log('deleted', deletedDevice);
 });
 
-Effect.runPromise(push).then(handleSuccess).catch(handleError);
+Effect.runPromiseWith(Context.empty())(push).then(handleSuccess).catch(handleError);

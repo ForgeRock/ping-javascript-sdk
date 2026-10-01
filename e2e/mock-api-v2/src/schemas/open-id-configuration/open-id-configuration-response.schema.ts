@@ -37,13 +37,11 @@ const _openIdConfigurationResponseSchema = Schema.Struct({
   code_challenge_methods_supported: Schema.Array(Schema.String),
 });
 
-interface openIdConfigurationResponseSchema extends Schema.Schema.Type<
+type openIdConfigurationResponseSchema = Schema.Schema.Type<
   typeof _openIdConfigurationResponseSchema
-> {}
+>;
 
-const openIdConfigurationResponseSchema: Schema.Schema<
-  openIdConfigurationResponseSchema,
-  openIdConfigurationResponseSchema
-> = _openIdConfigurationResponseSchema;
+const openIdConfigurationResponseSchema: Schema.Schema<openIdConfigurationResponseSchema> =
+  _openIdConfigurationResponseSchema;
 
 export { _openIdConfigurationResponseSchema, openIdConfigurationResponseSchema };
