@@ -19,15 +19,15 @@
  */
 import { Match, Result } from 'effect';
 
-import type { CollectorCategory, Collectors } from './node.types.js';
+import type { GenericError } from '@forgerock/sdk-types';
+
 import type {
   CollectorValueType,
   CollectorValueTypes,
   InternalErrorResponse,
   UpdatableCollectors,
 } from './client.types.js';
-
-import type { GenericError } from '@forgerock/sdk-types';
+import type { CollectorCategory, Collectors } from './node.types.js';
 
 /** Locally-inlined copy of createInternalError to avoid importing from client.store.utils.ts,
  *  which imports nodeSlice (node.slice.ts) and would recreate the circular dependency.

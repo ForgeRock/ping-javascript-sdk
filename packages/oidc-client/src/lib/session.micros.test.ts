@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2026 Ping Identity Corporation. All rights reserved.
+ * Copyright © 2026 Ping Identity Corporation. All rights reserved.
  *
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { it, expect } from '@effect/vitest';
-import { Cause, Effect, Exit, Option } from 'effect';
-import { vi, afterEach, describe } from 'vitest';
+import { expect, it } from '@effect/vitest';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 import * as sdkUtilities from '@forgerock/sdk-utilities';
-import { Micro } from 'effect';
+import { Cause, Effect, Exit, Option } from 'effect';
 import { afterEach, describe, vi } from 'vitest';
 
 import { oidcApi } from './oidc.api.js';

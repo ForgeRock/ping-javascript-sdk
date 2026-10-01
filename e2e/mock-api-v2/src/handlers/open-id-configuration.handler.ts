@@ -5,14 +5,15 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect } from 'effect';
+import { HttpServerRequest } from 'effect/http';
+import { HttpApiBuilder } from 'effect/http-api';
+
 import { MockApi } from '../spec.js';
-import { HttpApiBuilder } from 'effect/unstable/httpapi';
-import { HttpServerRequest } from 'effect/unstable/http/HttpServerRequest';
 
 const OpenidConfigMock = HttpApiBuilder.group(MockApi, 'OpenIDConfig', (handlers) =>
   handlers.handle('openid', ({ params: { envid } }) =>
     Effect.gen(function* () {
-      const request = yield* HttpServerRequest;
+      const request = yield* HttpServerRequest.HttpServerRequest;
       const url = new URL(request.url);
       const issuer = `${url.protocol}//${url.host}/${envid}/as`;
       return {

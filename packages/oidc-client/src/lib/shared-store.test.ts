@@ -5,15 +5,16 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { combineSlices, configureStore, createDynamicMiddleware } from '@reduxjs/toolkit';
-
 import { wellknownApi } from '@forgerock/sdk-wellknown';
+import { combineSlices, configureStore, createDynamicMiddleware } from '@reduxjs/toolkit';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { oidc } from './client.store.js';
 import { injectIntoStore } from './client.store.utils.js';
 import { oidcApi } from './oidc.api.js';
 
 import type { SdkStore } from '@forgerock/sdk-types';
+
 import type { OidcConfig } from './config.types.js';
 
 // ---------------------------------------------------------------------------

@@ -14,7 +14,7 @@ const _TokenRequestBody = Schema.Struct({
   code_verifier: Schema.String,
 });
 
-interface TokenRequestBody extends Schema.Schema.Type<typeof _TokenRequestBody> {}
+type TokenRequestBody = Schema.Schema.Type<typeof _TokenRequestBody>;
 const TokenRequestBody: Schema.Schema<TokenRequestBody> = _TokenRequestBody;
 
 const _TokenResponseBody = Schema.Struct({
@@ -26,7 +26,7 @@ const _TokenResponseBody = Schema.Struct({
   id_token: Schema.String,
 });
 
-interface TokenResponseBody extends Schema.Schema.Type<typeof _TokenResponseBody> {}
+type TokenResponseBody = Schema.Schema.Type<typeof _TokenResponseBody>;
 const TokenResponseBody: Schema.Schema<TokenResponseBody> = _TokenResponseBody;
 
 export { TokenRequestBody, TokenResponseBody };

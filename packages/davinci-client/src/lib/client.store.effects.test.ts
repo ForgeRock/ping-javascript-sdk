@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { it } from '@effect/vitest';
 import { Effect, Exit } from 'effect';
 import { describe, expect, vi } from 'vitest';
 

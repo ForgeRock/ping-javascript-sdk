@@ -18,15 +18,15 @@ catalog:
   typescript: '5.8.3'
 catalogs:
   effect:
-    effect: '4.0.0-rc.108'
-    '@effect/language-service': '0.87.1'
-    '@effect/platform-node': '4.0.0-rc.108'
-    '@effect/vitest': '4.0.0-rc.108'
-    '@effect/opentelemetry': '4.0.0-rc.108'
+    effect: '4.0.0'
+    '@effect/language-service': '0.87.3'
+    '@effect/platform-node': '4.0.0'
+    '@effect/vitest': '4.0.0'
+    '@effect/opentelemetry': '4.0.0'
   vitest:
-    vitest: '^4.1.0'
-    '@vitest/coverage-v8': '^4.1.0'
-    '@vitest/ui': '^4.1.0'
+    vitest: '^5.0.0'
+    '@vitest/coverage-v8': '^5.0.0'
+    '@vitest/ui': '^5.0.0'
     'vitest-canvas-mock': '^1.1.4'
   vite:
     vite: '^7.3.6'

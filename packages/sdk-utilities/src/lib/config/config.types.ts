@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { AuthDisplayValue, AuthPromptValue, LogLevel } from '@forgerock/sdk-types';
 import type { Result } from 'effect';
 
 export type { OidcConfig } from '@forgerock/sdk-types';

@@ -4,10 +4,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 import { configureStore } from '@reduxjs/toolkit';
 
 import { oidcApi } from './oidc.api.js';
-import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';

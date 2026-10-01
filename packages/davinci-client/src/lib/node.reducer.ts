@@ -10,7 +10,7 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
 import { Result } from 'effect';
 
-import { resolveCollectorUpdateValue } from './client.store.utils.js';
+import { resolveCollectorUpdateValue } from './collector.resolver.js';
 /**
  * Import the collector utilities
  */
@@ -38,9 +38,7 @@ import {
   returnValidatedBooleanCollector,
   returnValidatedPasswordCollector,
 } from './collector.utils.js';
-import { resolveCollectorUpdateValue } from './collector.resolver.js';
-import type { DaVinciField, UnknownField } from './davinci.types.js';
-import type { PhoneNumberOutputValue, PhoneNumberExtensionOutputValue } from './collector.types.js';
+
 import type {
   CollectorValueType,
   CollectorValueTypes,

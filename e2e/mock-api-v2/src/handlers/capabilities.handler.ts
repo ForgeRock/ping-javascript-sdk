@@ -5,11 +5,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect, pipe } from 'effect';
-import { MockApi } from '../spec.js';
-import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
-import * as HttpServerRequest from 'effect/unstable/http/HttpServerRequest';
-import * as HttpServerResponse from 'effect/unstable/http/HttpServerResponse';
-import { responseMap } from '../responses/index.js';
+import { HttpServerRequest } from 'effect/http';
+import { HttpServerResponse } from 'effect/http';
+import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
+
 import { validator } from '../helpers/match.js';
 import { responseMap } from '../responses/index.js';
 import { returnSuccessResponseRedirect } from '../responses/return-success-redirect.js';
@@ -109,10 +108,10 @@ const CapabilitiesHandlerMock = HttpApiBuilder.group(MockApi, 'Capabilities', (h
           Effect.map((res) =>
             HttpServerResponse.setHeader(res, 'Content-Type', 'application/json'),
           ),
-          Effect.catchTag('CookieError', () => Effect.fail(new HttpApiError.InternalServerError())),
-          Effect.catchTag('HttpBodyError', () =>
-            Effect.fail(new HttpApiError.InternalServerError()),
-          ),
+          Effect.catchTags({
+            CookiesError: () => Effect.fail(new HttpApiError.InternalServerError()),
+            HttpBodyError: () => Effect.fail(new HttpApiError.InternalServerError()),
+          }),
         );
       }
 

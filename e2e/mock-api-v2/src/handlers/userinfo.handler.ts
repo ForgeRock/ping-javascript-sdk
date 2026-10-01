@@ -5,9 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect } from 'effect';
-import { MockApi } from '../spec.js';
-import { UserInfo } from '../services/userinfo.service.js';
-import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
+import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
+
 import { BearerToken } from '../middleware/Authorization.js';
 import { UserInfo } from '../services/userinfo.service.js';
 import { MockApi } from '../spec.js';

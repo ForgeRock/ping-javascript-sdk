@@ -5,15 +5,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { pipe, Result } from 'effect';
-
 import {
   AUTH_DISPLAY_VALUES,
   AUTH_PROMPT_VALUES,
   LOG_LEVEL_UPPERCASE_VALUES,
 } from '@forgerock/sdk-types';
-import { pipe } from 'effect';
-import * as Either from 'effect/Either';
+import { pipe, Result } from 'effect';
 
 import type { LogLevel } from '@forgerock/sdk-types';
 

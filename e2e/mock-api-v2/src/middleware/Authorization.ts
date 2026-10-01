@@ -1,6 +1,8 @@
-import { HttpApiError, HttpApiMiddleware, HttpApiSecurity, OpenApi } from 'effect/unstable/httpapi';
-import type { HttpServerResponse } from 'effect/unstable/http/HttpServerResponse';
-import { Brand, Context, Effect, Layer, Redacted, Types } from 'effect';
+import { Brand, Context, Effect, Layer, Redacted } from 'effect';
+import { HttpApiError, HttpApiMiddleware, HttpApiSecurity, OpenApi } from 'effect/http-api';
+
+import type { Types } from 'effect';
+import type { HttpServerResponse } from 'effect/http/HttpServerResponse';
 
 type BearerTokenValue = string & Brand.Brand<'BearerToken'>;
 const BearerTokenValue = Brand.nominal<BearerTokenValue>();

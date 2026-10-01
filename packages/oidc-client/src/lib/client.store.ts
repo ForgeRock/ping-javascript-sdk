@@ -6,24 +6,22 @@
  */
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
-import { handleMicroExit } from '@forgerock/sdk-utilities';
+import { handleExit } from '@forgerock/sdk-utilities';
+import { wellknownApi, wellknownSelector } from '@forgerock/sdk-wellknown';
 import { createStorage } from '@forgerock/storage';
 import { Cause, Effect, Exit, Option } from 'effect';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
-import { buildTokenExchangeµ } from './exchange.request.js';
 import { createClientStore, createTokenError, injectIntoStore } from './client.store.utils.js';
-import { handleExit } from '@forgerock/sdk-utilities';
-import { isExpiryWithinThreshold } from './token.utils.js';
+import { buildTokenExchangeµ } from './exchange.request.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
-import { sessionCheckNoneµ, sessionCheckIdTokenµ } from './session.micros.js';
-import { wellknownApi, wellknownSelector } from '@forgerock/sdk-wellknown';
+import { sessionCheckIdTokenµ, sessionCheckNoneµ } from './session.micros.js';
+import { isExpiryWithinThreshold } from './token.utils.js';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError, GetAuthorizationUrlOptions, SdkStore } from '@forgerock/sdk-types';
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';

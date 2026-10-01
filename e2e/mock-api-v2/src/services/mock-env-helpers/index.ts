@@ -4,12 +4,18 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { HttpApiError } from '@effect/platform';
 import { Array, Effect, Option, pipe } from 'effect';
+import { HttpApiError } from 'effect/http-api';
 
 import { UnableToFindNextStep } from '../../errors/index.js';
 import { validator } from '../../helpers/match.js';
-import { HttpApiError } from 'effect/unstable/httpapi';
+import { responseMap } from '../../responses/index.js';
+
+import type { Schema } from 'effect';
+
+import type { ResponseMapKeys } from '../../responses/index.js';
+import type { CapabilitiesResponse } from '../../schemas/capabilities/capabilities.response.schema.js';
+import type { QueryTypes } from '../../types/index.js';
 
 /**
  * Given data in the shape of Ping's Request formData.value

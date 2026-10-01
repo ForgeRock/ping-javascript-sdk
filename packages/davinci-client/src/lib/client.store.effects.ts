@@ -6,15 +6,6 @@
  */
 
 import { Effect } from 'effect';
-import { SerializedError } from '@reduxjs/toolkit/react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
-
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
-
-import type { DavinciStore, RootState } from './client.store.utils.js';
-import type { PollingStatus, InternalErrorResponse } from './client.types.js';
-import type { PollingCollector } from './collector.types.js';
-import type { ContinueNode } from './node.types.js';
 
 import { createInternalError, isInternalError } from './client.store.utils.js';
 import { davinciApi } from './davinci.api.js';
@@ -24,9 +15,10 @@ import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import type { SerializedError } from '@reduxjs/toolkit/react';
 
-import type { ClientStore, RootState } from './client.store.utils.js';
+import type { DavinciStore, RootState } from './client.store.utils.js';
 import type { InternalErrorResponse, PollingStatus } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
+import type { ContinueNode } from './node.types.js';
 
 /**
  * Plain-`setTimeout` delay that bypasses Effect's ClockRef/withFiber chain.

@@ -5,16 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Schema } from 'effect';
-import {
-  HttpApi,
-  HttpApiEndpoint,
-  HttpApiError,
-  HttpApiGroup,
-  OpenApi,
-} from 'effect/unstable/httpapi';
-import { openIdConfigurationResponseSchema } from './schemas/open-id-configuration/open-id-configuration-response.schema.js';
-import { TokenResponseBody } from './schemas/token/token.schema.js';
-import { UserInfoSchema } from './schemas/userinfo/userinfo.schema.js';
+import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup, OpenApi } from 'effect/http-api';
+
+import { addStepCookie } from './addStepCookie.openapi.js';
 import { Authorization } from './middleware/Authorization.js';
 import { IncrementStepIndex } from './middleware/CookieMiddleware.js';
 import { SessionMiddleware } from './middleware/Session.js';

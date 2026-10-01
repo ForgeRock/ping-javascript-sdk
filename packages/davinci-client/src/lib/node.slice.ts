@@ -9,9 +9,6 @@
  */
 import { createSlice } from '@reduxjs/toolkit';
 
-/**
- * Import the needed reducers
- */
 import { nodeCollectorReducer } from './node.reducer.js';
 import { getCollectorErrors } from './node.utils.js';
 
@@ -27,6 +24,9 @@ import type {
   DaVinciNextResponse,
   DaVinciSuccessResponse,
 } from './davinci.types.js';
+/**
+ * Import the needed reducers
+ */
 import type { updateCollectorValues } from './node.reducer.js';
 import type { ContinueNode, ErrorNode, FailureNode, StartNode, SuccessNode } from './node.types.js';
 

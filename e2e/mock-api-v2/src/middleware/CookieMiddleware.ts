@@ -1,12 +1,11 @@
 /**
- * Copyright (c) 2025 Ping Identity Corporation.
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation.
  * MIT License
  */
-import { HttpApiMiddleware } from 'effect/unstable/httpapi';
-import * as HttpServerRequest from 'effect/unstable/http/HttpServerRequest';
-import * as HttpServerResponse from 'effect/unstable/http/HttpServerResponse';
 import { Console, Effect, Layer } from 'effect';
-import type { HttpServerResponse as HttpServerResponseType } from 'effect/unstable/http/HttpServerResponse';
+import { HttpServerRequest } from 'effect/http';
+import { HttpServerResponse } from 'effect/http';
+import { HttpApiMiddleware } from 'effect/http-api';
 
 // Export the tag so you can .middleware(IncrementStepIndex) in your spec if desired
 export class IncrementStepIndex extends HttpApiMiddleware.Service<IncrementStepIndex>()(
@@ -18,7 +17,7 @@ export const IncrementStepIndexMock = Layer.effect(
   Effect.gen(function* () {
     yield* Console.log('IncrementStepIndex: init');
 
-    return (httpEffect: Effect.Effect<HttpServerResponseType, never, never>) =>
+    return (httpEffect: Effect.Effect<HttpServerResponse.HttpServerResponse, never, never>) =>
       Effect.gen(function* () {
         // Read cookies from the current request
         const request = yield* HttpServerRequest.HttpServerRequest;

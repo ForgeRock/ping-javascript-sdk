@@ -5,11 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { it } from '@effect/vitest';
-import { Cause, Effect, Exit, Option } from 'effect';
-import { vi, afterEach, expect } from 'vitest';
 import * as sdkOidc from '@forgerock/sdk-oidc';
-import { Micro } from 'effect';
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { Cause, Effect, Exit, Option } from 'effect';
+import { afterEach, expect, vi } from 'vitest';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
 import {

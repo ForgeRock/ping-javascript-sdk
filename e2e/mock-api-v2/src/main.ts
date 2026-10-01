@@ -4,14 +4,20 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, Layer } from 'effect';
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node';
+import { Layer } from 'effect';
+import { HttpMiddleware } from 'effect/http';
+import { HttpRouter } from 'effect/http';
+import { HttpServer } from 'effect/http';
+import { HttpApiBuilder, HttpApiSwagger } from 'effect/http-api';
+
 import { MockApi } from './spec.js';
-import { HttpApiBuilder, HttpApiSwagger } from 'effect/unstable/httpapi';
-import * as HttpMiddleware from 'effect/unstable/http/HttpMiddleware';
-import * as HttpRouter from 'effect/unstable/http/HttpRouter';
-import * as HttpServer from 'effect/unstable/http/HttpServer';
-import type { ServeError } from 'effect/unstable/http/HttpServerError';
+
+import type { Effect } from 'effect';
+import type { HttpServerError } from 'effect/http';
+type ServeError = HttpServerError.ServeError;
+import { NodeSdk } from '@effect/opentelemetry';
+import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base';
 import { createServer } from 'node:http';
 
 import { AuthorizeHandlerMock } from './handlers/authorize.handler.js';
@@ -28,7 +34,6 @@ import { SessionMiddlewareMock } from './middleware/Session.js';
 import { SessionStorage } from './services/session.service.js';
 import { TokensMock } from './services/tokens.service.js';
 import { UserInfoMockService } from './services/userinfo.service.js';
-import { MockApi } from './spec.js';
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: 'Mock-Api' },

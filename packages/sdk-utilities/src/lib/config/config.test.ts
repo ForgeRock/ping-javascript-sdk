@@ -5,8 +5,10 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { describe, it, expect } from 'vitest';
 import { Result } from 'effect';
+import { describe, expect, it } from 'vitest';
+
+import { makeDavinciConfig, makeJourneyConfig, makeOidcConfig } from './config.effects.js';
 import {
   collectErrors,
   parseOidcSection,
@@ -15,7 +17,7 @@ import {
   parseToOidcConfig,
   parseUnifiedSdkConfig,
 } from './config.utils.js';
-import { makeOidcConfig, makeJourneyConfig, makeDavinciConfig } from './config.effects.js';
+
 import type { JourneyServerConfig } from '@forgerock/sdk-types';
 
 const minimalOidc = {

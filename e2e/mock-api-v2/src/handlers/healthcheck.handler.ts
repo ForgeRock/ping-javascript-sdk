@@ -1,6 +1,5 @@
-import { HttpApiBuilder } from 'effect/unstable/httpapi';
-import { MockApi } from '../spec.js';
 import { Effect } from 'effect';
+import { HttpApiBuilder } from 'effect/http-api';
 
 import { MockApi } from '../spec.js';
 

@@ -4,19 +4,19 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { wellknownApi } from '@forgerock/sdk-wellknown';
 import { combineSlices, configureStore, createDynamicMiddleware } from '@reduxjs/toolkit';
+
+import { configSlice } from './config.slice.js';
+import { davinciApi } from './davinci.api.js';
+import { nodeSlice } from './node.slice.js';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError } from '@forgerock/sdk-types';
 
-import type { ErrorNode, ContinueNode, StartNode, SuccessNode } from './node.types.js';
 import type { InternalErrorResponse } from './client.types.js';
-
-import { configSlice } from './config.slice.js';
-import { nodeSlice } from './node.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { wellknownApi } from '@forgerock/sdk-wellknown';
+import type { ContinueNode, ErrorNode, StartNode, SuccessNode } from './node.types.js';
 
 /**
  * Root reducer built with combineSlices to support lazy injection.

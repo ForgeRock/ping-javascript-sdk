@@ -5,8 +5,6 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect } from 'effect';
-import { oidcApi } from './oidc.api.js';
-import { createLogoutError } from './client.store.utils.js';
 
 import { createLogoutError } from './client.store.utils.js';
 import { oidcApi } from './oidc.api.js';

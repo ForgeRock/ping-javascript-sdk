@@ -5,9 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { Effect, pipe } from 'effect';
-import { MockApi } from '../spec.js';
-import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
-import * as HttpServerResponse from 'effect/unstable/http/HttpServerResponse';
+import { HttpServerResponse } from 'effect/http';
+import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
+
 import { getFirstElementAndRespond } from '../services/mock-env-helpers/index.js';
 import { MockApi } from '../spec.js';
 
@@ -21,8 +21,10 @@ const AuthorizeHandlerMock = HttpApiBuilder.group(MockApi, 'Authorization', (han
       const res = yield* pipe(
         HttpServerResponse.json(body),
         Effect.flatMap(HttpServerResponse.setCookie('acr_values', acr_value, { path: '/' })),
-        Effect.catchTag('CookieError', () => Effect.fail(new HttpApiError.InternalServerError())),
-        Effect.catchTag('HttpBodyError', () => Effect.fail(new HttpApiError.InternalServerError())),
+        Effect.catchTags({
+          CookiesError: () => Effect.fail(new HttpApiError.InternalServerError()),
+          HttpBodyError: () => Effect.fail(new HttpApiError.InternalServerError()),
+        }),
       );
 
       return res;

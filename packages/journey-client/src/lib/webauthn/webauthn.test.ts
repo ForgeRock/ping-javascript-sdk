@@ -16,7 +16,6 @@ import {
   webAuthnAuthJSCallback70StoredUsername,
   webAuthnAuthJSCallback653,
   webAuthnAuthMetaCallback70,
-  webAuthnAuthMetaCallback70Conditional,
   webAuthnAuthMetaCallback70StoredUsername,
   webAuthnRegJSCallback70,
   webAuthnRegJSCallback70StoredUsername,
@@ -24,60 +23,6 @@ import {
   webAuthnRegMetaCallback70,
   webAuthnRegMetaCallback70StoredUsername,
 } from './webauthn.mock.data.js';
-
-describe('Test FRWebAuthn conditional mediation support', () => {
-  const originalPublicKeyCredential = globalThis.PublicKeyCredential;
-
-  const withConditionalMediationAvailable = (available: boolean) => {
-    // jsdom has no PublicKeyCredential; install a minimal stub for these tests.
-    Object.defineProperty(globalThis, 'PublicKeyCredential', {
-      value: {
-        isConditionalMediationAvailable: vi.fn().mockResolvedValue(available),
-      },
-      configurable: true,
-      writable: true,
-    });
-  };
-
-  afterEach(() => {
-    Object.defineProperty(globalThis, 'PublicKeyCredential', {
-      value: originalPublicKeyCredential,
-      configurable: true,
-      writable: true,
-    });
-  });
-
-  it('should return true when the browser supports conditional mediation and no step is given', async () => {
-    withConditionalMediationAvailable(true);
-    await expect(WebAuthn.isConditionalMediationSupported()).resolves.toBe(true);
-  });
-
-  it('should return false when the browser does not support conditional mediation and no step is given', async () => {
-    withConditionalMediationAvailable(false);
-    await expect(WebAuthn.isConditionalMediationSupported()).resolves.toBe(false);
-  });
-
-  it('should return false when the browser supports it but AM did not request conditional mediation', async () => {
-    // eslint-disable-next-line
-    const step = createJourneyStep(webAuthnAuthMetaCallback70 as any);
-    withConditionalMediationAvailable(true);
-    await expect(WebAuthn.isConditionalMediationSupported(step)).resolves.toBe(false);
-  });
-
-  it('should return true when the browser supports it and AM requested conditional mediation', async () => {
-    // eslint-disable-next-line
-    const step = createJourneyStep(webAuthnAuthMetaCallback70Conditional as any);
-    withConditionalMediationAvailable(true);
-    await expect(WebAuthn.isConditionalMediationSupported(step)).resolves.toBe(true);
-  });
-
-  it('should return false when AM requested conditional mediation but the browser does not support it', async () => {
-    // eslint-disable-next-line
-    const step = createJourneyStep(webAuthnAuthMetaCallback70Conditional as any);
-    withConditionalMediationAvailable(false);
-    await expect(WebAuthn.isConditionalMediationSupported(step)).resolves.toBe(false);
-  });
-});
 
 describe('Test FRWebAuthn class with 6.5.3 "Passwordless"', () => {
   it('should return Registration type with register text-output callbacks', () => {

@@ -13,22 +13,18 @@ import {
   isGenericError,
   isValidWellknownUrl,
 } from '@forgerock/sdk-utilities';
-import type { GenericError, SdkStore } from '@forgerock/sdk-types';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { Step } from '@forgerock/sdk-types';
+import { wellknownApi } from '@forgerock/sdk-wellknown';
+import { createStorage } from '@forgerock/storage';
+import * as Result from 'effect/Result';
 
 import { createJourneyStore, toSdkStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
-import { createStorage } from '@forgerock/storage';
-import * as Result from 'effect/Result';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
-import type { JourneyResult } from './journey.utils.js';
-import { wellknownApi } from '@forgerock/sdk-wellknown';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError } from '@forgerock/sdk-types';
+import type { GenericError, SdkStore } from '@forgerock/sdk-types';
 import type { Step } from '@forgerock/sdk-types';
 
 import type { RedirectCallback } from './callbacks/redirect-callback.js';

@@ -4,12 +4,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { it, expect } from '@effect/vitest';
-import { Cause, Effect, Exit, Option } from 'effect';
-import { vi, afterEach } from 'vitest';
+import { expect, it } from '@effect/vitest';
 import * as sdkOidc from '@forgerock/sdk-oidc';
 import * as sdkUtilities from '@forgerock/sdk-utilities';
-import { Micro } from 'effect';
+import { Cause, Effect, Exit, Option } from 'effect';
 import { afterEach, vi } from 'vitest';
 
 import {

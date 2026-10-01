@@ -4,10 +4,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, Console } from 'effect';
-import { HttpApiBuilder } from 'effect/unstable/httpapi';
-import * as HttpServerRequest from 'effect/unstable/http/HttpServerRequest';
-import { MockApi } from '../spec.js';
+import { Console, Effect } from 'effect';
+import { HttpServerRequest } from 'effect/http';
+import { HttpApiBuilder } from 'effect/http-api';
+
 import { SessionStorage } from '../services/session.service.js';
 import { MockApi } from '../spec.js';
 

@@ -1,8 +1,12 @@
-import { HttpApiError, HttpApiMiddleware } from 'effect/unstable/httpapi';
-import * as HttpServerRequest from 'effect/unstable/http/HttpServerRequest';
-import { SessionData, SessionStorage } from '../services/session.service.js';
 import { Context, Effect, Layer } from 'effect';
-import type { HttpServerResponse } from 'effect/unstable/http/HttpServerResponse';
+import { HttpServerRequest } from 'effect/http';
+import { HttpApiError, HttpApiMiddleware } from 'effect/http-api';
+
+import { SessionStorage } from '../services/session.service.js';
+
+import type { HttpServerResponse } from 'effect/http/HttpServerResponse';
+
+import type { SessionData } from '../services/session.service.js';
 
 class Session extends Context.Service<Session, SessionData>()('Session') {}
 

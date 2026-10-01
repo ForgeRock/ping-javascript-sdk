@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Effect, Exit, Cause, Option } from 'effect';
+import { Cause, Effect, Exit, Option } from 'effect';
 
 import {
   createFidoError,

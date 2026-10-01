@@ -4,10 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { MockApi } from '../spec.js';
-import { Tokens } from '../services/tokens.service.js';
-import { HttpApiBuilder } from 'effect/unstable/httpapi';
 import { Effect } from 'effect';
+import { HttpApiBuilder } from 'effect/http-api';
 
 import { Tokens } from '../services/tokens.service.js';
 import { MockApi } from '../spec.js';
