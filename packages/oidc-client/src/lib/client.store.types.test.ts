@@ -5,8 +5,8 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { it, expect, describe } from 'vitest';
 import { logger as loggerFn } from '@forgerock/sdk-logger';
+import { describe, expect, it } from 'vitest';
 
 import { parseOidcArgs } from './client.store.utils.js';
 import { createClientStore } from './client.store.utils.js';

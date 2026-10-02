@@ -17,8 +17,9 @@
  * assert via `page.textContent` without any app-specific UI.
  */
 import { davinci } from '@forgerock/davinci-client';
-import type { DaVinciConfig } from '@forgerock/davinci-client/types';
 import { oidc } from '@forgerock/oidc-client';
+
+import type { DaVinciConfig } from '@forgerock/davinci-client/types';
 import type { OidcConfig } from '@forgerock/oidc-client/types';
 
 const WELLKNOWN_URL = 'https://sdk-test.example.com/as/.well-known/openid-configuration';

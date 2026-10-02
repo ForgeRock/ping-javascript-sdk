@@ -4,28 +4,26 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { Match, Either } from 'effect';
+import { createSdkStore, injectClient } from '@forgerock/sdk-store';
+import { Either, Match } from 'effect';
 
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import { configSlice } from './config.slice.js';
+import { davinciApi } from './davinci.api.js';
+import { nodeSlice } from './node.slice.js';
+
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 import type { GenericError } from '@forgerock/sdk-types';
 
-import type { Collectors, CollectorCategory } from './node.types.js';
 import type {
   CollectorValueType,
   CollectorValueTypes,
   InternalErrorResponse,
   UpdatableCollectors,
 } from './client.types.js';
-
-import { createSdkStore, injectClient } from '@forgerock/sdk-store';
-import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
-
-import { configSlice } from './config.slice.js';
-import { nodeSlice } from './node.slice.js';
-import { davinciApi } from './davinci.api.js';
-
 import type { RootState } from './davinci.state.js';
+import type { CollectorCategory, Collectors } from './node.types.js';
 
 /**
  * Creates, or attaches to, the store backing a DaVinci client.

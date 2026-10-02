@@ -5,10 +5,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { wellknownApi } from '@forgerock/sdk-store';
 import { configureStore } from '@reduxjs/toolkit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { wellknownApi } from '@forgerock/sdk-store';
 import { oidcApi } from './oidc.api.js';
 
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';

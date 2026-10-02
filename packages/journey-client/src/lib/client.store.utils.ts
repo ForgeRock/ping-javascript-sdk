@@ -5,15 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-
+import { createSdkStore, injectClient, wellknownApi } from '@forgerock/sdk-store';
 import { combineSlices } from '@reduxjs/toolkit';
 
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
-import { createSdkStore, injectClient, wellknownApi } from '@forgerock/sdk-store';
 
+import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 
 /**

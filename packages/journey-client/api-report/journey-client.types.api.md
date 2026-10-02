@@ -326,6 +326,36 @@ export class PingOneProtectInitializeCallback extends BaseCallback {
     setClientError(errorMessage: string): void;
 }
 
+// @public
+export class PingOneRecognizeCallback extends BaseCallback {
+    constructor(payload: Callback);
+    // (undocumented)
+    getCustomerName(): string;
+    // (undocumented)
+    getOperationType(): PingOneRecognizeOperationType;
+    // (undocumented)
+    getOptions(): Record<string, unknown>;
+    // (undocumented)
+    getServiceURL(): string;
+    // (undocumented)
+    getTransactionData(): string;
+    // (undocumented)
+    getUsername(): string;
+    // (undocumented)
+    payload: Callback;
+    // (undocumented)
+    setClientError(errorMessage: string): void;
+    // (undocumented)
+    setClientErrorCode(errorCode: string): void;
+    // (undocumented)
+    setRecognizeId(recognizeId: string): void;
+    // (undocumented)
+    setSignedJwt(jwt: string): void;
+}
+
+// @public (undocumented)
+export type PingOneRecognizeOperationType = 'ENROLL' | 'AUTHENTICATE';
+
 export { PolicyKey }
 
 export { PolicyParams }

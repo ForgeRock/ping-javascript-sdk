@@ -5,13 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { createSdkStore } from '@forgerock/sdk-store';
+import { makeOidcConfig } from '@forgerock/sdk-utilities';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { it, expect, describe, vi, beforeEach, afterEach, afterAll, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { oidc } from './client.store.js';
-import { makeOidcConfig } from '@forgerock/sdk-utilities';
-import { createSdkStore } from '@forgerock/sdk-store';
 
 import type { OidcConfig } from './config.types.js';
 

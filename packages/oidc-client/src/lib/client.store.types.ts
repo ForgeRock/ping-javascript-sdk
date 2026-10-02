@@ -4,9 +4,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { SdkStore } from '@forgerock/sdk-store';
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type { OidcConfig } from './config.types.js';
