@@ -6,7 +6,7 @@
  */
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
-import { unregisterClient, wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
+import { createSdkStore, wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
 import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
@@ -57,7 +57,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>(
   raw: RawOidcArgs<ActionType>,
 ) {
   const parsed = parseOidcArgs(raw);
-  if ('type' in parsed) return parsed;
+  if ('error' in parsed) return parsed;
 
   const { config, requestMiddleware, logger, storage, store: sharedStore } = parsed;
 
@@ -73,26 +73,27 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>(
     prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
-  const handle = createClientStore({
-    requestMiddleware,
-    logger: log,
-    store: sharedStore,
-    clientId: config.clientId,
-  });
-  const { store } = handle;
 
+  /**
+   * Validate against the network *before* injecting anything. RTK's `inject`
+   * is irreversible, so mutating a caller-owned store and then failing would
+   * leave it permanently carrying a slice from a call that never succeeded.
+   * The well-known slice is mounted from the start, so discovery can be
+   * fetched (and cached for the eventual client) on the un-mutated store.
+   */
+  const baseStore = sharedStore ?? createSdkStore();
   const wellknownUrl = config.serverConfig.wellknown;
-  const { data, error } = await store.dispatch(
-    wellknownApi.endpoints.configuration.initiate(wellknownUrl),
-  );
+  // The shared SdkStore type is deliberately state-agnostic, so dispatch is
+  // widened here; the initiated thunk and its result shape are fixed by
+  // wellknownApi itself.
+  const { data, error } = (await baseStore.store.dispatch(
+    wellknownApi.endpoints.configuration.initiate(wellknownUrl) as never,
+  )) as { data?: { require_pushed_authorization_requests?: boolean }; error?: unknown };
 
   if (error || !data) {
     // RTK Query retains rejected query entries. Clear them before returning so a
     // later client sharing this store performs a fresh discovery request.
-    store.dispatch(wellknownApi.util.resetApiState());
-    // Clear the client registration so a different clientId can retry on this store.
-    // Without this, the failed client would permanently "own" the store.
-    unregisterClient(handle, oidcApi.reducerPath);
+    baseStore.store.dispatch(wellknownApi.util.resetApiState() as never);
     log.error(`Error fetching wellknown config. Please check the URL: ${wellknownUrl}`);
     return {
       error: `Failed to fetch well-known configuration from: ${wellknownUrl}`,
@@ -101,14 +102,23 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>(
   }
 
   if (data?.require_pushed_authorization_requests && config.par === false) {
-    // Clear the client registration so a different clientId can retry on this store.
-    unregisterClient(handle, oidcApi.reducerPath);
     return {
       error:
         'The authorization server requires Pushed Authorization Requests (PAR). Set config.par to true or omit it.',
       type: 'argument_error',
     };
   }
+
+  // Validation is complete — only now does the store gain the oidc slice.
+  // When we created the base store ourselves, inject into *it* so the already-
+  // cached discovery document carries over to the returned store.
+  const handle = createClientStore({
+    requestMiddleware,
+    logger: log,
+    store: sharedStore ?? baseStore,
+    clientId: config.clientId,
+  });
+  const { store } = handle;
 
   const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
 

@@ -5,7 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-export { wellknownApi, wellknownSelector } from './lib/wellknown.api.js';
+export { wellknownApi, wellknownSelector, createWellknownSelector } from './lib/wellknown.api.js';
 export type { WellknownState } from './lib/wellknown.api.js';
 
 export { initWellknownQuery, isValidWellknownResponse } from './lib/wellknown.effects.js';

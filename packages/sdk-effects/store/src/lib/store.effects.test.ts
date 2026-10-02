@@ -111,7 +111,29 @@ describe('isSdkStoreHandle', () => {
       { store: {}, rootReducer: { inject: () => undefined } },
     ],
     ['a bare redux store', { dispatch: () => undefined, getState: () => ({}) }],
-  ])('rejects %s', (_label, candidate) => {
+    [
+      'a handle whose clients registry is null',
+      {
+        store: {
+          dispatch: () => undefined,
+          getState: () => ({}),
+          subscribe: () => () => undefined,
+        },
+        rootReducer: { inject: () => undefined },
+        dynamicMiddleware: { addMiddleware: () => undefined },
+        extra: { clients: null },
+      },
+    ],
+    [
+      'a store without subscribe',
+      {
+        store: { dispatch: () => undefined, getState: () => ({}) },
+        rootReducer: { inject: () => undefined },
+        dynamicMiddleware: { addMiddleware: () => undefined },
+        extra: { clients: {} },
+      },
+    ],
+  ] as [string, unknown][])('rejects %s', (_label, candidate) => {
     // Assert — a bad handle must be detectable before we mutate anything
     expect(isSdkStoreHandle(candidate)).toBe(false);
   });

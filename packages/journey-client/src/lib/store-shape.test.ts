@@ -26,7 +26,7 @@ describe('journey store shape', () => {
     const keys = Object.keys(store.getState()).sort();
 
     // Assert
-    expect(keys).toEqual(['config', 'journeyReducer', 'wellknown']);
+    expect(keys).toEqual(['journeyConfig', 'journeyReducer', 'wellknown']);
   });
 
   it('registers this client\u2019s slot on the store extra, keyed by reducerPath', async () => {

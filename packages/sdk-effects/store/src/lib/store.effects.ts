@@ -9,6 +9,7 @@ import { combineSlices, configureStore, createDynamicMiddleware } from '@reduxjs
 import { wellknownApi } from './wellknown.api.js';
 
 import type {
+  ClientSlot,
   InjectClientOptions,
   SdkStore,
   SdkStoreHandle,
@@ -95,7 +96,9 @@ export function isSdkStoreHandle(value: unknown): value is SdkStore {
     typeof candidate.dynamicMiddleware.addMiddleware === 'function' &&
     typeof candidate.extra === 'object' &&
     candidate.extra !== null &&
-    typeof candidate.extra.clients === 'object'
+    typeof candidate.extra.clients === 'object' &&
+    candidate.extra.clients !== null &&
+    typeof candidate.store.subscribe === 'function'
   );
 }
 
@@ -122,8 +125,8 @@ export function assertValidStore(
 export function getClientForReducerPath(
   store: SdkStore,
   reducerPath: string,
-): { clientId?: string } | undefined {
-  return store.extra.clients[reducerPath] as { clientId?: string } | undefined;
+): ClientSlot | undefined {
+  return store.extra.clients[reducerPath];
 }
 
 /**

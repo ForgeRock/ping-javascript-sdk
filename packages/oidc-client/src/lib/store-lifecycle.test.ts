@@ -5,9 +5,9 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import { createSdkStore, wellknownApi } from '@forgerock/sdk-store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createSdkStore, wellknownApi } from '@forgerock/sdk-store';
 import { oidc } from './client.store.js';
 import { oidcApi } from './oidc.api.js';
 
@@ -121,6 +121,40 @@ describe('a failed oidc() leaves a caller-owned store untouched', () => {
     // Assert
     if ('error' in client) throw new Error(`Expected oidc client, got ${client.error}`);
     expect(Object.keys(store.extra.clients)).toEqual([oidcApi.reducerPath]);
+  });
+
+  it('does not mount the oidc slice when wellknown fetch fails', async () => {
+    // Arrange — a store whose discovery request fails
+    const store = createSdkStore();
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async () => new Response(JSON.stringify({ error: 'unavailable' }), { status: 500 }),
+    );
+
+    // Act
+    const result = await oidc({ config: oidcConfig, store });
+
+    // Assert — validation happens before injection, so nothing was mounted
+    expect(result).toHaveProperty('type', 'wellknown_error');
+    expect(Object.keys(store.store.getState() as object)).not.toContain(oidcApi.reducerPath);
+  });
+
+  it('does not mount the oidc slice when PAR is required but disabled', async () => {
+    // Arrange — discovery succeeds but the server demands PAR
+    const store = createSdkStore();
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({ ...mockWellknownResponse, require_pushed_authorization_requests: true }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+    );
+
+    // Act
+    const result = await oidc({ config: { ...oidcConfig, par: false }, store });
+
+    // Assert
+    expect(result).toHaveProperty('type', 'argument_error');
+    expect(Object.keys(store.store.getState() as object)).not.toContain(oidcApi.reducerPath);
   });
 });
 

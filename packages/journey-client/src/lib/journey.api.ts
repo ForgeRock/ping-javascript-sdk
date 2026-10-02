@@ -5,14 +5,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { initQuery } from '@forgerock/sdk-request-middleware';
+import { clientExtra } from '@forgerock/sdk-store';
 import { getEndpointPath, REQUESTED_WITH, resolve, stringify } from '@forgerock/sdk-utilities';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
-import { logger as loggerFn } from '@forgerock/sdk-logger';
-import { clientExtra } from '@forgerock/sdk-store';
 
-import type { Step } from '@forgerock/sdk-types';
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { Step } from '@forgerock/sdk-types';
 import type {
   BaseQueryApi,
   BaseQueryFn,
@@ -28,10 +28,10 @@ import type { JourneyStep } from './step.types.js';
 
 /**
  * Minimal state type for accessing journey config from RTK Query endpoints.
- * References the config slice directly (not nested under journey).
+ * References the journey-specific config slice directly (not nested under journey).
  */
 interface JourneyRootState {
-  config: InternalJourneyClientConfig;
+  journeyConfig: InternalJourneyClientConfig;
 }
 
 function constructUrl(
@@ -136,7 +136,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
@@ -169,7 +169,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
@@ -198,7 +198,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }

@@ -119,6 +119,24 @@ describe('mode 1 — implicit store (default, unchanged behaviour)', () => {
     // Assert
     expect(first.store).not.toBe(second.store);
   });
+
+  it('refuses a conflicting clientId even via the public factory', () => {
+    // Arrange — the factory is exported, so its guard cannot depend on parseOidcArgs.
+    const store = createClientStore({ clientId: 'existing-client' });
+
+    // Act & Assert — a different clientId must not silently share the cache slice.
+    expect(() =>
+      createClientStore({ clientId: 'a-different-client', store: store as never }),
+    ).toThrow(/already in use by an OIDC client with clientId 'existing-client'/);
+  });
+
+  it('allows the same clientId to re-attach via the public factory', () => {
+    // Act & Assert — re-init with the same clientId stays idempotent.
+    const store = createClientStore({ clientId: 'same-client' });
+    expect(() =>
+      createClientStore({ clientId: 'same-client', store: store as never }),
+    ).not.toThrow();
+  });
 });
 
 describe('mode 3 — consumer-owned store', () => {

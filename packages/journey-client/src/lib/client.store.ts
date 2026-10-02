@@ -6,6 +6,7 @@
  */
 
 import { logger as loggerFn } from '@forgerock/sdk-logger';
+import { assertValidStore, getClientForReducerPath, wellknownApi } from '@forgerock/sdk-store';
 import { callbackType } from '@forgerock/sdk-types';
 import {
   createWellknownError,
@@ -16,22 +17,21 @@ import {
 import { createStorage } from '@forgerock/storage';
 import * as Either from 'effect/Either';
 
-import type { GenericError } from '@forgerock/sdk-types';
-import type { SdkStore } from '@forgerock/sdk-store';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { Step } from '@forgerock/sdk-types';
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
-
 import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
-import type { JourneyResult } from './journey.utils.js';
-import { wellknownApi, assertValidStore, getClientForReducerPath } from '@forgerock/sdk-store';
+
+import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
+import type { GenericError } from '@forgerock/sdk-types';
+import type { Step } from '@forgerock/sdk-types';
 
 import type { RedirectCallback } from './callbacks/redirect-callback.js';
 import type { JourneyClientConfig } from './config.types.js';
 import type { NextOptions, ResumeOptions, StartParam } from './interfaces.js';
+import type { JourneyResult } from './journey.utils.js';
 import type { JourneyStep } from './step.utils.js';
 
 /** The journey client instance returned by the `journey()` function. */
@@ -193,7 +193,7 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     );
   }
 
-  const configError = store.getState().config.error;
+  const configError = store.getState().journeyConfig.error;
 
   if (configError) {
     const message = `${configError.error}: ${configError.message}`;
