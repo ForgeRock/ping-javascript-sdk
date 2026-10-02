@@ -15,7 +15,7 @@ import { handleWebAuthnStep } from './components/webauthn-step.js';
 import { serverConfigs } from './server-configs.js';
 import { deleteWebAuthnDevice } from './services/delete-webauthn-device.js';
 
-import type { JourneyClient, RequestMiddleware } from '@forgerock/journey-client/types';
+import type { RequestMiddleware } from '@forgerock/journey-client/types';
 
 const qs = window.location.search;
 const searchParams = new URLSearchParams(qs);
@@ -61,15 +61,14 @@ if (searchParams.get('middleware') === 'true') {
   const formEl = document.getElementById('form') as HTMLFormElement;
   const journeyEl = document.getElementById('journey') as HTMLDivElement;
 
-  let journeyClient: JourneyClient;
-  try {
-    journeyClient = await journey({ config: config, requestMiddleware });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+  const journeyResult = await journey({ config: config, requestMiddleware });
+  if ('error' in journeyResult) {
+    const message = journeyResult.error;
     console.error('Failed to initialize journey client:', message);
     errorEl.textContent = message;
     return;
   }
+  const journeyClient = journeyResult;
   let step = await journeyClient.start({ journey: journeyName });
 
   function renderError() {

@@ -12,7 +12,11 @@ import type { createClientStore } from './client.store.utils.js';
 
 export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 
-export type ClientStore = ReturnType<typeof createClientStore>;
+/**
+ * The inner Redux store. `createClientStore` returns a handle carrying the
+ * store plus the injection seams; internal code only ever needs the store.
+ */
+export type ClientStore = ReturnType<typeof createClientStore>['store'];
 
 export type RootState = ReturnType<ClientStore['getState']>;
 

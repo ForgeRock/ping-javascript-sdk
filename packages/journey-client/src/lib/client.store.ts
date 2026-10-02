@@ -6,6 +6,7 @@
  */
 
 import { logger as loggerFn } from '@forgerock/sdk-logger';
+import { assertValidStore, getClientForReducerPath, wellknownApi } from '@forgerock/sdk-store';
 import { callbackType } from '@forgerock/sdk-types';
 import {
   createWellknownError,
@@ -20,10 +21,10 @@ import { createJourneyStore } from './client.store.utils.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';
-import { wellknownApi } from './wellknown.api.js';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
 import type { GenericError } from '@forgerock/sdk-types';
 import type { Step } from '@forgerock/sdk-types';
 
@@ -35,6 +36,7 @@ import type { JourneyStep } from './step.utils.js';
 
 /** The journey client instance returned by the `journey()` function. */
 export interface JourneyClient {
+  store: SdkStore;
   subscribe: (listener: () => void) => () => void;
   start: (options?: StartParam) => Promise<JourneyResult>;
   next: (step: JourneyStep, options?: NextOptions) => Promise<JourneyResult>;
@@ -76,6 +78,7 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
   config,
   requestMiddleware,
   logger,
+  store: sharedStore,
 }: {
   config: JourneyClientConfig;
   requestMiddleware?: RequestMiddleware<ActionType>[];
@@ -83,7 +86,12 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     level: LogLevel;
     custom?: CustomLogger;
   };
-}): Promise<JourneyClient> {
+  /**
+   * An existing SDK store to attach to, so discovery caching and state are
+   * shared with another client. Omit to create a store for this client alone.
+   */
+  store?: unknown;
+}): Promise<JourneyClient | { error: string; type: 'argument_error' }> {
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
@@ -115,7 +123,24 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     );
   }
 
-  const store = createJourneyStore({ requestMiddleware, logger: log });
+  const storeError = assertValidStore(sharedStore);
+  if (storeError) return storeError;
+
+  const validStore = sharedStore as SdkStore | undefined;
+
+  if (validStore) {
+    const existing = getClientForReducerPath(validStore, journeyApi.reducerPath);
+    if (existing) {
+      return {
+        error:
+          'This store already has a journey client attached. Use a separate store per journey client.',
+        type: 'argument_error' as const,
+      };
+    }
+  }
+
+  const handle = createJourneyStore({ requestMiddleware, logger: log, store: validStore });
+  const store = handle.store;
 
   if ('baseUrl' in config.serverConfig) {
     const { baseUrl } = config.serverConfig;
@@ -168,7 +193,7 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
     );
   }
 
-  const configError = store.getState().config.error;
+  const configError = store.getState().journeyConfig.error;
 
   if (configError) {
     const message = `${configError.error}: ${configError.message}`;
@@ -182,6 +207,7 @@ export async function journey<ActionType extends ActionTypes = ActionTypes>({
   });
 
   const self: JourneyClient = {
+    store: handle as SdkStore,
     subscribe: store.subscribe,
 
     start: async (options?: StartParam) => {

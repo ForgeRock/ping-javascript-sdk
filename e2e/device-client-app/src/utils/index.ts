@@ -20,7 +20,12 @@ import type {
   JourneyResult,
   JourneyStep,
 } from '@forgerock/journey-client/types';
-import type { OidcClient, OidcConfig, UserInfoResponse } from '@forgerock/oidc-client/types';
+import type {
+  GenericError,
+  OidcClient,
+  OidcConfig,
+  UserInfoResponse,
+} from '@forgerock/oidc-client/types';
 
 let cachedOidcClient: OidcClient | null = null;
 
@@ -113,14 +118,19 @@ export const LoginAndGetClient = Effect.gen(function* () {
     catch: (err) => new Error(`Failed to initialize OIDC client: ${err}`),
   });
 
+  if ('error' in journeyClient) {
+    throw new Error(`Failed to initialize journey client: ${journeyClient.error}`);
+  }
+
   if ('error' in oidcClient) {
-    return yield* Effect.fail(new Error(`Failed to initialize OIDC client: ${oidcClient.error}`));
+    throw new Error(`Failed to initialize OIDC client: ${oidcClient.error}`);
   }
 
   cachedOidcClient = oidcClient;
 
   yield* Effect.tryPromise({
-    try: () => oidcClientOrThrow().user.logout(),
+    try: () =>
+      (cachedOidcClient as Exclude<typeof cachedOidcClient, null | GenericError>).user.logout(),
     catch: (err) => new Error(`Logout failed: ${err}`),
   }).pipe(Effect.catchAll((err) => Console.warn('Logout failed, continuing:', err)));
 
@@ -144,7 +154,13 @@ export const LoginAndGetClient = Effect.gen(function* () {
     Effect.flatMap((step) => checkForLoginSuccess(step)),
     Effect.flatMap(() =>
       Effect.tryPromise({
-        try: () => oidcClientOrThrow().token.get({ backgroundRenew: true }),
+        try: () => {
+          const client = oidcClientOrThrow();
+          if ('error' in client) {
+            throw new Error(`OIDC client is in error state: ${client.error}`);
+          }
+          return client.token.get({ backgroundRenew: true });
+        },
         catch: (err) => new Error(`Failed to get tokens: ${err}`),
       }).pipe(Effect.tap((tokens) => Console.log('Got Tokens', tokens))),
     ),
@@ -156,7 +172,11 @@ export const LoginAndGetClient = Effect.gen(function* () {
 
 export const getUser = Effect.tryPromise({
   try: async (): Promise<UserInfoResponse> => {
-    const response = await oidcClientOrThrow().user.info();
+    const client = oidcClientOrThrow();
+    if ('error' in client) {
+      throw new Error(`OIDC client is in error state: ${client.error}`);
+    }
+    const response = await client.user.info();
     if ('error' in response) {
       throw new Error(`Failed to get user info: ${response.error}`);
     }
