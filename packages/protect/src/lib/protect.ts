@@ -7,19 +7,9 @@
  *
  */
 
-import type { Protect, ProtectConfig, SignalsInitializationOptions } from './protect.types.js';
+import type { PingOneSignals } from '@ping-identity/pingone-signals-web-sdk';
 
-// Add Signals SDK namespace to the window object
-declare global {
-  interface Window {
-    _pingOneSignals: {
-      init: (initParams?: ProtectConfig | SignalsInitializationOptions) => Promise<void>;
-      getData: () => Promise<string>;
-      pauseBehavioralData: () => void;
-      resumeBehavioralData: () => void;
-    };
-  }
-}
+import type { Protect, ProtectConfig, SignalsInitializationOptions } from './protect.types.js';
 
 /**
  * @async
@@ -29,16 +19,17 @@ declare global {
  */
 export function protect(options: ProtectConfig | SignalsInitializationOptions): Protect {
   let protectApiInitialized = false;
+  let sdk: PingOneSignals | null = null;
 
   return {
     start: async (): Promise<void | { error: string }> => {
       try {
         /*
-         * Load the Ping Signals SDK
-         * this automatically pollutes the window
-         * there are no exports of this module
+         * Load the PingOne Signals SDK
+         * The SDK attaches itself to window._pingOneSignals and also exports a default
          */
-        await import('./signals-sdk.js' as string);
+        const signalsModule = await import('@ping-identity/pingone-signals-web-sdk');
+        sdk = signalsModule.default as PingOneSignals;
         protectApiInitialized = true;
       } catch (err) {
         console.error('error loading ping signals', err);
@@ -46,13 +37,13 @@ export function protect(options: ProtectConfig | SignalsInitializationOptions): 
       }
 
       try {
-        await window._pingOneSignals.init(options);
+        await sdk?.init(options);
 
         if (
           options.behavioralDataCollection === true ||
           options.behavioralDataCollection === 'true'
         ) {
-          window._pingOneSignals.resumeBehavioralData();
+          sdk?.resumeBehavioralData();
         }
       } catch (err) {
         console.error('error initializing ping protect', err);
@@ -60,36 +51,37 @@ export function protect(options: ProtectConfig | SignalsInitializationOptions): 
       }
     },
     getData: async (): Promise<string | { error: string }> => {
-      if (!protectApiInitialized) {
+      if (!protectApiInitialized || !sdk) {
         return { error: 'PingOne Signals SDK is not initialized' };
       }
 
       try {
-        return await window._pingOneSignals.getData();
+        // SDK returns string despite typed as SignalsData
+        return (await sdk.getData()) as unknown as string;
       } catch (err) {
         console.error('error getting data from ping protect', err);
         return { error: 'Failed to get data from Protect' };
       }
     },
     pauseBehavioralData: (): void | { error: string } => {
-      if (!protectApiInitialized) {
+      if (!protectApiInitialized || !sdk) {
         return { error: 'PingOne Signals SDK is not initialized' };
       }
 
       try {
-        window._pingOneSignals.pauseBehavioralData();
+        sdk.pauseBehavioralData();
       } catch (err) {
         console.error('error pausing behavioral data in ping protect', err);
         return { error: 'Failed to pause behavioral data in Protect' };
       }
     },
     resumeBehavioralData: (): void | { error: string } => {
-      if (!protectApiInitialized) {
+      if (!protectApiInitialized || !sdk) {
         return { error: 'PingOne Signals SDK is not initialized' };
       }
 
       try {
-        window._pingOneSignals.resumeBehavioralData();
+        sdk.resumeBehavioralData();
       } catch (err) {
         console.error('error resuming behavioral data in ping protect', err);
         return { error: 'Failed to resume behavioral data in Protect' };

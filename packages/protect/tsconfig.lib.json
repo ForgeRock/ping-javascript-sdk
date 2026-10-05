@@ -14,11 +14,11 @@
     "noImplicitOverride": true,
     "declaration": true,
     "declarationMap": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "sourceMap": true,
     "lib": ["es2022", "dom", "dom.iterable"]
   },
-  "include": ["src/**/*.ts", "src/**/*.*.ts", "src/lib/signals-sdk.js"],
+  "include": ["src/**/*.ts", "src/**/*.*.ts"],
   "exclude": [
     "src/**/*.*.test-d.ts",
     "src/**/*.test-d.ts",

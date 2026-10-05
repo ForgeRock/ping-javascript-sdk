@@ -20,38 +20,28 @@ const config: ProtectConfig = {
   universalDeviceIdentification: false,
 };
 
+// Mock the SDK module
+const mockSdk = {
+  init: vi.fn().mockResolvedValue(undefined),
+  getData: vi.fn().mockResolvedValue('mocked-data'),
+  pauseBehavioralData: vi.fn(),
+  resumeBehavioralData: vi.fn(),
+};
+
+vi.mock('@ping-identity/pingone-signals-web-sdk', () => ({
+  default: mockSdk,
+}));
+
 describe('protect (with successfully loaded signals sdk)', () => {
-  beforeAll(() => {
-    vi.doMock('./signals-sdk.js', () => {
-      return {
-        default: {
-          init: vi.fn(),
-          getData: vi.fn(),
-          pauseBehavioralData: vi.fn(),
-          resumeBehavioralData: vi.fn(),
-        },
-      };
-    });
-
-    if (typeof window === 'undefined') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      global.window = {} as any;
-    }
-
-    window._pingOneSignals = {
-      init: vi.fn().mockResolvedValue(undefined),
-      getData: vi.fn().mockResolvedValue('mocked-data'),
-      pauseBehavioralData: vi.fn(),
-      resumeBehavioralData: vi.fn(),
-    };
-  });
-
-  afterEach(() => {
+  beforeEach(() => {
+    // Reset mocks before each test
     vi.clearAllMocks();
-  });
-
-  afterAll(() => {
-    vi.doUnmock('./signals-sdk.js');
+    mockSdk.init.mockResolvedValue(undefined);
+    mockSdk.getData.mockResolvedValue('mocked-data');
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    mockSdk.pauseBehavioralData.mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    mockSdk.resumeBehavioralData.mockImplementation(() => {});
   });
 
   it('should be defined', () => {
@@ -77,19 +67,19 @@ describe('protect (with successfully loaded signals sdk)', () => {
       };
       const protectApi = protect(passthroughConfig);
       await protectApi.start();
-      expect(window._pingOneSignals.init).toHaveBeenCalledWith(passthroughConfig);
+      expect(mockSdk.init).toHaveBeenCalledWith(passthroughConfig);
     });
 
     it('should resume behavioralData when behavioralDataCollection is string "true"', async () => {
       const protectApi = protect({ envId: '12345', behavioralDataCollection: 'true' });
       await protectApi.start();
-      expect(window._pingOneSignals.resumeBehavioralData).toHaveBeenCalled();
+      expect(mockSdk.resumeBehavioralData).toHaveBeenCalled();
     });
 
     it('should not resume behavioralData when behavioralDataCollection is string "false"', async () => {
       const protectApi = protect({ envId: '12345', behavioralDataCollection: 'false' });
       await protectApi.start();
-      expect(window._pingOneSignals.resumeBehavioralData).not.toHaveBeenCalled();
+      expect(mockSdk.resumeBehavioralData).not.toHaveBeenCalled();
     });
 
     it('should call start', async () => {
@@ -97,25 +87,28 @@ describe('protect (with successfully loaded signals sdk)', () => {
       const protectMock = vi.spyOn(protectApi, 'start');
       await protectApi.start();
       expect(protectMock).toHaveBeenCalled();
-      expect(window._pingOneSignals.init).toHaveBeenCalledWith(config);
+      expect(mockSdk.init).toHaveBeenCalledWith(config);
     });
 
     it('should call getData', async () => {
       const protectApi = protect(config);
+      await protectApi.start();
       const protectMock = vi.spyOn(protectApi, 'getData');
       await protectApi.getData();
       expect(protectMock).toHaveBeenCalled();
     });
 
-    it('should call pauseBehavioralData', () => {
+    it('should call pauseBehavioralData', async () => {
       const protectApi = protect(config);
+      await protectApi.start();
       const protectMock = vi.spyOn(protectApi, 'pauseBehavioralData');
       protectApi.pauseBehavioralData();
       expect(protectMock).toHaveBeenCalled();
     });
 
-    it('should call resumeBehavioralData', () => {
+    it('should call resumeBehavioralData', async () => {
       const protectApi = protect(config);
+      await protectApi.start();
       const protectMock = vi.spyOn(protectApi, 'resumeBehavioralData');
       protectApi.resumeBehavioralData();
       expect(protectMock).toHaveBeenCalled();
@@ -141,41 +134,52 @@ describe('protect (with successfully loaded signals sdk)', () => {
   });
 });
 
-describe('protect (with failed signals sdk load)', () => {
-  beforeAll(() => {
-    vi.doMock('./signals-sdk.js', () => {
-      throw new Error('Failed to load PingOne Signals SDK');
-    });
+describe('protect error handling', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSdk.init.mockResolvedValue(undefined);
+    mockSdk.getData.mockResolvedValue('mocked-data');
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    mockSdk.pauseBehavioralData.mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    mockSdk.resumeBehavioralData.mockImplementation(() => {});
   });
 
-  afterAll(() => {
-    vi.doUnmock('./signals-sdk.js');
-  });
-
-  it('start method should error', async () => {
+  it('start should return error when init fails', async () => {
+    mockSdk.init.mockRejectedValue(new Error('Init failed'));
     const protectApi = protect(config);
     const error = await protectApi.start();
-    await expect(error).toEqual({ error: 'Failed to load PingOne Signals SDK' });
+    expect(error).toEqual({ error: 'Failed to initialize PingOne Signals SDK' });
   });
 
-  it('getData method should error', async () => {
+  it('getData should return error when SDK throws', async () => {
+    mockSdk.init.mockResolvedValue(undefined);
+    mockSdk.getData.mockRejectedValue(new Error('getData failed'));
     const protectApi = protect(config);
     await protectApi.start();
     const error = await protectApi.getData();
-    await expect(error).toEqual({ error: 'PingOne Signals SDK is not initialized' });
+    expect(error).toEqual({ error: 'Failed to get data from Protect' });
   });
 
-  it('pauseBehavioralData method should error', async () => {
+  it('pauseBehavioralData should return error when SDK throws', async () => {
+    mockSdk.init.mockResolvedValue(undefined);
+    mockSdk.pauseBehavioralData.mockImplementation(() => {
+      throw new Error('pause failed');
+    });
     const protectApi = protect(config);
     await protectApi.start();
-    const error = await protectApi.pauseBehavioralData();
-    await expect(error).toEqual({ error: 'PingOne Signals SDK is not initialized' });
+    const error = protectApi.pauseBehavioralData();
+    expect(error).toEqual({ error: 'Failed to pause behavioral data in Protect' });
   });
 
-  it('resumeBehavioralData method should error', async () => {
+  it('resumeBehavioralData should return error when SDK throws', async () => {
+    mockSdk.init.mockResolvedValue(undefined);
+    mockSdk.resumeBehavioralData.mockImplementation(() => {
+      throw new Error('resume failed');
+    });
     const protectApi = protect(config);
     await protectApi.start();
-    const error = await protectApi.resumeBehavioralData();
-    await expect(error).toEqual({ error: 'PingOne Signals SDK is not initialized' });
+    const error = protectApi.resumeBehavioralData();
+    expect(error).toEqual({ error: 'Failed to resume behavioral data in Protect' });
   });
 });
