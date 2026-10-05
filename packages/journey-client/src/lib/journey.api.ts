@@ -6,7 +6,13 @@
  */
 
 import { initQuery } from '@forgerock/sdk-request-middleware';
-import { getEndpointPath, REQUESTED_WITH, resolve, stringify } from '@forgerock/sdk-utilities';
+import {
+  getEndpointPath,
+  REQUESTED_WITH,
+  resolve,
+  stringify,
+  X_REQUESTED_PLATFORM,
+} from '@forgerock/sdk-utilities';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
@@ -98,6 +104,7 @@ export const journeyApi = createApi({
       headers.set('Accept-API-Version', 'protocol=1.0,resource=2.1');
       headers.set('Content-Type', 'application/json');
       headers.set('X-Requested-With', REQUESTED_WITH);
+      headers.set('X-Requested-Platform', X_REQUESTED_PLATFORM);
 
       return headers;
     },
