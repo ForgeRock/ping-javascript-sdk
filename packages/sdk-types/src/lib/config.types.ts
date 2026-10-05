@@ -4,7 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { AuthDisplayValue, AuthPromptValue, ResponseType } from './authorize.types.js';
+import type {
+  AuthDisplayValue,
+  AuthPromptValue,
+  ResponseMode,
+  ResponseType,
+} from './authorize.types.js';
 import type { AsyncLegacyConfigOptions } from './legacy-config.types.js';
 import type { CustomStorageObject } from './tokens.types.js';
 
@@ -18,13 +23,14 @@ export const LOG_LEVEL_UPPERCASE_VALUES = LOG_LEVEL_VALUES.map((v) =>
 /** Configuration for creating an OIDC client instance. */
 export interface OidcConfig extends AsyncLegacyConfigOptions {
   clientId: string;
-  redirectUri: string;
   scope: string;
   serverConfig: {
     wellknown: string;
     timeout?: number;
   };
+  redirectUri?: string;
   responseType?: ResponseType;
+  responseMode?: ResponseMode;
   /** Use Pushed Authorization Requests (PAR) for the authorization flow. */
   par?: boolean;
   /** URI to redirect to after logout; maps to `post_logout_redirect_uri` in the end-session request. */

@@ -51,6 +51,7 @@ it.effect('validateValuesµ succeeds with TokenRequestOptions', () =>
       code,
       config,
       endpoint: tokenEndpoint,
+      redirectUri, // Carried from the stored authorize-time values
     });
   }),
 );
@@ -73,7 +74,50 @@ it.effect('validateValuesµ with verifier succeeds with TokenRequestOptions', ()
       code,
       config,
       endpoint: tokenEndpoint,
+      redirectUri, // Carried from the stored authorize-time values
       verifier,
+    });
+  }),
+);
+
+it.effect('validateValuesµ omits redirectUri when stored values have none', () =>
+  Micro.gen(function* () {
+    const result = yield* validateValuesµ({
+      code,
+      state,
+      storedValues: {
+        ...storedValues,
+        redirectUri: undefined,
+      },
+      config,
+      endpoint: tokenEndpoint,
+    });
+
+    expect(result).toStrictEqual({
+      code,
+      config,
+      endpoint: tokenEndpoint,
+    });
+  }),
+);
+
+it.effect('validateValuesµ omits redirectUri when the stored value is an empty string', () =>
+  Micro.gen(function* () {
+    const result = yield* validateValuesµ({
+      code,
+      state,
+      storedValues: {
+        ...storedValues,
+        redirectUri: '',
+      },
+      config,
+      endpoint: tokenEndpoint,
+    });
+
+    expect(result).toStrictEqual({
+      code,
+      config,
+      endpoint: tokenEndpoint,
     });
   }),
 );

@@ -146,36 +146,47 @@ describe('buildIdTokenUrl', () => {
     vi.spyOn(sdkUtilities, 'createRandomString').mockReturnValue(knownNonce);
     vi.spyOn(sdkUtilities, 'createState').mockReturnValue(knownState);
 
-    const { url, nonce, state } = buildIdTokenUrl(endpoint, config, null, redirectUri);
+    const { url, nonce, state } = buildIdTokenUrl(endpoint, config, null);
     const parsed = new URL(url);
 
     expect(parsed.searchParams.get('response_type')).toBe('id_token');
     expect(parsed.searchParams.get('nonce')).toBe(knownNonce);
     expect(parsed.searchParams.get('state')).toBe(knownState);
-    expect(parsed.searchParams.get('scope')).toBe('openid');
+    // scope resolves from config when options omit it
+    expect(parsed.searchParams.get('scope')).toBe(config.scope);
+    expect(parsed.searchParams.get('redirect_uri')).toBe(config.redirectUri);
     expect(parsed.searchParams.has('id_token_hint')).toBe(false);
     expect(nonce).toBe(knownNonce);
     expect(state).toBe(knownState);
   });
 
   it('includes id_token_hint when storedIdToken is present', () => {
-    const { url } = buildIdTokenUrl(endpoint, config, storedTokens.idToken, redirectUri);
+    const { url } = buildIdTokenUrl(endpoint, config, storedTokens.idToken);
     const parsed = new URL(url);
     expect(parsed.searchParams.get('id_token_hint')).toBe(storedTokens.idToken);
   });
 
   it('omits id_token_hint when storedIdToken is null', () => {
-    const { url } = buildIdTokenUrl(endpoint, config, null, redirectUri);
+    const { url } = buildIdTokenUrl(endpoint, config, null);
     const parsed = new URL(url);
     expect(parsed.searchParams.has('id_token_hint')).toBe(false);
   });
 
   it('uses options.scope when provided', () => {
-    const { url } = buildIdTokenUrl(endpoint, config, null, redirectUri, {
-      scope: 'openid profile',
+    const { url } = buildIdTokenUrl(endpoint, config, null, {
+      scope: 'openid email',
     });
     const parsed = new URL(url);
-    expect(parsed.searchParams.get('scope')).toBe('openid profile');
+    expect(parsed.searchParams.get('scope')).toBe('openid email');
+  });
+
+  it('uses options.redirectUri over config.redirectUri when provided', () => {
+    const { url } = buildIdTokenUrl(endpoint, config, null, {
+      redirectUri: 'https://per-request.example.com/cb',
+    });
+    expect(new URL(url).searchParams.get('redirect_uri')).toBe(
+      'https://per-request.example.com/cb',
+    );
   });
 });
 

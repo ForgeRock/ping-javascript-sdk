@@ -1013,3 +1013,209 @@ describe('user.session()', async () => {
     expect(result.type).toBe('wellknown_error');
   });
 });
+
+describe('optional redirectUri validation', async () => {
+  const configNoRedirect: OidcConfig = {
+    clientId: '123456789',
+    scope: 'openid profile',
+    serverConfig: { wellknown: 'https://api.example.com/wellknown' },
+    responseType: 'code',
+    // redirectUri deliberately omitted
+  };
+
+  beforeEach(() => {
+    customStorage.remove(storageKey);
+  });
+
+  it('factory initializes successfully without a redirectUri', async () => {
+    const result = await oidc({ config: configNoRedirect, storage: customStorageConfig });
+    if ('error' in result) {
+      expect.fail(`Expected client, got error: ${JSON.stringify(result)}`);
+    }
+    expect(result.authorize.url).toBeInstanceOf(Function);
+  });
+
+  it('authorize.url() returns argument_error when redirectUri is missing and pi.flow is not requested', async () => {
+    const oidcClient = await oidc({ config: configNoRedirect, storage: customStorageConfig });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const result = await oidcClient.authorize.url();
+
+    if (typeof result === 'string') {
+      expect.fail(`Expected error, got URL string: ${result}`);
+    }
+    expect(result.type).toBe('argument_error');
+    expect(result.error).toBe('Redirect URI is required when response mode is not pi.flow');
+  });
+
+  it('authorize.url() succeeds without redirectUri when config requests pi.flow on a pi.flow server', async () => {
+    const oidcClient = await oidc({
+      config: { ...configNoRedirect, responseMode: 'pi.flow' },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const url = await oidcClient.authorize.url();
+
+    if (typeof url !== 'string') {
+      expect.fail(`Expected string URL, got: ${JSON.stringify(url)}`);
+    }
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get('response_mode')).toBe('pi.flow');
+    expect(parsed.searchParams.has('redirect_uri')).toBe(false);
+  });
+
+  it('authorize.url() accepts a per-request redirectUri when config omits it', async () => {
+    const oidcClient = await oidc({ config: configNoRedirect, storage: customStorageConfig });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const url = await oidcClient.authorize.url({
+      redirectUri: 'https://per-request.example.com/cb',
+    });
+
+    if (typeof url !== 'string') {
+      expect.fail(`Expected string URL, got: ${JSON.stringify(url)}`);
+    }
+    expect(new URL(url).searchParams.get('redirect_uri')).toBe(
+      'https://per-request.example.com/cb',
+    );
+  });
+
+  it('authorize.background() returns argument_error when redirectUri is missing', async () => {
+    const oidcClient = await oidc({ config: configNoRedirect, storage: customStorageConfig });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const result = await oidcClient.authorize.background();
+
+    if (!('error' in result)) expect.fail('Expected error, got success');
+    expect(result.error).toBe('Argument error');
+    expect(result.error_description).toBe(
+      'Redirect URI is required when response mode is not pi.flow',
+    );
+    expect(result.type).toBe('argument_error');
+  });
+
+  it('authorize.background() succeeds without redirectUri on a pi.flow server', async () => {
+    const oidcClient = await oidc({
+      config: { ...configNoRedirect, responseMode: 'pi.flow' },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const response = await oidcClient.authorize.background();
+
+    if ('error' in response) {
+      expect.fail(`Expected success, got error: ${JSON.stringify(response)}`);
+    }
+    expect(response.code).toBeDefined();
+    expect(response.state).toBeDefined();
+  });
+
+  it('token.get() returns argument_error when redirectUri is missing on a forced renewal', async () => {
+    const oidcClient = await oidc({ config: configNoRedirect, storage: customStorageConfig });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    // forceRenew reaches the renewal path, where redirect validation applies
+    const result = await oidcClient.token.get({ forceRenew: true });
+
+    if (!('error' in result) || !('error_description' in result) || !('type' in result)) {
+      expect.fail(`Expected argument_error, got: ${JSON.stringify(result)}`);
+    }
+    expect(result.error).toBe('Argument error');
+    expect(result.error_description).toBe(
+      'Redirect URI is required when response mode is not pi.flow',
+    );
+    expect(result.type).toBe('argument_error');
+  });
+
+  it('token.get() renews successfully without a redirectUri on a pi.flow server', async () => {
+    const oidcClient = await oidc({
+      config: { ...configNoRedirect, responseMode: 'pi.flow' },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const tokens = await oidcClient.token.get({ forceRenew: true });
+
+    if ('error' in tokens) {
+      expect.fail(`Expected tokens, got error: ${JSON.stringify(tokens)}`);
+    }
+    expect(tokens.accessToken).toBe('abcdefghijklmnop');
+  });
+
+  it('authorize.url() returns argument_error when pi.flow is requested on a server that does not support it', async () => {
+    server.use(
+      http.get('*/wellknown', async () =>
+        HttpResponse.json({
+          issuer: 'https://api.example.com/as/issuer',
+          authorization_endpoint: 'https://api.example.com/as/authorize',
+          token_endpoint: 'https://api.example.com/as/token',
+          userinfo_endpoint: 'https://api.example.com/as/userinfo',
+          introspection_endpoint: 'https://api.example.com/as/introspect',
+          revocation_endpoint: 'https://api.example.com/as/revoke',
+          response_modes_supported: ['query', 'fragment'],
+        }),
+      ),
+    );
+
+    const oidcClient = await oidc({
+      config: { ...configNoRedirect, responseMode: 'pi.flow' },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const result = await oidcClient.authorize.url();
+
+    if (typeof result === 'string') {
+      expect.fail(`Expected error, got URL string: ${result}`);
+    }
+    expect(result.type).toBe('argument_error');
+    expect(result.error).toBe('pi.flow response mode is not supported');
+  });
+
+  it('authorize.url() returns argument_error for PAR flow without a redirectUri', async () => {
+    // PingAM does not support pi.flow, so PAR requires a redirectUri
+    const oidcClient = await oidc({
+      config: { ...configNoRedirect, par: true },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const result = await oidcClient.authorize.url();
+
+    if (typeof result === 'string') {
+      expect.fail(`Expected error, got URL string: ${result}`);
+    }
+    expect(result.type).toBe('argument_error');
+    expect(result.error).toBe('Redirect URI is required for PingAM PAR flow');
+  });
+
+  it('authorize.url() sends redirect_uri in the PAR body when provided per-request', async () => {
+    let capturedParBody = '';
+    server.use(
+      http.post('*/as/par', async ({ request }) => {
+        capturedParBody = await request.text();
+        return HttpResponse.json({ request_uri: parRequestUri, expires_in: 60 }, { status: 201 });
+      }),
+    );
+
+    const oidcClient = await oidc({
+      config: { ...configNoRedirect, par: true },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const url = await oidcClient.authorize.url({
+      redirectUri: 'https://per-request.example.com/cb',
+    });
+
+    if (typeof url !== 'string') {
+      expect.fail(`Expected string URL, got: ${JSON.stringify(url)}`);
+    }
+    const parsed = new URL(url);
+    expect(parsed.searchParams.has('request_uri')).toBe(true);
+    expect(new URLSearchParams(capturedParBody).get('redirect_uri')).toBe(
+      'https://per-request.example.com/cb',
+    );
+  });
+});

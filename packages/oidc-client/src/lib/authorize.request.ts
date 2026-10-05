@@ -18,7 +18,7 @@ import {
   storeAuthOptionsµ,
   validateParResponseµ,
 } from './authorize.request.micros.js';
-import { buildAuthorizeOptions } from './authorize.request.utils.js';
+import { buildAuthorizeOptions, forwardAuthorizeOptions } from './authorize.request.utils.js';
 
 import type { CustomLogger } from '@forgerock/sdk-logger';
 import type { GetAuthorizationUrlOptions, WellknownResponse } from '@forgerock/sdk-types';
@@ -70,9 +70,9 @@ function dispatchAuthorizeµ(
  * @param config - The OIDC client configuration.
  * @param log - CustomLogger; used to warn on short PAR `expires_in` windows.
  * @param store - The RTK client store exposing `oidcApi.endpoints.par`.
- * @param options - Optional request-level overrides; `prompt` is split out
- *   so it appears on the slim URL while the rest of the params go in the
- *   PAR POST body.
+ * @param options - Optional request-level overrides. Resolved through
+ *   `forwardAuthorizeOptions` against `config`. `prompt` (from options or
+ *   config) appears on the slim URL and in the PAR POST body.
  * @returns A `Micro` that resolves to the slim authorize URL string or
  *   fails with a typed `AuthorizationError`.
  */
@@ -93,18 +93,10 @@ export function createParAuthorizeUrlµ(
     } as const);
   }
 
-  const { prompt, ...parBodyOptions } = options ?? {};
-
   return Micro.gen(function* () {
     const [authUrlOptions, storeOptions] = yield* generateAuthValuesµ(config, wellknown, options);
     const challenge = yield* generatePkceChallengeµ(authUrlOptions.verifier);
-    const body = yield* buildParBodyµ(
-      config,
-      parBodyOptions,
-      challenge,
-      authUrlOptions.state,
-      prompt,
-    );
+    const body = yield* buildParBodyµ(config, options ?? {}, challenge, authUrlOptions.state);
     const parResult = yield* dispatchParRequestµ(store, parEndpoint, body);
     const { request_uri, expires_in } = yield* validateParResponseµ(parResult);
     if (expires_in < 30) {
@@ -117,9 +109,9 @@ export function createParAuthorizeUrlµ(
     yield* storeAuthOptionsµ(storeOptions);
     return yield* buildParSlimUrlµ(
       wellknown.authorization_endpoint,
-      config.clientId,
+      authUrlOptions.clientId,
       request_uri,
-      prompt,
+      authUrlOptions.prompt,
     );
   });
 }
@@ -152,16 +144,10 @@ export function authorizeµ(
   config: OidcConfig,
   log: CustomLogger,
   store: ClientStore,
-  options: GetAuthorizationUrlOptions | undefined,
+  options: OptionalAuthorizeOptions | undefined,
   useParFlow: boolean,
 ): Micro.Micro<AuthorizationSuccess, AuthorizationError, never> {
-  const parDispatchOptions: GetAuthorizationUrlOptions = {
-    clientId: config.clientId,
-    redirectUri: config.redirectUri,
-    scope: config.scope || 'openid',
-    responseType: config.responseType || 'code',
-    ...options,
-  };
+  const parDispatchOptions: GetAuthorizationUrlOptions = forwardAuthorizeOptions(config, options);
 
   const parFlow = createParAuthorizeUrlµ(wellknown, config, log, store, options).pipe(
     Micro.tap((url) => log.debug('PAR authorize URL created', url)),

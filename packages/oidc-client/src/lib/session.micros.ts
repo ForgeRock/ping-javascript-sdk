@@ -8,6 +8,7 @@ import { createRandomString, createState } from '@forgerock/sdk-utilities';
 import { Micro } from 'effect';
 import { decodeJwt } from 'jose/jwt/decode';
 
+import { resolveAuthorizeOption } from './authorize.request.utils.js';
 import { oidcApi } from './oidc.api.js';
 
 import type { CustomLogger } from '@forgerock/sdk-logger';
@@ -152,14 +153,14 @@ export const buildNoneUrl = (
   endpoint: string,
   config: OidcConfig,
   storedIdToken: string,
-  redirectUri: string,
+  redirectUri?: string,
   options?: SessionCheckOptions,
 ): string => {
   const params = new URLSearchParams({
     prompt: 'none',
     response_type: 'none',
     client_id: config.clientId,
-    scope: options?.scope ?? 'openid',
+    scope: resolveAuthorizeOption(options?.scope, config.scope) ?? 'openid',
     ...(redirectUri ? { redirect_uri: redirectUri } : {}),
     id_token_hint: storedIdToken,
   });
@@ -170,7 +171,6 @@ export const buildIdTokenUrl = (
   endpoint: string,
   config: OidcConfig,
   storedIdToken: string | null,
-  redirectUri: string,
   options?: SessionCheckOptions,
 ): { url: string; nonce: string; state: string } => {
   const nonce = createRandomString(32);
@@ -179,8 +179,8 @@ export const buildIdTokenUrl = (
     prompt: 'none',
     response_type: 'id_token',
     client_id: config.clientId,
-    redirect_uri: redirectUri,
-    scope: options?.scope ?? 'openid',
+    redirect_uri: resolveAuthorizeOption(options?.redirectUri, config.redirectUri) ?? '',
+    scope: resolveAuthorizeOption(options?.scope, config.scope) ?? 'openid',
     nonce,
     state,
     ...(storedIdToken ? { id_token_hint: storedIdToken } : {}),
@@ -208,7 +208,7 @@ export const sessionCheckNoneµ = (
         });
       }
 
-      const redirectUri = options?.redirectUri ?? config.redirectUri;
+      const redirectUri = resolveAuthorizeOption(options?.redirectUri, config.redirectUri);
       const url = buildNoneUrl(
         wellknown.authorization_endpoint,
         config,
@@ -254,7 +254,6 @@ export const sessionCheckIdTokenµ = (
         wellknown.authorization_endpoint,
         config,
         storedIdToken,
-        redirectUri,
         options,
       );
       return dispatchSessionCheckIframeµ(store, url, 'id_token').pipe(

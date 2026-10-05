@@ -14,6 +14,7 @@ import { Micro } from 'effect';
 
 import {
   buildParAuthorizeUrl,
+  forwardAuthorizeOptions,
   hasPushRequestUri,
   isFetchBaseQueryError,
   toDispatchError,
@@ -43,12 +44,8 @@ export const generateAuthValuesµ = (
   return Micro.try({
     try: () =>
       generateAndStoreAuthUrlValues({
-        clientId: config.clientId,
+        ...forwardAuthorizeOptions(config, options),
         serverConfig: { baseUrl: new URL(wellknown.authorization_endpoint).origin },
-        responseType: config.responseType || 'code',
-        redirectUri: config.redirectUri,
-        scope: config.scope || 'openid',
-        ...options,
       }),
     catch: (err): AuthorizationError => ({
       error: 'PAR_PARAM_BUILD_ERROR',
@@ -86,24 +83,19 @@ export const storeAuthOptionsµ = (
 
 // ─── PAR body / URL builders ─────────────────────────────────────────────────
 
+/** Build the PAR request body from config defaults plus per-request overrides. */
 export const buildParBodyµ = (
   config: OidcConfig,
   parBodyOptions: OptionalAuthorizeOptions,
   challenge: string,
   state: string,
-  prompt?: AuthPromptValue,
 ): Micro.Micro<URLSearchParams, AuthorizationError, never> => {
   return Micro.try({
     try: () =>
       buildAuthorizeParams({
-        clientId: config.clientId,
-        redirectUri: config.redirectUri,
-        scope: config.scope || 'openid',
-        responseType: config.responseType || 'code',
-        ...parBodyOptions,
+        ...forwardAuthorizeOptions(config, parBodyOptions),
         challenge,
         state,
-        ...(prompt && { prompt }),
       }),
     catch: (err): AuthorizationError => ({
       error: 'PAR_PARAM_BUILD_ERROR',

@@ -212,6 +212,21 @@ describe('parseToOidcConfig', () => {
     expect(data.query).toBeUndefined();
   });
 
+  it('parseToOidcConfig_NoRedirectUri_SucceedsAndOmitsKey', () => {
+    // redirectUri is optional: requirement is decided at request time (pi.flow, PAR),
+    // not by config parsing.
+    const data = Either.getOrThrow(
+      parseToOidcConfig({
+        oidc: {
+          clientId: 'my-client',
+          discoveryEndpoint: 'https://example.com/.well-known/openid-configuration',
+          scopes: ['openid', 'profile'],
+        },
+      }),
+    ) as unknown as Record<string, unknown>;
+    expect(data['redirectUri']).toBeUndefined();
+  });
+
   it('parseToOidcConfig_OidcMissingDiscoveryEndpoint_ReturnsFailure', () => {
     const errors = Either.getOrThrow(
       Either.flip(
@@ -309,6 +324,13 @@ describe('parseToDavinciConfig', () => {
     expect(data.serverConfig.wellknown).toBe(
       'https://example.com/.well-known/openid-configuration',
     );
+  });
+
+  it('parseToDavinciConfig_NoRedirectUri_SucceedsAndOmitsKey', () => {
+    // redirectUri is optional: requirement is decided at request time, not by config parsing.
+    const { redirectUri, ...oidcWithoutRedirectUri } = minimalOidc;
+    const data = Either.getOrThrow(parseToDavinciConfig({ oidc: oidcWithoutRedirectUri }));
+    expect(data.redirectUri).toBeUndefined();
   });
 
   it('parseToDavinciConfig_ScopesJoinedWithSpace', () => {

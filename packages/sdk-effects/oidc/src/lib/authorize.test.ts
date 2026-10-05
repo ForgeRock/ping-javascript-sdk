@@ -284,4 +284,29 @@ describe('buildAuthorizeParams', () => {
     expect(params.get('ui_locales')).toBe('fr-FR');
     expect(params.get('acr_values')).toBe('Level2');
   });
+
+  it('omits redirect_uri when redirectUri is not provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+    });
+
+    expect(params.has('redirect_uri')).toBe(false);
+  });
+
+  it('omits redirect_uri when redirectUri is an empty string', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: '',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+    });
+
+    expect(params.has('redirect_uri')).toBe(false);
+  });
 });

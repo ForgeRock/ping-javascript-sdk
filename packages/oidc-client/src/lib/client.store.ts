@@ -12,6 +12,7 @@ import { Micro } from 'effect';
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
+import { forwardAuthorizeOptions, validateRedirectUri } from './authorize.request.utils.js';
 import { createClientStore, createTokenError } from './client.store.utils.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
 import { logoutµ } from './logout.request.js';
@@ -22,10 +23,14 @@ import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
 import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+import type { GenericError } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
-import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
+import type {
+  AuthorizationError,
+  AuthorizationSuccess,
+  OptionalAuthorizeOptions,
+} from './authorize.request.types.js';
 import type {
   GetTokensOptions,
   LogoutErrorResult,
@@ -125,10 +130,12 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       /**
        * @method url
        * @description Creates an authorization URL with the provided options or defaults from the configuration.
-       * @param {GetAuthorizationUrlOptions} options - Optional parameters to customize the authorization URL.
+       * @param {OptionalAuthorizeOptions} [options] - Overrides for this request;
+       *   set a field to `null` to explicitly unset its `OidcConfig` default.
+       *   See {@link OptionalAuthorizeOptions}.
        * @returns {Promise<string | GenericError>} - Returns a promise that resolves to the authorization URL or an error.
        */
-      url: async (options?: GetAuthorizationUrlOptions): Promise<string | GenericError> => {
+      url: async (options?: OptionalAuthorizeOptions): Promise<string | GenericError> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
 
@@ -137,6 +144,11 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             error: 'Authorization endpoint not found in wellknown configuration',
             type: 'wellknown_error',
           };
+        }
+
+        const redirectUriError = validateRedirectUri(wellknown, config, options, useParFlow);
+        if (redirectUriError) {
+          return redirectUriError;
         }
 
         if (useParFlow) {
@@ -170,31 +182,19 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           }
         }
 
-        const optionsWithDefaults = {
-          clientId: config.clientId,
-          redirectUri: config.redirectUri,
-          scope: config.scope || 'openid',
-          responseType: config.responseType || 'code',
-          ...(config.loginHint !== undefined && { loginHint: config.loginHint }),
-          ...(config.nonce !== undefined && { nonce: config.nonce }),
-          ...(config.display !== undefined && { display: config.display }),
-          ...(config.prompt !== undefined && { prompt: config.prompt }),
-          ...(config.uiLocales !== undefined && { uiLocales: config.uiLocales }),
-          ...(config.acrValues !== undefined && { acrValues: config.acrValues }),
-          ...(config.query !== undefined && { query: config.query }),
-          ...options,
-        };
-
+        const optionsWithDefaults = forwardAuthorizeOptions(config, options);
         return createAuthorizeUrl(wellknown.authorization_endpoint, optionsWithDefaults);
       },
 
       /**
        * @function background - Initiates the authorization process in the background, returning code and state or an error.
-       * @param {GetAuthorizationUrlOptions} options - Optional parameters to customize the authorization URL.
+       * @param {OptionalAuthorizeOptions} [options] - Overrides for this request;
+       *   set a field to `null` to explicitly unset its `OidcConfig` default.
+       *   See {@link OptionalAuthorizeOptions}.
        * @returns {Promise<AuthorizeErrorResponse | AuthorizeSuccessResponse>} - Returns a promise that resolves to code and state or an error response.
        */
       background: async (
-        options?: GetAuthorizationUrlOptions,
+        options?: OptionalAuthorizeOptions,
       ): Promise<AuthorizationSuccess | AuthorizationError> => {
         const state = store.getState();
         const wellknown = wellknownSelector(wellknownUrl, state);
@@ -207,13 +207,22 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           };
         }
 
+        const redirectUriError = validateRedirectUri(wellknown, config, options, useParFlow);
+        if (redirectUriError) {
+          return {
+            error: 'Argument error',
+            error_description: redirectUriError.error,
+            type: 'argument_error',
+          };
+        }
+
         const result = await Micro.runPromiseExit(
           authorizeµ(
             wellknown,
             config,
             log,
             store,
-            { ...(options ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
+            { ...(options ?? {}), prompt: 'none' },
             useParFlow,
           ),
         );
@@ -243,7 +252,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
        *              configuration and stores them in the configured storage.
        * @param {string} code - The authorization code received from the authorization server.
        * @param {string} state - The state parameter from the authorization URL creation.
-       * @param {Partial<StorageConfig>} options - Optional storage configuration for persisting tokens.
+       * @param {Partial<StorageConfig>} [options] - Optional storage configuration for persisting tokens.
        * @returns {Promise<OauthTokens | GenericError | TokenExchangeErrorResponse>}
        */
       exchange: async (
@@ -282,7 +291,7 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
       /**
        * @method get
        * @description Retrieves the current OAuth tokens from storage, or auto-renew if backgroundRenew is true.
-       * @param {GetTokensOptions} param - An object containing options for the token retrieval.
+       * @param {GetTokensOptions} [options] - An object containing options for the token retrieval. See {@link GetTokensOptions}
        * @returns {Promise<OauthTokens | TokenExchangeErrorResponse | AuthorizationError | GenericError>}
        */
       get: async (
@@ -330,12 +339,26 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
         }
 
         // If we're here, backgroundRenew is true and we have no tokens, expired tokens or forceRenew is true
+        const redirectUriError = validateRedirectUri(
+          wellknown,
+          config,
+          options?.authorizeOptions,
+          useParFlow,
+        );
+        if (redirectUriError) {
+          return {
+            error: 'Argument error',
+            error_description: redirectUriError.error,
+            type: 'argument_error',
+          };
+        }
+
         const attemptAuthorizeGetTokensµ = authorizeµ(
           wellknown,
           config,
           log,
           store,
-          { ...(authorizeOptions ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
+          { ...(authorizeOptions ?? {}), prompt: 'none' },
           useParFlow,
         ).pipe(
           Micro.flatMap((response): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> => {
