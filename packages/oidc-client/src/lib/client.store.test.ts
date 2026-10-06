@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { createSdkStore } from '@forgerock/sdk-store';
 import { makeOidcConfig } from '@forgerock/sdk-utilities';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
@@ -956,6 +957,44 @@ describe('unified JSON config entry', () => {
     expect(parsed.searchParams.get('nonce')).toBe('my-nonce');
     expect(parsed.searchParams.get('acr_values')).toBe('Level3');
     expect(parsed.searchParams.get('max_age')).toBe('3600');
+  });
+});
+
+describe('shared wellknown cache', () => {
+  const config: OidcConfig = {
+    clientId: 'shared-client',
+    redirectUri: 'https://example.com/callback.html',
+    scope: 'openid profile',
+    serverConfig: { wellknown: 'https://api.example.com/wellknown' },
+    responseType: 'code',
+  };
+
+  it('clears a failed discovery query so a second client can retry', async () => {
+    const sharedStore = createSdkStore();
+    server.use(
+      http.get('*/wellknown', () => HttpResponse.json({ error: 'unavailable' }, { status: 500 })),
+    );
+
+    const first = await oidc({ config, storage: customStorageConfig, store: sharedStore });
+    expect(first).toMatchObject({ type: 'wellknown_error' });
+
+    server.use(
+      http.get('*/wellknown', () =>
+        HttpResponse.json({
+          issuer: 'https://api.example.com/as/issuer',
+          authorization_endpoint: 'https://api.example.com/as/authorize',
+          token_endpoint: 'https://api.example.com/as/token',
+          userinfo_endpoint: 'https://api.example.com/as/userinfo',
+          introspection_endpoint: 'https://api.example.com/as/introspect',
+          revocation_endpoint: 'https://api.example.com/as/revoke',
+          response_types_supported: ['code'],
+          response_modes_supported: ['query'],
+        }),
+      ),
+    );
+
+    const second = await oidc({ config, storage: customStorageConfig, store: sharedStore });
+    expect(second).not.toHaveProperty('error');
   });
 });
 

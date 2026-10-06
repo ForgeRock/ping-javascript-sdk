@@ -5,19 +5,44 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { createSdkStore, injectClient } from '@forgerock/sdk-store';
 import { Micro } from 'effect';
 
 import { createInternalError, isInternalError } from './client.store.utils.js';
+import { configSlice } from './config.slice.js';
 import { davinciApi } from './davinci.api.js';
 import { nodeSlice } from './node.slice.js';
 
 import type { logger as loggerFn } from '@forgerock/sdk-logger';
+import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import type { SerializedError } from '@reduxjs/toolkit/react';
 
-import type { ClientStore, RootState } from './client.store.utils.js';
 import type { InternalErrorResponse, PollingStatus } from './client.types.js';
 import type { PollingCollector } from './collector.types.js';
+
+/** The Redux store exposed to DaVinci effect helpers. */
+export type DavinciStore = SdkStoreHandle<RootState>['store'];
+import type { RootState } from './davinci.state.js';
+
+/** Creates or attaches the store backing a DaVinci client. */
+export function createClientStore<ActionType extends ActionTypes>({
+  requestMiddleware,
+  logger,
+  store,
+}: {
+  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
+  logger?: ReturnType<typeof loggerFn>;
+  store?: SdkStore;
+}): SdkStoreHandle<RootState> {
+  return injectClient<RootState>(store ?? createSdkStore(), {
+    api: davinciApi,
+    slices: [configSlice, nodeSlice],
+    requestMiddleware,
+    logger,
+  });
+}
 
 /**
  * Shape returned by RTK Query's dispatch for the poll endpoint.
@@ -239,7 +264,7 @@ function challengePollingµ({
 }: {
   collector: PollingCollector;
   challenge: string;
-  store: ReturnType<ClientStore>;
+  store: DavinciStore;
   log: ReturnType<typeof loggerFn>;
 }): Micro.Micro<PollingStatus, InternalErrorResponse> {
   const maxRetries = collector.output.config.pollRetries ?? 60;
@@ -295,7 +320,7 @@ export function pollingµ({
 }: {
   mode: PollingMode;
   collector: PollingCollector;
-  store: ReturnType<ClientStore>;
+  store: DavinciStore;
   log: ReturnType<typeof loggerFn>;
 }): Micro.Micro<PollingStatus, InternalErrorResponse> {
   if (mode._tag === 'challenge') {

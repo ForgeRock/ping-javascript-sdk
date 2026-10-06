@@ -5,12 +5,13 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import { iFrameManager } from '@forgerock/iframe-manager';
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { initQuery } from '@forgerock/sdk-request-middleware';
+import { clientExtra } from '@forgerock/sdk-store';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
 import { transformError } from './oidc.api.utils.js';
 
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError } from '@forgerock/sdk-types';
 import type {
@@ -29,18 +30,43 @@ import type { SessionCheckResponseType } from './session.types.js';
 
 const IFRAME_TIMEOUT_MS = 3000;
 
+const OIDC_REDUCER_PATH = 'oidc';
+
+/**
+ * This client's private slot on the store's `extraArgument`.
+ *
+ * Both fields are optional because a shared store may not have had an oidc slot
+ * registered yet; `oidcExtra` substitutes safe defaults so an endpoint can never
+ * fail on a missing slot.
+ */
 interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown> {
-  requestMiddleware: RequestMiddleware<ActionType, Payload>[];
-  logger: ReturnType<typeof loggerFn>;
+  requestMiddleware?: RequestMiddleware<ActionType, Payload>[];
+  logger?: ReturnType<typeof loggerFn>;
+}
+
+/** Creates an error-level fallback so a missing slot degrades safely, never crashes. */
+const createFallbackLogger = () => loggerFn({ level: 'error' });
+
+/**
+ * Resolves this client's own middleware and logger.
+ *
+ * Reads only the `oidc` slot — never a store-wide value, which on a shared
+ * store would belong to whichever client created it.
+ */
+function oidcExtra(extra: unknown): Required<Extras> {
+  return clientExtra(extra, OIDC_REDUCER_PATH, {
+    requestMiddleware: [],
+    logger: createFallbackLogger(),
+  });
 }
 
 export const oidcApi = createApi({
-  reducerPath: 'oidc',
+  reducerPath: OIDC_REDUCER_PATH,
   baseQuery: fetchBaseQuery(),
   endpoints: (builder) => ({
     authorizeFetch: builder.mutation<AuthorizeSuccessResponse, { url: string }>({
       queryFn: async ({ url }, api, _, baseQuery) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const request: FetchArgs = {
           url,
@@ -109,7 +135,7 @@ export const oidcApi = createApi({
     }),
     par: builder.mutation<PushAuthorizationResponse, { endpoint: string; body: URLSearchParams }>({
       queryFn: async ({ endpoint, body }, api, _, baseQuery) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const request: FetchArgs = {
           url: endpoint,
@@ -185,7 +211,7 @@ export const oidcApi = createApi({
       { url: string; responseType: SessionCheckResponseType }
     >({
       queryFn: async ({ url, responseType }, api) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
         const errorParams = ['error', 'error_description'];
 
         const request: FetchArgs = { url };
@@ -269,7 +295,7 @@ export const oidcApi = createApi({
     }),
     sessionCheckFetch: builder.mutation<{ status: 204 }, { url: string }>({
       queryFn: async ({ url }, api, _, baseQuery) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const request: FetchArgs = {
           url,
@@ -312,7 +338,7 @@ export const oidcApi = createApi({
     }),
     authorizeIframe: builder.mutation<AuthorizationSuccess, { url: string }>({
       queryFn: async ({ url }, api) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const request: FetchArgs = {
           url,
@@ -399,7 +425,7 @@ export const oidcApi = createApi({
       { idToken: string; endpoint: string; signOutRedirectUri?: string }
     >({
       queryFn: async ({ idToken, endpoint, signOutRedirectUri }, api, _, baseQuery) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const url = new URL(endpoint);
         url.searchParams.append('id_token_hint', idToken);
@@ -454,7 +480,7 @@ export const oidcApi = createApi({
       }
     >({
       queryFn: async ({ code, config, endpoint, verifier }, api, _, baseQuery) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const { clientId, redirectUri } = config;
         const body = new URLSearchParams({
@@ -513,7 +539,7 @@ export const oidcApi = createApi({
     }),
     revoke: builder.mutation<object, { accessToken: string; clientId?: string; endpoint: string }>({
       queryFn: async ({ accessToken, clientId, endpoint }, api, _, baseQuery) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const body = new URLSearchParams({
           ...(clientId ? { client_id: clientId } : {}),
@@ -563,7 +589,7 @@ export const oidcApi = createApi({
     }),
     userInfo: builder.mutation<UserInfoResponse, { accessToken: string; endpoint: string }>({
       queryFn: async ({ accessToken, endpoint }, api, _, baseQuery) => {
-        const { requestMiddleware, logger } = api.extra as Extras;
+        const { requestMiddleware, logger } = oidcExtra(api.extra);
 
         const request: FetchArgs = {
           url: endpoint,

@@ -4,15 +4,20 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import type { SdkStoreHandle } from '@forgerock/sdk-store';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type { oidc } from './client.store.js';
-import type { createClientStore } from './client.store.utils.js';
+import type { OidcRootState } from './client.store.utils.js';
 
 export type OidcClient = Awaited<ReturnType<typeof oidc>>;
 
-export type ClientStore = ReturnType<typeof createClientStore>;
+/**
+ * The inner Redux store. OIDC contributes its root state through the SDK store
+ * handle; internal code only needs the Redux store itself.
+ */
+export type ClientStore = SdkStoreHandle<OidcRootState>['store'];
 
 export type RootState = ReturnType<ClientStore['getState']>;
 

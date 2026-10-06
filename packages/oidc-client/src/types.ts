@@ -24,4 +24,10 @@ export type { CustomStorageObject } from '@forgerock/sdk-types';
 
 // Re-export functions needed to resolve OidcClient and ClientStore type aliases
 export { oidc } from './lib/client.store.js';
-export { createClientStore } from './lib/client.store.utils.js';
+// RawOidcArgs is a parameter type of oidc() and must be re-exported so consumers can type call-sites
+export type { RawOidcArgs } from './lib/client.store.types.js';
+export type { OidcRootState } from './lib/client.store.utils.js';
+export { rootReducer } from './lib/client.store.utils.js';
+
+import type { oidc } from './lib/client.store.js';
+export type OidcClient = Awaited<ReturnType<typeof oidc>>;

@@ -4,16 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { configureStore } from '@reduxjs/toolkit';
 import { Either, Match } from 'effect';
 
-import { configSlice } from './config.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { nodeSlice } from './node.slice.js';
-import { wellknownApi } from './wellknown.api.js';
-
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { GenericError } from '@forgerock/sdk-types';
 
 import type {
@@ -22,59 +14,9 @@ import type {
   InternalErrorResponse,
   UpdatableCollectors,
 } from './client.types.js';
-import type {
-  CollectorCategory,
-  Collectors,
-  ContinueNode,
-  ErrorNode,
-  StartNode,
-  SuccessNode,
-} from './node.types.js';
+import type { CollectorCategory, Collectors } from './node.types.js';
 
-export function createClientStore<ActionType extends ActionTypes>({
-  requestMiddleware,
-  logger,
-}: {
-  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
-  logger?: ReturnType<typeof loggerFn>;
-}) {
-  return configureStore({
-    reducer: {
-      config: configSlice.reducer,
-      node: nodeSlice.reducer,
-      [davinciApi.reducerPath]: davinciApi.reducer,
-      [wellknownApi.reducerPath]: wellknownApi.reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        thunk: {
-          extraArgument: {
-            /**
-             * This becomes the `api.extra` argument, and will be passed into the
-             * customer query wrapper for `baseQuery`
-             */
-            requestMiddleware,
-            logger,
-          },
-        },
-      })
-        .concat(davinciApi.middleware)
-        .concat(wellknownApi.middleware),
-  });
-}
-
-export type ClientStore = typeof createClientStore;
-
-export type RootState = ReturnType<ReturnType<ClientStore>['getState']>;
-
-export interface RootStateWithNode<
-  T extends ErrorNode | ContinueNode | StartNode | SuccessNode,
-> extends RootState {
-  node: T;
-}
-
-export type AppDispatch = ReturnType<ReturnType<ClientStore>['dispatch']>;
-
+/** The inner Redux store type — used by effects that need dispatch/getState. */
 /**
  * @function createInternalError
  * @description - Creates an InternalErrorResponse object

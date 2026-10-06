@@ -13,6 +13,7 @@
 - [API Reference](#api-reference)
 - [Working with Callbacks](#working-with-callbacks)
 - [Request Middleware](#request-middleware)
+- [Sharing a Store With Another Client](#sharing-a-store-with-another-client)
 - [Error Handling](#error-handling)
 - [Building](#building)
 - [Testing](#testing)
@@ -109,27 +110,32 @@ The client automatically derives all needed configuration from the well-known re
 
 ### `journey(options)`
 
-Factory function that creates a journey client instance. Throws on initialization failure (invalid URL, fetch error, non-AM server).
+Factory function that creates a journey client instance. It returns an argument error for invalid input or an already-occupied shared store, and throws for initialization failures after input validation (invalid URL, fetch error, non-AM server).
 
 ```typescript
 const client = await journey({
   config: JourneyClientConfig,
   requestMiddleware?: RequestMiddleware[],
   logger?: { level: LogLevel; custom?: CustomLogger },
+  store?: SdkStore,
 });
 ```
 
-**Returns**: `Promise<JourneyClient>`
+**Returns**: `Promise<JourneyClient | { error: string; type: 'argument_error' }>`
 
-**Throws**: `Error` if the wellknown URL is invalid, the fetch fails, or the server is not a ForgeRock AM instance.
+Invalid input, including an invalid `store` handle or attaching a second journey client to a shared store, is returned as an `argument_error`.
 
 ```typescript
-try {
-  const client = await journey({ config });
-} catch (error) {
-  console.error('Initialization failed:', error.message);
+const result = await journey({ config });
+
+if ('error' in result) {
+  console.error('Invalid configuration:', result.error);
+} else {
+  const step = await result.start({ journey: 'Login' });
 }
 ```
+
+**Throws**: `Error` if the wellknown URL is invalid, the fetch fails, or the server is not a ForgeRock AM instance.
 
 ### Client Methods
 
@@ -231,6 +237,50 @@ const client = await journey({
 | `JOURNEY_START`     | Starting a new journey  |
 | `JOURNEY_NEXT`      | Submitting a step       |
 | `JOURNEY_TERMINATE` | Terminating the session |
+
+## Sharing a Store With Another Client
+
+If your application also uses `@forgerock/oidc-client`, the two can share one Redux store so the well-known discovery document is fetched once rather than once per client.
+
+`journey()` exposes the store it created as `client.store`. Pass it to the other client:
+
+```typescript
+import { journey } from '@forgerock/journey-client';
+import { oidc } from '@forgerock/oidc-client';
+
+const journeyClient = await journey({ config });
+
+// Attaches to journey's store; the discovery document is already cached there.
+const oidcClient = await oidc({ config: oidcConfig, store: journeyClient.store });
+```
+
+Or create the store yourself when neither client is the natural owner:
+
+```typescript
+import { createSdkStore } from '@forgerock/sdk-store';
+
+const store = createSdkStore();
+const journeyClient = await journey({ config, store });
+const oidcClient = await oidc({ config: oidcConfig, store });
+```
+
+Omitting `store` is always valid — the client creates its own, which is the default behaviour.
+
+### Middleware and logging stay private
+
+Sharing a store shares cached data, not configuration. `requestMiddleware` and `logger` are registered against the client you pass them to, and are resolved only by that client's own requests:
+
+```typescript
+const store = createSdkStore();
+
+// Runs for JOURNEY_START, JOURNEY_NEXT and JOURNEY_TERMINATE only.
+await journey({ config, store, requestMiddleware: [journeyMiddleware] });
+
+// Runs for OIDC requests only.
+await oidc({ config: oidcConfig, store, requestMiddleware: [oidcMiddleware] });
+```
+
+Middleware passed here will never run against an OIDC token exchange, and vice versa.
 
 ## Error Handling
 

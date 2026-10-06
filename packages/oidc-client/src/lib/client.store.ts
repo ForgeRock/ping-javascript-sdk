@@ -6,26 +6,28 @@
  */
 import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { createAuthorizeUrl } from '@forgerock/sdk-oidc';
+import { createSdkStore, wellknownApi, wellknownSelector } from '@forgerock/sdk-store';
 import { handleMicroExit } from '@forgerock/sdk-utilities';
 import { createStorage } from '@forgerock/storage';
 import { Micro } from 'effect';
 import { causeIsDie, exitIsFail, exitIsSuccess } from 'effect/Micro';
 
 import { authorizeµ, createParAuthorizeUrlµ } from './authorize.request.js';
-import { createClientStore, createTokenError } from './client.store.utils.js';
+import { createClientStore } from './client.store.effects.js';
+import { createTokenError, parseOidcArgs } from './client.store.utils.js';
 import { buildTokenExchangeµ } from './exchange.request.js';
 import { logoutµ } from './logout.request.js';
 import { oidcApi } from './oidc.api.js';
 import { sessionCheckIdTokenµ, sessionCheckNoneµ } from './session.micros.js';
 import { isExpiryWithinThreshold } from './token.utils.js';
-import { wellknownApi, wellknownSelector } from './wellknown.api.js';
 
-import type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
+import type { ActionTypes } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
 import type { GenericError, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { StorageConfig } from '@forgerock/storage';
 
 import type { AuthorizationError, AuthorizationSuccess } from './authorize.request.types.js';
+import type { RawOidcArgs } from './client.store.types.js';
 import type {
   GetTokensOptions,
   LogoutErrorResult,
@@ -34,7 +36,7 @@ import type {
   RevokeSuccessResult,
   UserInfoResponse,
 } from './client.types.js';
-import type { OauthTokens, OidcConfig } from './config.types.js';
+import type { OauthTokens } from './config.types.js';
 import type { TokenExchangeErrorResponse } from './exchange.types.js';
 import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.js';
 
@@ -43,60 +45,56 @@ import type { SessionCheckOptions, SessionCheckSuccess } from './session.types.j
  * @description Factory function to create an OIDC client with methods for authorization, token exchange,
  *              user info retrieval, and logout. It initializes the client with the provided configuration,
  *              request middleware, logger, and storage options.
- * @param param - configuration object containing the OIDC client configuration, request middleware, logger,
- * @param {OidcConfig} param.config - OIDC configuration including server details, client ID, redirect URI,
+ * @param raw - configuration object containing the OIDC client configuration, request middleware, logger,
+ * @param {OidcConfig} raw.config - OIDC configuration including server details, client ID, redirect URI,
  *              storage options, scope, and response type.
- * @param {RequestMiddleware} param.requestMiddleware - optional array of request middleware functions to process requests.
- * @param {{ level: LogLevel, custom: CustomLogger }} param.logger - optional logger configuration with log level and custom logger.
- * @param {Partial<StorageConfig>} param.storage - optional storage configuration for persisting OIDC tokens.
+ * @param {RequestMiddleware} raw.requestMiddleware - optional array of request middleware functions to process requests.
+ * @param {{ level: LogLevel, custom: CustomLogger }} raw.logger - optional logger configuration with log level and custom logger.
+ * @param {Partial<StorageConfig>} raw.storage - optional storage configuration for persisting OIDC tokens.
+ * @param {unknown} raw.store - optional existing SDK store to share across clients; validated at runtime via `isSdkStoreHandle`.
  * @returns {ReturnType<typeof oidc>} - Returns an object with methods for authorization, token exchange, user info retrieval, and logout.
  */
-export async function oidc<ActionType extends ActionTypes = ActionTypes>({
-  config,
-  requestMiddleware,
-  logger,
-  storage,
-}: {
-  config: OidcConfig;
-  requestMiddleware?: RequestMiddleware<ActionType>[];
-  logger?: {
-    level: LogLevel;
-    custom?: CustomLogger;
-  };
-  storage?: Partial<StorageConfig>;
-}) {
+export async function oidc<ActionType extends ActionTypes = ActionTypes>(
+  raw: RawOidcArgs<ActionType>,
+) {
+  const parsed = parseOidcArgs(raw);
+  if ('error' in parsed) return parsed;
+
+  const { config, requestMiddleware, logger, storage, store: sharedStore } = parsed;
+
   const log = loggerFn({
     level: logger?.level ?? config.log ?? 'error',
     custom: logger?.custom,
   });
   const oauthThreshold = config.oauthThreshold || 30 * 1000; // Default to 30 seconds
+
   const storageClient = createStorage<OauthTokens>({
     type: storage?.type || 'localStorage',
     name: storage?.name || config.clientId,
     prefix: storage?.prefix || 'pic',
     ...storage,
   } as StorageConfig);
-  const store = createClientStore({ requestMiddleware, logger: log });
 
-  if (!config?.serverConfig?.wellknown) {
-    return {
-      error: 'Requires a wellknown url initializing this factory.',
-      type: 'argument_error',
-    };
-  }
-  if (!config?.clientId) {
-    return {
-      error: 'Requires a clientId.',
-      type: 'argument_error',
-    };
-  }
-
+  /**
+   * Validate against the network *before* injecting anything. RTK's `inject`
+   * is irreversible, so mutating a caller-owned store and then failing would
+   * leave it permanently carrying a slice from a call that never succeeded.
+   * The well-known slice is mounted from the start, so discovery can be
+   * fetched (and cached for the eventual client) on the un-mutated store.
+   */
+  const baseStore = sharedStore ?? createSdkStore();
   const wellknownUrl = config.serverConfig.wellknown;
-  const { data, error } = await store.dispatch(
-    wellknownApi.endpoints.configuration.initiate(wellknownUrl),
-  );
+  // The shared SdkStore type is deliberately state-agnostic, so dispatch is
+  // widened here; the initiated thunk and its result shape are fixed by
+  // wellknownApi itself.
+  const { data, error } = (await baseStore.store.dispatch(
+    wellknownApi.endpoints.configuration.initiate(wellknownUrl) as never,
+  )) as { data?: { require_pushed_authorization_requests?: boolean }; error?: unknown };
 
   if (error || !data) {
+    // RTK Query retains rejected query entries. Clear them before returning so a
+    // later client sharing this store performs a fresh discovery request.
+    baseStore.store.dispatch(wellknownApi.util.resetApiState() as never);
     log.error(`Error fetching wellknown config. Please check the URL: ${wellknownUrl}`);
     return {
       error: `Failed to fetch well-known configuration from: ${wellknownUrl}`,
@@ -112,9 +110,22 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
     };
   }
 
+  // Validation is complete — only now does the store gain the oidc slice.
+  // When we created the base store ourselves, inject into *it* so the already-
+  // cached discovery document carries over to the returned store.
+  const handle = createClientStore({
+    requestMiddleware,
+    logger: log,
+    store: sharedStore ?? baseStore,
+    clientId: config.clientId,
+  });
+  const { store } = handle;
+
   const useParFlow = config.par ?? data?.require_pushed_authorization_requests === true;
 
   return {
+    /** Pass to another SDK client's `store` option to share this store. */
+    store: handle as SdkStore,
     // Pass store methods to the client
     subscribe: store.subscribe,
 

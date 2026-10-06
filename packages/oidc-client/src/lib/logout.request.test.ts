@@ -12,7 +12,7 @@ import { setupServer } from 'msw/node';
 import { deepStrictEqual } from 'node:assert';
 import { describe, expect, it } from 'vitest';
 
-import { createClientStore } from './client.store.utils.js';
+import { createClientStore } from './client.store.effects.js';
 import { logoutµ } from './logout.request.js';
 
 import type { OauthTokens, OidcConfig } from './config.types.js';
@@ -86,7 +86,7 @@ const storageClient = createStorage<OauthTokens>({
 });
 
 const logger = loggerFn({ level: 'error' });
-const store = createClientStore({ logger });
+const { store } = createClientStore({ logger });
 
 const tokens = {
   accessToken: '1234567890',

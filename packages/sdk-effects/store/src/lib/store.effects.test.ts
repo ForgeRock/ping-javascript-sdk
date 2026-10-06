@@ -1,0 +1,321 @@
+/*
+ * Copyright (c) 2025 - 2026 Ping Identity Corporation. All rights reserved.
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license. See the LICENSE file for details.
+ */
+import { createSlice } from '@reduxjs/toolkit';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+import { describe, expect, it, vi } from 'vitest';
+
+import { createSdkStore, unregisterClient } from './store.effects.js';
+import { injectClient } from './store.micros.js';
+import { isSdkStoreHandle } from './store.utils.js';
+import { wellknownApi } from './wellknown.api.js';
+
+const fakeApi = createApi({
+  reducerPath: 'fake',
+  baseQuery: fetchBaseQuery(),
+  endpoints: (builder) => ({
+    ping: builder.query<object, void>({ queryFn: async () => ({ data: {} }) }),
+  }),
+});
+
+const otherApi = createApi({
+  reducerPath: 'other',
+  baseQuery: fetchBaseQuery(),
+  endpoints: (builder) => ({
+    ping: builder.query<object, void>({ queryFn: async () => ({ data: {} }) }),
+  }),
+});
+
+const fakeSlice = createSlice({
+  name: 'fakeSlice',
+  initialState: { value: 0 },
+  reducers: { bump: (state) => ({ value: state.value + 1 }) },
+});
+
+const davinciConfigSlice = createSlice({
+  name: 'config',
+  reducerPath: 'davinciConfig',
+  initialState: { clientId: '' },
+  reducers: {
+    set: (_state, action: { payload: string }) => ({ clientId: action.payload }),
+  },
+});
+
+const journeyConfigSlice = createSlice({
+  name: 'journeyConfig',
+  reducerPath: 'journeyConfig',
+  initialState: { clientId: '' },
+  reducers: {
+    set: (_state, action: { payload: string }) => ({ clientId: action.payload }),
+  },
+});
+
+/** Stand-in for a request middleware; sdk-store does not depend on its type. */
+function noopMiddleware() {
+  return (_req: unknown, _action: unknown, next: () => unknown) => {
+    next();
+  };
+}
+
+describe('createSdkStore', () => {
+  it('produces a handle that satisfies the shared contract', () => {
+    // Act
+    const handle = createSdkStore();
+
+    // Assert
+    expect(isSdkStoreHandle(handle)).toBe(true);
+  });
+
+  it('mounts the wellknown slice so discovery is shared from the start', () => {
+    // Act
+    const handle = createSdkStore();
+
+    // Assert
+    expect(Object.keys(handle.store.getState() as object)).toContain(wellknownApi.reducerPath);
+  });
+
+  it('starts with an empty client registry on the store extra', () => {
+    // Act
+    const handle = createSdkStore();
+
+    // Assert
+    expect(handle.extra.clients).toEqual({});
+  });
+
+  it('returns an independent store on each call', () => {
+    // Act
+    const a = createSdkStore();
+    const b = createSdkStore();
+
+    // Assert
+    expect(a.store).not.toBe(b.store);
+    expect(a.extra).not.toBe(b.extra);
+  });
+});
+
+describe('isSdkStoreHandle', () => {
+  it.each([
+    ['undefined', undefined],
+    ['null', null],
+    ['a number', 42],
+    ['a string', 'store'],
+    ['an empty object', {}],
+    [
+      'an object missing dynamicMiddleware',
+      { store: {}, rootReducer: { inject: () => undefined } },
+    ],
+    ['a bare redux store', { dispatch: () => undefined, getState: () => ({}) }],
+    [
+      'a handle whose clients registry is null',
+      {
+        store: {
+          dispatch: () => undefined,
+          getState: () => ({}),
+          subscribe: () => () => undefined,
+        },
+        rootReducer: { inject: () => undefined },
+        dynamicMiddleware: { addMiddleware: () => undefined },
+        extra: { clients: null },
+      },
+    ],
+    [
+      'a store without subscribe',
+      {
+        store: { dispatch: () => undefined, getState: () => ({}) },
+        rootReducer: { inject: () => undefined },
+        dynamicMiddleware: { addMiddleware: () => undefined },
+        extra: { clients: {} },
+      },
+    ],
+  ] as [string, unknown][])('rejects %s', (_label, candidate) => {
+    // Assert — a bad handle must be detectable before we mutate anything
+    expect(isSdkStoreHandle(candidate)).toBe(false);
+  });
+
+  it('accepts a real handle', () => {
+    expect(isSdkStoreHandle(createSdkStore())).toBe(true);
+  });
+});
+
+describe('injectClient', () => {
+  it('mounts the client api reducer and makes it readable immediately', () => {
+    // Arrange
+    const handle = createSdkStore();
+
+    // Act
+    injectClient(handle, { api: fakeApi });
+
+    // Assert — no manual dispatch required by the caller
+    expect(Object.keys(handle.store.getState() as object)).toContain('fake');
+  });
+
+  it('mounts additional slices supplied by the client', () => {
+    // Arrange
+    const handle = createSdkStore();
+
+    // Act
+    injectClient(handle, {
+      api: fakeApi,
+      slices: [fakeSlice],
+    });
+
+    // Assert
+    expect(Object.keys(handle.store.getState() as object)).toContain('fakeSlice');
+  });
+
+  it('isolates same-action config slices in a shared store', () => {
+    // Arrange — production client config slices each expose a `set` action.
+    const handle = createSdkStore();
+
+    const davinciStore = injectClient<{ davinciConfig: { clientId: string } }>(handle, {
+      api: fakeApi,
+      slices: [davinciConfigSlice],
+    });
+    const sharedStore = injectClient<{
+      davinciConfig: { clientId: string };
+      journeyConfig: { clientId: string };
+    }>(davinciStore, {
+      api: otherApi,
+      slices: [journeyConfigSlice],
+    });
+
+    // Act
+    sharedStore.store.dispatch(davinciConfigSlice.actions.set('davinci-client'));
+
+    // Assert — reducer paths mount state; unique slice names namespace actions.
+    expect(davinciConfigSlice.actions.set('x').type).toBe('config/set');
+    expect(journeyConfigSlice.actions.set('x').type).toBe('journeyConfig/set');
+    expect(sharedStore.store.getState()).toMatchObject({
+      davinciConfig: { clientId: 'davinci-client' },
+      journeyConfig: { clientId: '' },
+    });
+
+    sharedStore.store.dispatch(journeyConfigSlice.actions.set('journey-client'));
+
+    expect(sharedStore.store.getState()).toMatchObject({
+      davinciConfig: { clientId: 'davinci-client' },
+      journeyConfig: { clientId: 'journey-client' },
+    });
+  });
+
+  it('registers the client slot under its api reducerPath', () => {
+    // Arrange
+    const handle = createSdkStore();
+    const mw = noopMiddleware();
+
+    // Act
+    injectClient(handle, {
+      api: fakeApi,
+      requestMiddleware: [mw],
+    });
+
+    // Assert
+    expect(handle.extra.clients['fake']?.requestMiddleware).toEqual([mw]);
+  });
+
+  it('keeps each client slot separate', () => {
+    // Arrange
+    const handle = createSdkStore();
+    const first = noopMiddleware();
+    const second = noopMiddleware();
+
+    // Act
+    injectClient(handle, {
+      api: fakeApi,
+      requestMiddleware: [first],
+    });
+    injectClient(handle, {
+      api: otherApi,
+      requestMiddleware: [second],
+    });
+
+    // Assert
+    expect(handle.extra.clients['fake']?.requestMiddleware).toEqual([first]);
+    expect(handle.extra.clients['other']?.requestMiddleware).toEqual([second]);
+  });
+
+  it('adds the api middleware to the dynamic chain', () => {
+    // Arrange
+    const handle = createSdkStore();
+    const spy = vi.spyOn(handle.dynamicMiddleware, 'addMiddleware');
+
+    // Act
+    injectClient(handle, { api: fakeApi });
+
+    // Assert
+    expect(spy).toHaveBeenCalledWith(fakeApi.middleware);
+  });
+
+  it('is idempotent for repeated injection of the same client', () => {
+    // Arrange
+    const handle = createSdkStore();
+    const spy = vi.spyOn(handle.dynamicMiddleware, 'addMiddleware');
+
+    // Act
+    injectClient(handle, { api: fakeApi });
+    const afterFirst = Object.keys(handle.store.getState() as object).sort();
+    injectClient(handle, { api: fakeApi });
+
+    // Assert
+    expect(Object.keys(handle.store.getState() as object).sort()).toEqual(afterFirst);
+    expect(spy).toHaveBeenCalledTimes(1); // middleware must not be double-registered
+  });
+
+  it('throws a descriptive error when handed something that is not a handle', () => {
+    // Assert — better than a TypeError from deep inside a factory
+    expect(() =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      injectClient({} as any, { api: fakeApi }),
+    ).toThrow(/not a valid SDK store/i);
+  });
+});
+
+describe('unregisterClient', () => {
+  it('removes the client slot from the registry', () => {
+    // Arrange
+    const handle = createSdkStore();
+    injectClient(handle, {
+      api: fakeApi,
+      clientId: 'test-client',
+    });
+    expect(handle.extra.clients['fake']).toBeDefined();
+
+    // Act
+    unregisterClient(handle, fakeApi.reducerPath);
+
+    // Assert
+    expect(handle.extra.clients['fake']).toBeUndefined();
+  });
+
+  it('allows a different clientId to be injected after unregister', () => {
+    // Arrange
+    const handle = createSdkStore();
+    injectClient(handle, {
+      api: fakeApi,
+      clientId: 'first-client',
+    });
+
+    // Act
+    unregisterClient(handle, fakeApi.reducerPath);
+    injectClient(handle, {
+      api: fakeApi,
+      clientId: 'second-client',
+    });
+
+    // Assert
+    expect(handle.extra.clients['fake']?.clientId).toBe('second-client');
+  });
+
+  it('is idempotent — no error when slot does not exist', () => {
+    // Arrange
+    const handle = createSdkStore();
+    // No injection
+
+    // Act & Assert — should not throw
+    expect(() => unregisterClient(handle, 'nonexistent')).not.toThrow();
+    expect(handle.extra.clients['nonexistent']).toBeUndefined();
+  });
+});

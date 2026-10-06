@@ -5,11 +5,12 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import { logger as loggerFn } from '@forgerock/sdk-logger';
 import { initQuery } from '@forgerock/sdk-request-middleware';
+import { clientExtra } from '@forgerock/sdk-store';
 import { getEndpointPath, REQUESTED_WITH, resolve, stringify } from '@forgerock/sdk-utilities';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
 import type { RequestMiddleware } from '@forgerock/sdk-request-middleware';
 import type { Step } from '@forgerock/sdk-types';
 import type {
@@ -27,10 +28,10 @@ import type { JourneyStep } from './step.types.js';
 
 /**
  * Minimal state type for accessing journey config from RTK Query endpoints.
- * References the config slice directly (not nested under journey).
+ * References the journey-specific config slice directly (not nested under journey).
  */
 interface JourneyRootState {
-  config: InternalJourneyClientConfig;
+  journeyConfig: InternalJourneyClientConfig;
 }
 
 function constructUrl(
@@ -84,13 +85,37 @@ function configureSessionRequest(): RequestInit {
   return init;
 }
 
+const JOURNEY_REDUCER_PATH = 'journeyReducer';
+
+/**
+ * This client's private slot on the store's `extraArgument`.
+ *
+ * Optional because a shared store may not have had a journey slot registered
+ * yet; `journeyExtra` substitutes safe defaults.
+ */
 interface Extras {
-  requestMiddleware: RequestMiddleware[];
-  logger: ReturnType<typeof loggerFn>;
+  requestMiddleware?: RequestMiddleware[];
+  logger?: ReturnType<typeof loggerFn>;
+}
+
+/** Creates an error-level fallback so a missing slot degrades safely, never crashes. */
+const createFallbackLogger = () => loggerFn({ level: 'error' });
+
+/**
+ * Resolves this client's own middleware and logger.
+ *
+ * Reads only the `journeyReducer` slot — never a store-wide value, which on a
+ * shared store would belong to whichever client created it.
+ */
+function journeyExtra(extra: unknown): Required<Extras> {
+  return clientExtra(extra, JOURNEY_REDUCER_PATH, {
+    requestMiddleware: [],
+    logger: createFallbackLogger(),
+  });
 }
 
 export const journeyApi = createApi({
-  reducerPath: 'journeyReducer',
+  reducerPath: JOURNEY_REDUCER_PATH,
   baseQuery: fetchBaseQuery({
     baseUrl: '/',
     prepareHeaders: (headers: Headers) => {
@@ -111,7 +136,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
@@ -121,7 +146,7 @@ export const journeyApi = createApi({
         const url = constructUrl(serverConfig, options?.journey, query);
         const request = configureRequest();
 
-        const { requestMiddleware } = api.extra as Extras;
+        const { requestMiddleware } = journeyExtra(api.extra);
 
         const response = await initQuery({ ...request, url: url }, 'begin', {
           type: 'service',
@@ -144,7 +169,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
@@ -153,7 +178,7 @@ export const journeyApi = createApi({
         const url = constructUrl(serverConfig, undefined, query);
         const request = configureRequest(step);
 
-        const { requestMiddleware } = api.extra as Extras;
+        const { requestMiddleware } = journeyExtra(api.extra);
 
         const response = await initQuery({ ...request, url }, 'continue')
           .applyMiddleware(requestMiddleware)
@@ -173,7 +198,7 @@ export const journeyApi = createApi({
         baseQuery: BaseQueryFn,
       ) => {
         const state = api.getState() as JourneyRootState;
-        const { serverConfig } = state.config;
+        const { serverConfig } = state.journeyConfig;
         if (!serverConfig) {
           throw new Error('Server configuration is missing.');
         }
@@ -183,7 +208,7 @@ export const journeyApi = createApi({
         const url = constructSessionsUrl(serverConfig, query);
         const request = configureSessionRequest();
 
-        const { requestMiddleware } = api.extra as Extras;
+        const { requestMiddleware } = journeyExtra(api.extra);
 
         const response = await initQuery({ ...request, url }, 'terminate')
           .applyMiddleware(requestMiddleware)

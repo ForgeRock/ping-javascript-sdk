@@ -124,6 +124,7 @@ describe('davinci client — cache', () => {
   describe('cache.getLatestResponse()', () => {
     it('returns a state_error when no flow has been started (no cache key)', async () => {
       const client = await davinci({ config: mockConfig });
+      if ('type' in client) throw new Error(`davinci() failed: ${client.error}`);
 
       // Node is in start status — cache.key is null before any start() call
       const result = client.cache.getLatestResponse();
@@ -133,6 +134,7 @@ describe('davinci client — cache', () => {
 
     it('returns the raw DaVinci response object — NOT a selector function — after start()', async () => {
       const client = await davinci({ config: mockConfig });
+      if ('type' in client) throw new Error(`davinci() failed: ${client.error}`);
       await client.start();
 
       const result = client.cache.getLatestResponse();
@@ -151,6 +153,7 @@ describe('davinci client — cache', () => {
   describe('cache.getResponseWithId()', () => {
     it('returns an argument_error when called with an empty string', async () => {
       const client = await davinci({ config: mockConfig });
+      if ('type' in client) throw new Error(`davinci() failed: ${client.error}`);
 
       const result = client.cache.getResponseWithId('');
 
@@ -159,6 +162,7 @@ describe('davinci client — cache', () => {
 
     it('returns the raw DaVinci response object — NOT a selector function — for a valid request ID', async () => {
       const client = await davinci({ config: mockConfig });
+      if ('type' in client) throw new Error(`davinci() failed: ${client.error}`);
       await client.start();
 
       const node = client.getNode();
@@ -176,6 +180,7 @@ describe('davinci client — cache', () => {
 
     it('returns a state_error for a requestId not present in cache', async () => {
       const client = await davinci({ config: mockConfig });
+      if ('type' in client) throw new Error(`davinci() failed: ${client.error}`);
 
       const result = client.cache.getResponseWithId('non-existent-id');
 
