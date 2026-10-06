@@ -149,7 +149,7 @@ describe('injectClient', () => {
     const handle = createSdkStore();
 
     // Act
-    injectClient(handle, { api: fakeApi, reducerPath: fakeApi.reducerPath });
+    injectClient(handle, { api: fakeApi });
 
     // Assert — no manual dispatch required by the caller
     expect(Object.keys(handle.store.getState() as object)).toContain('fake');
@@ -162,7 +162,6 @@ describe('injectClient', () => {
     // Act
     injectClient(handle, {
       api: fakeApi,
-      reducerPath: fakeApi.reducerPath,
       slices: [fakeSlice],
     });
 
@@ -176,7 +175,6 @@ describe('injectClient', () => {
 
     const davinciStore = injectClient<{ davinciConfig: { clientId: string } }>(handle, {
       api: fakeApi,
-      reducerPath: fakeApi.reducerPath,
       slices: [davinciConfigSlice],
     });
     const sharedStore = injectClient<{
@@ -184,7 +182,6 @@ describe('injectClient', () => {
       journeyConfig: { clientId: string };
     }>(davinciStore, {
       api: otherApi,
-      reducerPath: otherApi.reducerPath,
       slices: [journeyConfigSlice],
     });
 
@@ -207,7 +204,7 @@ describe('injectClient', () => {
     });
   });
 
-  it('registers the client slot under its reducerPath', () => {
+  it('registers the client slot under its api reducerPath', () => {
     // Arrange
     const handle = createSdkStore();
     const mw = noopMiddleware();
@@ -215,7 +212,6 @@ describe('injectClient', () => {
     // Act
     injectClient(handle, {
       api: fakeApi,
-      reducerPath: fakeApi.reducerPath,
       requestMiddleware: [mw],
     });
 
@@ -232,12 +228,10 @@ describe('injectClient', () => {
     // Act
     injectClient(handle, {
       api: fakeApi,
-      reducerPath: fakeApi.reducerPath,
       requestMiddleware: [first],
     });
     injectClient(handle, {
       api: otherApi,
-      reducerPath: otherApi.reducerPath,
       requestMiddleware: [second],
     });
 
@@ -252,7 +246,7 @@ describe('injectClient', () => {
     const spy = vi.spyOn(handle.dynamicMiddleware, 'addMiddleware');
 
     // Act
-    injectClient(handle, { api: fakeApi, reducerPath: fakeApi.reducerPath });
+    injectClient(handle, { api: fakeApi });
 
     // Assert
     expect(spy).toHaveBeenCalledWith(fakeApi.middleware);
@@ -264,9 +258,9 @@ describe('injectClient', () => {
     const spy = vi.spyOn(handle.dynamicMiddleware, 'addMiddleware');
 
     // Act
-    injectClient(handle, { api: fakeApi, reducerPath: fakeApi.reducerPath });
+    injectClient(handle, { api: fakeApi });
     const afterFirst = Object.keys(handle.store.getState() as object).sort();
-    injectClient(handle, { api: fakeApi, reducerPath: fakeApi.reducerPath });
+    injectClient(handle, { api: fakeApi });
 
     // Assert
     expect(Object.keys(handle.store.getState() as object).sort()).toEqual(afterFirst);
@@ -277,7 +271,7 @@ describe('injectClient', () => {
     // Assert — better than a TypeError from deep inside a factory
     expect(() =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      injectClient({} as any, { api: fakeApi, reducerPath: fakeApi.reducerPath }),
+      injectClient({} as any, { api: fakeApi }),
     ).toThrow(/not a valid SDK store/i);
   });
 });
@@ -288,7 +282,6 @@ describe('unregisterClient', () => {
     const handle = createSdkStore();
     injectClient(handle, {
       api: fakeApi,
-      reducerPath: fakeApi.reducerPath,
       clientId: 'test-client',
     });
     expect(handle.extra.clients['fake']).toBeDefined();
@@ -305,7 +298,6 @@ describe('unregisterClient', () => {
     const handle = createSdkStore();
     injectClient(handle, {
       api: fakeApi,
-      reducerPath: fakeApi.reducerPath,
       clientId: 'first-client',
     });
 
@@ -313,7 +305,6 @@ describe('unregisterClient', () => {
     unregisterClient(handle, fakeApi.reducerPath);
     injectClient(handle, {
       api: fakeApi,
-      reducerPath: fakeApi.reducerPath,
       clientId: 'second-client',
     });
 

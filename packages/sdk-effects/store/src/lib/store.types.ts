@@ -94,8 +94,6 @@ export interface SdkStoreHandle<S extends object = Record<string, unknown>> exte
 export interface InjectClientOptions {
   /** The client's RTK Query api. Its reducer and middleware are both mounted. */
   readonly api: { reducerPath: string; reducer: Reducer; middleware: Middleware };
-  /** Key for this client's slot on the registry. Normally `api.reducerPath`. */
-  readonly reducerPath: string;
   /** Additional slices the client owns, e.g. its config and node slices. */
   readonly slices?: readonly { name: string; reducer: Reducer }[];
   readonly requestMiddleware?: readonly unknown[];

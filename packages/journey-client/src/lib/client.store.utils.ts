@@ -45,7 +45,6 @@ export const createJourneyStore = <ActionType extends ActionTypes>({
 }): SdkStoreHandle<RootState> =>
   injectClient<RootState>(store ?? createSdkStore(), {
     api: journeyApi,
-    reducerPath: journeyApi.reducerPath,
     slices: [configSlice],
     requestMiddleware,
     logger,

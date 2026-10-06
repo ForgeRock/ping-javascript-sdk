@@ -42,7 +42,6 @@ export function createClientStore<ActionType extends ActionTypes>({
 }): SdkStoreHandle<RootState> {
   return injectClient<RootState>(store ?? createSdkStore(), {
     api: davinciApi,
-    reducerPath: davinciApi.reducerPath,
     slices: [configSlice, nodeSlice],
     requestMiddleware,
     logger,

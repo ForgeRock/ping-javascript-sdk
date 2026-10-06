@@ -163,7 +163,8 @@ export function injectClient<S extends object = Record<string, unknown>>(
     throw new Error(INVALID_STORE_MESSAGE);
   }
 
-  const { api, reducerPath, slices = [], requestMiddleware, logger, clientId } = options;
+  const { api, slices = [], requestMiddleware, logger, clientId } = options;
+  const { reducerPath } = api;
 
   const inject = handle.rootReducer.inject as (slice: unknown) => unknown;
   inject(api);

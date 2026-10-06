@@ -77,7 +77,6 @@ export function createClientStore<ActionType extends ActionTypes>({
 
   return injectClient<OidcRootState>(store ?? createSdkStore(), {
     api: oidcApi,
-    reducerPath: oidcApi.reducerPath,
     requestMiddleware,
     logger,
     clientId,
