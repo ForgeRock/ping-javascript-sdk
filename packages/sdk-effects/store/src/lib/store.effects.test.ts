@@ -43,16 +43,16 @@ const davinciConfigSlice = createSlice({
   reducerPath: 'davinciConfig',
   initialState: { clientId: '' },
   reducers: {
-    setDavinciConfig: (_state, action: { payload: string }) => ({ clientId: action.payload }),
+    set: (_state, action: { payload: string }) => ({ clientId: action.payload }),
   },
 });
 
 const journeyConfigSlice = createSlice({
-  name: 'config',
+  name: 'journeyConfig',
   reducerPath: 'journeyConfig',
   initialState: { clientId: '' },
   reducers: {
-    setJourneyConfig: (_state, action: { payload: string }) => ({ clientId: action.payload }),
+    set: (_state, action: { payload: string }) => ({ clientId: action.payload }),
   },
 });
 
@@ -170,11 +170,10 @@ describe('injectClient', () => {
     expect(Object.keys(handle.store.getState() as object)).toContain('fakeSlice');
   });
 
-  it('keeps same-named DaVinci and Journey config slices distinct in a shared store', () => {
-    // Arrange — both slices intentionally share the public name "config".
+  it('isolates same-action config slices in a shared store', () => {
+    // Arrange — production client config slices each expose a `set` action.
     const handle = createSdkStore();
 
-    // Act — inject each client's config through the shared-store path.
     const davinciStore = injectClient<{ davinciConfig: { clientId: string } }>(handle, {
       api: fakeApi,
       reducerPath: fakeApi.reducerPath,
@@ -188,15 +187,19 @@ describe('injectClient', () => {
       reducerPath: otherApi.reducerPath,
       slices: [journeyConfigSlice],
     });
-    sharedStore.store.dispatch(davinciConfigSlice.actions.setDavinciConfig('davinci-client'));
 
-    // Assert — the injected reducer paths, not the shared slice name, isolate state.
+    // Act
+    sharedStore.store.dispatch(davinciConfigSlice.actions.set('davinci-client'));
+
+    // Assert — reducer paths mount state; unique slice names namespace actions.
+    expect(davinciConfigSlice.actions.set('x').type).toBe('config/set');
+    expect(journeyConfigSlice.actions.set('x').type).toBe('journeyConfig/set');
     expect(sharedStore.store.getState()).toMatchObject({
       davinciConfig: { clientId: 'davinci-client' },
       journeyConfig: { clientId: '' },
     });
 
-    sharedStore.store.dispatch(journeyConfigSlice.actions.setJourneyConfig('journey-client'));
+    sharedStore.store.dispatch(journeyConfigSlice.actions.set('journey-client'));
 
     expect(sharedStore.store.getState()).toMatchObject({
       davinciConfig: { clientId: 'davinci-client' },
