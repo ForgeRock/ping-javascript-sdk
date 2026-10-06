@@ -5,15 +5,11 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-import { createSdkStore, injectClient, wellknownApi } from '@forgerock/sdk-store';
+import { wellknownApi } from '@forgerock/sdk-store';
 import { combineSlices } from '@reduxjs/toolkit';
 
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
-
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 
 /**
  * The canonical description of the state this client contributes.
@@ -27,25 +23,3 @@ import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 export const rootReducer = combineSlices(journeyApi, configSlice, wellknownApi);
 
 export type RootState = ReturnType<typeof rootReducer>;
-
-/**
- * Creates, or attaches to, the store backing a Journey client.
- *
- * Passing `store` attaches to an existing SDK store so that discovery caching
- * and state are shared; omitting it creates one, which is the default.
- */
-export const createJourneyStore = <ActionType extends ActionTypes>({
-  requestMiddleware,
-  logger,
-  store,
-}: {
-  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
-  logger?: ReturnType<typeof loggerFn>;
-  store?: SdkStore;
-}): SdkStoreHandle<RootState> =>
-  injectClient<RootState>(store ?? createSdkStore(), {
-    api: journeyApi,
-    slices: [configSlice],
-    requestMiddleware,
-    logger,
-  });

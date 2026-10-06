@@ -5,9 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 import {
-  createSdkStore,
   getClientForReducerPath,
-  injectClient,
   INVALID_STORE_MESSAGE,
   isSdkStoreHandle,
   wellknownApi,
@@ -16,9 +14,8 @@ import { combineSlices } from '@reduxjs/toolkit';
 
 import { oidcApi } from './oidc.api.js';
 
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
+import type { ActionTypes } from '@forgerock/sdk-request-middleware';
+import type { SdkStore } from '@forgerock/sdk-store';
 import type { GenericError } from '@forgerock/sdk-types';
 import type { SerializedError } from '@reduxjs/toolkit';
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
@@ -37,51 +34,6 @@ import type { ParsedOidcArgs, RawOidcArgs } from './client.store.types.js';
 export const rootReducer = combineSlices(oidcApi, wellknownApi);
 
 export type OidcRootState = ReturnType<typeof rootReducer>;
-
-/**
- * @function createClientStore
- * @description Creates, or attaches to, the store backing an OIDC client.
- * @param param - Configuration options for the client store.
- * @param {RequestMiddleware} param.requestMiddleware - Request middleware applied to this client's requests only.
- * @param {ReturnType<typeof loggerFn>} param.logger - An optional logger for this client only.
- * @param {SdkStore} param.store - An existing SDK store to attach to. Omit to create one.
- * @throws When `store` is already owned by an OIDC client with a different
- *         `clientId` — including when called directly through this exported
- *         factory, bypassing `parseOidcArgs`.
- * @returns {SdkStoreHandle<OidcRootState>} - A handle to the store this client is mounted on.
- */
-export function createClientStore<ActionType extends ActionTypes>({
-  requestMiddleware,
-  logger,
-  store,
-  clientId,
-}: {
-  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
-  logger?: ReturnType<typeof loggerFn>;
-  store?: SdkStore;
-  clientId?: string;
-}): SdkStoreHandle<OidcRootState> {
-  /**
-   * The conflict check cannot live only in `parseOidcArgs`: this factory is
-   * exported, so application code can reach it directly. `oidcApi.reducerPath`
-   * is a fixed string, so two clients with different clientIds on one store
-   * would share a single cache slice and silently clobber each other's tokens.
-   */
-  const conflict = conflictingClientId(store, clientId ?? '');
-  if (conflict) {
-    throw new Error(
-      `This store is already in use by an OIDC client with clientId '${conflict}'. ` +
-        'Use a separate store per clientId.',
-    );
-  }
-
-  return injectClient<OidcRootState>(store ?? createSdkStore(), {
-    api: oidcApi,
-    requestMiddleware,
-    logger,
-    clientId,
-  });
-}
 
 /**
  * Reports the clientId already occupying a store's OIDC slot, when it differs

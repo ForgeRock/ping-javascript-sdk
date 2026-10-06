@@ -10,17 +10,17 @@ export type { WellknownState } from './lib/wellknown.api.js';
 
 export { initWellknownQuery, isValidWellknownResponse } from './lib/wellknown.effects.js';
 
-export { clientExtra } from './lib/store.utils.js';
-
 export {
-  createSdkStore,
-  injectClient,
-  isSdkStoreHandle,
-  INVALID_STORE_MESSAGE,
   assertValidStore,
+  clientExtra,
   getClientForReducerPath,
-  unregisterClient,
-} from './lib/store.effects.js';
+  INVALID_STORE_MESSAGE,
+  isSdkStoreHandle,
+} from './lib/store.utils.js';
+
+export { injectClient } from './lib/store.micros.js';
+
+export { createSdkStore, unregisterClient } from './lib/store.effects.js';
 export type {
   ClientSlot,
   InjectClientOptions,

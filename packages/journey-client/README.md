@@ -110,7 +110,7 @@ The client automatically derives all needed configuration from the well-known re
 
 ### `journey(options)`
 
-Factory function that creates a journey client instance. Throws on initialization failure (invalid URL, fetch error, non-AM server).
+Factory function that creates a journey client instance. It returns an argument error for invalid input or an already-occupied shared store, and throws for initialization failures after input validation (invalid URL, fetch error, non-AM server).
 
 ```typescript
 const client = await journey({
@@ -121,17 +121,21 @@ const client = await journey({
 });
 ```
 
-**Returns**: `Promise<JourneyClient>`
+**Returns**: `Promise<JourneyClient | { error: string; type: 'argument_error' }>`
 
-**Throws**: `Error` if the wellknown URL is invalid, the fetch fails, or the server is not a ForgeRock AM instance. Throws if the `store` argument is provided but is not a valid `SdkStore` handle.
+Invalid input, including an invalid `store` handle or attaching a second journey client to a shared store, is returned as an `argument_error`.
 
 ```typescript
-try {
-  const client = await journey({ config });
-} catch (error) {
-  console.error('Initialization failed:', error.message);
+const result = await journey({ config });
+
+if ('error' in result) {
+  console.error('Invalid configuration:', result.error);
+} else {
+  const step = await result.start({ journey: 'Login' });
 }
 ```
+
+**Throws**: `Error` if the wellknown URL is invalid, the fetch fails, or the server is not a ForgeRock AM instance.
 
 ### Client Methods
 

@@ -5,6 +5,53 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import type { ClientSlot, SdkStore, SdkStoreHandle } from './store.types.js';
+
+/** Human-readable explanation used whenever an argument fails validation. */
+export const INVALID_STORE_MESSAGE =
+  'The provided `store` is not a valid SDK store. Pass the `store` returned by ' +
+  'another SDK client, or one created with `createSdkStore()`.';
+
+/** Narrows an unknown value to a usable SDK store handle. */
+export function isSdkStoreHandle(value: unknown): value is SdkStore {
+  if (typeof value !== 'object' || value === null) return false;
+
+  const candidate = value as Partial<SdkStoreHandle>;
+  return (
+    typeof candidate.store === 'object' &&
+    candidate.store !== null &&
+    typeof candidate.store.dispatch === 'function' &&
+    typeof candidate.store.getState === 'function' &&
+    typeof candidate.store.subscribe === 'function' &&
+    typeof candidate.rootReducer === 'function' &&
+    typeof candidate.rootReducer.inject === 'function' &&
+    typeof candidate.dynamicMiddleware === 'object' &&
+    candidate.dynamicMiddleware !== null &&
+    typeof candidate.dynamicMiddleware.addMiddleware === 'function' &&
+    typeof candidate.extra === 'object' &&
+    candidate.extra !== null &&
+    typeof candidate.extra.clients === 'object' &&
+    candidate.extra.clients !== null
+  );
+}
+
+/** Returns an argument error if `store` is supplied but is not an SDK handle. */
+export function assertValidStore(
+  store: unknown,
+): { error: string; type: 'argument_error' } | undefined {
+  return store !== undefined && !isSdkStoreHandle(store)
+    ? { error: INVALID_STORE_MESSAGE, type: 'argument_error' }
+    : undefined;
+}
+
+/** Returns the registered slot for `reducerPath`, if one exists. */
+export function getClientForReducerPath(
+  store: SdkStore,
+  reducerPath: string,
+): ClientSlot | undefined {
+  return store.extra.clients[reducerPath];
+}
+
 /**
  * Resolves the calling client's own slot from a store's `extraArgument`.
  *

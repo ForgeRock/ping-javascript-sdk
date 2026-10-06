@@ -12,7 +12,7 @@ import { setupServer } from 'msw/node';
 import { deepStrictEqual } from 'node:assert';
 import { describe, expect, it } from 'vitest';
 
-import { createClientStore } from './client.store.utils.js';
+import { createClientStore } from './client.store.effects.js';
 import { logoutµ } from './logout.request.js';
 
 import type { OauthTokens, OidcConfig } from './config.types.js';

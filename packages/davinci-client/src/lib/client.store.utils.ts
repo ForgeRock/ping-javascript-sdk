@@ -4,16 +4,8 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import { createSdkStore, injectClient } from '@forgerock/sdk-store';
 import { Either, Match } from 'effect';
 
-import { configSlice } from './config.slice.js';
-import { davinciApi } from './davinci.api.js';
-import { nodeSlice } from './node.slice.js';
-
-import type { logger as loggerFn } from '@forgerock/sdk-logger';
-import type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
-import type { SdkStore, SdkStoreHandle } from '@forgerock/sdk-store';
 import type { GenericError } from '@forgerock/sdk-types';
 
 import type {
@@ -22,39 +14,9 @@ import type {
   InternalErrorResponse,
   UpdatableCollectors,
 } from './client.types.js';
-import type { RootState } from './davinci.state.js';
 import type { CollectorCategory, Collectors } from './node.types.js';
 
-/**
- * Creates, or attaches to, the store backing a DaVinci client.
- *
- * Passing `store` attaches to an existing SDK store so that discovery caching
- * and state are shared; omitting it creates one, which is the default.
- */
-export function createClientStore<ActionType extends ActionTypes>({
-  requestMiddleware,
-  logger,
-  store,
-}: {
-  requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
-  logger?: ReturnType<typeof loggerFn>;
-  store?: SdkStore;
-}): SdkStoreHandle<RootState> {
-  return injectClient<RootState>(store ?? createSdkStore(), {
-    api: davinciApi,
-    slices: [configSlice, nodeSlice],
-    requestMiddleware,
-    logger,
-  });
-}
-
-export type ClientStore = typeof createClientStore;
-
 /** The inner Redux store type — used by effects that need dispatch/getState. */
-export type DavinciStore = SdkStoreHandle<RootState>['store'];
-
-export type AppDispatch = DavinciStore['dispatch'];
-
 /**
  * @function createInternalError
  * @description - Creates an InternalErrorResponse object

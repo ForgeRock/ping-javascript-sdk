@@ -44,8 +44,8 @@ interface Extras<ActionType extends ActionTypes = ActionTypes, Payload = unknown
   logger?: ReturnType<typeof loggerFn>;
 }
 
-/** Fallback so a missing slot degrades to error-level logging, never a crash. */
-const fallbackLogger = loggerFn({ level: 'error' });
+/** Creates an error-level fallback so a missing slot degrades safely, never crashes. */
+const createFallbackLogger = () => loggerFn({ level: 'error' });
 
 /**
  * Resolves this client's own middleware and logger.
@@ -56,7 +56,7 @@ const fallbackLogger = loggerFn({ level: 'error' });
 function oidcExtra(extra: unknown): Required<Extras> {
   return clientExtra(extra, OIDC_REDUCER_PATH, {
     requestMiddleware: [],
-    logger: fallbackLogger,
+    logger: createFallbackLogger(),
   });
 }
 

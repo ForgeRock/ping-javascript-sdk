@@ -17,7 +17,7 @@ import {
 import { createStorage } from '@forgerock/storage';
 import * as Either from 'effect/Either';
 
-import { createJourneyStore } from './client.store.utils.js';
+import { createJourneyStore } from './client.store.effects.js';
 import { configSlice } from './config.slice.js';
 import { journeyApi } from './journey.api.js';
 import { createJourneyObject, parseJourneyResponse } from './journey.utils.js';

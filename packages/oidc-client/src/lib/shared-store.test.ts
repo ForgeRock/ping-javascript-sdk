@@ -8,8 +8,8 @@
 import { createSdkStore, isSdkStoreHandle, wellknownApi } from '@forgerock/sdk-store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createClientStore } from './client.store.effects.js';
 import { oidc } from './client.store.js';
-import { createClientStore } from './client.store.utils.js';
 import { oidcApi } from './oidc.api.js';
 
 import type { OidcConfig } from './config.types.js';
@@ -120,8 +120,8 @@ describe('mode 1 — implicit store (default, unchanged behaviour)', () => {
     expect(first.store).not.toBe(second.store);
   });
 
-  it('refuses a conflicting clientId even via the public factory', () => {
-    // Arrange — the factory is exported, so its guard cannot depend on parseOidcArgs.
+  it('refuses a conflicting clientId in the internal store attachment', () => {
+    // Arrange — defense in depth preserves store ownership even if this helper is reused.
     const store = createClientStore({ clientId: 'existing-client' });
 
     // Act & Assert — a different clientId must not silently share the cache slice.
@@ -130,7 +130,7 @@ describe('mode 1 — implicit store (default, unchanged behaviour)', () => {
     ).toThrow(/already in use by an OIDC client with clientId 'existing-client'/);
   });
 
-  it('allows the same clientId to re-attach via the public factory', () => {
+  it('allows the same clientId to re-attach internally', () => {
     // Act & Assert — re-init with the same clientId stays idempotent.
     const store = createClientStore({ clientId: 'same-client' });
     expect(() =>

@@ -98,8 +98,8 @@ interface Extras {
   logger?: ReturnType<typeof loggerFn>;
 }
 
-/** Fallback so a missing slot degrades to error-level logging, never a crash. */
-const fallbackLogger = loggerFn({ level: 'error' });
+/** Creates an error-level fallback so a missing slot degrades safely, never crashes. */
+const createFallbackLogger = () => loggerFn({ level: 'error' });
 
 /**
  * Resolves this client's own middleware and logger.
@@ -110,7 +110,7 @@ const fallbackLogger = loggerFn({ level: 'error' });
 function journeyExtra(extra: unknown): Required<Extras> {
   return clientExtra(extra, JOURNEY_REDUCER_PATH, {
     requestMiddleware: [],
-    logger: fallbackLogger,
+    logger: createFallbackLogger(),
   });
 }
 

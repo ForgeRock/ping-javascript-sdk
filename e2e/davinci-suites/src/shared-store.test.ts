@@ -77,7 +77,7 @@ test("shared store — oidc attaches to davinci's store, reads discovery from ca
   // across the two calls despite four total client initialisations.
   const unique = [...new Set(fetchedUrls)];
   expect(unique).toHaveLength(1);
-  expect(unique[0]).toContain('.well-known');
+  expect(unique[0]).toBe(WELLKNOWN_URL);
 
   // Mode 2: 2 clients (davinci + oidc) on 1 store → exactly 1 fetch.
   expect(fetchedUrls.length).toBe(1);

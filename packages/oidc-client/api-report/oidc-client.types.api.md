@@ -18,7 +18,6 @@ import { FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { GenericError } from '@forgerock/sdk-types';
 import { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 import type { JWTPayload } from 'jose';
-import type { logger } from '@forgerock/sdk-logger';
 import { LogLevel } from '@forgerock/sdk-logger';
 import { MutationDefinition } from '@reduxjs/toolkit/query';
 import { OidcConfig } from '@forgerock/sdk-types';
@@ -116,15 +115,7 @@ export { BrowserStorageConfig }
 export type BuildAuthorizationData = [string, GetAuthorizationUrlOptions];
 
 // @public
-export type ClientStore = ReturnType<typeof createClientStore>['store'];
-
-// @public
-export function createClientStore<ActionType extends ActionTypes>(input: {
-    requestMiddleware?: RequestMiddleware<ActionType, unknown>[];
-    logger?: ReturnType<typeof logger>;
-    store?: SdkStore;
-    clientId?: string;
-}): SdkStoreHandle<OidcRootState>;
+export type ClientStore = SdkStoreHandle<OidcRootState>['store'];
 
 export { CustomLogger }
 

@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { createJourneyStore } from './client.store.utils.js';
+import { createJourneyStore } from './client.store.effects.js';
 
 /**
  * `combineSlices` keys each reducer off `slice.reducerPath ?? slice.name`, where

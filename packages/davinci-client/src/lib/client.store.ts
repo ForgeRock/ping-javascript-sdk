@@ -11,12 +11,11 @@ import { createStorage } from '@forgerock/storage';
 import { Either, Micro } from 'effect';
 import { exitIsFail, exitIsSuccess } from 'effect/Micro';
 
-import { getPollingModeµ, pollingµ } from './client.store.effects.js';
+import { createClientStore, getPollingModeµ, pollingµ } from './client.store.effects.js';
 /**
  * Import RTK slices and api
  */
 import {
-  createClientStore,
   createInternalError,
   handleUpdateValidateError,
   isValidCollectorCategory,

@@ -8,12 +8,9 @@ import { createSlice } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { describe, expect, it, vi } from 'vitest';
 
-import {
-  createSdkStore,
-  injectClient,
-  isSdkStoreHandle,
-  unregisterClient,
-} from './store.effects.js';
+import { createSdkStore, unregisterClient } from './store.effects.js';
+import { injectClient } from './store.micros.js';
+import { isSdkStoreHandle } from './store.utils.js';
 import { wellknownApi } from './wellknown.api.js';
 
 const fakeApi = createApi({
