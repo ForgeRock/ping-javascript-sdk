@@ -1,5 +1,13 @@
 # @forgerock/sdk-oidc
 
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-types@2.3.1
+  - @forgerock/sdk-utilities@2.3.1
+
 ## 2.3.0
 
 ### Patch Changes

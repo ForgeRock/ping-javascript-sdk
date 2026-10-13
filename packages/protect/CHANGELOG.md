@@ -1,5 +1,11 @@
 # @forgerock/protect
 
+## 2.3.1
+
+### Patch Changes
+
+- [#863](https://github.com/ForgeRock/ping-javascript-sdk/pull/863) [`236ab01`](https://github.com/ForgeRock/ping-javascript-sdk/commit/236ab0159457a68f8fffcff62c9041c93fd650d0) Thanks [@ryanbas21](https://github.com/ryanbas21)! - Update the underlying signals-sdk to latest
+
 ## 2.3.0
 
 No changes in this release.

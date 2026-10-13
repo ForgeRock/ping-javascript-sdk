@@ -1,5 +1,17 @@
 # @forgerock/journey-client
 
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @forgerock/sdk-logger@2.3.1
+  - @forgerock/sdk-oidc@2.3.1
+  - @forgerock/sdk-request-middleware@2.3.1
+  - @forgerock/storage@2.3.1
+  - @forgerock/sdk-types@2.3.1
+  - @forgerock/sdk-utilities@2.3.1
+
 ## 2.3.0
 
 ### Minor Changes
