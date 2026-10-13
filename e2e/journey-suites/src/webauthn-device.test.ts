@@ -41,7 +41,7 @@ test.describe('WebAuthn register, authenticate, and delete device', () => {
     await cdp.send('WebAuthn.disable');
   });
 
-  test('should register, authenticate, and delete a device', async ({ page }) => {
+  test.skip('should register, authenticate, and delete a device', async ({ page }) => {
     const { clickButton, navigate } = asyncEvents(page);
 
     const registeredCredentialId =

@@ -6,7 +6,7 @@
  * of the MIT license. See the LICENSE file for details.
  *
  */
-if (typeof window !== undefined) {
+if (typeof window !== 'undefined') {
   var _POSignalsEntities;
   ((function (c, h) {
     'use strict';
