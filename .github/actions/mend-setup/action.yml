@@ -1,0 +1,31 @@
+name: 'Mend Scan Setup'
+description: 'Setup a Mend scan'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Restore Cached Mend CLI
+      id: mend-cache
+      uses: actions/cache@v6
+      env:
+        mend-cache-name: mend-cli
+      with:
+        path: ${{ github.workspace }}/bin/mend
+        key: ${{ runner.os }}-${{ env.mend-cache-name }}-${{ hashFiles('.mend-version') }}
+        restore-keys: ${{ runner.os }}-${{ env.mend-cache-name }}-
+
+    - if: ${{ steps.mend-cache.outputs.cache-hit != 'true' }}
+      name: Download Mend CLI executable (cache miss...)
+      shell: bash
+      run: |
+        mkdir -p ${{ github.workspace }}/bin
+        curl https://downloads.mend.io/cli/linux_amd64/mend -o ${{ github.workspace }}/bin/mend
+        chmod +x ${{ github.workspace }}/bin/mend
+    
+    - name: Add Mend CLI to Path
+      shell: bash
+      run: echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+
+    - name: Test Mend CLI
+      shell: bash
+      run: mend version
