@@ -5,6 +5,10 @@ inputs:
     description: 'Directory to scan'
     required: false
     default: 'packages/'
+  full_scan:
+    description: 'Scan full repo if true'
+    required: false
+    default: 'false'
   MEND_SAST_REPORT_NAME:
     description: 'Filename for the output of the scan'
     required: false
@@ -21,12 +25,21 @@ runs:
   steps:
     - name: Mend SAST scan
       env:
+        SCAN_DIR: ${{ inputs.scan_dir }}
+        FULL_SCAN: ${{ inputs.full_scan }}
+        REPORT_NAME: ${{ inputs.MEND_SAST_REPORT_NAME }}
         MEND_EMAIL: ${{ inputs.MEND_EMAIL }}
         MEND_USER_KEY: ${{ inputs.MEND_USER_KEY }}
         MEND_URL: ${{ inputs.MEND_SERVER_URL }}
         MEND_SAST_PATH_EXCLUSIONS: '/node_modules/,/dist/,/coverage/,/out-tsc/,/temp/'
       shell: bash
-      run: mend code --dir ${{ inputs.scan_dir }} --scope 'Mobile//unified-sdk-javascript' --retries 2 --non-interactive --report --filename ${{ inputs.MEND_SAST_REPORT_NAME }} --formats json --name ${{ inputs.MEND_SAST_REPORT_NAME }}_$(date +%s) > ${{ inputs.MEND_SAST_REPORT_NAME }}.txt
+      run: |
+        args=(--scope 'Mobile//unified-sdk-javascript' --retries 2 --non-interactive --report --filename "$REPORT_NAME" --formats json --name "${REPORT_NAME}_$(date +%s)")
+        # Omit `--dir` on a full scan so Mend scans the whole repo.
+        if [ "$FULL_SCAN" != "true" ]; then
+          args+=(--dir "$SCAN_DIR")
+        fi
+        mend code "${args[@]}" > "$REPORT_NAME.txt"
 
     - name: Extract Scan Results
       shell: bash

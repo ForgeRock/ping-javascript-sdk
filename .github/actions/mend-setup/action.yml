@@ -22,9 +22,16 @@ runs:
     - if: ${{ steps.mend-cache.outputs.cache-hit != 'true' }}
       name: Download Mend CLI executable (cache miss...)
       shell: bash
+      # Download Mend CLI if it passes integrity check
       run: |
         mkdir -p ${{ github.workspace }}/bin
-        curl https://downloads.mend.io/cli/linux_amd64/mend -o ${{ github.workspace }}/bin/mend
+        curl -fsSL https://downloads.mend.io/cli/linux_amd64/mend -o ${{ github.workspace }}/bin/mend
+        expected="$(awk '{print $1}' mend.sha256)"
+        actual="$(sha256sum "${{ github.workspace }}/bin/mend" | awk '{print $1}')"
+        if [ "${actual}" != "${expected}" ]; then
+          echo "::error::Mend CLI checksum mismatch: expected ${expected}, got ${actual}"
+          exit 1
+        fi
         chmod +x ${{ github.workspace }}/bin/mend
 
     - name: Add Mend CLI to Path

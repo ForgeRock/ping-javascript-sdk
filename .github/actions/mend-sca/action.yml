@@ -5,6 +5,10 @@ inputs:
     description: 'Directory to scan'
     required: false
     default: 'packages/'
+  full_scan:
+    description: 'Scan full repo if true'
+    required: false
+    default: 'false'
   MEND_SCA_REPORT_NAME:
     description: 'Filename for the output of the scan'
     required: false
@@ -37,14 +41,24 @@ runs:
       run: pnpm install --frozen-lockfile
       shell: bash
 
-    # Run Mend scan and tee output to both console and file
     - name: Mend SCA scan
       env:
+        SCAN_DIR: ${{ inputs.scan_dir }}
+        FULL_SCAN: ${{ inputs.full_scan }}
+        REPORT_NAME: ${{ inputs.MEND_SCA_REPORT_NAME }}
         MEND_EMAIL: ${{ inputs.MEND_EMAIL }}
         MEND_USER_KEY: ${{ inputs.MEND_USER_KEY }}
         MEND_URL: ${{ inputs.MEND_SERVER_URL }}
       shell: bash
-      run: mend dep --dir ${{ inputs.scan_dir }} --non-interactive --update --scope 'Mobile//unified-sdk-javascript' 2>&1 | tee ${{ inputs.MEND_SCA_REPORT_NAME }}.txt
+      # Mend SCA scan does not generate a report so tee output to both console and file
+      # --update flag syncs the results to the Mend portal and overwrites any pre-existing vulnerabilities
+      run: |
+        args=(--non-interactive --update --scope 'Mobile//unified-sdk-javascript')
+        # Omit `--dir` on a full scan so Mend scans the whole repo.
+        if [ "$FULL_SCAN" != "true" ]; then
+          args+=(--dir "$SCAN_DIR")
+        fi
+        mend dep "${args[@]}" 2>&1 | tee "$REPORT_NAME.txt"
 
     - name: Extract Scan Results
       shell: bash

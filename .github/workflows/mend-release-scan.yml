@@ -13,6 +13,11 @@ on:
         required: false
         default: 'packages/'
         type: string
+      full_scan:
+        description: 'Scan full repo if true'
+        required: false
+        type: boolean
+        default: false
       sast_report_name:
         description: 'Mend SAST scan report name'
         required: false
@@ -47,6 +52,7 @@ jobs:
         timeout-minutes: 10
         with:
           scan_dir: ${{ inputs.scan_dir }}
+          full_scan: ${{ inputs.full_scan }}
           MEND_SAST_REPORT_NAME: ${{ inputs.sast_report_name }}
           MEND_EMAIL: ${{ env.MEND_EMAIL }}
           MEND_USER_KEY: ${{ env.MEND_USER_KEY }}
@@ -54,6 +60,7 @@ jobs:
 
   mend-sca-scan:
     runs-on: ubuntu-latest
+    # Force the Mend SCA scan to always run. It is run sequentially after the SAST scan instead of in parallel.
     needs: mend-sast-scan
     if: always()
     steps:
@@ -71,6 +78,7 @@ jobs:
         timeout-minutes: 10
         with:
           scan_dir: ${{ inputs.scan_dir }}
+          full_scan: ${{ inputs.full_scan }}
           MEND_SCA_REPORT_NAME: ${{ inputs.sca_report_name }}
           MEND_EMAIL: ${{ env.MEND_EMAIL }}
           MEND_USER_KEY: ${{ env.MEND_USER_KEY }}
