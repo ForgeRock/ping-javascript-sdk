@@ -49,8 +49,14 @@ runs:
           ${{ runner.os }}-playwright-
 
     - name: Install Playwright
-      run: pnpm exec playwright install
       shell: bash
+      # Playwright fails to install Chromium on Ubuntu 26.04 x64 because its built-in OS-to-platform mapping
+      # table does not yet recognize the new operating system version, triggering an ERROR: Playwright does
+      # not support chromium on ubuntu26.04-x64 message.
+      # https://github.com/microsoft/playwright/issues/40117
+      run: |
+        export PLAYWRIGHT_HOST_PLATFORM_OVERRIDE="ubuntu24.04-x64"
+        pnpm exec playwright install
 
     - name: Set Nx SHAs
       uses: nrwl/nx-set-shas@v4
