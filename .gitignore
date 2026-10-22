@@ -102,3 +102,6 @@ tasks/
 .polaris-setup-progress.json
 .playwright-mcp
 .polaris/
+
+# Mend
+mend-scan-dir/
