@@ -31,6 +31,7 @@ import {
   returnProtectCollector,
   returnQrCodeCollector,
   returnReadOnlyCollector,
+  returnRecognizeCollector,
   returnSingleSelectCollector,
   returnSubmitCollector,
   returnTextCollector,
@@ -197,6 +198,9 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
               case 'METADATA': {
                 return returnMetadataCollector(field, idx);
               }
+              case 'RECOGNIZE': {
+                return returnRecognizeCollector(field, idx);
+              }
               default:
               // Default is handled below
             }
@@ -310,6 +314,13 @@ export const nodeCollectorReducer = createReducer(initialCollectorValues, (build
       }
 
       if (collector.type === 'MetadataCollector') {
+        updateCollector(collector, action.payload.value, (resolvedValue) => {
+          collector.input.value = resolvedValue;
+        });
+        return;
+      }
+
+      if (collector.type === 'RecognizeCollector') {
         updateCollector(collector, action.payload.value, (resolvedValue) => {
           collector.input.value = resolvedValue;
         });

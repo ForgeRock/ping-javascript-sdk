@@ -58,6 +58,7 @@ import type {
   QrCodeField,
   ReadOnlyField,
   ReadOnlyFields,
+  RecognizeField,
   RedirectField,
   RichContentReplacement,
   SingleCheckboxField,
@@ -498,7 +499,7 @@ export function returnSingleValueAutoCollector<
  * @returns {AutoCollector} The constructed AutoCollector object.
  */
 export function returnObjectValueAutoCollector<
-  Field extends FidoRegistrationField | FidoAuthenticationField | MetadataField,
+  Field extends FidoRegistrationField | FidoAuthenticationField | MetadataField | RecognizeField,
   CollectorType extends ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector',
 >(field: Field, idx: number, collectorType: CollectorType) {
   let error = '';
@@ -537,6 +538,32 @@ export function returnObjectValueAutoCollector<
         config: field.payload,
       },
     } as InferAutoCollectorType<'MetadataCollector'>;
+  } else if (field.type === 'RECOGNIZE') {
+    return {
+      category: 'ObjectValueAutoCollector',
+      error: error || null,
+      type: collectorType,
+      id: `${field.key}-${idx}`,
+      name: field.key,
+      input: {
+        key: field.key,
+        value: {},
+        type: field.type,
+        validation: validationArray.length ? validationArray : null,
+      },
+      output: {
+        key: field.key,
+        type: field.type,
+        config: {
+          action: field.action,
+          serviceURL: field.serviceURL,
+          customerName: field.customerName,
+          username: field.username,
+          transactionData: field.transactionData,
+          webSDKOptions: field.webSDKOptions,
+        },
+      },
+    } as InferAutoCollectorType<'RecognizeCollector'>;
   } else if (field.action === 'REGISTER') {
     return {
       category: 'ObjectValueAutoCollector',
@@ -942,6 +969,16 @@ export function returnObjectSelectCollector(
  */
 export function returnMetadataCollector(field: MetadataField, idx: number) {
   return returnObjectValueAutoCollector(field, idx, 'MetadataCollector');
+}
+
+/**
+ * @function returnRecognizeCollector - Creates a RecognizeCollector from a RECOGNIZE field.
+ * @param {RecognizeField} field - The RECOGNIZE field emitted by the Recognize connector.
+ * @param {number} idx - The index used in the collector id/name.
+ * @returns {RecognizeCollector} The constructed RecognizeCollector.
+ */
+export function returnRecognizeCollector(field: RecognizeField, idx: number) {
+  return returnObjectValueAutoCollector(field, idx, 'RecognizeCollector');
 }
 
 export function returnObjectValueCollector(
