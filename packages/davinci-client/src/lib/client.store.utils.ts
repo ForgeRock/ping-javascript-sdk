@@ -229,6 +229,17 @@ export function resolveCollectorUpdateValue<T extends UpdatableCollectors>(
       }
       return ok(value);
     }),
+    Match.when({ type: 'RecognizeCollector' }, () => {
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        return err('Value argument must be an object');
+      }
+      const hasError = 'error' in value;
+      const hasTransactionJWT = 'transactionJWT' in value;
+      if (hasError === hasTransactionJWT) {
+        return err('Value argument must contain either a transactionJWT or an error property');
+      }
+      return ok(value);
+    }),
     Match.when({ category: 'SingleValueCollector' }, () =>
       typeof value === 'string' ? ok(value) : err('Value argument must be a string'),
     ),

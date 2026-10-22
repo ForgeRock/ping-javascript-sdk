@@ -140,7 +140,7 @@ export interface AutoCollector<C extends AutoCollectorCategories, T extends Auto
 export type AutoCollectorCategories = 'SingleValueAutoCollector' | 'ObjectValueAutoCollector';
 
 // @public (undocumented)
-export type AutoCollectors = ProtectCollector | FidoRegistrationCollector | FidoAuthenticationCollector | MetadataCollector | PollingCollector | SingleValueAutoCollector | ObjectValueAutoCollector;
+export type AutoCollectors = ProtectCollector | FidoRegistrationCollector | FidoAuthenticationCollector | MetadataCollector | RecognizeCollector | PollingCollector | SingleValueAutoCollector | ObjectValueAutoCollector;
 
 // @public (undocumented)
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
@@ -176,7 +176,7 @@ export interface CollectorRichContent {
 }
 
 // @public (undocumented)
-export type Collectors = FlowCollector | MetadataCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | ImageCollector | UnknownCollector;
+export type Collectors = FlowCollector | MetadataCollector | RecognizeCollector | PasswordCollector | ValidatedPasswordCollector | TextCollector | BooleanCollector | ValidatedBooleanCollector | SingleSelectCollector | IdpCollector | SubmitCollector | ActionCollector<'ActionCollector'> | SingleValueCollector<'SingleValueCollector'> | MultiSelectCollector | DeviceAuthenticationCollector | DeviceRegistrationCollector | PhoneNumberCollector | PhoneNumberExtensionCollector | ReadOnlyCollector | RichTextCollector | ValidatedTextCollector | ProtectCollector | PollingCollector | FidoRegistrationCollector | FidoAuthenticationCollector | QrCodeCollector | ImageCollector | UnknownCollector;
 
 // @public
 export type CollectorValueType<T> = T extends {
@@ -216,6 +216,8 @@ export type CollectorValueType<T> = T extends {
 } ? FidoAuthenticationInputValue | GenericError : T extends {
     type: 'MetadataCollector';
 } ? Record<string, unknown> | MetadataError : T extends {
+    type: 'RecognizeCollector';
+} ? RecognizeInputValue | GenericError : T extends {
     category: 'SingleValueCollector';
 } ? string : T extends {
     category: 'ValidatedSingleValueCollector';
@@ -230,10 +232,10 @@ export type CollectorValueType<T> = T extends {
 } ? never : CollectorValueTypes;
 
 // @public
-export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
+export type CollectorValueTypes = string | string[] | boolean | PhoneNumberInputValue | PhoneNumberExtensionInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | RecognizeInputValue | GenericError;
 
 // @public (undocumented)
-export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField | MetadataField;
+export type ComplexValueFields = DeviceAuthenticationField | DeviceRegistrationField | PhoneNumberField | PhoneNumberExtensionField | FidoRegistrationField | FidoAuthenticationField | PollingField | MetadataField | RecognizeField;
 
 // @public (undocumented)
 export interface ContinueNode {
@@ -642,7 +644,7 @@ export interface DaVinciRequest {
 }
 
 // @public
-export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | GenericError;
+export type DaVinciRequestValueTypes = string | number | boolean | (string | number | boolean)[] | DeviceValue | PhoneNumberInputValue | FidoRegistrationInputValue | FidoAuthenticationInputValue | MetadataError | RecognizeInputValue | GenericError;
 
 // @public (undocumented)
 export interface DaVinciSuccessResponse extends DaVinciBaseResponse {
@@ -976,7 +978,7 @@ export type ImageField = {
 export type InferActionCollectorType<T extends ActionCollectorTypes> = T extends 'IdpCollector' ? IdpCollector : T extends 'SubmitCollector' ? SubmitCollector : T extends 'FlowCollector' ? FlowCollector : ActionCollectorWithUrl<'ActionCollector'> | ActionCollectorNoUrl<'ActionCollector'>;
 
 // @public
-export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'ProtectCollector' ? ProtectCollector : T extends 'PollingCollector' ? PollingCollector : T extends 'FidoRegistrationCollector' ? FidoRegistrationCollector : T extends 'FidoAuthenticationCollector' ? FidoAuthenticationCollector : T extends 'MetadataCollector' ? MetadataCollector : T extends 'ObjectValueAutoCollector' ? ObjectValueAutoCollector : SingleValueAutoCollector;
+export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'ProtectCollector' ? ProtectCollector : T extends 'PollingCollector' ? PollingCollector : T extends 'FidoRegistrationCollector' ? FidoRegistrationCollector : T extends 'FidoAuthenticationCollector' ? FidoAuthenticationCollector : T extends 'MetadataCollector' ? MetadataCollector : T extends 'RecognizeCollector' ? RecognizeCollector : T extends 'ObjectValueAutoCollector' ? ObjectValueAutoCollector : SingleValueAutoCollector;
 
 // @public
 export type InferMultiValueCollectorType<T extends MultiValueCollectorTypes> = T extends 'MultiSelectCollector' ? MultiValueCollectorWithValue<'MultiSelectCollector'> : MultiValueCollectorWithValue<'MultiValueCollector'> | MultiValueCollectorNoValue<'MultiValueCollector'>;
@@ -1251,7 +1253,7 @@ export interface ObjectOptionsCollectorWithStringValue<T extends ObjectValueColl
 export type ObjectValueAutoCollector = AutoCollector<'ObjectValueAutoCollector', 'ObjectValueAutoCollector', Record<string, unknown>>;
 
 // @public (undocumented)
-export type ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector' | 'FidoRegistrationCollector' | 'FidoAuthenticationCollector' | 'MetadataCollector';
+export type ObjectValueAutoCollectorTypes = 'ObjectValueAutoCollector' | 'FidoRegistrationCollector' | 'FidoAuthenticationCollector' | 'MetadataCollector' | 'RecognizeCollector';
 
 // @public (undocumented)
 export type ObjectValueCollector<T extends ObjectValueCollectorTypes> = ObjectOptionsCollectorWithObjectValue<T> | ObjectOptionsCollectorWithStringValue<T> | ObjectValueCollectorWithObjectValue<T>;
@@ -1562,6 +1564,60 @@ export type ReadOnlyField = {
 
 // @public (undocumented)
 export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
+
+// @public (undocumented)
+export type RecognizeCollector = AutoCollector<'ObjectValueAutoCollector', 'RecognizeCollector', RecognizeInputValue | GenericError, RecognizeOutputValue>;
+
+// @public (undocumented)
+export interface RecognizeError {
+    // (undocumented)
+    code: string;
+    // (undocumented)
+    message: string;
+}
+
+// @public
+export type RecognizeField = {
+    type: 'RECOGNIZE';
+    key: string;
+    action: 'ENROLL' | 'AUTHENTICATE';
+    serviceURL: string;
+    customerName: string;
+    username: string;
+    transactionData: string;
+    webSDKOptions: {
+        authorizationToken: string;
+        operationId: string;
+    };
+};
+
+// @public (undocumented)
+export type RecognizeInputValue = {
+    transactionJWT: string;
+    error?: never;
+} | {
+    error: RecognizeError;
+    transactionJWT?: never;
+};
+
+// @public (undocumented)
+export interface RecognizeOutputValue {
+    // (undocumented)
+    action: 'ENROLL' | 'AUTHENTICATE';
+    // (undocumented)
+    customerName: string;
+    // (undocumented)
+    serviceURL: string;
+    // (undocumented)
+    transactionData: string;
+    // (undocumented)
+    username: string;
+    // (undocumented)
+    webSDKOptions: {
+        authorizationToken: string;
+        operationId: string;
+    };
+}
 
 // @public (undocumented)
 export type RedirectField = {

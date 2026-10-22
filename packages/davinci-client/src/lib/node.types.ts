@@ -25,6 +25,7 @@ import type {
   ProtectCollector,
   QrCodeCollector,
   ReadOnlyCollector,
+  RecognizeCollector,
   RichTextCollector,
   SingleSelectCollector,
   SingleValueCollector,
@@ -40,6 +41,7 @@ import type { Links } from './davinci.types.js';
 export type Collectors =
   | FlowCollector
   | MetadataCollector
+  | RecognizeCollector
   | PasswordCollector
   | ValidatedPasswordCollector
   | TextCollector

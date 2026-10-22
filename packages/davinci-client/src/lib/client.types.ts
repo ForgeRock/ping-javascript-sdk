@@ -16,6 +16,7 @@ import type {
   ObjectValueCollectors,
   PhoneNumberExtensionInputValue,
   PhoneNumberInputValue,
+  RecognizeInputValue,
   SingleValueCollectors,
   ValidatedBooleanCollector,
   ValidatedPasswordCollector,
@@ -44,6 +45,7 @@ export type CollectorValueTypes =
   | FidoRegistrationInputValue
   | FidoAuthenticationInputValue
   | MetadataError
+  | RecognizeInputValue
   | GenericError;
 
 /**
@@ -91,21 +93,23 @@ export type CollectorValueType<T> =
                     ? FidoAuthenticationInputValue | GenericError
                     : T extends { type: 'MetadataCollector' }
                       ? Record<string, unknown> | MetadataError
-                      : // category catch-alls
-                        // fallbacks for collectors that don't match on `type`
-                        T extends { category: 'SingleValueCollector' }
-                        ? string
-                        : T extends { category: 'ValidatedSingleValueCollector' }
+                      : T extends { type: 'RecognizeCollector' }
+                        ? RecognizeInputValue | GenericError
+                        : // category catch-alls
+                          // fallbacks for collectors that don't match on `type`
+                          T extends { category: 'SingleValueCollector' }
                           ? string
-                          : T extends { category: 'SingleValueAutoCollector' }
+                          : T extends { category: 'ValidatedSingleValueCollector' }
                             ? string
-                            : T extends { category: 'MultiValueCollector' }
-                              ? string | string[]
-                              : T extends { category: 'ActionCollector' }
-                                ? never
-                                : T extends { category: 'NoValueCollector' }
+                            : T extends { category: 'SingleValueAutoCollector' }
+                              ? string
+                              : T extends { category: 'MultiValueCollector' }
+                                ? string | string[]
+                                : T extends { category: 'ActionCollector' }
                                   ? never
-                                  : CollectorValueTypes;
+                                  : T extends { category: 'NoValueCollector' }
+                                    ? never
+                                    : CollectorValueTypes;
 
 /**
  * Collectors which can be updated
