@@ -341,6 +341,9 @@ importers:
       '@forgerock/protect':
         specifier: workspace:*
         version: link:../../packages/protect
+      '@forgerock/recognize':
+        specifier: workspace:*
+        version: link:../../packages/recognize
       '@forgerock/sdk-logger':
         specifier: workspace:*
         version: link:../../packages/sdk-effects/logger

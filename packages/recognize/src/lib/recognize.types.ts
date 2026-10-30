@@ -33,12 +33,28 @@ export interface CreateRecognizeErrorOptions {
   cause?: unknown;
 }
 
+/**
+ * Wire-safe snapshot of an `Error` instance. `Error` properties
+ * (`message`, `stack`, `cause`) are non-enumerable, so an `Error`
+ * serializes to `{}` in `JSON.stringify`. This shape mimics the
+ * `Error` interface with enumerable properties so it survives
+ * serialization — `cause` is a string, matching `Error.cause` typing.
+ */
+/** @public */
+export interface RecognizeErrorRaw {
+  name: string;
+  message: string;
+  stack?: string;
+  cause?: string;
+}
+
 /** @public */
 export interface RecognizeError {
   error: {
-    cause?: unknown;
     code: RecognizeErrorCodeValue;
     message: RecognizeErrorCodeKey;
+    cause?: unknown;
+    raw?: RecognizeErrorRaw;
   };
 }
 

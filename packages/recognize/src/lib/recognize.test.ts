@@ -71,7 +71,7 @@ describe('recognize — init', () => {
     expect(result).toBeDefined();
     expect(result?.error.code).toBe(RECOGNIZE_ERROR_CODE.SDK_ERROR);
     expect(result?.error.message).toBe('SDK_ERROR');
-    expect(result?.error.cause).toBe(
+    expect(result?.error.raw?.message).toBe(
       'init() called more than once — call dispose() before re-initializing',
     );
 
@@ -111,7 +111,7 @@ describe('recognize — init', () => {
     expect(result).toBeDefined();
     expect(result?.error.code).toBe(RECOGNIZE_ERROR_CODE.SDK_ERROR);
     expect(result?.error.message).toBe('SDK_ERROR');
-    expect(result?.error.cause).toBe(
+    expect(result?.error.raw?.message).toBe(
       'invalid element <div> — options.element must be a <kl-auth> or <kl-enroll> custom element',
     );
   });

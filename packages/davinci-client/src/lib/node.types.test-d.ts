@@ -26,6 +26,7 @@ import type {
   ProtectCollector,
   QrCodeCollector,
   ReadOnlyCollector,
+  RecognizeCollector,
   RichTextCollector,
   SingleSelectCollector,
   SingleValueCollector,
@@ -231,6 +232,7 @@ describe('Node Types', () => {
       expectTypeOf<Collectors>().toMatchTypeOf<
         | TextCollector
         | MetadataCollector
+        | RecognizeCollector
         | PasswordCollector
         | ValidatedPasswordCollector
         | FlowCollector
