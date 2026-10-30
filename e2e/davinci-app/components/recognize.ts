@@ -38,10 +38,7 @@ export default function recognizeComponent(
     },
     error: (err) => {
       console.error('[recognize] error', err.error);
-      const value: RecognizeInputValue = {
-        error: { code: String(err.error.code), message: err.error.message },
-      };
-      updater(value);
+      updater(err);
       submitForm();
     },
     complete: (detail) => {
@@ -65,7 +62,7 @@ export default function recognizeComponent(
     .then((err) => {
       if (err) {
         console.error('[recognize] init error', err);
-        updater({ error: { code: String(err.error.code), message: err.error.message } });
+        updater(err);
       }
     });
 }
