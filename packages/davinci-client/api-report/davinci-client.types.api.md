@@ -1571,9 +1571,18 @@ export type RecognizeCollector = AutoCollector<'ObjectValueAutoCollector', 'Reco
 // @public (undocumented)
 export interface RecognizeError {
     // (undocumented)
-    code: string;
+    cause?: unknown;
+    // (undocumented)
+    code: string | number;
     // (undocumented)
     message: string;
+    // (undocumented)
+    raw?: {
+        name: string;
+        message: string;
+        stack?: string;
+        cause?: string;
+    };
 }
 
 // @public

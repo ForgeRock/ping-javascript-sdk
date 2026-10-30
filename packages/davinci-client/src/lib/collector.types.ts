@@ -806,8 +806,15 @@ export interface MetadataError {
 export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
 
 export interface RecognizeError {
-  code: string;
+  code: string | number;
   message: string;
+  cause?: unknown;
+  raw?: {
+    name: string;
+    message: string;
+    stack?: string;
+    cause?: string;
+  };
 }
 
 export type RecognizeInputValue =
