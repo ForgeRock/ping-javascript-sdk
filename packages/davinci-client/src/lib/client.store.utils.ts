@@ -229,6 +229,12 @@ export function resolveCollectorUpdateValue<T extends UpdatableCollectors>(
       }
       return ok(value);
     }),
+    Match.when({ type: 'RecognizeCollector' }, () => {
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        return err('Value argument must be an object');
+      }
+      return ok(value);
+    }),
     Match.when({ category: 'SingleValueCollector' }, () =>
       typeof value === 'string' ? ok(value) : err('Value argument must be a string'),
     ),

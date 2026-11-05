@@ -21,6 +21,8 @@ import type {
   FidoRegistrationInputValue,
   MetadataError,
   PhoneNumberInputValue,
+  RecognizeError,
+  RecognizeInputValue,
 } from './collector.types.js';
 
 export interface DaVinciRequest {
@@ -49,6 +51,8 @@ export type DaVinciRequestValueTypes =
   | FidoRegistrationInputValue
   | FidoAuthenticationInputValue
   | MetadataError
+  | RecognizeInputValue
+  | RecognizeError
   | GenericError;
 
 /**
@@ -357,6 +361,25 @@ export type MetadataField = {
   payload: Record<string, unknown>;
 };
 
+/**
+ * A RECOGNIZE field emitted by the PingOne Recognize connector. Carries the
+ * web SDK configuration the application needs to initialize a recognize
+ * session (enroll or authenticate) in the browser.
+ */
+export type RecognizeField = {
+  type: 'RECOGNIZE';
+  key: string;
+  action: 'ENROLL' | 'AUTHENTICATE';
+  serviceURL: string;
+  customerName: string;
+  username: string;
+  transactionData: string;
+  webSDKOptions: {
+    authorizationToken: string;
+    operationId: string;
+  };
+};
+
 export type UnknownField = Record<string, unknown>;
 
 export type ComplexValueFields =
@@ -367,7 +390,8 @@ export type ComplexValueFields =
   | FidoRegistrationField
   | FidoAuthenticationField
   | PollingField
-  | MetadataField;
+  | MetadataField
+  | RecognizeField;
 export type MultiValueFields = MultiSelectField;
 export type ReadOnlyFields = ReadOnlyField | QrCodeField | AgreementField | ImageField;
 export type RedirectFields = RedirectField;
