@@ -133,6 +133,45 @@ it.effect('buildParBodyµ includes prompt when provided', () =>
   }),
 );
 
+it.effect('buildParBodyµ includes authorization_details from config', () =>
+  Micro.gen(function* () {
+    const authorizationDetails = [
+      {
+        type: 'payment_initiation',
+        additionalFields: { instructedAmount: { currency: 'EUR', amount: '100.00' } },
+      },
+    ];
+    const params = yield* buildParBodyµ({ ...config, authorizationDetails }, {}, 'ch', 'st');
+    expect(JSON.parse(params.get('authorization_details') as string)).toStrictEqual([
+      {
+        type: 'payment_initiation',
+        instructedAmount: { currency: 'EUR', amount: '100.00' },
+      },
+    ]);
+  }),
+);
+
+it.effect('buildParBodyµ omits authorization_details when config has none', () =>
+  Micro.gen(function* () {
+    const params = yield* buildParBodyµ(config, {}, 'ch', 'st');
+    expect(params.has('authorization_details')).toBe(false);
+  }),
+);
+
+it.effect('buildParBodyµ options override config authorizationDetails', () =>
+  Micro.gen(function* () {
+    const params = yield* buildParBodyµ(
+      { ...config, authorizationDetails: [{ type: 'from_config' }] },
+      { authorizationDetails: [{ type: 'from_options' }] },
+      'ch',
+      'st',
+    );
+    expect(JSON.parse(params.get('authorization_details') as string)).toStrictEqual([
+      { type: 'from_options' },
+    ]);
+  }),
+);
+
 it.effect('buildParBodyµ fails with auth_error when buildAuthorizeParams throws', () =>
   Micro.gen(function* () {
     vi.spyOn(sdkOidc, 'buildAuthorizeParams').mockImplementation(() => {

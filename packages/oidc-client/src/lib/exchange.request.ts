@@ -56,6 +56,7 @@ export function buildTokenExchangeµ({
         ...(data.refresh_token && { refreshToken: data.refresh_token }),
         ...(data.expires_in && { expiresAt: data.expires_in }),
         ...(data.expires_in && { expiryTimestamp: Date.now() + data.expires_in * 1000 }),
+        ...(data.authorization_details && { authorizationDetails: data.authorization_details }),
       };
 
       return tokens;
