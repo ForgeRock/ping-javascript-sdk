@@ -100,6 +100,9 @@ export const buildParBodyµ = (
         redirectUri: config.redirectUri,
         scope: config.scope || 'openid',
         responseType: config.responseType || 'code',
+        ...(config.authorizationDetails !== undefined && {
+          authorizationDetails: config.authorizationDetails,
+        }),
         ...parBodyOptions,
         challenge,
         state,

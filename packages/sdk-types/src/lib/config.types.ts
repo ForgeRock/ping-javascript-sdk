@@ -4,7 +4,12 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
-import type { AuthDisplayValue, AuthPromptValue, ResponseType } from './authorize.types.js';
+import type {
+  AuthDisplayValue,
+  AuthorizationDetail,
+  AuthPromptValue,
+  ResponseType,
+} from './authorize.types.js';
 import type { AsyncLegacyConfigOptions } from './legacy-config.types.js';
 import type { CustomStorageObject } from './tokens.types.js';
 
@@ -27,6 +32,8 @@ export interface OidcConfig extends AsyncLegacyConfigOptions {
   responseType?: ResponseType;
   /** Use Pushed Authorization Requests (PAR) for the authorization flow. */
   par?: boolean;
+  /** Authorization details for Rich Authorization Requests (RAR) */
+  authorizationDetails?: AuthorizationDetail[];
   /** URI to redirect to after logout; maps to `post_logout_redirect_uri` in the end-session request. */
   signOutRedirectUri?: string;
   loginHint?: string;

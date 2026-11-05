@@ -18,6 +18,8 @@ The oidc module follows the [OIDC](https://openid.net/specs/openid-connect-core-
   - [Redirect-Based Login](#redirect-based-login-authorizeurl)
   - [Background Authorization](#background-authorization-authorizebackground)
   - [Automatic Token Renewal](#automatic-token-renewal)
+  - [Pushed Authorization Requests (PAR)](#pushed-authorization-requests-par)
+  - [Rich Authorization Requests (RAR)](#rich-authorization-requests-rar)
   - [Error Handling](#error-handling)
 
 ## Installation
@@ -57,7 +59,10 @@ The `oidc()` initialization function accepts the following configuration:
 - **scope** (required) - Space-separated list of requested scopes (e.g., `'openid profile email'`)
 - **storage** (optional) - Storage configuration for tokens (defaults to localStorage)
 - **timeout** (optional) - Request timeout in milliseconds
-- **additionalParameters** (optional) - Additional parameters to include in authorization requests
+- **par** (optional) - Use Pushed Authorization Requests (PAR) for the authorization flow; omitted auto-detects from the server's well-known configuration (see [Pushed Authorization Requests (PAR)](#pushed-authorization-requests-par))
+- **authorizationDetails** (optional) - Use Rich Authorization Requests (RAR) for the authorization flow. See [Rich Authorization Requests (RAR)](#rich-authorization-requests-rar).
+
+See `OidcConfig` interface for the full list of options.
 
 ## Quick Start
 
@@ -329,6 +334,98 @@ if ('error' in tokens) {
   console.log('Access token:', tokens.access_token);
 }
 ```
+
+### Pushed Authorization Requests (PAR)
+
+The client supports [Pushed Authorization Requests](https://datatracker.ietf.org/doc/html/rfc9126) (PAR, RFC 9126), an OAuth 2.0 extension that hardens the authorization flow.
+
+In a standard flow, all authorization parameters (`redirect_uri`, `scope`, PKCE `code_challenge`, `state`, and so on) are packed into the authorize URL and pass through the browser. With PAR, the client first POSTs those parameters directly to the server's PAR endpoint, receives a short-lived `request_uri`, and then sends the browser to the authorization endpoint with only `client_id` and `request_uri` in the URL:
+
+**Enabling PAR**
+
+PAR is enabled with the `par` configuration option:
+
+```js
+const config = {
+  serverConfig: { wellknown: 'https://example.com/.well-known/openid-configuration' },
+  clientId: 'example-client-id',
+  redirectUri: 'https://example-app/redirect-uri',
+  scope: 'openid profile email',
+  par: true,
+};
+```
+
+How it resolves:
+
+- `par: true` — always use PAR
+- `par: false` — never use PAR; OIDC Client initialization fails if the server's well-known configuration advertises `require_pushed_authorization_requests: true`
+- `par` omitted — PAR is used automatically when the server requires it, otherwise the standard flow is used
+
+Both `authorize.url()` and `authorize.background()` respect this setting. The `request_uri` is single-use and short-lived (typically 30–90 seconds), so the authorize navigation must complete before it expires.
+
+### Rich Authorization Requests (RAR)
+
+The client supports [Rich Authorization Requests](https://datatracker.ietf.org/doc/html/rfc9396) (RAR, RFC 9396), an OAuth 2.0 extension that lets the client request fine-grained, transaction-specific authorization instead of just scopes. Details are sent as the `authorization_details` request parameter — a JSON array describing _what_ the client wants to do rather than a coarse scope string.
+
+Each detail object has a `type` string defined by the authorization server, plus the standard fields `locations`, `actions`, `datatypes`, and `privileges`. Type-specific fields the SDK doesn't model go in `additionalFields`, whose entries are flattened onto the object before the request is sent.
+
+**Declaring authorization details**
+
+Details can be set at initialization, so they apply to every authorization request the client makes:
+
+```js
+const config = {
+  serverConfig: { wellknown: 'https://example.com/.well-known/openid-configuration' },
+  clientId: 'example-client-id',
+  redirectUri: 'https://example-app/redirect-uri',
+  scope: 'openid profile email',
+  authorizationDetails: [
+    {
+      type: 'payment_initiation',
+      actions: ['initiate', 'status'],
+      locations: ['https://example.com/payments'],
+      instructedAmount: { currency: 'EUR', amount: '123.50' },
+      creditorName: 'Merchant A',
+    },
+  ],
+};
+```
+
+Type-specific fields like `instructedAmount` and `creditorName` can be passed through `additionalFields`:
+
+```js
+const config = {
+  // ...other options
+  authorizationDetails: [
+    {
+      type: 'payment_initiation',
+      actions: ['initiate', 'status'],
+      locations: ['https://example.com/payments'],
+      additionalFields: {
+        instructedAmount: { currency: 'EUR', amount: '123.50' },
+        creditorName: 'Merchant A',
+      },
+    },
+  ],
+};
+```
+
+Authorization details can alternatively be supplied per call, which overrides the OIDC Client configuration for that request:
+
+```js
+const authResponse = await oidcClient.authorize.background({
+  authorizationDetails: [
+    {
+      type: 'account_information',
+      actions: ['list', 'read'],
+      locations: ['https://example.com/accounts'],
+      datatypes: ['balances', 'transactions'],
+    },
+  ],
+});
+```
+
+Details are serialized to JSON for the `authorization_details` parameter and are included in both the standard flow and the pushed (PAR) request body. Server support for RAR is required; consult your authorization server's documentation for the detail `type` values and fields it accepts.
 
 ### Error Handling
 
