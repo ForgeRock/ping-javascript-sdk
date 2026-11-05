@@ -175,6 +175,9 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           redirectUri: config.redirectUri,
           scope: config.scope || 'openid',
           responseType: config.responseType || 'code',
+          ...(config.authorizationDetails !== undefined && {
+            authorizationDetails: config.authorizationDetails,
+          }),
           ...(config.loginHint !== undefined && { loginHint: config.loginHint }),
           ...(config.nonce !== undefined && { nonce: config.nonce }),
           ...(config.display !== undefined && { display: config.display }),
@@ -213,7 +216,13 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
             config,
             log,
             store,
-            { ...(options ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
+            {
+              ...(config.authorizationDetails !== undefined && {
+                authorizationDetails: config.authorizationDetails,
+              }),
+              ...(options ?? ({} as GetAuthorizationUrlOptions)),
+              prompt: 'none' as const,
+            },
             useParFlow,
           ),
         );
@@ -335,7 +344,13 @@ export async function oidc<ActionType extends ActionTypes = ActionTypes>({
           config,
           log,
           store,
-          { ...(authorizeOptions ?? ({} as GetAuthorizationUrlOptions)), prompt: 'none' as const },
+          {
+            ...(config.authorizationDetails !== undefined && {
+              authorizationDetails: config.authorizationDetails,
+            }),
+            ...(authorizeOptions ?? ({} as GetAuthorizationUrlOptions)),
+            prompt: 'none' as const,
+          },
           useParFlow,
         ).pipe(
           Micro.flatMap((response): Micro.Micro<OauthTokens, TokenExchangeErrorResponse, never> => {
