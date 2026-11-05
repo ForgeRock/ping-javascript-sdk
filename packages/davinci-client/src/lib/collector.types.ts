@@ -806,20 +806,21 @@ export interface MetadataError {
 export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
 
 export interface RecognizeError {
-  code: string | number;
-  message: string;
-  cause?: unknown;
-  raw?: {
-    name: string;
+  error: {
+    code: string | number;
     message: string;
-    stack?: string;
-    cause?: string;
+    cause?: unknown;
+    raw?: {
+      name: string;
+      message: string;
+      stack?: string;
+      cause?: string;
+    };
   };
 }
 
-export type RecognizeInputValue =
-  | { transactionJWT: string; error?: never }
-  | { error: RecognizeError; transactionJWT?: never };
+/** Success value for the RecognizeCollector: the transaction JWT returned by a completed recognition. */
+export type RecognizeInputValue = { transactionJWT: string };
 
 export interface RecognizeOutputValue {
   action: 'ENROLL' | 'AUTHENTICATE';
@@ -905,7 +906,7 @@ export type MetadataCollector = AutoCollector<
 export type RecognizeCollector = AutoCollector<
   'ObjectValueAutoCollector',
   'RecognizeCollector',
-  RecognizeInputValue | GenericError,
+  RecognizeInputValue | RecognizeError,
   RecognizeOutputValue
 >;
 export type PollingCollector = AutoCollector<

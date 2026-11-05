@@ -21,6 +21,7 @@ import type {
   FidoRegistrationInputValue,
   MetadataError,
   PhoneNumberInputValue,
+  RecognizeError,
   RecognizeInputValue,
 } from './collector.types.js';
 
@@ -51,6 +52,7 @@ export type DaVinciRequestValueTypes =
   | FidoAuthenticationInputValue
   | MetadataError
   | RecognizeInputValue
+  | RecognizeError
   | GenericError;
 
 /**

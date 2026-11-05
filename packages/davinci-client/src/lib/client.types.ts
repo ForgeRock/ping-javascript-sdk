@@ -16,6 +16,7 @@ import type {
   ObjectValueCollectors,
   PhoneNumberExtensionInputValue,
   PhoneNumberInputValue,
+  RecognizeError,
   RecognizeInputValue,
   SingleValueCollectors,
   ValidatedBooleanCollector,
@@ -46,6 +47,7 @@ export type CollectorValueTypes =
   | FidoAuthenticationInputValue
   | MetadataError
   | RecognizeInputValue
+  | RecognizeError
   | GenericError;
 
 /**
@@ -94,7 +96,7 @@ export type CollectorValueType<T> =
                     : T extends { type: 'MetadataCollector' }
                       ? Record<string, unknown> | MetadataError
                       : T extends { type: 'RecognizeCollector' }
-                        ? RecognizeInputValue | GenericError
+                        ? RecognizeInputValue | RecognizeError
                         : // category catch-alls
                           // fallbacks for collectors that don't match on `type`
                           T extends { category: 'SingleValueCollector' }
