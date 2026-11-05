@@ -62,7 +62,6 @@ export default function recognizeComponent(
     .then((err) => {
       if (err) {
         console.error('[recognize] init error', err);
-        updater(err);
       }
     });
 }
