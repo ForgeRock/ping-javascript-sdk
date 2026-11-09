@@ -31,9 +31,9 @@ const mockLog = {
 // ---------------------------------------------------------------------------
 
 describe('buildChallengeEndpoint', () => {
-  it('returns a constructed URL string for a valid self link', () => {
+  it('returns a constructed URL string for a valid self link with env ID', () => {
     const selfHref =
-      'https://auth.pingone.ca/3b2b0d54-99f9-4c28-b57e-d4e66e8e72c2/davinci/orchestrate';
+      'https://auth.pingone.ca/3b2b0d54-99f9-4c28-b57e-d4e66e8e72c2/davinci/connections';
     const challenge = 'abc123';
 
     const result = buildChallengeEndpoint(selfHref, challenge);
@@ -43,19 +43,29 @@ describe('buildChallengeEndpoint', () => {
     );
   });
 
-  it('returns InternalErrorResponse when envId is missing from URL path', () => {
-    // pathname is just '/' → split gives ['', ''] → envId is empty string → falsy
-    const selfHref = 'https://auth.pingone.ca/';
+  it('returns a constructed URL string for a valid self link with custom domain', () => {
+    const selfHref = 'https://pingone.custom.ca/davinci/connections';
     const challenge = 'abc123';
 
     const result = buildChallengeEndpoint(selfHref, challenge);
+
+    expect(result).toBe(
+      'https://pingone.custom.ca/davinci/user/credentials/challenge/abc123/status',
+    );
+  });
+
+  it('returns InternalErrorResponse for a completely invalid URL', () => {
+    const result = buildChallengeEndpoint('not-a-url', 'abc123');
 
     expect(typeof result).toBe('object');
     expect((result as any).type).toBe('internal_error');
   });
 
-  it('returns InternalErrorResponse for a completely invalid URL', () => {
-    const result = buildChallengeEndpoint('not-a-url', 'abc123');
+  it('returns InternalErrorResponse for a invalid self href', () => {
+    const result = buildChallengeEndpoint(
+      'https://pingone.custom.ca/davinci/orchestrate',
+      'abc123',
+    );
 
     expect(typeof result).toBe('object');
     expect((result as any).type).toBe('internal_error');

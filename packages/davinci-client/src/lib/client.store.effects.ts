@@ -94,22 +94,20 @@ export function buildChallengeEndpoint(
   challenge: string,
 ): string | InternalErrorResponse {
   try {
-    const url = new URL(selfHref);
-    const envId = url.pathname.split('/')[1];
+    const validateUrl = new URL(selfHref); // If selfHref can't be parsed, the URL constructor should throw an exception which can be caught
+    const delimiter = '/davinci/connections';
+    const baseUrl = selfHref.split(delimiter)[0];
 
-    if (!url.origin || !envId) {
+    if (!validateUrl.href.includes(selfHref) || !selfHref.includes(delimiter) || !baseUrl) {
       return createInternalError(
-        'Failed to construct challenge polling endpoint. Requires host and environment ID.',
+        'Failed to construct challenge polling endpoint. Base URL could not be parsed.',
         'parse_error',
       );
     }
 
-    return `${url.origin}/${envId}/davinci/user/credentials/challenge/${challenge}/status`;
+    return `${baseUrl}/davinci/user/credentials/challenge/${challenge}/status`;
   } catch {
-    return createInternalError(
-      'Failed to construct challenge polling endpoint. Requires host and environment ID.',
-      'parse_error',
-    );
+    return createInternalError('Failed to construct challenge polling endpoint.', 'parse_error');
   }
 }
 
