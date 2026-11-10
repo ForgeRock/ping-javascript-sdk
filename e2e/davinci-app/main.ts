@@ -21,6 +21,7 @@ import pollingComponent from './components/polling.js';
 import protectComponent from './components/protect.js';
 import qrCodeComponent from './components/qr-code.js';
 import readOnlyComponent from './components/read-only.js';
+import recognizeComponent from './components/recognize.js';
 import singleValueComponent from './components/single-value.js';
 import socialLoginButtonComponent from './components/social-login-button.js';
 import submitButtonComponent from './components/submit-button.js';
@@ -297,6 +298,13 @@ const urlParams = new URLSearchParams(window.location.search);
       } else if (collector.type === 'MetadataCollector') {
         metadataComponent(
           formEl, // You can ignore this; it's just for rendering
+          davinciClient.update(collector), // Returns an update function for this collector
+          submitForm,
+        );
+      } else if (collector.type === 'RecognizeCollector') {
+        recognizeComponent(
+          formEl, // You can ignore this; it's just for rendering
+          collector, // The plain object of the collector
           davinciClient.update(collector), // Returns an update function for this collector
           submitForm,
         );

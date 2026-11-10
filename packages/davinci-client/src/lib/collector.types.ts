@@ -804,6 +804,36 @@ export interface MetadataError {
 }
 
 export type MetadataCollectorInputValue = Record<string, unknown> | MetadataError;
+
+export interface RecognizeError {
+  error: {
+    code: string | number;
+    message: string;
+    cause?: unknown;
+    raw?: {
+      name: string;
+      message: string;
+      stack?: string;
+      cause?: string;
+    };
+  };
+}
+
+/** Success value for the RecognizeCollector: the transaction JWT returned by a completed recognition. */
+export type RecognizeInputValue = { transactionJWT: string };
+
+export interface RecognizeOutputValue {
+  action: 'ENROLL' | 'AUTHENTICATE';
+  serviceURL: string;
+  customerName: string;
+  username: string;
+  transactionData: string;
+  webSDKOptions: {
+    authorizationToken: string;
+    operationId: string;
+  };
+}
+
 export interface PollingOutputValue {
   pollInterval: number;
   pollRetries: number;
@@ -821,7 +851,8 @@ export type ObjectValueAutoCollectorTypes =
   | 'ObjectValueAutoCollector'
   | 'FidoRegistrationCollector'
   | 'FidoAuthenticationCollector'
-  | 'MetadataCollector';
+  | 'MetadataCollector'
+  | 'RecognizeCollector';
 export type AutoCollectorTypes = SingleValueAutoCollectorTypes | ObjectValueAutoCollectorTypes;
 
 export interface AutoCollector<
@@ -872,6 +903,12 @@ export type MetadataCollector = AutoCollector<
   MetadataCollectorInputValue,
   Record<string, unknown>
 >;
+export type RecognizeCollector = AutoCollector<
+  'ObjectValueAutoCollector',
+  'RecognizeCollector',
+  RecognizeInputValue | RecognizeError,
+  RecognizeOutputValue
+>;
 export type PollingCollector = AutoCollector<
   'SingleValueAutoCollector',
   'PollingCollector',
@@ -894,6 +931,7 @@ export type AutoCollectors =
   | FidoRegistrationCollector
   | FidoAuthenticationCollector
   | MetadataCollector
+  | RecognizeCollector
   | PollingCollector
   | SingleValueAutoCollector
   | ObjectValueAutoCollector;
@@ -915,10 +953,12 @@ export type InferAutoCollectorType<T extends AutoCollectorTypes> = T extends 'Pr
         ? FidoAuthenticationCollector
         : T extends 'MetadataCollector'
           ? MetadataCollector
-          : T extends 'ObjectValueAutoCollector'
-            ? ObjectValueAutoCollector
-            : /**
-               * At this point, we have not passed in a collector type
-               * so we can return a SingleValueAutoCollector
-               **/
-              SingleValueAutoCollector;
+          : T extends 'RecognizeCollector'
+            ? RecognizeCollector
+            : T extends 'ObjectValueAutoCollector'
+              ? ObjectValueAutoCollector
+              : /**
+                 * At this point, we have not passed in a collector type
+                 * so we can return a SingleValueAutoCollector
+                 **/
+                SingleValueAutoCollector;

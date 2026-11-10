@@ -22,6 +22,9 @@
       "path": "../../packages/oidc-client/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/recognize/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/davinci-client/tsconfig.lib.json"
     }
   ]

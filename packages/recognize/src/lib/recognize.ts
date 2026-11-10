@@ -131,7 +131,7 @@ export function recognize(
         await import('./recognize-sdk/index.js');
       } catch (error: unknown) {
         return createRecognizeError(RECOGNIZE_ERROR_CODE.SDK_WEB_ASSEMBLY_IMPORT_FAILED, {
-          cause: error,
+          cause: error instanceof Error ? error : String(error),
         });
       }
 
