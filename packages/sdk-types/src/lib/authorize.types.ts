@@ -19,21 +19,23 @@ export type AuthPromptValue = (typeof AUTH_PROMPT_VALUES)[number];
 
 /**
  * Options for the authorization URL
+ *
+ * These four properties clientid, scope, responseType and redirectUri are required
+ * when using this type, which are not required when defining Config.
+ *
  * @param clientId The client ID of the application
  * @param redirectUri The redirect URI of the application
  * @param responseType The response type of the authorization request
  * @param scope The scope of the authorization request
  */
 export interface GetAuthorizationUrlOptions extends LegacyConfigOptions {
-  /**
-   * These four properties clientid, scope, responseType and redirectUri are required
-   * when using this type, which are not required when defining Config.
-   */
   clientId: string;
   scope: string;
   redirectUri: string;
   responseType: ResponseType;
   responseMode?: 'fragment' | 'form_post' | 'pi.flow' | 'query';
+  /** Authorization details for Rich Authorization Requests (RAR) */
+  authorizationDetails?: AuthorizationDetail[];
   login?: 'redirect' | 'embedded';
   state?: string;
   verifier?: string;
@@ -55,4 +57,25 @@ export interface GenerateAndStoreAuthUrlValues extends GetAuthorizationUrlOption
   login?: 'redirect' | 'embedded';
   clientId: string;
   prefix?: string;
+}
+
+/**
+ * A single object for the `authorization_details` request parameter as
+ * defined by RFC 9396 (Rich Authorization Requests). Type-specific fields
+ * not modeled below can be added to the catch-all `additionalFields` parameter,
+ * whose entries are flattened onto the object before sending the request.
+ */
+export interface AuthorizationDetail {
+  /** The type of authorization details as defined by the authorization server */
+  type: string;
+  /** Locations this authorization applies to */
+  locations?: string[];
+  /** Actions this authorization applies to */
+  actions?: string[];
+  /** Data types this authorization applies to */
+  datatypes?: string[];
+  /** Privileges this authorization applies to */
+  privileges?: string[];
+  /** Catch-all for type-specific fields not modeled above (e.g. `instructedAmount` for `payment_initiation`) */
+  additionalFields?: Record<string, unknown>;
 }

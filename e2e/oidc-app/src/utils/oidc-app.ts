@@ -154,6 +154,16 @@ export async function oidcApp({
     const response = await oidcClient.token?.get({ backgroundRenew: true });
     if (response) {
       displayTokenResponse(response);
+
+      if ('redirectUrl' in response) {
+        if (response.redirectUrl) {
+          const redirectLink = document.createElement('a');
+          redirectLink.textContent = 'Redirect Link';
+          redirectLink.href = response.redirectUrl;
+          redirectLink.id = 'background-redirect-url';
+          document.body.appendChild(redirectLink);
+        }
+      }
     }
   });
 
@@ -161,6 +171,16 @@ export async function oidcApp({
     const response = await oidcClient.token?.get({ backgroundRenew: true, forceRenew: true });
     if (response) {
       displayTokenResponse(response);
+
+      if ('redirectUrl' in response) {
+        if (response.redirectUrl) {
+          const redirectLink = document.createElement('a');
+          redirectLink.textContent = 'Redirect Link';
+          redirectLink.href = response.redirectUrl;
+          redirectLink.id = 'renew-tokens-redirect-url';
+          document.body.appendChild(redirectLink);
+        }
+      }
     }
   });
 

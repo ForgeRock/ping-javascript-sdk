@@ -494,6 +494,159 @@ describe('authorize.background() dispatch error branches', async () => {
   });
 });
 
+describe('RAR authorizationDetails propagation', async () => {
+  const rarDetails = [
+    {
+      type: 'payment_initiation',
+      additionalFields: { instructedAmount: { currency: 'EUR', amount: '100.00' } },
+    },
+  ];
+  const baseConfig: OidcConfig = {
+    clientId: '123456789',
+    redirectUri: 'https://example.com/callback.html',
+    scope: 'openid profile',
+    serverConfig: { wellknown: 'https://api.example.com/wellknown' },
+    responseType: 'code',
+  };
+
+  beforeEach(() => {
+    customStorage.remove(storageKey);
+  });
+
+  it('authorize.url() includes authorization_details from config (standard flow)', async () => {
+    const oidcClient = await oidc({
+      config: { ...baseConfig, authorizationDetails: rarDetails },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const url = await oidcClient.authorize.url();
+    if (typeof url !== 'string') expect.fail(`Expected string URL, got: ${JSON.stringify(url)}`);
+
+    const details = JSON.parse(new URL(url).searchParams.get('authorization_details') as string);
+    expect(details).toStrictEqual([
+      {
+        type: 'payment_initiation',
+        instructedAmount: { currency: 'EUR', amount: '100.00' },
+      },
+    ]);
+  });
+
+  it('authorize.url() omits authorization_details when config has none', async () => {
+    const oidcClient = await oidc({ config: baseConfig, storage: customStorageConfig });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const url = await oidcClient.authorize.url();
+    if (typeof url !== 'string') expect.fail(`Expected string URL, got: ${JSON.stringify(url)}`);
+
+    expect(new URL(url).searchParams.has('authorization_details')).toBe(false);
+  });
+
+  it('authorize.url() includes authorization_details in the PAR request body', async () => {
+    let capturedParBody = '';
+    server.use(
+      http.post('*/as/par', async ({ request }) => {
+        capturedParBody = await request.text();
+        return HttpResponse.json({ request_uri: parRequestUri, expires_in: 60 }, { status: 201 });
+      }),
+    );
+
+    const oidcClient = await oidc({
+      config: { ...baseConfig, par: true, authorizationDetails: rarDetails },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const url = await oidcClient.authorize.url();
+    if (typeof url !== 'string') expect.fail(`Expected string URL, got: ${JSON.stringify(url)}`);
+
+    // Slim URL must NOT carry the details; the PAR body must
+    expect(new URL(url).searchParams.has('authorization_details')).toBe(false);
+    expect(
+      JSON.parse(new URLSearchParams(capturedParBody).get('authorization_details') as string),
+    ).toStrictEqual([
+      {
+        type: 'payment_initiation',
+        instructedAmount: { currency: 'EUR', amount: '100.00' },
+      },
+    ]);
+  });
+
+  it('authorize.background() sends authorization_details to the authorize endpoint (pi.flow)', async () => {
+    let capturedAuthorizeUrl = '';
+    server.use(
+      http.post('*/as/authorize', async ({ request }) => {
+        capturedAuthorizeUrl = request.url;
+        return HttpResponse.json({
+          authorizeResponse: {
+            code: 123,
+            state: 'NzUyNDUyMDAxOTMyNDUxNzI1NjkxNDc2MjEyMzUwMjQzMzQyMjE4OQ',
+          },
+        });
+      }),
+    );
+
+    const oidcClient = await oidc({
+      config: { ...baseConfig, authorizationDetails: rarDetails },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    const result = await oidcClient.authorize.background({
+      clientId: baseConfig.clientId,
+      redirectUri: baseConfig.redirectUri,
+      scope: baseConfig.scope,
+      responseType: 'code',
+      responseMode: 'pi.flow',
+    });
+    if ('error' in result) {
+      expect.fail(`Expected success, got error: ${JSON.stringify(result)}`);
+    }
+
+    const details = JSON.parse(
+      new URL(capturedAuthorizeUrl).searchParams.get('authorization_details') as string,
+    );
+    expect(details).toStrictEqual([
+      {
+        type: 'payment_initiation',
+        instructedAmount: { currency: 'EUR', amount: '100.00' },
+      },
+    ]);
+    expect(result.code).toBeDefined();
+  });
+
+  it('token.exchange maps authorization_details from the token response onto stored tokens', async () => {
+    const state = 'NzUyNDUyMDAxOTMyNDUxNzI1NjkxNDc2MjEyMzUwMjQzMzQyMjE4OQ';
+
+    server.use(
+      http.post('*/as/token', async () =>
+        HttpResponse.json({
+          access_token: 'abcdefghijklmnop',
+          id_token: '0987654321',
+          authorization_details: rarDetails,
+        }),
+      ),
+    );
+
+    const oidcClient = await oidc({
+      config: { ...baseConfig, authorizationDetails: rarDetails },
+      storage: customStorageConfig,
+    });
+    if ('error' in oidcClient) throw new Error('Error creating OIDC Client');
+
+    await oidcClient.authorize.url(); // seeds state/verifier via the file's sessionStorage stub
+
+    const tokens = await oidcClient.token.exchange('abc123', state);
+    if ('error' in tokens || !('authorizationDetails' in tokens)) expect.fail();
+    expect(tokens.authorizationDetails).toStrictEqual(rarDetails);
+
+    // Round-trip: the persisted tokens carry the granted details (AC 1)
+    const stored = await oidcClient.token.get();
+    if ('error' in stored || !('authorizationDetails' in stored)) expect.fail();
+    expect(stored.authorizationDetails).toStrictEqual(rarDetails);
+  });
+});
+
 describe('PAR factory validation', async () => {
   it('returns argument_error when wellknown requires PAR but config.par is explicitly false', async () => {
     server.use(

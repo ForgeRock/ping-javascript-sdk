@@ -4,8 +4,21 @@
  * This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
+import type { AuthorizationDetail, GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
 
-import type { GetAuthorizationUrlOptions } from '@forgerock/sdk-types';
+/**
+ * Serializes RAR {@link AuthorizationDetail} objects to a JSON string for the
+ * `authorization_details` request parameter. Each detail's `additionalFields`
+ * is flattened onto the detail; entries in `additionalFields` that shadow a
+ * modeled property are overridden by the modeled entry.
+ */
+export function serializeRarAuthDetails(authDetails: AuthorizationDetail[]): string {
+  const flattenedDetails = authDetails.map((detail) => {
+    const { additionalFields, ...knownAuthDetails } = detail;
+    return { ...additionalFields, ...knownAuthDetails };
+  });
+  return JSON.stringify(flattenedDetails);
+}
 
 /**
  * Builds URLSearchParams for an OAuth2/OIDC authorization request.
@@ -34,6 +47,11 @@ export function buildAuthorizeParams(
   if (options.display) params.set('display', options.display);
   if (options.uiLocales) params.set('ui_locales', options.uiLocales);
   if (options.acrValues) params.set('acr_values', options.acrValues);
+
+  if (Array.isArray(options.authorizationDetails) && options.authorizationDetails?.length) {
+    const serializedAuthDetails = serializeRarAuthDetails(options.authorizationDetails);
+    params.set('authorization_details', serializedAuthDetails);
+  }
 
   return params;
 }

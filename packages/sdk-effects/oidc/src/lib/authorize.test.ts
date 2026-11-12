@@ -8,7 +8,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { createAuthorizeUrl } from './authorize.effects.js';
-import { buildAuthorizeParams } from './authorize.utils.js';
+import { buildAuthorizeParams, serializeRarAuthDetails } from './authorize.utils.js';
 import { getStorageKey } from './state-pkce.effects.js';
 
 import type { GenerateAndStoreAuthUrlValues } from '@forgerock/sdk-types';
@@ -263,6 +263,35 @@ describe('buildAuthorizeParams', () => {
     expect(params.get('acr_values')).toBe('Level3');
   });
 
+  it('includes authorization_details when provided', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      authorizationDetails: [{ type: 'payment_initiation' }],
+    });
+
+    const details = JSON.parse(params.get('authorization_details') as string);
+    expect(details).toStrictEqual([{ type: 'payment_initiation' }]);
+  });
+
+  it('omits authorization_details when empty', () => {
+    const params = buildAuthorizeParams({
+      clientId: 'test-client',
+      redirectUri: 'https://example.com/cb',
+      scope: 'openid',
+      responseType: 'code',
+      challenge: 'abc123',
+      state: 'state1',
+      authorizationDetails: [],
+    });
+
+    expect(params.has('authorization_details')).toBe(false);
+  });
+
   it('includes all new OIDC params together', () => {
     const params = buildAuthorizeParams({
       clientId: 'test-client',
@@ -283,5 +312,48 @@ describe('buildAuthorizeParams', () => {
     expect(params.get('display')).toBe('page');
     expect(params.get('ui_locales')).toBe('fr-FR');
     expect(params.get('acr_values')).toBe('Level2');
+  });
+});
+
+describe('serializeRarAuthDetails', () => {
+  it('serializes a single detail with only a type', () => {
+    const json = serializeRarAuthDetails([{ type: 'payment_initiation' }]);
+    expect(json).toBe('[{"type":"payment_initiation"}]');
+  });
+
+  it('flattens additionalFields onto the detail', () => {
+    const json = serializeRarAuthDetails([
+      {
+        type: 'payment_initiation',
+        additionalFields: { instructedAmount: { currency: 'EUR', amount: '100.00' } },
+      },
+    ]);
+    expect(JSON.parse(json)).toStrictEqual([
+      {
+        type: 'payment_initiation',
+        instructedAmount: { currency: 'EUR', amount: '100.00' },
+      },
+    ]);
+  });
+
+  it('lets modeled properties override shadowing additionalFields entries', () => {
+    const json = serializeRarAuthDetails([
+      {
+        type: 'account_information',
+        locations: ['https://api.example.com'],
+        additionalFields: { locations: ['https://evil.example.com'] },
+      },
+    ]);
+    expect(JSON.parse(json)).toStrictEqual([
+      {
+        type: 'account_information',
+        locations: ['https://api.example.com'],
+      },
+    ]);
+  });
+
+  it('drops the additionalFields key from the serialized output', () => {
+    const json = serializeRarAuthDetails([{ type: 'payment_initiation', additionalFields: {} }]);
+    expect(json).toBe('[{"type":"payment_initiation"}]');
   });
 });

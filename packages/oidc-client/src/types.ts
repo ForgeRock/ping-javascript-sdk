@@ -12,6 +12,8 @@ export * from './lib/session.types.js';
 export type { PushAuthorizationResponse } from './lib/par.types.js';
 
 export type {
+  AuthorizationDetail,
+  CustomStorageObject,
   GenericError,
   GetAuthorizationUrlOptions,
   ResponseType,
@@ -20,7 +22,6 @@ export type {
 export type { ActionTypes, RequestMiddleware } from '@forgerock/sdk-request-middleware';
 export type { CustomLogger, LogLevel } from '@forgerock/sdk-logger';
 export type { BrowserStorageConfig, CustomStorageConfig, StorageConfig } from '@forgerock/storage';
-export type { CustomStorageObject } from '@forgerock/sdk-types';
 
 // Re-export functions needed to resolve OidcClient and ClientStore type aliases
 export { oidc } from './lib/client.store.js';

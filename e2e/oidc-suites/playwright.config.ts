@@ -35,4 +35,6 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     cwd: workspaceRoot,
   },
+  // RAR tests are ignored because they require a remote consent agent to be run through a cloudlfare tunnel
+  testIgnore: ['**/rar.spec.ts', '**/rar-par.spec.ts'],
 });

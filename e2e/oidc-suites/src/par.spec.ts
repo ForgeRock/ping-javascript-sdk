@@ -11,7 +11,9 @@ import { expect, test } from '@playwright/test';
 import { asyncEvents } from './utils/async-events.js';
 import { pingAmPassword, pingAmUsername } from './utils/demo-users.js';
 
-async function loginJourney(page, username: string, password: string) {
+import type { Page } from '@playwright/test';
+
+async function loginJourney(page: Page, username: string, password: string) {
   await page.getByLabel('User Name').fill(username);
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Login (Journey)' }).click();

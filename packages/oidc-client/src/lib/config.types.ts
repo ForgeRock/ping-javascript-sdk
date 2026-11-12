@@ -5,6 +5,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 export type { OidcConfig } from '@forgerock/sdk-types';
+import type { AuthorizationDetail } from '@forgerock/sdk-types';
 
 export interface OauthTokens {
   accessToken: string;
@@ -12,4 +13,5 @@ export interface OauthTokens {
   refreshToken?: string;
   expiresAt?: number;
   expiryTimestamp?: number;
+  authorizationDetails?: AuthorizationDetail[];
 }
