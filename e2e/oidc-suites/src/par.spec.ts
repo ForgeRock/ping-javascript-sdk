@@ -9,7 +9,12 @@
 import { expect, test } from '@playwright/test';
 
 import { asyncEvents } from './utils/async-events.js';
-import { pingAmPassword, pingAmUsername } from './utils/demo-users.js';
+import {
+  pingAmPassword,
+  pingAmUsername,
+  pingOnePassword,
+  pingOneUsername,
+} from './utils/demo-users.js';
 
 import type { Page } from '@playwright/test';
 
@@ -26,7 +31,7 @@ const SYNTHETIC_PAR_ERROR_URL = 'http://localhost:8443/synthetic-par-error-endpo
 const DEFAULT_WELLKNOWN_PATTERN =
   '**/openam-sdks.forgeblocks.com/am/oauth2/alpha/.well-known/openid-configuration*';
 
-test.describe('PAR (Pushed Authorization Request) login tests', () => {
+test.describe('PAR (Pushed Authorization Request) login tests for PingAM', () => {
   test('PAR authorize returns 400 error — SDK surfaces error to the UI without redirecting', async ({
     page,
   }) => {
@@ -120,6 +125,52 @@ test.describe('PAR (Pushed Authorization Request) login tests', () => {
     await page.getByLabel('User Name').fill(pingAmUsername);
     await page.getByRole('textbox', { name: 'Password' }).fill(pingAmPassword);
     await clickWithRedirect('Next', 'http://localhost:8443/par/**');
+
+    expect(page.url()).toContain('code');
+    expect(page.url()).toContain('state');
+
+    await expect(page.locator('#accessToken-0')).not.toBeEmpty();
+
+    // PAR POST was made
+    expect(parRequests.length).toBeGreaterThan(0);
+
+    // Slim authorize URL contains only client_id + request_uri (not scope/code_challenge)
+    expect(parAuthorizeUrls.length).toBeGreaterThan(0);
+    const authorizeUrl = new URL(parAuthorizeUrls[0]);
+    expect(authorizeUrl.searchParams.has('client_id')).toBe(true);
+    expect(authorizeUrl.searchParams.has('request_uri')).toBe(true);
+    expect(authorizeUrl.searchParams.has('scope')).toBe(false);
+    expect(authorizeUrl.searchParams.has('code_challenge')).toBe(false);
+    expect(authorizeUrl.searchParams.has('redirect_uri')).toBe(false);
+  });
+});
+
+test.describe('PAR (Pushed Authorization Request) login tests for PingOne', () => {
+  test('redirect login with PAR obtains access token and uses slim authorize URL', async ({
+    page,
+  }) => {
+    const { clickWithRedirect, navigate } = asyncEvents(page);
+
+    const parRequests: string[] = [];
+    const parAuthorizeUrls: string[] = [];
+
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().includes('/par')) {
+        parRequests.push(request.url());
+      }
+      // Capture the slim PAR authorize redirect — has request_uri, not scope
+      if (request.url().includes('/as/authorize') && request.url().includes('request_uri=')) {
+        parAuthorizeUrls.push(request.url());
+      }
+    });
+
+    await navigate('/ping-one/?par=true');
+
+    await page.getByRole('button', { name: 'Login (Redirect)' }).click();
+
+    await page.getByRole('textbox', { name: 'Username' }).fill(pingOneUsername);
+    await page.getByRole('textbox', { name: 'Password' }).fill(pingOnePassword);
+    await clickWithRedirect('Sign On', 'http://localhost:8443/ping-one/**');
 
     expect(page.url()).toContain('code');
     expect(page.url()).toContain('state');
