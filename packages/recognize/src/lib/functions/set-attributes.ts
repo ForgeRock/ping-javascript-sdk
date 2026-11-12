@@ -7,6 +7,12 @@
  *
  */
 
+import {
+  DEFAULT_WASM_BINARY_URL,
+  DEFAULT_WASM_DATA_URL,
+  DEFAULT_WASM_SCRIPT_URL,
+} from '../defs/constants.js';
+
 import type {
   RecognizeWebComponent,
   RecognizeWebComponentConfiguration,
@@ -50,7 +56,7 @@ export function setAttributes(
   if (config.theme !== undefined) element.theme = config.theme;
   if (config.themeOptions !== undefined) element.themeOptions = config.themeOptions;
   if (config.transactionData !== undefined) element.transactionData = config.transactionData;
-  if (config.wasmBinaryURL !== undefined) element.wasmBinaryURL = config.wasmBinaryURL;
-  if (config.wasmDataURL !== undefined) element.wasmDataURL = config.wasmDataURL;
-  if (config.wasmScriptURL !== undefined) element.wasmScriptURL = config.wasmScriptURL;
+  element.wasmBinaryURL = config.wasmBinaryURL ?? DEFAULT_WASM_BINARY_URL;
+  element.wasmDataURL = config.wasmDataURL ?? DEFAULT_WASM_DATA_URL;
+  element.wasmScriptURL = config.wasmScriptURL ?? DEFAULT_WASM_SCRIPT_URL;
 }
