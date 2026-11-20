@@ -99,6 +99,12 @@ export interface RecognizeWebComponentConfiguration {
   localizationVariables?: LocalizationVariables;
   loggerLevel?: LoggerLevel;
   operationID?: string;
+  /**
+   * Alias of `operationID`. The DaVinci server sends the operation ID as `operationId` in
+   * `webSDKOptions`, while the web component property is `operationID`, so both spellings are
+   * accepted. When both are set, `operationID` wins.
+   */
+  operationId?: string;
   requestRecognitionFrame?: boolean;
   seedEntropy?: boolean;
   serviceURL: string;
