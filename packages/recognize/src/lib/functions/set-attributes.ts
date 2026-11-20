@@ -48,7 +48,8 @@ export function setAttributes(
   if (config.localizationVariables !== undefined)
     element.localizationVariables = config.localizationVariables;
   if (config.loggerLevel !== undefined) element.loggerLevel = config.loggerLevel;
-  if (config.operationID !== undefined) element.operationID = config.operationID;
+  const operationId = config.operationID ?? config.operationId;
+  if (operationId !== undefined) element.operationID = operationId;
   if (config.requestRecognitionFrame !== undefined)
     element.requestRecognitionFrame = config.requestRecognitionFrame;
   if (config.seedEntropy !== undefined) element.seedEntropy = config.seedEntropy;
