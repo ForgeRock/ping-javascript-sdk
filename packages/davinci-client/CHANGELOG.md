@@ -1,5 +1,18 @@
 # @forgerock/davinci-client
 
+## 2.4.0
+
+### Patch Changes
+
+- [#872](https://github.com/ForgeRock/ping-javascript-sdk/pull/872) [`29e6b3e`](https://github.com/ForgeRock/ping-javascript-sdk/commit/29e6b3e24910b555a7a44a0646a37d1b33895a29) Thanks [@ancheetah](https://github.com/ancheetah)! - Fixed challenge endpoint url builder by adding support for custom domains
+- Updated dependencies [[`1e808ba`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1e808ba6bb02a3b3cc2397ca7446183fa6ae5d1b)]:
+  - @forgerock/sdk-oidc@2.4.0
+  - @forgerock/sdk-types@2.4.0
+  - @forgerock/sdk-logger@2.4.0
+  - @forgerock/storage@2.4.0
+  - @forgerock/sdk-utilities@2.4.0
+  - @forgerock/sdk-request-middleware@2.4.0
+
 ## 2.3.1
 
 ### Patch Changes

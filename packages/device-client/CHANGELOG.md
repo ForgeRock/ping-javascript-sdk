@@ -1,5 +1,12 @@
 # @forgerock/device-client
 
+## 2.4.0
+
+### Patch Changes
+
+- Updated dependencies [[`1e808ba`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1e808ba6bb02a3b3cc2397ca7446183fa6ae5d1b)]:
+  - @forgerock/sdk-types@2.4.0
+
 ## 2.3.1
 
 ### Patch Changes
