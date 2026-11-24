@@ -1,5 +1,17 @@
 # @forgerock/sdk-oidc
 
+## 2.4.0
+
+### Minor Changes
+
+- [#871](https://github.com/ForgeRock/ping-javascript-sdk/pull/871) [`1e808ba`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1e808ba6bb02a3b3cc2397ca7446183fa6ae5d1b) Thanks [@ancheetah](https://github.com/ancheetah)! - Added RAR support through `authorizationDetails` parameter in OIDC config. Works with or without PAR.
+
+### Patch Changes
+
+- Updated dependencies [[`1e808ba`](https://github.com/ForgeRock/ping-javascript-sdk/commit/1e808ba6bb02a3b3cc2397ca7446183fa6ae5d1b)]:
+  - @forgerock/sdk-types@2.4.0
+  - @forgerock/sdk-utilities@2.4.0
+
 ## 2.3.1
 
 ### Patch Changes
