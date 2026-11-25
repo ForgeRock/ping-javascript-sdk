@@ -416,6 +416,10 @@ export const davinciApi = createApi({
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${continueToken}`,
+            ...(serverInfo.interactionId && { interactionId: serverInfo.interactionId }),
+            ...(serverInfo.interactionToken && {
+              interactionToken: serverInfo.interactionToken,
+            }),
           },
           body: JSON.stringify({}),
         };
